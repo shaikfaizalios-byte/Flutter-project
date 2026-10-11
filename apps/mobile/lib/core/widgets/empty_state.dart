@@ -1,0 +1,45 @@
+import 'package:flutter/material.dart';
+
+import '../../app/theme/app_spacing.dart';
+
+/// Full-screen empty state: icon, title, explanation and an optional action.
+class EmptyState extends StatelessWidget {
+  const EmptyState({super.key, required this.icon, required this.title, this.message, this.action});
+
+  final IconData icon;
+  final String title;
+  final String? message;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ExcludeSemantics(child: Icon(icon, size: 56, color: theme.colorScheme.primary)),
+              const SizedBox(height: AppSpacing.md),
+              Text(title, style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+              if (message != null) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  message!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              if (action != null) ...[const SizedBox(height: AppSpacing.lg), action!],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

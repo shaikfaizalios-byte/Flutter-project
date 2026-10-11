@@ -1,0 +1,54 @@
+{
+  "@@locale": "hi",
+  "appTitle": "PrepLoop",
+
+  "navHome": "होम",
+  "navStudy": "अध्ययन",
+  "navPractice": "अभ्यास",
+  "navProgress": "प्रगति",
+  "navProfile": "प्रोफ़ाइल",
+
+  "homeHeadline": "आपका अध्ययन चक्र",
+  "homeTodayTitle": "आज मुझे क्या पढ़ना चाहिए?",
+  "homeTodayEmpty": "अभी कोई अध्ययन योजना नहीं है। कॉन्सेप्ट जोड़ने या प्रश्न-पत्र आयात करने के बाद आज के सुझाए गए कार्य यहाँ दिखेंगे।",
+  "homeWeakTitle": "मैं किन विषयों में कमज़ोर हूँ?",
+  "homeWeakEmpty": "अभी पर्याप्त अभ्यास डेटा नहीं है। किसी विषय में पर्याप्त प्रश्न हल करने के बाद ही कमज़ोर विषय पहचाने जाते हैं।",
+  "homeUpcomingTitle": "आगे क्या है?",
+  "homeUpcomingEmpty": "कोई दोहराव या लक्ष्य निर्धारित नहीं है।",
+
+  "studyTitle": "अध्ययन",
+  "studyEmptyTitle": "आपकी अध्ययन सामग्री यहाँ रहेगी",
+  "studyEmptyMessage": "कॉन्सेप्ट, फ़्लैशकार्ड और आयात किए गए प्रश्न-पत्र यहाँ दिखेंगे। यह अनुभाग आगामी अपडेट में उपलब्ध होगा।",
+
+  "practiceTitle": "अभ्यास",
+  "practiceEmptyTitle": "अभ्यास सत्र",
+  "practiceEmptyMessage": "प्रश्न उपलब्ध होने पर विषय-वार अभ्यास और समयबद्ध मॉक टेस्ट यहाँ दिखेंगे। यह अनुभाग आगामी अपडेट में उपलब्ध होगा।",
+
+  "progressTitle": "प्रगति",
+  "progressEmptyTitle": "अभी कोई प्रगति डेटा नहीं है",
+  "progressEmptyMessage": "अभ्यास शुरू करने के बाद आपकी सटीकता और दोहराव का इतिहास यहाँ दिखेगा।",
+
+  "settingsTitle": "प्रोफ़ाइल और सेटिंग्स",
+  "settingsLanguage": "ऐप की भाषा",
+  "languageSystem": "सिस्टम",
+  "languageEnglish": "English",
+  "languageHindi": "हिन्दी",
+  "settingsTheme": "थीम",
+  "themeSystem": "सिस्टम",
+  "themeLight": "लाइट",
+  "themeDark": "डार्क",
+  "settingsPreferencesNote": "ये प्राथमिकताएँ अभी सहेजी नहीं जातीं और ऐप दोबारा शुरू होने पर रीसेट हो जाती हैं।",
+
+  "settingsServer": "सर्वर कनेक्शन",
+  "serverChecking": "जाँच हो रही है…",
+  "serverOnline": "कनेक्टेड · API {version}",
+  "serverOffline": "PrepLoop सर्वर से संपर्क नहीं हो पा रहा है।",
+  "serverOfflineHint": "ऑफ़लाइन काम करने वाली सुविधाएँ प्रभावित नहीं होतीं।",
+  "retry": "फिर से कोशिश करें",
+
+  "settingsAbout": "जानकारी",
+  "aboutBuild": "{appName} · {flavor} बिल्ड",
+
+  "notFoundTitle": "पेज नहीं मिला",
+  "goHome": "होम पर जाएँ"
+}

@@ -1,0 +1,57 @@
+{
+  "@@locale": "en",
+  "appTitle": "PrepLoop",
+  "@appTitle": {"description": "Product name shown in the app bar and task switcher."},
+
+  "navHome": "Home",
+  "navStudy": "Study",
+  "navPractice": "Practice",
+  "navProgress": "Progress",
+  "navProfile": "Profile",
+
+  "homeHeadline": "Your study loop",
+  "homeTodayTitle": "What should I study today?",
+  "homeTodayEmpty": "No study plan yet. Once you add concepts or import a question paper, your recommended tasks for today will appear here.",
+  "homeWeakTitle": "Which topics am I weak in?",
+  "homeWeakEmpty": "Not enough practice data yet. Weak topics are identified only after you have answered enough questions in a topic.",
+  "homeUpcomingTitle": "What is coming up next?",
+  "homeUpcomingEmpty": "No revisions or goals are scheduled.",
+
+  "studyTitle": "Study",
+  "studyEmptyTitle": "Your study material lives here",
+  "studyEmptyMessage": "Concepts, flashcards and imported question papers will appear here. This section is available in an upcoming update.",
+
+  "practiceTitle": "Practice",
+  "practiceEmptyTitle": "Practice sessions",
+  "practiceEmptyMessage": "Topic-wise practice and timed mock tests will appear here once questions are available. This section is available in an upcoming update.",
+
+  "progressTitle": "Progress",
+  "progressEmptyTitle": "No progress data yet",
+  "progressEmptyMessage": "Your accuracy and revision history will appear here after you start practising.",
+
+  "settingsTitle": "Profile & settings",
+  "settingsLanguage": "App language",
+  "languageSystem": "System",
+  "languageEnglish": "English",
+  "languageHindi": "हिन्दी",
+  "settingsTheme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsPreferencesNote": "These preferences are not saved yet and reset when the app restarts.",
+
+  "settingsServer": "Server connection",
+  "serverChecking": "Checking…",
+  "serverOnline": "Connected · API {version}",
+  "@serverOnline": {"placeholders": {"version": {"type": "String"}}},
+  "serverOffline": "Cannot reach the PrepLoop server.",
+  "serverOfflineHint": "Features that work offline are not affected.",
+  "retry": "Try again",
+
+  "settingsAbout": "About",
+  "aboutBuild": "{appName} · {flavor} build",
+  "@aboutBuild": {"placeholders": {"appName": {"type": "String"}, "flavor": {"type": "String"}}},
+
+  "notFoundTitle": "Page not found",
+  "goHome": "Go to Home"
+}

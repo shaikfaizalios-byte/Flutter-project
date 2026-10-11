@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "API: FastAPI (uvicorn --reload)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"],
+      "cwd": "${workspaceFolder}/services/api",
+      "python": "${workspaceFolder}/services/api/.venv/Scripts/python.exe",
+      "envFile": "${workspaceFolder}/services/api/.env",
+      "justMyCode": true
+    },
+    {
+      "name": "Mobile: Flutter (Chrome)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "deviceId": "chrome",
+      "args": ["--dart-define=API_BASE_URL=http://127.0.0.1:8000", "--dart-define=FLAVOR=development"]
+    },
+    {
+      "name": "Mobile: Flutter (Android emulator)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "args": ["--dart-define=API_BASE_URL=http://10.0.2.2:8000", "--dart-define=FLAVOR=development"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "PrepLoop: API + Mobile (Chrome)",
+      "configurations": ["API: FastAPI (uvicorn --reload)", "Mobile: Flutter (Chrome)"]
+    }
+  ]
+}

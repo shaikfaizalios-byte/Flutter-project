@@ -1,0 +1,50 @@
+# ---- Secrets & local configuration (never commit) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.p8
+*.jks
+*.keystore
+key.properties
+google-services.json
+GoogleService-Info.plist
+service-account*.json
+
+# ---- Local data / uploads ----
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+storage/
+tmp/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---- Flutter / Dart (see also apps/mobile/.gitignore) ----
+.dart_tool/
+build/
+coverage/
+
+# ---- Editors / OS ----
+.idea/
+*.iml
+.vscode/*
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db
+*.log

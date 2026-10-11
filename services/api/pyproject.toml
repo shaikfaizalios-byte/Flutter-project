@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "preploop-api"
+version = "0.1.0"
+description = "PrepLoop backend API (FastAPI modular monolith)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.143,<1.0",
+    "uvicorn[standard]>=0.54,<1.0",
+    "pydantic>=2.14,<3.0",
+    "pydantic-settings>=2.15,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.1,<10",
+    # Starlette TestClient transport. Starlette 1.7 suggests httpx2; evaluate before switching.
+    "httpx>=0.28,<1.0",
+    "ruff>=0.17,<1.0",
+    "mypy>=2.4,<3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "N", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
