@@ -506,6 +506,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go to Home'**
   String get goHome;
+
+  /// No description provided for @onboardingStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {total}'**
+  String onboardingStep(int step, int total);
+
+  /// No description provided for @onboardingSkipSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip setup'**
+  String get onboardingSkipSetup;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @onboardingFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Start studying'**
+  String get onboardingFinish;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to PrepLoop'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s set up your preparation. Every step is optional, and you can change your answers later in Profile. Your answers are stored on this device.'**
+  String get onboardingWelcomeBody;
+
+  /// No description provided for @onboardingExamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which exam are you preparing for?'**
+  String get onboardingExamTitle;
+
+  /// No description provided for @onboardingExamHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select one or both.'**
+  String get onboardingExamHint;
+
+  /// No description provided for @onboardingDateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When is your exam?'**
+  String get onboardingDateTitle;
+
+  /// No description provided for @onboardingDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If you know the date, PrepLoop shows a countdown. You can skip this.'**
+  String get onboardingDateHint;
+
+  /// No description provided for @onboardingDailyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How much time can you study each day?'**
+  String get onboardingDailyTitle;
+
+  /// No description provided for @onboardingDailyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a realistic amount. Studying a little every day works better than occasional long sessions.'**
+  String get onboardingDailyHint;
+
+  /// No description provided for @onboardingReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When should PrepLoop remind you to study?'**
+  String get onboardingReminderTitle;
+
+  /// No description provided for @onboardingReminderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders will be switched on in a later update. Your preferred time is saved now.'**
+  String get onboardingReminderHint;
+
+  /// No description provided for @chooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose date'**
+  String get chooseDate;
+
+  /// No description provided for @chooseTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose time'**
+  String get chooseTime;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSet;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String durationMinutes(int minutes);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String durationHours(int hours);
+
+  /// No description provided for @durationHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String durationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @settingsStudyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Study plan'**
+  String get settingsStudyPlan;
+
+  /// No description provided for @fieldExams.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams'**
+  String get fieldExams;
+
+  /// No description provided for @examsNotChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen'**
+  String get examsNotChosen;
+
+  /// No description provided for @fieldExamDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam date'**
+  String get fieldExamDate;
+
+  /// No description provided for @fieldDailyStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily study time'**
+  String get fieldDailyStudy;
+
+  /// No description provided for @fieldReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get fieldReminder;
+
+  /// No description provided for @settingsLicences.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licences'**
+  String get settingsLicences;
+
+  /// No description provided for @homeChooseExamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your exam'**
+  String get homeChooseExamTitle;
+
+  /// No description provided for @homeChooseExamMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select SSC CGL, SSC CHSL or both to personalise PrepLoop.'**
+  String get homeChooseExamMessage;
+
+  /// No description provided for @homeChooseExamAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose exam'**
+  String get homeChooseExamAction;
+
+  /// No description provided for @homeExamCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Your exam is today} =1{1 day to go} other{{count} days to go}}'**
+  String homeExamCountdown(int count);
+
+  /// No description provided for @homeExamPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your exam date has passed. You can update it in Profile.'**
+  String get homeExamPassed;
+
+  /// No description provided for @homeExamOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam date: {date}'**
+  String homeExamOn(String date);
+
+  /// No description provided for @homeConceptCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{You have not added any concepts yet.} =1{You have 1 concept saved.} other{You have {count} concepts saved.}}'**
+  String homeConceptCount(int count);
+
+  /// No description provided for @homeDailyGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily study goal: {duration}'**
+  String homeDailyGoal(String duration);
+
+  /// No description provided for @homePlanComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'A personalised daily plan will appear here once practice and revision are available.'**
+  String get homePlanComingSoon;
+
+  /// No description provided for @homeOpenConcepts.
+  ///
+  /// In en, this message translates to:
+  /// **'Open concepts'**
+  String get homeOpenConcepts;
+
+  /// No description provided for @homeSetExamDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your exam date in Profile to see a countdown.'**
+  String get homeSetExamDate;
+
+  /// No description provided for @conceptDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Concept'**
+  String get conceptDetailsTitle;
+
+  /// No description provided for @conceptEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get conceptEdit;
+
+  /// No description provided for @conceptEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit concept'**
+  String get conceptEditTitle;
+
+  /// No description provided for @conceptUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get conceptUnarchive;
+
+  /// No description provided for @conceptRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Concept restored'**
+  String get conceptRestored;
+
+  /// No description provided for @conceptDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get conceptDelete;
+
+  /// No description provided for @conceptDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this concept?'**
+  String get conceptDeleteTitle;
+
+  /// No description provided for @conceptDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" will be permanently deleted from this device. This cannot be undone.'**
+  String conceptDeleteMessage(String title);
+
+  /// No description provided for @conceptDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Concept deleted'**
+  String get conceptDeleted;
+
+  /// No description provided for @conceptNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This concept no longer exists.'**
+  String get conceptNotFound;
+
+  /// No description provided for @conceptLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'This concept could not be loaded.'**
+  String get conceptLoadError;
+
+  /// No description provided for @conceptArchivedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This concept is archived and hidden from your main list.'**
+  String get conceptArchivedBanner;
+
+  /// No description provided for @conceptCreatedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {date}'**
+  String conceptCreatedOn(String date);
+
+  /// No description provided for @conceptUpdatedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {date}'**
+  String conceptUpdatedOn(String date);
+
+  /// No description provided for @conceptMoreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get conceptMoreActions;
+
+  /// No description provided for @filterExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get filterExam;
+
+  /// No description provided for @filterSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get filterSubject;
+
+  /// No description provided for @filterTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic'**
+  String get filterTopic;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get filterArchived;
+
+  /// No description provided for @filterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get filterClear;
+
+  /// No description provided for @filterBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by {label}'**
+  String filterBy(String label);
+
+  /// No description provided for @conceptsNoFilterResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No concepts match these filters.'**
+  String get conceptsNoFilterResults;
+
+  /// No description provided for @conceptsArchivedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No archived concepts.'**
+  String get conceptsArchivedEmpty;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

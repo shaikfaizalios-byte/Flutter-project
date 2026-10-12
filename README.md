@@ -3,9 +3,10 @@
 PrepLoop helps SSC CGL and SSC CHSL aspirants turn scattered PDFs, previous-year papers and notes into a
 personalised study loop: practise, find weak topics, revise on schedule, and track real progress.
 
-> **Status:** Phase 2 (database and persistence). The app shell, theming, English/Hindi localisation,
-> offline concept management on the device and persisted preferences all work. On the server, PostgreSQL
-> with migrations backs a concepts API. The app does not sync with the server yet. See [CLAUDE.md](CLAUDE.md).
+> **Status:** Phase 3 (core learning UI). First-run onboarding works: exam, language, exam date, daily
+> time and reminder time. The dashboard reflects your real data, and concepts can be created, viewed,
+> edited, filtered, archived and deleted, all offline, in English and Hindi. On the server, PostgreSQL
+> backs a concepts API. The app does not sync with the server yet. See [CLAUDE.md](CLAUDE.md).
 
 ## Repository layout
 

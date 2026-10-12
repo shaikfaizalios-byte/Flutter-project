@@ -36,6 +36,11 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-15 | Offline-first mobile: Drift is the source of truth on the device; client-generated UUIDs; no sync until Phase 10 | Works without a network; IDs never need remapping; sync rules designed first (docs/database.md) |
 | ADR-16 | Preferences in a Drift key/value table, loaded before the first frame (3 s timeout) | One storage engine, no flash of the wrong language or theme, never a blank app if storage hangs |
 | ADR-17 | Validation limits duplicated on purpose: Pydantic on the server, `ConceptRules` on mobile | The device validates offline; the server re-validates everything it receives |
+| ADR-18 | The onboarding gate is a GoRouter redirect driven by a `ValueNotifier` bridged from Riverpod (`refreshListenable`); the rule is a pure function | Redirects re-run when onboarding completes without rebuilding the router; the rule is unit-testable |
+| ADR-19 | Onboarding answers are saved as each one is made (no "submit" at the end) | Leaving halfway never loses choices; Skip only marks completion |
+| ADR-20 | Exam dates are `CalendarDate` (no time or timezone), and "now" comes from `clockProvider` | Countdowns can't drift across timezones or DST; date logic is testable with a fixed clock |
+| ADR-21 | Noto Sans Devanagari is bundled and set as `fontFamilyFallback` | Hindi renders offline and identically everywhere; no runtime font CDN |
+| ADR-22 | Concept filter choices come from the learner's own data (facets) | No invented taxonomy; a managed taxonomy can replace this later |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -59,6 +64,7 @@ schemas/           Pydantic request/response models
 ## Planned evolution
 
 - Phase 2 (done): SQLAlchemy and Alembic with PostgreSQL; Drift for the local store; a readiness probe.
+- Phase 3 (done): onboarding, a dashboard built on real data, concept details, editing and filters, a bundled Hindi font, and Drift schema v2.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

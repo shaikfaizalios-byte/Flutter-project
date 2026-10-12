@@ -232,4 +232,245 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goHome => 'Go to Home';
+
+  @override
+  String onboardingStep(int step, int total) {
+    return 'Step $step of $total';
+  }
+
+  @override
+  String get onboardingSkipSetup => 'Skip setup';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get onboardingFinish => 'Start studying';
+
+  @override
+  String get onboardingWelcomeTitle => 'Welcome to PrepLoop';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Let\'s set up your preparation. Every step is optional, and you can change your answers later in Profile. Your answers are stored on this device.';
+
+  @override
+  String get onboardingExamTitle => 'Which exam are you preparing for?';
+
+  @override
+  String get onboardingExamHint => 'Select one or both.';
+
+  @override
+  String get onboardingDateTitle => 'When is your exam?';
+
+  @override
+  String get onboardingDateHint =>
+      'If you know the date, PrepLoop shows a countdown. You can skip this.';
+
+  @override
+  String get onboardingDailyTitle => 'How much time can you study each day?';
+
+  @override
+  String get onboardingDailyHint =>
+      'Choose a realistic amount. Studying a little every day works better than occasional long sessions.';
+
+  @override
+  String get onboardingReminderTitle => 'When should PrepLoop remind you to study?';
+
+  @override
+  String get onboardingReminderHint =>
+      'Reminders will be switched on in a later update. Your preferred time is saved now.';
+
+  @override
+  String get chooseDate => 'Choose date';
+
+  @override
+  String get chooseTime => 'Choose time';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String durationHours(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get settingsStudyPlan => 'Study plan';
+
+  @override
+  String get fieldExams => 'Exams';
+
+  @override
+  String get examsNotChosen => 'Not chosen';
+
+  @override
+  String get fieldExamDate => 'Exam date';
+
+  @override
+  String get fieldDailyStudy => 'Daily study time';
+
+  @override
+  String get fieldReminder => 'Reminder time';
+
+  @override
+  String get settingsLicences => 'Open-source licences';
+
+  @override
+  String get homeChooseExamTitle => 'Choose your exam';
+
+  @override
+  String get homeChooseExamMessage => 'Select SSC CGL, SSC CHSL or both to personalise PrepLoop.';
+
+  @override
+  String get homeChooseExamAction => 'Choose exam';
+
+  @override
+  String homeExamCountdown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days to go',
+      one: '1 day to go',
+      zero: 'Your exam is today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeExamPassed => 'Your exam date has passed. You can update it in Profile.';
+
+  @override
+  String homeExamOn(String date) {
+    return 'Exam date: $date';
+  }
+
+  @override
+  String homeConceptCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count concepts saved.',
+      one: 'You have 1 concept saved.',
+      zero: 'You have not added any concepts yet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDailyGoal(String duration) {
+    return 'Daily study goal: $duration';
+  }
+
+  @override
+  String get homePlanComingSoon =>
+      'A personalised daily plan will appear here once practice and revision are available.';
+
+  @override
+  String get homeOpenConcepts => 'Open concepts';
+
+  @override
+  String get homeSetExamDate => 'Set your exam date in Profile to see a countdown.';
+
+  @override
+  String get conceptDetailsTitle => 'Concept';
+
+  @override
+  String get conceptEdit => 'Edit';
+
+  @override
+  String get conceptEditTitle => 'Edit concept';
+
+  @override
+  String get conceptUnarchive => 'Restore';
+
+  @override
+  String get conceptRestored => 'Concept restored';
+
+  @override
+  String get conceptDelete => 'Delete';
+
+  @override
+  String get conceptDeleteTitle => 'Delete this concept?';
+
+  @override
+  String conceptDeleteMessage(String title) {
+    return '\"$title\" will be permanently deleted from this device. This cannot be undone.';
+  }
+
+  @override
+  String get conceptDeleted => 'Concept deleted';
+
+  @override
+  String get conceptNotFound => 'This concept no longer exists.';
+
+  @override
+  String get conceptLoadError => 'This concept could not be loaded.';
+
+  @override
+  String get conceptArchivedBanner => 'This concept is archived and hidden from your main list.';
+
+  @override
+  String conceptCreatedOn(String date) {
+    return 'Created $date';
+  }
+
+  @override
+  String conceptUpdatedOn(String date) {
+    return 'Updated $date';
+  }
+
+  @override
+  String get conceptMoreActions => 'More actions';
+
+  @override
+  String get filterExam => 'Exam';
+
+  @override
+  String get filterSubject => 'Subject';
+
+  @override
+  String get filterTopic => 'Topic';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterArchived => 'Archived';
+
+  @override
+  String get filterClear => 'Clear filters';
+
+  @override
+  String filterBy(String label) {
+    return 'Filter by $label';
+  }
+
+  @override
+  String get conceptsNoFilterResults => 'No concepts match these filters.';
+
+  @override
+  String get conceptsArchivedEmpty => 'No archived concepts.';
 }

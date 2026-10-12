@@ -29,7 +29,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 ## Architecture decisions (see docs/architecture.md for rationale)
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
-  5 tabs), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI). Drift/SQLite (`core/database`)
+  5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v2)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -51,6 +52,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`*.g.dart`, l10n) is committed; regenerate with `dart run build_runner build` / `flutter gen-l10n`.
 - Widget tests that pump the app use `testAppWidgets` (test/helpers/pump_app.dart), not `testWidgets`.
 - Backend validation limits must match mobile `ConceptRules` (same normalisation both sides).
+- Mobile time: read "now" from `clockProvider`; date-only values use `CalendarDate` (never `DateTime`).
+- New ARB keys go in both files; `arb_parity_test.dart` fails otherwise. Hindi-capable text needs no
+  per-widget font: the theme's `fontFamilyFallback` covers Devanagari.
 - Python: ruff (format + lint), mypy strict, type hints everywhere, line length 100.
 - Small, reviewable commits. Inspect files before modifying. Don't upgrade unrelated packages.
 - Before adding a package: state its purpose, check compatibility and licence.
@@ -76,31 +80,47 @@ backend venv `services/api/.venv`, PostgreSQL 17 Windows service `postgresql-x64
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 2 complete → next is Phase 3 (core learning UI)
+## Current phase: Phase 3 complete → next is Phase 4 (document ingestion)
 Known limitations right now:
-- Android SDK / Android Studio not installed → no Android build verified yet. iOS needs macOS + Xcode.
+- Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
+  on a device. iOS needs macOS + Xcode.
 - Visual Studio C++ workload not installed → Windows desktop target unavailable (not a product target anyway).
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
-  (app renders; concept list stays loading). Verify web persistence in Chrome/Edge. Native is unaffected.
+  (app renders after a 3 s storage timeout, shows first-run onboarding, concept list stays loading).
+  Verify web persistence in Chrome/Edge. Native is unaffected.
 - No auth/ownership on `/api/v1/concepts` (single-tenant dev API until Phase 10) — never deploy publicly.
-- Mobile concepts are local-only; the API and the app are not connected for concepts yet (sync = Phase 10).
-- Exam list on mobile is a constant mirroring the server seed; subject/topic are free text (taxonomy later).
-- Flutter web downloads the Devanagari fallback font on demand; bundle Noto Sans Devanagari in Phase 3.
+- Mobile concepts and study profile are local-only (sync = Phase 10).
+- Exam list on mobile is a constant mirroring the server seed; subject/topic are free text; filter choices
+  come from the learner's own data (no managed taxonomy yet).
+- Reminder time is stored but no notifications are scheduled yet (Phase 7). The UI says so.
+- "What should I study today?" shows real counts/goal but no generated plan yet (Phase 8).
 - No CI workflow yet; no typed Dart API client generated yet.
 - Hindi strings were written without native-speaker review.
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
 - PostgreSQL is a native install; no docker-compose yet (optional).
 
-## Phase 3 acceptance criteria
-1. Onboarding (skippable, no account): exam selection (CGL / CHSL / both), interface language, optional
-   target exam date, daily study minutes, reminder time; stored locally (Drift) and editable in Profile.
-   Onboarding shows once; a fresh install starts there.
-2. Dashboard reflects real local state: selected exams, exam-date countdown when set, concept counts; the
-   three questions keep honest empty states where data doesn't exist yet (no fake stats).
-3. Concept details screen (view, edit, archive/unarchive, delete with confirmation) and an archived filter.
-4. Concept list filters by exam, subject and topic (derived from the user's data) in addition to search.
-5. Noto Sans Devanagari bundled as an asset (OFL licence noted) so Hindi renders offline on web.
-6. Every primary screen has loading, empty, error and (where network is used) offline states.
-7. EN/HI strings for all new UI; a test asserts both ARB files define the same keys.
-8. Integration test (`integration_test/`) for onboarding → create concept, runnable once a device exists;
-   widget tests cover the same flow now. `scripts/check.ps1` passes; docs updated.
+## Phase 4 acceptance criteria (document ingestion)
+0. **Licence decision first:** PyMuPDF (named in the brief) is AGPL-3.0 or commercial. Running it in a
+   network service can trigger AGPL source-disclosure duties. Document the decision (accept AGPL, buy a
+   licence, or use a permissive alternative such as pypdfium2 Apache-2.0/BSD) before adding it.
+1. `POST /api/v1/documents` (multipart): validates content by magic bytes (not extension/MIME), size limit
+   and page limit (configurable), rejects encrypted/corrupt/non-PDF with the standard error envelope;
+   rate-limited. Stores the file via a `DocumentStorage` interface (local-disk impl) under a generated
+   UUID path — the user's filename is metadata only (sanitised), never part of a path.
+2. Alembic migration for `documents` (exam, language, original filename, size, sha256, page_count,
+   status queued/processing/completed/failed, extraction method summary, error code, timestamps) and
+   `document_pages` (page number, method text|ocr|none, normalised text, confidence, needs_review).
+3. Per-page extraction off the request path (background worker/task) with a processing time limit: text
+   layer first; OCR (Tesseract eng+hin, behind an `OcrEngine` interface) when the text layer is missing or
+   below a configurable quality threshold. Uncertain pages are flagged `needs_review`; text is never
+   invented. Large files are processed page by page (bounded memory).
+4. `GET /api/v1/documents`, `GET /api/v1/documents/{id}` (status, progress, warnings),
+   `GET /api/v1/documents/{id}/pages`, `DELETE /api/v1/documents/{id}` (explicit; removes file + rows).
+5. Tests use small synthetic PDFs generated in the test suite (text PDF, image-only page, mixed,
+   encrypted, corrupt, wrong type, oversize, too many pages) and a fake OCR engine; real Tesseract tests
+   skip when it isn't installed. Upload validation and error-path tests included.
+6. Mobile: an "Import paper" entry in Study that picks a PDF, uploads it with progress, and lists
+   documents with live status (queued/processing/completed/failed + warnings); offline/server-down
+   states. Requires a file-picker package (state purpose/licence before adding).
+7. Tesseract installation documented (Windows + Linux), including Hindi language data; `scripts/check.ps1`
+   passes; docs (api.md, database.md, security.md) updated with retention and deletion behaviour.

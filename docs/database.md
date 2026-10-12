@@ -87,6 +87,11 @@ Defined in `apps/mobile/lib/core/database/`.
 |---|---|
 | `concepts` | Same fields as the server table, with a client-generated UUID `id`. Tags are a JSON array; datetimes are ISO-8601 text in UTC. |
 | `app_settings` | Key/value device settings (`language`, `theme_mode`) |
+| `study_profiles` (v2) | A single row (`id = 1`, enforced by CHECK) with the onboarding answers: `exam_codes` (JSON array), `target_exam_date` (`yyyy-MM-dd` text, so it never shifts with the timezone), `daily_study_minutes` (5–720), `reminder_minutes` (minutes after local midnight), `onboarding_completed_at`, `updated_at`. Unknown exam codes and out-of-range values are ignored when reading. |
+
+Schema history: **v1** has concepts and app_settings. **v2** adds study_profiles (migration `from1To2`
+creates the table). Snapshots of both are in `drift_schemas/`. The generated tests in
+`test/drift/app_database/` check that the v1→v2 upgrade produces the v2 schema and keeps existing concepts and settings intact.
 
 ### Migration strategy
 

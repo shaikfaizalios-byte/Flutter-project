@@ -899,16 +899,480 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingRow> {
   }
 }
 
+class $StudyProfilesTable extends StudyProfiles
+    with TableInfo<$StudyProfilesTable, StudyProfileRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StudyProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    check: () => id.equals(1),
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<List<String>, String> examCodes =
+      GeneratedColumn<String>(
+        'exam_codes',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      ).withConverter<List<String>>($StudyProfilesTable.$converterexamCodes);
+  static const VerificationMeta _targetExamDateMeta = const VerificationMeta('targetExamDate');
+  @override
+  late final GeneratedColumn<String> targetExamDate = GeneratedColumn<String>(
+    'target_exam_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dailyStudyMinutesMeta = const VerificationMeta(
+    'dailyStudyMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> dailyStudyMinutes = GeneratedColumn<int>(
+    'daily_study_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reminderMinutesMeta = const VerificationMeta('reminderMinutes');
+  @override
+  late final GeneratedColumn<int> reminderMinutes = GeneratedColumn<int>(
+    'reminder_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _onboardingCompletedAtMeta = const VerificationMeta(
+    'onboardingCompletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> onboardingCompletedAt = GeneratedColumn<DateTime>(
+    'onboarding_completed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    examCodes,
+    targetExamDate,
+    dailyStudyMinutes,
+    reminderMinutes,
+    onboardingCompletedAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'study_profiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StudyProfileRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('target_exam_date')) {
+      context.handle(
+        _targetExamDateMeta,
+        targetExamDate.isAcceptableOrUnknown(data['target_exam_date']!, _targetExamDateMeta),
+      );
+    }
+    if (data.containsKey('daily_study_minutes')) {
+      context.handle(
+        _dailyStudyMinutesMeta,
+        dailyStudyMinutes.isAcceptableOrUnknown(
+          data['daily_study_minutes']!,
+          _dailyStudyMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_minutes')) {
+      context.handle(
+        _reminderMinutesMeta,
+        reminderMinutes.isAcceptableOrUnknown(data['reminder_minutes']!, _reminderMinutesMeta),
+      );
+    }
+    if (data.containsKey('onboarding_completed_at')) {
+      context.handle(
+        _onboardingCompletedAtMeta,
+        onboardingCompletedAt.isAcceptableOrUnknown(
+          data['onboarding_completed_at']!,
+          _onboardingCompletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StudyProfileRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StudyProfileRow(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      examCodes: $StudyProfilesTable.$converterexamCodes.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}exam_codes'],
+        )!,
+      ),
+      targetExamDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_exam_date'],
+      ),
+      dailyStudyMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}daily_study_minutes'],
+      ),
+      reminderMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minutes'],
+      ),
+      onboardingCompletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}onboarding_completed_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StudyProfilesTable createAlias(String alias) {
+    return $StudyProfilesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<List<String>, String> $converterexamCodes = const StringListConverter();
+}
+
+class StudyProfileRow extends DataClass implements Insertable<StudyProfileRow> {
+  final int id;
+
+  /// Selected exam codes as a JSON array; empty means "not chosen yet".
+  final List<String> examCodes;
+
+  /// Calendar date `yyyy-MM-dd` (no time or timezone, so it never shifts).
+  final String? targetExamDate;
+  final int? dailyStudyMinutes;
+
+  /// Local wall-clock time as minutes after midnight (0–1439).
+  final int? reminderMinutes;
+  final DateTime? onboardingCompletedAt;
+  final DateTime updatedAt;
+  const StudyProfileRow({
+    required this.id,
+    required this.examCodes,
+    this.targetExamDate,
+    this.dailyStudyMinutes,
+    this.reminderMinutes,
+    this.onboardingCompletedAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    {
+      map['exam_codes'] = Variable<String>(
+        $StudyProfilesTable.$converterexamCodes.toSql(examCodes),
+      );
+    }
+    if (!nullToAbsent || targetExamDate != null) {
+      map['target_exam_date'] = Variable<String>(targetExamDate);
+    }
+    if (!nullToAbsent || dailyStudyMinutes != null) {
+      map['daily_study_minutes'] = Variable<int>(dailyStudyMinutes);
+    }
+    if (!nullToAbsent || reminderMinutes != null) {
+      map['reminder_minutes'] = Variable<int>(reminderMinutes);
+    }
+    if (!nullToAbsent || onboardingCompletedAt != null) {
+      map['onboarding_completed_at'] = Variable<DateTime>(onboardingCompletedAt);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  StudyProfilesCompanion toCompanion(bool nullToAbsent) {
+    return StudyProfilesCompanion(
+      id: Value(id),
+      examCodes: Value(examCodes),
+      targetExamDate: targetExamDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetExamDate),
+      dailyStudyMinutes: dailyStudyMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dailyStudyMinutes),
+      reminderMinutes: reminderMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderMinutes),
+      onboardingCompletedAt: onboardingCompletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(onboardingCompletedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory StudyProfileRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StudyProfileRow(
+      id: serializer.fromJson<int>(json['id']),
+      examCodes: serializer.fromJson<List<String>>(json['examCodes']),
+      targetExamDate: serializer.fromJson<String?>(json['targetExamDate']),
+      dailyStudyMinutes: serializer.fromJson<int?>(json['dailyStudyMinutes']),
+      reminderMinutes: serializer.fromJson<int?>(json['reminderMinutes']),
+      onboardingCompletedAt: serializer.fromJson<DateTime?>(json['onboardingCompletedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'examCodes': serializer.toJson<List<String>>(examCodes),
+      'targetExamDate': serializer.toJson<String?>(targetExamDate),
+      'dailyStudyMinutes': serializer.toJson<int?>(dailyStudyMinutes),
+      'reminderMinutes': serializer.toJson<int?>(reminderMinutes),
+      'onboardingCompletedAt': serializer.toJson<DateTime?>(onboardingCompletedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  StudyProfileRow copyWith({
+    int? id,
+    List<String>? examCodes,
+    Value<String?> targetExamDate = const Value.absent(),
+    Value<int?> dailyStudyMinutes = const Value.absent(),
+    Value<int?> reminderMinutes = const Value.absent(),
+    Value<DateTime?> onboardingCompletedAt = const Value.absent(),
+    DateTime? updatedAt,
+  }) => StudyProfileRow(
+    id: id ?? this.id,
+    examCodes: examCodes ?? this.examCodes,
+    targetExamDate: targetExamDate.present ? targetExamDate.value : this.targetExamDate,
+    dailyStudyMinutes: dailyStudyMinutes.present ? dailyStudyMinutes.value : this.dailyStudyMinutes,
+    reminderMinutes: reminderMinutes.present ? reminderMinutes.value : this.reminderMinutes,
+    onboardingCompletedAt: onboardingCompletedAt.present
+        ? onboardingCompletedAt.value
+        : this.onboardingCompletedAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  StudyProfileRow copyWithCompanion(StudyProfilesCompanion data) {
+    return StudyProfileRow(
+      id: data.id.present ? data.id.value : this.id,
+      examCodes: data.examCodes.present ? data.examCodes.value : this.examCodes,
+      targetExamDate: data.targetExamDate.present ? data.targetExamDate.value : this.targetExamDate,
+      dailyStudyMinutes: data.dailyStudyMinutes.present
+          ? data.dailyStudyMinutes.value
+          : this.dailyStudyMinutes,
+      reminderMinutes: data.reminderMinutes.present
+          ? data.reminderMinutes.value
+          : this.reminderMinutes,
+      onboardingCompletedAt: data.onboardingCompletedAt.present
+          ? data.onboardingCompletedAt.value
+          : this.onboardingCompletedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StudyProfileRow(')
+          ..write('id: $id, ')
+          ..write('examCodes: $examCodes, ')
+          ..write('targetExamDate: $targetExamDate, ')
+          ..write('dailyStudyMinutes: $dailyStudyMinutes, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
+          ..write('onboardingCompletedAt: $onboardingCompletedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    examCodes,
+    targetExamDate,
+    dailyStudyMinutes,
+    reminderMinutes,
+    onboardingCompletedAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StudyProfileRow &&
+          other.id == this.id &&
+          other.examCodes == this.examCodes &&
+          other.targetExamDate == this.targetExamDate &&
+          other.dailyStudyMinutes == this.dailyStudyMinutes &&
+          other.reminderMinutes == this.reminderMinutes &&
+          other.onboardingCompletedAt == this.onboardingCompletedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class StudyProfilesCompanion extends UpdateCompanion<StudyProfileRow> {
+  final Value<int> id;
+  final Value<List<String>> examCodes;
+  final Value<String?> targetExamDate;
+  final Value<int?> dailyStudyMinutes;
+  final Value<int?> reminderMinutes;
+  final Value<DateTime?> onboardingCompletedAt;
+  final Value<DateTime> updatedAt;
+  const StudyProfilesCompanion({
+    this.id = const Value.absent(),
+    this.examCodes = const Value.absent(),
+    this.targetExamDate = const Value.absent(),
+    this.dailyStudyMinutes = const Value.absent(),
+    this.reminderMinutes = const Value.absent(),
+    this.onboardingCompletedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  StudyProfilesCompanion.insert({
+    this.id = const Value.absent(),
+    this.examCodes = const Value.absent(),
+    this.targetExamDate = const Value.absent(),
+    this.dailyStudyMinutes = const Value.absent(),
+    this.reminderMinutes = const Value.absent(),
+    this.onboardingCompletedAt = const Value.absent(),
+    required DateTime updatedAt,
+  }) : updatedAt = Value(updatedAt);
+  static Insertable<StudyProfileRow> custom({
+    Expression<int>? id,
+    Expression<String>? examCodes,
+    Expression<String>? targetExamDate,
+    Expression<int>? dailyStudyMinutes,
+    Expression<int>? reminderMinutes,
+    Expression<DateTime>? onboardingCompletedAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (examCodes != null) 'exam_codes': examCodes,
+      if (targetExamDate != null) 'target_exam_date': targetExamDate,
+      if (dailyStudyMinutes != null) 'daily_study_minutes': dailyStudyMinutes,
+      if (reminderMinutes != null) 'reminder_minutes': reminderMinutes,
+      if (onboardingCompletedAt != null) 'onboarding_completed_at': onboardingCompletedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  StudyProfilesCompanion copyWith({
+    Value<int>? id,
+    Value<List<String>>? examCodes,
+    Value<String?>? targetExamDate,
+    Value<int?>? dailyStudyMinutes,
+    Value<int?>? reminderMinutes,
+    Value<DateTime?>? onboardingCompletedAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return StudyProfilesCompanion(
+      id: id ?? this.id,
+      examCodes: examCodes ?? this.examCodes,
+      targetExamDate: targetExamDate ?? this.targetExamDate,
+      dailyStudyMinutes: dailyStudyMinutes ?? this.dailyStudyMinutes,
+      reminderMinutes: reminderMinutes ?? this.reminderMinutes,
+      onboardingCompletedAt: onboardingCompletedAt ?? this.onboardingCompletedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (examCodes.present) {
+      map['exam_codes'] = Variable<String>(
+        $StudyProfilesTable.$converterexamCodes.toSql(examCodes.value),
+      );
+    }
+    if (targetExamDate.present) {
+      map['target_exam_date'] = Variable<String>(targetExamDate.value);
+    }
+    if (dailyStudyMinutes.present) {
+      map['daily_study_minutes'] = Variable<int>(dailyStudyMinutes.value);
+    }
+    if (reminderMinutes.present) {
+      map['reminder_minutes'] = Variable<int>(reminderMinutes.value);
+    }
+    if (onboardingCompletedAt.present) {
+      map['onboarding_completed_at'] = Variable<DateTime>(onboardingCompletedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StudyProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('examCodes: $examCodes, ')
+          ..write('targetExamDate: $targetExamDate, ')
+          ..write('dailyStudyMinutes: $dailyStudyMinutes, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
+          ..write('onboardingCompletedAt: $onboardingCompletedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ConceptsTable concepts = $ConceptsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
+  late final $StudyProfilesTable studyProfiles = $StudyProfilesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [concepts, appSettings];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [concepts, appSettings, studyProfiles];
   @override
   DriftDatabaseOptions get options => const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
@@ -1328,6 +1792,219 @@ typedef $$AppSettingsTableProcessedTableManager =
       AppSettingRow,
       PrefetchHooks Function()
     >;
+typedef $$StudyProfilesTableCreateCompanionBuilder = StudyProfilesCompanion Function({
+  Value<int> id,
+  Value<List<String>> examCodes,
+  Value<String?> targetExamDate,
+  Value<int?> dailyStudyMinutes,
+  Value<int?> reminderMinutes,
+  Value<DateTime?> onboardingCompletedAt,
+  required DateTime updatedAt,
+});
+typedef $$StudyProfilesTableUpdateCompanionBuilder = StudyProfilesCompanion Function({
+  Value<int> id,
+  Value<List<String>> examCodes,
+  Value<String?> targetExamDate,
+  Value<int?> dailyStudyMinutes,
+  Value<int?> reminderMinutes,
+  Value<DateTime?> onboardingCompletedAt,
+  Value<DateTime> updatedAt,
+});
+
+class $$StudyProfilesTableFilterComposer extends Composer<_$AppDatabase, $StudyProfilesTable> {
+  $$StudyProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<List<String>, List<String>, String> get examCodes =>
+      $composableBuilder(
+        column: $table.examCodes,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get targetExamDate =>
+      $composableBuilder(column: $table.targetExamDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dailyStudyMinutes => $composableBuilder(
+    column: $table.dailyStudyMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get onboardingCompletedAt => $composableBuilder(
+    column: $table.onboardingCompletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$StudyProfilesTableOrderingComposer extends Composer<_$AppDatabase, $StudyProfilesTable> {
+  $$StudyProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get examCodes =>
+      $composableBuilder(column: $table.examCodes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetExamDate => $composableBuilder(
+    column: $table.targetExamDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dailyStudyMinutes => $composableBuilder(
+    column: $table.dailyStudyMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get onboardingCompletedAt => $composableBuilder(
+    column: $table.onboardingCompletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$StudyProfilesTableAnnotationComposer extends Composer<_$AppDatabase, $StudyProfilesTable> {
+  $$StudyProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<List<String>, String> get examCodes =>
+      $composableBuilder(column: $table.examCodes, builder: (column) => column);
+
+  GeneratedColumn<String> get targetExamDate =>
+      $composableBuilder(column: $table.targetExamDate, builder: (column) => column);
+
+  GeneratedColumn<int> get dailyStudyMinutes =>
+      $composableBuilder(column: $table.dailyStudyMinutes, builder: (column) => column);
+
+  GeneratedColumn<int> get reminderMinutes =>
+      $composableBuilder(column: $table.reminderMinutes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get onboardingCompletedAt =>
+      $composableBuilder(column: $table.onboardingCompletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$StudyProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StudyProfilesTable,
+          StudyProfileRow,
+          $$StudyProfilesTableFilterComposer,
+          $$StudyProfilesTableOrderingComposer,
+          $$StudyProfilesTableAnnotationComposer,
+          $$StudyProfilesTableCreateCompanionBuilder,
+          $$StudyProfilesTableUpdateCompanionBuilder,
+          (StudyProfileRow, BaseReferences<_$AppDatabase, $StudyProfilesTable, StudyProfileRow>),
+          StudyProfileRow,
+          PrefetchHooks Function()
+        > {
+  $$StudyProfilesTableTableManager(_$AppDatabase db, $StudyProfilesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$StudyProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StudyProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StudyProfilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<List<String>> examCodes = const Value.absent(),
+                Value<String?> targetExamDate = const Value.absent(),
+                Value<int?> dailyStudyMinutes = const Value.absent(),
+                Value<int?> reminderMinutes = const Value.absent(),
+                Value<DateTime?> onboardingCompletedAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => StudyProfilesCompanion(
+                id: id,
+                examCodes: examCodes,
+                targetExamDate: targetExamDate,
+                dailyStudyMinutes: dailyStudyMinutes,
+                reminderMinutes: reminderMinutes,
+                onboardingCompletedAt: onboardingCompletedAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<List<String>> examCodes = const Value.absent(),
+                Value<String?> targetExamDate = const Value.absent(),
+                Value<int?> dailyStudyMinutes = const Value.absent(),
+                Value<int?> reminderMinutes = const Value.absent(),
+                Value<DateTime?> onboardingCompletedAt = const Value.absent(),
+                required DateTime updatedAt,
+              }) => StudyProfilesCompanion.insert(
+                id: id,
+                examCodes: examCodes,
+                targetExamDate: targetExamDate,
+                dailyStudyMinutes: dailyStudyMinutes,
+                reminderMinutes: reminderMinutes,
+                onboardingCompletedAt: onboardingCompletedAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$StudyProfilesTable, StudyProfileRow>(table),
+                  BaseReferences<_$AppDatabase, $StudyProfilesTable, StudyProfileRow>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$StudyProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StudyProfilesTable,
+      StudyProfileRow,
+      $$StudyProfilesTableFilterComposer,
+      $$StudyProfilesTableOrderingComposer,
+      $$StudyProfilesTableAnnotationComposer,
+      $$StudyProfilesTableCreateCompanionBuilder,
+      $$StudyProfilesTableUpdateCompanionBuilder,
+      (StudyProfileRow, BaseReferences<_$AppDatabase, $StudyProfilesTable, StudyProfileRow>),
+      StudyProfileRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1335,4 +2012,6 @@ class $AppDatabaseManager {
   $$ConceptsTableTableManager get concepts => $$ConceptsTableTableManager(_db, _db.concepts);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
+  $$StudyProfilesTableTableManager get studyProfiles =>
+      $$StudyProfilesTableTableManager(_db, _db.studyProfiles);
 }

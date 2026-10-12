@@ -16,33 +16,64 @@ class LocalConceptsRepository implements ConceptsRepository {
   final Uuid _uuid;
 
   @override
-  Stream<List<Concept>> watch({String query = '', bool includeArchived = false}) {
-    final q = query.trim();
+  Stream<List<Concept>> watch([ConceptQuery query = const ConceptQuery()]) {
     final select = _db.select(_db.concepts)
-      ..where((c) {
-        Expression<bool> condition = const Constant(true);
-        if (!includeArchived) condition = condition & c.archivedAt.isNull();
-        if (q.isNotEmpty) {
-          final pattern = '%${_escapeLike(q)}%';
-          condition =
-              condition &
-              (c.title.like(pattern, escapeChar: r'\') |
-                  c.notes.like(pattern, escapeChar: r'\') |
-                  c.topic.like(pattern, escapeChar: r'\') |
-                  c.subtopic.like(pattern, escapeChar: r'\'));
-        }
-        return condition;
-      })
+      ..where((c) => _matches(c, query))
       ..orderBy([(c) => OrderingTerm.desc(c.updatedAt), (c) => OrderingTerm.asc(c.id)]);
     return select.watch().map((rows) => rows.map(_toDomain).toList(growable: false));
   }
 
   @override
-  Future<Concept> create(ConceptDraft draft) async {
-    final clean = draft.normalized();
-    final errors = ConceptRules.validate(clean);
-    if (errors.isNotEmpty) throw InvalidConceptException(errors);
+  Stream<Concept?> watchById(String id) => (_db.select(
+    _db.concepts,
+  )..where((c) => c.id.equals(id))).watchSingleOrNull().map((r) => r == null ? null : _toDomain(r));
 
+  @override
+  Future<Concept?> getById(String id) async {
+    final row = await (_db.select(_db.concepts)..where((c) => c.id.equals(id))).getSingleOrNull();
+    return row == null ? null : _toDomain(row);
+  }
+
+  @override
+  Stream<int> watchActiveCount() {
+    final count = _db.concepts.id.count();
+    final query = _db.selectOnly(_db.concepts)
+      ..addColumns([count])
+      ..where(_db.concepts.archivedAt.isNull());
+    return query.watchSingle().map((row) => row.read(count) ?? 0);
+  }
+
+  @override
+  Stream<ConceptFacets> watchFacets() {
+    final c = _db.concepts;
+    final query = _db.selectOnly(c, distinct: true)..addColumns([c.examCode, c.subject, c.topic]);
+    return query.watch().map((rows) {
+      final exams = <String>{};
+      final subjects = <String, String>{};
+      final topics = <String, Map<String, String>>{};
+      for (final row in rows) {
+        final subject = row.read(c.subject)!;
+        final topic = row.read(c.topic)!;
+        exams.add(row.read(c.examCode)!);
+        subjects.putIfAbsent(subject.toLowerCase(), () => subject);
+        topics
+            .putIfAbsent(subject.toLowerCase(), () => {})
+            .putIfAbsent(topic.toLowerCase(), () => topic);
+      }
+      int byText(String a, String b) => a.toLowerCase().compareTo(b.toLowerCase());
+      return ConceptFacets(
+        examCodes: exams.toList()..sort(),
+        subjects: subjects.values.toList()..sort(byText),
+        topicsBySubject: {
+          for (final entry in topics.entries) entry.key: entry.value.values.toList()..sort(byText),
+        },
+      );
+    });
+  }
+
+  @override
+  Future<Concept> create(ConceptDraft draft) async {
+    final clean = _validated(draft);
     final now = _clock().toUtc();
     final row = await _db
         .into(_db.concepts)
@@ -66,6 +97,27 @@ class LocalConceptsRepository implements ConceptsRepository {
   }
 
   @override
+  Future<Concept> update(String id, ConceptDraft draft) async {
+    final clean = _validated(draft);
+    final rows = await (_db.update(_db.concepts)..where((c) => c.id.equals(id))).writeReturning(
+      ConceptsCompanion(
+        examCode: Value(clean.examCode),
+        title: Value(clean.title),
+        notes: Value(clean.notes),
+        subject: Value(clean.subject),
+        topic: Value(clean.topic),
+        subtopic: Value(clean.subtopic),
+        language: Value(clean.language.code),
+        tags: Value(clean.tags),
+        sourceReference: Value(clean.sourceReference),
+        updatedAt: Value(_clock().toUtc()),
+      ),
+    );
+    if (rows.isEmpty) throw ConceptNotFoundException(id);
+    return _toDomain(rows.single);
+  }
+
+  @override
   Future<void> setArchived(String id, {required bool archived}) async {
     final now = _clock().toUtc();
     final query = _db.update(_db.concepts)..where((c) => c.id.equals(id));
@@ -76,6 +128,37 @@ class LocalConceptsRepository implements ConceptsRepository {
     await query.write(
       ConceptsCompanion(archivedAt: Value(archived ? now : null), updatedAt: Value(now)),
     );
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    await (_db.delete(_db.concepts)..where((c) => c.id.equals(id))).go();
+  }
+
+  static ConceptDraft _validated(ConceptDraft draft) {
+    final clean = draft.normalized();
+    final errors = ConceptRules.validate(clean);
+    if (errors.isNotEmpty) throw InvalidConceptException(errors);
+    return clean;
+  }
+
+  static Expression<bool> _matches($ConceptsTable c, ConceptQuery query) {
+    Expression<bool> condition = query.archived ? c.archivedAt.isNotNull() : c.archivedAt.isNull();
+    if (query.examCode case final exam?) condition &= c.examCode.equals(exam);
+    if (query.subject case final subject?) {
+      condition &= c.subject.lower().equals(subject.toLowerCase());
+    }
+    if (query.topic case final topic?) condition &= c.topic.lower().equals(topic.toLowerCase());
+    final text = query.text.trim();
+    if (text.isNotEmpty) {
+      final pattern = '%${_escapeLike(text)}%';
+      condition &=
+          c.title.like(pattern, escapeChar: r'\') |
+          c.notes.like(pattern, escapeChar: r'\') |
+          c.topic.like(pattern, escapeChar: r'\') |
+          c.subtopic.like(pattern, escapeChar: r'\');
+    }
+    return condition;
   }
 
   static String _escapeLike(String value) =>

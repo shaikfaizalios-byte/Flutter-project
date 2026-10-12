@@ -12,6 +12,7 @@ void main() {
   testAppWidgets('shows connected server status', (tester, db) async {
     await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
+    await scrollTo(tester, find.text('Connected · API 0.1.0'));
 
     expect(find.text('Connected · API 0.1.0'), findsOneWidget);
   });
@@ -20,6 +21,7 @@ void main() {
     final repo = FakeServerStatusRepository(online: false);
     await pumpPrepLoopApp(tester, db, serverStatus: repo);
     await openProfile(tester);
+    await scrollTo(tester, find.text('Try again'));
 
     expect(find.text('Cannot reach the PrepLoop server.'), findsOneWidget);
     expect(repo.calls, 1);
@@ -54,6 +56,7 @@ void main() {
     await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
 
+    await scrollTo(tester, find.text('Dark'));
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();
 

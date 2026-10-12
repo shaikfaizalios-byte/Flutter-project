@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/features/concepts/data/local_concepts_repository.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
+import 'package:preploop/features/concepts/domain/concepts_repository.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -89,7 +90,7 @@ void main() {
     );
 
     Future<List<String>> search(String q) async =>
-        (await repo.watch(query: q).first).map((c) => c.title).toList();
+        (await repo.watch(ConceptQuery(text: q)).first).map((c) => c.title).toList();
 
     expect(await search('RATIO'), ['Ratio tricks']);
     expect(await search('discount'), ['Percent']);
@@ -102,8 +103,12 @@ void main() {
     await repo.create(draft(title: '10% discount'));
     await repo.create(draft(title: 'snake_case'));
 
-    expect((await repo.watch(query: '%').first).map((c) => c.title), ['10% discount']);
-    expect((await repo.watch(query: '_').first).map((c) => c.title), ['snake_case']);
+    expect((await repo.watch(const ConceptQuery(text: '%')).first).map((c) => c.title), [
+      '10% discount',
+    ]);
+    expect((await repo.watch(const ConceptQuery(text: '_')).first).map((c) => c.title), [
+      'snake_case',
+    ]);
   });
 
   test('archive hides a concept, keeps the first timestamp, and can be undone', () async {
@@ -116,7 +121,7 @@ void main() {
     await repo.setArchived(concept.id, archived: true);
 
     expect(await repo.watch().first, isEmpty);
-    final archived = (await repo.watch(includeArchived: true).first).single;
+    final archived = (await repo.watch(const ConceptQuery(archived: true)).first).single;
     expect(archived.archivedAt, archivedAt);
 
     await repo.setArchived(concept.id, archived: false);

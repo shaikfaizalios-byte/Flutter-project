@@ -11,6 +11,9 @@ import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/features/settings/application/app_preferences.dart';
 import 'package:preploop/features/settings/data/server_status_repository.dart';
 import 'package:preploop/features/settings/domain/server_health.dart';
+import 'package:preploop/features/study_plan/application/study_profile_controller.dart';
+import 'package:preploop/features/study_plan/domain/study_profile.dart';
+import 'package:preploop/core/utils/clock.dart';
 
 const testConfig = AppConfig(
   appName: 'PrepLoop',
@@ -69,12 +72,22 @@ class FakeServerStatusRepository implements ServerStatusRepository {
   }
 }
 
+/// Fixed "now" for widget tests: 12 Oct 2026, 10:00 local time.
+final testNow = DateTime(2026, 10, 12, 10);
+
+/// A learner who has finished onboarding (the default for app tests).
+final onboardedProfile = StudyProfile(onboardingCompletedAt: DateTime.utc(2026, 10, 1));
+
+/// Pumps the whole app. Starts onboarded unless [studyProfile] says otherwise;
+/// pass `const StudyProfile()` to simulate a fresh install.
 Future<void> pumpPrepLoopApp(
   WidgetTester tester,
   AppDatabase db, {
   FakeServerStatusRepository? serverStatus,
   Locale? deviceLocale,
   AppPreferences initialPreferences = const AppPreferences(),
+  StudyProfile? studyProfile,
+  DateTime? now,
 }) async {
   if (deviceLocale != null) {
     tester.platformDispatcher.localesTestValue = [deviceLocale];
@@ -83,9 +96,23 @@ Future<void> pumpPrepLoopApp(
   final overrides = <Override>[
     appConfigProvider.overrideWithValue(testConfig),
     appDatabaseProvider.overrideWithValue(db),
+    clockProvider.overrideWithValue(() => now ?? testNow),
     initialPreferencesProvider.overrideWithValue(initialPreferences),
+    initialStudyProfileProvider.overrideWithValue(studyProfile ?? onboardedProfile),
     serverStatusRepositoryProvider.overrideWithValue(serverStatus ?? FakeServerStatusRepository()),
   ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: const PrepLoopApp()));
+  await tester.pumpAndSettle();
+}
+
+/// Scrolls the screen's main vertical list until [finder] is built and visible.
+Future<void> scrollTo(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find
+        .byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down)
+        .first,
+  );
   await tester.pumpAndSettle();
 }

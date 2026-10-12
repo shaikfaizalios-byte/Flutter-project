@@ -5,6 +5,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../study_plan/presentation/study_plan_section.dart';
 import '../application/app_preferences.dart';
 import '../data/server_status_repository.dart';
 
@@ -27,6 +28,8 @@ class SettingsScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.md),
             children: [
+              const StudyPlanSection(),
+              const SizedBox(height: AppSpacing.md),
               SectionCard(
                 icon: Icons.translate,
                 title: l10n.settingsLanguage,
@@ -66,7 +69,18 @@ class SettingsScreen extends ConsumerWidget {
               SectionCard(
                 icon: Icons.info_outline,
                 title: l10n.settingsAbout,
-                child: Text(l10n.aboutBuild(config.appName, config.flavor.name)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.aboutBuild(config.appName, config.flavor.name)),
+                    TextButton(
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      onPressed: () =>
+                          showLicensePage(context: context, applicationName: config.appName),
+                      child: Text(l10n.settingsLicences),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

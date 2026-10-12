@@ -8,19 +8,22 @@ import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/exams/exam_catalog.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
+import '../domain/concepts_repository.dart';
 
-/// Study tab: the user's concepts with search, plus an entry point to add one.
+/// Study tab: the learner's concepts with search and filters.
 class ConceptListScreen extends ConsumerWidget {
   const ConceptListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final query = ref.watch(conceptSearchQueryProvider);
+    final query = ref.watch(conceptQueryProvider);
     final concepts = ref.watch(conceptListProvider);
+    final text = query.text.trim();
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.studyTitle)),
@@ -40,25 +43,30 @@ class ConceptListScreen extends ConsumerWidget {
                   AppSpacing.md,
                   AppSpacing.sm,
                   AppSpacing.md,
-                  AppSpacing.sm,
+                  AppSpacing.xs,
                 ),
                 child: SearchBar(
                   hintText: l10n.conceptsSearchHint,
                   leading: const Icon(Icons.search),
                   elevation: const WidgetStatePropertyAll(0),
-                  onChanged: ref.read(conceptSearchQueryProvider.notifier).set,
+                  onChanged: ref.read(conceptQueryProvider.notifier).setText,
                 ),
               ),
+              const _FilterBar(),
               Expanded(
                 child: switch (concepts) {
-                  AsyncData(:final value) when value.isEmpty && query.trim().isEmpty => EmptyState(
-                    icon: Icons.menu_book_outlined,
-                    title: l10n.conceptsEmptyTitle,
-                    message: l10n.conceptsEmptyMessage,
-                  ),
                   AsyncData(:final value) when value.isEmpty => EmptyState(
-                    icon: Icons.search_off,
-                    title: l10n.conceptsNoResults(query.trim()),
+                    icon: text.isNotEmpty || query.hasFilters
+                        ? Icons.search_off
+                        : Icons.menu_book_outlined,
+                    title: switch (query) {
+                      _ when text.isNotEmpty => l10n.conceptsNoResults(text),
+                      ConceptQuery(archived: true, examCode: null, subject: null, topic: null) =>
+                        l10n.conceptsArchivedEmpty,
+                      _ when query.hasFilters => l10n.conceptsNoFilterResults,
+                      _ => l10n.conceptsEmptyTitle,
+                    },
+                    message: text.isEmpty && !query.hasFilters ? l10n.conceptsEmptyMessage : null,
                   ),
                   AsyncData(:final value) => _ConceptList(concepts: value),
                   AsyncError() => EmptyState(
@@ -80,6 +88,112 @@ class ConceptListScreen extends ConsumerWidget {
   }
 }
 
+class _FilterBar extends ConsumerWidget {
+  const _FilterBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final query = ref.watch(conceptQueryProvider);
+    final controller = ref.read(conceptQueryProvider.notifier);
+    // Filters still work while facets load; menus just have fewer choices.
+    final facets = ref.watch(conceptFacetsProvider).value ?? const ConceptFacets();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      child: Row(
+        spacing: AppSpacing.sm,
+        children: [
+          // First, so it is visible without scrolling the row.
+          if (query.hasFilters)
+            ActionChip(
+              avatar: const Icon(Icons.clear, size: 18),
+              label: Text(l10n.filterClear),
+              onPressed: controller.clearFilters,
+            ),
+          _MenuFilterChip(
+            label: l10n.filterExam,
+            value: query.examCode,
+            options: [for (final e in supportedExams) (e.code, e.shortName)],
+            onSelected: controller.setExam,
+          ),
+          _MenuFilterChip(
+            label: l10n.filterSubject,
+            value: query.subject,
+            options: [for (final s in facets.subjects) (s, s)],
+            onSelected: controller.setSubject,
+          ),
+          _MenuFilterChip(
+            label: l10n.filterTopic,
+            value: query.topic,
+            options: [for (final t in facets.topicsFor(query.subject)) (t, t)],
+            onSelected: controller.setTopic,
+          ),
+          FilterChip(
+            label: Text(l10n.filterArchived),
+            selected: query.archived,
+            onSelected: (on) => controller.setArchived(archived: on),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A chip that opens a menu of choices ("All" clears the filter).
+class _MenuFilterChip extends StatelessWidget {
+  const _MenuFilterChip({
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onSelected,
+  });
+
+  final String label;
+  final String? value;
+
+  /// (value, display text) pairs.
+  final List<(String, String)> options;
+  final ValueChanged<String?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final display = options.where((o) => o.$1 == value).firstOrNull?.$2 ?? value;
+    final active = value != null;
+
+    return PopupMenuButton<_Choice>(
+      tooltip: l10n.filterBy(label),
+      onSelected: (choice) => onSelected(choice.value),
+      itemBuilder: (context) => [
+        PopupMenuItem(value: const _Choice(null), child: Text(l10n.filterAll)),
+        for (final (optionValue, text) in options)
+          CheckedPopupMenuItem(
+            value: _Choice(optionValue),
+            checked: optionValue == value,
+            child: Text(text),
+          ),
+      ],
+      child: Chip(
+        label: Text(active ? '$label: $display' : label),
+        backgroundColor: active ? colors.secondaryContainer : null,
+        side: active ? BorderSide.none : null,
+        deleteIcon: const Icon(Icons.arrow_drop_down),
+        onDeleted: null,
+        avatar: active ? const Icon(Icons.check, size: 18) : null,
+      ),
+    );
+  }
+}
+
+class _Choice {
+  const _Choice(this.value);
+
+  final String? value;
+}
+
 class _ConceptList extends StatelessWidget {
   const _ConceptList({required this.concepts});
 
@@ -97,6 +211,8 @@ class _ConceptList extends StatelessWidget {
   }
 }
 
+enum _ConceptAction { archive, unarchive }
+
 class _ConceptTile extends ConsumerWidget {
   const _ConceptTile({required this.concept});
 
@@ -112,6 +228,7 @@ class _ConceptTile extends ConsumerWidget {
     ].join(' › ');
 
     return ListTile(
+      onTap: () => context.push(AppRoutes.concept(concept.id)),
       title: Text(concept.title, maxLines: 2, overflow: TextOverflow.ellipsis),
       subtitle: Text('${examShortName(concept.examCode)} · $path'),
       leading: CircleAvatar(
@@ -124,31 +241,37 @@ class _ConceptTile extends ConsumerWidget {
       ),
       trailing: PopupMenuButton<_ConceptAction>(
         tooltip: l10n.conceptOptions(concept.title),
-        onSelected: (action) => switch (action) {
-          _ConceptAction.archive => _archive(context, ref),
-        },
+        onSelected: (action) =>
+            _setArchived(context, ref, archived: action == _ConceptAction.archive),
         itemBuilder: (context) => [
-          PopupMenuItem(value: _ConceptAction.archive, child: Text(l10n.conceptArchive)),
+          if (concept.isArchived)
+            PopupMenuItem(value: _ConceptAction.unarchive, child: Text(l10n.conceptUnarchive))
+          else
+            PopupMenuItem(value: _ConceptAction.archive, child: Text(l10n.conceptArchive)),
         ],
       ),
     );
   }
 
-  Future<void> _archive(BuildContext context, WidgetRef ref) async {
+  Future<void> _setArchived(BuildContext context, WidgetRef ref, {required bool archived}) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final repository = ref.read(conceptsRepositoryProvider);
-    await repository.setArchived(concept.id, archived: true);
+    try {
+      await repository.setArchived(concept.id, archived: archived);
+    } on Object catch (error, stack) {
+      logError('Changing archive state failed', error, stack);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.saveFailed)));
+      return;
+    }
     messenger.showSnackBar(
       SnackBar(
-        content: Text(l10n.conceptArchived),
+        content: Text(archived ? l10n.conceptArchived : l10n.conceptRestored),
         action: SnackBarAction(
           label: l10n.undo,
-          onPressed: () => unawaited(repository.setArchived(concept.id, archived: false)),
+          onPressed: () => unawaited(repository.setArchived(concept.id, archived: !archived)),
         ),
       ),
     );
   }
 }
-
-enum _ConceptAction { archive }

@@ -232,4 +232,247 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get goHome => 'होम पर जाएँ';
+
+  @override
+  String onboardingStep(int step, int total) {
+    return 'चरण $step / $total';
+  }
+
+  @override
+  String get onboardingSkipSetup => 'सेटअप छोड़ें';
+
+  @override
+  String get back => 'पीछे';
+
+  @override
+  String get next => 'आगे';
+
+  @override
+  String get onboardingFinish => 'पढ़ाई शुरू करें';
+
+  @override
+  String get onboardingWelcomeTitle => 'PrepLoop में आपका स्वागत है';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'आइए आपकी तैयारी सेट करें। हर चरण वैकल्पिक है, और आप बाद में प्रोफ़ाइल में अपने उत्तर बदल सकते हैं। आपके उत्तर इसी डिवाइस पर सहेजे जाते हैं।';
+
+  @override
+  String get onboardingExamTitle => 'आप किस परीक्षा की तैयारी कर रहे हैं?';
+
+  @override
+  String get onboardingExamHint => 'एक या दोनों चुनें।';
+
+  @override
+  String get onboardingDateTitle => 'आपकी परीक्षा कब है?';
+
+  @override
+  String get onboardingDateHint =>
+      'अगर आपको तारीख पता है, तो PrepLoop उलटी गिनती दिखाएगा। आप इसे छोड़ सकते हैं।';
+
+  @override
+  String get onboardingDailyTitle => 'आप रोज़ कितना समय पढ़ाई कर सकते हैं?';
+
+  @override
+  String get onboardingDailyHint =>
+      'व्यावहारिक समय चुनें। कभी-कभार लंबी पढ़ाई से बेहतर है रोज़ थोड़ा पढ़ना।';
+
+  @override
+  String get onboardingReminderTitle => 'PrepLoop आपको पढ़ाई की याद कब दिलाए?';
+
+  @override
+  String get onboardingReminderHint =>
+      'रिमाइंडर आगामी अपडेट में चालू होंगे। आपका पसंदीदा समय अभी सहेजा जाएगा।';
+
+  @override
+  String get chooseDate => 'तारीख चुनें';
+
+  @override
+  String get chooseTime => 'समय चुनें';
+
+  @override
+  String get clear => 'हटाएँ';
+
+  @override
+  String get notSet => 'सेट नहीं';
+
+  @override
+  String get cancel => 'रद्द करें';
+
+  @override
+  String get done => 'हो गया';
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes मिनट';
+  }
+
+  @override
+  String durationHours(int hours) {
+    return '$hours घंटे';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours घंटे $minutes मिनट';
+  }
+
+  @override
+  String get settingsStudyPlan => 'अध्ययन योजना';
+
+  @override
+  String get fieldExams => 'परीक्षाएँ';
+
+  @override
+  String get examsNotChosen => 'नहीं चुनी गई';
+
+  @override
+  String get fieldExamDate => 'परीक्षा की तारीख';
+
+  @override
+  String get fieldDailyStudy => 'रोज़ाना पढ़ाई का समय';
+
+  @override
+  String get fieldReminder => 'रिमाइंडर का समय';
+
+  @override
+  String get settingsLicences => 'ओपन-सोर्स लाइसेंस';
+
+  @override
+  String get homeChooseExamTitle => 'अपनी परीक्षा चुनें';
+
+  @override
+  String get homeChooseExamMessage =>
+      'PrepLoop को अपने अनुसार बनाने के लिए SSC CGL, SSC CHSL या दोनों चुनें।';
+
+  @override
+  String get homeChooseExamAction => 'परीक्षा चुनें';
+
+  @override
+  String homeExamCountdown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count दिन बाकी',
+      one: '1 दिन बाकी',
+      zero: 'आपकी परीक्षा आज है',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeExamPassed =>
+      'आपकी परीक्षा की तारीख बीत चुकी है। आप इसे प्रोफ़ाइल में बदल सकते हैं।';
+
+  @override
+  String homeExamOn(String date) {
+    return 'परीक्षा की तारीख: $date';
+  }
+
+  @override
+  String homeConceptCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'आपके $count कॉन्सेप्ट सहेजे गए हैं।',
+      one: 'आपका 1 कॉन्सेप्ट सहेजा गया है।',
+      zero: 'आपने अभी तक कोई कॉन्सेप्ट नहीं जोड़ा है।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDailyGoal(String duration) {
+    return 'रोज़ाना पढ़ाई का लक्ष्य: $duration';
+  }
+
+  @override
+  String get homePlanComingSoon =>
+      'अभ्यास और दोहराव उपलब्ध होने पर आपकी व्यक्तिगत दैनिक योजना यहाँ दिखेगी।';
+
+  @override
+  String get homeOpenConcepts => 'कॉन्सेप्ट खोलें';
+
+  @override
+  String get homeSetExamDate => 'उलटी गिनती देखने के लिए प्रोफ़ाइल में परीक्षा की तारीख सेट करें।';
+
+  @override
+  String get conceptDetailsTitle => 'कॉन्सेप्ट';
+
+  @override
+  String get conceptEdit => 'संपादित करें';
+
+  @override
+  String get conceptEditTitle => 'कॉन्सेप्ट संपादित करें';
+
+  @override
+  String get conceptUnarchive => 'वापस लाएँ';
+
+  @override
+  String get conceptRestored => 'कॉन्सेप्ट वापस लाया गया';
+
+  @override
+  String get conceptDelete => 'हटाएँ';
+
+  @override
+  String get conceptDeleteTitle => 'यह कॉन्सेप्ट हटाएँ?';
+
+  @override
+  String conceptDeleteMessage(String title) {
+    return '\"$title\" इस डिवाइस से हमेशा के लिए हटा दिया जाएगा। इसे पूर्ववत नहीं किया जा सकता।';
+  }
+
+  @override
+  String get conceptDeleted => 'कॉन्सेप्ट हटाया गया';
+
+  @override
+  String get conceptNotFound => 'यह कॉन्सेप्ट अब मौजूद नहीं है।';
+
+  @override
+  String get conceptLoadError => 'यह कॉन्सेप्ट लोड नहीं हो सका।';
+
+  @override
+  String get conceptArchivedBanner => 'यह कॉन्सेप्ट संग्रहित है और आपकी मुख्य सूची में नहीं दिखता।';
+
+  @override
+  String conceptCreatedOn(String date) {
+    return 'बनाया गया $date';
+  }
+
+  @override
+  String conceptUpdatedOn(String date) {
+    return 'अपडेट किया गया $date';
+  }
+
+  @override
+  String get conceptMoreActions => 'और विकल्प';
+
+  @override
+  String get filterExam => 'परीक्षा';
+
+  @override
+  String get filterSubject => 'विषय';
+
+  @override
+  String get filterTopic => 'टॉपिक';
+
+  @override
+  String get filterAll => 'सभी';
+
+  @override
+  String get filterArchived => 'संग्रहित';
+
+  @override
+  String get filterClear => 'फ़िल्टर हटाएँ';
+
+  @override
+  String filterBy(String label) {
+    return '$label से फ़िल्टर करें';
+  }
+
+  @override
+  String get conceptsNoFilterResults => 'इन फ़िल्टर से मेल खाता कोई कॉन्सेप्ट नहीं मिला।';
+
+  @override
+  String get conceptsArchivedEmpty => 'कोई संग्रहित कॉन्सेप्ट नहीं है।';
 }

@@ -25,8 +25,23 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   drift_dev: ^2.35.1
   build_runner: ^2.16.2
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true
   # Generates AppLocalizations from lib/core/localization/arb (see l10n.yaml).
   generate: true
+
+  assets:
+    # Licence text for the bundled font (registered in bootstrap.dart).
+    - assets/fonts/noto_sans_devanagari/OFL.txt
+
+  fonts:
+    # Noto Sans Devanagari v2.007 (SIL OFL 1.1), from github.com/notofonts/devanagari.
+    # Used as a fallback so Hindi renders offline everywhere, including web.
+    - family: NotoSansDevanagari
+      fonts:
+        - asset: assets/fonts/noto_sans_devanagari/NotoSansDevanagari-Regular.ttf
+        - asset: assets/fonts/noto_sans_devanagari/NotoSansDevanagari-Bold.ttf
+          weight: 700

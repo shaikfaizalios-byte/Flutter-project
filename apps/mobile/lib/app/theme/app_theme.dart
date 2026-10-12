@@ -6,6 +6,10 @@ import 'app_spacing.dart';
 abstract final class AppTheme {
   static const Color seed = Color(0xFF1E6B8F);
 
+  /// Bundled font used for characters the primary font lacks (Devanagari),
+  /// so Hindi renders without network access (see pubspec.yaml).
+  static const fontFallback = ['NotoSansDevanagari'];
+
   static ThemeData light() => _build(ColorScheme.fromSeed(seedColor: seed));
 
   static ThemeData dark() =>
@@ -15,6 +19,7 @@ abstract final class AppTheme {
     final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
     return ThemeData(
       colorScheme: colors,
+      fontFamilyFallback: fontFallback,
       visualDensity: VisualDensity.standard,
       scaffoldBackgroundColor: colors.surface,
       appBarTheme: AppBarTheme(

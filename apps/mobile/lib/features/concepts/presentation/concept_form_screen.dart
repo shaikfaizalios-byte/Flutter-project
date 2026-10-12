@@ -5,15 +5,23 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/exams/exam_catalog.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/utils/app_log.dart';
+import '../../../core/widgets/empty_state.dart';
+import '../../study_plan/application/study_profile_controller.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 
+/// Creates a concept, or edits one when [conceptId] is given.
 class ConceptFormScreen extends ConsumerStatefulWidget {
-  const ConceptFormScreen({super.key});
+  const ConceptFormScreen({super.key, this.conceptId});
+
+  final String? conceptId;
 
   @override
   ConsumerState<ConceptFormScreen> createState() => _ConceptFormScreenState();
 }
+
+enum _LoadState { loading, ready, notFound, failed }
 
 class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -25,9 +33,48 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
   final _source = TextEditingController();
   final _notes = TextEditingController();
 
-  String _examCode = supportedExams.first.code;
+  late String _examCode;
   ContentLanguage? _language;
   bool _saving = false;
+  late _LoadState _loadState;
+
+  bool get _isEditing => widget.conceptId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    // New concepts default to the learner's first chosen exam.
+    final chosen = ref.read(studyProfileProvider).examCodes;
+    _examCode = chosen.isNotEmpty ? chosen.first : supportedExams.first.code;
+    _loadState = _isEditing ? _LoadState.loading : _LoadState.ready;
+    if (_isEditing) _load(widget.conceptId!);
+  }
+
+  Future<void> _load(String id) async {
+    try {
+      final concept = await ref.read(conceptsRepositoryProvider).getById(id);
+      if (!mounted) return;
+      if (concept == null) {
+        setState(() => _loadState = _LoadState.notFound);
+        return;
+      }
+      _title.text = concept.title;
+      _subject.text = concept.subject;
+      _topic.text = concept.topic;
+      _subtopic.text = concept.subtopic ?? '';
+      _tags.text = concept.tags.join(', ');
+      _source.text = concept.sourceReference ?? '';
+      _notes.text = concept.notes;
+      setState(() {
+        _examCode = concept.examCode;
+        _language = concept.language;
+        _loadState = _LoadState.ready;
+      });
+    } on Object catch (error, stack) {
+      logError('Loading concept for editing failed', error, stack);
+      if (mounted) setState(() => _loadState = _LoadState.failed);
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -75,11 +122,17 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
       notes: _notes.text,
     );
     try {
-      await ref.read(conceptsRepositoryProvider).create(draft);
+      final repository = ref.read(conceptsRepositoryProvider);
+      if (_isEditing) {
+        await repository.update(widget.conceptId!, draft);
+      } else {
+        await repository.create(draft);
+      }
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text(l10n.conceptSaved)));
       context.pop();
-    } on Object {
+    } on Object catch (error, stack) {
+      logError('Saving concept failed', error, stack);
       if (!mounted) return;
       setState(() => _saving = false);
       messenger.showSnackBar(SnackBar(content: Text(l10n.saveFailed)));
@@ -90,10 +143,22 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     const gap = SizedBox(height: AppSpacing.md);
+    final title = Text(_isEditing ? l10n.conceptEditTitle : l10n.conceptFormTitle);
+
+    if (_loadState != _LoadState.ready) {
+      return Scaffold(
+        appBar: AppBar(title: title),
+        body: switch (_loadState) {
+          _LoadState.notFound => EmptyState(icon: Icons.search_off, title: l10n.conceptNotFound),
+          _LoadState.failed => EmptyState(icon: Icons.error_outline, title: l10n.conceptLoadError),
+          _ => const Center(child: CircularProgressIndicator()),
+        },
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.conceptFormTitle),
+        title: title,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.sm),

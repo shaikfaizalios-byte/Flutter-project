@@ -31,7 +31,7 @@ try {
 Push-Location (Join-Path $root 'apps\mobile')
 try {
     # Generated code (*.g.dart, l10n) is excluded from the format check.
-    $dartFiles = Get-ChildItem lib, test -Recurse -Filter *.dart |
+    $dartFiles = Get-ChildItem lib, test, integration_test -Recurse -Filter *.dart |
         Where-Object { $_.Name -notlike '*.g.dart' -and $_.FullName -notmatch '\\generated\\' } |
         ForEach-Object { $_.FullName }
     Invoke-Step 'mobile: dart format' { dart format --output=none --set-exit-if-changed @dartFiles }

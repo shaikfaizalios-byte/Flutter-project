@@ -45,3 +45,27 @@ class AppSettings extends Table {
   @override
   Set<Column<Object>> get primaryKey => {key};
 }
+
+/// The learner's study setup from onboarding (single row, id = 1). Added in schema v2.
+@DataClassName('StudyProfileRow')
+class StudyProfiles extends Table {
+  // Drift idiom: a column check refers to its own getter.
+  // ignore: recursive_getters
+  IntColumn get id => integer().check(id.equals(1))();
+
+  /// Selected exam codes as a JSON array; empty means "not chosen yet".
+  TextColumn get examCodes =>
+      text().map(const StringListConverter()).withDefault(const Constant('[]'))();
+
+  /// Calendar date `yyyy-MM-dd` (no time or timezone, so it never shifts).
+  TextColumn get targetExamDate => text().nullable()();
+  IntColumn get dailyStudyMinutes => integer().nullable()();
+
+  /// Local wall-clock time as minutes after midnight (0–1439).
+  IntColumn get reminderMinutes => integer().nullable()();
+  DateTimeColumn get onboardingCompletedAt => dateTime().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}

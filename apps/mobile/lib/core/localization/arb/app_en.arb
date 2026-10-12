@@ -1,14 +1,14 @@
 {
   "@@locale": "en",
   "appTitle": "PrepLoop",
-  "@appTitle": {"description": "Product name shown in the app bar and task switcher."},
-
+  "@appTitle": {
+    "description": "Product name shown in the app bar and task switcher."
+  },
   "navHome": "Home",
   "navStudy": "Study",
   "navPractice": "Practice",
   "navProgress": "Progress",
   "navProfile": "Profile",
-
   "homeHeadline": "Your study loop",
   "homeTodayTitle": "What should I study today?",
   "homeTodayEmpty": "No study plan yet. Once you add concepts or import a question paper, your recommended tasks for today will appear here.",
@@ -16,13 +16,18 @@
   "homeWeakEmpty": "Not enough practice data yet. Weak topics are identified only after you have answered enough questions in a topic.",
   "homeUpcomingTitle": "What is coming up next?",
   "homeUpcomingEmpty": "No revisions or goals are scheduled.",
-
   "studyTitle": "Study",
   "conceptsSearchHint": "Search concepts",
   "conceptsEmptyTitle": "No concepts yet",
   "conceptsEmptyMessage": "Add the topics and notes you are studying. They are saved on this device and work offline.",
   "conceptsNoResults": "No concepts match \"{query}\".",
-  "@conceptsNoResults": {"placeholders": {"query": {"type": "String"}}},
+  "@conceptsNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "conceptsLoadError": "Your concepts could not be loaded.",
   "conceptsAdd": "Add concept",
   "conceptArchive": "Archive",
@@ -30,8 +35,13 @@
   "conceptSaved": "Concept saved",
   "undo": "Undo",
   "conceptOptions": "Options for {title}",
-  "@conceptOptions": {"placeholders": {"title": {"type": "String"}}},
-
+  "@conceptOptions": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "conceptFormTitle": "New concept",
   "fieldExam": "Exam",
   "fieldTitle": "Title",
@@ -50,18 +60,27 @@
   "saveFailed": "The concept could not be saved. Please try again.",
   "validationRequired": "This field is required.",
   "validationTooLong": "Please shorten this to {max} characters or fewer.",
-  "@validationTooLong": {"placeholders": {"max": {"type": "int"}}},
+  "@validationTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "validationTooManyTags": "Use at most {max} tags.",
-  "@validationTooManyTags": {"placeholders": {"max": {"type": "int"}}},
-
+  "@validationTooManyTags": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "practiceTitle": "Practice",
   "practiceEmptyTitle": "Practice sessions",
   "practiceEmptyMessage": "Topic-wise practice and timed mock tests will appear here once questions are available. This section is available in an upcoming update.",
-
   "progressTitle": "Progress",
   "progressEmptyTitle": "No progress data yet",
   "progressEmptyMessage": "Your accuracy and revision history will appear here after you start practising.",
-
   "settingsTitle": "Profile & settings",
   "settingsLanguage": "App language",
   "languageSystem": "System",
@@ -71,19 +90,187 @@
   "themeSystem": "System",
   "themeLight": "Light",
   "themeDark": "Dark",
-
   "settingsServer": "Server connection",
   "serverChecking": "Checking…",
   "serverOnline": "Connected · API {version}",
-  "@serverOnline": {"placeholders": {"version": {"type": "String"}}},
+  "@serverOnline": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "serverOffline": "Cannot reach the PrepLoop server.",
   "serverOfflineHint": "Features that work offline are not affected.",
   "retry": "Try again",
-
   "settingsAbout": "About",
   "aboutBuild": "{appName} · {flavor} build",
-  "@aboutBuild": {"placeholders": {"appName": {"type": "String"}, "flavor": {"type": "String"}}},
-
+  "@aboutBuild": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      },
+      "flavor": {
+        "type": "String"
+      }
+    }
+  },
   "notFoundTitle": "Page not found",
-  "goHome": "Go to Home"
+  "goHome": "Go to Home",
+  "onboardingStep": "Step {step} of {total}",
+  "@onboardingStep": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingSkipSetup": "Skip setup",
+  "back": "Back",
+  "next": "Next",
+  "onboardingFinish": "Start studying",
+  "onboardingWelcomeTitle": "Welcome to PrepLoop",
+  "onboardingWelcomeBody": "Let's set up your preparation. Every step is optional, and you can change your answers later in Profile. Your answers are stored on this device.",
+  "onboardingExamTitle": "Which exam are you preparing for?",
+  "onboardingExamHint": "Select one or both.",
+  "onboardingDateTitle": "When is your exam?",
+  "onboardingDateHint": "If you know the date, PrepLoop shows a countdown. You can skip this.",
+  "onboardingDailyTitle": "How much time can you study each day?",
+  "onboardingDailyHint": "Choose a realistic amount. Studying a little every day works better than occasional long sessions.",
+  "onboardingReminderTitle": "When should PrepLoop remind you to study?",
+  "onboardingReminderHint": "Reminders will be switched on in a later update. Your preferred time is saved now.",
+  "chooseDate": "Choose date",
+  "chooseTime": "Choose time",
+  "clear": "Clear",
+  "notSet": "Not set",
+  "cancel": "Cancel",
+  "done": "Done",
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{hours} h",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsStudyPlan": "Study plan",
+  "fieldExams": "Exams",
+  "examsNotChosen": "Not chosen",
+  "fieldExamDate": "Exam date",
+  "fieldDailyStudy": "Daily study time",
+  "fieldReminder": "Reminder time",
+  "settingsLicences": "Open-source licences",
+  "homeChooseExamTitle": "Choose your exam",
+  "homeChooseExamMessage": "Select SSC CGL, SSC CHSL or both to personalise PrepLoop.",
+  "homeChooseExamAction": "Choose exam",
+  "homeExamCountdown": "{count, plural, =0{Your exam is today} =1{1 day to go} other{{count} days to go}}",
+  "@homeExamCountdown": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeExamPassed": "Your exam date has passed. You can update it in Profile.",
+  "homeExamOn": "Exam date: {date}",
+  "@homeExamOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeConceptCount": "{count, plural, =0{You have not added any concepts yet.} =1{You have 1 concept saved.} other{You have {count} concepts saved.}}",
+  "@homeConceptCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeDailyGoal": "Daily study goal: {duration}",
+  "@homeDailyGoal": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "homePlanComingSoon": "A personalised daily plan will appear here once practice and revision are available.",
+  "homeOpenConcepts": "Open concepts",
+  "homeSetExamDate": "Set your exam date in Profile to see a countdown.",
+  "conceptDetailsTitle": "Concept",
+  "conceptEdit": "Edit",
+  "conceptEditTitle": "Edit concept",
+  "conceptUnarchive": "Restore",
+  "conceptRestored": "Concept restored",
+  "conceptDelete": "Delete",
+  "conceptDeleteTitle": "Delete this concept?",
+  "conceptDeleteMessage": "\"{title}\" will be permanently deleted from this device. This cannot be undone.",
+  "@conceptDeleteMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "conceptDeleted": "Concept deleted",
+  "conceptNotFound": "This concept no longer exists.",
+  "conceptLoadError": "This concept could not be loaded.",
+  "conceptArchivedBanner": "This concept is archived and hidden from your main list.",
+  "conceptCreatedOn": "Created {date}",
+  "@conceptCreatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "conceptUpdatedOn": "Updated {date}",
+  "@conceptUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "conceptMoreActions": "More actions",
+  "filterExam": "Exam",
+  "filterSubject": "Subject",
+  "filterTopic": "Topic",
+  "filterAll": "All",
+  "filterArchived": "Archived",
+  "filterClear": "Clear filters",
+  "filterBy": "Filter by {label}",
+  "@filterBy": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "conceptsNoFilterResults": "No concepts match these filters.",
+  "conceptsArchivedEmpty": "No archived concepts."
 }
