@@ -6,9 +6,11 @@ from http import HTTPStatus
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.logging import request_id_var
+from app.domain.errors import DomainError
 from app.schemas.errors import ErrorBody, ErrorDetail, ErrorResponse
 
 logger = logging.getLogger("app.errors")
@@ -56,6 +58,17 @@ async def validation_exception_handler(_: Request, exc: Exception) -> JSONRespon
     return _response(422, "validation_error", "The request is invalid.", details)
 
 
+async def domain_error_handler(_: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, DomainError)  # noqa: S101
+    return _response(exc.status_code, exc.code, exc.message)
+
+
+async def database_unavailable_handler(_: Request, exc: Exception) -> JSONResponse:
+    # Driver messages can contain host/user names: log the class only.
+    logger.warning("database unavailable: %s", type(exc).__name__)
+    return _response(503, "database_unavailable", "The database is temporarily unavailable.")
+
+
 async def unhandled_exception_handler(_: Request, exc: Exception) -> JSONResponse:
     logger.exception("unhandled error", exc_info=exc)
     return _response(500, "internal_error", "An unexpected error occurred.")
@@ -64,4 +77,6 @@ async def unhandled_exception_handler(_: Request, exc: Exception) -> JSONRespons
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(DomainError, domain_error_handler)
+    app.add_exception_handler(OperationalError, database_unavailable_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)

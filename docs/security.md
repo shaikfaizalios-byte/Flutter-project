@@ -11,6 +11,21 @@
 - The request log records method, path (no query string), status and duration.
 - Incoming `X-Request-ID` values are validated before they are logged or echoed.
 
+## Implemented (Phase 2)
+
+- The database URL is a `SecretStr`. It is never logged or returned, and `alembic.ini` contains no credentials.
+- When the database or readiness check fails, only the exception class is logged (driver messages can contain host and user names). Clients get a generic 503.
+- The app connects as a non-superuser role (`preploop`) that owns only its own databases. Local passwords are randomly generated and stored only in the gitignored `services/api/.env`.
+- All queries go through the SQLAlchemy ORM with bound parameters. User search text is LIKE-escaped.
+- Constraints are also enforced in the database (CHECK on language and blank titles; foreign key on exam), not only in Pydantic.
+- Request bodies reject unknown fields, and every length is bounded (`extra="forbid"`, explicit max lengths, max 20 tags).
+- Mobile: local data stays on the device (nothing is sent to the server). Logs never include user content.
+
+## Known gaps (accepted for now)
+
+- **No authentication or ownership on `/api/v1/concepts`.** It is single-tenant and must not be deployed publicly before Phase 10.
+- The on-device database is not encrypted. It holds study notes only (no credentials). Revisit if sensitive data is ever stored locally.
+
 ## Required before the relevant phases ship
 
 - Upload validation by content (magic bytes), plus size, page and time limits, and path-traversal-safe storage (Phase 4).

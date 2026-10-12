@@ -54,11 +54,103 @@ class AppLocalizationsHi extends AppLocalizations {
   String get studyTitle => 'अध्ययन';
 
   @override
-  String get studyEmptyTitle => 'आपकी अध्ययन सामग्री यहाँ रहेगी';
+  String get conceptsSearchHint => 'कॉन्सेप्ट खोजें';
 
   @override
-  String get studyEmptyMessage =>
-      'कॉन्सेप्ट, फ़्लैशकार्ड और आयात किए गए प्रश्न-पत्र यहाँ दिखेंगे। यह अनुभाग आगामी अपडेट में उपलब्ध होगा।';
+  String get conceptsEmptyTitle => 'अभी कोई कॉन्सेप्ट नहीं है';
+
+  @override
+  String get conceptsEmptyMessage =>
+      'जिन विषयों और नोट्स को आप पढ़ रहे हैं, उन्हें जोड़ें। ये इसी डिवाइस पर सहेजे जाते हैं और ऑफ़लाइन भी काम करते हैं।';
+
+  @override
+  String conceptsNoResults(String query) {
+    return '\"$query\" से मेल खाता कोई कॉन्सेप्ट नहीं मिला।';
+  }
+
+  @override
+  String get conceptsLoadError => 'आपके कॉन्सेप्ट लोड नहीं हो सके।';
+
+  @override
+  String get conceptsAdd => 'कॉन्सेप्ट जोड़ें';
+
+  @override
+  String get conceptArchive => 'संग्रहित करें';
+
+  @override
+  String get conceptArchived => 'कॉन्सेप्ट संग्रहित किया गया';
+
+  @override
+  String get conceptSaved => 'कॉन्सेप्ट सहेजा गया';
+
+  @override
+  String get undo => 'पूर्ववत करें';
+
+  @override
+  String conceptOptions(String title) {
+    return '$title के विकल्प';
+  }
+
+  @override
+  String get conceptFormTitle => 'नया कॉन्सेप्ट';
+
+  @override
+  String get fieldExam => 'परीक्षा';
+
+  @override
+  String get fieldTitle => 'शीर्षक';
+
+  @override
+  String get fieldSubject => 'विषय';
+
+  @override
+  String get fieldSubjectHint => 'जैसे: मात्रात्मक अभियोग्यता';
+
+  @override
+  String get fieldTopic => 'टॉपिक';
+
+  @override
+  String get fieldTopicHint => 'जैसे: प्रतिशत';
+
+  @override
+  String get fieldSubtopic => 'उप-टॉपिक (वैकल्पिक)';
+
+  @override
+  String get fieldContentLanguage => 'सामग्री की भाषा';
+
+  @override
+  String get fieldTags => 'टैग (वैकल्पिक)';
+
+  @override
+  String get fieldTagsHint => 'टैग को कॉमा से अलग करें';
+
+  @override
+  String get fieldSourceReference => 'स्रोत (वैकल्पिक)';
+
+  @override
+  String get fieldSourceReferenceHint => 'जैसे: पुस्तक, पृष्ठ या प्रश्न-पत्र';
+
+  @override
+  String get fieldNotes => 'नोट्स (वैकल्पिक)';
+
+  @override
+  String get save => 'सहेजें';
+
+  @override
+  String get saveFailed => 'कॉन्सेप्ट सहेजा नहीं जा सका। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get validationRequired => 'यह फ़ील्ड आवश्यक है।';
+
+  @override
+  String validationTooLong(int max) {
+    return 'कृपया इसे $max अक्षरों या उससे कम में लिखें।';
+  }
+
+  @override
+  String validationTooManyTags(int max) {
+    return 'अधिकतम $max टैग का उपयोग करें।';
+  }
 
   @override
   String get practiceTitle => 'अभ्यास';
@@ -106,10 +198,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get themeDark => 'डार्क';
-
-  @override
-  String get settingsPreferencesNote =>
-      'ये प्राथमिकताएँ अभी सहेजी नहीं जातीं और ऐप दोबारा शुरू होने पर रीसेट हो जाती हैं।';
 
   @override
   String get settingsServer => 'सर्वर कनेक्शन';

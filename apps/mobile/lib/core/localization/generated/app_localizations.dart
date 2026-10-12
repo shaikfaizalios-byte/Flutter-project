@@ -177,17 +177,185 @@ abstract class AppLocalizations {
   /// **'Study'**
   String get studyTitle;
 
-  /// No description provided for @studyEmptyTitle.
+  /// No description provided for @conceptsSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Your study material lives here'**
-  String get studyEmptyTitle;
+  /// **'Search concepts'**
+  String get conceptsSearchHint;
 
-  /// No description provided for @studyEmptyMessage.
+  /// No description provided for @conceptsEmptyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Concepts, flashcards and imported question papers will appear here. This section is available in an upcoming update.'**
-  String get studyEmptyMessage;
+  /// **'No concepts yet'**
+  String get conceptsEmptyTitle;
+
+  /// No description provided for @conceptsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the topics and notes you are studying. They are saved on this device and work offline.'**
+  String get conceptsEmptyMessage;
+
+  /// No description provided for @conceptsNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No concepts match \"{query}\".'**
+  String conceptsNoResults(String query);
+
+  /// No description provided for @conceptsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your concepts could not be loaded.'**
+  String get conceptsLoadError;
+
+  /// No description provided for @conceptsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add concept'**
+  String get conceptsAdd;
+
+  /// No description provided for @conceptArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get conceptArchive;
+
+  /// No description provided for @conceptArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Concept archived'**
+  String get conceptArchived;
+
+  /// No description provided for @conceptSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Concept saved'**
+  String get conceptSaved;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @conceptOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options for {title}'**
+  String conceptOptions(String title);
+
+  /// No description provided for @conceptFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New concept'**
+  String get conceptFormTitle;
+
+  /// No description provided for @fieldExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get fieldExam;
+
+  /// No description provided for @fieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get fieldTitle;
+
+  /// No description provided for @fieldSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get fieldSubject;
+
+  /// No description provided for @fieldSubjectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Quantitative Aptitude'**
+  String get fieldSubjectHint;
+
+  /// No description provided for @fieldTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic'**
+  String get fieldTopic;
+
+  /// No description provided for @fieldTopicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Percentage'**
+  String get fieldTopicHint;
+
+  /// No description provided for @fieldSubtopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtopic (optional)'**
+  String get fieldSubtopic;
+
+  /// No description provided for @fieldContentLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Content language'**
+  String get fieldContentLanguage;
+
+  /// No description provided for @fieldTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags (optional)'**
+  String get fieldTags;
+
+  /// No description provided for @fieldTagsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate tags with commas'**
+  String get fieldTagsHint;
+
+  /// No description provided for @fieldSourceReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Source (optional)'**
+  String get fieldSourceReference;
+
+  /// No description provided for @fieldSourceReferenceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. book, page, or paper'**
+  String get fieldSourceReferenceHint;
+
+  /// No description provided for @fieldNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get fieldNotes;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The concept could not be saved. Please try again.'**
+  String get saveFailed;
+
+  /// No description provided for @validationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get validationRequired;
+
+  /// No description provided for @validationTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Please shorten this to {max} characters or fewer.'**
+  String validationTooLong(int max);
+
+  /// No description provided for @validationTooManyTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at most {max} tags.'**
+  String validationTooManyTags(int max);
 
   /// No description provided for @practiceTitle.
   ///
@@ -278,12 +446,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get themeDark;
-
-  /// No description provided for @settingsPreferencesNote.
-  ///
-  /// In en, this message translates to:
-  /// **'These preferences are not saved yet and reset when the app restarts.'**
-  String get settingsPreferencesNote;
 
   /// No description provided for @settingsServer.
   ///

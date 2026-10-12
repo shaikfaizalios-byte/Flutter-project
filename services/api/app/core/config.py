@@ -4,7 +4,7 @@ from enum import StrEnum
 from functools import lru_cache
 from typing import Annotated, Self
 
-from pydantic import Field, model_validator
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     # Optional regex for allowed origins. Intended for local development only, where the
     # Flutter web dev server picks a random localhost port.
     cors_origin_regex: str | None = None
+
+    # SQLAlchemy URL, e.g. postgresql+psycopg://user:pass@host:5432/db. When unset, the API
+    # still starts (liveness works) but database-backed endpoints return 503.
+    database_url: SecretStr | None = None
+    database_pool_size: int = Field(default=5, ge=1, le=50)
+    database_connect_timeout_seconds: int = Field(default=5, ge=1, le=60)
 
     @model_validator(mode="before")
     @classmethod

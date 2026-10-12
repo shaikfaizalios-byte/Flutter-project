@@ -6,3 +6,6 @@
 *.jpg binary
 *.pdf binary
 *.jar binary
+*.wasm binary
+# Vendored, checksum-verified runtime (docs/database.md): keep byte-identical.
+apps/mobile/web/drift_worker.js -text

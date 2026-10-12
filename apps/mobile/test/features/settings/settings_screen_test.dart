@@ -9,16 +9,16 @@ Future<void> openProfile(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('shows connected server status', (tester) async {
-    await pumpPrepLoopApp(tester);
+  testAppWidgets('shows connected server status', (tester, db) async {
+    await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
 
     expect(find.text('Connected · API 0.1.0'), findsOneWidget);
   });
 
-  testWidgets('shows offline state and retries on request', (tester) async {
+  testAppWidgets('shows offline state and retries on request', (tester, db) async {
     final repo = FakeServerStatusRepository(online: false);
-    await pumpPrepLoopApp(tester, serverStatus: repo);
+    await pumpPrepLoopApp(tester, db, serverStatus: repo);
     await openProfile(tester);
 
     expect(find.text('Cannot reach the PrepLoop server.'), findsOneWidget);
@@ -32,8 +32,8 @@ void main() {
     expect(find.text('Connected · API 0.1.0'), findsOneWidget);
   });
 
-  testWidgets('switching language to Hindi localises the interface', (tester) async {
-    await pumpPrepLoopApp(tester);
+  testAppWidgets('switching language to Hindi localises the interface', (tester, db) async {
+    await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
 
     await tester.tap(find.text('हिन्दी'));
@@ -44,14 +44,14 @@ void main() {
     expect(find.text('Home'), findsNothing);
   });
 
-  testWidgets('follows a Hindi device locale by default', (tester) async {
-    await pumpPrepLoopApp(tester, deviceLocale: const Locale('hi', 'IN'));
+  testAppWidgets('follows a Hindi device locale by default', (tester, db) async {
+    await pumpPrepLoopApp(tester, db, deviceLocale: const Locale('hi', 'IN'));
 
     expect(find.text('आज मुझे क्या पढ़ना चाहिए?'), findsOneWidget);
   });
 
-  testWidgets('switching theme to dark applies the dark theme', (tester) async {
-    await pumpPrepLoopApp(tester);
+  testAppWidgets('switching theme to dark applies the dark theme', (tester, db) async {
+    await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
 
     await tester.tap(find.text('Dark'));

@@ -1,0 +1,5 @@
+Alembic migrations for the PrepLoop API. See docs/database.md.
+
+  .\.venv\Scripts\alembic.exe upgrade head                       # apply
+  .\.venv\Scripts\alembic.exe revision --autogenerate -m "..."   # draft a new one, then review it
+  .\.venv\Scripts\alembic.exe downgrade -1                       # roll back one step

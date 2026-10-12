@@ -56,14 +56,7 @@ class SettingsScreen extends ConsumerWidget {
                   onSelectionChanged: (selection) => controller.setThemeMode(selection.first),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                child: Text(
-                  l10n.settingsPreferencesNote,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.md),
               SectionCard(
                 icon: Icons.cloud_outlined,
                 title: l10n.settingsServer,

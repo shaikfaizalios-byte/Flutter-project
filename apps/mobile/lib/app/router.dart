@@ -7,20 +7,19 @@ import '../core/widgets/empty_state.dart';
 import '../features/analytics/presentation/progress_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/practice/presentation/practice_screen.dart';
+import '../features/concepts/presentation/concept_form_screen.dart';
+import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
-import '../features/study/presentation/study_screen.dart';
 import 'app_shell.dart';
+import 'routes.dart';
 
-abstract final class AppRoutes {
-  static const home = '/home';
-  static const study = '/study';
-  static const practice = '/practice';
-  static const progress = '/progress';
-  static const profile = '/profile';
-}
+export 'routes.dart';
+
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.home,
     redirect: (context, state) => state.uri.path == '/' ? AppRoutes.home : null,
     errorBuilder: (context, state) => const _NotFoundScreen(),
@@ -29,7 +28,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
           _branch(AppRoutes.home, const HomeScreen()),
-          _branch(AppRoutes.study, const StudyScreen()),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.study,
+                builder: (context, state) => const ConceptListScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'concepts/new',
+                    // Full screen above the navigation bar while editing.
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const ConceptFormScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
           _branch(AppRoutes.practice, const PracticeScreen()),
           _branch(AppRoutes.progress, const ProgressScreen()),
           _branch(AppRoutes.profile, const SettingsScreen()),

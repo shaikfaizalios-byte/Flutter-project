@@ -3,8 +3,9 @@
 PrepLoop helps SSC CGL and SSC CHSL aspirants turn scattered PDFs, previous-year papers and notes into a
 personalised study loop: practise, find weak topics, revise on schedule, and track real progress.
 
-> **Status:** Phase 1 (project foundation). The app shell, navigation, theming, English/Hindi localisation
-> and a backend health check work. Learning features are not implemented yet. See [CLAUDE.md](CLAUDE.md).
+> **Status:** Phase 2 (database and persistence). The app shell, theming, English/Hindi localisation,
+> offline concept management on the device and persisted preferences all work. On the server, PostgreSQL
+> with migrations backs a concepts API. The app does not sync with the server yet. See [CLAUDE.md](CLAUDE.md).
 
 ## Repository layout
 
@@ -23,6 +24,7 @@ personalised study loop: practise, find weak topics, revise on schedule, and tra
 - Flutter **3.47.x stable** (Dart 3.13)
 - For Android: Android Studio + Android SDK (`flutter doctor --android-licenses`)
 - For iOS: macOS with Xcode (cannot be built on Windows)
+- PostgreSQL 17 for the backend database. See [docs/database.md](docs/database.md) for the role and database setup.
 
 Check with `flutter doctor` and `python --version`.
 
@@ -87,7 +89,15 @@ After changing endpoints, run `.\scripts\export-openapi.ps1` and commit `contrac
 
 ## Database migrations
 
-Not applicable yet. PostgreSQL, SQLAlchemy and Alembic are introduced in Phase 2.
+From `services/api`:
+
+```powershell
+.\.venv\Scripts\alembic.exe upgrade head     # apply all migrations
+.\.venv\Scripts\alembic.exe check            # verify models and migrations match
+```
+
+The database URL comes from `PREPLOOP_DATABASE_URL` in `services/api/.env`. For creating migrations and
+for the mobile (Drift) schema workflow, see [docs/database.md](docs/database.md).
 
 ## Build
 

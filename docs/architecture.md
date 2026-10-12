@@ -30,6 +30,12 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-9 | Build-time config through `--dart-define`; runtime config through `PREPLOOP_*` env vars | No secrets in the app; 12-factor backend |
 | ADR-10 | pip + venv + `requirements.lock.txt` (pinned) with ranges in `pyproject.toml` | No extra tooling needed; reproducible installs; can migrate to uv later |
 | ADR-11 | Web target kept for development verification only | Lets UI be checked on Windows without the Android SDK; not a product target |
+| ADR-12 | Synchronous SQLAlchemy 2 with psycopg 3; FastAPI runs sync endpoints in its threadpool | Simpler code and tests; low concurrency needs; async can be adopted per endpoint later |
+| ADR-13 | Services own transactions (one commit per operation); repositories only query and flush | Clear unit-of-work boundary; repositories can be reused inside larger operations |
+| ADR-14 | Native PostgreSQL install for local development instead of Docker | Fits 8 GB RAM; Docker stays optional |
+| ADR-15 | Offline-first mobile: Drift is the source of truth on the device; client-generated UUIDs; no sync until Phase 10 | Works without a network; IDs never need remapping; sync rules designed first (docs/database.md) |
+| ADR-16 | Preferences in a Drift key/value table, loaded before the first frame (3 s timeout) | One storage engine, no flash of the wrong language or theme, never a blank app if storage hangs |
+| ADR-17 | Validation limits duplicated on purpose: Pydantic on the server, `ConceptRules` on mobile | The device validates offline; the server re-validates everything it receives |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -52,7 +58,7 @@ schemas/           Pydantic request/response models
 
 ## Planned evolution
 
-- Phase 2: SQLAlchemy and Alembic with PostgreSQL; Drift for the local store; a readiness probe.
+- Phase 2 (done): SQLAlchemy and Alembic with PostgreSQL; Drift for the local store; a readiness probe.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
-- Typed Dart client generated from `contracts/openapi/openapi.json` once there are enough endpoints to justify it (Phase 2).
+- Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

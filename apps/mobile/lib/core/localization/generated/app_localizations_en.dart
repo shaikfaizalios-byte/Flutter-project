@@ -54,11 +54,103 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studyTitle => 'Study';
 
   @override
-  String get studyEmptyTitle => 'Your study material lives here';
+  String get conceptsSearchHint => 'Search concepts';
 
   @override
-  String get studyEmptyMessage =>
-      'Concepts, flashcards and imported question papers will appear here. This section is available in an upcoming update.';
+  String get conceptsEmptyTitle => 'No concepts yet';
+
+  @override
+  String get conceptsEmptyMessage =>
+      'Add the topics and notes you are studying. They are saved on this device and work offline.';
+
+  @override
+  String conceptsNoResults(String query) {
+    return 'No concepts match \"$query\".';
+  }
+
+  @override
+  String get conceptsLoadError => 'Your concepts could not be loaded.';
+
+  @override
+  String get conceptsAdd => 'Add concept';
+
+  @override
+  String get conceptArchive => 'Archive';
+
+  @override
+  String get conceptArchived => 'Concept archived';
+
+  @override
+  String get conceptSaved => 'Concept saved';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String conceptOptions(String title) {
+    return 'Options for $title';
+  }
+
+  @override
+  String get conceptFormTitle => 'New concept';
+
+  @override
+  String get fieldExam => 'Exam';
+
+  @override
+  String get fieldTitle => 'Title';
+
+  @override
+  String get fieldSubject => 'Subject';
+
+  @override
+  String get fieldSubjectHint => 'e.g. Quantitative Aptitude';
+
+  @override
+  String get fieldTopic => 'Topic';
+
+  @override
+  String get fieldTopicHint => 'e.g. Percentage';
+
+  @override
+  String get fieldSubtopic => 'Subtopic (optional)';
+
+  @override
+  String get fieldContentLanguage => 'Content language';
+
+  @override
+  String get fieldTags => 'Tags (optional)';
+
+  @override
+  String get fieldTagsHint => 'Separate tags with commas';
+
+  @override
+  String get fieldSourceReference => 'Source (optional)';
+
+  @override
+  String get fieldSourceReferenceHint => 'e.g. book, page, or paper';
+
+  @override
+  String get fieldNotes => 'Notes (optional)';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get saveFailed => 'The concept could not be saved. Please try again.';
+
+  @override
+  String get validationRequired => 'This field is required.';
+
+  @override
+  String validationTooLong(int max) {
+    return 'Please shorten this to $max characters or fewer.';
+  }
+
+  @override
+  String validationTooManyTags(int max) {
+    return 'Use at most $max tags.';
+  }
 
   @override
   String get practiceTitle => 'Practice';
@@ -106,10 +198,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeDark => 'Dark';
-
-  @override
-  String get settingsPreferencesNote =>
-      'These preferences are not saved yet and reset when the app restarts.';
 
   @override
   String get settingsServer => 'Server connection';

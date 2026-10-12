@@ -1,7 +1,9 @@
 # API
 
-Base path: `/api/v1`. The contract is in [`contracts/openapi/openapi.json`](../contracts/openapi/openapi.json)
-(regenerate with `scripts/export-openapi.ps1`). Interactive docs are at `/docs`, except in production.
+Base path: `/api/v1`. The contract is in [`contracts/openapi/openapi.json`](../contracts/openapi/openapi.json).
+Regenerate it with `scripts/export-openapi.ps1` after every API change. Interactive docs are at `/docs`, except in production.
+
+> **No authentication yet (until Phase 10).** All data is single-tenant. Do not deploy this API publicly before accounts and ownership checks exist.
 
 ## Conventions
 
@@ -10,16 +12,85 @@ Base path: `/api/v1`. The contract is in [`contracts/openapi/openapi.json`](../c
 
 ```json
 { "error": { "code": "validation_error", "message": "The request is invalid.",
-             "request_id": "…", "details": [{ "field": "query.count", "message": "…" }] } }
+             "request_id": "…", "details": [{ "field": "body.title", "message": "…" }] } }
 ```
 
-  `code` is a stable snake_case value: `not_found`, `method_not_allowed`, `validation_error` or `internal_error`.
+  | Status | `code` | When |
+  |---|---|---|
+  | 404 | `not_found` | Unknown route or entity |
+  | 405 | `method_not_allowed` | |
+  | 422 | `validation_error` | Request body, query or path is invalid (`details` lists the fields) |
+  | 422 | `invalid_reference` | References an unknown or inactive entity, e.g. `exam_code` |
+  | 503 | `service_unavailable` | Database not configured |
+  | 503 | `database_unavailable` | Database unreachable |
+  | 500 | `internal_error` | Unexpected; details are only in server logs |
 
-## Endpoints
+- Unknown request fields are rejected (`extra="forbid"`).
+- Timestamps are ISO-8601 with a timezone. IDs are UUIDs.
+
+## Health
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/health` | Root liveness (for load balancers) |
+| GET | `/health` | Root liveness, for load balancers |
 | GET | `/api/v1/health` | Liveness: `{"status":"ok","service","version","environment"}` |
+| GET | `/api/v1/health/ready` | Readiness: `200 {"status":"ready","checks":{"database":"ok"}}`, or `503` with `database` set to `unavailable` or `not_configured` |
 
-Readiness (`/api/v1/health/ready`, with dependency checks) is added in Phase 2 with the database.
+## Exams
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/exams` | Active exams, `[{"code","name"}]` |
+
+## Concepts
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/concepts` | Search and list (see the query parameters below) → `ConceptPage` |
+| POST | `/api/v1/concepts` | Create → `201 ConceptRead` |
+| GET | `/api/v1/concepts/{id}` | Fetch one |
+| PATCH | `/api/v1/concepts/{id}` | Partial update. Only the fields sent are changed. `subtopic` and `source_reference` can be cleared with `null`; required fields cannot be null. |
+| POST | `/api/v1/concepts/{id}/archive` | Archive. Repeat calls keep the first timestamp. |
+| POST | `/api/v1/concepts/{id}/unarchive` | Restore |
+| DELETE | `/api/v1/concepts/{id}` | Permanent delete → `204`. Use only on an explicit user request. |
+
+**List query parameters:**
+
+| Parameter | Behaviour |
+|---|---|
+| `q` | Case-insensitive substring over title, notes, topic and subtopic. `%` and `_` are matched literally. |
+| `exam`, `language` | Exact match |
+| `subject`, `topic` | Case-insensitive exact match |
+| `tag` | Exact match; tags are stored lower-cased |
+| `include_archived` | Default `false` |
+| `limit` | 1–100, default 20 |
+| `offset` | 0–100000 |
+
+Results are ordered by `updated_at desc, id`. The response is
+`{"items": [...], "total", "limit", "offset"}`.
+
+**Create body:**
+
+```json
+{
+  "exam_code": "SSC_CGL",
+  "title": "Percentage basics",
+  "subject": "Quantitative Aptitude",
+  "topic": "Percentage",
+  "language": "en",
+  "notes": "",
+  "subtopic": null,
+  "tags": ["formula"],
+  "source_reference": null
+}
+```
+
+**Limits and normalisation:**
+- `title`: 1–200 characters, trimmed.
+- `subject` and `topic`: 1–100 characters.
+- `notes`: at most 20,000 characters.
+- `tags`: at most 20, each 1–50 characters. They are lower-cased and de-duplicated.
+- `subtopic` and `source_reference`: a blank value is stored as `null`.
+- `language`: `en` or `hi`.
+
+The mobile app applies the same rules locally (`ConceptRules`) so data stays consistent once sync exists.

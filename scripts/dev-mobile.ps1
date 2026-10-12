@@ -9,9 +9,14 @@ $ErrorActionPreference = 'Stop'
 if (-not $ApiBaseUrl) {
     $ApiBaseUrl = if ($Device -like 'emulator-*') { 'http://10.0.2.2:8000' } else { 'http://127.0.0.1:8000' }
 }
+$webArgs = @()
+if ($Device -in @('chrome', 'edge', 'web-server')) {
+    # Lets the local database use OPFS storage on web (see docs/database.md).
+    $webArgs = @('--cross-origin-isolation')
+}
 Push-Location (Join-Path $PSScriptRoot '..\apps\mobile')
 try {
-    flutter run -d $Device --dart-define=API_BASE_URL=$ApiBaseUrl --dart-define=FLAVOR=development
+    flutter run -d $Device --dart-define=API_BASE_URL=$ApiBaseUrl --dart-define=FLAVOR=development @webArgs
 } finally {
     Pop-Location
 }
