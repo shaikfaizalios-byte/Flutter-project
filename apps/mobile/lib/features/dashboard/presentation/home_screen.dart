@@ -9,6 +9,9 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../analytics/application/analytics_providers.dart';
+import '../../analytics/domain/weak_topics.dart';
+import '../../analytics/presentation/analytics_widgets.dart';
 import '../../concepts/application/concepts_providers.dart';
 import '../../revision/application/revision_providers.dart';
 import '../../revision/domain/revision_card.dart';
@@ -69,11 +72,7 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               _TodaySection(profile: profile),
               const SizedBox(height: AppSpacing.md),
-              SectionCard(
-                icon: Icons.insights_outlined,
-                title: l10n.homeWeakTitle,
-                child: _Muted(l10n.homeWeakEmpty),
-              ),
+              const _WeakSection(),
               const SizedBox(height: AppSpacing.md),
               _UpcomingSection(profile: profile),
             ],
@@ -94,6 +93,7 @@ class _TodaySection extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final count = ref.watch(activeConceptCountProvider);
     final revision = ref.watch(revisionOverviewProvider);
+    final plan = ref.watch(studyPlanProvider);
     final today = ref.watch(todayProvider);
     final minutes = profile.dailyStudyMinutes;
 
@@ -114,36 +114,91 @@ class _TodaySection extends ConsumerWidget {
             _ => const LinearProgressIndicator(),
           },
           const SizedBox(height: AppSpacing.xs),
-          switch (revision) {
-            AsyncData(:final value) when value.dueToday > 0 => Row(
+          switch (plan) {
+            AsyncData(:final value) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: Text(
-                    value.overdue > 0
-                        ? l10n.homeRevisionDueWithOverdue(value.dueToday, value.overdue)
-                        : l10n.homeRevisionDue(value.dueToday),
+                if (!value.practiceDataAvailable) _Muted(l10n.planOffline),
+                if (value.items.isEmpty)
+                  _Muted(l10n.planEmpty)
+                else
+                  for (final item in value.items) PlanItemTile(item: item),
+                if (value.items.isNotEmpty)
+                  _Muted(
+                    value.budgetMinutes == null
+                        ? l10n.planNoGoal
+                        : l10n.planGoal(value.plannedMinutes, value.budgetMinutes!),
                   ),
-                ),
-                FilledButton.tonal(
-                  onPressed: () => context.push(AppRoutes.revisionReview),
-                  child: Text(l10n.revisionStart),
-                ),
               ],
             ),
-            AsyncData(value: RevisionOverview(nextDue: final next?)) => _Muted(
-              l10n.homeRevisionNoneToday(formatDue(context, today, next)),
-            ),
-            AsyncData() => _Muted(l10n.homeRevisionEmpty),
-            _ => const SizedBox.shrink(),
+            AsyncError() => _Muted(l10n.revisionLoadError),
+            _ => const LinearProgressIndicator(),
           },
-          const SizedBox(height: AppSpacing.xs),
-          _Muted(l10n.homePlanComingSoon),
+          if (revision case AsyncData(:final value) when value.dueToday == 0) ...[
+            const SizedBox(height: AppSpacing.xs),
+            switch (value) {
+              RevisionOverview(nextDue: final next?) => _Muted(
+                l10n.homeRevisionNoneToday(formatDue(context, today, next)),
+              ),
+              _ => _Muted(l10n.homeRevisionEmpty),
+            },
+          ],
           const SizedBox(height: AppSpacing.sm),
           Align(
             alignment: AlignmentDirectional.centerEnd,
             child: TextButton(
               onPressed: () => context.go(AppRoutes.study),
               child: Text(l10n.homeOpenConcepts),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeakSection extends ConsumerWidget {
+  const _WeakSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final insights = ref.watch(topicInsightsProvider);
+    return SectionCard(
+      icon: Icons.insights_outlined,
+      title: l10n.homeWeakTitle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          switch (insights) {
+            AsyncData(:final value) when value.weak.isNotEmpty => Column(
+              children: [
+                for (final topic in value.weak.take(3))
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('${topic.name} · ${topic.subject}'),
+                    subtitle: Text(topicEvidence(context, topic)),
+                  ),
+              ],
+            ),
+            AsyncData(:final value) when value.practice == null => _Muted(l10n.homeWeakOffline),
+            AsyncData(:final value)
+                when value.practice!.total.answered == 0 && value.topics.isEmpty =>
+              _Muted(l10n.homeWeakEmpty),
+            AsyncData(:final value) when value.topics.any((t) => t.hasEnoughData) => _Muted(
+              l10n.homeWeakNone(formatPercent(context, AnalyticsRules.weakAccuracy)),
+            ),
+            AsyncData() => _Muted(
+              l10n.homeWeakNeedMore(AnalyticsRules.minAnswers, AnalyticsRules.minReviews),
+            ),
+            AsyncError() => _Muted(l10n.revisionLoadError),
+            _ => const LinearProgressIndicator(),
+          },
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton(
+              onPressed: () => context.go(AppRoutes.progress),
+              child: Text(l10n.homeSeeProgress),
             ),
           ),
         ],

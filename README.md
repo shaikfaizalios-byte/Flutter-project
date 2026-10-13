@@ -3,16 +3,18 @@
 PrepLoop helps SSC CGL and SSC CHSL aspirants turn scattered PDFs, previous-year papers and notes into a
 personalised study loop: practise, find weak topics, revise on schedule, and track real progress.
 
-> **Status:** Phase 7 (flashcards, spaced revision and reminders). Onboarding, a dashboard built on real data and offline concept
+> **Status:** Phase 8 (analytics and daily study plan). Onboarding, a dashboard built on real data and offline concept
 > management work in English and Hindi. Imported PDFs are read page by page (embedded text or OCR), then
 > split into questions with options, answers, shared passages and source references. Every uncertain
 > result is flagged for human review in the app, and verified exam formats are recorded with their official
 > SSC source. Reviewed questions can be practised (topic, subject or mixed) with instant feedback, or taken as
 > timed mock tests built only from verified formats. The timer is kept on the server, scores are explained, and answers survive
 > going offline. Concepts and verified questions become flashcards on a configurable Day 1/4/7 revision
-> schedule that adapts to how well you remember, with an optional daily reminder. See [CLAUDE.md](CLAUDE.md),
-> [docs/document-ingestion.md](docs/document-ingestion.md), [docs/question-bank.md](docs/question-bank.md),
-> [docs/practice.md](docs/practice.md) and [docs/revision.md](docs/revision.md).
+> schedule that adapts to how well you remember, with an optional daily reminder. Progress shows only
+> recorded results. Weak topics are judged by stated thresholds, and Home builds an explainable daily plan. See
+> [CLAUDE.md](CLAUDE.md), [docs/document-ingestion.md](docs/document-ingestion.md),
+> [docs/question-bank.md](docs/question-bank.md), [docs/practice.md](docs/practice.md),
+> [docs/revision.md](docs/revision.md) and [docs/analytics.md](docs/analytics.md).
 
 ## Repository layout
 

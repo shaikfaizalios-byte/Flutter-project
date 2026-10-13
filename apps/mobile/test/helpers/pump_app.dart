@@ -14,14 +14,17 @@ import 'package:preploop/features/settings/domain/server_health.dart';
 import 'package:preploop/features/study_plan/application/study_profile_controller.dart';
 import 'package:preploop/features/study_plan/domain/study_profile.dart';
 import 'package:preploop/core/utils/clock.dart';
+import 'package:preploop/features/analytics/application/analytics_providers.dart';
 import 'package:preploop/features/practice/application/practice_providers.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
 import 'package:preploop/features/reminders/application/reminder_controller.dart';
 
+import 'fake_analytics.dart';
 import 'fake_practice.dart';
 import 'fake_questions.dart';
 import 'fake_reminders.dart';
 
+export 'fake_analytics.dart';
 export 'fake_practice.dart';
 export 'fake_questions.dart';
 export 'fake_reminders.dart';
@@ -104,6 +107,7 @@ Future<void> pumpPrepLoopApp(
   FakeQuestionsRepository? questions,
   FakePracticeRepository? practice,
   FakeReminderScheduler? reminders,
+  FakeAnalyticsRepository? analytics,
 }) async {
   if (deviceLocale != null) {
     tester.platformDispatcher.localesTestValue = [deviceLocale];
@@ -121,6 +125,8 @@ Future<void> pumpPrepLoopApp(
       practice ?? FakePracticeRepository(serverNow: clockOverride ?? () => now ?? testNow),
     ),
     reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
+    analyticsRepositoryProvider.overrideWithValue(analytics ?? FakeAnalyticsRepository()),
+    localTimezoneProvider.overrideWith((ref) async => 'Asia/Kolkata'),
     ...extraOverrides,
   ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: const PrepLoopApp()));

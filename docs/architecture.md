@@ -61,6 +61,10 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-40 | Concept cards read the live concept; question cards snapshot the question | Edits to the learner's own notes show up; question cards work offline and can't change under the learner |
 | ADR-41 | One daily reminder with a fixed notification id, re-created only when its fingerprint (time, timezone, wording) changes | Duplicate-free by construction across restarts, resumes and setting changes |
 | ADR-42 | Inexact Android alarms; permission asked only when the learner turns reminders on | No exact-alarm permission (Play policy) for a study nudge; a permission prompt in context is accepted more often and is respectful |
+| ADR-43 | The server returns raw answer counts; accuracy, thresholds and "weak" are decided on the device by named rules | One place for the rules, and they are shown to the learner; server and device data (flashcards) combine without double logic; no invented ratios |
+| ADR-44 | Days are bucketed in the learner's IANA timezone, which the client passes explicitly and PostgreSQL applies | Correct "today" and daily charts across midnight and travel; testable at the boundary |
+| ADR-45 | The daily plan is a pure, rule-based function with a reason for every item (no AI) | Predictable and explainable; easy to test; AI suggestions can be added later, labelled |
+| ADR-46 | Charts are plain Flutter widgets, not a chart package | Simple needs; no licence or size cost; accessible summaries |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -89,6 +93,7 @@ schemas/           Pydantic request/response models
 - Phase 5 (done): question segmentation, question bank, verified exam formats, review workflow, question browser.
 - Phase 6 (done): practice sessions, timed mock tests from verified formats, scoring with explanations, offline answer queue, bookmarks, incorrect-answer review and history.
 - Phase 7 (done): flashcards from concepts and verified questions, a configurable Day 1/4/7 revision ladder with adaptive follow-up, due counts on the dashboard, and a daily reminder notification.
+- Phase 8 (done): analytics endpoint (timezone-aware raw counts), weak-topic rules combining practice and flashcard recall, the Progress screen, and a deterministic daily study plan.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

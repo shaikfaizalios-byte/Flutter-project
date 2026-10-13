@@ -1,6 +1,82 @@
 {
   "components": {
     "schemas": {
+      "AnalyticsOverview": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "daily": {
+            "items": {
+              "$ref": "#/components/schemas/DailyStats"
+            },
+            "title": "Daily",
+            "type": "array"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "mocks": {
+            "items": {
+              "$ref": "#/components/schemas/MockResult"
+            },
+            "title": "Mocks",
+            "type": "array"
+          },
+          "recent_days": {
+            "title": "Recent Days",
+            "type": "integer"
+          },
+          "sessions": {
+            "title": "Sessions",
+            "type": "integer"
+          },
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/SubjectStats"
+            },
+            "title": "Subjects",
+            "type": "array"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          },
+          "today": {
+            "format": "date",
+            "title": "Today",
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicStats"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "timezone",
+          "today",
+          "days",
+          "recent_days",
+          "answered",
+          "correct",
+          "sessions",
+          "subjects",
+          "topics",
+          "daily",
+          "mocks"
+        ],
+        "title": "AnalyticsOverview",
+        "type": "object"
+      },
       "AnswerAck": {
         "properties": {
           "applied": {
@@ -476,6 +552,31 @@
           }
         },
         "title": "ConceptUpdate",
+        "type": "object"
+      },
+      "DailyStats": {
+        "description": "One local calendar day (in the requested timezone).",
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "answered",
+          "correct"
+        ],
+        "title": "DailyStats",
         "type": "object"
       },
       "DocumentFormatUpdate": {
@@ -1099,6 +1200,10 @@
             ],
             "title": "Duration Minutes"
           },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
           "exam_format_code": {
             "title": "Exam Format Code",
             "type": "string"
@@ -1132,6 +1237,7 @@
         },
         "required": [
           "exam_format_code",
+          "exam_code",
           "name",
           "available",
           "total_questions",
@@ -1156,6 +1262,90 @@
           "exam_format_code"
         ],
         "title": "MockCreate",
+        "type": "object"
+      },
+      "MockResult": {
+        "properties": {
+          "exam_format_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Format Code"
+          },
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "marking_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marking Note"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "number"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "submit_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submit Reason"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "exam_format_code",
+          "name",
+          "submitted_at",
+          "local_date",
+          "submit_reason",
+          "score",
+          "max_score",
+          "marking_note"
+        ],
+        "title": "MockResult",
         "type": "object"
       },
       "OptionInput": {
@@ -2544,6 +2734,39 @@
         "title": "SessionSummary",
         "type": "object"
       },
+      "SubjectStats": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "recent_answered": {
+            "title": "Recent Answered",
+            "type": "integer"
+          },
+          "recent_correct": {
+            "title": "Recent Correct",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "answered",
+          "correct",
+          "recent_answered",
+          "recent_correct",
+          "name"
+        ],
+        "title": "SubjectStats",
+        "type": "object"
+      },
       "TopicRead": {
         "properties": {
           "id": {
@@ -2628,6 +2851,50 @@
         "title": "TopicResult",
         "type": "object"
       },
+      "TopicStats": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "recent_answered": {
+            "title": "Recent Answered",
+            "type": "integer"
+          },
+          "recent_correct": {
+            "title": "Recent Correct",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "answered",
+          "correct",
+          "recent_answered",
+          "recent_correct",
+          "topic_id",
+          "name",
+          "subject"
+        ],
+        "title": "TopicStats",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -2676,6 +2943,90 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/analytics/overview": {
+      "get": {
+        "operationId": "overview_api_v1_analytics_overview_get",
+        "parameters": [
+          {
+            "description": "Learner's IANA timezone, e.g. Asia/Kolkata",
+            "in": "query",
+            "name": "timezone",
+            "required": true,
+            "schema": {
+              "description": "Learner's IANA timezone, e.g. Asia/Kolkata",
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Timezone",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Days of daily history",
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "description": "Days of daily history",
+              "maximum": 365,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Window for the recent counts (trend)",
+            "in": "query",
+            "name": "recent_days",
+            "required": false,
+            "schema": {
+              "default": 14,
+              "description": "Window for the recent counts (trend)",
+              "maximum": 90,
+              "minimum": 1,
+              "title": "Recent Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unknown timezone"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Answer counts per subject, topic and local day, plus mock results",
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
     "/api/v1/concepts": {
       "get": {
         "operationId": "list_concepts_api_v1_concepts_get",

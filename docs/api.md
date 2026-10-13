@@ -156,3 +156,13 @@ See [practice.md](practice.md) for selection rules, the timer, idempotency, scor
 | GET | `/api/v1/practice/incorrect` | Questions whose latest answer was wrong (`QuestionList`) |
 
 All timestamps are UTC (the database session timezone is forced to UTC).
+
+## Analytics (Phase 8)
+
+See [analytics.md](analytics.md) for what counts and how judgements are made.
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/analytics/overview` | `timezone` (IANA, **required**), `days` (1–365, default 30), `recent_days` (1–90, default 14). Returns raw counts: `answered`, `correct`, `sessions`; `subjects[]` and `topics[]` with `answered`, `correct`, `recent_answered`, `recent_correct`; `daily[]` (local dates); and `mocks[]` (last 20 submitted: format, local date, score, max score, marking note, submit reason). `422 invalid_timezone` for an unknown zone. |
+
+`GET /api/v1/practice/mock-tests` items now include `exam_code`.

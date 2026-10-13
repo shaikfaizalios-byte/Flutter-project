@@ -293,12 +293,14 @@ class MockTestView {
     required this.available,
     required this.totalQuestions,
     required this.sections,
+    this.examCode,
     this.durationMinutes,
     this.negativeMarks,
   });
 
   factory MockTestView.fromJson(Map<String, dynamic> json) => MockTestView(
     code: json['exam_format_code'] as String,
+    examCode: json['exam_code'] as String?,
     name: json['name'] as String,
     available: json['available'] as bool,
     totalQuestions: json['total_questions'] as int,
@@ -315,6 +317,9 @@ class MockTestView {
   );
 
   final String code;
+
+  /// The exam the format belongs to (e.g. `SSC_CHSL`).
+  final String? examCode;
   final String name;
   final bool available;
   final int totalQuestions;

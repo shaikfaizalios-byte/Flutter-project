@@ -741,12 +741,6 @@ abstract class AppLocalizations {
   /// **'Daily study goal: {duration}'**
   String homeDailyGoal(String duration);
 
-  /// No description provided for @homePlanComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'A personalised daily study plan will appear here in a later update.'**
-  String get homePlanComingSoon;
-
   /// No description provided for @homeOpenConcepts.
   ///
   /// In en, this message translates to:
@@ -2223,18 +2217,6 @@ abstract class AppLocalizations {
   /// **'{count} not added: only reviewed questions with an answer and no figure can be revised.'**
   String revisionQuestionsNotEligible(int count);
 
-  /// No description provided for @homeRevisionDue.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 card to revise today.} other{{count} cards to revise today.}}'**
-  String homeRevisionDue(int count);
-
-  /// No description provided for @homeRevisionDueWithOverdue.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} cards to revise today ({overdue} overdue).'**
-  String homeRevisionDueWithOverdue(int count, int overdue);
-
   /// No description provided for @homeRevisionNoneToday.
   ///
   /// In en, this message translates to:
@@ -2312,6 +2294,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Study reminders'**
   String get reminderChannelName;
+
+  /// No description provided for @topicAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} correct over {answered} answers'**
+  String topicAccuracy(String percent, int answered);
+
+  /// No description provided for @topicForgotten.
+  ///
+  /// In en, this message translates to:
+  /// **'forgotten in {forgot} of {reviews} flashcard reviews'**
+  String topicForgotten(int forgot, int reviews);
+
+  /// No description provided for @planRevisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Revise 1 flashcard} other{Revise {count} flashcards}}'**
+  String planRevisionTitle(int count);
+
+  /// No description provided for @planWeakTopicTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise {topic}'**
+  String planWeakTopicTitle(String topic);
+
+  /// No description provided for @planMixedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise mixed questions'**
+  String get planMixedTitle;
+
+  /// No description provided for @planMockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a mock test: {name}'**
+  String planMockTitle(String name);
+
+  /// No description provided for @planMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'about {minutes} min'**
+  String planMinutes(int minutes);
+
+  /// No description provided for @planStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get planStart;
+
+  /// No description provided for @reasonCardsDue.
+  ///
+  /// In en, this message translates to:
+  /// **'{due} due today'**
+  String reasonCardsDue(int due);
+
+  /// No description provided for @reasonCardsDueOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{due} due today, {overdue} overdue'**
+  String reasonCardsDueOverdue(int due, int overdue);
+
+  /// No description provided for @reasonBelowThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'below {threshold}'**
+  String reasonBelowThreshold(String threshold);
+
+  /// No description provided for @reasonNoPracticeData.
+  ///
+  /// In en, this message translates to:
+  /// **'No practice answers yet; practising shows which topics need work'**
+  String get reasonNoPracticeData;
+
+  /// No description provided for @reasonNoWeakTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'No weak topic found yet (a topic is judged after {min} answers)'**
+  String reasonNoWeakTopic(int min);
+
+  /// No description provided for @reasonMockNever.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not taken a mock test yet.'**
+  String get reasonMockNever;
+
+  /// No description provided for @reasonMockSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Last mock test {days} days ago.'**
+  String reasonMockSince(int days);
+
+  /// No description provided for @reasonExamIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam in {days} days.'**
+  String reasonExamIn(int days);
+
+  /// No description provided for @planGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'About {planned} min planned for your {goal}-minute daily goal.'**
+  String planGoal(int planned, int goal);
+
+  /// No description provided for @planNoGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a daily study goal in Profile to fit the plan to your time.'**
+  String get planNoGoal;
+
+  /// No description provided for @planOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice suggestions need a connection, so only revision is planned.'**
+  String get planOffline;
+
+  /// No description provided for @planEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing planned for today: no flashcards are due.'**
+  String get planEmpty;
+
+  /// No description provided for @homeWeakOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice statistics need a connection.'**
+  String get homeWeakOffline;
+
+  /// No description provided for @homeWeakNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No weak topics: every topic with enough data is at {threshold} correct or better.'**
+  String homeWeakNone(String threshold);
+
+  /// No description provided for @homeWeakNeedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data yet. A topic is judged after {answers} practice answers or {reviews} flashcard reviews.'**
+  String homeWeakNeedMore(int answers, int reviews);
+
+  /// No description provided for @homeSeeProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'See progress'**
+  String get homeSeeProgress;
+
+  /// No description provided for @progressSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice overview'**
+  String get progressSummaryTitle;
+
+  /// No description provided for @progressAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 practice answer} other{{count} practice answers}}'**
+  String progressAnswered(int count);
+
+  /// No description provided for @progressAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} correct'**
+  String progressAccuracy(String percent);
+
+  /// No description provided for @progressSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 session} other{{count} sessions}}'**
+  String progressSessions(int count);
+
+  /// No description provided for @progressDailyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions answered, last {days} days'**
+  String progressDailyTitle(int days);
+
+  /// No description provided for @progressChartSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} in the last {days} days'**
+  String progressChartSummary(int total, int days);
+
+  /// No description provided for @progressSubjectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'By subject'**
+  String get progressSubjectsTitle;
+
+  /// No description provided for @progressNoAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'No practice answers yet.'**
+  String get progressNoAnswers;
+
+  /// No description provided for @progressSubjectRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} correct over {answered} answers'**
+  String progressSubjectRow(String percent, int answered);
+
+  /// No description provided for @progressNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough answers yet ({answered} of {min})'**
+  String progressNotEnough(int answered, int min);
+
+  /// No description provided for @progressMocksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mock tests'**
+  String get progressMocksTitle;
+
+  /// No description provided for @progressMocksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No mock tests taken yet.'**
+  String get progressMocksEmpty;
+
+  /// No description provided for @progressMockScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{score} / {max}'**
+  String progressMockScore(String score, String max);
+
+  /// No description provided for @progressMockTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted when time ran out'**
+  String get progressMockTimeUp;
+
+  /// No description provided for @progressTopicsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get progressTopicsTitle;
+
+  /// No description provided for @progressTopicsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic results appear once practised questions or flashcards have a topic.'**
+  String get progressTopicsEmpty;
+
+  /// No description provided for @progressWeakBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak'**
+  String get progressWeakBadge;
+
+  /// No description provided for @progressTrendImproving.
+  ///
+  /// In en, this message translates to:
+  /// **'Improving'**
+  String get progressTrendImproving;
+
+  /// No description provided for @progressTrendSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady'**
+  String get progressTrendSteady;
+
+  /// No description provided for @progressTrendDeclining.
+  ///
+  /// In en, this message translates to:
+  /// **'Declining'**
+  String get progressTrendDeclining;
+
+  /// No description provided for @progressNeedsData.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more topic needs more data before it is judged.} other{{count} more topics need more data before they are judged.}}'**
+  String progressNeedsData(int count);
+
+  /// No description provided for @progressRevisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcard recall'**
+  String get progressRevisionTitle;
+
+  /// No description provided for @progressRevisionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{reviews} reviews, forgotten {forgot} times in the last {days} days'**
+  String progressRevisionSummary(int reviews, int forgot, int days);
+
+  /// No description provided for @progressRevisionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No flashcard reviews in the last {days} days.'**
+  String progressRevisionEmpty(int days);
+
+  /// No description provided for @progressOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice statistics could not be loaded. Check your connection.'**
+  String get progressOffline;
+
+  /// No description provided for @progressRules.
+  ///
+  /// In en, this message translates to:
+  /// **'A topic is weak when it is below {accuracy} correct after at least {answers} answers, or forgotten in {forget} or more of at least {reviews} flashcard reviews. Trends compare the last {recentDays} days with earlier answers.'**
+  String progressRules(String accuracy, int answers, String forget, int reviews, int recentDays);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

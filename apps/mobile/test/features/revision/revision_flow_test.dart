@@ -79,8 +79,9 @@ void main() {
     await seedConcept(tester, db, dueToday: true);
     await pumpPrepLoopApp(tester, db);
 
-    expect(find.text('1 card to revise today.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Start revision'));
+    expect(find.text('Revise 1 flashcard'), findsOneWidget);
+    expect(find.textContaining('1 due today'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Start').first);
     await tester.pumpAndSettle();
 
     expect(find.text('Card 1 of 1'), findsOneWidget);
@@ -188,8 +189,8 @@ void main() {
     await seedConcept(tester, db, dueToday: true);
     await pumpPrepLoopApp(tester, db, deviceLocale: const Locale('hi'));
 
-    expect(find.text('आज दोहराने के लिए 1 कार्ड।'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'दोहराव शुरू करें'));
+    expect(find.text('1 फ्लैशकार्ड दोहराएँ'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'शुरू करें').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('उत्तर दिखाएँ'));
     await tester.pumpAndSettle();

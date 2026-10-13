@@ -385,10 +385,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homePlanComingSoon =>
-      'A personalised daily study plan will appear here in a later update.';
-
-  @override
   String get homeOpenConcepts => 'Open concepts';
 
   @override
@@ -1303,22 +1299,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String homeRevisionDue(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count cards to revise today.',
-      one: '1 card to revise today.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String homeRevisionDueWithOverdue(int count, int overdue) {
-    return '$count cards to revise today ($overdue overdue).';
-  }
-
-  @override
   String homeRevisionNoneToday(String when) {
     return 'No revision due today. Next: $when.';
   }
@@ -1361,4 +1341,234 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderChannelName => 'Study reminders';
+
+  @override
+  String topicAccuracy(String percent, int answered) {
+    return '$percent correct over $answered answers';
+  }
+
+  @override
+  String topicForgotten(int forgot, int reviews) {
+    return 'forgotten in $forgot of $reviews flashcard reviews';
+  }
+
+  @override
+  String planRevisionTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Revise $count flashcards',
+      one: 'Revise 1 flashcard',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String planWeakTopicTitle(String topic) {
+    return 'Practise $topic';
+  }
+
+  @override
+  String get planMixedTitle => 'Practise mixed questions';
+
+  @override
+  String planMockTitle(String name) {
+    return 'Take a mock test: $name';
+  }
+
+  @override
+  String planMinutes(int minutes) {
+    return 'about $minutes min';
+  }
+
+  @override
+  String get planStart => 'Start';
+
+  @override
+  String reasonCardsDue(int due) {
+    return '$due due today';
+  }
+
+  @override
+  String reasonCardsDueOverdue(int due, int overdue) {
+    return '$due due today, $overdue overdue';
+  }
+
+  @override
+  String reasonBelowThreshold(String threshold) {
+    return 'below $threshold';
+  }
+
+  @override
+  String get reasonNoPracticeData =>
+      'No practice answers yet; practising shows which topics need work';
+
+  @override
+  String reasonNoWeakTopic(int min) {
+    return 'No weak topic found yet (a topic is judged after $min answers)';
+  }
+
+  @override
+  String get reasonMockNever => 'You have not taken a mock test yet.';
+
+  @override
+  String reasonMockSince(int days) {
+    return 'Last mock test $days days ago.';
+  }
+
+  @override
+  String reasonExamIn(int days) {
+    return 'Exam in $days days.';
+  }
+
+  @override
+  String planGoal(int planned, int goal) {
+    return 'About $planned min planned for your $goal-minute daily goal.';
+  }
+
+  @override
+  String get planNoGoal => 'Set a daily study goal in Profile to fit the plan to your time.';
+
+  @override
+  String get planOffline => 'Practice suggestions need a connection, so only revision is planned.';
+
+  @override
+  String get planEmpty => 'Nothing planned for today: no flashcards are due.';
+
+  @override
+  String get homeWeakOffline => 'Practice statistics need a connection.';
+
+  @override
+  String homeWeakNone(String threshold) {
+    return 'No weak topics: every topic with enough data is at $threshold correct or better.';
+  }
+
+  @override
+  String homeWeakNeedMore(int answers, int reviews) {
+    return 'Not enough data yet. A topic is judged after $answers practice answers or $reviews flashcard reviews.';
+  }
+
+  @override
+  String get homeSeeProgress => 'See progress';
+
+  @override
+  String get progressSummaryTitle => 'Practice overview';
+
+  @override
+  String progressAnswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count practice answers',
+      one: '1 practice answer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String progressAccuracy(String percent) {
+    return '$percent correct';
+  }
+
+  @override
+  String progressSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions',
+      one: '1 session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String progressDailyTitle(int days) {
+    return 'Questions answered, last $days days';
+  }
+
+  @override
+  String progressChartSummary(int total, int days) {
+    return '$total in the last $days days';
+  }
+
+  @override
+  String get progressSubjectsTitle => 'By subject';
+
+  @override
+  String get progressNoAnswers => 'No practice answers yet.';
+
+  @override
+  String progressSubjectRow(String percent, int answered) {
+    return '$percent correct over $answered answers';
+  }
+
+  @override
+  String progressNotEnough(int answered, int min) {
+    return 'Not enough answers yet ($answered of $min)';
+  }
+
+  @override
+  String get progressMocksTitle => 'Mock tests';
+
+  @override
+  String get progressMocksEmpty => 'No mock tests taken yet.';
+
+  @override
+  String progressMockScore(String score, String max) {
+    return '$score / $max';
+  }
+
+  @override
+  String get progressMockTimeUp => 'Submitted when time ran out';
+
+  @override
+  String get progressTopicsTitle => 'Topics';
+
+  @override
+  String get progressTopicsEmpty =>
+      'Topic results appear once practised questions or flashcards have a topic.';
+
+  @override
+  String get progressWeakBadge => 'Weak';
+
+  @override
+  String get progressTrendImproving => 'Improving';
+
+  @override
+  String get progressTrendSteady => 'Steady';
+
+  @override
+  String get progressTrendDeclining => 'Declining';
+
+  @override
+  String progressNeedsData(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more topics need more data before they are judged.',
+      one: '1 more topic needs more data before it is judged.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressRevisionTitle => 'Flashcard recall';
+
+  @override
+  String progressRevisionSummary(int reviews, int forgot, int days) {
+    return '$reviews reviews, forgotten $forgot times in the last $days days';
+  }
+
+  @override
+  String progressRevisionEmpty(int days) {
+    return 'No flashcard reviews in the last $days days.';
+  }
+
+  @override
+  String get progressOffline => 'Practice statistics could not be loaded. Check your connection.';
+
+  @override
+  String progressRules(String accuracy, int answers, String forget, int reviews, int recentDays) {
+    return 'A topic is weak when it is below $accuracy correct after at least $answers answers, or forgotten in $forget or more of at least $reviews flashcard reviews. Trends compare the last $recentDays days with earlier answers.';
+  }
 }

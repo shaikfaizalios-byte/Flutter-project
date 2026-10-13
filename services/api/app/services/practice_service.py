@@ -219,6 +219,7 @@ class PracticeService:
             )
         availability = MockAvailability(
             exam_format_code=exam_format.code,
+            exam_code=exam_format.exam_code,
             name=exam_format.name,
             available=all(s.available >= s.needed for s in sections),
             total_questions=exam_format.total_questions,

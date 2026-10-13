@@ -387,9 +387,6 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get homePlanComingSoon => 'आपकी व्यक्तिगत दैनिक अध्ययन योजना आगामी अपडेट में यहाँ दिखेगी।';
-
-  @override
   String get homeOpenConcepts => 'कॉन्सेप्ट खोलें';
 
   @override
@@ -1305,22 +1302,6 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String homeRevisionDue(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'आज दोहराने के लिए $count कार्ड।',
-      one: 'आज दोहराने के लिए 1 कार्ड।',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String homeRevisionDueWithOverdue(int count, int overdue) {
-    return 'आज दोहराने के लिए $count कार्ड ($overdue देर से)।';
-  }
-
-  @override
   String homeRevisionNoneToday(String when) {
     return 'आज कोई दोहराव नहीं। अगला: $when।';
   }
@@ -1363,4 +1344,235 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get reminderChannelName => 'पढ़ाई के रिमाइंडर';
+
+  @override
+  String topicAccuracy(String percent, int answered) {
+    return '$answered उत्तरों में $percent सही';
+  }
+
+  @override
+  String topicForgotten(int forgot, int reviews) {
+    return '$reviews फ्लैशकार्ड दोहराव में $forgot बार भूले';
+  }
+
+  @override
+  String planRevisionTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count फ्लैशकार्ड दोहराएँ',
+      one: '1 फ्लैशकार्ड दोहराएँ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String planWeakTopicTitle(String topic) {
+    return '$topic का अभ्यास करें';
+  }
+
+  @override
+  String get planMixedTitle => 'मिश्रित प्रश्नों का अभ्यास करें';
+
+  @override
+  String planMockTitle(String name) {
+    return 'मॉक टेस्ट दें: $name';
+  }
+
+  @override
+  String planMinutes(int minutes) {
+    return 'लगभग $minutes मिनट';
+  }
+
+  @override
+  String get planStart => 'शुरू करें';
+
+  @override
+  String reasonCardsDue(int due) {
+    return 'आज $due बाकी';
+  }
+
+  @override
+  String reasonCardsDueOverdue(int due, int overdue) {
+    return 'आज $due बाकी, $overdue देर से';
+  }
+
+  @override
+  String reasonBelowThreshold(String threshold) {
+    return '$threshold से कम';
+  }
+
+  @override
+  String get reasonNoPracticeData =>
+      'अभी कोई अभ्यास उत्तर नहीं; अभ्यास से पता चलता है कि किन टॉपिक पर काम चाहिए';
+
+  @override
+  String reasonNoWeakTopic(int min) {
+    return 'अभी कोई कमज़ोर टॉपिक नहीं मिला ($min उत्तरों के बाद टॉपिक का आकलन होता है)';
+  }
+
+  @override
+  String get reasonMockNever => 'आपने अभी तक कोई मॉक टेस्ट नहीं दिया है।';
+
+  @override
+  String reasonMockSince(int days) {
+    return 'पिछला मॉक टेस्ट $days दिन पहले।';
+  }
+
+  @override
+  String reasonExamIn(int days) {
+    return 'परीक्षा $days दिन में।';
+  }
+
+  @override
+  String planGoal(int planned, int goal) {
+    return 'आपके $goal मिनट के दैनिक लक्ष्य के लिए लगभग $planned मिनट की योजना।';
+  }
+
+  @override
+  String get planNoGoal =>
+      'योजना को अपने समय के अनुसार बनाने के लिए प्रोफ़ाइल में दैनिक अध्ययन लक्ष्य सेट करें।';
+
+  @override
+  String get planOffline => 'अभ्यास सुझावों के लिए इंटरनेट चाहिए, इसलिए केवल दोहराव की योजना है।';
+
+  @override
+  String get planEmpty => 'आज के लिए कुछ नहीं: कोई फ्लैशकार्ड बाकी नहीं है।';
+
+  @override
+  String get homeWeakOffline => 'अभ्यास आँकड़ों के लिए इंटरनेट चाहिए।';
+
+  @override
+  String homeWeakNone(String threshold) {
+    return 'कोई कमज़ोर टॉपिक नहीं: पर्याप्त डेटा वाले हर टॉपिक में $threshold या उससे अधिक सही है।';
+  }
+
+  @override
+  String homeWeakNeedMore(int answers, int reviews) {
+    return 'अभी पर्याप्त डेटा नहीं। किसी टॉपिक का आकलन $answers अभ्यास उत्तरों या $reviews फ्लैशकार्ड दोहराव के बाद होता है।';
+  }
+
+  @override
+  String get homeSeeProgress => 'प्रगति देखें';
+
+  @override
+  String get progressSummaryTitle => 'अभ्यास का सारांश';
+
+  @override
+  String progressAnswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count अभ्यास उत्तर',
+      one: '1 अभ्यास उत्तर',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String progressAccuracy(String percent) {
+    return '$percent सही';
+  }
+
+  @override
+  String progressSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count सत्र',
+      one: '1 सत्र',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String progressDailyTitle(int days) {
+    return 'उत्तर दिए गए प्रश्न, पिछले $days दिन';
+  }
+
+  @override
+  String progressChartSummary(int total, int days) {
+    return 'पिछले $days दिनों में $total';
+  }
+
+  @override
+  String get progressSubjectsTitle => 'विषय के अनुसार';
+
+  @override
+  String get progressNoAnswers => 'अभी कोई अभ्यास उत्तर नहीं।';
+
+  @override
+  String progressSubjectRow(String percent, int answered) {
+    return '$answered उत्तरों में $percent सही';
+  }
+
+  @override
+  String progressNotEnough(int answered, int min) {
+    return 'अभी पर्याप्त उत्तर नहीं ($min में से $answered)';
+  }
+
+  @override
+  String get progressMocksTitle => 'मॉक टेस्ट';
+
+  @override
+  String get progressMocksEmpty => 'अभी तक कोई मॉक टेस्ट नहीं दिया।';
+
+  @override
+  String progressMockScore(String score, String max) {
+    return '$score / $max';
+  }
+
+  @override
+  String get progressMockTimeUp => 'समय समाप्त होने पर जमा हुआ';
+
+  @override
+  String get progressTopicsTitle => 'टॉपिक';
+
+  @override
+  String get progressTopicsEmpty =>
+      'अभ्यास किए गए प्रश्नों या फ्लैशकार्ड का टॉपिक होने पर टॉपिक परिणाम दिखेंगे।';
+
+  @override
+  String get progressWeakBadge => 'कमज़ोर';
+
+  @override
+  String get progressTrendImproving => 'सुधार हो रहा है';
+
+  @override
+  String get progressTrendSteady => 'स्थिर';
+
+  @override
+  String get progressTrendDeclining => 'गिरावट';
+
+  @override
+  String progressNeedsData(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count और टॉपिक का आकलन करने के लिए अधिक डेटा चाहिए।',
+      one: '1 और टॉपिक का आकलन करने के लिए अधिक डेटा चाहिए।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressRevisionTitle => 'फ्लैशकार्ड याददाश्त';
+
+  @override
+  String progressRevisionSummary(int reviews, int forgot, int days) {
+    return 'पिछले $days दिनों में $reviews दोहराव, $forgot बार भूले';
+  }
+
+  @override
+  String progressRevisionEmpty(int days) {
+    return 'पिछले $days दिनों में कोई फ्लैशकार्ड दोहराव नहीं।';
+  }
+
+  @override
+  String get progressOffline => 'अभ्यास आँकड़े लोड नहीं हो सके। अपना इंटरनेट कनेक्शन जाँचें।';
+
+  @override
+  String progressRules(String accuracy, int answers, String forget, int reviews, int recentDays) {
+    return 'कोई टॉपिक कमज़ोर तब माना जाता है जब कम से कम $answers उत्तरों के बाद $accuracy से कम सही हो, या कम से कम $reviews फ्लैशकार्ड दोहराव में से $forget या अधिक में भूले हों। रुझान पिछले $recentDays दिनों की तुलना पहले के उत्तरों से करता है।';
+  }
 }

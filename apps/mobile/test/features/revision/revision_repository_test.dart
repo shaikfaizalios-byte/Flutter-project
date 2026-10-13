@@ -154,4 +154,35 @@ void main() {
     expect(overview.upcoming, [2, 0, 0, 0, 0, 0, 1]);
     expect(overview.nextDue, today.addDays(1));
   });
+
+  test('review statistics per topic and local day, within the window', () async {
+    final c = await concept('Percent change'); // Quantitative Aptitude › Percentage
+    await repo.addConcept(c.id);
+    await repo.addQuestions([
+      bankQuestion(
+        status: VerificationStatus.verified,
+        section: 'English Language',
+        topic: const TopicRef(id: 't', subject: 'English Language', name: 'Synonyms'),
+      ),
+    ]);
+    final cards = await repo.watchCards().first;
+    final conceptCard = cards.firstWhere((x) => x.kind == CardKind.concept).id;
+    final questionCard = cards.firstWhere((x) => x.kind == CardKind.question).id;
+
+    now = DateTime(2026, 9, 1, 9); // outside a window starting 13 Sep
+    await repo.review(conceptCard, RecallRating.again);
+    now = DateTime(2026, 10, 11, 23, 50);
+    await repo.review(conceptCard, RecallRating.again);
+    now = DateTime(2026, 10, 12, 0, 10);
+    await repo.review(conceptCard, RecallRating.good);
+    await repo.review(questionCard, RecallRating.hard);
+
+    final stats = await repo.watchStats(since: CalendarDate(2026, 9, 13)).first;
+    expect((stats.reviews, stats.forgot), (3, 1));
+    expect(stats.daily, {CalendarDate(2026, 10, 11): 1, CalendarDate(2026, 10, 12): 2});
+    final byTopic = {for (final r in stats.byTopic) r.topic: r};
+    expect((byTopic['Percentage']!.reviews, byTopic['Percentage']!.forgot), (2, 1));
+    expect(byTopic['Percentage']!.subject, 'Quantitative Aptitude');
+    expect((byTopic['Synonyms']!.reviews, byTopic['Synonyms']!.forgot), (1, 0));
+  });
 }

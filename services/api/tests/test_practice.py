@@ -314,6 +314,7 @@ def test_mock_unavailable_without_enough_reviewed_questions(
     )
 
     assert availability["available"] is False
+    assert availability["exam_code"] == "SSC_CHSL"
     awareness = next(s for s in availability["sections"] if s["subject"] == "General Awareness")
     assert (awareness["available"], awareness["needed"]) == (3, 25)
     assert response.status_code == 422

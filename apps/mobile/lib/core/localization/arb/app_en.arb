@@ -218,7 +218,6 @@
       }
     }
   },
-  "homePlanComingSoon": "A personalised daily study plan will appear here in a later update.",
   "homeOpenConcepts": "Open concepts",
   "homeSetExamDate": "Set your exam date in Profile to see a countdown.",
   "conceptDetailsTitle": "Concept",
@@ -843,25 +842,6 @@
       }
     }
   },
-  "homeRevisionDue": "{count, plural, =1{1 card to revise today.} other{{count} cards to revise today.}}",
-  "@homeRevisionDue": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeRevisionDueWithOverdue": "{count} cards to revise today ({overdue} overdue).",
-  "@homeRevisionDueWithOverdue": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "overdue": {
-        "type": "int"
-      }
-    }
-  },
   "homeRevisionNoneToday": "No revision due today. Next: {when}.",
   "@homeRevisionNoneToday": {
     "placeholders": {
@@ -888,5 +868,289 @@
   "reminderOpenSettings": "Open notification settings",
   "reminderNotificationTitle": "Time to study",
   "reminderNotificationBody": "Open PrepLoop to see what to revise today.",
-  "reminderChannelName": "Study reminders"
+  "reminderChannelName": "Study reminders",
+  "topicAccuracy": "{percent} correct over {answered} answers",
+  "@topicAccuracy": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "answered": {
+        "type": "int"
+      }
+    }
+  },
+  "topicForgotten": "forgotten in {forgot} of {reviews} flashcard reviews",
+  "@topicForgotten": {
+    "placeholders": {
+      "forgot": {
+        "type": "int"
+      },
+      "reviews": {
+        "type": "int"
+      }
+    }
+  },
+  "planRevisionTitle": "{count, plural, =1{Revise 1 flashcard} other{Revise {count} flashcards}}",
+  "@planRevisionTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "planWeakTopicTitle": "Practise {topic}",
+  "@planWeakTopicTitle": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "planMixedTitle": "Practise mixed questions",
+  "planMockTitle": "Take a mock test: {name}",
+  "@planMockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planMinutes": "about {minutes} min",
+  "@planMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "planStart": "Start",
+  "reasonCardsDue": "{due} due today",
+  "@reasonCardsDue": {
+    "placeholders": {
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonCardsDueOverdue": "{due} due today, {overdue} overdue",
+  "@reasonCardsDueOverdue": {
+    "placeholders": {
+      "due": {
+        "type": "int"
+      },
+      "overdue": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonBelowThreshold": "below {threshold}",
+  "@reasonBelowThreshold": {
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNoPracticeData": "No practice answers yet; practising shows which topics need work",
+  "reasonNoWeakTopic": "No weak topic found yet (a topic is judged after {min} answers)",
+  "@reasonNoWeakTopic": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonMockNever": "You have not taken a mock test yet.",
+  "reasonMockSince": "Last mock test {days} days ago.",
+  "@reasonMockSince": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonExamIn": "Exam in {days} days.",
+  "@reasonExamIn": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "planGoal": "About {planned} min planned for your {goal}-minute daily goal.",
+  "@planGoal": {
+    "placeholders": {
+      "planned": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "planNoGoal": "Set a daily study goal in Profile to fit the plan to your time.",
+  "planOffline": "Practice suggestions need a connection, so only revision is planned.",
+  "planEmpty": "Nothing planned for today: no flashcards are due.",
+  "homeWeakOffline": "Practice statistics need a connection.",
+  "homeWeakNone": "No weak topics: every topic with enough data is at {threshold} correct or better.",
+  "@homeWeakNone": {
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "homeWeakNeedMore": "Not enough data yet. A topic is judged after {answers} practice answers or {reviews} flashcard reviews.",
+  "@homeWeakNeedMore": {
+    "placeholders": {
+      "answers": {
+        "type": "int"
+      },
+      "reviews": {
+        "type": "int"
+      }
+    }
+  },
+  "homeSeeProgress": "See progress",
+  "progressSummaryTitle": "Practice overview",
+  "progressAnswered": "{count, plural, =1{1 practice answer} other{{count} practice answers}}",
+  "@progressAnswered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressAccuracy": "{percent} correct",
+  "@progressAccuracy": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSessions": "{count, plural, =1{1 session} other{{count} sessions}}",
+  "@progressSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressDailyTitle": "Questions answered, last {days} days",
+  "@progressDailyTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressChartSummary": "{total} in the last {days} days",
+  "@progressChartSummary": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressSubjectsTitle": "By subject",
+  "progressNoAnswers": "No practice answers yet.",
+  "progressSubjectRow": "{percent} correct over {answered} answers",
+  "@progressSubjectRow": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "answered": {
+        "type": "int"
+      }
+    }
+  },
+  "progressNotEnough": "Not enough answers yet ({answered} of {min})",
+  "@progressNotEnough": {
+    "placeholders": {
+      "answered": {
+        "type": "int"
+      },
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "progressMocksTitle": "Mock tests",
+  "progressMocksEmpty": "No mock tests taken yet.",
+  "progressMockScore": "{score} / {max}",
+  "@progressMockScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "progressMockTimeUp": "Submitted when time ran out",
+  "progressTopicsTitle": "Topics",
+  "progressTopicsEmpty": "Topic results appear once practised questions or flashcards have a topic.",
+  "progressWeakBadge": "Weak",
+  "progressTrendImproving": "Improving",
+  "progressTrendSteady": "Steady",
+  "progressTrendDeclining": "Declining",
+  "progressNeedsData": "{count, plural, =1{1 more topic needs more data before it is judged.} other{{count} more topics need more data before they are judged.}}",
+  "@progressNeedsData": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressRevisionTitle": "Flashcard recall",
+  "progressRevisionSummary": "{reviews} reviews, forgotten {forgot} times in the last {days} days",
+  "@progressRevisionSummary": {
+    "placeholders": {
+      "reviews": {
+        "type": "int"
+      },
+      "forgot": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressRevisionEmpty": "No flashcard reviews in the last {days} days.",
+  "@progressRevisionEmpty": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressOffline": "Practice statistics could not be loaded. Check your connection.",
+  "progressRules": "A topic is weak when it is below {accuracy} correct after at least {answers} answers, or forgotten in {forget} or more of at least {reviews} flashcard reviews. Trends compare the last {recentDays} days with earlier answers.",
+  "@progressRules": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      },
+      "answers": {
+        "type": "int"
+      },
+      "forget": {
+        "type": "String"
+      },
+      "reviews": {
+        "type": "int"
+      },
+      "recentDays": {
+        "type": "int"
+      }
+    }
+  }
 }

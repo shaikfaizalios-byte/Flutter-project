@@ -105,6 +105,18 @@ default. `TestClock` drives the app clock and the fake server together.
 App tests get `FakeReminderScheduler` (`test/helpers/fake_reminders.dart`) by default. Its `pending` map
 mirrors the OS's scheduled notifications by id.
 
+## Analytics and daily plan (Phase 8)
+
+| File | Covers |
+|---|---|
+| `services/api/tests/test_analytics.py` | No data gives zeros (nothing invented); counts per subject and topic (unanswered not counted); **IST vs UTC day boundary**; recent window and daily range; **mock answers count only after submission**, with score and source note; timezone required and validated |
+| `test/features/analytics/analytics_rules_test.dart` | Weak only above the minimum sample; the 60 % boundary; flashcard forgetting (case-insensitive match); severity order; trends need both windows; no data, no topics; plan priority, the 2-topic limit, the daily goal with the first item kept, minimum revision block, mixed practice without data, flashcard-only topics, offline plan, mock cadence (weekly near the exam, otherwise 14 days; past exam ignored) |
+| `test/features/revision/revision_repository_test.dart` | Device review statistics per topic and local day, within the window |
+| `test/features/analytics/progress_flow_test.dart` | Empty progress; timezone sent; overview, subjects (enough and not enough), topics with Weak badge, evidence and trend; mocks with time-up; flashcard forgetting in topics; offline progress keeps revision; dashboard weak topics, "nothing weak" and See progress; plan starts a 10-question topic session; daily goal; first mock with its reason; offline plan; Hindi |
+
+App tests get `FakeAnalyticsRepository` (`test/helpers/fake_analytics.dart`) and a fixed `Asia/Kolkata`
+timezone by default.
+
 ## Not yet covered
 
 - Real notification delivery, the permission dialogs and the boot receiver need an Android or iOS device (not available yet).

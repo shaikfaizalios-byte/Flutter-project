@@ -31,10 +31,17 @@ try {
 Push-Location (Join-Path $root 'apps\mobile')
 try {
     # Generated code (*.g.dart, l10n) is excluded from the format check.
-    $dartFiles = Get-ChildItem lib, test, integration_test -Recurse -Filter *.dart |
+    # Relative paths in batches keep each command under the Windows command-line limit.
+    $dartFiles = @(Get-ChildItem lib, test, integration_test -Recurse -Filter *.dart |
         Where-Object { $_.Name -notlike '*.g.dart' -and $_.FullName -notmatch '\\generated\\' } |
-        ForEach-Object { $_.FullName }
-    Invoke-Step 'mobile: dart format' { dart format --output=none --set-exit-if-changed @dartFiles }
+        ForEach-Object { Resolve-Path -Relative $_.FullName })
+    Invoke-Step 'mobile: dart format' {
+        for ($i = 0; $i -lt $dartFiles.Count; $i += 40) {
+            $batch = $dartFiles[$i..([Math]::Min($i + 39, $dartFiles.Count - 1))]
+            dart format --output=none --set-exit-if-changed @batch
+            if ($LASTEXITCODE -ne 0) { break }
+        }
+    }
     Invoke-Step 'mobile: flutter analyze' { flutter analyze }
     Invoke-Step 'mobile: flutter test' { flutter test }
 } finally { Pop-Location }

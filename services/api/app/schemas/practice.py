@@ -147,6 +147,7 @@ class SectionAvailability(BaseModel):
 
 class MockAvailability(BaseModel):
     exam_format_code: str
+    exam_code: str
     name: str
     available: bool
     total_questions: int

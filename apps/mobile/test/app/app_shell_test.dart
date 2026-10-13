@@ -9,6 +9,7 @@ void main() {
 
     expect(find.text('Your study loop'), findsOneWidget);
     expect(find.text('What should I study today?'), findsOneWidget);
+    await scrollTo(tester, find.text('Which topics am I weak in?'));
     expect(find.text('Which topics am I weak in?'), findsOneWidget);
     await scrollTo(tester, find.text('What is coming up next?'));
     expect(find.text('What is coming up next?'), findsOneWidget);

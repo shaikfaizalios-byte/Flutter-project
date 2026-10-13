@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/utils/calendar_date.dart';
+import '../../analytics/domain/analytics_models.dart';
 import '../../question_bank/domain/question.dart';
 import '../domain/revision_card.dart';
 import '../domain/revision_schedule.dart';
@@ -251,6 +252,53 @@ class RevisionRepository {
             ),
           );
       return next;
+    });
+  }
+
+  /// Flashcard review activity since local midnight of [since], per topic and per local
+  /// day (for progress analytics). Re-emits when reviews are added.
+  Stream<RevisionStats> watchStats({required CalendarDate since}) {
+    final reviews = _db.cardReviews;
+    final cards = _db.revisionCards;
+    final concepts = _db.concepts;
+    final query = _db.select(reviews).join([
+      innerJoin(cards, cards.id.equalsExp(reviews.cardId)),
+      leftOuterJoin(concepts, concepts.id.equalsExp(cards.conceptId)),
+    ])..where(reviews.reviewedAt.isBiggerOrEqualValue(since.toLocalDateTime().toUtc()));
+    return query.watch().map((rows) {
+      var total = 0;
+      var forgot = 0;
+      final daily = <CalendarDate, int>{};
+      final byTopic = <String, ({String subject, String topic, int reviews, int forgot})>{};
+      for (final row in rows) {
+        final review = row.readTable(reviews);
+        final card = row.readTable(cards);
+        final concept = row.readTableOrNull(concepts);
+        final lapse = review.rating == RecallRating.again.name;
+        total++;
+        if (lapse) forgot++;
+        daily.update(CalendarDate.fromDateTime(review.reviewedAt), (n) => n + 1, ifAbsent: () => 1);
+        final subject = concept?.subject ?? card.subject;
+        final topic = concept?.topic ?? card.topic;
+        if (subject == null || topic == null) continue;
+        final key = '${subject.toLowerCase()}${topic.toLowerCase()}';
+        final current = byTopic[key];
+        byTopic[key] = (
+          subject: current?.subject ?? subject,
+          topic: current?.topic ?? topic,
+          reviews: (current?.reviews ?? 0) + 1,
+          forgot: (current?.forgot ?? 0) + (lapse ? 1 : 0),
+        );
+      }
+      return RevisionStats(
+        reviews: total,
+        forgot: forgot,
+        daily: daily,
+        byTopic: [
+          for (final t in byTopic.values)
+            TopicRecall(subject: t.subject, topic: t.topic, reviews: t.reviews, forgot: t.forgot),
+        ],
+      );
     });
   }
 

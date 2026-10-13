@@ -77,6 +77,7 @@ void main() {
   testAppWidgets('weak topics stay an honest empty state', (tester, db) async {
     await pumpPrepLoopApp(tester, db);
 
+    await scrollTo(tester, find.textContaining('Not enough practice data yet'));
     expect(find.textContaining('Not enough practice data yet'), findsOneWidget);
   });
 }

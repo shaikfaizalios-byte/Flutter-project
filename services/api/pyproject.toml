@@ -23,6 +23,8 @@ dependencies = [
     "pillow>=12.3,<13.0",
     # multipart/form-data parsing for uploads (Apache-2.0).
     "python-multipart>=0.0.32,<0.1",
+    # IANA timezone data for zoneinfo on Windows (Apache-2.0; already locked via psycopg).
+    "tzdata>=2026.1",
 ]
 
 [project.optional-dependencies]
