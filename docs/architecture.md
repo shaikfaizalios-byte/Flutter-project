@@ -56,6 +56,11 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-35 | Offline answer queue in Drift (`pending_answers`), replayed oldest-first; non-network errors drop the entry | Answers survive connectivity loss without endless retries; starting and opening sessions stay online-only (simple, honest) |
 | ADR-36 | Scoring is a pure module using `Decimal`; each session item snapshots its marks and correct answer | Exact marks (e.g. 2.00, −0.50); unit-testable; later edits to a question can't change a past score |
 | ADR-37 | Practice answers are final, with immediate feedback; mock answers can change, with no feedback until submission | Mirrors learning (feedback) vs exam (no feedback) conditions; keeps practice accuracy honest |
+| ADR-38 | Revision is on the device (Drift v4), with no server tables until sync | Works offline; Phase 10 sync rules cover it like concepts |
+| ADR-39 | The revision ladder is a stored setting of "days after adding" (default 1/4/7), with a pure scheduler and documented adaptation rules (Good / Easy / Hard / Forgot) instead of an opaque SM-2 ease factor | The learner can predict and change it; unit-testable; the review log keeps the data needed for a smarter model later |
+| ADR-40 | Concept cards read the live concept; question cards snapshot the question | Edits to the learner's own notes show up; question cards work offline and can't change under the learner |
+| ADR-41 | One daily reminder with a fixed notification id, re-created only when its fingerprint (time, timezone, wording) changes | Duplicate-free by construction across restarts, resumes and setting changes |
+| ADR-42 | Inexact Android alarms; permission asked only when the learner turns reminders on | No exact-alarm permission (Play policy) for a study nudge; a permission prompt in context is accepted more often and is respectful |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -83,6 +88,7 @@ schemas/           Pydantic request/response models
 - Phase 4 (done): document upload, validation and storage; per-page text and OCR extraction worker; mobile import screen.
 - Phase 5 (done): question segmentation, question bank, verified exam formats, review workflow, question browser.
 - Phase 6 (done): practice sessions, timed mock tests from verified formats, scoring with explanations, offline answer queue, bookmarks, incorrect-answer review and history.
+- Phase 7 (done): flashcards from concepts and verified questions, a configurable Day 1/4/7 revision ladder with adaptive follow-up, due counts on the dashboard, and a daily reminder notification.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

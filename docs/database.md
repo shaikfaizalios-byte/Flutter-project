@@ -130,13 +130,25 @@ Defined in `apps/mobile/lib/core/database/`.
 | Table | Purpose |
 |---|---|
 | `concepts` | Same fields as the server table, with a client-generated UUID `id`. Tags are a JSON array; datetimes are ISO-8601 text in UTC. |
-| `app_settings` | Key/value device settings (`language`, `theme_mode`) |
+| `app_settings` | Key/value device settings: `language`, `theme_mode`, `revision_day_offsets` (e.g. `1,4,7`), `reminders_enabled`, `reminder_scheduled_plan` (fingerprint of the scheduled reminder) |
 | `study_profiles` (v2) | A single row (`id = 1`, enforced by CHECK) with the onboarding answers: `exam_codes` (JSON array), `target_exam_date` (`yyyy-MM-dd` text, so it never shifts with the timezone), `daily_study_minutes` (5–720), `reminder_minutes` (minutes after local midnight), `onboarding_completed_at`, `updated_at`. Unknown exam codes and out-of-range values are ignored when reading. |
 
 Schema history: **v1** has concepts and app_settings. **v2** adds study_profiles (migration `from1To2`
 creates the table). **v3** adds `pending_answers`, the offline answer queue for practice sessions (primary key
-(session_id, position); selected option or null, `client_seq`, `time_spent_ms`, `queued_at`). The migration `from2To3` creates it. Snapshots of both are in `drift_schemas/`. The generated tests in
-`test/drift/app_database/` check that the v1→v2 upgrade produces the v2 schema and keeps existing concepts and settings intact.
+(session_id, position); selected option or null, `client_seq`, `time_spent_ms`, `created_at`). The migration `from2To3` creates it.
+**v4** adds the flashcards (migration `from3To4`; see [revision.md](revision.md)):
+
+- **`revision_cards`**:
+  - `kind` is `concept` or `question`.
+  - `concept_id` is unique, and the FK cascades on concept delete. `question_id` (the server id) is unique.
+  - Question-card snapshot: `front`, `back`, `source_filename`, `source_page`, `exam_code`, `subject` and `topic`.
+  - `reason` is `added` or `incorrect_answer`.
+  - Schedule: `step`, `gap_days`, `due_on` (`yyyy-MM-dd`), `review_count`, `lapse_count` and `last_reviewed_at`.
+- **`card_reviews`**: one row per review (`rating`, `due_before`, `due_after`, `gap_days`, `reviewed_at`). It cascades with the card.
+
+Snapshots of every version are in `drift_schemas/`. The generated tests in `test/drift/app_database/` upgrade
+every version to every later one and compare the result with the snapshot. Custom tests check that v1→v2 keeps
+concepts and settings, and that v3→v4 keeps concepts and queued answers.
 
 ### Migration strategy
 

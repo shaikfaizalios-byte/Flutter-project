@@ -17,6 +17,8 @@ import '../features/practice/presentation/session_screen.dart';
 import '../features/question_bank/presentation/document_review_screen.dart';
 import '../features/question_bank/presentation/question_bank_screen.dart';
 import '../features/question_bank/presentation/question_review_screen.dart';
+import '../features/revision/presentation/review_screen.dart';
+import '../features/revision/presentation/revision_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/study_plan/application/study_profile_controller.dart';
 import 'app_shell.dart';
@@ -79,6 +81,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                         parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) =>
                             DocumentReviewScreen(documentId: state.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'revision',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const RevisionScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'review',
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) => const ReviewScreen(),
                       ),
                     ],
                   ),

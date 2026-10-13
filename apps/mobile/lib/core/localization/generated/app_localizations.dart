@@ -594,7 +594,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingReminderHint.
   ///
   /// In en, this message translates to:
-  /// **'Reminders will be switched on in a later update. Your preferred time is saved now.'**
+  /// **'Switch on the daily reminder in Profile. PrepLoop asks for notification permission only then.'**
   String get onboardingReminderHint;
 
   /// No description provided for @chooseDate.
@@ -744,7 +744,7 @@ abstract class AppLocalizations {
   /// No description provided for @homePlanComingSoon.
   ///
   /// In en, this message translates to:
-  /// **'A personalised daily plan will appear here once practice and revision are available.'**
+  /// **'A personalised daily study plan will appear here in a later update.'**
   String get homePlanComingSoon;
 
   /// No description provided for @homeOpenConcepts.
@@ -1494,7 +1494,7 @@ abstract class AppLocalizations {
   /// No description provided for @bankEmptyMessage.
   ///
   /// In en, this message translates to:
-  /// **'Import a previous-year paper in Study, then Imported papers. Its questions appear here for review. Practice sessions arrive in a later update.'**
+  /// **'Import a previous-year paper in Study, then Imported papers. Its questions appear here for review, and reviewed questions can be practised.'**
   String get bankEmptyMessage;
 
   /// No description provided for @bankLoadError.
@@ -1922,6 +1922,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Submitted automatically when time was up.'**
   String get resultSubmittedTimeUp;
+
+  /// No description provided for @revisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revision'**
+  String get revisionTitle;
+
+  /// No description provided for @revisionDueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get revisionDueTitle;
+
+  /// No description provided for @revisionDueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 card to revise} other{{count} cards to revise}}'**
+  String revisionDueCount(int count);
+
+  /// No description provided for @revisionOverdueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 of them is overdue} other{{count} of them are overdue}}'**
+  String revisionOverdueCount(int count);
+
+  /// No description provided for @revisionStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start revision'**
+  String get revisionStart;
+
+  /// No description provided for @revisionNothingDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to revise today.'**
+  String get revisionNothingDue;
+
+  /// No description provided for @revisionNextReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Next review: {when}'**
+  String revisionNextReview(String when);
+
+  /// No description provided for @revisionUpcomingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next 7 days'**
+  String get revisionUpcomingTitle;
+
+  /// No description provided for @revisionScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revision schedule'**
+  String get revisionScheduleTitle;
+
+  /// No description provided for @revisionLadder.
+  ///
+  /// In en, this message translates to:
+  /// **'Review on day {days} after adding a card'**
+  String revisionLadder(String days);
+
+  /// No description provided for @revisionLadderExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembering moves a card to the next review day; after the last one the gap keeps doubling. Hard repeats with a shorter gap. Forgetting starts the card again from the first day.'**
+  String get revisionLadderExplanation;
+
+  /// No description provided for @revisionEditSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Change schedule'**
+  String get revisionEditSchedule;
+
+  /// No description provided for @revisionScheduleHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Days after you add a card when it comes back for review. Changes apply to future reviews; cards keep their current due dates.'**
+  String get revisionScheduleHelp;
+
+  /// No description provided for @revisionScheduleField.
+  ///
+  /// In en, this message translates to:
+  /// **'Review days'**
+  String get revisionScheduleField;
+
+  /// No description provided for @revisionScheduleFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: 1, 4, 7'**
+  String get revisionScheduleFieldHint;
+
+  /// No description provided for @revisionScheduleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 1 to {maxSteps} different days between 1 and {maxDay}.'**
+  String revisionScheduleInvalid(int maxSteps, int maxDay);
+
+  /// No description provided for @revisionScheduleReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 1, 4, 7'**
+  String get revisionScheduleReset;
+
+  /// No description provided for @revisionScheduleSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Revision schedule saved.'**
+  String get revisionScheduleSaved;
+
+  /// No description provided for @revisionAllCards.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 card} other{All cards ({count})}}'**
+  String revisionAllCards(int count);
+
+  /// No description provided for @revisionEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No flashcards yet'**
+  String get revisionEmptyTitle;
+
+  /// No description provided for @revisionEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a concept to revision from its details page, or add questions from Practice → Bookmarks or Questions to revisit.'**
+  String get revisionEmptyMessage;
+
+  /// No description provided for @revisionLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your flashcards.'**
+  String get revisionLoadError;
+
+  /// No description provided for @revisionSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Please try again.'**
+  String get revisionSaveError;
+
+  /// No description provided for @revisionRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get revisionRemove;
+
+  /// No description provided for @revisionRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from revision.'**
+  String get revisionRemoved;
+
+  /// No description provided for @revisionDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get revisionDueToday;
+
+  /// No description provided for @revisionDueTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get revisionDueTomorrow;
+
+  /// No description provided for @revisionDueInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'In {days} days'**
+  String revisionDueInDays(int days);
+
+  /// No description provided for @revisionOverdueBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day overdue} other{{days} days overdue}}'**
+  String revisionOverdueBy(int days);
+
+  /// No description provided for @revisionReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revise'**
+  String get revisionReviewTitle;
+
+  /// No description provided for @revisionCardPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Card {position} of {total}'**
+  String revisionCardPosition(int position, int total);
+
+  /// No description provided for @revisionShowAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show answer'**
+  String get revisionShowAnswer;
+
+  /// No description provided for @revisionAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get revisionAnswer;
+
+  /// No description provided for @revisionNoNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes for this concept. Try to recall what you know about it.'**
+  String get revisionNoNotes;
+
+  /// No description provided for @revisionHowWell.
+  ///
+  /// In en, this message translates to:
+  /// **'How well did you remember it?'**
+  String get revisionHowWell;
+
+  /// No description provided for @revisionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You revised 1 card} other{You revised {count} cards}}'**
+  String revisionDone(int count);
+
+  /// No description provided for @ratingAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot'**
+  String get ratingAgain;
+
+  /// No description provided for @ratingHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get ratingHard;
+
+  /// No description provided for @ratingGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get ratingGood;
+
+  /// No description provided for @ratingEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get ratingEasy;
+
+  /// No description provided for @cardOriginNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your notes'**
+  String get cardOriginNotes;
+
+  /// No description provided for @cardOriginPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'From your PDF'**
+  String get cardOriginPaper;
+
+  /// No description provided for @cardOriginPaperPage.
+  ///
+  /// In en, this message translates to:
+  /// **'From your PDF · {file}, p. {page}'**
+  String cardOriginPaperPage(String file, int page);
+
+  /// No description provided for @cardReasonIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered wrong in practice'**
+  String get cardReasonIncorrect;
+
+  /// No description provided for @conceptAddToRevision.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to revision'**
+  String get conceptAddToRevision;
+
+  /// No description provided for @conceptInRevision.
+  ///
+  /// In en, this message translates to:
+  /// **'In revision'**
+  String get conceptInRevision;
+
+  /// No description provided for @revisionAddAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Revise these'**
+  String get revisionAddAll;
+
+  /// No description provided for @revisionQuestionsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No new cards added.} =1{1 card added to revision.} other{{count} cards added to revision.}}'**
+  String revisionQuestionsAdded(int count);
+
+  /// No description provided for @revisionQuestionsAlreadyAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} already in revision.'**
+  String revisionQuestionsAlreadyAdded(int count);
+
+  /// No description provided for @revisionQuestionsNotEligible.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} not added: only reviewed questions with an answer and no figure can be revised.'**
+  String revisionQuestionsNotEligible(int count);
+
+  /// No description provided for @homeRevisionDue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 card to revise today.} other{{count} cards to revise today.}}'**
+  String homeRevisionDue(int count);
+
+  /// No description provided for @homeRevisionDueWithOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cards to revise today ({overdue} overdue).'**
+  String homeRevisionDueWithOverdue(int count, int overdue);
+
+  /// No description provided for @homeRevisionNoneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No revision due today. Next: {when}.'**
+  String homeRevisionNoneToday(String when);
+
+  /// No description provided for @homeRevisionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No flashcards yet. Add concepts or questions to revision.'**
+  String get homeRevisionEmpty;
+
+  /// No description provided for @reminderSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily study reminder'**
+  String get reminderSwitch;
+
+  /// No description provided for @reminderOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day at {time}'**
+  String reminderOn(String time);
+
+  /// No description provided for @reminderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get reminderOff;
+
+  /// No description provided for @reminderNeedsTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a reminder time to switch it on.'**
+  String get reminderNeedsTime;
+
+  /// No description provided for @reminderBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off for PrepLoop. Allow them in system settings to get reminders.'**
+  String get reminderBlocked;
+
+  /// No description provided for @reminderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The reminder could not be set.'**
+  String get reminderFailed;
+
+  /// No description provided for @reminderUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders work in the Android and iOS apps.'**
+  String get reminderUnsupported;
+
+  /// No description provided for @reminderOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open notification settings'**
+  String get reminderOpenSettings;
+
+  /// No description provided for @reminderNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to study'**
+  String get reminderNotificationTitle;
+
+  /// No description provided for @reminderNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open PrepLoop to see what to revise today.'**
+  String get reminderNotificationBody;
+
+  /// No description provided for @reminderChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Study reminders'**
+  String get reminderChannelName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

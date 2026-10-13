@@ -6,6 +6,8 @@ abstract final class AppRoutes {
   static const study = '/study';
   static const newConcept = '/study/concepts/new';
   static const documents = '/study/documents';
+  static const revision = '/study/revision';
+  static const revisionReview = '/study/revision/review';
   static const practice = '/practice';
   static const questionBank = '/practice/bank';
   static const bookmarks = '/practice/bookmarks';

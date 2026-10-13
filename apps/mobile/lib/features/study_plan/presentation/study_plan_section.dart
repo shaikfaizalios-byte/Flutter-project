@@ -6,6 +6,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../reminders/presentation/reminder_tile.dart';
 import '../application/study_profile_controller.dart';
 import 'study_profile_widgets.dart';
 
@@ -103,6 +104,7 @@ class StudyPlanSection extends ConsumerWidget {
               if (picked != null) await controller.setReminderMinutes(picked);
             },
           ),
+          const ReminderTile(),
         ],
       ),
     );

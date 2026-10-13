@@ -7,6 +7,8 @@ import '../../../core/widgets/empty_state.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../../question_bank/domain/question.dart';
 import '../../question_bank/presentation/question_widgets.dart';
+import '../../revision/domain/revision_card.dart';
+import '../../revision/presentation/revision_widgets.dart';
 import '../application/practice_providers.dart';
 
 enum PracticeQuestionList { bookmarks, incorrect }
@@ -29,6 +31,21 @@ class PracticeQuestionListScreen extends ConsumerWidget {
         title: Text(
           kind == PracticeQuestionList.bookmarks ? l10n.bookmarksTitle : l10n.incorrectTitle,
         ),
+        actions: [
+          if (questions case AsyncData(:final value) when value.any(canRevise))
+            TextButton.icon(
+              icon: const Icon(Icons.style_outlined),
+              label: Text(l10n.revisionAddAll),
+              onPressed: () => addQuestionsToRevision(
+                context,
+                ref,
+                value,
+                reason: kind == PracticeQuestionList.incorrect
+                    ? CardReason.incorrectAnswer
+                    : CardReason.added,
+              ),
+            ),
+        ],
       ),
       body: switch (questions) {
         AsyncData(:final value) when value.isEmpty => EmptyState(

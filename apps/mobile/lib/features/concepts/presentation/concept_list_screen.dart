@@ -30,6 +30,11 @@ class ConceptListScreen extends ConsumerWidget {
         title: Text(l10n.studyTitle),
         actions: [
           IconButton(
+            tooltip: l10n.revisionTitle,
+            icon: const Icon(Icons.style_outlined),
+            onPressed: () => context.push(AppRoutes.revision),
+          ),
+          IconButton(
             tooltip: l10n.documentsTitle,
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: () => context.push(AppRoutes.documents),

@@ -9,6 +9,8 @@ import 'generated/schema.dart';
 
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
+import 'generated/schema_v4.dart' as v4;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -69,6 +71,53 @@ void main() {
         final settings = await newDb.select(newDb.appSettings).get();
         expect(settings.single.toJson(), setting.toJson());
         expect(await newDb.select(newDb.studyProfiles).get(), isEmpty);
+      },
+    );
+  });
+
+  // v3 -> v4 only adds the flashcard tables; queued answers and concepts must survive.
+  test('migration from v3 to v4 keeps concepts and queued answers', () async {
+    const concept = v3.ConceptsData(
+      id: '0b6c1d3e-5f1a-4c7e-9a43-2a1f0e9d7b11',
+      examCode: 'SSC_CHSL',
+      title: 'Synonyms',
+      notes: 'abundant = plentiful',
+      subject: 'English Language',
+      topic: 'Vocabulary',
+      language: 'en',
+      tags: '[]',
+      createdAt: '2026-10-01T09:00:00.000Z',
+      updatedAt: '2026-10-02T09:00:00.000Z',
+    );
+    const pending = v3.PendingAnswersData(
+      sessionId: 's1',
+      position: 3,
+      selectedPosition: 2,
+      clientSeq: 1760000000000000,
+      createdAt: '2026-10-02T09:00:00.000Z',
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 3,
+      newVersion: 4,
+      createOld: v3.DatabaseAtV3.new,
+      createNew: v4.DatabaseAtV4.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insert(oldDb.concepts, concept);
+        batch.insert(oldDb.pendingAnswers, pending);
+      },
+      validateItems: (newDb) async {
+        expect(
+          (await newDb.select(newDb.concepts).get()).single.toJson(),
+          concept.toJson(),
+        );
+        expect(
+          (await newDb.select(newDb.pendingAnswers).get()).single.toJson(),
+          pending.toJson(),
+        );
+        expect(await newDb.select(newDb.revisionCards).get(), isEmpty);
+        expect(await newDb.select(newDb.cardReviews).get(), isEmpty);
       },
     );
   });

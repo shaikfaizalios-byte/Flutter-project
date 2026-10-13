@@ -88,3 +88,61 @@ class PendingAnswers extends Table {
   @override
   Set<Column<Object>> get primaryKey => {sessionId, position};
 }
+
+/// Flashcards on the revision schedule. Added in schema v4.
+///
+/// Concept cards show the concept's current title and notes (joined, so edits show up);
+/// question cards keep a snapshot of a verified source question so they can be revised
+/// offline. AI-generated content is never stored here (Phase 9 adds it with a label).
+@DataClassName('RevisionCardRow')
+class RevisionCards extends Table {
+  TextColumn get id => text()();
+
+  /// `concept` or `question`.
+  TextColumn get kind => text()();
+  TextColumn get conceptId =>
+      text().nullable().unique().references(Concepts, #id, onDelete: KeyAction.cascade)();
+
+  /// Server question id (question cards).
+  TextColumn get questionId => text().nullable().unique()();
+
+  /// Question cards: stem with options (front) and answer with explanation (back).
+  TextColumn get front => text().nullable()();
+  TextColumn get back => text().nullable()();
+  TextColumn get sourceFilename => text().nullable()();
+  IntColumn get sourcePage => integer().nullable()();
+  TextColumn get examCode => text().nullable()();
+  TextColumn get subject => text().nullable()();
+  TextColumn get topic => text().nullable()();
+
+  /// Why the card exists: `added` (by the learner) or `incorrect_answer` (from practice).
+  TextColumn get reason => text().withDefault(const Constant('added'))();
+  IntColumn get step => integer()();
+  IntColumn get gapDays => integer()();
+
+  /// Calendar date `yyyy-MM-dd` (no timezone, so "due today" never shifts).
+  TextColumn get dueOn => text()();
+  IntColumn get reviewCount => integer().withDefault(const Constant(0))();
+  IntColumn get lapseCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastReviewedAt => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// One row per flashcard review (recall rating and the resulting schedule), kept for
+/// progress analytics in Phase 8. Added in schema v4.
+@DataClassName('CardReviewRow')
+class CardReviews extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get cardId => text().references(RevisionCards, #id, onDelete: KeyAction.cascade)();
+  DateTimeColumn get reviewedAt => dateTime()();
+
+  /// `again`, `hard`, `good` or `easy`.
+  TextColumn get rating => text()();
+  TextColumn get dueBefore => text()();
+  TextColumn get dueAfter => text()();
+  IntColumn get gapDays => integer()();
+}

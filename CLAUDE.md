@@ -30,7 +30,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v3)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v4)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -47,6 +47,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
   answer in Drift `pending_answers` (schema v3) and replays it. See docs/practice.md.
+- Revision (device-only, Drift v4 `revision_cards`/`card_reviews`): pure `RevisionScheduler` with a stored
+  ladder (`revision_day_offsets`, default 1/4/7 days after adding) and Good/Easy/Hard/Forgot adaptation;
+  concept cards read the live concept, question cards snapshot verified source questions only.
+  Reminders: `ReminderController` keeps ONE daily notification (fixed id) in sync via a plan fingerprint;
+  `ReminderScheduler` wraps flutter_local_notifications (inexact alarms). See docs/revision.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.
 - Errors: backend returns `{"error": {"code","message","request_id","details"}}`; mobile maps Dio errors to
   sealed `AppFailure` types in repositories. Widgets never see Dio types.
@@ -67,7 +72,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   reason codes, never silent correction. Test PDFs are generated (tests/pdf_factory.py), never real papers.
 - Every question shows its origin (source PDF vs AI). Exam patterns/counts/marking come only from
   `exam_formats` (verified, sourced) — never hard-code them in code or UI.
-- Mobile app tests get `FakeQuestionsRepository` and `FakePracticeRepository` by default
+- Mobile app tests get `FakeQuestionsRepository`, `FakePracticeRepository` and `FakeReminderScheduler` by default
   (`pumpPrepLoopApp(questions: ..., practice: ..., clockOverride: ...)`).
 - Mobile time: read "now" from `clockProvider`; date-only values use `CalendarDate` (never `DateTime`).
 - New ARB keys go in both files; `arb_parity_test.dart` fails otherwise. Hindi-capable text needs no
@@ -100,7 +105,7 @@ Shells opened before installation need a restart for PATH.
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 6 complete → next is Phase 7 (flashcards, spaced revision & reminders)
+## Current phase: Phase 7 complete → next is Phase 8 (analytics & daily study plan)
 Known limitations right now:
 - Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
   on a device. iOS needs macOS + Xcode. The native PDF picker is only exercised via a fake in tests.
@@ -123,25 +128,30 @@ Known limitations right now:
   the hub shows the shortfall. No mock for SSC CGL (no verified format). AI questions are never used yet.
 - Practice has no analytics UI beyond the session summary (Phase 8); no resume-list of unfinished sessions
   other than history.
-- Reminder time is stored but no notifications are scheduled yet (Phase 7). The UI says so.
-- "What should I study today?" shows real counts/goal but no generated plan yet (Phase 8).
+- Reminder notifications are implemented but **never run on a device** (no Android SDK / macOS): delivery,
+  permission dialogs, boot receiver, desugaring and the Gradle build are unverified. Web/desktop: unsupported
+  (UI says so). A timezone change while the app stays closed keeps the old zone until the next open.
+- Flashcards and the revision schedule are device-only (sync = Phase 10); the web preview pane can't open
+  Drift, so revision can't be tried there.
+- "What should I study today?" shows real counts, due revision and goal but no generated plan yet (Phase 8).
 - No CI workflow yet; no typed Dart API client generated yet (hand-written DTO parsing per feature).
 - Hindi strings were written without native-speaker review.
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
 - PostgreSQL is a native install; no docker-compose yet (optional).
 
-## Phase 7 acceptance criteria (flashcards, spaced revision & reminders)
-1. Flashcards from the learner's concepts and from verified source questions (never unlabelled AI content);
-   each card shows its origin. Card review with recall ratings (e.g. again / hard / good / easy).
-2. Revision schedule: default steps Day 1 / 4 / 7 after learning, **configurable** (stored setting, not
-   hard-coded); adaptive follow-up — failed recall shortens the next interval, easy recall lengthens it.
-   Scheduling is a pure, unit-tested module; dates are `CalendarDate`, "now" from `clockProvider`.
-3. Incorrect practice answers (Phase 6 data) can feed revision items for their topic/question.
-4. "Due today" / overdue lists drive the dashboard's "What should I study today?" counts (no generated plan
-   yet — Phase 8).
-5. Local notifications at the stored reminder time: permission requested in context, denial handled
-   gracefully (UI explains, app still works), no duplicate notifications on reschedule/restart, correct
-   across timezone and DST changes. Package choice justified (licence, platform support) before adding.
-6. Offline-first: revision state in Drift (schema bump with migration test); server sync is Phase 10.
-7. EN/HI UI; tests for scheduling (intervals, adaptation, config), timezone/DST, duplicate-notification
-   prevention, permission denial; `scripts/check.ps1` passes; docs updated.
+## Phase 8 acceptance criteria (analytics & daily study plan)
+1. Analytics only from recorded data: practice/mock attempts (server `session_answers` + item snapshots)
+   and flashcard reviews (device `card_reviews`). No sample/fake numbers; empty and "not enough data"
+   states are explicit. Minimum-sample thresholds are named constants, shown in the UI ("based on N answers").
+2. Weak topics: per topic/subject/section accuracy and recent trend, plus flashcard lapses; a topic is
+   "weak" only above the minimum sample; the dashboard's "Which topics am I weak in?" uses this.
+3. Progress screen: accuracy over time, per subject/section/topic, mock score history (with the format and
+   marking used), revision activity. Any chart package justified (licence, size, a11y) before adding.
+4. "What should I study today?": a deterministic, explainable plan (no AI) combining due/overdue cards,
+   weak topics, the daily study minutes and days until the exam; every item says why it is there.
+5. Day boundaries use the learner's local calendar dates (`CalendarDate`, `clockProvider`); server
+   aggregates take an explicit timezone/offset parameter; tests cover the boundary.
+6. Backend aggregation endpoints (Pydantic schemas, OpenAPI export) with SQL tests on real Postgres;
+   mobile combines them with local revision data in repositories (no aggregation in widgets).
+7. EN/HI UI; tests for aggregation, thresholds, plan rules, empty states, timezone boundary;
+   `scripts/check.ps1` passes; docs updated.

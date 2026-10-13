@@ -17,6 +17,9 @@ class CalendarDate implements Comparable<CalendarDate> {
     return CalendarDate(local.year, local.month, local.day);
   }
 
+  /// The date part of a UTC [DateTime] (no timezone conversion).
+  factory CalendarDate.fromUtc(DateTime utc) => CalendarDate(utc.year, utc.month, utc.day);
+
   /// Parses `yyyy-MM-dd`; returns null for anything else.
   static CalendarDate? tryParse(String? value) {
     final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(value ?? '');
@@ -43,6 +46,11 @@ class CalendarDate implements Comparable<CalendarDate> {
     other.month,
     other.day,
   ).difference(DateTime.utc(year, month, day)).inDays;
+
+  /// The date [days] later (earlier if negative). Calendar arithmetic in UTC, so
+  /// daylight-saving changes cannot skip or repeat a day.
+  CalendarDate addDays(int days) =>
+      CalendarDate.fromUtc(DateTime.utc(year, month, day).add(Duration(days: days)));
 
   /// Local midnight of this date, for date pickers and formatting.
   DateTime toLocalDateTime() => DateTime(year, month, day);

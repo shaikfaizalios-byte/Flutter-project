@@ -10,6 +10,9 @@ import '../../../core/utils/calendar_date.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/widgets/section_card.dart';
 import '../../concepts/application/concepts_providers.dart';
+import '../../revision/application/revision_providers.dart';
+import '../../revision/domain/revision_card.dart';
+import '../../revision/presentation/revision_widgets.dart';
 import '../../study_plan/application/study_profile_controller.dart';
 import '../../study_plan/domain/study_profile.dart';
 import '../../study_plan/presentation/study_profile_widgets.dart';
@@ -90,6 +93,8 @@ class _TodaySection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final count = ref.watch(activeConceptCountProvider);
+    final revision = ref.watch(revisionOverviewProvider);
+    final today = ref.watch(todayProvider);
     final minutes = profile.dailyStudyMinutes;
 
     return SectionCard(
@@ -107,6 +112,29 @@ class _TodaySection extends ConsumerWidget {
             AsyncData() => _Muted(l10n.homeTodayEmpty),
             AsyncError() => _Muted(l10n.conceptsLoadError),
             _ => const LinearProgressIndicator(),
+          },
+          const SizedBox(height: AppSpacing.xs),
+          switch (revision) {
+            AsyncData(:final value) when value.dueToday > 0 => Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value.overdue > 0
+                        ? l10n.homeRevisionDueWithOverdue(value.dueToday, value.overdue)
+                        : l10n.homeRevisionDue(value.dueToday),
+                  ),
+                ),
+                FilledButton.tonal(
+                  onPressed: () => context.push(AppRoutes.revisionReview),
+                  child: Text(l10n.revisionStart),
+                ),
+              ],
+            ),
+            AsyncData(value: RevisionOverview(nextDue: final next?)) => _Muted(
+              l10n.homeRevisionNoneToday(formatDue(context, today, next)),
+            ),
+            AsyncData() => _Muted(l10n.homeRevisionEmpty),
+            _ => const SizedBox.shrink(),
           },
           const SizedBox(height: AppSpacing.xs),
           _Muted(l10n.homePlanComingSoon),

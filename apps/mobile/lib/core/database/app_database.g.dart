@@ -1768,6 +1768,1437 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
   }
 }
 
+class $RevisionCardsTable extends RevisionCards
+    with TableInfo<$RevisionCardsTable, RevisionCardRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RevisionCardsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _conceptIdMeta = const VerificationMeta('conceptId');
+  @override
+  late final GeneratedColumn<String> conceptId = GeneratedColumn<String>(
+    'concept_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'UNIQUE REFERENCES concepts (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _questionIdMeta = const VerificationMeta('questionId');
+  @override
+  late final GeneratedColumn<String> questionId = GeneratedColumn<String>(
+    'question_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _frontMeta = const VerificationMeta('front');
+  @override
+  late final GeneratedColumn<String> front = GeneratedColumn<String>(
+    'front',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _backMeta = const VerificationMeta('back');
+  @override
+  late final GeneratedColumn<String> back = GeneratedColumn<String>(
+    'back',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceFilenameMeta = const VerificationMeta('sourceFilename');
+  @override
+  late final GeneratedColumn<String> sourceFilename = GeneratedColumn<String>(
+    'source_filename',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourcePageMeta = const VerificationMeta('sourcePage');
+  @override
+  late final GeneratedColumn<int> sourcePage = GeneratedColumn<int>(
+    'source_page',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _examCodeMeta = const VerificationMeta('examCode');
+  @override
+  late final GeneratedColumn<String> examCode = GeneratedColumn<String>(
+    'exam_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _subjectMeta = const VerificationMeta('subject');
+  @override
+  late final GeneratedColumn<String> subject = GeneratedColumn<String>(
+    'subject',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _topicMeta = const VerificationMeta('topic');
+  @override
+  late final GeneratedColumn<String> topic = GeneratedColumn<String>(
+    'topic',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('added'),
+  );
+  static const VerificationMeta _stepMeta = const VerificationMeta('step');
+  @override
+  late final GeneratedColumn<int> step = GeneratedColumn<int>(
+    'step',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gapDaysMeta = const VerificationMeta('gapDays');
+  @override
+  late final GeneratedColumn<int> gapDays = GeneratedColumn<int>(
+    'gap_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dueOnMeta = const VerificationMeta('dueOn');
+  @override
+  late final GeneratedColumn<String> dueOn = GeneratedColumn<String>(
+    'due_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reviewCountMeta = const VerificationMeta('reviewCount');
+  @override
+  late final GeneratedColumn<int> reviewCount = GeneratedColumn<int>(
+    'review_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lapseCountMeta = const VerificationMeta('lapseCount');
+  @override
+  late final GeneratedColumn<int> lapseCount = GeneratedColumn<int>(
+    'lapse_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastReviewedAtMeta = const VerificationMeta('lastReviewedAt');
+  @override
+  late final GeneratedColumn<DateTime> lastReviewedAt = GeneratedColumn<DateTime>(
+    'last_reviewed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    conceptId,
+    questionId,
+    front,
+    back,
+    sourceFilename,
+    sourcePage,
+    examCode,
+    subject,
+    topic,
+    reason,
+    step,
+    gapDays,
+    dueOn,
+    reviewCount,
+    lapseCount,
+    lastReviewedAt,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'revision_cards';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RevisionCardRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(_kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('concept_id')) {
+      context.handle(
+        _conceptIdMeta,
+        conceptId.isAcceptableOrUnknown(data['concept_id']!, _conceptIdMeta),
+      );
+    }
+    if (data.containsKey('question_id')) {
+      context.handle(
+        _questionIdMeta,
+        questionId.isAcceptableOrUnknown(data['question_id']!, _questionIdMeta),
+      );
+    }
+    if (data.containsKey('front')) {
+      context.handle(_frontMeta, front.isAcceptableOrUnknown(data['front']!, _frontMeta));
+    }
+    if (data.containsKey('back')) {
+      context.handle(_backMeta, back.isAcceptableOrUnknown(data['back']!, _backMeta));
+    }
+    if (data.containsKey('source_filename')) {
+      context.handle(
+        _sourceFilenameMeta,
+        sourceFilename.isAcceptableOrUnknown(data['source_filename']!, _sourceFilenameMeta),
+      );
+    }
+    if (data.containsKey('source_page')) {
+      context.handle(
+        _sourcePageMeta,
+        sourcePage.isAcceptableOrUnknown(data['source_page']!, _sourcePageMeta),
+      );
+    }
+    if (data.containsKey('exam_code')) {
+      context.handle(
+        _examCodeMeta,
+        examCode.isAcceptableOrUnknown(data['exam_code']!, _examCodeMeta),
+      );
+    }
+    if (data.containsKey('subject')) {
+      context.handle(_subjectMeta, subject.isAcceptableOrUnknown(data['subject']!, _subjectMeta));
+    }
+    if (data.containsKey('topic')) {
+      context.handle(_topicMeta, topic.isAcceptableOrUnknown(data['topic']!, _topicMeta));
+    }
+    if (data.containsKey('reason')) {
+      context.handle(_reasonMeta, reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta));
+    }
+    if (data.containsKey('step')) {
+      context.handle(_stepMeta, step.isAcceptableOrUnknown(data['step']!, _stepMeta));
+    } else if (isInserting) {
+      context.missing(_stepMeta);
+    }
+    if (data.containsKey('gap_days')) {
+      context.handle(_gapDaysMeta, gapDays.isAcceptableOrUnknown(data['gap_days']!, _gapDaysMeta));
+    } else if (isInserting) {
+      context.missing(_gapDaysMeta);
+    }
+    if (data.containsKey('due_on')) {
+      context.handle(_dueOnMeta, dueOn.isAcceptableOrUnknown(data['due_on']!, _dueOnMeta));
+    } else if (isInserting) {
+      context.missing(_dueOnMeta);
+    }
+    if (data.containsKey('review_count')) {
+      context.handle(
+        _reviewCountMeta,
+        reviewCount.isAcceptableOrUnknown(data['review_count']!, _reviewCountMeta),
+      );
+    }
+    if (data.containsKey('lapse_count')) {
+      context.handle(
+        _lapseCountMeta,
+        lapseCount.isAcceptableOrUnknown(data['lapse_count']!, _lapseCountMeta),
+      );
+    }
+    if (data.containsKey('last_reviewed_at')) {
+      context.handle(
+        _lastReviewedAtMeta,
+        lastReviewedAt.isAcceptableOrUnknown(data['last_reviewed_at']!, _lastReviewedAtMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RevisionCardRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RevisionCardRow(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      kind: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      conceptId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}concept_id'],
+      ),
+      questionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}question_id'],
+      ),
+      front: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}front'],
+      ),
+      back: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}back']),
+      sourceFilename: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_filename'],
+      ),
+      sourcePage: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_page'],
+      ),
+      examCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}exam_code'],
+      ),
+      subject: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subject'],
+      ),
+      topic: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}topic'],
+      ),
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      )!,
+      step: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}step'])!,
+      gapDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gap_days'],
+      )!,
+      dueOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}due_on'],
+      )!,
+      reviewCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}review_count'],
+      )!,
+      lapseCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}lapse_count'],
+      )!,
+      lastReviewedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_reviewed_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $RevisionCardsTable createAlias(String alias) {
+    return $RevisionCardsTable(attachedDatabase, alias);
+  }
+}
+
+class RevisionCardRow extends DataClass implements Insertable<RevisionCardRow> {
+  final String id;
+
+  /// `concept` or `question`.
+  final String kind;
+  final String? conceptId;
+
+  /// Server question id (question cards).
+  final String? questionId;
+
+  /// Question cards: stem with options (front) and answer with explanation (back).
+  final String? front;
+  final String? back;
+  final String? sourceFilename;
+  final int? sourcePage;
+  final String? examCode;
+  final String? subject;
+  final String? topic;
+
+  /// Why the card exists: `added` (by the learner) or `incorrect_answer` (from practice).
+  final String reason;
+  final int step;
+  final int gapDays;
+
+  /// Calendar date `yyyy-MM-dd` (no timezone, so "due today" never shifts).
+  final String dueOn;
+  final int reviewCount;
+  final int lapseCount;
+  final DateTime? lastReviewedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const RevisionCardRow({
+    required this.id,
+    required this.kind,
+    this.conceptId,
+    this.questionId,
+    this.front,
+    this.back,
+    this.sourceFilename,
+    this.sourcePage,
+    this.examCode,
+    this.subject,
+    this.topic,
+    required this.reason,
+    required this.step,
+    required this.gapDays,
+    required this.dueOn,
+    required this.reviewCount,
+    required this.lapseCount,
+    this.lastReviewedAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || conceptId != null) {
+      map['concept_id'] = Variable<String>(conceptId);
+    }
+    if (!nullToAbsent || questionId != null) {
+      map['question_id'] = Variable<String>(questionId);
+    }
+    if (!nullToAbsent || front != null) {
+      map['front'] = Variable<String>(front);
+    }
+    if (!nullToAbsent || back != null) {
+      map['back'] = Variable<String>(back);
+    }
+    if (!nullToAbsent || sourceFilename != null) {
+      map['source_filename'] = Variable<String>(sourceFilename);
+    }
+    if (!nullToAbsent || sourcePage != null) {
+      map['source_page'] = Variable<int>(sourcePage);
+    }
+    if (!nullToAbsent || examCode != null) {
+      map['exam_code'] = Variable<String>(examCode);
+    }
+    if (!nullToAbsent || subject != null) {
+      map['subject'] = Variable<String>(subject);
+    }
+    if (!nullToAbsent || topic != null) {
+      map['topic'] = Variable<String>(topic);
+    }
+    map['reason'] = Variable<String>(reason);
+    map['step'] = Variable<int>(step);
+    map['gap_days'] = Variable<int>(gapDays);
+    map['due_on'] = Variable<String>(dueOn);
+    map['review_count'] = Variable<int>(reviewCount);
+    map['lapse_count'] = Variable<int>(lapseCount);
+    if (!nullToAbsent || lastReviewedAt != null) {
+      map['last_reviewed_at'] = Variable<DateTime>(lastReviewedAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  RevisionCardsCompanion toCompanion(bool nullToAbsent) {
+    return RevisionCardsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      conceptId: conceptId == null && nullToAbsent ? const Value.absent() : Value(conceptId),
+      questionId: questionId == null && nullToAbsent ? const Value.absent() : Value(questionId),
+      front: front == null && nullToAbsent ? const Value.absent() : Value(front),
+      back: back == null && nullToAbsent ? const Value.absent() : Value(back),
+      sourceFilename: sourceFilename == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceFilename),
+      sourcePage: sourcePage == null && nullToAbsent ? const Value.absent() : Value(sourcePage),
+      examCode: examCode == null && nullToAbsent ? const Value.absent() : Value(examCode),
+      subject: subject == null && nullToAbsent ? const Value.absent() : Value(subject),
+      topic: topic == null && nullToAbsent ? const Value.absent() : Value(topic),
+      reason: Value(reason),
+      step: Value(step),
+      gapDays: Value(gapDays),
+      dueOn: Value(dueOn),
+      reviewCount: Value(reviewCount),
+      lapseCount: Value(lapseCount),
+      lastReviewedAt: lastReviewedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastReviewedAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory RevisionCardRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RevisionCardRow(
+      id: serializer.fromJson<String>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      conceptId: serializer.fromJson<String?>(json['conceptId']),
+      questionId: serializer.fromJson<String?>(json['questionId']),
+      front: serializer.fromJson<String?>(json['front']),
+      back: serializer.fromJson<String?>(json['back']),
+      sourceFilename: serializer.fromJson<String?>(json['sourceFilename']),
+      sourcePage: serializer.fromJson<int?>(json['sourcePage']),
+      examCode: serializer.fromJson<String?>(json['examCode']),
+      subject: serializer.fromJson<String?>(json['subject']),
+      topic: serializer.fromJson<String?>(json['topic']),
+      reason: serializer.fromJson<String>(json['reason']),
+      step: serializer.fromJson<int>(json['step']),
+      gapDays: serializer.fromJson<int>(json['gapDays']),
+      dueOn: serializer.fromJson<String>(json['dueOn']),
+      reviewCount: serializer.fromJson<int>(json['reviewCount']),
+      lapseCount: serializer.fromJson<int>(json['lapseCount']),
+      lastReviewedAt: serializer.fromJson<DateTime?>(json['lastReviewedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'kind': serializer.toJson<String>(kind),
+      'conceptId': serializer.toJson<String?>(conceptId),
+      'questionId': serializer.toJson<String?>(questionId),
+      'front': serializer.toJson<String?>(front),
+      'back': serializer.toJson<String?>(back),
+      'sourceFilename': serializer.toJson<String?>(sourceFilename),
+      'sourcePage': serializer.toJson<int?>(sourcePage),
+      'examCode': serializer.toJson<String?>(examCode),
+      'subject': serializer.toJson<String?>(subject),
+      'topic': serializer.toJson<String?>(topic),
+      'reason': serializer.toJson<String>(reason),
+      'step': serializer.toJson<int>(step),
+      'gapDays': serializer.toJson<int>(gapDays),
+      'dueOn': serializer.toJson<String>(dueOn),
+      'reviewCount': serializer.toJson<int>(reviewCount),
+      'lapseCount': serializer.toJson<int>(lapseCount),
+      'lastReviewedAt': serializer.toJson<DateTime?>(lastReviewedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  RevisionCardRow copyWith({
+    String? id,
+    String? kind,
+    Value<String?> conceptId = const Value.absent(),
+    Value<String?> questionId = const Value.absent(),
+    Value<String?> front = const Value.absent(),
+    Value<String?> back = const Value.absent(),
+    Value<String?> sourceFilename = const Value.absent(),
+    Value<int?> sourcePage = const Value.absent(),
+    Value<String?> examCode = const Value.absent(),
+    Value<String?> subject = const Value.absent(),
+    Value<String?> topic = const Value.absent(),
+    String? reason,
+    int? step,
+    int? gapDays,
+    String? dueOn,
+    int? reviewCount,
+    int? lapseCount,
+    Value<DateTime?> lastReviewedAt = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => RevisionCardRow(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    conceptId: conceptId.present ? conceptId.value : this.conceptId,
+    questionId: questionId.present ? questionId.value : this.questionId,
+    front: front.present ? front.value : this.front,
+    back: back.present ? back.value : this.back,
+    sourceFilename: sourceFilename.present ? sourceFilename.value : this.sourceFilename,
+    sourcePage: sourcePage.present ? sourcePage.value : this.sourcePage,
+    examCode: examCode.present ? examCode.value : this.examCode,
+    subject: subject.present ? subject.value : this.subject,
+    topic: topic.present ? topic.value : this.topic,
+    reason: reason ?? this.reason,
+    step: step ?? this.step,
+    gapDays: gapDays ?? this.gapDays,
+    dueOn: dueOn ?? this.dueOn,
+    reviewCount: reviewCount ?? this.reviewCount,
+    lapseCount: lapseCount ?? this.lapseCount,
+    lastReviewedAt: lastReviewedAt.present ? lastReviewedAt.value : this.lastReviewedAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  RevisionCardRow copyWithCompanion(RevisionCardsCompanion data) {
+    return RevisionCardRow(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      conceptId: data.conceptId.present ? data.conceptId.value : this.conceptId,
+      questionId: data.questionId.present ? data.questionId.value : this.questionId,
+      front: data.front.present ? data.front.value : this.front,
+      back: data.back.present ? data.back.value : this.back,
+      sourceFilename: data.sourceFilename.present ? data.sourceFilename.value : this.sourceFilename,
+      sourcePage: data.sourcePage.present ? data.sourcePage.value : this.sourcePage,
+      examCode: data.examCode.present ? data.examCode.value : this.examCode,
+      subject: data.subject.present ? data.subject.value : this.subject,
+      topic: data.topic.present ? data.topic.value : this.topic,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      step: data.step.present ? data.step.value : this.step,
+      gapDays: data.gapDays.present ? data.gapDays.value : this.gapDays,
+      dueOn: data.dueOn.present ? data.dueOn.value : this.dueOn,
+      reviewCount: data.reviewCount.present ? data.reviewCount.value : this.reviewCount,
+      lapseCount: data.lapseCount.present ? data.lapseCount.value : this.lapseCount,
+      lastReviewedAt: data.lastReviewedAt.present ? data.lastReviewedAt.value : this.lastReviewedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RevisionCardRow(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('conceptId: $conceptId, ')
+          ..write('questionId: $questionId, ')
+          ..write('front: $front, ')
+          ..write('back: $back, ')
+          ..write('sourceFilename: $sourceFilename, ')
+          ..write('sourcePage: $sourcePage, ')
+          ..write('examCode: $examCode, ')
+          ..write('subject: $subject, ')
+          ..write('topic: $topic, ')
+          ..write('reason: $reason, ')
+          ..write('step: $step, ')
+          ..write('gapDays: $gapDays, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('reviewCount: $reviewCount, ')
+          ..write('lapseCount: $lapseCount, ')
+          ..write('lastReviewedAt: $lastReviewedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    kind,
+    conceptId,
+    questionId,
+    front,
+    back,
+    sourceFilename,
+    sourcePage,
+    examCode,
+    subject,
+    topic,
+    reason,
+    step,
+    gapDays,
+    dueOn,
+    reviewCount,
+    lapseCount,
+    lastReviewedAt,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RevisionCardRow &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.conceptId == this.conceptId &&
+          other.questionId == this.questionId &&
+          other.front == this.front &&
+          other.back == this.back &&
+          other.sourceFilename == this.sourceFilename &&
+          other.sourcePage == this.sourcePage &&
+          other.examCode == this.examCode &&
+          other.subject == this.subject &&
+          other.topic == this.topic &&
+          other.reason == this.reason &&
+          other.step == this.step &&
+          other.gapDays == this.gapDays &&
+          other.dueOn == this.dueOn &&
+          other.reviewCount == this.reviewCount &&
+          other.lapseCount == this.lapseCount &&
+          other.lastReviewedAt == this.lastReviewedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class RevisionCardsCompanion extends UpdateCompanion<RevisionCardRow> {
+  final Value<String> id;
+  final Value<String> kind;
+  final Value<String?> conceptId;
+  final Value<String?> questionId;
+  final Value<String?> front;
+  final Value<String?> back;
+  final Value<String?> sourceFilename;
+  final Value<int?> sourcePage;
+  final Value<String?> examCode;
+  final Value<String?> subject;
+  final Value<String?> topic;
+  final Value<String> reason;
+  final Value<int> step;
+  final Value<int> gapDays;
+  final Value<String> dueOn;
+  final Value<int> reviewCount;
+  final Value<int> lapseCount;
+  final Value<DateTime?> lastReviewedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const RevisionCardsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.conceptId = const Value.absent(),
+    this.questionId = const Value.absent(),
+    this.front = const Value.absent(),
+    this.back = const Value.absent(),
+    this.sourceFilename = const Value.absent(),
+    this.sourcePage = const Value.absent(),
+    this.examCode = const Value.absent(),
+    this.subject = const Value.absent(),
+    this.topic = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.step = const Value.absent(),
+    this.gapDays = const Value.absent(),
+    this.dueOn = const Value.absent(),
+    this.reviewCount = const Value.absent(),
+    this.lapseCount = const Value.absent(),
+    this.lastReviewedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RevisionCardsCompanion.insert({
+    required String id,
+    required String kind,
+    this.conceptId = const Value.absent(),
+    this.questionId = const Value.absent(),
+    this.front = const Value.absent(),
+    this.back = const Value.absent(),
+    this.sourceFilename = const Value.absent(),
+    this.sourcePage = const Value.absent(),
+    this.examCode = const Value.absent(),
+    this.subject = const Value.absent(),
+    this.topic = const Value.absent(),
+    this.reason = const Value.absent(),
+    required int step,
+    required int gapDays,
+    required String dueOn,
+    this.reviewCount = const Value.absent(),
+    this.lapseCount = const Value.absent(),
+    this.lastReviewedAt = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       kind = Value(kind),
+       step = Value(step),
+       gapDays = Value(gapDays),
+       dueOn = Value(dueOn),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<RevisionCardRow> custom({
+    Expression<String>? id,
+    Expression<String>? kind,
+    Expression<String>? conceptId,
+    Expression<String>? questionId,
+    Expression<String>? front,
+    Expression<String>? back,
+    Expression<String>? sourceFilename,
+    Expression<int>? sourcePage,
+    Expression<String>? examCode,
+    Expression<String>? subject,
+    Expression<String>? topic,
+    Expression<String>? reason,
+    Expression<int>? step,
+    Expression<int>? gapDays,
+    Expression<String>? dueOn,
+    Expression<int>? reviewCount,
+    Expression<int>? lapseCount,
+    Expression<DateTime>? lastReviewedAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (conceptId != null) 'concept_id': conceptId,
+      if (questionId != null) 'question_id': questionId,
+      if (front != null) 'front': front,
+      if (back != null) 'back': back,
+      if (sourceFilename != null) 'source_filename': sourceFilename,
+      if (sourcePage != null) 'source_page': sourcePage,
+      if (examCode != null) 'exam_code': examCode,
+      if (subject != null) 'subject': subject,
+      if (topic != null) 'topic': topic,
+      if (reason != null) 'reason': reason,
+      if (step != null) 'step': step,
+      if (gapDays != null) 'gap_days': gapDays,
+      if (dueOn != null) 'due_on': dueOn,
+      if (reviewCount != null) 'review_count': reviewCount,
+      if (lapseCount != null) 'lapse_count': lapseCount,
+      if (lastReviewedAt != null) 'last_reviewed_at': lastReviewedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RevisionCardsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? kind,
+    Value<String?>? conceptId,
+    Value<String?>? questionId,
+    Value<String?>? front,
+    Value<String?>? back,
+    Value<String?>? sourceFilename,
+    Value<int?>? sourcePage,
+    Value<String?>? examCode,
+    Value<String?>? subject,
+    Value<String?>? topic,
+    Value<String>? reason,
+    Value<int>? step,
+    Value<int>? gapDays,
+    Value<String>? dueOn,
+    Value<int>? reviewCount,
+    Value<int>? lapseCount,
+    Value<DateTime?>? lastReviewedAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return RevisionCardsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      conceptId: conceptId ?? this.conceptId,
+      questionId: questionId ?? this.questionId,
+      front: front ?? this.front,
+      back: back ?? this.back,
+      sourceFilename: sourceFilename ?? this.sourceFilename,
+      sourcePage: sourcePage ?? this.sourcePage,
+      examCode: examCode ?? this.examCode,
+      subject: subject ?? this.subject,
+      topic: topic ?? this.topic,
+      reason: reason ?? this.reason,
+      step: step ?? this.step,
+      gapDays: gapDays ?? this.gapDays,
+      dueOn: dueOn ?? this.dueOn,
+      reviewCount: reviewCount ?? this.reviewCount,
+      lapseCount: lapseCount ?? this.lapseCount,
+      lastReviewedAt: lastReviewedAt ?? this.lastReviewedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (conceptId.present) {
+      map['concept_id'] = Variable<String>(conceptId.value);
+    }
+    if (questionId.present) {
+      map['question_id'] = Variable<String>(questionId.value);
+    }
+    if (front.present) {
+      map['front'] = Variable<String>(front.value);
+    }
+    if (back.present) {
+      map['back'] = Variable<String>(back.value);
+    }
+    if (sourceFilename.present) {
+      map['source_filename'] = Variable<String>(sourceFilename.value);
+    }
+    if (sourcePage.present) {
+      map['source_page'] = Variable<int>(sourcePage.value);
+    }
+    if (examCode.present) {
+      map['exam_code'] = Variable<String>(examCode.value);
+    }
+    if (subject.present) {
+      map['subject'] = Variable<String>(subject.value);
+    }
+    if (topic.present) {
+      map['topic'] = Variable<String>(topic.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (step.present) {
+      map['step'] = Variable<int>(step.value);
+    }
+    if (gapDays.present) {
+      map['gap_days'] = Variable<int>(gapDays.value);
+    }
+    if (dueOn.present) {
+      map['due_on'] = Variable<String>(dueOn.value);
+    }
+    if (reviewCount.present) {
+      map['review_count'] = Variable<int>(reviewCount.value);
+    }
+    if (lapseCount.present) {
+      map['lapse_count'] = Variable<int>(lapseCount.value);
+    }
+    if (lastReviewedAt.present) {
+      map['last_reviewed_at'] = Variable<DateTime>(lastReviewedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RevisionCardsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('conceptId: $conceptId, ')
+          ..write('questionId: $questionId, ')
+          ..write('front: $front, ')
+          ..write('back: $back, ')
+          ..write('sourceFilename: $sourceFilename, ')
+          ..write('sourcePage: $sourcePage, ')
+          ..write('examCode: $examCode, ')
+          ..write('subject: $subject, ')
+          ..write('topic: $topic, ')
+          ..write('reason: $reason, ')
+          ..write('step: $step, ')
+          ..write('gapDays: $gapDays, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('reviewCount: $reviewCount, ')
+          ..write('lapseCount: $lapseCount, ')
+          ..write('lastReviewedAt: $lastReviewedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CardReviewsTable extends CardReviews with TableInfo<$CardReviewsTable, CardReviewRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CardReviewsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'),
+  );
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
+  @override
+  late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
+    'card_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES revision_cards (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _reviewedAtMeta = const VerificationMeta('reviewedAt');
+  @override
+  late final GeneratedColumn<DateTime> reviewedAt = GeneratedColumn<DateTime>(
+    'reviewed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<String> rating = GeneratedColumn<String>(
+    'rating',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dueBeforeMeta = const VerificationMeta('dueBefore');
+  @override
+  late final GeneratedColumn<String> dueBefore = GeneratedColumn<String>(
+    'due_before',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dueAfterMeta = const VerificationMeta('dueAfter');
+  @override
+  late final GeneratedColumn<String> dueAfter = GeneratedColumn<String>(
+    'due_after',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gapDaysMeta = const VerificationMeta('gapDays');
+  @override
+  late final GeneratedColumn<int> gapDays = GeneratedColumn<int>(
+    'gap_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    cardId,
+    reviewedAt,
+    rating,
+    dueBefore,
+    dueAfter,
+    gapDays,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'card_reviews';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CardReviewRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('card_id')) {
+      context.handle(_cardIdMeta, cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
+    } else if (isInserting) {
+      context.missing(_cardIdMeta);
+    }
+    if (data.containsKey('reviewed_at')) {
+      context.handle(
+        _reviewedAtMeta,
+        reviewedAt.isAcceptableOrUnknown(data['reviewed_at']!, _reviewedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_reviewedAtMeta);
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta, rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    } else if (isInserting) {
+      context.missing(_ratingMeta);
+    }
+    if (data.containsKey('due_before')) {
+      context.handle(
+        _dueBeforeMeta,
+        dueBefore.isAcceptableOrUnknown(data['due_before']!, _dueBeforeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dueBeforeMeta);
+    }
+    if (data.containsKey('due_after')) {
+      context.handle(
+        _dueAfterMeta,
+        dueAfter.isAcceptableOrUnknown(data['due_after']!, _dueAfterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dueAfterMeta);
+    }
+    if (data.containsKey('gap_days')) {
+      context.handle(_gapDaysMeta, gapDays.isAcceptableOrUnknown(data['gap_days']!, _gapDaysMeta));
+    } else if (isInserting) {
+      context.missing(_gapDaysMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CardReviewRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CardReviewRow(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      cardId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}card_id'],
+      )!,
+      reviewedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}reviewed_at'],
+      )!,
+      rating: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rating'],
+      )!,
+      dueBefore: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}due_before'],
+      )!,
+      dueAfter: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}due_after'],
+      )!,
+      gapDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gap_days'],
+      )!,
+    );
+  }
+
+  @override
+  $CardReviewsTable createAlias(String alias) {
+    return $CardReviewsTable(attachedDatabase, alias);
+  }
+}
+
+class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
+  final int id;
+  final String cardId;
+  final DateTime reviewedAt;
+
+  /// `again`, `hard`, `good` or `easy`.
+  final String rating;
+  final String dueBefore;
+  final String dueAfter;
+  final int gapDays;
+  const CardReviewRow({
+    required this.id,
+    required this.cardId,
+    required this.reviewedAt,
+    required this.rating,
+    required this.dueBefore,
+    required this.dueAfter,
+    required this.gapDays,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['card_id'] = Variable<String>(cardId);
+    map['reviewed_at'] = Variable<DateTime>(reviewedAt);
+    map['rating'] = Variable<String>(rating);
+    map['due_before'] = Variable<String>(dueBefore);
+    map['due_after'] = Variable<String>(dueAfter);
+    map['gap_days'] = Variable<int>(gapDays);
+    return map;
+  }
+
+  CardReviewsCompanion toCompanion(bool nullToAbsent) {
+    return CardReviewsCompanion(
+      id: Value(id),
+      cardId: Value(cardId),
+      reviewedAt: Value(reviewedAt),
+      rating: Value(rating),
+      dueBefore: Value(dueBefore),
+      dueAfter: Value(dueAfter),
+      gapDays: Value(gapDays),
+    );
+  }
+
+  factory CardReviewRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CardReviewRow(
+      id: serializer.fromJson<int>(json['id']),
+      cardId: serializer.fromJson<String>(json['cardId']),
+      reviewedAt: serializer.fromJson<DateTime>(json['reviewedAt']),
+      rating: serializer.fromJson<String>(json['rating']),
+      dueBefore: serializer.fromJson<String>(json['dueBefore']),
+      dueAfter: serializer.fromJson<String>(json['dueAfter']),
+      gapDays: serializer.fromJson<int>(json['gapDays']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'cardId': serializer.toJson<String>(cardId),
+      'reviewedAt': serializer.toJson<DateTime>(reviewedAt),
+      'rating': serializer.toJson<String>(rating),
+      'dueBefore': serializer.toJson<String>(dueBefore),
+      'dueAfter': serializer.toJson<String>(dueAfter),
+      'gapDays': serializer.toJson<int>(gapDays),
+    };
+  }
+
+  CardReviewRow copyWith({
+    int? id,
+    String? cardId,
+    DateTime? reviewedAt,
+    String? rating,
+    String? dueBefore,
+    String? dueAfter,
+    int? gapDays,
+  }) => CardReviewRow(
+    id: id ?? this.id,
+    cardId: cardId ?? this.cardId,
+    reviewedAt: reviewedAt ?? this.reviewedAt,
+    rating: rating ?? this.rating,
+    dueBefore: dueBefore ?? this.dueBefore,
+    dueAfter: dueAfter ?? this.dueAfter,
+    gapDays: gapDays ?? this.gapDays,
+  );
+  CardReviewRow copyWithCompanion(CardReviewsCompanion data) {
+    return CardReviewRow(
+      id: data.id.present ? data.id.value : this.id,
+      cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      reviewedAt: data.reviewedAt.present ? data.reviewedAt.value : this.reviewedAt,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      dueBefore: data.dueBefore.present ? data.dueBefore.value : this.dueBefore,
+      dueAfter: data.dueAfter.present ? data.dueAfter.value : this.dueAfter,
+      gapDays: data.gapDays.present ? data.gapDays.value : this.gapDays,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardReviewRow(')
+          ..write('id: $id, ')
+          ..write('cardId: $cardId, ')
+          ..write('reviewedAt: $reviewedAt, ')
+          ..write('rating: $rating, ')
+          ..write('dueBefore: $dueBefore, ')
+          ..write('dueAfter: $dueAfter, ')
+          ..write('gapDays: $gapDays')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, cardId, reviewedAt, rating, dueBefore, dueAfter, gapDays);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CardReviewRow &&
+          other.id == this.id &&
+          other.cardId == this.cardId &&
+          other.reviewedAt == this.reviewedAt &&
+          other.rating == this.rating &&
+          other.dueBefore == this.dueBefore &&
+          other.dueAfter == this.dueAfter &&
+          other.gapDays == this.gapDays);
+}
+
+class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
+  final Value<int> id;
+  final Value<String> cardId;
+  final Value<DateTime> reviewedAt;
+  final Value<String> rating;
+  final Value<String> dueBefore;
+  final Value<String> dueAfter;
+  final Value<int> gapDays;
+  const CardReviewsCompanion({
+    this.id = const Value.absent(),
+    this.cardId = const Value.absent(),
+    this.reviewedAt = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.dueBefore = const Value.absent(),
+    this.dueAfter = const Value.absent(),
+    this.gapDays = const Value.absent(),
+  });
+  CardReviewsCompanion.insert({
+    this.id = const Value.absent(),
+    required String cardId,
+    required DateTime reviewedAt,
+    required String rating,
+    required String dueBefore,
+    required String dueAfter,
+    required int gapDays,
+  }) : cardId = Value(cardId),
+       reviewedAt = Value(reviewedAt),
+       rating = Value(rating),
+       dueBefore = Value(dueBefore),
+       dueAfter = Value(dueAfter),
+       gapDays = Value(gapDays);
+  static Insertable<CardReviewRow> custom({
+    Expression<int>? id,
+    Expression<String>? cardId,
+    Expression<DateTime>? reviewedAt,
+    Expression<String>? rating,
+    Expression<String>? dueBefore,
+    Expression<String>? dueAfter,
+    Expression<int>? gapDays,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (cardId != null) 'card_id': cardId,
+      if (reviewedAt != null) 'reviewed_at': reviewedAt,
+      if (rating != null) 'rating': rating,
+      if (dueBefore != null) 'due_before': dueBefore,
+      if (dueAfter != null) 'due_after': dueAfter,
+      if (gapDays != null) 'gap_days': gapDays,
+    });
+  }
+
+  CardReviewsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? cardId,
+    Value<DateTime>? reviewedAt,
+    Value<String>? rating,
+    Value<String>? dueBefore,
+    Value<String>? dueAfter,
+    Value<int>? gapDays,
+  }) {
+    return CardReviewsCompanion(
+      id: id ?? this.id,
+      cardId: cardId ?? this.cardId,
+      reviewedAt: reviewedAt ?? this.reviewedAt,
+      rating: rating ?? this.rating,
+      dueBefore: dueBefore ?? this.dueBefore,
+      dueAfter: dueAfter ?? this.dueAfter,
+      gapDays: gapDays ?? this.gapDays,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (cardId.present) {
+      map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (reviewedAt.present) {
+      map['reviewed_at'] = Variable<DateTime>(reviewedAt.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<String>(rating.value);
+    }
+    if (dueBefore.present) {
+      map['due_before'] = Variable<String>(dueBefore.value);
+    }
+    if (dueAfter.present) {
+      map['due_after'] = Variable<String>(dueAfter.value);
+    }
+    if (gapDays.present) {
+      map['gap_days'] = Variable<int>(gapDays.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardReviewsCompanion(')
+          ..write('id: $id, ')
+          ..write('cardId: $cardId, ')
+          ..write('reviewedAt: $reviewedAt, ')
+          ..write('rating: $rating, ')
+          ..write('dueBefore: $dueBefore, ')
+          ..write('dueAfter: $dueAfter, ')
+          ..write('gapDays: $gapDays')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1775,6 +3206,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $StudyProfilesTable studyProfiles = $StudyProfilesTable(this);
   late final $PendingAnswersTable pendingAnswers = $PendingAnswersTable(this);
+  late final $RevisionCardsTable revisionCards = $RevisionCardsTable(this);
+  late final $CardReviewsTable cardReviews = $CardReviewsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1784,7 +3217,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     appSettings,
     studyProfiles,
     pendingAnswers,
+    revisionCards,
+    cardReviews,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName('concepts', limitUpdateKind: UpdateKind.delete),
+      result: [TableUpdate('revision_cards', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName('revision_cards', limitUpdateKind: UpdateKind.delete),
+      result: [TableUpdate('card_reviews', kind: UpdateKind.delete)],
+    ),
+  ]);
   @override
   DriftDatabaseOptions get options => const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
@@ -1821,6 +3267,28 @@ typedef $$ConceptsTableUpdateCompanionBuilder = ConceptsCompanion Function({
   Value<DateTime> updatedAt,
   Value<int> rowid,
 });
+
+final class $$ConceptsTableReferences
+    extends BaseReferences<_$AppDatabase, $ConceptsTable, ConceptRow> {
+  $$ConceptsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$RevisionCardsTable, List<RevisionCardRow>> _revisionCardsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.revisionCards,
+    aliasName: 'concepts__id__revision_cards__concept_id',
+  );
+
+  $$RevisionCardsTableProcessedTableManager get revisionCardsRefs {
+    final manager = $$RevisionCardsTableTableManager(
+      $_db,
+      $_db.revisionCards,
+    ).filter((f) => f.conceptId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_revisionCardsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+}
 
 class $$ConceptsTableFilterComposer extends Composer<_$AppDatabase, $ConceptsTable> {
   $$ConceptsTableFilterComposer({
@@ -1872,6 +3340,26 @@ class $$ConceptsTableFilterComposer extends Composer<_$AppDatabase, $ConceptsTab
 
   ColumnFilters<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> revisionCardsRefs(
+    Expression<bool> Function($$RevisionCardsTableFilterComposer f) f,
+  ) {
+    final $$RevisionCardsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.revisionCards,
+      getReferencedColumn: (t) => t.conceptId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$RevisionCardsTableFilterComposer(
+            $db: $db,
+            $table: $db.revisionCards,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ConceptsTableOrderingComposer extends Composer<_$AppDatabase, $ConceptsTable> {
@@ -1970,6 +3458,26 @@ class $$ConceptsTableAnnotationComposer extends Composer<_$AppDatabase, $Concept
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> revisionCardsRefs<T extends Object>(
+    Expression<T> Function($$RevisionCardsTableAnnotationComposer a) f,
+  ) {
+    final $$RevisionCardsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.revisionCards,
+      getReferencedColumn: (t) => t.conceptId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$RevisionCardsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.revisionCards,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ConceptsTableTableManager
@@ -1983,9 +3491,9 @@ class $$ConceptsTableTableManager
           $$ConceptsTableAnnotationComposer,
           $$ConceptsTableCreateCompanionBuilder,
           $$ConceptsTableUpdateCompanionBuilder,
-          (ConceptRow, BaseReferences<_$AppDatabase, $ConceptsTable, ConceptRow>),
+          (ConceptRow, $$ConceptsTableReferences),
           ConceptRow,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool revisionCardsRefs})
         > {
   $$ConceptsTableTableManager(_$AppDatabase db, $ConceptsTable table)
     : super(
@@ -2064,11 +3572,31 @@ class $$ConceptsTableTableManager
               .map(
                 (e) => (
                   e.readTable<$ConceptsTable, ConceptRow>(table),
-                  BaseReferences<_$AppDatabase, $ConceptsTable, ConceptRow>(db, table, e),
+                  $$ConceptsTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({revisionCardsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (revisionCardsRefs) db.revisionCards],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (revisionCardsRefs)
+                    await $_getPrefetchedData<ConceptRow, $ConceptsTable, RevisionCardRow>(
+                      currentTable: table,
+                      referencedTable: $$ConceptsTableReferences._revisionCardsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$ConceptsTableReferences(db, table, p0).revisionCardsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.conceptId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -2083,9 +3611,9 @@ typedef $$ConceptsTableProcessedTableManager =
       $$ConceptsTableAnnotationComposer,
       $$ConceptsTableCreateCompanionBuilder,
       $$ConceptsTableUpdateCompanionBuilder,
-      (ConceptRow, BaseReferences<_$AppDatabase, $ConceptsTable, ConceptRow>),
+      (ConceptRow, $$ConceptsTableReferences),
       ConceptRow,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool revisionCardsRefs})
     >;
 typedef $$AppSettingsTableCreateCompanionBuilder = AppSettingsCompanion Function({
   required String key,
@@ -2615,6 +4143,871 @@ typedef $$PendingAnswersTableProcessedTableManager =
       PendingAnswerRow,
       PrefetchHooks Function()
     >;
+typedef $$RevisionCardsTableCreateCompanionBuilder = RevisionCardsCompanion Function({
+  required String id,
+  required String kind,
+  Value<String?> conceptId,
+  Value<String?> questionId,
+  Value<String?> front,
+  Value<String?> back,
+  Value<String?> sourceFilename,
+  Value<int?> sourcePage,
+  Value<String?> examCode,
+  Value<String?> subject,
+  Value<String?> topic,
+  Value<String> reason,
+  required int step,
+  required int gapDays,
+  required String dueOn,
+  Value<int> reviewCount,
+  Value<int> lapseCount,
+  Value<DateTime?> lastReviewedAt,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$RevisionCardsTableUpdateCompanionBuilder = RevisionCardsCompanion Function({
+  Value<String> id,
+  Value<String> kind,
+  Value<String?> conceptId,
+  Value<String?> questionId,
+  Value<String?> front,
+  Value<String?> back,
+  Value<String?> sourceFilename,
+  Value<int?> sourcePage,
+  Value<String?> examCode,
+  Value<String?> subject,
+  Value<String?> topic,
+  Value<String> reason,
+  Value<int> step,
+  Value<int> gapDays,
+  Value<String> dueOn,
+  Value<int> reviewCount,
+  Value<int> lapseCount,
+  Value<DateTime?> lastReviewedAt,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+final class $$RevisionCardsTableReferences
+    extends BaseReferences<_$AppDatabase, $RevisionCardsTable, RevisionCardRow> {
+  $$RevisionCardsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ConceptsTable _conceptIdTable(_$AppDatabase db) =>
+      db.concepts.createAlias('revision_cards__concept_id__concepts__id');
+
+  $$ConceptsTableProcessedTableManager? get conceptId {
+    final $_column = $_itemColumn<String>('concept_id');
+    if ($_column == null) return null;
+    final manager = $$ConceptsTableTableManager(
+      $_db,
+      $_db.concepts,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_conceptIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$CardReviewsTable, List<CardReviewRow>> _cardReviewsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.cardReviews,
+    aliasName: 'revision_cards__id__card_reviews__card_id',
+  );
+
+  $$CardReviewsTableProcessedTableManager get cardReviewsRefs {
+    final manager = $$CardReviewsTableTableManager(
+      $_db,
+      $_db.cardReviews,
+    ).filter((f) => f.cardId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_cardReviewsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$RevisionCardsTableFilterComposer extends Composer<_$AppDatabase, $RevisionCardsTable> {
+  $$RevisionCardsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get questionId =>
+      $composableBuilder(column: $table.questionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get front =>
+      $composableBuilder(column: $table.front, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get back =>
+      $composableBuilder(column: $table.back, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceFilename =>
+      $composableBuilder(column: $table.sourceFilename, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sourcePage =>
+      $composableBuilder(column: $table.sourcePage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get examCode =>
+      $composableBuilder(column: $table.examCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subject =>
+      $composableBuilder(column: $table.subject, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get topic =>
+      $composableBuilder(column: $table.topic, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get step =>
+      $composableBuilder(column: $table.step, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get gapDays =>
+      $composableBuilder(column: $table.gapDays, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dueOn =>
+      $composableBuilder(column: $table.dueOn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get reviewCount =>
+      $composableBuilder(column: $table.reviewCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get lapseCount =>
+      $composableBuilder(column: $table.lapseCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastReviewedAt =>
+      $composableBuilder(column: $table.lastReviewedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ConceptsTableFilterComposer get conceptId {
+    final $$ConceptsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.conceptId,
+      referencedTable: $db.concepts,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$ConceptsTableFilterComposer(
+            $db: $db,
+            $table: $db.concepts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> cardReviewsRefs(
+    Expression<bool> Function($$CardReviewsTableFilterComposer f) f,
+  ) {
+    final $$CardReviewsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.cardReviews,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$CardReviewsTableFilterComposer(
+            $db: $db,
+            $table: $db.cardReviews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RevisionCardsTableOrderingComposer extends Composer<_$AppDatabase, $RevisionCardsTable> {
+  $$RevisionCardsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get questionId =>
+      $composableBuilder(column: $table.questionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get front =>
+      $composableBuilder(column: $table.front, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get back =>
+      $composableBuilder(column: $table.back, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceFilename => $composableBuilder(
+    column: $table.sourceFilename,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sourcePage =>
+      $composableBuilder(column: $table.sourcePage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get examCode =>
+      $composableBuilder(column: $table.examCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subject =>
+      $composableBuilder(column: $table.subject, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get topic =>
+      $composableBuilder(column: $table.topic, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get step =>
+      $composableBuilder(column: $table.step, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get gapDays =>
+      $composableBuilder(column: $table.gapDays, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dueOn =>
+      $composableBuilder(column: $table.dueOn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get reviewCount =>
+      $composableBuilder(column: $table.reviewCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get lapseCount =>
+      $composableBuilder(column: $table.lapseCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastReviewedAt => $composableBuilder(
+    column: $table.lastReviewedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ConceptsTableOrderingComposer get conceptId {
+    final $$ConceptsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.conceptId,
+      referencedTable: $db.concepts,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$ConceptsTableOrderingComposer(
+            $db: $db,
+            $table: $db.concepts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RevisionCardsTableAnnotationComposer extends Composer<_$AppDatabase, $RevisionCardsTable> {
+  $$RevisionCardsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get questionId =>
+      $composableBuilder(column: $table.questionId, builder: (column) => column);
+
+  GeneratedColumn<String> get front =>
+      $composableBuilder(column: $table.front, builder: (column) => column);
+
+  GeneratedColumn<String> get back =>
+      $composableBuilder(column: $table.back, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceFilename =>
+      $composableBuilder(column: $table.sourceFilename, builder: (column) => column);
+
+  GeneratedColumn<int> get sourcePage =>
+      $composableBuilder(column: $table.sourcePage, builder: (column) => column);
+
+  GeneratedColumn<String> get examCode =>
+      $composableBuilder(column: $table.examCode, builder: (column) => column);
+
+  GeneratedColumn<String> get subject =>
+      $composableBuilder(column: $table.subject, builder: (column) => column);
+
+  GeneratedColumn<String> get topic =>
+      $composableBuilder(column: $table.topic, builder: (column) => column);
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<int> get step =>
+      $composableBuilder(column: $table.step, builder: (column) => column);
+
+  GeneratedColumn<int> get gapDays =>
+      $composableBuilder(column: $table.gapDays, builder: (column) => column);
+
+  GeneratedColumn<String> get dueOn =>
+      $composableBuilder(column: $table.dueOn, builder: (column) => column);
+
+  GeneratedColumn<int> get reviewCount =>
+      $composableBuilder(column: $table.reviewCount, builder: (column) => column);
+
+  GeneratedColumn<int> get lapseCount =>
+      $composableBuilder(column: $table.lapseCount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastReviewedAt =>
+      $composableBuilder(column: $table.lastReviewedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ConceptsTableAnnotationComposer get conceptId {
+    final $$ConceptsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.conceptId,
+      referencedTable: $db.concepts,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$ConceptsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.concepts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> cardReviewsRefs<T extends Object>(
+    Expression<T> Function($$CardReviewsTableAnnotationComposer a) f,
+  ) {
+    final $$CardReviewsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.cardReviews,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$CardReviewsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.cardReviews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RevisionCardsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RevisionCardsTable,
+          RevisionCardRow,
+          $$RevisionCardsTableFilterComposer,
+          $$RevisionCardsTableOrderingComposer,
+          $$RevisionCardsTableAnnotationComposer,
+          $$RevisionCardsTableCreateCompanionBuilder,
+          $$RevisionCardsTableUpdateCompanionBuilder,
+          (RevisionCardRow, $$RevisionCardsTableReferences),
+          RevisionCardRow,
+          PrefetchHooks Function({bool conceptId, bool cardReviewsRefs})
+        > {
+  $$RevisionCardsTableTableManager(_$AppDatabase db, $RevisionCardsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$RevisionCardsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RevisionCardsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RevisionCardsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String?> conceptId = const Value.absent(),
+                Value<String?> questionId = const Value.absent(),
+                Value<String?> front = const Value.absent(),
+                Value<String?> back = const Value.absent(),
+                Value<String?> sourceFilename = const Value.absent(),
+                Value<int?> sourcePage = const Value.absent(),
+                Value<String?> examCode = const Value.absent(),
+                Value<String?> subject = const Value.absent(),
+                Value<String?> topic = const Value.absent(),
+                Value<String> reason = const Value.absent(),
+                Value<int> step = const Value.absent(),
+                Value<int> gapDays = const Value.absent(),
+                Value<String> dueOn = const Value.absent(),
+                Value<int> reviewCount = const Value.absent(),
+                Value<int> lapseCount = const Value.absent(),
+                Value<DateTime?> lastReviewedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RevisionCardsCompanion(
+                id: id,
+                kind: kind,
+                conceptId: conceptId,
+                questionId: questionId,
+                front: front,
+                back: back,
+                sourceFilename: sourceFilename,
+                sourcePage: sourcePage,
+                examCode: examCode,
+                subject: subject,
+                topic: topic,
+                reason: reason,
+                step: step,
+                gapDays: gapDays,
+                dueOn: dueOn,
+                reviewCount: reviewCount,
+                lapseCount: lapseCount,
+                lastReviewedAt: lastReviewedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String kind,
+                Value<String?> conceptId = const Value.absent(),
+                Value<String?> questionId = const Value.absent(),
+                Value<String?> front = const Value.absent(),
+                Value<String?> back = const Value.absent(),
+                Value<String?> sourceFilename = const Value.absent(),
+                Value<int?> sourcePage = const Value.absent(),
+                Value<String?> examCode = const Value.absent(),
+                Value<String?> subject = const Value.absent(),
+                Value<String?> topic = const Value.absent(),
+                Value<String> reason = const Value.absent(),
+                required int step,
+                required int gapDays,
+                required String dueOn,
+                Value<int> reviewCount = const Value.absent(),
+                Value<int> lapseCount = const Value.absent(),
+                Value<DateTime?> lastReviewedAt = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => RevisionCardsCompanion.insert(
+                id: id,
+                kind: kind,
+                conceptId: conceptId,
+                questionId: questionId,
+                front: front,
+                back: back,
+                sourceFilename: sourceFilename,
+                sourcePage: sourcePage,
+                examCode: examCode,
+                subject: subject,
+                topic: topic,
+                reason: reason,
+                step: step,
+                gapDays: gapDays,
+                dueOn: dueOn,
+                reviewCount: reviewCount,
+                lapseCount: lapseCount,
+                lastReviewedAt: lastReviewedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$RevisionCardsTable, RevisionCardRow>(table),
+                  $$RevisionCardsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({conceptId = false, cardReviewsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (cardReviewsRefs) db.cardReviews],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (conceptId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.conceptId,
+                        referencedTable: $$RevisionCardsTableReferences._conceptIdTable(db),
+                        referencedColumn: $$RevisionCardsTableReferences._conceptIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (cardReviewsRefs)
+                    await $_getPrefetchedData<RevisionCardRow, $RevisionCardsTable, CardReviewRow>(
+                      currentTable: table,
+                      referencedTable: $$RevisionCardsTableReferences._cardReviewsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$RevisionCardsTableReferences(db, table, p0).cardReviewsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.cardId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$RevisionCardsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RevisionCardsTable,
+      RevisionCardRow,
+      $$RevisionCardsTableFilterComposer,
+      $$RevisionCardsTableOrderingComposer,
+      $$RevisionCardsTableAnnotationComposer,
+      $$RevisionCardsTableCreateCompanionBuilder,
+      $$RevisionCardsTableUpdateCompanionBuilder,
+      (RevisionCardRow, $$RevisionCardsTableReferences),
+      RevisionCardRow,
+      PrefetchHooks Function({bool conceptId, bool cardReviewsRefs})
+    >;
+typedef $$CardReviewsTableCreateCompanionBuilder = CardReviewsCompanion Function({
+  Value<int> id,
+  required String cardId,
+  required DateTime reviewedAt,
+  required String rating,
+  required String dueBefore,
+  required String dueAfter,
+  required int gapDays,
+});
+typedef $$CardReviewsTableUpdateCompanionBuilder = CardReviewsCompanion Function({
+  Value<int> id,
+  Value<String> cardId,
+  Value<DateTime> reviewedAt,
+  Value<String> rating,
+  Value<String> dueBefore,
+  Value<String> dueAfter,
+  Value<int> gapDays,
+});
+
+final class $$CardReviewsTableReferences
+    extends BaseReferences<_$AppDatabase, $CardReviewsTable, CardReviewRow> {
+  $$CardReviewsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $RevisionCardsTable _cardIdTable(_$AppDatabase db) =>
+      db.revisionCards.createAlias('card_reviews__card_id__revision_cards__id');
+
+  $$RevisionCardsTableProcessedTableManager get cardId {
+    final $_column = $_itemColumn<String>('card_id')!;
+
+    final manager = $$RevisionCardsTableTableManager(
+      $_db,
+      $_db.revisionCards,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$CardReviewsTableFilterComposer extends Composer<_$AppDatabase, $CardReviewsTable> {
+  $$CardReviewsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get reviewedAt =>
+      $composableBuilder(column: $table.reviewedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dueBefore =>
+      $composableBuilder(column: $table.dueBefore, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dueAfter =>
+      $composableBuilder(column: $table.dueAfter, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get gapDays =>
+      $composableBuilder(column: $table.gapDays, builder: (column) => ColumnFilters(column));
+
+  $$RevisionCardsTableFilterComposer get cardId {
+    final $$RevisionCardsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.revisionCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$RevisionCardsTableFilterComposer(
+            $db: $db,
+            $table: $db.revisionCards,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CardReviewsTableOrderingComposer extends Composer<_$AppDatabase, $CardReviewsTable> {
+  $$CardReviewsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get reviewedAt =>
+      $composableBuilder(column: $table.reviewedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dueBefore =>
+      $composableBuilder(column: $table.dueBefore, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dueAfter =>
+      $composableBuilder(column: $table.dueAfter, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get gapDays =>
+      $composableBuilder(column: $table.gapDays, builder: (column) => ColumnOrderings(column));
+
+  $$RevisionCardsTableOrderingComposer get cardId {
+    final $$RevisionCardsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.revisionCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$RevisionCardsTableOrderingComposer(
+            $db: $db,
+            $table: $db.revisionCards,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CardReviewsTableAnnotationComposer extends Composer<_$AppDatabase, $CardReviewsTable> {
+  $$CardReviewsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get reviewedAt =>
+      $composableBuilder(column: $table.reviewedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<String> get dueBefore =>
+      $composableBuilder(column: $table.dueBefore, builder: (column) => column);
+
+  GeneratedColumn<String> get dueAfter =>
+      $composableBuilder(column: $table.dueAfter, builder: (column) => column);
+
+  GeneratedColumn<int> get gapDays =>
+      $composableBuilder(column: $table.gapDays, builder: (column) => column);
+
+  $$RevisionCardsTableAnnotationComposer get cardId {
+    final $$RevisionCardsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.revisionCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$RevisionCardsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.revisionCards,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CardReviewsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CardReviewsTable,
+          CardReviewRow,
+          $$CardReviewsTableFilterComposer,
+          $$CardReviewsTableOrderingComposer,
+          $$CardReviewsTableAnnotationComposer,
+          $$CardReviewsTableCreateCompanionBuilder,
+          $$CardReviewsTableUpdateCompanionBuilder,
+          (CardReviewRow, $$CardReviewsTableReferences),
+          CardReviewRow,
+          PrefetchHooks Function({bool cardId})
+        > {
+  $$CardReviewsTableTableManager(_$AppDatabase db, $CardReviewsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$CardReviewsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$CardReviewsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CardReviewsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> cardId = const Value.absent(),
+                Value<DateTime> reviewedAt = const Value.absent(),
+                Value<String> rating = const Value.absent(),
+                Value<String> dueBefore = const Value.absent(),
+                Value<String> dueAfter = const Value.absent(),
+                Value<int> gapDays = const Value.absent(),
+              }) => CardReviewsCompanion(
+                id: id,
+                cardId: cardId,
+                reviewedAt: reviewedAt,
+                rating: rating,
+                dueBefore: dueBefore,
+                dueAfter: dueAfter,
+                gapDays: gapDays,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String cardId,
+                required DateTime reviewedAt,
+                required String rating,
+                required String dueBefore,
+                required String dueAfter,
+                required int gapDays,
+              }) => CardReviewsCompanion.insert(
+                id: id,
+                cardId: cardId,
+                reviewedAt: reviewedAt,
+                rating: rating,
+                dueBefore: dueBefore,
+                dueAfter: dueAfter,
+                gapDays: gapDays,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$CardReviewsTable, CardReviewRow>(table),
+                  $$CardReviewsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({cardId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (cardId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.cardId,
+                        referencedTable: $$CardReviewsTableReferences._cardIdTable(db),
+                        referencedColumn: $$CardReviewsTableReferences._cardIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CardReviewsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CardReviewsTable,
+      CardReviewRow,
+      $$CardReviewsTableFilterComposer,
+      $$CardReviewsTableOrderingComposer,
+      $$CardReviewsTableAnnotationComposer,
+      $$CardReviewsTableCreateCompanionBuilder,
+      $$CardReviewsTableUpdateCompanionBuilder,
+      (CardReviewRow, $$CardReviewsTableReferences),
+      CardReviewRow,
+      PrefetchHooks Function({bool cardId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2626,4 +5019,8 @@ class $AppDatabaseManager {
       $$StudyProfilesTableTableManager(_db, _db.studyProfiles);
   $$PendingAnswersTableTableManager get pendingAnswers =>
       $$PendingAnswersTableTableManager(_db, _db.pendingAnswers);
+  $$RevisionCardsTableTableManager get revisionCards =>
+      $$RevisionCardsTableTableManager(_db, _db.revisionCards);
+  $$CardReviewsTableTableManager get cardReviews =>
+      $$CardReviewsTableTableManager(_db, _db.cardReviews);
 }

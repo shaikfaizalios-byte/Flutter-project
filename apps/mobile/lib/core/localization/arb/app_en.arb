@@ -141,7 +141,7 @@
   "onboardingDailyTitle": "How much time can you study each day?",
   "onboardingDailyHint": "Choose a realistic amount. Studying a little every day works better than occasional long sessions.",
   "onboardingReminderTitle": "When should PrepLoop remind you to study?",
-  "onboardingReminderHint": "Reminders will be switched on in a later update. Your preferred time is saved now.",
+  "onboardingReminderHint": "Switch on the daily reminder in Profile. PrepLoop asks for notification permission only then.",
   "chooseDate": "Choose date",
   "chooseTime": "Choose time",
   "clear": "Clear",
@@ -218,7 +218,7 @@
       }
     }
   },
-  "homePlanComingSoon": "A personalised daily plan will appear here once practice and revision are available.",
+  "homePlanComingSoon": "A personalised daily study plan will appear here in a later update.",
   "homeOpenConcepts": "Open concepts",
   "homeSetExamDate": "Set your exam date in Profile to see a countdown.",
   "conceptDetailsTitle": "Concept",
@@ -492,7 +492,7 @@
   "bankTitle": "Question bank",
   "bankSearchHint": "Search questions",
   "bankEmptyTitle": "No questions yet",
-  "bankEmptyMessage": "Import a previous-year paper in Study, then Imported papers. Its questions appear here for review. Practice sessions arrive in a later update.",
+  "bankEmptyMessage": "Import a previous-year paper in Study, then Imported papers. Its questions appear here for review, and reviewed questions can be practised.",
   "bankLoadError": "Questions could not be loaded.",
   "practiceHubTitle": "Practice",
   "practiceStartTitle": "Practice questions",
@@ -685,5 +685,208 @@
     }
   },
   "resultNotAnswered": "Not answered",
-  "resultSubmittedTimeUp": "Submitted automatically when time was up."
+  "resultSubmittedTimeUp": "Submitted automatically when time was up.",
+  "revisionTitle": "Revision",
+  "revisionDueTitle": "Due today",
+  "revisionDueCount": "{count, plural, =1{1 card to revise} other{{count} cards to revise}}",
+  "@revisionDueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionOverdueCount": "{count, plural, =1{1 of them is overdue} other{{count} of them are overdue}}",
+  "@revisionOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionStart": "Start revision",
+  "revisionNothingDue": "Nothing to revise today.",
+  "revisionNextReview": "Next review: {when}",
+  "@revisionNextReview": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "revisionUpcomingTitle": "Next 7 days",
+  "revisionScheduleTitle": "Revision schedule",
+  "revisionLadder": "Review on day {days} after adding a card",
+  "@revisionLadder": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "revisionLadderExplanation": "Remembering moves a card to the next review day; after the last one the gap keeps doubling. Hard repeats with a shorter gap. Forgetting starts the card again from the first day.",
+  "revisionEditSchedule": "Change schedule",
+  "revisionScheduleHelp": "Days after you add a card when it comes back for review. Changes apply to future reviews; cards keep their current due dates.",
+  "revisionScheduleField": "Review days",
+  "revisionScheduleFieldHint": "For example: 1, 4, 7",
+  "revisionScheduleInvalid": "Enter 1 to {maxSteps} different days between 1 and {maxDay}.",
+  "@revisionScheduleInvalid": {
+    "placeholders": {
+      "maxSteps": {
+        "type": "int"
+      },
+      "maxDay": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionScheduleReset": "Use 1, 4, 7",
+  "revisionScheduleSaved": "Revision schedule saved.",
+  "revisionAllCards": "{count, plural, =1{1 card} other{All cards ({count})}}",
+  "@revisionAllCards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionEmptyTitle": "No flashcards yet",
+  "revisionEmptyMessage": "Add a concept to revision from its details page, or add questions from Practice → Bookmarks or Questions to revisit.",
+  "revisionLoadError": "Could not load your flashcards.",
+  "revisionSaveError": "Could not save. Please try again.",
+  "revisionRemove": "Remove",
+  "revisionRemoved": "Removed from revision.",
+  "revisionDueToday": "Today",
+  "revisionDueTomorrow": "Tomorrow",
+  "revisionDueInDays": "In {days} days",
+  "@revisionDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionOverdueBy": "{days, plural, =1{1 day overdue} other{{days} days overdue}}",
+  "@revisionOverdueBy": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionReviewTitle": "Revise",
+  "revisionCardPosition": "Card {position} of {total}",
+  "@revisionCardPosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionShowAnswer": "Show answer",
+  "revisionAnswer": "Answer",
+  "revisionNoNotes": "No notes for this concept. Try to recall what you know about it.",
+  "revisionHowWell": "How well did you remember it?",
+  "revisionDone": "{count, plural, =1{You revised 1 card} other{You revised {count} cards}}",
+  "@revisionDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingAgain": "Forgot",
+  "ratingHard": "Hard",
+  "ratingGood": "Good",
+  "ratingEasy": "Easy",
+  "cardOriginNotes": "Your notes",
+  "cardOriginPaper": "From your PDF",
+  "cardOriginPaperPage": "From your PDF · {file}, p. {page}",
+  "@cardOriginPaperPage": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      },
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "cardReasonIncorrect": "Answered wrong in practice",
+  "conceptAddToRevision": "Add to revision",
+  "conceptInRevision": "In revision",
+  "revisionAddAll": "Revise these",
+  "revisionQuestionsAdded": "{count, plural, =0{No new cards added.} =1{1 card added to revision.} other{{count} cards added to revision.}}",
+  "@revisionQuestionsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionQuestionsAlreadyAdded": "{count} already in revision.",
+  "@revisionQuestionsAlreadyAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "revisionQuestionsNotEligible": "{count} not added: only reviewed questions with an answer and no figure can be revised.",
+  "@revisionQuestionsNotEligible": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeRevisionDue": "{count, plural, =1{1 card to revise today.} other{{count} cards to revise today.}}",
+  "@homeRevisionDue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeRevisionDueWithOverdue": "{count} cards to revise today ({overdue} overdue).",
+  "@homeRevisionDueWithOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "overdue": {
+        "type": "int"
+      }
+    }
+  },
+  "homeRevisionNoneToday": "No revision due today. Next: {when}.",
+  "@homeRevisionNoneToday": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRevisionEmpty": "No flashcards yet. Add concepts or questions to revision.",
+  "reminderSwitch": "Daily study reminder",
+  "reminderOn": "Every day at {time}",
+  "@reminderOn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOff": "Off",
+  "reminderNeedsTime": "Choose a reminder time to switch it on.",
+  "reminderBlocked": "Notifications are turned off for PrepLoop. Allow them in system settings to get reminders.",
+  "reminderFailed": "The reminder could not be set.",
+  "reminderUnsupported": "Reminders work in the Android and iOS apps.",
+  "reminderOpenSettings": "Open notification settings",
+  "reminderNotificationTitle": "Time to study",
+  "reminderNotificationBody": "Open PrepLoop to see what to revise today.",
+  "reminderChannelName": "Study reminders"
 }

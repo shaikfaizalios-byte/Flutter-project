@@ -3,14 +3,16 @@
 PrepLoop helps SSC CGL and SSC CHSL aspirants turn scattered PDFs, previous-year papers and notes into a
 personalised study loop: practise, find weak topics, revise on schedule, and track real progress.
 
-> **Status:** Phase 6 (practice and mock tests). Onboarding, a dashboard built on real data and offline concept
+> **Status:** Phase 7 (flashcards, spaced revision and reminders). Onboarding, a dashboard built on real data and offline concept
 > management work in English and Hindi. Imported PDFs are read page by page (embedded text or OCR), then
 > split into questions with options, answers, shared passages and source references. Every uncertain
 > result is flagged for human review in the app, and verified exam formats are recorded with their official
 > SSC source. Reviewed questions can be practised (topic, subject or mixed) with instant feedback, or taken as
 > timed mock tests built only from verified formats. The timer is kept on the server, scores are explained, and answers survive
-> going offline. See [CLAUDE.md](CLAUDE.md), [docs/document-ingestion.md](docs/document-ingestion.md),
-> [docs/question-bank.md](docs/question-bank.md) and [docs/practice.md](docs/practice.md).
+> going offline. Concepts and verified questions become flashcards on a configurable Day 1/4/7 revision
+> schedule that adapts to how well you remember, with an optional daily reminder. See [CLAUDE.md](CLAUDE.md),
+> [docs/document-ingestion.md](docs/document-ingestion.md), [docs/question-bank.md](docs/question-bank.md),
+> [docs/practice.md](docs/practice.md) and [docs/revision.md](docs/revision.md).
 
 ## Repository layout
 
@@ -109,7 +111,8 @@ for the mobile (Drift) schema workflow, see [docs/database.md](docs/database.md)
 
 - Web (development check): `cd apps/mobile; flutter build web --dart-define=API_BASE_URL=...`
 - Android App Bundle: `flutter build appbundle --dart-define=FLAVOR=production --dart-define=API_BASE_URL=https://...`
-  This needs the Android SDK and release signing, which are configured in Phase 11.
+  This needs the Android SDK and release signing, which are configured in Phase 11. Reminders need core-library
+  desugaring (already enabled in `android/app/build.gradle.kts`).
 - iOS: requires macOS + Xcode (Phase 11).
 
 ## Known limitations

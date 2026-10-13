@@ -282,7 +282,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingReminderHint =>
-      'Reminders will be switched on in a later update. Your preferred time is saved now.';
+      'Switch on the daily reminder in Profile. PrepLoop asks for notification permission only then.';
 
   @override
   String get chooseDate => 'Choose date';
@@ -386,7 +386,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homePlanComingSoon =>
-      'A personalised daily plan will appear here once practice and revision are available.';
+      'A personalised daily study plan will appear here in a later update.';
 
   @override
   String get homeOpenConcepts => 'Open concepts';
@@ -828,7 +828,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bankEmptyMessage =>
-      'Import a previous-year paper in Study, then Imported papers. Its questions appear here for review. Practice sessions arrive in a later update.';
+      'Import a previous-year paper in Study, then Imported papers. Its questions appear here for review, and reviewed questions can be practised.';
 
   @override
   String get bankLoadError => 'Questions could not be loaded.';
@@ -1083,4 +1083,282 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resultSubmittedTimeUp => 'Submitted automatically when time was up.';
+
+  @override
+  String get revisionTitle => 'Revision';
+
+  @override
+  String get revisionDueTitle => 'Due today';
+
+  @override
+  String revisionDueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards to revise',
+      one: '1 card to revise',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String revisionOverdueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count of them are overdue',
+      one: '1 of them is overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get revisionStart => 'Start revision';
+
+  @override
+  String get revisionNothingDue => 'Nothing to revise today.';
+
+  @override
+  String revisionNextReview(String when) {
+    return 'Next review: $when';
+  }
+
+  @override
+  String get revisionUpcomingTitle => 'Next 7 days';
+
+  @override
+  String get revisionScheduleTitle => 'Revision schedule';
+
+  @override
+  String revisionLadder(String days) {
+    return 'Review on day $days after adding a card';
+  }
+
+  @override
+  String get revisionLadderExplanation =>
+      'Remembering moves a card to the next review day; after the last one the gap keeps doubling. Hard repeats with a shorter gap. Forgetting starts the card again from the first day.';
+
+  @override
+  String get revisionEditSchedule => 'Change schedule';
+
+  @override
+  String get revisionScheduleHelp =>
+      'Days after you add a card when it comes back for review. Changes apply to future reviews; cards keep their current due dates.';
+
+  @override
+  String get revisionScheduleField => 'Review days';
+
+  @override
+  String get revisionScheduleFieldHint => 'For example: 1, 4, 7';
+
+  @override
+  String revisionScheduleInvalid(int maxSteps, int maxDay) {
+    return 'Enter 1 to $maxSteps different days between 1 and $maxDay.';
+  }
+
+  @override
+  String get revisionScheduleReset => 'Use 1, 4, 7';
+
+  @override
+  String get revisionScheduleSaved => 'Revision schedule saved.';
+
+  @override
+  String revisionAllCards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All cards ($count)',
+      one: '1 card',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get revisionEmptyTitle => 'No flashcards yet';
+
+  @override
+  String get revisionEmptyMessage =>
+      'Add a concept to revision from its details page, or add questions from Practice → Bookmarks or Questions to revisit.';
+
+  @override
+  String get revisionLoadError => 'Could not load your flashcards.';
+
+  @override
+  String get revisionSaveError => 'Could not save. Please try again.';
+
+  @override
+  String get revisionRemove => 'Remove';
+
+  @override
+  String get revisionRemoved => 'Removed from revision.';
+
+  @override
+  String get revisionDueToday => 'Today';
+
+  @override
+  String get revisionDueTomorrow => 'Tomorrow';
+
+  @override
+  String revisionDueInDays(int days) {
+    return 'In $days days';
+  }
+
+  @override
+  String revisionOverdueBy(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days overdue',
+      one: '1 day overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get revisionReviewTitle => 'Revise';
+
+  @override
+  String revisionCardPosition(int position, int total) {
+    return 'Card $position of $total';
+  }
+
+  @override
+  String get revisionShowAnswer => 'Show answer';
+
+  @override
+  String get revisionAnswer => 'Answer';
+
+  @override
+  String get revisionNoNotes => 'No notes for this concept. Try to recall what you know about it.';
+
+  @override
+  String get revisionHowWell => 'How well did you remember it?';
+
+  @override
+  String revisionDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You revised $count cards',
+      one: 'You revised 1 card',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratingAgain => 'Forgot';
+
+  @override
+  String get ratingHard => 'Hard';
+
+  @override
+  String get ratingGood => 'Good';
+
+  @override
+  String get ratingEasy => 'Easy';
+
+  @override
+  String get cardOriginNotes => 'Your notes';
+
+  @override
+  String get cardOriginPaper => 'From your PDF';
+
+  @override
+  String cardOriginPaperPage(String file, int page) {
+    return 'From your PDF · $file, p. $page';
+  }
+
+  @override
+  String get cardReasonIncorrect => 'Answered wrong in practice';
+
+  @override
+  String get conceptAddToRevision => 'Add to revision';
+
+  @override
+  String get conceptInRevision => 'In revision';
+
+  @override
+  String get revisionAddAll => 'Revise these';
+
+  @override
+  String revisionQuestionsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards added to revision.',
+      one: '1 card added to revision.',
+      zero: 'No new cards added.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String revisionQuestionsAlreadyAdded(int count) {
+    return '$count already in revision.';
+  }
+
+  @override
+  String revisionQuestionsNotEligible(int count) {
+    return '$count not added: only reviewed questions with an answer and no figure can be revised.';
+  }
+
+  @override
+  String homeRevisionDue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards to revise today.',
+      one: '1 card to revise today.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeRevisionDueWithOverdue(int count, int overdue) {
+    return '$count cards to revise today ($overdue overdue).';
+  }
+
+  @override
+  String homeRevisionNoneToday(String when) {
+    return 'No revision due today. Next: $when.';
+  }
+
+  @override
+  String get homeRevisionEmpty => 'No flashcards yet. Add concepts or questions to revision.';
+
+  @override
+  String get reminderSwitch => 'Daily study reminder';
+
+  @override
+  String reminderOn(String time) {
+    return 'Every day at $time';
+  }
+
+  @override
+  String get reminderOff => 'Off';
+
+  @override
+  String get reminderNeedsTime => 'Choose a reminder time to switch it on.';
+
+  @override
+  String get reminderBlocked =>
+      'Notifications are turned off for PrepLoop. Allow them in system settings to get reminders.';
+
+  @override
+  String get reminderFailed => 'The reminder could not be set.';
+
+  @override
+  String get reminderUnsupported => 'Reminders work in the Android and iOS apps.';
+
+  @override
+  String get reminderOpenSettings => 'Open notification settings';
+
+  @override
+  String get reminderNotificationTitle => 'Time to study';
+
+  @override
+  String get reminderNotificationBody => 'Open PrepLoop to see what to revise today.';
+
+  @override
+  String get reminderChannelName => 'Study reminders';
 }

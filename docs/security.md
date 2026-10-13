@@ -31,6 +31,12 @@
 - Logs record document IDs, sizes and page counts, never document text or filenames.
 - Deletion is explicit and complete: row, pages and original file.
 
+## Implemented (Phase 7: reminders)
+
+- Notification permission is requested only when the learner turns on the daily reminder, never at start-up. Declining is respected.
+- Reminder text is generic. No card content, counts or personal data appear on the lock screen.
+- Android uses inexact alarms, so the app requests no `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM` permission. The only added permission is `RECEIVE_BOOT_COMPLETED` (restores the reminder after a reboot). Notification receivers are not exported.
+
 ## Known gaps (accepted for now)
 
 - **No authentication on `/api/v1/documents`.** Anyone who can reach the API can list, read and delete uploads. Never expose it publicly before Phase 10 adds accounts and ownership checks.

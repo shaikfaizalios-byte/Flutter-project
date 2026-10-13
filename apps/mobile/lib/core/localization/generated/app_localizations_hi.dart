@@ -282,7 +282,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get onboardingReminderHint =>
-      'रिमाइंडर आगामी अपडेट में चालू होंगे। आपका पसंदीदा समय अभी सहेजा जाएगा।';
+      'प्रोफ़ाइल में रोज़ का रिमाइंडर चालू करें। PrepLoop सूचना की अनुमति तभी माँगेगा।';
 
   @override
   String get chooseDate => 'तारीख चुनें';
@@ -387,8 +387,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get homePlanComingSoon =>
-      'अभ्यास और दोहराव उपलब्ध होने पर आपकी व्यक्तिगत दैनिक योजना यहाँ दिखेगी।';
+  String get homePlanComingSoon => 'आपकी व्यक्तिगत दैनिक अध्ययन योजना आगामी अपडेट में यहाँ दिखेगी।';
 
   @override
   String get homeOpenConcepts => 'कॉन्सेप्ट खोलें';
@@ -830,7 +829,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get bankEmptyMessage =>
-      'अध्ययन में, फिर आयात किए गए प्रश्न-पत्र में जाकर पिछले वर्ष का प्रश्न-पत्र आयात करें। उसके प्रश्न जाँच के लिए यहाँ दिखेंगे। अभ्यास सत्र आगामी अपडेट में आएँगे।';
+      'अध्ययन में, फिर आयात किए गए प्रश्न-पत्र में जाकर पिछले वर्ष का प्रश्न-पत्र आयात करें। उसके प्रश्न जाँच के लिए यहाँ दिखेंगे, और जाँचे गए प्रश्नों का अभ्यास किया जा सकता है।';
 
   @override
   String get bankLoadError => 'प्रश्न लोड नहीं हो सके।';
@@ -1085,4 +1084,283 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get resultSubmittedTimeUp => 'समय पूरा होने पर अपने-आप सबमिट हुआ।';
+
+  @override
+  String get revisionTitle => 'दोहराव';
+
+  @override
+  String get revisionDueTitle => 'आज दोहराने के लिए';
+
+  @override
+  String revisionDueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'दोहराने के लिए $count कार्ड',
+      one: 'दोहराने के लिए 1 कार्ड',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String revisionOverdueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'इनमें से $count की तारीख निकल चुकी है',
+      one: 'इनमें से 1 की तारीख निकल चुकी है',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get revisionStart => 'दोहराव शुरू करें';
+
+  @override
+  String get revisionNothingDue => 'आज दोहराने के लिए कुछ नहीं है।';
+
+  @override
+  String revisionNextReview(String when) {
+    return 'अगला दोहराव: $when';
+  }
+
+  @override
+  String get revisionUpcomingTitle => 'अगले 7 दिन';
+
+  @override
+  String get revisionScheduleTitle => 'दोहराव की समय-सारिणी';
+
+  @override
+  String revisionLadder(String days) {
+    return 'कार्ड जोड़ने के बाद दिन $days पर दोहराएँ';
+  }
+
+  @override
+  String get revisionLadderExplanation =>
+      'याद रहने पर कार्ड अगले दोहराव-दिन पर जाता है; आखिरी दिन के बाद अंतराल दोगुना होता रहता है। कठिन लगने पर छोटे अंतराल पर फिर आता है। भूल जाने पर कार्ड पहले दिन से फिर शुरू होता है।';
+
+  @override
+  String get revisionEditSchedule => 'समय-सारिणी बदलें';
+
+  @override
+  String get revisionScheduleHelp =>
+      'कार्ड जोड़ने के कितने दिन बाद वह दोहराव के लिए लौटे। बदलाव आगे के दोहराव पर लागू होते हैं; कार्डों की मौजूदा तारीखें वही रहती हैं।';
+
+  @override
+  String get revisionScheduleField => 'दोहराव के दिन';
+
+  @override
+  String get revisionScheduleFieldHint => 'उदाहरण: 1, 4, 7';
+
+  @override
+  String revisionScheduleInvalid(int maxSteps, int maxDay) {
+    return '1 से $maxDay के बीच 1 से $maxSteps अलग-अलग दिन लिखें।';
+  }
+
+  @override
+  String get revisionScheduleReset => '1, 4, 7 रखें';
+
+  @override
+  String get revisionScheduleSaved => 'दोहराव की समय-सारिणी सहेजी गई।';
+
+  @override
+  String revisionAllCards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'सभी कार्ड ($count)',
+      one: '1 कार्ड',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get revisionEmptyTitle => 'अभी कोई फ्लैशकार्ड नहीं';
+
+  @override
+  String get revisionEmptyMessage =>
+      'किसी कॉन्सेप्ट के विवरण पेज से उसे दोहराव में जोड़ें, या अभ्यास → बुकमार्क या फिर से देखने वाले प्रश्नों से प्रश्न जोड़ें।';
+
+  @override
+  String get revisionLoadError => 'आपके फ्लैशकार्ड लोड नहीं हो सके।';
+
+  @override
+  String get revisionSaveError => 'सहेजा नहीं जा सका। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get revisionRemove => 'हटाएँ';
+
+  @override
+  String get revisionRemoved => 'दोहराव से हटा दिया गया।';
+
+  @override
+  String get revisionDueToday => 'आज';
+
+  @override
+  String get revisionDueTomorrow => 'कल';
+
+  @override
+  String revisionDueInDays(int days) {
+    return '$days दिन में';
+  }
+
+  @override
+  String revisionOverdueBy(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days दिन देर',
+      one: '1 दिन देर',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get revisionReviewTitle => 'दोहराएँ';
+
+  @override
+  String revisionCardPosition(int position, int total) {
+    return 'कार्ड $position / $total';
+  }
+
+  @override
+  String get revisionShowAnswer => 'उत्तर दिखाएँ';
+
+  @override
+  String get revisionAnswer => 'उत्तर';
+
+  @override
+  String get revisionNoNotes =>
+      'इस कॉन्सेप्ट के लिए कोई नोट्स नहीं हैं। जो याद है उसे याद करने की कोशिश करें।';
+
+  @override
+  String get revisionHowWell => 'आपको कितनी अच्छी तरह याद था?';
+
+  @override
+  String revisionDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'आपने $count कार्ड दोहराए',
+      one: 'आपने 1 कार्ड दोहराया',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratingAgain => 'भूल गया';
+
+  @override
+  String get ratingHard => 'कठिन';
+
+  @override
+  String get ratingGood => 'ठीक';
+
+  @override
+  String get ratingEasy => 'आसान';
+
+  @override
+  String get cardOriginNotes => 'आपके नोट्स';
+
+  @override
+  String get cardOriginPaper => 'आपकी PDF से';
+
+  @override
+  String cardOriginPaperPage(String file, int page) {
+    return 'आपकी PDF से · $file, पृ. $page';
+  }
+
+  @override
+  String get cardReasonIncorrect => 'अभ्यास में गलत उत्तर दिया';
+
+  @override
+  String get conceptAddToRevision => 'दोहराव में जोड़ें';
+
+  @override
+  String get conceptInRevision => 'दोहराव में है';
+
+  @override
+  String get revisionAddAll => 'इन्हें दोहराएँ';
+
+  @override
+  String revisionQuestionsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count कार्ड दोहराव में जोड़े गए।',
+      one: '1 कार्ड दोहराव में जोड़ा गया।',
+      zero: 'कोई नया कार्ड नहीं जोड़ा गया।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String revisionQuestionsAlreadyAdded(int count) {
+    return '$count पहले से दोहराव में हैं।';
+  }
+
+  @override
+  String revisionQuestionsNotEligible(int count) {
+    return '$count नहीं जोड़े गए: केवल जाँचे गए, उत्तर वाले और बिना चित्र वाले प्रश्न दोहराए जा सकते हैं।';
+  }
+
+  @override
+  String homeRevisionDue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'आज दोहराने के लिए $count कार्ड।',
+      one: 'आज दोहराने के लिए 1 कार्ड।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeRevisionDueWithOverdue(int count, int overdue) {
+    return 'आज दोहराने के लिए $count कार्ड ($overdue देर से)।';
+  }
+
+  @override
+  String homeRevisionNoneToday(String when) {
+    return 'आज कोई दोहराव नहीं। अगला: $when।';
+  }
+
+  @override
+  String get homeRevisionEmpty => 'अभी कोई फ्लैशकार्ड नहीं। कॉन्सेप्ट या प्रश्न दोहराव में जोड़ें।';
+
+  @override
+  String get reminderSwitch => 'रोज़ पढ़ाई का रिमाइंडर';
+
+  @override
+  String reminderOn(String time) {
+    return 'हर दिन $time बजे';
+  }
+
+  @override
+  String get reminderOff => 'बंद';
+
+  @override
+  String get reminderNeedsTime => 'चालू करने के लिए रिमाइंडर का समय चुनें।';
+
+  @override
+  String get reminderBlocked =>
+      'PrepLoop के लिए सूचनाएँ बंद हैं। रिमाइंडर पाने के लिए सिस्टम सेटिंग में इन्हें अनुमति दें।';
+
+  @override
+  String get reminderFailed => 'रिमाइंडर सेट नहीं हो सका।';
+
+  @override
+  String get reminderUnsupported => 'रिमाइंडर Android और iOS ऐप में काम करते हैं।';
+
+  @override
+  String get reminderOpenSettings => 'सूचना सेटिंग खोलें';
+
+  @override
+  String get reminderNotificationTitle => 'पढ़ाई का समय';
+
+  @override
+  String get reminderNotificationBody => 'आज क्या दोहराना है, देखने के लिए PrepLoop खोलें।';
+
+  @override
+  String get reminderChannelName => 'पढ़ाई के रिमाइंडर';
 }

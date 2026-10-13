@@ -90,7 +90,24 @@ installs by default.
 Mobile tests get `FakePracticeRepository` (`test/helpers/fake_practice.dart`) from `pumpPrepLoopApp` by
 default. `TestClock` drives the app clock and the fake server together.
 
+## Flashcards, revision and reminders (Phase 7)
+
+| File | Covers |
+|---|---|
+| `test/features/revision/revision_schedule_test.dart` | Day 1/4/7 then growing gaps; max gap; Forgot restarts and counts a lapse; Hard keeps the step with a shorter gap; Easy is longer than Good; graduated cards; late reviews; custom and shortened ladders; validation and storage format; due and overdue; calendar arithmetic across months, leap days and DST dates |
+| `test/features/revision/revision_repository_test.dart` | Concept cards follow concept edits and are idempotent; archive hides and delete cascades; only verified, source, answered, figure-free questions become cards (counts reported); review reschedules and logs; stored ladder used for new cards; overview counts |
+| `test/features/revision/revision_flow_test.dart` | Empty state; add a concept from its details; dashboard due count → review → reveal → rating gaps → reschedule and log; ladder editing and validation; "Revise these" from wrong answers (verified only); question card source and answer; Hindi |
+| `test/features/reminders/reminder_time_test.dart` | Next reminder today or tomorrow; exactly at the time; year boundary; other timezones; **DST**: local time kept, "spring forward" gap, "fall back" repeat fires once (real tz database) |
+| `test/features/reminders/reminder_controller_test.dart` | Off by default with no prompt; enabling asks once and schedules one reminder; **no duplicates across resumes and restarts**; time, timezone and language changes replace the reminder; **denied permission** explained, then fixed in settings; revoked permission cancels; disable; no time; unsupported platforms |
+| `test/features/reminders/reminder_tile_test.dart` | Profile switch on and off; denied permission message and settings button; time picker when no time is set; unsupported platforms |
+| `test/drift/app_database/migration_test.dart` | Every schema upgrade to v4, plus v3→v4 keeping concepts and queued answers |
+
+App tests get `FakeReminderScheduler` (`test/helpers/fake_reminders.dart`) by default. Its `pending` map
+mirrors the OS's scheduled notifications by id.
+
 ## Not yet covered
+
+- Real notification delivery, the permission dialogs and the boot receiver need an Android or iOS device (not available yet).
 
 - Integration tests (`integration_test/`) need a device or emulator. They start in Phase 3 with onboarding.
 - Android and iOS builds have not been verified (no Android SDK; iOS needs macOS).

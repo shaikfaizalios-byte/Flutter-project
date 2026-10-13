@@ -9,6 +9,7 @@ import '../../../core/exams/exam_catalog.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../revision/presentation/revision_widgets.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 
@@ -175,6 +176,8 @@ class _ConceptDetails extends ConsumerWidget {
                 ].join(' › '),
                 style: theme.textTheme.titleMedium,
               ),
+              const SizedBox(height: AppSpacing.sm),
+              ConceptRevisionTile(conceptId: concept.id, archived: concept.isArchived),
               if (concept.tags.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.sm),
                 Wrap(

@@ -38,6 +38,7 @@ void main() {
     await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
 
+    await scrollTo(tester, find.text('हिन्दी'));
     await tester.tap(find.text('हिन्दी'));
     await tester.pumpAndSettle();
 
