@@ -88,6 +88,7 @@ Future<void> pumpPrepLoopApp(
   AppPreferences initialPreferences = const AppPreferences(),
   StudyProfile? studyProfile,
   DateTime? now,
+  List<Override> extraOverrides = const [],
 }) async {
   if (deviceLocale != null) {
     tester.platformDispatcher.localesTestValue = [deviceLocale];
@@ -100,6 +101,7 @@ Future<void> pumpPrepLoopApp(
     initialPreferencesProvider.overrideWithValue(initialPreferences),
     initialStudyProfileProvider.overrideWithValue(studyProfile ?? onboardedProfile),
     serverStatusRepositoryProvider.overrideWithValue(serverStatus ?? FakeServerStatusRepository()),
+    ...extraOverrides,
   ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: const PrepLoopApp()));
   await tester.pumpAndSettle();

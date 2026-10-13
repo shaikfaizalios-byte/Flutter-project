@@ -10,7 +10,7 @@ from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.logging import request_id_var
-from app.domain.errors import DomainError
+from app.domain.errors import DomainError, RateLimitedError
 from app.schemas.errors import ErrorBody, ErrorDetail, ErrorResponse
 
 logger = logging.getLogger("app.errors")
@@ -60,7 +60,10 @@ async def validation_exception_handler(_: Request, exc: Exception) -> JSONRespon
 
 async def domain_error_handler(_: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, DomainError)  # noqa: S101
-    return _response(exc.status_code, exc.code, exc.message)
+    response = _response(exc.status_code, exc.code, exc.message)
+    if isinstance(exc, RateLimitedError):
+        response.headers["Retry-After"] = str(exc.retry_after_seconds)
+    return response
 
 
 async def database_unavailable_handler(_: Request, exc: Exception) -> JSONResponse:

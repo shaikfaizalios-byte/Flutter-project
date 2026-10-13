@@ -26,7 +26,16 @@ class ConceptListScreen extends ConsumerWidget {
     final text = query.text.trim();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.studyTitle)),
+      appBar: AppBar(
+        title: Text(l10n.studyTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.documentsTitle,
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            onPressed: () => context.push(AppRoutes.documents),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.newConcept),
         icon: const Icon(Icons.add),

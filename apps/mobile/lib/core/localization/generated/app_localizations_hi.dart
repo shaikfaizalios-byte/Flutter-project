@@ -475,4 +475,133 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get conceptsArchivedEmpty => 'कोई संग्रहित कॉन्सेप्ट नहीं है।';
+
+  @override
+  String get documentsTitle => 'आयात किए गए प्रश्न-पत्र';
+
+  @override
+  String get documentsImport => 'PDF आयात करें';
+
+  @override
+  String get documentsEmptyTitle => 'अभी कोई प्रश्न-पत्र आयात नहीं किया गया';
+
+  @override
+  String get documentsEmptyMessage =>
+      'पिछले वर्षों के प्रश्न-पत्र या अध्ययन PDF आयात करें। PrepLoop हर पृष्ठ का टेक्स्ट पढ़ता है और जिन पृष्ठों को वह भरोसे से नहीं पढ़ पाता, उन्हें जाँच के लिए चिह्नित करता है।';
+
+  @override
+  String get documentsOfflineTitle => 'PrepLoop सर्वर से संपर्क नहीं हो पा रहा है';
+
+  @override
+  String get documentsOfflineMessage =>
+      'प्रश्न-पत्र आयात करने के लिए इंटरनेट कनेक्शन चाहिए। आपके कॉन्सेप्ट ऑफ़लाइन भी काम करते हैं।';
+
+  @override
+  String get documentsLoadError => 'आपके आयात किए गए प्रश्न-पत्र लोड नहीं हो सके।';
+
+  @override
+  String get documentStatusQueued => 'प्रोसेस होने की प्रतीक्षा में';
+
+  @override
+  String documentStatusProcessing(int done, int total) {
+    return 'पृष्ठ $done / $total पढ़ा जा रहा है';
+  }
+
+  @override
+  String get documentStatusCompleted => 'तैयार';
+
+  @override
+  String get documentStatusFailed => 'प्रोसेसिंग विफल रही';
+
+  @override
+  String documentPages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पृष्ठ',
+      one: '1 पृष्ठ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentNeedsReview(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पृष्ठों की जाँच ज़रूरी है',
+      one: '1 पृष्ठ की जाँच ज़रूरी है',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentErrorTimeout => 'इस दस्तावेज़ को प्रोसेस करने में बहुत समय लगा।';
+
+  @override
+  String get documentErrorSourceMissing => 'मूल फ़ाइल अब उपलब्ध नहीं है।';
+
+  @override
+  String get documentErrorGeneric => 'इस दस्तावेज़ को पढ़ते समय कुछ गड़बड़ हो गई।';
+
+  @override
+  String documentOptions(String filename) {
+    return '$filename के विकल्प';
+  }
+
+  @override
+  String get documentDeleteTitle => 'यह प्रश्न-पत्र हटाएँ?';
+
+  @override
+  String documentDeleteMessage(String filename) {
+    return '\"$filename\" और उससे निकाला गया टेक्स्ट सर्वर से हमेशा के लिए हटा दिया जाएगा।';
+  }
+
+  @override
+  String get documentDeleted => 'प्रश्न-पत्र हटाया गया';
+
+  @override
+  String importSheetTitle(String filename) {
+    return '\"$filename\" आयात करें';
+  }
+
+  @override
+  String get importUpload => 'अपलोड करें';
+
+  @override
+  String importUploading(String filename) {
+    return '$filename अपलोड हो रहा है…';
+  }
+
+  @override
+  String get importDone => 'अपलोड पूरा हुआ। प्रोसेसिंग शुरू हो गई है।';
+
+  @override
+  String get uploadErrorTooLarge => 'यह फ़ाइल अनुमत आकार से बड़ी है।';
+
+  @override
+  String get uploadErrorNotPdf => 'केवल PDF फ़ाइलें आयात की जा सकती हैं।';
+
+  @override
+  String get uploadErrorEncrypted =>
+      'यह PDF पासवर्ड से सुरक्षित है। पासवर्ड हटाकर फिर से कोशिश करें।';
+
+  @override
+  String get uploadErrorInvalid => 'यह फ़ाइल खराब है या मान्य PDF नहीं है।';
+
+  @override
+  String get uploadErrorTooManyPages => 'इस PDF में बहुत अधिक पृष्ठ हैं।';
+
+  @override
+  String get uploadErrorEmpty => 'यह फ़ाइल खाली है।';
+
+  @override
+  String get uploadErrorRateLimited =>
+      'आपने हाल ही में कई फ़ाइलें अपलोड की हैं। कृपया कुछ देर बाद फिर से कोशिश करें।';
+
+  @override
+  String get uploadErrorOffline => 'अपलोड नहीं हो सका: सर्वर से कनेक्शन नहीं है।';
+
+  @override
+  String get uploadErrorGeneric => 'अपलोड विफल रहा। कृपया फिर से कोशिश करें।';
 }

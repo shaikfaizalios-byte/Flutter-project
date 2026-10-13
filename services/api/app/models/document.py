@@ -1,0 +1,108 @@
+import uuid
+from datetime import datetime
+from enum import StrEnum
+
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    func,
+)
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.database.base import Base
+
+
+class DocumentStatus(StrEnum):
+    QUEUED = "queued"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class ExtractionMethod(StrEnum):
+    TEXT = "text"  # embedded text layer
+    OCR = "ocr"  # Tesseract on a rendered page image
+    NONE = "none"  # nothing reliable could be extracted
+
+
+class Document(Base):
+    """An uploaded PDF (question paper or study material) and its processing state.
+
+    The original file lives in DocumentStorage under ``storage_key``; ``original_filename``
+    is display metadata only and is never used to build a path.
+    """
+
+    __tablename__ = "documents"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('queued', 'processing', 'completed', 'failed')", name="status_valid"
+        ),
+        CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
+        Index("ix_documents_status_created", "status", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    exam_code: Mapped[str] = mapped_column(
+        String(32), ForeignKey("exams.code", ondelete="RESTRICT")
+    )
+    language: Mapped[str] = mapped_column(String(8))
+    original_filename: Mapped[str] = mapped_column(String(255))
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    sha256: Mapped[str] = mapped_column(String(64), index=True)
+    storage_key: Mapped[str] = mapped_column(String(255), unique=True)
+    page_count: Mapped[int] = mapped_column(Integer)
+    pages_processed: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    needs_review_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    status: Mapped[str] = mapped_column(String(16), default=DocumentStatus.QUEUED)
+    # "text", "ocr", "mixed" or "none" once processing finishes.
+    extraction_summary: Mapped[str | None] = mapped_column(String(16))
+    error_code: Mapped[str | None] = mapped_column(String(64))
+    attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    processing_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    processing_finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    pages: Mapped[list["DocumentPage"]] = relationship(
+        back_populates="document",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="DocumentPage.page_number",
+    )
+
+
+class DocumentPage(Base):
+    """Extraction result for one page. ``page_number`` is 1-based, matching the source PDF."""
+
+    __tablename__ = "document_pages"
+    __table_args__ = (
+        CheckConstraint("method IN ('text', 'ocr', 'none')", name="method_valid"),
+        CheckConstraint("page_number >= 1", name="page_number_positive"),
+    )
+
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"), primary_key=True
+    )
+    page_number: Mapped[int] = mapped_column(Integer, primary_key=True)
+    method: Mapped[str] = mapped_column(String(8))
+    text: Mapped[str] = mapped_column(Text, default="", server_default="")
+    char_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # Mean Tesseract word confidence (0-100) for OCR pages; null for text-layer pages.
+    ocr_confidence: Mapped[float | None] = mapped_column(Float)
+    needs_review: Mapped[bool] = mapped_column(default=False, server_default="false")
+    review_reasons: Mapped[list[str]] = mapped_column(
+        ARRAY(String(40)), default=list, server_default="{}"
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    document: Mapped[Document] = relationship(back_populates="pages")

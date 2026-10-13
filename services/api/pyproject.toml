@@ -16,6 +16,13 @@ dependencies = [
     "alembic>=1.20,<2.0",
     # PostgreSQL driver (LGPL-3.0; server-side use only, not redistributed).
     "psycopg[binary]>=3.3,<4.0",
+    # PDF text extraction + page rendering via PDFium (Apache-2.0/BSD-3; chosen over
+    # AGPL-licensed PyMuPDF, see docs/architecture.md ADR-23).
+    "pypdfium2>=5.14,<6.0",
+    # Page images for OCR (MIT-CMU).
+    "pillow>=12.3,<13.0",
+    # multipart/form-data parsing for uploads (Apache-2.0).
+    "python-multipart>=0.0.32,<0.1",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +32,8 @@ dev = [
     "httpx>=0.28,<1.0",
     "ruff>=0.17,<1.0",
     "mypy>=2.4,<3.0",
+    # Generates synthetic PDFs in tests (BSD).
+    "reportlab>=5.0,<6.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -44,6 +53,11 @@ select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "N", "RUF"]
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# Neither ships type information; their APIs are wrapped in typed functions here.
+module = ["pypdfium2", "pypdfium2.*", "reportlab", "reportlab.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

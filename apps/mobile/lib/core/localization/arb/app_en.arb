@@ -272,5 +272,90 @@
     }
   },
   "conceptsNoFilterResults": "No concepts match these filters.",
-  "conceptsArchivedEmpty": "No archived concepts."
+  "conceptsArchivedEmpty": "No archived concepts.",
+  "documentsTitle": "Imported papers",
+  "documentsImport": "Import PDF",
+  "documentsEmptyTitle": "No papers imported yet",
+  "documentsEmptyMessage": "Import previous-year papers or study PDFs. PrepLoop reads the text page by page and flags pages it cannot read reliably for review.",
+  "documentsOfflineTitle": "Can't reach the PrepLoop server",
+  "documentsOfflineMessage": "Importing papers needs an internet connection. Your concepts still work offline.",
+  "documentsLoadError": "Your imported papers could not be loaded.",
+  "documentStatusQueued": "Waiting to be processed",
+  "documentStatusProcessing": "Reading page {done} of {total}",
+  "@documentStatusProcessing": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "documentStatusCompleted": "Ready",
+  "documentStatusFailed": "Processing failed",
+  "documentPages": "{count, plural, =1{1 page} other{{count} pages}}",
+  "@documentPages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "documentNeedsReview": "{count, plural, =1{1 page needs review} other{{count} pages need review}}",
+  "@documentNeedsReview": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "documentErrorTimeout": "This document took too long to process.",
+  "documentErrorSourceMissing": "The original file is no longer available.",
+  "documentErrorGeneric": "Something went wrong while reading this document.",
+  "documentOptions": "Options for {filename}",
+  "@documentOptions": {
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "documentDeleteTitle": "Delete this paper?",
+  "documentDeleteMessage": "\"{filename}\" and the text extracted from it will be permanently deleted from the server.",
+  "@documentDeleteMessage": {
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "documentDeleted": "Paper deleted",
+  "importSheetTitle": "Import \"{filename}\"",
+  "@importSheetTitle": {
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "importUpload": "Upload",
+  "importUploading": "Uploading {filename}…",
+  "@importUploading": {
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "importDone": "Upload complete. Processing has started.",
+  "uploadErrorTooLarge": "This file is larger than the allowed size.",
+  "uploadErrorNotPdf": "Only PDF files can be imported.",
+  "uploadErrorEncrypted": "This PDF is password-protected. Remove the password and try again.",
+  "uploadErrorInvalid": "This file is damaged or is not a valid PDF.",
+  "uploadErrorTooManyPages": "This PDF has too many pages.",
+  "uploadErrorEmpty": "This file is empty.",
+  "uploadErrorRateLimited": "You have uploaded several files recently. Please wait a while and try again.",
+  "uploadErrorOffline": "Could not upload: there is no connection to the server.",
+  "uploadErrorGeneric": "The upload failed. Please try again."
 }

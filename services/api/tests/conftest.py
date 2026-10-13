@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Environment, Settings
 from app.database.session import get_session
+from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
 
 API_ROOT = Path(__file__).resolve().parents[1]
@@ -26,13 +27,21 @@ class _TestDatabaseSettings(BaseSettings):
 
 
 @pytest.fixture
-def settings() -> Settings:
+def settings(tmp_path: Path) -> Settings:
     # _env_file=None keeps a developer's local .env from influencing tests.
     return Settings(
         _env_file=None,
         environment=Environment.TEST,
         cors_origins=["https://allowed.example"],
+        upload_dir=tmp_path / "uploads",
+        # Tests drive processing explicitly; no background thread.
+        document_worker_in_process=False,
     )
+
+
+@pytest.fixture
+def storage(settings: Settings) -> LocalDocumentStorage:
+    return LocalDocumentStorage(settings.upload_dir)
 
 
 @pytest.fixture
@@ -92,8 +101,10 @@ def db_session(db_engine: Engine) -> Iterator[Session]:
 
 
 @pytest.fixture
-def db_client(settings: Settings, db_engine: Engine, db_session: Session) -> Iterator[TestClient]:
-    app = create_app(settings, engine=db_engine)
+def db_client(
+    settings: Settings, db_engine: Engine, db_session: Session, storage: LocalDocumentStorage
+) -> Iterator[TestClient]:
+    app = create_app(settings, engine=db_engine, storage=storage)
     app.dependency_overrides[get_session] = lambda: db_session
     with TestClient(app, raise_server_exceptions=False) as test_client:
         yield test_client

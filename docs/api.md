@@ -94,3 +94,27 @@ Results are ordered by `updated_at desc, id`. The response is
 - `language`: `en` or `hi`.
 
 The mobile app applies the same rules locally (`ConceptRules`) so data stays consistent once sync exists.
+
+## Documents (Phase 4)
+
+See [document-ingestion.md](document-ingestion.md) for the processing pipeline.
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/v1/documents` | `multipart/form-data` with `file` (PDF), `exam_code` and `language` (`en`/`hi`) → `201 DocumentRead` (`status: "queued"`). Rate-limited. |
+| GET | `/api/v1/documents` | `?status=&limit=1–100&offset=` → `{"items", "total", "limit", "offset"}`, newest first |
+| GET | `/api/v1/documents/{id}` | Status, `page_count`, `pages_processed` (progress), `needs_review_count`, `extraction_summary`, `error_code` |
+| GET | `/api/v1/documents/{id}/pages` | `?limit&offset` → per page: `page_number`, `method` (`text`/`ocr`/`none`), `text`, `ocr_confidence`, `needs_review`, `review_reasons` |
+| DELETE | `/api/v1/documents/{id}` | `204`. Permanently removes the record, its pages and the original file. |
+
+**Upload errors** (standard envelope):
+
+| Status | `code` | When |
+|---|---|---|
+| 413 | `file_too_large` | Over `PREPLOOP_MAX_UPLOAD_BYTES`. Checked against the declared length before parsing and again while streaming. |
+| 415 | `unsupported_file_type` | The content is not a PDF, whatever the filename or MIME type says |
+| 422 | `empty_file`, `invalid_pdf`, `encrypted_pdf`, `too_many_pages` | Structural checks |
+| 422 | `invalid_reference` | Unknown or inactive `exam_code` |
+| 429 | `rate_limited` | Too many uploads. A `Retry-After` header gives the seconds to wait. |
+
+`DocumentRead` never exposes the storage location. `original_filename` is sanitised display text.

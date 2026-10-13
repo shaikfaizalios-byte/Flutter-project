@@ -36,6 +36,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
   operation); domain errors (`app/domain/errors.py`) map to HTTP in `app/core/errors.py`. Versioned `/api/v1`.
 - Exams are reference data (`exams` table, `core/exams/exam_catalog.dart` on mobile), never code branches.
+- Documents: upload → validate (magic bytes, PDFium) → `DocumentStorage` → DB-backed queue → worker
+  (`app/workers/document_worker.py`, lease + SKIP LOCKED) → per-page text layer or Tesseract OCR
+  (`OcrEngine`), uncertain pages flagged. pypdfium2, not PyMuPDF (AGPL). See docs/document-ingestion.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.
 - Errors: backend returns `{"error": {"code","message","request_id","details"}}`; mobile maps Dio errors to
   sealed `AppFailure` types in repositories. Widgets never see Dio types.
@@ -52,6 +55,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`*.g.dart`, l10n) is committed; regenerate with `dart run build_runner build` / `flutter gen-l10n`.
 - Widget tests that pump the app use `testAppWidgets` (test/helpers/pump_app.dart), not `testWidgets`.
 - Backend validation limits must match mobile `ConceptRules` (same normalisation both sides).
+- Extracted/parsed text is stored as found (whitespace + NFC only); uncertainty → review flags with
+  reason codes, never silent correction. Test PDFs are generated (tests/pdf_factory.py), never real papers.
 - Mobile time: read "now" from `clockProvider`; date-only values use `CalendarDate` (never `DateTime`).
 - New ARB keys go in both files; `arb_parity_test.dart` fails otherwise. Hindi-capable text needs no
   per-widget font: the theme's `fontFamilyFallback` covers Devanagari.
@@ -67,11 +72,14 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 .\scripts\check.ps1          # ruff, mypy, pytest (real Postgres), alembic check, dart format, analyze, test
 .\scripts\export-openapi.ps1 # refresh contracts/openapi/openapi.json after API changes
 python scripts\serve_web.py  # serve apps/mobile/build/web with COOP/COEP headers on :8080
+cd services\api; .\.venv\Scripts\python.exe -m app.workers.document_worker  # standalone worker
 ```
 Toolchain locations on the dev machine: Flutter SDK `D:\dev\flutter` (on user PATH), Python 3.12 (winget),
 backend venv `services/api/.venv`, PostgreSQL 17 Windows service `postgresql-x64-17` (port 5432; role
 `preploop`, DBs `preploop` + `preploop_test`; URLs in gitignored `services/api/.env`; superuser password in
-`%USERPROFILE%\.preploop\postgres-superuser.txt`). Shells opened before installation need a restart for PATH.
+`%USERPROFILE%\.preploop\postgres-superuser.txt`), Tesseract 5.4 at `C:\Program Files\Tesseract-OCR`
+with eng+hin data in `%USERPROFILE%\.preploop\tessdata` (configured in `services/api/.env`).
+Shells opened before installation need a restart for PATH.
 
 ## Security rules
 - Never commit secrets, `.env`, signing keys, service-account files, local DBs or uploads (.gitignore covers these).
@@ -80,16 +88,23 @@ backend venv `services/api/.venv`, PostgreSQL 17 Windows service `postgresql-x64
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 3 complete → next is Phase 4 (document ingestion)
+## Current phase: Phase 4 complete → next is Phase 5 (question segmentation & bank)
 Known limitations right now:
 - Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
-  on a device. iOS needs macOS + Xcode.
+  on a device. iOS needs macOS + Xcode. The PDF picker has only been exercised through tests (fake picker);
+  the native picker dialogs have not been tried on a device.
 - Visual Studio C++ workload not installed → Windows desktop target unavailable (not a product target anyway).
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
   (app renders after a 3 s storage timeout, shows first-run onboarding, concept list stays loading).
-  Verify web persistence in Chrome/Edge. Native is unaffected.
-- No auth/ownership on `/api/v1/concepts` (single-tenant dev API until Phase 10) — never deploy publicly.
-- Mobile concepts and study profile are local-only (sync = Phase 10).
+  Verify web persistence in Chrome/Edge. Native is unaffected. Documents (server-backed) work there.
+- **No auth/ownership on `/api/v1/concepts` or `/api/v1/documents`** (single-tenant dev API until
+  Phase 10) — never deploy publicly.
+- Mobile concepts and study profile are local-only (sync = Phase 10). Imported documents are server-only
+  (not cached on device).
+- Upload rate limiter is per-process (needs a shared store before scaling out). No malware scanning.
+- Extraction yields per-page text + review flags only; questions/options/answers are not parsed yet (Phase 5).
+  There is no in-app page/text review screen yet (Phase 5).
+- Hindi OCR quality depends heavily on scan quality; low-confidence pages are flagged, never corrected.
 - Exam list on mobile is a constant mirroring the server seed; subject/topic are free text; filter choices
   come from the learner's own data (no managed taxonomy yet).
 - Reminder time is stored but no notifications are scheduled yet (Phase 7). The UI says so.
@@ -99,28 +114,28 @@ Known limitations right now:
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
 - PostgreSQL is a native install; no docker-compose yet (optional).
 
-## Phase 4 acceptance criteria (document ingestion)
-0. **Licence decision first:** PyMuPDF (named in the brief) is AGPL-3.0 or commercial. Running it in a
-   network service can trigger AGPL source-disclosure duties. Document the decision (accept AGPL, buy a
-   licence, or use a permissive alternative such as pypdfium2 Apache-2.0/BSD) before adding it.
-1. `POST /api/v1/documents` (multipart): validates content by magic bytes (not extension/MIME), size limit
-   and page limit (configurable), rejects encrypted/corrupt/non-PDF with the standard error envelope;
-   rate-limited. Stores the file via a `DocumentStorage` interface (local-disk impl) under a generated
-   UUID path — the user's filename is metadata only (sanitised), never part of a path.
-2. Alembic migration for `documents` (exam, language, original filename, size, sha256, page_count,
-   status queued/processing/completed/failed, extraction method summary, error code, timestamps) and
-   `document_pages` (page number, method text|ocr|none, normalised text, confidence, needs_review).
-3. Per-page extraction off the request path (background worker/task) with a processing time limit: text
-   layer first; OCR (Tesseract eng+hin, behind an `OcrEngine` interface) when the text layer is missing or
-   below a configurable quality threshold. Uncertain pages are flagged `needs_review`; text is never
-   invented. Large files are processed page by page (bounded memory).
-4. `GET /api/v1/documents`, `GET /api/v1/documents/{id}` (status, progress, warnings),
-   `GET /api/v1/documents/{id}/pages`, `DELETE /api/v1/documents/{id}` (explicit; removes file + rows).
-5. Tests use small synthetic PDFs generated in the test suite (text PDF, image-only page, mixed,
-   encrypted, corrupt, wrong type, oversize, too many pages) and a fake OCR engine; real Tesseract tests
-   skip when it isn't installed. Upload validation and error-path tests included.
-6. Mobile: an "Import paper" entry in Study that picks a PDF, uploads it with progress, and lists
-   documents with live status (queued/processing/completed/failed + warnings); offline/server-down
-   states. Requires a file-picker package (state purpose/licence before adding).
-7. Tesseract installation documented (Windows + Linux), including Hindi language data; `scripts/check.ps1`
-   passes; docs (api.md, database.md, security.md) updated with retention and deletion behaviour.
+## Phase 5 acceptance criteria (question segmentation & bank)
+1. **Exam-format configuration as data** (`exam_formats` table or versioned YAML loaded at startup, with a
+   migration): per exam + tier, the sections and expected question counts **only where verified from an
+   official source** (record the source and date); unknown formats are allowed and simply skip
+   count-based checks. The SSC CHSL Tier-I "4 sections × 25" layout is one *known format*, never assumed.
+2. **Deterministic segmenter** over `document_pages` (pure, unit-tested module): detects section headings,
+   question starts (`Q.1`, `1.`, `प्रश्न 1` …), option blocks (`(1)–(4)`, `(a)–(d)`, `A.–D.`) parsed separately
+   from question boundaries, shared passages/directions linked to every question they govern, and separate
+   answer-key / explanation sections joined **by validated question number**, never by position.
+3. **Question bank schema** (Alembic): `questions` (exam, tier/paper id when known, section, subject/topic/
+   subtopic nullable, stem, language, source document + page(s) + source question number, verification
+   status `unverified|verified|rejected`, origin `source|ai` — AI never mixed with source, image-dependent
+   flag + page reference), `question_options`, `passages`, and `question_issues` (missing answer,
+   duplicate number, incomplete options, ambiguous boundary, image-dependent, count mismatch vs format).
+4. Image-dependent questions (figures, mirror images, cube nets, charts) are flagged when the text is
+   insufficient and keep a page reference; no attempt to reconstruct missing visual content.
+5. Segmentation runs automatically after extraction completes (same worker), is re-runnable per document,
+   and never deletes manually verified questions on re-run.
+6. API: list/search/filter questions (exam, section, subject, topic, language, document, verification
+   status, has-issues), get one with provenance, PATCH for review (fix stem/options/answer, set topic,
+   mark verified/rejected), and per-document parse summary (counts + issues).
+7. Mobile: a review screen per imported document (questions with issue badges, source page text side by
+   side, approve/edit/reject) and a question browser with filters; source vs AI labels visible.
+8. Tests with synthetic paper fixtures (bilingual, shared passage, answer key at end, missing answers,
+   duplicate numbering, image-dependent question, unknown format). `scripts/check.ps1` passes; docs updated.

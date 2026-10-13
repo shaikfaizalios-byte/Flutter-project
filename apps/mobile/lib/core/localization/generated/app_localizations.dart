@@ -902,6 +902,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No archived concepts.'**
   String get conceptsArchivedEmpty;
+
+  /// No description provided for @documentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported papers'**
+  String get documentsTitle;
+
+  /// No description provided for @documentsImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import PDF'**
+  String get documentsImport;
+
+  /// No description provided for @documentsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No papers imported yet'**
+  String get documentsEmptyTitle;
+
+  /// No description provided for @documentsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Import previous-year papers or study PDFs. PrepLoop reads the text page by page and flags pages it cannot read reliably for review.'**
+  String get documentsEmptyMessage;
+
+  /// No description provided for @documentsOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the PrepLoop server'**
+  String get documentsOfflineTitle;
+
+  /// No description provided for @documentsOfflineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing papers needs an internet connection. Your concepts still work offline.'**
+  String get documentsOfflineMessage;
+
+  /// No description provided for @documentsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your imported papers could not be loaded.'**
+  String get documentsLoadError;
+
+  /// No description provided for @documentStatusQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to be processed'**
+  String get documentStatusQueued;
+
+  /// No description provided for @documentStatusProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading page {done} of {total}'**
+  String documentStatusProcessing(int done, int total);
+
+  /// No description provided for @documentStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get documentStatusCompleted;
+
+  /// No description provided for @documentStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing failed'**
+  String get documentStatusFailed;
+
+  /// No description provided for @documentPages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String documentPages(int count);
+
+  /// No description provided for @documentNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page needs review} other{{count} pages need review}}'**
+  String documentNeedsReview(int count);
+
+  /// No description provided for @documentErrorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'This document took too long to process.'**
+  String get documentErrorTimeout;
+
+  /// No description provided for @documentErrorSourceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The original file is no longer available.'**
+  String get documentErrorSourceMissing;
+
+  /// No description provided for @documentErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while reading this document.'**
+  String get documentErrorGeneric;
+
+  /// No description provided for @documentOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options for {filename}'**
+  String documentOptions(String filename);
+
+  /// No description provided for @documentDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this paper?'**
+  String get documentDeleteTitle;
+
+  /// No description provided for @documentDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{filename}\" and the text extracted from it will be permanently deleted from the server.'**
+  String documentDeleteMessage(String filename);
+
+  /// No description provided for @documentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper deleted'**
+  String get documentDeleted;
+
+  /// No description provided for @importSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import \"{filename}\"'**
+  String importSheetTitle(String filename);
+
+  /// No description provided for @importUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get importUpload;
+
+  /// No description provided for @importUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading {filename}…'**
+  String importUploading(String filename);
+
+  /// No description provided for @importDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload complete. Processing has started.'**
+  String get importDone;
+
+  /// No description provided for @uploadErrorTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is larger than the allowed size.'**
+  String get uploadErrorTooLarge;
+
+  /// No description provided for @uploadErrorNotPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Only PDF files can be imported.'**
+  String get uploadErrorNotPdf;
+
+  /// No description provided for @uploadErrorEncrypted.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is password-protected. Remove the password and try again.'**
+  String get uploadErrorEncrypted;
+
+  /// No description provided for @uploadErrorInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is damaged or is not a valid PDF.'**
+  String get uploadErrorInvalid;
+
+  /// No description provided for @uploadErrorTooManyPages.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has too many pages.'**
+  String get uploadErrorTooManyPages;
+
+  /// No description provided for @uploadErrorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is empty.'**
+  String get uploadErrorEmpty;
+
+  /// No description provided for @uploadErrorRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'You have uploaded several files recently. Please wait a while and try again.'**
+  String get uploadErrorRateLimited;
+
+  /// No description provided for @uploadErrorOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload: there is no connection to the server.'**
+  String get uploadErrorOffline;
+
+  /// No description provided for @uploadErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'The upload failed. Please try again.'**
+  String get uploadErrorGeneric;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

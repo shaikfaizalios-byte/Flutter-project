@@ -48,3 +48,6 @@ coverage/
 .DS_Store
 Thumbs.db
 *.log
+
+# API runtime data (uploaded originals, temp files)
+services/api/var/

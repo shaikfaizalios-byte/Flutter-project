@@ -65,6 +65,26 @@ Indexes: `(exam_code, archived_at)` and a GIN index on `tags`.
 
 **Not yet:** an `owner_id` column. Accounts arrive in Phase 10, and ownership checks will be enforced in the repository layer then. Until that point the concept API is a single-tenant development API: **do not expose it publicly.**
 
+### Schema (revision `0002`): documents
+
+**`documents`**: one row per uploaded PDF. It has an `exam_code` foreign key (RESTRICT) and `language` (CHECK `en`/`hi`).
+- `original_filename` is sanitised display text. `storage_key` is internal and unique (`documents/<uuid>.pdf`).
+- `size_bytes`, `sha256` (indexed) and `page_count` are recorded at upload.
+- `status` is one of queued, processing, completed or failed (CHECK). `pages_processed` and `needs_review_count` track progress.
+- `extraction_summary` is text, ocr, mixed or none. `error_code` is set when processing fails.
+- Worker bookkeeping: `attempts`, `lease_expires_at`, `processing_started_at` and `processing_finished_at`.
+- Index `(status, created_at)` supports claiming the next document.
+
+**`document_pages`**: primary key `(document_id, page_number)`. `page_number` is 1-based, the same as in the source PDF. It has a foreign key with
+`ON DELETE CASCADE`.
+- `method` is text, ocr or none (CHECK).
+- `text` is normalised extracted text, and `char_count` its length.
+- `ocr_confidence` (0–100) is set for OCR pages only.
+- `needs_review` and `review_reasons` (varchar[]) record why a page needs a human look. The reason codes are listed in document-ingestion.md.
+
+Original files are **not** stored in the database. They live in `DocumentStorage` (local disk at
+`PREPLOOP_UPLOAD_DIR`). Back up both together.
+
 ### Migration workflow
 
 ```powershell

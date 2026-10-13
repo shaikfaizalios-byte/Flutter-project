@@ -2,6 +2,7 @@
 
 from enum import StrEnum
 from functools import lru_cache
+from pathlib import Path
 from typing import Annotated, Self
 
 from pydantic import Field, SecretStr, model_validator
@@ -40,6 +41,33 @@ class Settings(BaseSettings):
     database_url: SecretStr | None = None
     database_pool_size: int = Field(default=5, ge=1, le=50)
     database_connect_timeout_seconds: int = Field(default=5, ge=1, le=60)
+
+    # --- Document ingestion (Phase 4) ---
+    # Uploaded originals are stored here under generated names (never the user's filename).
+    upload_dir: Path = Path("var/uploads")
+    max_upload_bytes: int = Field(default=25 * 1024 * 1024, ge=1024)
+    max_pdf_pages: int = Field(default=300, ge=1, le=5000)
+    # Uploads per client address per window (in-process limiter; see docs/security.md).
+    upload_rate_limit: int = Field(default=10, ge=1)
+    upload_rate_window_seconds: int = Field(default=3600, ge=1)
+    # Whole-document processing budget; remaining pages are not processed after it.
+    processing_timeout_seconds: int = Field(default=900, ge=10)
+    # A text layer with fewer meaningful characters than this triggers OCR for the page.
+    text_layer_min_chars: int = Field(default=25, ge=1)
+    # For Hindi documents, a text layer whose letters are less than this share Devanagari is
+    # treated as suspect (legacy-font encodings) and OCR is attempted.
+    hindi_min_devanagari_ratio: float = Field(default=0.05, ge=0, le=1)
+    # OCR (Tesseract). tesseract_cmd may be a full path; tessdata_dir overrides language data.
+    tesseract_cmd: str = "tesseract"
+    tessdata_dir: Path | None = None
+    ocr_dpi: int = Field(default=300, ge=72, le=600)
+    ocr_page_timeout_seconds: int = Field(default=120, ge=5)
+    # Pages whose mean OCR word confidence is below this are flagged for review.
+    ocr_min_confidence: float = Field(default=70.0, ge=0, le=100)
+    # Run the document worker inside the API process (convenient locally). In production,
+    # run `python -m app.workers.document_worker` as a separate process instead.
+    document_worker_in_process: bool = True
+    document_worker_poll_seconds: float = Field(default=2.0, gt=0)
 
     @model_validator(mode="before")
     @classmethod

@@ -473,4 +473,133 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get conceptsArchivedEmpty => 'No archived concepts.';
+
+  @override
+  String get documentsTitle => 'Imported papers';
+
+  @override
+  String get documentsImport => 'Import PDF';
+
+  @override
+  String get documentsEmptyTitle => 'No papers imported yet';
+
+  @override
+  String get documentsEmptyMessage =>
+      'Import previous-year papers or study PDFs. PrepLoop reads the text page by page and flags pages it cannot read reliably for review.';
+
+  @override
+  String get documentsOfflineTitle => 'Can\'t reach the PrepLoop server';
+
+  @override
+  String get documentsOfflineMessage =>
+      'Importing papers needs an internet connection. Your concepts still work offline.';
+
+  @override
+  String get documentsLoadError => 'Your imported papers could not be loaded.';
+
+  @override
+  String get documentStatusQueued => 'Waiting to be processed';
+
+  @override
+  String documentStatusProcessing(int done, int total) {
+    return 'Reading page $done of $total';
+  }
+
+  @override
+  String get documentStatusCompleted => 'Ready';
+
+  @override
+  String get documentStatusFailed => 'Processing failed';
+
+  @override
+  String documentPages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentNeedsReview(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages need review',
+      one: '1 page needs review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentErrorTimeout => 'This document took too long to process.';
+
+  @override
+  String get documentErrorSourceMissing => 'The original file is no longer available.';
+
+  @override
+  String get documentErrorGeneric => 'Something went wrong while reading this document.';
+
+  @override
+  String documentOptions(String filename) {
+    return 'Options for $filename';
+  }
+
+  @override
+  String get documentDeleteTitle => 'Delete this paper?';
+
+  @override
+  String documentDeleteMessage(String filename) {
+    return '\"$filename\" and the text extracted from it will be permanently deleted from the server.';
+  }
+
+  @override
+  String get documentDeleted => 'Paper deleted';
+
+  @override
+  String importSheetTitle(String filename) {
+    return 'Import \"$filename\"';
+  }
+
+  @override
+  String get importUpload => 'Upload';
+
+  @override
+  String importUploading(String filename) {
+    return 'Uploading $filename…';
+  }
+
+  @override
+  String get importDone => 'Upload complete. Processing has started.';
+
+  @override
+  String get uploadErrorTooLarge => 'This file is larger than the allowed size.';
+
+  @override
+  String get uploadErrorNotPdf => 'Only PDF files can be imported.';
+
+  @override
+  String get uploadErrorEncrypted =>
+      'This PDF is password-protected. Remove the password and try again.';
+
+  @override
+  String get uploadErrorInvalid => 'This file is damaged or is not a valid PDF.';
+
+  @override
+  String get uploadErrorTooManyPages => 'This PDF has too many pages.';
+
+  @override
+  String get uploadErrorEmpty => 'This file is empty.';
+
+  @override
+  String get uploadErrorRateLimited =>
+      'You have uploaded several files recently. Please wait a while and try again.';
+
+  @override
+  String get uploadErrorOffline => 'Could not upload: there is no connection to the server.';
+
+  @override
+  String get uploadErrorGeneric => 'The upload failed. Please try again.';
 }

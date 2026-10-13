@@ -41,6 +41,11 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-20 | Exam dates are `CalendarDate` (no time or timezone), and "now" comes from `clockProvider` | Countdowns can't drift across timezones or DST; date logic is testable with a fixed clock |
 | ADR-21 | Noto Sans Devanagari is bundled and set as `fontFamilyFallback` | Hindi renders offline and identically everywhere; no runtime font CDN |
 | ADR-22 | Concept filter choices come from the learner's own data (facets) | No invented taxonomy; a managed taxonomy can replace this later |
+| ADR-23 | pypdfium2 (Apache-2.0/BSD) instead of PyMuPDF (AGPL-3.0) | Avoids copyleft obligations for a network service; has the text-layer and rendering features needed |
+| ADR-24 | A database-backed job queue (status, lease, `SKIP LOCKED`) instead of Celery or Redis | No extra infrastructure; survives restarts; several workers can run safely; can move to a broker later |
+| ADR-25 | Tesseract via the CLI (stdin → TSV) behind an `OcrEngine` protocol | No wrapper dependency; per-word confidence; tests use a fake engine |
+| ADR-26 | Per-page commits; text stored exactly as extracted; uncertain pages flagged with reason codes | Bounded memory, visible progress, honest data for Phase 5 parsing and review |
+| ADR-27 | Documents are server-side only; the mobile app reads them over the API and does not cache them yet | OCR needs the server; offline caching of results arrives with sync |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -65,6 +70,7 @@ schemas/           Pydantic request/response models
 
 - Phase 2 (done): SQLAlchemy and Alembic with PostgreSQL; Drift for the local store; a readiness probe.
 - Phase 3 (done): onboarding, a dashboard built on real data, concept details, editing and filters, a bundled Hindi font, and Drift schema v2.
+- Phase 4 (done): document upload, validation and storage; per-page text and OCR extraction worker; mobile import screen.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

@@ -9,6 +9,7 @@ import '../features/concepts/presentation/concept_detail_screen.dart';
 import '../features/concepts/presentation/concept_form_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
+import '../features/documents/presentation/documents_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/practice/presentation/practice_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
@@ -58,7 +59,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.study,
                 builder: (context, state) => const ConceptListScreen(),
                 routes: [
-                  // Concept screens are full screen above the navigation bar.
+                  // Concept and document screens are full screen above the navigation bar.
+                  GoRoute(
+                    path: 'documents',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const DocumentsScreen(),
+                  ),
                   GoRoute(
                     path: 'concepts/new',
                     parentNavigatorKey: _rootNavigatorKey,
