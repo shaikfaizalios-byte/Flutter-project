@@ -118,3 +118,21 @@ See [document-ingestion.md](document-ingestion.md) for the processing pipeline.
 | 429 | `rate_limited` | Too many uploads. A `Retry-After` header gives the seconds to wait. |
 
 `DocumentRead` never exposes the storage location. `original_filename` is sanitised display text.
+
+## Question bank (Phase 5)
+
+See [question-bank.md](question-bank.md) for segmentation rules, issue codes and the review workflow.
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/questions` | Filters: `q` (stem text, LIKE-escaped), `exam`, `section`, `subject`, `topic_id`, `language`, `document_id`, `status` (unverified/verified/rejected), `has_issues`, `image_dependent`, `origin` (source/ai), `limit`, `offset` |
+| GET | `/api/v1/questions/{id}` | Full question: options, answer and its source (`answer_key`/`inline`/`manual`), explanation, passage, topic and `topic_status`, provenance (`document_id`, `document_filename`, `source_pages`, `source_question_number`), `origin`, issues |
+| PATCH | `/api/v1/questions/{id}` | Review edits: `stem`, `options` (2–6 `{label, text}`), `correct_option_position` (null clears), `explanation`, `section`, `subject`, `topic_id` (null clears), `image_dependent`, `verification_status`. Approving while content issues are open → `422 cannot_verify`. |
+| GET | `/api/v1/topics` | Taxonomy (`?subject=`) |
+| GET | `/api/v1/exam-formats` | Verified formats (`?exam=`), each with its official source (title, URL, reference, dates) |
+| GET | `/api/v1/documents/{id}/parse-summary` | Segmentation status, counts (found, verified, rejected, with open issues, missing answers, image-dependent), sections, linked format, document-level issues |
+| POST | `/api/v1/documents/{id}/segment` | Re-run segmentation, keeping verified and rejected questions. `409 document_not_ready` until extraction has completed. |
+| PUT | `/api/v1/documents/{id}/exam-format` | `{"exam_format_code": "SSC_CHSL_2026_TIER1" \| null}`. The format must belong to the document's exam. |
+
+`POST /api/v1/documents` also accepts an optional `exam_format_code` form field. `DocumentRead` now
+includes `exam_format_id`, `segmentation_status` and `questions_found`.

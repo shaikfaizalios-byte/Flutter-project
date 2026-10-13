@@ -46,6 +46,11 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-25 | Tesseract via the CLI (stdin → TSV) behind an `OcrEngine` protocol | No wrapper dependency; per-word confidence; tests use a fake engine |
 | ADR-26 | Per-page commits; text stored exactly as extracted; uncertain pages flagged with reason codes | Bounded memory, visible progress, honest data for Phase 5 parsing and review |
 | ADR-27 | Documents are server-side only; the mobile app reads them over the API and does not cache them yet | OCR needs the server; offline caching of results arrives with sync |
+| ADR-28 | Deterministic, rule-based segmenter (a pure module) instead of ML/LLM parsing | Predictable, testable and explainable; every uncertainty becomes a reviewable issue; AI assistance can be layered on later |
+| ADR-29 | Exam formats stored as data, only after verification against an official notice (source recorded) | Never invents patterns; formats change per notice; count checks are skipped for unknown formats |
+| ADR-30 | Section counts are matched by name, never by position | The SSC notice lists Tier-I parts "not in sequence" |
+| ADR-31 | Re-segmentation preserves verified and rejected questions | Human review decisions are never overwritten by a parser re-run |
+| ADR-32 | Topic keywords only *suggest*; confirmation needs a human | Avoids false certainty in categorisation |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -71,6 +76,7 @@ schemas/           Pydantic request/response models
 - Phase 2 (done): SQLAlchemy and Alembic with PostgreSQL; Drift for the local store; a readiness probe.
 - Phase 3 (done): onboarding, a dashboard built on real data, concept details, editing and filters, a bundled Hindi font, and Drift schema v2.
 - Phase 4 (done): document upload, validation and storage; per-page text and OCR extraction worker; mobile import screen.
+- Phase 5 (done): question segmentation, question bank, verified exam formats, review workflow, question browser.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

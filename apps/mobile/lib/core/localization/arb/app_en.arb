@@ -357,5 +357,141 @@
   "uploadErrorEmpty": "This file is empty.",
   "uploadErrorRateLimited": "You have uploaded several files recently. Please wait a while and try again.",
   "uploadErrorOffline": "Could not upload: there is no connection to the server.",
-  "uploadErrorGeneric": "The upload failed. Please try again."
+  "uploadErrorGeneric": "The upload failed. Please try again.",
+  "issueMissingAnswer": "Answer not found",
+  "issueIncompleteOptions": "Options incomplete",
+  "issueEmptyOption": "An option is empty",
+  "issueDuplicateNumber": "Question number repeated",
+  "issueAmbiguousBoundary": "Question boundary unclear",
+  "issueImageDependent": "Needs the original figure",
+  "issueRepeatedOptionLabels": "Extra options found (possibly a second language)",
+  "issueAnswerNotInOptions": "Answer does not match the options",
+  "issueConflictingAnswers": "Different answers found",
+  "issueSourcePageNeedsReview": "Source page was hard to read",
+  "issueNoQuestionsFound": "No questions were found",
+  "issueNumberingGaps": "Some question numbers are missing",
+  "issueAnswerKeyUnmatched": "Answer key has numbers that are not in the paper",
+  "issueAnswerKeyAmbiguous": "Numbering restarts in each section, so answers must be set during review",
+  "issueCountMismatch": "Question count differs from the official format",
+  "issueSectionCountMismatch": "A section's count differs from the official format",
+  "issueOther": "Needs review",
+  "reviewTitle": "Review questions",
+  "reviewQuestions": "Review questions",
+  "reviewSummaryVerified": "{count} verified",
+  "@reviewSummaryVerified": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewSummaryAttention": "{count} need attention",
+  "@reviewSummaryAttention": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewSummaryMissingAnswers": "{count} without an answer",
+  "@reviewSummaryMissingAnswers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewFormat": "Format: {name}",
+  "@reviewFormat": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewFormatUnknown": "No verified format linked, so question-count checks are skipped.",
+  "reviewReparse": "Parse again",
+  "reviewReparsed": "Questions parsed again. Your reviewed questions were kept.",
+  "reviewSegmentationPending": "Questions will appear after the text has been extracted.",
+  "reviewSegmentationFailed": "Questions could not be parsed from this paper.",
+  "reviewNoQuestions": "No questions in this view.",
+  "filterAllQuestions": "All",
+  "filterNeedsAttention": "Needs attention",
+  "filterVerified": "Verified",
+  "filterRejected": "Rejected",
+  "documentQuestionsFound": "{count, plural, =0{No questions found} =1{1 question found} other{{count} questions found}}",
+  "@documentQuestionsFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "questionNumberLabel": "Q.{number}",
+  "@questionNumberLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "questionSource": "From {filename}, page {page}",
+  "@questionSource": {
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      },
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "questionLabelSource": "From your PDF",
+  "questionLabelAi": "AI-generated",
+  "questionStatusVerified": "Verified",
+  "questionStatusRejected": "Rejected",
+  "questionStatusUnverified": "Not reviewed",
+  "questionTitle": "Question",
+  "fieldStem": "Question text",
+  "fieldOptions": "Options",
+  "fieldOption": "Option {label}",
+  "@fieldOption": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "addOption": "Add option",
+  "fieldCorrectAnswer": "Correct answer",
+  "answerNotSet": "Not set",
+  "fieldExplanation": "Explanation (optional)",
+  "topicSuggested": "Suggested topic. Approving the question confirms it.",
+  "topicNone": "No topic",
+  "fieldImageDependent": "Needs the original figure or image",
+  "sharedPassage": "Shared passage (Q.{first} to Q.{last})",
+  "@sharedPassage": {
+    "placeholders": {
+      "first": {
+        "type": "int"
+      },
+      "last": {
+        "type": "int"
+      }
+    }
+  },
+  "sourcePageText": "Source page text",
+  "sourcePageLoadError": "The page text could not be loaded.",
+  "approve": "Approve",
+  "reject": "Reject",
+  "saved": "Saved",
+  "questionApproved": "Question approved",
+  "questionRejected": "Question rejected",
+  "cannotVerify": "Fix the listed problems before approving.",
+  "openIssues": "Problems to check",
+  "bankTitle": "Question bank",
+  "bankSearchHint": "Search questions",
+  "bankEmptyTitle": "No questions yet",
+  "bankEmptyMessage": "Import a previous-year paper in Study, then Imported papers. Its questions appear here for review. Practice sessions arrive in a later update.",
+  "bankLoadError": "Questions could not be loaded."
 }

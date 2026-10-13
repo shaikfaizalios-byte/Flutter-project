@@ -39,6 +39,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Documents: upload → validate (magic bytes, PDFium) → `DocumentStorage` → DB-backed queue → worker
   (`app/workers/document_worker.py`, lease + SKIP LOCKED) → per-page text layer or Tesseract OCR
   (`OcrEngine`), uncertain pages flagged. pypdfium2, not PyMuPDF (AGPL). See docs/document-ingestion.md.
+- Question bank: worker runs the pure segmenter (`app/domain/segmentation.py`) after extraction →
+  `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
+  content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a
+  recorded official source; topic keywords only suggest. See docs/question-bank.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.
 - Errors: backend returns `{"error": {"code","message","request_id","details"}}`; mobile maps Dio errors to
   sealed `AppFailure` types in repositories. Widgets never see Dio types.
@@ -57,6 +61,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Backend validation limits must match mobile `ConceptRules` (same normalisation both sides).
 - Extracted/parsed text is stored as found (whitespace + NFC only); uncertainty → review flags with
   reason codes, never silent correction. Test PDFs are generated (tests/pdf_factory.py), never real papers.
+- Every question shows its origin (source PDF vs AI). Exam patterns/counts/marking come only from
+  `exam_formats` (verified, sourced) — never hard-code them in code or UI.
+- Mobile app tests get a `FakeQuestionsRepository` by default (`pumpPrepLoopApp(questions: ...)`).
 - Mobile time: read "now" from `clockProvider`; date-only values use `CalendarDate` (never `DateTime`).
 - New ARB keys go in both files; `arb_parity_test.dart` fails otherwise. Hindi-capable text needs no
   per-widget font: the theme's `fontFamilyFallback` covers Devanagari.
@@ -88,54 +95,48 @@ Shells opened before installation need a restart for PATH.
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 4 complete → next is Phase 5 (question segmentation & bank)
+## Current phase: Phase 5 complete → next is Phase 6 (practice & mock tests)
 Known limitations right now:
 - Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
-  on a device. iOS needs macOS + Xcode. The PDF picker has only been exercised through tests (fake picker);
-  the native picker dialogs have not been tried on a device.
+  on a device. iOS needs macOS + Xcode. The native PDF picker is only exercised via a fake in tests.
 - Visual Studio C++ workload not installed → Windows desktop target unavailable (not a product target anyway).
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
-  (app renders after a 3 s storage timeout, shows first-run onboarding, concept list stays loading).
-  Verify web persistence in Chrome/Edge. Native is unaffected. Documents (server-backed) work there.
-- **No auth/ownership on `/api/v1/concepts` or `/api/v1/documents`** (single-tenant dev API until
+  (app shows first-run onboarding after a 3 s timeout; concept list stays loading). Server-backed screens
+  (documents, question review) work there. Verify web persistence in Chrome/Edge. Native is unaffected.
+- **No auth/ownership on `/api/v1/concepts`, `/documents`, `/questions`** (single-tenant dev API until
   Phase 10) — never deploy publicly.
-- Mobile concepts and study profile are local-only (sync = Phase 10). Imported documents are server-only
-  (not cached on device).
-- Upload rate limiter is per-process (needs a shared store before scaling out). No malware scanning.
-- Extraction yields per-page text + review flags only; questions/options/answers are not parsed yet (Phase 5).
-  There is no in-app page/text review screen yet (Phase 5).
-- Hindi OCR quality depends heavily on scan quality; low-confidence pages are flagged, never corrected.
-- Exam list on mobile is a constant mirroring the server seed; subject/topic are free text; filter choices
-  come from the learner's own data (no managed taxonomy yet).
+- Mobile concepts and study profile are local-only (sync = Phase 10). Documents and the question bank are
+  server-only (no offline cache yet).
+- Only one verified exam format exists (SSC CHSL 2026 Tier-I, from the official notice). **SSC CGL has
+  none** — add only after verifying the current official notice (record source in a migration).
+- Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
+  aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
+  Issue details are English (labels are localised).
+- Upload rate limiter is per-process; no malware scanning; PDF parsing runs in the worker process.
+- Hindi OCR quality depends on scan quality; low-confidence pages are flagged, never corrected.
 - Reminder time is stored but no notifications are scheduled yet (Phase 7). The UI says so.
 - "What should I study today?" shows real counts/goal but no generated plan yet (Phase 8).
-- No CI workflow yet; no typed Dart API client generated yet.
+- No CI workflow yet; no typed Dart API client generated yet (hand-written DTO parsing per feature).
 - Hindi strings were written without native-speaker review.
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
 - PostgreSQL is a native install; no docker-compose yet (optional).
 
-## Phase 5 acceptance criteria (question segmentation & bank)
-1. **Exam-format configuration as data** (`exam_formats` table or versioned YAML loaded at startup, with a
-   migration): per exam + tier, the sections and expected question counts **only where verified from an
-   official source** (record the source and date); unknown formats are allowed and simply skip
-   count-based checks. The SSC CHSL Tier-I "4 sections × 25" layout is one *known format*, never assumed.
-2. **Deterministic segmenter** over `document_pages` (pure, unit-tested module): detects section headings,
-   question starts (`Q.1`, `1.`, `प्रश्न 1` …), option blocks (`(1)–(4)`, `(a)–(d)`, `A.–D.`) parsed separately
-   from question boundaries, shared passages/directions linked to every question they govern, and separate
-   answer-key / explanation sections joined **by validated question number**, never by position.
-3. **Question bank schema** (Alembic): `questions` (exam, tier/paper id when known, section, subject/topic/
-   subtopic nullable, stem, language, source document + page(s) + source question number, verification
-   status `unverified|verified|rejected`, origin `source|ai` — AI never mixed with source, image-dependent
-   flag + page reference), `question_options`, `passages`, and `question_issues` (missing answer,
-   duplicate number, incomplete options, ambiguous boundary, image-dependent, count mismatch vs format).
-4. Image-dependent questions (figures, mirror images, cube nets, charts) are flagged when the text is
-   insufficient and keep a page reference; no attempt to reconstruct missing visual content.
-5. Segmentation runs automatically after extraction completes (same worker), is re-runnable per document,
-   and never deletes manually verified questions on re-run.
-6. API: list/search/filter questions (exam, section, subject, topic, language, document, verification
-   status, has-issues), get one with provenance, PATCH for review (fix stem/options/answer, set topic,
-   mark verified/rejected), and per-document parse summary (counts + issues).
-7. Mobile: a review screen per imported document (questions with issue badges, source page text side by
-   side, approve/edit/reject) and a question browser with filters; source vs AI labels visible.
-8. Tests with synthetic paper fixtures (bilingual, shared passage, answer key at end, missing answers,
-   duplicate numbering, image-dependent question, unknown format). `scripts/check.ps1` passes; docs updated.
+## Phase 6 acceptance criteria (practice & mock tests)
+1. Practice draws **only verified, non-image-dependent source questions** by default (unverified ones only
+   if the learner opts in, clearly labelled "not yet reviewed"); never mixes AI questions without a label.
+2. Practice modes: topic-wise, section/subject-wise, mixed; untimed with immediate correct/incorrect
+   feedback and the explanation when one exists; session summary (score, accuracy, time, per-topic).
+3. Timed mock tests **only for verified exam formats**: question count, sections, duration and marking
+   (marks per question = section max marks / questions; negative marks) come from `exam_formats` — never
+   hard-coded. If too few verified questions exist, the mock is unavailable with an explanation.
+4. Robust test state: server-side `practice_sessions` + `attempts` (Alembic); the timer is derived from the
+   server-recorded start time (closing/reopening the app cannot reset it); answers saved as they are given
+   (offline-tolerant local queue on mobile, replayed idempotently); submission is idempotent; expired tests
+   auto-submit with saved answers.
+5. Scoring validated against the format's marking scheme with unit tests (correct, wrong, unattempted,
+   negative marking, section totals); results explain how the score was computed.
+6. Bookmarks, incorrect-answer review, and question/session history (per question: attempts, last result).
+7. Attempt data recorded per question/topic/section for Phase 8 analytics (no analytics UI yet beyond the
+   session summary).
+8. EN/HI UI; tests for scoring, timer persistence (simulated restart), idempotent submit, offline answer
+   queue; `scripts/check.ps1` passes; docs updated.

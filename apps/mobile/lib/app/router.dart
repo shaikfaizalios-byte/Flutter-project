@@ -11,7 +11,9 @@ import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
-import '../features/practice/presentation/practice_screen.dart';
+import '../features/question_bank/presentation/document_review_screen.dart';
+import '../features/question_bank/presentation/question_bank_screen.dart';
+import '../features/question_bank/presentation/question_review_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/study_plan/application/study_profile_controller.dart';
 import 'app_shell.dart';
@@ -49,6 +51,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     errorBuilder: (context, state) => const _NotFoundScreen(),
     routes: [
       GoRoute(path: AppRoutes.onboarding, builder: (context, state) => const OnboardingScreen()),
+      GoRoute(
+        path: '/questions/:id',
+        builder: (context, state) => QuestionReviewScreen(questionId: state.pathParameters['id']!),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
@@ -64,6 +70,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'documents',
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) => const DocumentsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) =>
+                            DocumentReviewScreen(documentId: state.pathParameters['id']!),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'concepts/new',
@@ -88,7 +102,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          _branch(AppRoutes.practice, const PracticeScreen()),
+          _branch(AppRoutes.practice, const QuestionBankScreen()),
           _branch(AppRoutes.progress, const ProgressScreen()),
           _branch(AppRoutes.profile, const SettingsScreen()),
         ],

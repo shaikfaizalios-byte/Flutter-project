@@ -64,6 +64,16 @@ class Document(Base):
     # "text", "ocr", "mixed" or "none" once processing finishes.
     extraction_summary: Mapped[str | None] = mapped_column(String(16))
     error_code: Mapped[str | None] = mapped_column(String(64))
+    # Optional verified paper format (enables question-count checks during segmentation).
+    exam_format_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("exam_formats.id", ondelete="SET NULL")
+    )
+    # Question segmentation (Phase 5): pending | completed | failed.
+    segmentation_status: Mapped[str] = mapped_column(
+        String(16), default="pending", server_default="pending"
+    )
+    questions_found: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    segmented_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     processing_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

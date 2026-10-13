@@ -1,0 +1,153 @@
+import uuid
+from datetime import date, datetime
+from typing import Annotated, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+
+VerificationLiteral = Literal["unverified", "verified", "rejected"]
+
+
+class TopicRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    subject: str
+    name: str
+
+
+class ExamFormatSection(BaseModel):
+    part: str
+    subject: str
+    questions: int
+    max_marks: int | None = None
+
+
+class ExamFormatRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    code: str
+    exam_code: str
+    tier: str
+    name: str
+    sections: list[ExamFormatSection]
+    sections_in_fixed_order: bool
+    total_questions: int
+    duration_minutes: int | None
+    negative_marks_per_wrong: float | None
+    source_title: str
+    source_url: str
+    source_reference: str
+    source_published_on: date
+    verified_on: date
+
+
+class OptionRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    position: int
+    label: str
+    text: str
+
+
+class IssueRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    code: str
+    detail: str
+    resolved: bool
+
+
+class PassageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    text: str
+    first_question: int | None
+    last_question: int | None
+    source_pages: list[int]
+
+
+class QuestionRead(BaseModel):
+    id: uuid.UUID
+    origin: Literal["source", "ai"]
+    exam_code: str
+    section: str | None
+    subject: str | None
+    topic: TopicRead | None
+    topic_status: Literal["unassigned", "suggested", "confirmed"]
+    stem: str
+    language: Literal["en", "hi"]
+    document_id: uuid.UUID | None
+    document_filename: str | None
+    source_question_number: int | None
+    source_pages: list[int]
+    passage: PassageRead | None
+    options: list[OptionRead]
+    correct_option_position: int | None
+    answer_source: str | None
+    explanation: str | None
+    image_dependent: bool
+    verification_status: VerificationLiteral
+    verified_at: datetime | None
+    issues: list[IssueRead]
+    open_issue_count: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class QuestionList(BaseModel):
+    items: list[QuestionRead]
+    total: int
+    limit: int
+    offset: int
+
+
+OptionText = Annotated[str, StringConstraints(strip_whitespace=True, max_length=2000)]
+Label = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=8)]
+
+
+class OptionInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    label: Label
+    text: OptionText
+
+
+class QuestionUpdate(BaseModel):
+    """Reviewer edits. Only fields present are changed; null clears nullable fields."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    stem: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10_000)]
+        | None
+    ) = None
+    options: list[OptionInput] | None = Field(default=None, min_length=2, max_length=6)
+    correct_option_position: int | None = Field(default=None, ge=1, le=6)
+    explanation: Annotated[str, StringConstraints(max_length=10_000)] | None = None
+    section: Annotated[str, StringConstraints(strip_whitespace=True, max_length=120)] | None = None
+    subject: Annotated[str, StringConstraints(strip_whitespace=True, max_length=100)] | None = None
+    topic_id: uuid.UUID | None = None
+    image_dependent: bool | None = None
+    verification_status: VerificationLiteral | None = None
+
+
+class ParseSummary(BaseModel):
+    document_id: uuid.UUID
+    segmentation_status: Literal["pending", "completed", "failed"]
+    questions_found: int
+    verified: int
+    rejected: int
+    with_open_issues: int
+    missing_answers: int
+    image_dependent: int
+    sections: list[str]
+    exam_format: ExamFormatRead | None
+    document_issues: list[IssueRead]
+
+
+class DocumentFormatUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    exam_format_code: str | None

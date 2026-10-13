@@ -1,0 +1,323 @@
+"""Segmenter unit tests on synthetic paper text (no database, no PDFs)."""
+
+from collections.abc import Sequence
+from textwrap import dedent
+
+from app.domain.segmentation import (
+    Issue,
+    IssueCode,
+    PageText,
+    ParsedQuestion,
+    SegmentationResult,
+    check_against_format,
+    same_subject,
+    segment,
+)
+
+
+def run(*pages: str, flagged: set[int] | None = None) -> SegmentationResult:
+    return segment(
+        [
+            PageText(i + 1, dedent(text).strip(), needs_review=(i + 1) in (flagged or set()))
+            for i, text in enumerate(pages)
+        ]
+    )
+
+
+def codes(issues: Sequence[Issue]) -> list[str]:
+    return [i.code for i in issues]
+
+
+def by_number(result: SegmentationResult, number: int) -> ParsedQuestion:
+    return next(q for q in result.questions if q.number == number)
+
+
+BASIC_PAPER = """
+    General Intelligence
+    Q.1 Select the odd one out.
+    (1) Apple (2) Mango (3) Potato (4) Banana
+    Q.2 If CAT is coded as DBU, how is DOG coded?
+    (1) EPH
+    (2) EOH
+    (3) DPH
+    (4) FPH
+    Quantitative Aptitude
+    Q.3 What is 20% of 150?
+    (a) 20 (b) 30 (c) 40 (d) 50
+    Answer Key
+    1-(3) 2-(1) 3-(b)
+"""
+
+
+def test_basic_paper_questions_options_sections_and_key() -> None:
+    result = run(BASIC_PAPER)
+
+    assert [q.number for q in result.questions] == [1, 2, 3]
+    assert result.sections == ["General Intelligence", "Quantitative Aptitude"]
+    q1, q2, q3 = result.questions
+    assert q1.stem == "Select the odd one out."
+    assert [(o.label, o.text) for o in q1.options] == [
+        ("1", "Apple"),
+        ("2", "Mango"),
+        ("3", "Potato"),
+        ("4", "Banana"),
+    ]
+    assert [o.text for o in q2.options] == ["EPH", "EOH", "DPH", "FPH"]
+    assert q3.section == "Quantitative Aptitude"
+    # Key uses digits for some, letters for others: joined by number, mapped by position.
+    assert (q1.answer_position, q1.answer_source) == (3, "answer_key")
+    assert q2.answer_position == 1
+    assert q3.answer_position == 2
+    assert all(q.issues == [] for q in result.questions)
+    assert result.document_issues == []
+
+
+def test_hindi_question_markers_and_inline_answers() -> None:
+    result = run(
+        """
+        प्रश्न 1. भारत की राजधानी क्या है?
+        (1) मुंबई (2) नई दिल्ली (3) कोलकाता (4) चेन्नई
+        उत्तर: (2)
+        प्रश्न 2. 5 + 7 = ?
+        (1) 10 (2) 11 (3) 12 (4) 13
+        उत्तर: 3
+        """
+    )
+
+    assert [q.number for q in result.questions] == [1, 2]
+    assert result.questions[0].stem == "भारत की राजधानी क्या है?"
+    assert result.questions[0].options[1].text == "नई दिल्ली"
+    assert (result.questions[0].answer_position, result.questions[0].answer_source) == (
+        2,
+        "inline",
+    )
+    assert result.questions[1].answer_position == 3
+
+
+def test_plain_numbering_with_numbered_options() -> None:
+    result = run(
+        """
+        1. Which number is prime?
+        1. 21
+        2. 23
+        3. 25
+        4. 27
+        2. Which is the largest planet?
+        1. Earth
+        2. Jupiter
+        3. Mars
+        4. Venus
+        """
+    )
+
+    assert [q.number for q in result.questions] == [1, 2]
+    assert [o.text for o in result.questions[0].options] == ["21", "23", "25", "27"]
+    assert result.questions[1].stem == "Which is the largest planet?"
+
+
+def test_numbered_statements_inside_strongly_numbered_question_stay_in_stem() -> None:
+    result = run(
+        """
+        Q.7 Read the statements.
+        Statements:
+        All cats are dogs.
+        Q.8 Next question?
+        (1) a (2) b (3) c (4) d
+        """
+    )
+
+    assert [q.number for q in result.questions] == [7, 8]
+    assert "All cats are dogs." in result.questions[0].stem
+
+
+def test_shared_passage_is_linked_to_its_question_range() -> None:
+    result = run(
+        """
+        Directions (Questions 21 to 22): Read the passage and answer.
+        The river was calm. Farmers depended on it.
+        Q.21 What was calm?
+        (1) Sea (2) River (3) Lake (4) Pond
+        Q.22 Who depended on it?
+        (1) Farmers (2) Kings (3) Traders (4) Priests
+        Q.23 Unrelated question?
+        (1) w (2) x (3) y (4) z
+        """
+    )
+
+    [passage] = result.passages
+    assert (passage.first_question, passage.last_question) == (21, 22)
+    assert "The river was calm." in passage.text
+    assert by_number(result, 21).passage_index == 0
+    assert by_number(result, 22).passage_index == 0
+    assert by_number(result, 23).passage_index is None
+    # The passage text is linked, not copied into each stem.
+    assert "river was calm" not in by_number(result, 21).stem
+
+
+def test_answer_key_and_explanations_joined_by_number_not_position() -> None:
+    result = run(
+        """
+        Q.2 Second?
+        (1) a (2) b (3) c (4) d
+        Q.1 First?
+        (1) a (2) b (3) c (4) d
+        Answer Key
+        1. (4)  2. (1)  9. (2)
+        Solutions
+        1. Because four.
+        Continued reasoning.
+        2) Because one.
+        """
+    )
+
+    assert by_number(result, 1).answer_position == 4
+    assert by_number(result, 2).answer_position == 1
+    assert by_number(result, 1).explanation == "Because four.\nContinued reasoning."
+    assert by_number(result, 2).explanation == "Because one."
+    [unmatched] = [i for i in result.document_issues if i.code == IssueCode.ANSWER_KEY_UNMATCHED]
+    assert "9" in unmatched.detail
+
+
+def test_conflicting_answers_are_not_guessed() -> None:
+    result = run(
+        """
+        Q.1 Pick one?
+        (1) a (2) b (3) c (4) d
+        Ans: 2
+        Answer Key
+        1-(3)
+        """
+    )
+
+    question = result.questions[0]
+    assert question.answer_position is None
+    assert IssueCode.CONFLICTING_ANSWERS in codes(question.issues)
+    assert IssueCode.MISSING_ANSWER in codes(question.issues)
+
+
+def test_missing_answers_duplicates_gaps_and_incomplete_options() -> None:
+    result = run(
+        """
+        Q.1 One?
+        (1) a (2) b (3) c (4) d
+        Q.1 One again?
+        (1) a (2) b
+        Q.4 Four?
+        (1) a (2) (3) c (4) d
+        """
+    )
+
+    first, duplicate, fourth = result.questions
+    assert IssueCode.MISSING_ANSWER in codes(first.issues)
+    assert IssueCode.DUPLICATE_NUMBER in codes(duplicate.issues)
+    assert IssueCode.INCOMPLETE_OPTIONS in codes(duplicate.issues)
+    assert IssueCode.EMPTY_OPTION in codes(fourth.issues)
+    [gaps] = [i for i in result.document_issues if i.code == IssueCode.NUMBERING_GAPS]
+    assert gaps.detail == "Missing: 2, 3"
+
+
+def test_image_dependent_questions_are_flagged_with_page_reference() -> None:
+    result = run(
+        "Q.1 Select the correct mirror image of the given figure.\n(1) (2) (3) (4)",
+        "Q.2 Which figure completes the pattern?",
+    )
+
+    first, second = result.questions
+    assert first.image_dependent and second.image_dependent
+    assert IssueCode.IMAGE_DEPENDENT in codes(first.issues)
+    assert first.pages == [1]
+    assert second.pages == [2]
+
+
+def test_bilingual_repeated_options_keep_first_set_and_flag() -> None:
+    result = run(
+        """
+        Q.1 What is 2 + 2? / 2 + 2 कितना है?
+        (1) 3 (2) 4 (3) 5 (4) 6
+        (1) तीन (2) चार (3) पाँच (4) छह
+        """
+    )
+
+    question = result.questions[0]
+    assert [o.text for o in question.options] == ["3", "4", "5", "6"]
+    [issue] = [i for i in question.issues if i.code == IssueCode.REPEATED_OPTION_LABELS]
+    assert "चार" in issue.detail
+
+
+def test_question_spanning_pages_records_both_pages() -> None:
+    result = run(
+        "Q.1 A long question that\ncontinues", "on the next page?\n(1) a (2) b (3) c (4) d"
+    )
+
+    assert result.questions[0].pages == [1, 2]
+    assert result.questions[0].stem == "A long question that\ncontinues\non the next page?"
+
+
+def test_questions_on_flagged_pages_carry_a_review_issue() -> None:
+    result = run("Q.1 Fine?\n(1) a (2) b (3) c (4) d\nAns: 1", flagged={1})
+
+    assert IssueCode.SOURCE_PAGE_NEEDS_REVIEW in codes(result.questions[0].issues)
+
+
+def test_numbering_restarting_per_section_makes_answer_key_ambiguous() -> None:
+    result = run(
+        """
+        Section A: Reasoning
+        Q.1 R1?
+        (1) a (2) b (3) c (4) d
+        Section B: Maths
+        Q.1 M1?
+        (1) a (2) b (3) c (4) d
+        Answer Key
+        1-(2)
+        """
+    )
+
+    assert [q.section for q in result.questions] == ["Reasoning", "Maths"]
+    assert all(q.answer_position is None for q in result.questions)
+    assert IssueCode.ANSWER_KEY_AMBIGUOUS in codes(result.document_issues)
+    # Same number in different sections is not a duplicate.
+    assert all(IssueCode.DUPLICATE_NUMBER not in codes(q.issues) for q in result.questions)
+
+
+def test_no_questions_found() -> None:
+    result = run("This page is only instructions for candidates.")
+
+    assert result.questions == []
+    assert codes(result.document_issues) == [IssueCode.NO_QUESTIONS_FOUND]
+
+
+def test_long_sentence_starting_with_part_is_not_a_heading() -> None:
+    result = run(
+        "Q.1 Choose the word.\n"
+        "Part of the reason the committee delayed the decision was the weather in the hills.\n"
+        "(1) a (2) b (3) c (4) d"
+    )
+
+    assert result.sections == []
+    assert "Part of the reason" in result.questions[0].stem
+
+
+def test_format_check_counts_total_and_sections_by_name() -> None:
+    result = run(BASIC_PAPER)
+    issues = check_against_format(
+        result,
+        total_questions=100,
+        sections=[
+            ("General Intelligence", 25),
+            ("Quantitative Aptitude (Basic Arithmetic Skill)", 25),
+        ],
+    )
+
+    assert codes(issues) == [
+        IssueCode.COUNT_MISMATCH,
+        IssueCode.SECTION_COUNT_MISMATCH,
+        IssueCode.SECTION_COUNT_MISMATCH,
+    ]
+    assert "Found 3 questions" in issues[0].detail
+
+
+def test_same_subject_matching() -> None:
+    assert same_subject("General Intelligence and Reasoning", "General Intelligence")
+    assert same_subject("Quantitative Aptitude", "Quantitative Aptitude (Basic Arithmetic Skill)")
+    assert not same_subject("English Language", "General Awareness")

@@ -602,4 +602,234 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uploadErrorGeneric => 'The upload failed. Please try again.';
+
+  @override
+  String get issueMissingAnswer => 'Answer not found';
+
+  @override
+  String get issueIncompleteOptions => 'Options incomplete';
+
+  @override
+  String get issueEmptyOption => 'An option is empty';
+
+  @override
+  String get issueDuplicateNumber => 'Question number repeated';
+
+  @override
+  String get issueAmbiguousBoundary => 'Question boundary unclear';
+
+  @override
+  String get issueImageDependent => 'Needs the original figure';
+
+  @override
+  String get issueRepeatedOptionLabels => 'Extra options found (possibly a second language)';
+
+  @override
+  String get issueAnswerNotInOptions => 'Answer does not match the options';
+
+  @override
+  String get issueConflictingAnswers => 'Different answers found';
+
+  @override
+  String get issueSourcePageNeedsReview => 'Source page was hard to read';
+
+  @override
+  String get issueNoQuestionsFound => 'No questions were found';
+
+  @override
+  String get issueNumberingGaps => 'Some question numbers are missing';
+
+  @override
+  String get issueAnswerKeyUnmatched => 'Answer key has numbers that are not in the paper';
+
+  @override
+  String get issueAnswerKeyAmbiguous =>
+      'Numbering restarts in each section, so answers must be set during review';
+
+  @override
+  String get issueCountMismatch => 'Question count differs from the official format';
+
+  @override
+  String get issueSectionCountMismatch => 'A section\'s count differs from the official format';
+
+  @override
+  String get issueOther => 'Needs review';
+
+  @override
+  String get reviewTitle => 'Review questions';
+
+  @override
+  String get reviewQuestions => 'Review questions';
+
+  @override
+  String reviewSummaryVerified(int count) {
+    return '$count verified';
+  }
+
+  @override
+  String reviewSummaryAttention(int count) {
+    return '$count need attention';
+  }
+
+  @override
+  String reviewSummaryMissingAnswers(int count) {
+    return '$count without an answer';
+  }
+
+  @override
+  String reviewFormat(String name) {
+    return 'Format: $name';
+  }
+
+  @override
+  String get reviewFormatUnknown =>
+      'No verified format linked, so question-count checks are skipped.';
+
+  @override
+  String get reviewReparse => 'Parse again';
+
+  @override
+  String get reviewReparsed => 'Questions parsed again. Your reviewed questions were kept.';
+
+  @override
+  String get reviewSegmentationPending =>
+      'Questions will appear after the text has been extracted.';
+
+  @override
+  String get reviewSegmentationFailed => 'Questions could not be parsed from this paper.';
+
+  @override
+  String get reviewNoQuestions => 'No questions in this view.';
+
+  @override
+  String get filterAllQuestions => 'All';
+
+  @override
+  String get filterNeedsAttention => 'Needs attention';
+
+  @override
+  String get filterVerified => 'Verified';
+
+  @override
+  String get filterRejected => 'Rejected';
+
+  @override
+  String documentQuestionsFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions found',
+      one: '1 question found',
+      zero: 'No questions found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String questionNumberLabel(int number) {
+    return 'Q.$number';
+  }
+
+  @override
+  String questionSource(String filename, int page) {
+    return 'From $filename, page $page';
+  }
+
+  @override
+  String get questionLabelSource => 'From your PDF';
+
+  @override
+  String get questionLabelAi => 'AI-generated';
+
+  @override
+  String get questionStatusVerified => 'Verified';
+
+  @override
+  String get questionStatusRejected => 'Rejected';
+
+  @override
+  String get questionStatusUnverified => 'Not reviewed';
+
+  @override
+  String get questionTitle => 'Question';
+
+  @override
+  String get fieldStem => 'Question text';
+
+  @override
+  String get fieldOptions => 'Options';
+
+  @override
+  String fieldOption(String label) {
+    return 'Option $label';
+  }
+
+  @override
+  String get addOption => 'Add option';
+
+  @override
+  String get fieldCorrectAnswer => 'Correct answer';
+
+  @override
+  String get answerNotSet => 'Not set';
+
+  @override
+  String get fieldExplanation => 'Explanation (optional)';
+
+  @override
+  String get topicSuggested => 'Suggested topic. Approving the question confirms it.';
+
+  @override
+  String get topicNone => 'No topic';
+
+  @override
+  String get fieldImageDependent => 'Needs the original figure or image';
+
+  @override
+  String sharedPassage(int first, int last) {
+    return 'Shared passage (Q.$first to Q.$last)';
+  }
+
+  @override
+  String get sourcePageText => 'Source page text';
+
+  @override
+  String get sourcePageLoadError => 'The page text could not be loaded.';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get questionApproved => 'Question approved';
+
+  @override
+  String get questionRejected => 'Question rejected';
+
+  @override
+  String get cannotVerify => 'Fix the listed problems before approving.';
+
+  @override
+  String get openIssues => 'Problems to check';
+
+  @override
+  String get bankTitle => 'Question bank';
+
+  @override
+  String get bankSearchHint => 'Search questions';
+
+  @override
+  String get bankEmptyTitle => 'No questions yet';
+
+  @override
+  String get bankEmptyMessage =>
+      'Import a previous-year paper in Study, then Imported papers. Its questions appear here for review. Practice sessions arrive in a later update.';
+
+  @override
+  String get bankLoadError => 'Questions could not be loaded.';
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/exams/exam_catalog.dart';
@@ -277,6 +280,7 @@ class _DocumentTile extends ConsumerWidget {
     };
 
     return ListTile(
+      onTap: document.canReview ? () => context.push(AppRoutes.documentReview(document.id)) : null,
       leading: Icon(
         document.status == DocumentStatus.failed ? Icons.error_outline : Icons.picture_as_pdf,
         color: statusColor,
@@ -297,6 +301,8 @@ class _DocumentTile extends ConsumerWidget {
                 value: document.status == DocumentStatus.queued ? null : document.progress,
               ),
             ),
+          if (document.canReview && document.segmentationStatus == 'completed')
+            Text(l10n.documentQuestionsFound(document.questionsFound)),
           if (document.needsReviewCount > 0)
             Row(
               children: [

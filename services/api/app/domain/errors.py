@@ -42,6 +42,16 @@ class InvalidDocumentError(DomainError):
         self.code = code
 
 
+class ConflictError(DomainError):
+    """The request is valid but the resource is not in a state that allows it."""
+
+    status_code = 409
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
 class RateLimitedError(DomainError):
     status_code = 429
     code = "rate_limited"

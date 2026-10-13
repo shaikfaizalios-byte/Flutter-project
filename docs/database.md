@@ -85,6 +85,22 @@ Indexes: `(exam_code, archived_at)` and a GIN index on `tags`.
 Original files are **not** stored in the database. They live in `DocumentStorage` (local disk at
 `PREPLOOP_UPLOAD_DIR`). Back up both together.
 
+### Schema (revision `0003`): question bank
+
+- **`exam_formats`** holds only verified formats. Columns: code (unique), exam, tier, name, `sections` JSONB (part, subject, questions, max marks), `sections_in_fixed_order`, total questions, duration, negative marks, and `source_title`/`source_url`/`source_reference`/`source_published_on`/`verified_on`. It is seeded with SSC CHSL 2026 Tier-I (see question-bank.md).
+- **`topics`**: subject, name and keywords (an editable taxonomy). It is seeded with a small starter set.
+- **`passages`**: shared directions or reading passages per document, with the question range and source pages.
+- **`questions`**:
+  - `origin` is `source` or `ai` (CHECK). Source rows must have `document_id` and `source_question_number` (CHECK).
+  - Exam, optional format, section, subject, `topic_id` with `topic_status` (unassigned/suggested/confirmed), stem and language.
+  - `source_pages` (int[]) and `passage_id`.
+  - `correct_option_position` with `answer_source`, plus `explanation` and `image_dependent`.
+  - `verification_status` (unverified/verified/rejected) with `verified_at`.
+  - Foreign keys: document (CASCADE); format, topic and passage (SET NULL).
+- **`question_options`**: primary key (question, position); the label as printed, and the text.
+- **`question_issues`**: code, detail and `resolved`. `question_id` is null for document-level issues. Cascades from both the question and the document.
+- `documents` gains `exam_format_id`, `segmentation_status`, `questions_found` and `segmented_at`.
+
 ### Migration workflow
 
 ```powershell

@@ -20,7 +20,7 @@ void main() {
 
     final tabs = {
       'Study': 'No concepts yet',
-      'Practice': 'Practice sessions',
+      'Practice': 'No questions yet',
       'Progress': 'No progress data yet',
       'Profile': 'Profile & settings',
       'Home': 'Your study loop',

@@ -604,4 +604,234 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get uploadErrorGeneric => 'अपलोड विफल रहा। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get issueMissingAnswer => 'उत्तर नहीं मिला';
+
+  @override
+  String get issueIncompleteOptions => 'विकल्प अधूरे हैं';
+
+  @override
+  String get issueEmptyOption => 'एक विकल्प खाली है';
+
+  @override
+  String get issueDuplicateNumber => 'प्रश्न संख्या दोहराई गई है';
+
+  @override
+  String get issueAmbiguousBoundary => 'प्रश्न की सीमा स्पष्ट नहीं है';
+
+  @override
+  String get issueImageDependent => 'मूल चित्र की आवश्यकता है';
+
+  @override
+  String get issueRepeatedOptionLabels => 'अतिरिक्त विकल्प मिले (संभवतः दूसरी भाषा में)';
+
+  @override
+  String get issueAnswerNotInOptions => 'उत्तर विकल्पों से मेल नहीं खाता';
+
+  @override
+  String get issueConflictingAnswers => 'अलग-अलग उत्तर मिले';
+
+  @override
+  String get issueSourcePageNeedsReview => 'स्रोत पृष्ठ पढ़ने में कठिन था';
+
+  @override
+  String get issueNoQuestionsFound => 'कोई प्रश्न नहीं मिला';
+
+  @override
+  String get issueNumberingGaps => 'कुछ प्रश्न संख्याएँ गायब हैं';
+
+  @override
+  String get issueAnswerKeyUnmatched =>
+      'उत्तर कुंजी में ऐसी संख्याएँ हैं जो प्रश्न-पत्र में नहीं हैं';
+
+  @override
+  String get issueAnswerKeyAmbiguous =>
+      'हर खंड में क्रमांक फिर से शुरू होता है, इसलिए उत्तर जाँच के दौरान सेट करें';
+
+  @override
+  String get issueCountMismatch => 'प्रश्नों की संख्या आधिकारिक प्रारूप से अलग है';
+
+  @override
+  String get issueSectionCountMismatch => 'किसी खंड की संख्या आधिकारिक प्रारूप से अलग है';
+
+  @override
+  String get issueOther => 'जाँच ज़रूरी है';
+
+  @override
+  String get reviewTitle => 'प्रश्नों की जाँच';
+
+  @override
+  String get reviewQuestions => 'प्रश्नों की जाँच करें';
+
+  @override
+  String reviewSummaryVerified(int count) {
+    return '$count सत्यापित';
+  }
+
+  @override
+  String reviewSummaryAttention(int count) {
+    return '$count पर ध्यान ज़रूरी';
+  }
+
+  @override
+  String reviewSummaryMissingAnswers(int count) {
+    return '$count बिना उत्तर के';
+  }
+
+  @override
+  String reviewFormat(String name) {
+    return 'प्रारूप: $name';
+  }
+
+  @override
+  String get reviewFormatUnknown =>
+      'कोई सत्यापित प्रारूप जुड़ा नहीं है, इसलिए प्रश्न-संख्या की जाँच नहीं होती।';
+
+  @override
+  String get reviewReparse => 'फिर से पार्स करें';
+
+  @override
+  String get reviewReparsed => 'प्रश्न फिर से पार्स किए गए। आपके जाँचे गए प्रश्न सुरक्षित रखे गए।';
+
+  @override
+  String get reviewSegmentationPending => 'टेक्स्ट निकाले जाने के बाद प्रश्न यहाँ दिखेंगे।';
+
+  @override
+  String get reviewSegmentationFailed => 'इस प्रश्न-पत्र से प्रश्न नहीं निकाले जा सके।';
+
+  @override
+  String get reviewNoQuestions => 'इस दृश्य में कोई प्रश्न नहीं है।';
+
+  @override
+  String get filterAllQuestions => 'सभी';
+
+  @override
+  String get filterNeedsAttention => 'ध्यान ज़रूरी';
+
+  @override
+  String get filterVerified => 'सत्यापित';
+
+  @override
+  String get filterRejected => 'अस्वीकृत';
+
+  @override
+  String documentQuestionsFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count प्रश्न मिले',
+      one: '1 प्रश्न मिला',
+      zero: 'कोई प्रश्न नहीं मिला',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String questionNumberLabel(int number) {
+    return 'प्र.$number';
+  }
+
+  @override
+  String questionSource(String filename, int page) {
+    return '$filename, पृष्ठ $page से';
+  }
+
+  @override
+  String get questionLabelSource => 'आपकी PDF से';
+
+  @override
+  String get questionLabelAi => 'AI द्वारा बनाया गया';
+
+  @override
+  String get questionStatusVerified => 'सत्यापित';
+
+  @override
+  String get questionStatusRejected => 'अस्वीकृत';
+
+  @override
+  String get questionStatusUnverified => 'जाँच नहीं हुई';
+
+  @override
+  String get questionTitle => 'प्रश्न';
+
+  @override
+  String get fieldStem => 'प्रश्न का टेक्स्ट';
+
+  @override
+  String get fieldOptions => 'विकल्प';
+
+  @override
+  String fieldOption(String label) {
+    return 'विकल्प $label';
+  }
+
+  @override
+  String get addOption => 'विकल्प जोड़ें';
+
+  @override
+  String get fieldCorrectAnswer => 'सही उत्तर';
+
+  @override
+  String get answerNotSet => 'सेट नहीं';
+
+  @override
+  String get fieldExplanation => 'व्याख्या (वैकल्पिक)';
+
+  @override
+  String get topicSuggested => 'सुझाया गया टॉपिक। प्रश्न स्वीकृत करने पर इसकी पुष्टि हो जाती है।';
+
+  @override
+  String get topicNone => 'कोई टॉपिक नहीं';
+
+  @override
+  String get fieldImageDependent => 'मूल चित्र या छवि की आवश्यकता है';
+
+  @override
+  String sharedPassage(int first, int last) {
+    return 'साझा गद्यांश (प्र.$first से प्र.$last)';
+  }
+
+  @override
+  String get sourcePageText => 'स्रोत पृष्ठ का टेक्स्ट';
+
+  @override
+  String get sourcePageLoadError => 'पृष्ठ का टेक्स्ट लोड नहीं हो सका।';
+
+  @override
+  String get approve => 'स्वीकृत करें';
+
+  @override
+  String get reject => 'अस्वीकार करें';
+
+  @override
+  String get saved => 'सहेजा गया';
+
+  @override
+  String get questionApproved => 'प्रश्न स्वीकृत किया गया';
+
+  @override
+  String get questionRejected => 'प्रश्न अस्वीकार किया गया';
+
+  @override
+  String get cannotVerify => 'स्वीकृत करने से पहले सूचीबद्ध समस्याएँ ठीक करें।';
+
+  @override
+  String get openIssues => 'जाँचने योग्य समस्याएँ';
+
+  @override
+  String get bankTitle => 'प्रश्न बैंक';
+
+  @override
+  String get bankSearchHint => 'प्रश्न खोजें';
+
+  @override
+  String get bankEmptyTitle => 'अभी कोई प्रश्न नहीं है';
+
+  @override
+  String get bankEmptyMessage =>
+      'अध्ययन में, फिर आयात किए गए प्रश्न-पत्र में जाकर पिछले वर्ष का प्रश्न-पत्र आयात करें। उसके प्रश्न जाँच के लिए यहाँ दिखेंगे। अभ्यास सत्र आगामी अपडेट में आएँगे।';
+
+  @override
+  String get bankLoadError => 'प्रश्न लोड नहीं हो सके।';
 }

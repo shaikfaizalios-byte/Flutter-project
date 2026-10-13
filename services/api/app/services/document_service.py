@@ -14,10 +14,12 @@ from pathlib import Path
 from typing import BinaryIO
 
 import pypdfium2 as pdfium
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
 from app.domain.errors import (
+    ConflictError,
     InvalidDocumentError,
     InvalidReferenceError,
     NotFoundError,
@@ -26,6 +28,7 @@ from app.domain.errors import (
 )
 from app.integrations.storage import DocumentStorage
 from app.models.document import Document, DocumentStatus
+from app.models.question import ExamFormat
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.document import DocumentPageList, DocumentRead, PageList, PageRead
@@ -60,11 +63,18 @@ class DocumentService:
         self._exams = ExamRepository(session)
 
     def upload(
-        self, *, stream: BinaryIO, filename: str | None, exam_code: str, language: str
+        self,
+        *,
+        stream: BinaryIO,
+        filename: str | None,
+        exam_code: str,
+        language: str,
+        exam_format_code: str | None = None,
     ) -> DocumentRead:
         exam = self._exams.get(exam_code)
         if exam is None or not exam.is_active:
             raise InvalidReferenceError(f"Unknown exam '{exam_code}'.")
+        exam_format = self._find_format(exam_code, exam_format_code)
 
         temp = self._storage.temp_dir() / f"{uuid.uuid4().hex}.part"
         try:
@@ -88,6 +98,7 @@ class DocumentService:
             storage_key=key,
             page_count=page_count,
             status=DocumentStatus.QUEUED,
+            exam_format_id=exam_format.id if exam_format else None,
         )
         try:
             self._documents.add(document)
@@ -133,6 +144,29 @@ class DocumentService:
         self._documents.delete(document)
         self._session.commit()
         self._storage.delete(key)
+
+    def set_exam_format(self, document_id: uuid.UUID, exam_format_code: str | None) -> DocumentRead:
+        document = self._get_or_404(document_id)
+        exam_format = self._find_format(document.exam_code, exam_format_code)
+        document.exam_format_id = exam_format.id if exam_format else None
+        self._session.commit()
+        return DocumentRead.model_validate(document)
+
+    def require_extracted(self, document_id: uuid.UUID) -> None:
+        if self._get_or_404(document_id).status != DocumentStatus.COMPLETED:
+            raise ConflictError(
+                "document_not_ready", "Text extraction must finish before questions are parsed."
+            )
+
+    def _find_format(self, exam_code: str, code: str | None) -> ExamFormat | None:
+        if code is None:
+            return None
+        exam_format = self._session.scalars(
+            select(ExamFormat).where(ExamFormat.code == code)
+        ).first()
+        if exam_format is None or exam_format.exam_code != exam_code:
+            raise InvalidReferenceError(f"Unknown paper format '{code}' for this exam.")
+        return exam_format
 
     def _get_or_404(self, document_id: uuid.UUID) -> Document:
         document = self._documents.get(document_id)

@@ -1100,6 +1100,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The upload failed. Please try again.'**
   String get uploadErrorGeneric;
+
+  /// No description provided for @issueMissingAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer not found'**
+  String get issueMissingAnswer;
+
+  /// No description provided for @issueIncompleteOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options incomplete'**
+  String get issueIncompleteOptions;
+
+  /// No description provided for @issueEmptyOption.
+  ///
+  /// In en, this message translates to:
+  /// **'An option is empty'**
+  String get issueEmptyOption;
+
+  /// No description provided for @issueDuplicateNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Question number repeated'**
+  String get issueDuplicateNumber;
+
+  /// No description provided for @issueAmbiguousBoundary.
+  ///
+  /// In en, this message translates to:
+  /// **'Question boundary unclear'**
+  String get issueAmbiguousBoundary;
+
+  /// No description provided for @issueImageDependent.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the original figure'**
+  String get issueImageDependent;
+
+  /// No description provided for @issueRepeatedOptionLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra options found (possibly a second language)'**
+  String get issueRepeatedOptionLabels;
+
+  /// No description provided for @issueAnswerNotInOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer does not match the options'**
+  String get issueAnswerNotInOptions;
+
+  /// No description provided for @issueConflictingAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Different answers found'**
+  String get issueConflictingAnswers;
+
+  /// No description provided for @issueSourcePageNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Source page was hard to read'**
+  String get issueSourcePageNeedsReview;
+
+  /// No description provided for @issueNoQuestionsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions were found'**
+  String get issueNoQuestionsFound;
+
+  /// No description provided for @issueNumberingGaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Some question numbers are missing'**
+  String get issueNumberingGaps;
+
+  /// No description provided for @issueAnswerKeyUnmatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer key has numbers that are not in the paper'**
+  String get issueAnswerKeyUnmatched;
+
+  /// No description provided for @issueAnswerKeyAmbiguous.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbering restarts in each section, so answers must be set during review'**
+  String get issueAnswerKeyAmbiguous;
+
+  /// No description provided for @issueCountMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Question count differs from the official format'**
+  String get issueCountMismatch;
+
+  /// No description provided for @issueSectionCountMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'A section\'s count differs from the official format'**
+  String get issueSectionCountMismatch;
+
+  /// No description provided for @issueOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review'**
+  String get issueOther;
+
+  /// No description provided for @reviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review questions'**
+  String get reviewTitle;
+
+  /// No description provided for @reviewQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Review questions'**
+  String get reviewQuestions;
+
+  /// No description provided for @reviewSummaryVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verified'**
+  String reviewSummaryVerified(int count);
+
+  /// No description provided for @reviewSummaryAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} need attention'**
+  String reviewSummaryAttention(int count);
+
+  /// No description provided for @reviewSummaryMissingAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} without an answer'**
+  String reviewSummaryMissingAnswers(int count);
+
+  /// No description provided for @reviewFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format: {name}'**
+  String reviewFormat(String name);
+
+  /// No description provided for @reviewFormatUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'No verified format linked, so question-count checks are skipped.'**
+  String get reviewFormatUnknown;
+
+  /// No description provided for @reviewReparse.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse again'**
+  String get reviewReparse;
+
+  /// No description provided for @reviewReparsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions parsed again. Your reviewed questions were kept.'**
+  String get reviewReparsed;
+
+  /// No description provided for @reviewSegmentationPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions will appear after the text has been extracted.'**
+  String get reviewSegmentationPending;
+
+  /// No description provided for @reviewSegmentationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions could not be parsed from this paper.'**
+  String get reviewSegmentationFailed;
+
+  /// No description provided for @reviewNoQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions in this view.'**
+  String get reviewNoQuestions;
+
+  /// No description provided for @filterAllQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAllQuestions;
+
+  /// No description provided for @filterNeedsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get filterNeedsAttention;
+
+  /// No description provided for @filterVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get filterVerified;
+
+  /// No description provided for @filterRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get filterRejected;
+
+  /// No description provided for @documentQuestionsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No questions found} =1{1 question found} other{{count} questions found}}'**
+  String documentQuestionsFound(int count);
+
+  /// No description provided for @questionNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Q.{number}'**
+  String questionNumberLabel(int number);
+
+  /// No description provided for @questionSource.
+  ///
+  /// In en, this message translates to:
+  /// **'From {filename}, page {page}'**
+  String questionSource(String filename, int page);
+
+  /// No description provided for @questionLabelSource.
+  ///
+  /// In en, this message translates to:
+  /// **'From your PDF'**
+  String get questionLabelSource;
+
+  /// No description provided for @questionLabelAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated'**
+  String get questionLabelAi;
+
+  /// No description provided for @questionStatusVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get questionStatusVerified;
+
+  /// No description provided for @questionStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get questionStatusRejected;
+
+  /// No description provided for @questionStatusUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reviewed'**
+  String get questionStatusUnverified;
+
+  /// No description provided for @questionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get questionTitle;
+
+  /// No description provided for @fieldStem.
+  ///
+  /// In en, this message translates to:
+  /// **'Question text'**
+  String get fieldStem;
+
+  /// No description provided for @fieldOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get fieldOptions;
+
+  /// No description provided for @fieldOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Option {label}'**
+  String fieldOption(String label);
+
+  /// No description provided for @addOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Add option'**
+  String get addOption;
+
+  /// No description provided for @fieldCorrectAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct answer'**
+  String get fieldCorrectAnswer;
+
+  /// No description provided for @answerNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get answerNotSet;
+
+  /// No description provided for @fieldExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation (optional)'**
+  String get fieldExplanation;
+
+  /// No description provided for @topicSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested topic. Approving the question confirms it.'**
+  String get topicSuggested;
+
+  /// No description provided for @topicNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No topic'**
+  String get topicNone;
+
+  /// No description provided for @fieldImageDependent.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the original figure or image'**
+  String get fieldImageDependent;
+
+  /// No description provided for @sharedPassage.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared passage (Q.{first} to Q.{last})'**
+  String sharedPassage(int first, int last);
+
+  /// No description provided for @sourcePageText.
+  ///
+  /// In en, this message translates to:
+  /// **'Source page text'**
+  String get sourcePageText;
+
+  /// No description provided for @sourcePageLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The page text could not be loaded.'**
+  String get sourcePageLoadError;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get saved;
+
+  /// No description provided for @questionApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Question approved'**
+  String get questionApproved;
+
+  /// No description provided for @questionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Question rejected'**
+  String get questionRejected;
+
+  /// No description provided for @cannotVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix the listed problems before approving.'**
+  String get cannotVerify;
+
+  /// No description provided for @openIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Problems to check'**
+  String get openIssues;
+
+  /// No description provided for @bankTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question bank'**
+  String get bankTitle;
+
+  /// No description provided for @bankSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search questions'**
+  String get bankSearchHint;
+
+  /// No description provided for @bankEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions yet'**
+  String get bankEmptyTitle;
+
+  /// No description provided for @bankEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a previous-year paper in Study, then Imported papers. Its questions appear here for review. Practice sessions arrive in a later update.'**
+  String get bankEmptyMessage;
+
+  /// No description provided for @bankLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions could not be loaded.'**
+  String get bankLoadError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

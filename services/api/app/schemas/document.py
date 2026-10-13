@@ -24,6 +24,9 @@ class DocumentRead(BaseModel):
     status: DocumentStatusLiteral
     extraction_summary: Literal["text", "ocr", "mixed", "none"] | None
     error_code: str | None
+    exam_format_id: uuid.UUID | None
+    segmentation_status: Literal["pending", "completed", "failed"]
+    questions_found: int
     created_at: datetime
     updated_at: datetime
     processing_started_at: datetime | None

@@ -22,6 +22,7 @@ from app.integrations.storage import DocumentStorage
 from app.models.document import Document, DocumentPage, DocumentStatus
 from app.repositories.document_repository import DocumentRepository
 from app.services.extraction import ProcessingTimeoutError, extract_pages, summarize_methods
+from app.services.segmentation_service import SegmentationService
 
 logger = logging.getLogger("app.processing")
 
@@ -122,6 +123,8 @@ class DocumentProcessor:
         self._finish(
             session, document, DocumentStatus.COMPLETED, summary=summarize_methods(methods)
         )
+        # Question segmentation runs right after extraction; its failure never fails the document.
+        SegmentationService(session).segment_document(document_id)
 
     def _finish_by_id(self, session: Session, document_id: uuid.UUID, *, error_code: str) -> None:
         document = DocumentRepository(session).get(document_id)

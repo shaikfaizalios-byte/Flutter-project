@@ -14,7 +14,10 @@ from app.schemas.document import (
     PageList,
 )
 from app.schemas.errors import ErrorResponse
+from app.schemas.question import DocumentFormatUpdate, ParseSummary
 from app.services.document_service import DocumentService
+from app.services.question_service import QuestionService
+from app.services.segmentation_service import SegmentationService
 
 router = APIRouter(
     prefix="/documents",
@@ -77,9 +80,17 @@ def upload_document(
     file: Annotated[UploadFile, File(description="PDF file")],
     exam_code: Annotated[str, Form(min_length=1, max_length=32)],
     language: Annotated[Language, Form(description="Language of the document's content")],
+    exam_format_code: Annotated[
+        str | None,
+        Form(max_length=64, description="Optional verified paper format (see /exam-formats)"),
+    ] = None,
 ) -> DocumentRead:
     return service.upload(
-        stream=file.file, filename=file.filename, exam_code=exam_code, language=language
+        stream=file.file,
+        filename=file.filename,
+        exam_code=exam_code,
+        language=language,
+        exam_format_code=exam_format_code or None,
     )
 
 
@@ -121,3 +132,42 @@ def get_document_pages(
 )
 def delete_document(document_id: uuid.UUID, service: Service) -> None:
     service.delete(document_id)
+
+
+@router.get(
+    "/{document_id}/parse-summary",
+    response_model=ParseSummary,
+    responses=NOT_FOUND,
+    summary="Question segmentation results and document-level issues",
+)
+def get_parse_summary(document_id: uuid.UUID, session: DbSession) -> ParseSummary:
+    return QuestionService(session).parse_summary(document_id)
+
+
+@router.put(
+    "/{document_id}/exam-format",
+    response_model=DocumentRead,
+    responses=NOT_FOUND,
+    summary="Link (or unlink) a verified paper format; re-run segmentation to apply it",
+)
+def set_exam_format(
+    document_id: uuid.UUID, body: DocumentFormatUpdate, service: Service
+) -> DocumentRead:
+    return service.set_exam_format(document_id, body.exam_format_code)
+
+
+@router.post(
+    "/{document_id}/segment",
+    response_model=ParseSummary,
+    responses={
+        **NOT_FOUND,
+        409: {"model": ErrorResponse, "description": "document_not_ready"},
+    },
+    summary="Re-run question segmentation (keeps verified and rejected questions)",
+)
+def resegment_document(
+    document_id: uuid.UUID, service: Service, session: DbSession
+) -> ParseSummary:
+    service.require_extracted(document_id)
+    SegmentationService(session).segment_document(document_id)
+    return QuestionService(session).parse_summary(document_id)
