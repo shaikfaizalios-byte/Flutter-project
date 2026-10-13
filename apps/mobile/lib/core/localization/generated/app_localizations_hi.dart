@@ -834,4 +834,255 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get bankLoadError => 'प्रश्न लोड नहीं हो सके।';
+
+  @override
+  String get practiceHubTitle => 'अभ्यास';
+
+  @override
+  String get practiceStartTitle => 'प्रश्नों का अभ्यास';
+
+  @override
+  String get practiceStartMessage =>
+      'समय सीमा नहीं। हर उत्तर के बाद आप देखेंगे कि वह सही है या नहीं।';
+
+  @override
+  String get practiceStart => 'अभ्यास शुरू करें';
+
+  @override
+  String get practiceSetupTitle => 'अभ्यास सेट करें';
+
+  @override
+  String get practiceMixed => 'मिश्रित (सभी विषय)';
+
+  @override
+  String get practiceSubject => 'विषय';
+
+  @override
+  String get practiceTopic => 'टॉपिक (वैकल्पिक)';
+
+  @override
+  String get practiceTopicAny => 'कोई भी टॉपिक';
+
+  @override
+  String get practiceCount => 'प्रश्नों की संख्या';
+
+  @override
+  String get practiceIncludeUnverified => 'जिन प्रश्नों की जाँच नहीं हुई, उन्हें भी शामिल करें';
+
+  @override
+  String get practiceIncludeUnverifiedHint =>
+      'इन पर लेबल लगा होता है, और इनके उत्तरों में निकालने की गलतियाँ हो सकती हैं।';
+
+  @override
+  String get practiceNoQuestions =>
+      'कोई जाँचा हुआ प्रश्न मेल नहीं खाता। प्रश्न बैंक में प्रश्न स्वीकृत करें, या बिना जाँचे प्रश्न शामिल करें।';
+
+  @override
+  String get mockTestsTitle => 'मॉक टेस्ट';
+
+  @override
+  String get mockTestsMessage => 'समयबद्ध टेस्ट, केवल सत्यापित आधिकारिक परीक्षा प्रारूपों से बने।';
+
+  @override
+  String get mockTestsNone => 'अभी कोई सत्यापित परीक्षा प्रारूप उपलब्ध नहीं है।';
+
+  @override
+  String mockTestDetails(int questions, int minutes) {
+    return '$questions प्रश्न · $minutes मिनट';
+  }
+
+  @override
+  String mockNegative(String marks) {
+    return 'हर गलत उत्तर पर −$marks';
+  }
+
+  @override
+  String get mockStart => 'मॉक टेस्ट शुरू करें';
+
+  @override
+  String get mockUnavailable => 'अभी पर्याप्त जाँचे हुए प्रश्न नहीं हैं:';
+
+  @override
+  String mockSectionShort(String subject, int available, int needed) {
+    return '$subject: $needed में से $available';
+  }
+
+  @override
+  String get mockConfirmTitle => 'मॉक टेस्ट शुरू करें?';
+
+  @override
+  String get mockConfirmMessage =>
+      'टाइमर अभी शुरू होगा और ऐप बंद करने पर भी चलता रहेगा। समय पूरा होने पर टेस्ट अपने-आप सबमिट हो जाएगा।';
+
+  @override
+  String get reviewToolsTitle => 'दोहराव';
+
+  @override
+  String get bookmarksTitle => 'बुकमार्क';
+
+  @override
+  String get bookmarksEmpty => 'कोई बुकमार्क किया हुआ प्रश्न नहीं है।';
+
+  @override
+  String get incorrectTitle => 'दोबारा देखने योग्य प्रश्न';
+
+  @override
+  String get incorrectEmpty => 'दोबारा देखने के लिए कोई गलत उत्तर नहीं है।';
+
+  @override
+  String get questionBankOpen => 'प्रश्न बैंक';
+
+  @override
+  String get historyTitle => 'हाल के सत्र';
+
+  @override
+  String get historyEmpty => 'आपके अभ्यास सत्र यहाँ दिखेंगे।';
+
+  @override
+  String get historyPractice => 'अभ्यास';
+
+  @override
+  String historyMock(String name) {
+    return 'मॉक: $name';
+  }
+
+  @override
+  String get historyInProgress => 'जारी है';
+
+  @override
+  String historyScore(String score, String max) {
+    return '$score / $max';
+  }
+
+  @override
+  String sessionQuestionOf(int current, int total) {
+    return 'प्रश्न $current / $total';
+  }
+
+  @override
+  String get sessionNotReviewed => 'जाँच नहीं हुई';
+
+  @override
+  String get sessionPrevious => 'पिछला';
+
+  @override
+  String get sessionNext => 'अगला';
+
+  @override
+  String get sessionSubmit => 'सबमिट करें';
+
+  @override
+  String get sessionFinish => 'समाप्त करें';
+
+  @override
+  String get sessionCorrect => 'सही';
+
+  @override
+  String get sessionIncorrect => 'गलत';
+
+  @override
+  String sessionCorrectAnswer(String label) {
+    return 'सही उत्तर: ($label)';
+  }
+
+  @override
+  String get sessionSavedOffline => 'इस डिवाइस पर सहेजा गया। ऑनलाइन होने पर भेज दिया जाएगा।';
+
+  @override
+  String get sessionFeedbackOffline => 'ऑनलाइन होने पर परिणाम दिखेगा।';
+
+  @override
+  String get sessionSubmitTitle => 'अभी सबमिट करें?';
+
+  @override
+  String sessionUnanswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count प्रश्नों के उत्तर नहीं दिए गए हैं।',
+      one: '1 प्रश्न का उत्तर नहीं दिया गया है।',
+      zero: 'सभी प्रश्नों के उत्तर दिए गए हैं।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionTimeUp => 'समय समाप्त। आपके सहेजे गए उत्तर सबमिट कर दिए गए।';
+
+  @override
+  String sessionTimeLeft(String time) {
+    return 'शेष समय $time';
+  }
+
+  @override
+  String get sessionQuestionRemoved => 'यह प्रश्न प्रश्न बैंक से हटा दिया गया था।';
+
+  @override
+  String get sessionLoadError => 'यह सत्र लोड नहीं हो सका।';
+
+  @override
+  String get sessionOfflineOpen =>
+      'सत्र खोलने के लिए कनेक्शन चाहिए। सत्र के दौरान कनेक्शन टूटने पर आपके उत्तर इस डिवाइस पर सहेजे जाते हैं।';
+
+  @override
+  String get sessionPalette => 'सभी प्रश्न';
+
+  @override
+  String get sessionBookmark => 'बुकमार्क करें';
+
+  @override
+  String get sessionRemoveBookmark => 'बुकमार्क हटाएँ';
+
+  @override
+  String get sessionSubmitFailed =>
+      'सबमिट नहीं हो सका। आपके उत्तर सहेजे गए हैं; ऑनलाइन होने पर फिर कोशिश करें।';
+
+  @override
+  String get resultTitle => 'परिणाम';
+
+  @override
+  String resultScore(String score, String max) {
+    return '$max में से $score';
+  }
+
+  @override
+  String resultAccuracy(int percent) {
+    return 'सटीकता $percent%';
+  }
+
+  @override
+  String get resultAccuracyNone => 'किसी प्रश्न का उत्तर नहीं दिया गया';
+
+  @override
+  String resultTime(String time) {
+    return 'लगा समय $time';
+  }
+
+  @override
+  String resultCounts(int correct, int wrong, int unattempted) {
+    return '$correct सही · $wrong गलत · $unattempted छोड़े गए';
+  }
+
+  @override
+  String get resultHowScored => 'यह स्कोर कैसे गिना गया';
+
+  @override
+  String get resultSections => 'खंड के अनुसार';
+
+  @override
+  String get resultTopics => 'टॉपिक के अनुसार';
+
+  @override
+  String get resultReviewAnswers => 'उत्तर देखें';
+
+  @override
+  String resultYourAnswer(String label) {
+    return 'आपका उत्तर: ($label)';
+  }
+
+  @override
+  String get resultNotAnswered => 'उत्तर नहीं दिया';
+
+  @override
+  String get resultSubmittedTimeUp => 'समय पूरा होने पर अपने-आप सबमिट हुआ।';
 }

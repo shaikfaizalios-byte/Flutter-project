@@ -14,10 +14,13 @@ import 'package:preploop/features/settings/domain/server_health.dart';
 import 'package:preploop/features/study_plan/application/study_profile_controller.dart';
 import 'package:preploop/features/study_plan/domain/study_profile.dart';
 import 'package:preploop/core/utils/clock.dart';
+import 'package:preploop/features/practice/application/practice_providers.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
 
+import 'fake_practice.dart';
 import 'fake_questions.dart';
 
+export 'fake_practice.dart';
 export 'fake_questions.dart';
 
 const testConfig = AppConfig(
@@ -93,8 +96,10 @@ Future<void> pumpPrepLoopApp(
   AppPreferences initialPreferences = const AppPreferences(),
   StudyProfile? studyProfile,
   DateTime? now,
+  DateTime Function()? clockOverride,
   List<Override> extraOverrides = const [],
   FakeQuestionsRepository? questions,
+  FakePracticeRepository? practice,
 }) async {
   if (deviceLocale != null) {
     tester.platformDispatcher.localesTestValue = [deviceLocale];
@@ -103,11 +108,14 @@ Future<void> pumpPrepLoopApp(
   final overrides = <Override>[
     appConfigProvider.overrideWithValue(testConfig),
     appDatabaseProvider.overrideWithValue(db),
-    clockProvider.overrideWithValue(() => now ?? testNow),
+    clockProvider.overrideWithValue(clockOverride ?? () => now ?? testNow),
     initialPreferencesProvider.overrideWithValue(initialPreferences),
     initialStudyProfileProvider.overrideWithValue(studyProfile ?? onboardedProfile),
     serverStatusRepositoryProvider.overrideWithValue(serverStatus ?? FakeServerStatusRepository()),
     questionsRepositoryProvider.overrideWithValue(questions ?? FakeQuestionsRepository()),
+    practiceRepositoryProvider.overrideWithValue(
+      practice ?? FakePracticeRepository(serverNow: clockOverride ?? () => now ?? testNow),
+    ),
     ...extraOverrides,
   ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: const PrepLoopApp()));

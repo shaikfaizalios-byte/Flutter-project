@@ -3,12 +3,14 @@
 PrepLoop helps SSC CGL and SSC CHSL aspirants turn scattered PDFs, previous-year papers and notes into a
 personalised study loop: practise, find weak topics, revise on schedule, and track real progress.
 
-> **Status:** Phase 5 (question bank). Onboarding, a dashboard built on real data and offline concept
+> **Status:** Phase 6 (practice and mock tests). Onboarding, a dashboard built on real data and offline concept
 > management work in English and Hindi. Imported PDFs are read page by page (embedded text or OCR), then
 > split into questions with options, answers, shared passages and source references. Every uncertain
 > result is flagged for human review in the app, and verified exam formats are recorded with their official
-> SSC source. Practice sessions arrive in Phase 6. See [CLAUDE.md](CLAUDE.md),
-> [docs/document-ingestion.md](docs/document-ingestion.md) and [docs/question-bank.md](docs/question-bank.md).
+> SSC source. Reviewed questions can be practised (topic, subject or mixed) with instant feedback, or taken as
+> timed mock tests built only from verified formats. The timer is kept on the server, scores are explained, and answers survive
+> going offline. See [CLAUDE.md](CLAUDE.md), [docs/document-ingestion.md](docs/document-ingestion.md),
+> [docs/question-bank.md](docs/question-bank.md) and [docs/practice.md](docs/practice.md).
 
 ## Repository layout
 

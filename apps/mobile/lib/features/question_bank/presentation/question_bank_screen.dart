@@ -9,8 +9,7 @@ import '../application/question_bank_providers.dart';
 import '../domain/question.dart';
 import 'question_widgets.dart';
 
-/// Practice tab (Phase 5): browse and review the question bank. Practice sessions are
-/// added in Phase 6.
+/// Browse and review the question bank (opened from the Practice tab).
 class QuestionBankScreen extends ConsumerWidget {
   const QuestionBankScreen({super.key});
 

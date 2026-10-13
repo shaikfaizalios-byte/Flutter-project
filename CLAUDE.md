@@ -30,7 +30,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v2)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v3)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -43,6 +43,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a
   recorded official source; topic keywords only suggest. See docs/question-bank.md.
+- Practice (`app/services/practice_service.py`, pure `app/domain/scoring.py`): server-side sessions with
+  per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
+  `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
+  answer in Drift `pending_answers` (schema v3) and replays it. See docs/practice.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.
 - Errors: backend returns `{"error": {"code","message","request_id","details"}}`; mobile maps Dio errors to
   sealed `AppFailure` types in repositories. Widgets never see Dio types.
@@ -63,7 +67,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   reason codes, never silent correction. Test PDFs are generated (tests/pdf_factory.py), never real papers.
 - Every question shows its origin (source PDF vs AI). Exam patterns/counts/marking come only from
   `exam_formats` (verified, sourced) — never hard-code them in code or UI.
-- Mobile app tests get a `FakeQuestionsRepository` by default (`pumpPrepLoopApp(questions: ...)`).
+- Mobile app tests get `FakeQuestionsRepository` and `FakePracticeRepository` by default
+  (`pumpPrepLoopApp(questions: ..., practice: ..., clockOverride: ...)`).
 - Mobile time: read "now" from `clockProvider`; date-only values use `CalendarDate` (never `DateTime`).
 - New ARB keys go in both files; `arb_parity_test.dart` fails otherwise. Hindi-capable text needs no
   per-widget font: the theme's `fontFamilyFallback` covers Devanagari.
@@ -95,7 +100,7 @@ Shells opened before installation need a restart for PATH.
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 5 complete → next is Phase 6 (practice & mock tests)
+## Current phase: Phase 6 complete → next is Phase 7 (flashcards, spaced revision & reminders)
 Known limitations right now:
 - Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
   on a device. iOS needs macOS + Xcode. The native PDF picker is only exercised via a fake in tests.
@@ -103,10 +108,10 @@ Known limitations right now:
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
   (app shows first-run onboarding after a 3 s timeout; concept list stays loading). Server-backed screens
   (documents, question review) work there. Verify web persistence in Chrome/Edge. Native is unaffected.
-- **No auth/ownership on `/api/v1/concepts`, `/documents`, `/questions`** (single-tenant dev API until
-  Phase 10) — never deploy publicly.
-- Mobile concepts and study profile are local-only (sync = Phase 10). Documents and the question bank are
-  server-only (no offline cache yet).
+- **No auth/ownership on `/api/v1/concepts`, `/documents`, `/questions`, `/practice`** (single-tenant dev
+  API until Phase 10) — never deploy publicly. Bookmarks and history are global, not per learner.
+- Mobile concepts and study profile are local-only (sync = Phase 10). Documents, the question bank and practice
+  sessions are server-only: starting/opening a session needs a connection; only answers are queued offline.
 - Only one verified exam format exists (SSC CHSL 2026 Tier-I, from the official notice). **SSC CGL has
   none** — add only after verifying the current official notice (record source in a migration).
 - Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
@@ -114,6 +119,10 @@ Known limitations right now:
   Issue details are English (labels are localised).
 - Upload rate limiter is per-process; no malware scanning; PDF parsing runs in the worker process.
 - Hindi OCR quality depends on scan quality; low-confidence pages are flagged, never corrected.
+- Mock tests need enough *verified* questions per section (CHSL: 25 × 4); with only a few reviewed papers
+  the hub shows the shortfall. No mock for SSC CGL (no verified format). AI questions are never used yet.
+- Practice has no analytics UI beyond the session summary (Phase 8); no resume-list of unfinished sessions
+  other than history.
 - Reminder time is stored but no notifications are scheduled yet (Phase 7). The UI says so.
 - "What should I study today?" shows real counts/goal but no generated plan yet (Phase 8).
 - No CI workflow yet; no typed Dart API client generated yet (hand-written DTO parsing per feature).
@@ -121,22 +130,18 @@ Known limitations right now:
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
 - PostgreSQL is a native install; no docker-compose yet (optional).
 
-## Phase 6 acceptance criteria (practice & mock tests)
-1. Practice draws **only verified, non-image-dependent source questions** by default (unverified ones only
-   if the learner opts in, clearly labelled "not yet reviewed"); never mixes AI questions without a label.
-2. Practice modes: topic-wise, section/subject-wise, mixed; untimed with immediate correct/incorrect
-   feedback and the explanation when one exists; session summary (score, accuracy, time, per-topic).
-3. Timed mock tests **only for verified exam formats**: question count, sections, duration and marking
-   (marks per question = section max marks / questions; negative marks) come from `exam_formats` — never
-   hard-coded. If too few verified questions exist, the mock is unavailable with an explanation.
-4. Robust test state: server-side `practice_sessions` + `attempts` (Alembic); the timer is derived from the
-   server-recorded start time (closing/reopening the app cannot reset it); answers saved as they are given
-   (offline-tolerant local queue on mobile, replayed idempotently); submission is idempotent; expired tests
-   auto-submit with saved answers.
-5. Scoring validated against the format's marking scheme with unit tests (correct, wrong, unattempted,
-   negative marking, section totals); results explain how the score was computed.
-6. Bookmarks, incorrect-answer review, and question/session history (per question: attempts, last result).
-7. Attempt data recorded per question/topic/section for Phase 8 analytics (no analytics UI yet beyond the
-   session summary).
-8. EN/HI UI; tests for scoring, timer persistence (simulated restart), idempotent submit, offline answer
-   queue; `scripts/check.ps1` passes; docs updated.
+## Phase 7 acceptance criteria (flashcards, spaced revision & reminders)
+1. Flashcards from the learner's concepts and from verified source questions (never unlabelled AI content);
+   each card shows its origin. Card review with recall ratings (e.g. again / hard / good / easy).
+2. Revision schedule: default steps Day 1 / 4 / 7 after learning, **configurable** (stored setting, not
+   hard-coded); adaptive follow-up — failed recall shortens the next interval, easy recall lengthens it.
+   Scheduling is a pure, unit-tested module; dates are `CalendarDate`, "now" from `clockProvider`.
+3. Incorrect practice answers (Phase 6 data) can feed revision items for their topic/question.
+4. "Due today" / overdue lists drive the dashboard's "What should I study today?" counts (no generated plan
+   yet — Phase 8).
+5. Local notifications at the stored reminder time: permission requested in context, denial handled
+   gracefully (UI explains, app still works), no duplicate notifications on reschedule/restart, correct
+   across timezone and DST changes. Package choice justified (licence, platform support) before adding.
+6. Offline-first: revision state in Drift (schema bump with migration test); server sync is Phase 10.
+7. EN/HI UI; tests for scheduling (intervals, adaptation, config), timezone/DST, duplicate-notification
+   prevention, permission denial; `scripts/check.ps1` passes; docs updated.

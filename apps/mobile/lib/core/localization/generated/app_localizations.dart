@@ -1502,6 +1502,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Questions could not be loaded.'**
   String get bankLoadError;
+
+  /// No description provided for @practiceHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get practiceHubTitle;
+
+  /// No description provided for @practiceStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice questions'**
+  String get practiceStartTitle;
+
+  /// No description provided for @practiceStartMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Untimed. You see whether you are right after each answer.'**
+  String get practiceStartMessage;
+
+  /// No description provided for @practiceStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start practice'**
+  String get practiceStart;
+
+  /// No description provided for @practiceSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up practice'**
+  String get practiceSetupTitle;
+
+  /// No description provided for @practiceMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed (all subjects)'**
+  String get practiceMixed;
+
+  /// No description provided for @practiceSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get practiceSubject;
+
+  /// No description provided for @practiceTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic (optional)'**
+  String get practiceTopic;
+
+  /// No description provided for @practiceTopicAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any topic'**
+  String get practiceTopicAny;
+
+  /// No description provided for @practiceCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of questions'**
+  String get practiceCount;
+
+  /// No description provided for @practiceIncludeUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Include questions not yet reviewed'**
+  String get practiceIncludeUnverified;
+
+  /// No description provided for @practiceIncludeUnverifiedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They are labelled, and their answers may contain extraction mistakes.'**
+  String get practiceIncludeUnverifiedHint;
+
+  /// No description provided for @practiceNoQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviewed questions match. Approve questions in the question bank, or include ones not yet reviewed.'**
+  String get practiceNoQuestions;
+
+  /// No description provided for @mockTestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mock tests'**
+  String get mockTestsTitle;
+
+  /// No description provided for @mockTestsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed tests built only from verified official exam formats.'**
+  String get mockTestsMessage;
+
+  /// No description provided for @mockTestsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No verified exam formats are available yet.'**
+  String get mockTestsNone;
+
+  /// No description provided for @mockTestDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'{questions} questions · {minutes} min'**
+  String mockTestDetails(int questions, int minutes);
+
+  /// No description provided for @mockNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'−{marks} per wrong answer'**
+  String mockNegative(String marks);
+
+  /// No description provided for @mockStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start mock test'**
+  String get mockStart;
+
+  /// No description provided for @mockUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough reviewed questions yet:'**
+  String get mockUnavailable;
+
+  /// No description provided for @mockSectionShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{subject}: {available} of {needed}'**
+  String mockSectionShort(String subject, int available, int needed);
+
+  /// No description provided for @mockConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the mock test?'**
+  String get mockConfirmTitle;
+
+  /// No description provided for @mockConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The timer starts now and keeps running even if you close the app. The test is submitted automatically when time is up.'**
+  String get mockConfirmMessage;
+
+  /// No description provided for @reviewToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get reviewToolsTitle;
+
+  /// No description provided for @bookmarksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarksTitle;
+
+  /// No description provided for @bookmarksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarked questions.'**
+  String get bookmarksEmpty;
+
+  /// No description provided for @incorrectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions to revisit'**
+  String get incorrectTitle;
+
+  /// No description provided for @incorrectEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No incorrect answers to review.'**
+  String get incorrectEmpty;
+
+  /// No description provided for @questionBankOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Question bank'**
+  String get questionBankOpen;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent sessions'**
+  String get historyTitle;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your practice sessions will appear here.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get historyPractice;
+
+  /// No description provided for @historyMock.
+  ///
+  /// In en, this message translates to:
+  /// **'Mock: {name}'**
+  String historyMock(String name);
+
+  /// No description provided for @historyInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get historyInProgress;
+
+  /// No description provided for @historyScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{score} / {max}'**
+  String historyScore(String score, String max);
+
+  /// No description provided for @sessionQuestionOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {current} of {total}'**
+  String sessionQuestionOf(int current, int total);
+
+  /// No description provided for @sessionNotReviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet reviewed'**
+  String get sessionNotReviewed;
+
+  /// No description provided for @sessionPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get sessionPrevious;
+
+  /// No description provided for @sessionNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get sessionNext;
+
+  /// No description provided for @sessionSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get sessionSubmit;
+
+  /// No description provided for @sessionFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get sessionFinish;
+
+  /// No description provided for @sessionCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get sessionCorrect;
+
+  /// No description provided for @sessionIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect'**
+  String get sessionIncorrect;
+
+  /// No description provided for @sessionCorrectAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct answer: ({label})'**
+  String sessionCorrectAnswer(String label);
+
+  /// No description provided for @sessionSavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device. It will be sent when you are back online.'**
+  String get sessionSavedOffline;
+
+  /// No description provided for @sessionFeedbackOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback will appear when you are back online.'**
+  String get sessionFeedbackOffline;
+
+  /// No description provided for @sessionSubmitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit now?'**
+  String get sessionSubmitTitle;
+
+  /// No description provided for @sessionUnanswered.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{All questions are answered.} =1{1 question is unanswered.} other{{count} questions are unanswered.}}'**
+  String sessionUnanswered(int count);
+
+  /// No description provided for @sessionTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time is up. Your saved answers were submitted.'**
+  String get sessionTimeUp;
+
+  /// No description provided for @sessionTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left {time}'**
+  String sessionTimeLeft(String time);
+
+  /// No description provided for @sessionQuestionRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'This question was removed from the question bank.'**
+  String get sessionQuestionRemoved;
+
+  /// No description provided for @sessionLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'This session could not be loaded.'**
+  String get sessionLoadError;
+
+  /// No description provided for @sessionOfflineOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening a session needs a connection. Answers you give during a session are saved on this device if the connection drops.'**
+  String get sessionOfflineOpen;
+
+  /// No description provided for @sessionPalette.
+  ///
+  /// In en, this message translates to:
+  /// **'All questions'**
+  String get sessionPalette;
+
+  /// No description provided for @sessionBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get sessionBookmark;
+
+  /// No description provided for @sessionRemoveBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get sessionRemoveBookmark;
+
+  /// No description provided for @sessionSubmitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit. Your answers are saved; try again when you are online.'**
+  String get sessionSubmitFailed;
+
+  /// No description provided for @resultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get resultTitle;
+
+  /// No description provided for @resultScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{score} of {max}'**
+  String resultScore(String score, String max);
+
+  /// No description provided for @resultAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy {percent}%'**
+  String resultAccuracy(int percent);
+
+  /// No description provided for @resultAccuracyNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions attempted'**
+  String get resultAccuracyNone;
+
+  /// No description provided for @resultTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time taken {time}'**
+  String resultTime(String time);
+
+  /// No description provided for @resultCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} correct · {wrong} wrong · {unattempted} unattempted'**
+  String resultCounts(int correct, int wrong, int unattempted);
+
+  /// No description provided for @resultHowScored.
+  ///
+  /// In en, this message translates to:
+  /// **'How this score was calculated'**
+  String get resultHowScored;
+
+  /// No description provided for @resultSections.
+  ///
+  /// In en, this message translates to:
+  /// **'By section'**
+  String get resultSections;
+
+  /// No description provided for @resultTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'By topic'**
+  String get resultTopics;
+
+  /// No description provided for @resultReviewAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Review answers'**
+  String get resultReviewAnswers;
+
+  /// No description provided for @resultYourAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer: ({label})'**
+  String resultYourAnswer(String label);
+
+  /// No description provided for @resultNotAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered'**
+  String get resultNotAnswered;
+
+  /// No description provided for @resultSubmittedTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted automatically when time was up.'**
+  String get resultSubmittedTimeUp;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

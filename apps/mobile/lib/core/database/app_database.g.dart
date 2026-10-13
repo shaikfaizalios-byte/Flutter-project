@@ -1362,17 +1362,429 @@ class StudyProfilesCompanion extends UpdateCompanion<StudyProfileRow> {
   }
 }
 
+class $PendingAnswersTable extends PendingAnswers
+    with TableInfo<$PendingAnswersTable, PendingAnswerRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PendingAnswersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta('sessionId');
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta('position');
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _selectedPositionMeta = const VerificationMeta('selectedPosition');
+  @override
+  late final GeneratedColumn<int> selectedPosition = GeneratedColumn<int>(
+    'selected_position',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _clientSeqMeta = const VerificationMeta('clientSeq');
+  @override
+  late final GeneratedColumn<int> clientSeq = GeneratedColumn<int>(
+    'client_seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timeSpentMsMeta = const VerificationMeta('timeSpentMs');
+  @override
+  late final GeneratedColumn<int> timeSpentMs = GeneratedColumn<int>(
+    'time_spent_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    sessionId,
+    position,
+    selectedPosition,
+    clientSeq,
+    timeSpentMs,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pending_answers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PendingAnswerRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('selected_position')) {
+      context.handle(
+        _selectedPositionMeta,
+        selectedPosition.isAcceptableOrUnknown(data['selected_position']!, _selectedPositionMeta),
+      );
+    }
+    if (data.containsKey('client_seq')) {
+      context.handle(
+        _clientSeqMeta,
+        clientSeq.isAcceptableOrUnknown(data['client_seq']!, _clientSeqMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientSeqMeta);
+    }
+    if (data.containsKey('time_spent_ms')) {
+      context.handle(
+        _timeSpentMsMeta,
+        timeSpentMs.isAcceptableOrUnknown(data['time_spent_ms']!, _timeSpentMsMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {sessionId, position};
+  @override
+  PendingAnswerRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PendingAnswerRow(
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      selectedPosition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}selected_position'],
+      ),
+      clientSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}client_seq'],
+      )!,
+      timeSpentMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}time_spent_ms'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PendingAnswersTable createAlias(String alias) {
+    return $PendingAnswersTable(attachedDatabase, alias);
+  }
+}
+
+class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow> {
+  final String sessionId;
+  final int position;
+
+  /// Null clears the answer.
+  final int? selectedPosition;
+
+  /// Monotonic per device; the server ignores updates older than the one it has.
+  final int clientSeq;
+  final int? timeSpentMs;
+  final DateTime createdAt;
+  const PendingAnswerRow({
+    required this.sessionId,
+    required this.position,
+    this.selectedPosition,
+    required this.clientSeq,
+    this.timeSpentMs,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['session_id'] = Variable<String>(sessionId);
+    map['position'] = Variable<int>(position);
+    if (!nullToAbsent || selectedPosition != null) {
+      map['selected_position'] = Variable<int>(selectedPosition);
+    }
+    map['client_seq'] = Variable<int>(clientSeq);
+    if (!nullToAbsent || timeSpentMs != null) {
+      map['time_spent_ms'] = Variable<int>(timeSpentMs);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PendingAnswersCompanion toCompanion(bool nullToAbsent) {
+    return PendingAnswersCompanion(
+      sessionId: Value(sessionId),
+      position: Value(position),
+      selectedPosition: selectedPosition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedPosition),
+      clientSeq: Value(clientSeq),
+      timeSpentMs: timeSpentMs == null && nullToAbsent ? const Value.absent() : Value(timeSpentMs),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PendingAnswerRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PendingAnswerRow(
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      position: serializer.fromJson<int>(json['position']),
+      selectedPosition: serializer.fromJson<int?>(json['selectedPosition']),
+      clientSeq: serializer.fromJson<int>(json['clientSeq']),
+      timeSpentMs: serializer.fromJson<int?>(json['timeSpentMs']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'sessionId': serializer.toJson<String>(sessionId),
+      'position': serializer.toJson<int>(position),
+      'selectedPosition': serializer.toJson<int?>(selectedPosition),
+      'clientSeq': serializer.toJson<int>(clientSeq),
+      'timeSpentMs': serializer.toJson<int?>(timeSpentMs),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PendingAnswerRow copyWith({
+    String? sessionId,
+    int? position,
+    Value<int?> selectedPosition = const Value.absent(),
+    int? clientSeq,
+    Value<int?> timeSpentMs = const Value.absent(),
+    DateTime? createdAt,
+  }) => PendingAnswerRow(
+    sessionId: sessionId ?? this.sessionId,
+    position: position ?? this.position,
+    selectedPosition: selectedPosition.present ? selectedPosition.value : this.selectedPosition,
+    clientSeq: clientSeq ?? this.clientSeq,
+    timeSpentMs: timeSpentMs.present ? timeSpentMs.value : this.timeSpentMs,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PendingAnswerRow copyWithCompanion(PendingAnswersCompanion data) {
+    return PendingAnswerRow(
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      position: data.position.present ? data.position.value : this.position,
+      selectedPosition: data.selectedPosition.present
+          ? data.selectedPosition.value
+          : this.selectedPosition,
+      clientSeq: data.clientSeq.present ? data.clientSeq.value : this.clientSeq,
+      timeSpentMs: data.timeSpentMs.present ? data.timeSpentMs.value : this.timeSpentMs,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingAnswerRow(')
+          ..write('sessionId: $sessionId, ')
+          ..write('position: $position, ')
+          ..write('selectedPosition: $selectedPosition, ')
+          ..write('clientSeq: $clientSeq, ')
+          ..write('timeSpentMs: $timeSpentMs, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(sessionId, position, selectedPosition, clientSeq, timeSpentMs, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PendingAnswerRow &&
+          other.sessionId == this.sessionId &&
+          other.position == this.position &&
+          other.selectedPosition == this.selectedPosition &&
+          other.clientSeq == this.clientSeq &&
+          other.timeSpentMs == this.timeSpentMs &&
+          other.createdAt == this.createdAt);
+}
+
+class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
+  final Value<String> sessionId;
+  final Value<int> position;
+  final Value<int?> selectedPosition;
+  final Value<int> clientSeq;
+  final Value<int?> timeSpentMs;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const PendingAnswersCompanion({
+    this.sessionId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.selectedPosition = const Value.absent(),
+    this.clientSeq = const Value.absent(),
+    this.timeSpentMs = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PendingAnswersCompanion.insert({
+    required String sessionId,
+    required int position,
+    this.selectedPosition = const Value.absent(),
+    required int clientSeq,
+    this.timeSpentMs = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : sessionId = Value(sessionId),
+       position = Value(position),
+       clientSeq = Value(clientSeq),
+       createdAt = Value(createdAt);
+  static Insertable<PendingAnswerRow> custom({
+    Expression<String>? sessionId,
+    Expression<int>? position,
+    Expression<int>? selectedPosition,
+    Expression<int>? clientSeq,
+    Expression<int>? timeSpentMs,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (sessionId != null) 'session_id': sessionId,
+      if (position != null) 'position': position,
+      if (selectedPosition != null) 'selected_position': selectedPosition,
+      if (clientSeq != null) 'client_seq': clientSeq,
+      if (timeSpentMs != null) 'time_spent_ms': timeSpentMs,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PendingAnswersCompanion copyWith({
+    Value<String>? sessionId,
+    Value<int>? position,
+    Value<int?>? selectedPosition,
+    Value<int>? clientSeq,
+    Value<int?>? timeSpentMs,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return PendingAnswersCompanion(
+      sessionId: sessionId ?? this.sessionId,
+      position: position ?? this.position,
+      selectedPosition: selectedPosition ?? this.selectedPosition,
+      clientSeq: clientSeq ?? this.clientSeq,
+      timeSpentMs: timeSpentMs ?? this.timeSpentMs,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (selectedPosition.present) {
+      map['selected_position'] = Variable<int>(selectedPosition.value);
+    }
+    if (clientSeq.present) {
+      map['client_seq'] = Variable<int>(clientSeq.value);
+    }
+    if (timeSpentMs.present) {
+      map['time_spent_ms'] = Variable<int>(timeSpentMs.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingAnswersCompanion(')
+          ..write('sessionId: $sessionId, ')
+          ..write('position: $position, ')
+          ..write('selectedPosition: $selectedPosition, ')
+          ..write('clientSeq: $clientSeq, ')
+          ..write('timeSpentMs: $timeSpentMs, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ConceptsTable concepts = $ConceptsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $StudyProfilesTable studyProfiles = $StudyProfilesTable(this);
+  late final $PendingAnswersTable pendingAnswers = $PendingAnswersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [concepts, appSettings, studyProfiles];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    concepts,
+    appSettings,
+    studyProfiles,
+    pendingAnswers,
+  ];
   @override
   DriftDatabaseOptions get options => const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
@@ -2005,6 +2417,204 @@ typedef $$StudyProfilesTableProcessedTableManager =
       StudyProfileRow,
       PrefetchHooks Function()
     >;
+typedef $$PendingAnswersTableCreateCompanionBuilder = PendingAnswersCompanion Function({
+  required String sessionId,
+  required int position,
+  Value<int?> selectedPosition,
+  required int clientSeq,
+  Value<int?> timeSpentMs,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$PendingAnswersTableUpdateCompanionBuilder = PendingAnswersCompanion Function({
+  Value<String> sessionId,
+  Value<int> position,
+  Value<int?> selectedPosition,
+  Value<int> clientSeq,
+  Value<int?> timeSpentMs,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$PendingAnswersTableFilterComposer extends Composer<_$AppDatabase, $PendingAnswersTable> {
+  $$PendingAnswersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get selectedPosition => $composableBuilder(
+    column: $table.selectedPosition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get clientSeq =>
+      $composableBuilder(column: $table.clientSeq, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timeSpentMs =>
+      $composableBuilder(column: $table.timeSpentMs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$PendingAnswersTableOrderingComposer extends Composer<_$AppDatabase, $PendingAnswersTable> {
+  $$PendingAnswersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get selectedPosition => $composableBuilder(
+    column: $table.selectedPosition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get clientSeq =>
+      $composableBuilder(column: $table.clientSeq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timeSpentMs =>
+      $composableBuilder(column: $table.timeSpentMs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PendingAnswersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PendingAnswersTable> {
+  $$PendingAnswersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<int> get selectedPosition =>
+      $composableBuilder(column: $table.selectedPosition, builder: (column) => column);
+
+  GeneratedColumn<int> get clientSeq =>
+      $composableBuilder(column: $table.clientSeq, builder: (column) => column);
+
+  GeneratedColumn<int> get timeSpentMs =>
+      $composableBuilder(column: $table.timeSpentMs, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$PendingAnswersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PendingAnswersTable,
+          PendingAnswerRow,
+          $$PendingAnswersTableFilterComposer,
+          $$PendingAnswersTableOrderingComposer,
+          $$PendingAnswersTableAnnotationComposer,
+          $$PendingAnswersTableCreateCompanionBuilder,
+          $$PendingAnswersTableUpdateCompanionBuilder,
+          (PendingAnswerRow, BaseReferences<_$AppDatabase, $PendingAnswersTable, PendingAnswerRow>),
+          PendingAnswerRow,
+          PrefetchHooks Function()
+        > {
+  $$PendingAnswersTableTableManager(_$AppDatabase db, $PendingAnswersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PendingAnswersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingAnswersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PendingAnswersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> sessionId = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<int?> selectedPosition = const Value.absent(),
+                Value<int> clientSeq = const Value.absent(),
+                Value<int?> timeSpentMs = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PendingAnswersCompanion(
+                sessionId: sessionId,
+                position: position,
+                selectedPosition: selectedPosition,
+                clientSeq: clientSeq,
+                timeSpentMs: timeSpentMs,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String sessionId,
+                required int position,
+                Value<int?> selectedPosition = const Value.absent(),
+                required int clientSeq,
+                Value<int?> timeSpentMs = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PendingAnswersCompanion.insert(
+                sessionId: sessionId,
+                position: position,
+                selectedPosition: selectedPosition,
+                clientSeq: clientSeq,
+                timeSpentMs: timeSpentMs,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PendingAnswersTable, PendingAnswerRow>(table),
+                  BaseReferences<_$AppDatabase, $PendingAnswersTable, PendingAnswerRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PendingAnswersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PendingAnswersTable,
+      PendingAnswerRow,
+      $$PendingAnswersTableFilterComposer,
+      $$PendingAnswersTableOrderingComposer,
+      $$PendingAnswersTableAnnotationComposer,
+      $$PendingAnswersTableCreateCompanionBuilder,
+      $$PendingAnswersTableUpdateCompanionBuilder,
+      (PendingAnswerRow, BaseReferences<_$AppDatabase, $PendingAnswersTable, PendingAnswerRow>),
+      PendingAnswerRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2014,4 +2624,6 @@ class $AppDatabaseManager {
       $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$StudyProfilesTableTableManager get studyProfiles =>
       $$StudyProfilesTableTableManager(_db, _db.studyProfiles);
+  $$PendingAnswersTableTableManager get pendingAnswers =>
+      $$PendingAnswersTableTableManager(_db, _db.pendingAnswers);
 }

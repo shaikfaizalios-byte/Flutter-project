@@ -7,6 +7,9 @@ abstract final class AppRoutes {
   static const newConcept = '/study/concepts/new';
   static const documents = '/study/documents';
   static const practice = '/practice';
+  static const questionBank = '/practice/bank';
+  static const bookmarks = '/practice/bookmarks';
+  static const incorrect = '/practice/incorrect';
   static const progress = '/progress';
   static const profile = '/profile';
 
@@ -14,4 +17,5 @@ abstract final class AppRoutes {
   static String editConcept(String id) => '/study/concepts/$id/edit';
   static String documentReview(String id) => '/study/documents/$id';
   static String question(String id) => '/questions/$id';
+  static String practiceSession(String id) => '/practice/sessions/$id';
 }

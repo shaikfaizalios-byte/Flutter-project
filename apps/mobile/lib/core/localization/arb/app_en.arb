@@ -493,5 +493,197 @@
   "bankSearchHint": "Search questions",
   "bankEmptyTitle": "No questions yet",
   "bankEmptyMessage": "Import a previous-year paper in Study, then Imported papers. Its questions appear here for review. Practice sessions arrive in a later update.",
-  "bankLoadError": "Questions could not be loaded."
+  "bankLoadError": "Questions could not be loaded.",
+  "practiceHubTitle": "Practice",
+  "practiceStartTitle": "Practice questions",
+  "practiceStartMessage": "Untimed. You see whether you are right after each answer.",
+  "practiceStart": "Start practice",
+  "practiceSetupTitle": "Set up practice",
+  "practiceMixed": "Mixed (all subjects)",
+  "practiceSubject": "Subject",
+  "practiceTopic": "Topic (optional)",
+  "practiceTopicAny": "Any topic",
+  "practiceCount": "Number of questions",
+  "practiceIncludeUnverified": "Include questions not yet reviewed",
+  "practiceIncludeUnverifiedHint": "They are labelled, and their answers may contain extraction mistakes.",
+  "practiceNoQuestions": "No reviewed questions match. Approve questions in the question bank, or include ones not yet reviewed.",
+  "mockTestsTitle": "Mock tests",
+  "mockTestsMessage": "Timed tests built only from verified official exam formats.",
+  "mockTestsNone": "No verified exam formats are available yet.",
+  "mockTestDetails": "{questions} questions · {minutes} min",
+  "@mockTestDetails": {
+    "placeholders": {
+      "questions": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "mockNegative": "−{marks} per wrong answer",
+  "@mockNegative": {
+    "placeholders": {
+      "marks": {
+        "type": "String"
+      }
+    }
+  },
+  "mockStart": "Start mock test",
+  "mockUnavailable": "Not enough reviewed questions yet:",
+  "mockSectionShort": "{subject}: {available} of {needed}",
+  "@mockSectionShort": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "available": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "mockConfirmTitle": "Start the mock test?",
+  "mockConfirmMessage": "The timer starts now and keeps running even if you close the app. The test is submitted automatically when time is up.",
+  "reviewToolsTitle": "Review",
+  "bookmarksTitle": "Bookmarks",
+  "bookmarksEmpty": "No bookmarked questions.",
+  "incorrectTitle": "Questions to revisit",
+  "incorrectEmpty": "No incorrect answers to review.",
+  "questionBankOpen": "Question bank",
+  "historyTitle": "Recent sessions",
+  "historyEmpty": "Your practice sessions will appear here.",
+  "historyPractice": "Practice",
+  "historyMock": "Mock: {name}",
+  "@historyMock": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyInProgress": "In progress",
+  "historyScore": "{score} / {max}",
+  "@historyScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionQuestionOf": "Question {current} of {total}",
+  "@sessionQuestionOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionNotReviewed": "Not yet reviewed",
+  "sessionPrevious": "Previous",
+  "sessionNext": "Next",
+  "sessionSubmit": "Submit",
+  "sessionFinish": "Finish",
+  "sessionCorrect": "Correct",
+  "sessionIncorrect": "Incorrect",
+  "sessionCorrectAnswer": "Correct answer: ({label})",
+  "@sessionCorrectAnswer": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionSavedOffline": "Saved on this device. It will be sent when you are back online.",
+  "sessionFeedbackOffline": "Feedback will appear when you are back online.",
+  "sessionSubmitTitle": "Submit now?",
+  "sessionUnanswered": "{count, plural, =0{All questions are answered.} =1{1 question is unanswered.} other{{count} questions are unanswered.}}",
+  "@sessionUnanswered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionTimeUp": "Time is up. Your saved answers were submitted.",
+  "sessionTimeLeft": "Time left {time}",
+  "@sessionTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionQuestionRemoved": "This question was removed from the question bank.",
+  "sessionLoadError": "This session could not be loaded.",
+  "sessionOfflineOpen": "Opening a session needs a connection. Answers you give during a session are saved on this device if the connection drops.",
+  "sessionPalette": "All questions",
+  "sessionBookmark": "Bookmark",
+  "sessionRemoveBookmark": "Remove bookmark",
+  "sessionSubmitFailed": "Could not submit. Your answers are saved; try again when you are online.",
+  "resultTitle": "Result",
+  "resultScore": "{score} of {max}",
+  "@resultScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "resultAccuracy": "Accuracy {percent}%",
+  "@resultAccuracy": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "resultAccuracyNone": "No questions attempted",
+  "resultTime": "Time taken {time}",
+  "@resultTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "resultCounts": "{correct} correct · {wrong} wrong · {unattempted} unattempted",
+  "@resultCounts": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "wrong": {
+        "type": "int"
+      },
+      "unattempted": {
+        "type": "int"
+      }
+    }
+  },
+  "resultHowScored": "How this score was calculated",
+  "resultSections": "By section",
+  "resultTopics": "By topic",
+  "resultReviewAnswers": "Review answers",
+  "resultYourAnswer": "Your answer: ({label})",
+  "@resultYourAnswer": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "resultNotAnswered": "Not answered",
+  "resultSubmittedTimeUp": "Submitted automatically when time was up."
 }

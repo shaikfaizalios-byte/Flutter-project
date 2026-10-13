@@ -69,3 +69,22 @@ class StudyProfiles extends Table {
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
+
+/// Practice/mock answers not yet confirmed by the server (offline queue). One row per
+/// session question; a newer answer replaces the queued one. Added in schema v3.
+@DataClassName('PendingAnswerRow')
+class PendingAnswers extends Table {
+  TextColumn get sessionId => text()();
+  IntColumn get position => integer()();
+
+  /// Null clears the answer.
+  IntColumn get selectedPosition => integer().nullable()();
+
+  /// Monotonic per device; the server ignores updates older than the one it has.
+  IntColumn get clientSeq => integer()();
+  IntColumn get timeSpentMs => integer().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {sessionId, position};
+}

@@ -1,6 +1,88 @@
 {
   "components": {
     "schemas": {
+      "AnswerAck": {
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "boolean"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Feedback"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "selected_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Position"
+          }
+        },
+        "required": [
+          "position",
+          "selected_position",
+          "applied",
+          "feedback"
+        ],
+        "title": "AnswerAck",
+        "type": "object"
+      },
+      "AnswerUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "client_seq": {
+            "minimum": 0.0,
+            "title": "Client Seq",
+            "type": "integer"
+          },
+          "selected_position": {
+            "anyOf": [
+              {
+                "maximum": 6.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Position"
+          },
+          "time_spent_ms": {
+            "anyOf": [
+              {
+                "maximum": 86400000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Spent Ms"
+          }
+        },
+        "required": [
+          "client_seq"
+        ],
+        "title": "AnswerUpdate",
+        "type": "object"
+      },
       "Body_upload_document_api_v1_documents_post": {
         "properties": {
           "exam_code": {
@@ -830,6 +912,61 @@
         "title": "ExamRead",
         "type": "object"
       },
+      "Feedback": {
+        "properties": {
+          "correct_position": {
+            "title": "Correct Position",
+            "type": "integer"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "is_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Correct"
+          }
+        },
+        "required": [
+          "correct_position",
+          "is_correct",
+          "explanation"
+        ],
+        "title": "Feedback",
+        "type": "object"
+      },
+      "FormatRef": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "FormatRef",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -899,6 +1036,126 @@
           "resolved"
         ],
         "title": "IssueRead",
+        "type": "object"
+      },
+      "ItemSource": {
+        "properties": {
+          "document_filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Filename"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "question_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Number"
+          }
+        },
+        "required": [
+          "document_filename",
+          "page",
+          "question_number"
+        ],
+        "title": "ItemSource",
+        "type": "object"
+      },
+      "MockAvailability": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "exam_format_code": {
+            "title": "Exam Format Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "negative_marks_per_wrong": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negative Marks Per Wrong"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionAvailability"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "total_questions": {
+            "title": "Total Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "exam_format_code",
+          "name",
+          "available",
+          "total_questions",
+          "duration_minutes",
+          "negative_marks_per_wrong",
+          "sections"
+        ],
+        "title": "MockAvailability",
+        "type": "object"
+      },
+      "MockCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_format_code": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Exam Format Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_format_code"
+        ],
+        "title": "MockCreate",
         "type": "object"
       },
       "OptionInput": {
@@ -1165,6 +1422,137 @@
           "source_pages"
         ],
         "title": "PassageRead",
+        "type": "object"
+      },
+      "PracticeCreate": {
+        "additionalProperties": false,
+        "description": "Untimed practice. Without filters it is a mixed session.",
+        "properties": {
+          "count": {
+            "default": 10,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "exam_code": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "include_unverified": {
+            "default": false,
+            "title": "Include Unverified",
+            "type": "boolean"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          }
+        },
+        "title": "PracticeCreate",
+        "type": "object"
+      },
+      "QuestionHistory": {
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "bookmarked": {
+            "title": "Bookmarked",
+            "type": "boolean"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "last_answered_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Answered At"
+          },
+          "last_result": {
+            "anyOf": [
+              {
+                "enum": [
+                  "correct",
+                  "wrong"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Result"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "wrong": {
+            "title": "Wrong",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "question_id",
+          "attempts",
+          "correct",
+          "wrong",
+          "last_result",
+          "last_answered_at",
+          "bookmarked"
+        ],
+        "title": "QuestionHistory",
         "type": "object"
       },
       "QuestionList": {
@@ -1593,6 +1981,569 @@
         "title": "ReadinessResponse",
         "type": "object"
       },
+      "SectionAvailability": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "integer"
+          },
+          "needed": {
+            "title": "Needed",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "needed",
+          "available"
+        ],
+        "title": "SectionAvailability",
+        "type": "object"
+      },
+      "SectionResult": {
+        "properties": {
+          "accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "unattempted": {
+            "title": "Unattempted",
+            "type": "integer"
+          },
+          "wrong": {
+            "title": "Wrong",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "correct",
+          "wrong",
+          "unattempted",
+          "score",
+          "max_score",
+          "accuracy",
+          "explanation",
+          "name"
+        ],
+        "title": "SectionResult",
+        "type": "object"
+      },
+      "SessionItemRead": {
+        "properties": {
+          "bookmarked": {
+            "title": "Bookmarked",
+            "type": "boolean"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Feedback"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/OptionRead"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "enum": [
+                  "source",
+                  "ai"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin"
+          },
+          "passage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassageRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          },
+          "selected_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Position"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ItemSource"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "position",
+          "question_id",
+          "section",
+          "subject",
+          "stem",
+          "options",
+          "passage",
+          "origin",
+          "verified",
+          "source",
+          "bookmarked",
+          "selected_position",
+          "feedback"
+        ],
+        "title": "SessionItemRead",
+        "type": "object"
+      },
+      "SessionList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SessionSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "SessionList",
+        "type": "object"
+      },
+      "SessionRead": {
+        "properties": {
+          "answered_count": {
+            "title": "Answered Count",
+            "type": "integer"
+          },
+          "deadline_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline At"
+          },
+          "exam_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "exam_format": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FormatRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "item_count": {
+            "title": "Item Count",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SessionItemRead"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "practice",
+              "mock"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "remaining_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining Seconds"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessionResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "submitted"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "submit_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "user",
+                  "time_up"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submit Reason"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "status",
+          "exam_code",
+          "exam_format",
+          "started_at",
+          "deadline_at",
+          "submitted_at",
+          "submit_reason",
+          "server_now",
+          "remaining_seconds",
+          "item_count",
+          "answered_count",
+          "items",
+          "result"
+        ],
+        "title": "SessionRead",
+        "type": "object"
+      },
+      "SessionResult": {
+        "properties": {
+          "accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "marking_note": {
+            "title": "Marking Note",
+            "type": "string"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "number"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionResult"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "time_taken_seconds": {
+            "title": "Time Taken Seconds",
+            "type": "integer"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicResult"
+            },
+            "title": "Topics",
+            "type": "array"
+          },
+          "unattempted": {
+            "title": "Unattempted",
+            "type": "integer"
+          },
+          "wrong": {
+            "title": "Wrong",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "correct",
+          "wrong",
+          "unattempted",
+          "score",
+          "max_score",
+          "accuracy",
+          "explanation",
+          "time_taken_seconds",
+          "marking_note",
+          "sections",
+          "topics"
+        ],
+        "title": "SessionResult",
+        "type": "object"
+      },
+      "SessionSummary": {
+        "properties": {
+          "exam_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "exam_format_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Format Name"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "item_count": {
+            "title": "Item Count",
+            "type": "integer"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "mode": {
+            "enum": [
+              "practice",
+              "mock"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "submitted"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "status",
+          "exam_code",
+          "exam_format_name",
+          "started_at",
+          "submitted_at",
+          "item_count",
+          "score",
+          "max_score"
+        ],
+        "title": "SessionSummary",
+        "type": "object"
+      },
       "TopicRead": {
         "properties": {
           "id": {
@@ -1615,6 +2566,66 @@
           "name"
         ],
         "title": "TopicRead",
+        "type": "object"
+      },
+      "TopicResult": {
+        "properties": {
+          "accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "unattempted": {
+            "title": "Unattempted",
+            "type": "integer"
+          },
+          "wrong": {
+            "title": "Wrong",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "correct",
+          "wrong",
+          "unattempted",
+          "score",
+          "max_score",
+          "accuracy",
+          "explanation",
+          "topic_id",
+          "name"
+        ],
+        "title": "TopicResult",
         "type": "object"
       },
       "ValidationError": {
@@ -2934,6 +3945,515 @@
         ]
       }
     },
+    "/api/v1/practice/bookmarks": {
+      "get": {
+        "operationId": "bookmarks_api_v1_practice_bookmarks_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Bookmarked questions",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/incorrect": {
+      "get": {
+        "operationId": "incorrect_api_v1_practice_incorrect_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Questions whose latest answer was wrong (for review)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/mock-tests": {
+      "get": {
+        "operationId": "mock_tests_api_v1_practice_mock_tests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 32,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Exam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MockAvailability"
+                  },
+                  "title": "Response Mock Tests Api V1 Practice Mock Tests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Mock tests available from verified exam formats",
+        "tags": [
+          "practice"
+        ]
+      },
+      "post": {
+        "operationId": "start_mock_api_v1_practice_mock_tests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MockCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "not_enough_questions"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Start a timed mock test (structure and marking from the verified format)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/sessions": {
+      "get": {
+        "operationId": "list_sessions_api_v1_practice_sessions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 100000,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Session history",
+        "tags": [
+          "practice"
+        ]
+      },
+      "post": {
+        "operationId": "start_practice_api_v1_practice_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PracticeCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "no_questions_available"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Start an untimed practice session (topic, subject, section or mixed)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/sessions/{session_id}": {
+      "get": {
+        "operationId": "get_session_api_v1_practice_sessions__session_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Get Session",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/sessions/{session_id}/answers/{position}": {
+      "put": {
+        "operationId": "save_answer_api_v1_practice_sessions__session_id__answers__position__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "position",
+            "required": true,
+            "schema": {
+              "title": "Position",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerAck"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "session_closed"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "invalid_answer"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Save an answer (idempotent; older client_seq values are ignored)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/sessions/{session_id}/submit": {
+      "post": {
+        "operationId": "submit_session_api_v1_practice_sessions__session_id__submit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Submit (idempotent: returns the existing result if already submitted)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
     "/api/v1/questions": {
       "get": {
         "operationId": "list_questions_api_v1_questions_get",
@@ -3329,6 +4849,179 @@
         "summary": "Review a question (edit, verify, reject)",
         "tags": [
           "questions"
+        ]
+      }
+    },
+    "/api/v1/questions/{question_id}/bookmark": {
+      "delete": {
+        "operationId": "remove_bookmark_api_v1_questions__question_id__bookmark_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Remove Bookmark",
+        "tags": [
+          "practice"
+        ]
+      },
+      "put": {
+        "operationId": "add_bookmark_api_v1_questions__question_id__bookmark_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Add Bookmark",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/questions/{question_id}/history": {
+      "get": {
+        "operationId": "question_history_api_v1_questions__question_id__history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionHistory"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Attempts and last result for a question",
+        "tags": [
+          "practice"
         ]
       }
     },

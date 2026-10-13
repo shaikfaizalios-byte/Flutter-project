@@ -101,6 +101,14 @@ Original files are **not** stored in the database. They live in `DocumentStorage
 - **`question_issues`**: code, detail and `resolved`. `question_id` is null for document-level issues. Cascades from both the question and the document.
 - `documents` gains `exam_format_id`, `segmentation_status`, `questions_found` and `segmented_at`.
 
+### Schema (revision `0004`): practice sessions
+
+- **`practice_sessions`**: `mode` (practice/mock), exam, `exam_format_id` (mocks), `selection` JSONB (filters, or the format code and random seed), `status` (active/submitted), `started_at`, `deadline_at` (mocks; the timer's only source), `submitted_at`, `submit_reason` (user/time_up), `score`, `max_score`, and the `result` JSONB (total, sections, topics, explanations, marking note).
+- **`session_items`**: primary key (session, position). Links to `question_id`, plus a snapshot of section, subject, topic, `correct_position`, `option_count`, `marks_correct`, `marks_wrong` and `question_verified`, so later edits to a question can't change a scored session.
+- **`session_answers`**: primary key (session, position). Holds `question_id`, `selected_position` (null = cleared), `is_correct`, `client_seq` (only a larger value overwrites), `time_spent_ms` and `answered_at`.
+- **`bookmarks`**: one row per question (unique), with `created_at`.
+- Deleting a question (or its document) keeps past sessions and scores: `session_items.question_id` and `session_answers.question_id` become NULL, while the snapshot stays. Bookmarks cascade. Exams and formats used by sessions are `RESTRICT`.
+
 ### Migration workflow
 
 ```powershell
@@ -126,7 +134,8 @@ Defined in `apps/mobile/lib/core/database/`.
 | `study_profiles` (v2) | A single row (`id = 1`, enforced by CHECK) with the onboarding answers: `exam_codes` (JSON array), `target_exam_date` (`yyyy-MM-dd` text, so it never shifts with the timezone), `daily_study_minutes` (5–720), `reminder_minutes` (minutes after local midnight), `onboarding_completed_at`, `updated_at`. Unknown exam codes and out-of-range values are ignored when reading. |
 
 Schema history: **v1** has concepts and app_settings. **v2** adds study_profiles (migration `from1To2`
-creates the table). Snapshots of both are in `drift_schemas/`. The generated tests in
+creates the table). **v3** adds `pending_answers`, the offline answer queue for practice sessions (primary key
+(session_id, position); selected option or null, `client_seq`, `time_spent_ms`, `queued_at`). The migration `from2To3` creates it. Snapshots of both are in `drift_schemas/`. The generated tests in
 `test/drift/app_database/` check that the v1→v2 upgrade produces the v2 schema and keeps existing concepts and settings intact.
 
 ### Migration strategy

@@ -8,10 +8,16 @@ import 'package:preploop/features/question_bank/domain/question.dart';
 import '../../helpers/pump_app.dart';
 import '../documents/documents_screen_test.dart' show FakeDocumentsRepository, doc;
 
-Future<void> openPractice(WidgetTester tester) async {
-  await tester.tap(
-    find.descendant(of: find.byType(NavigationBar), matching: find.text('Practice')),
-  );
+/// Opens the question bank (Practice tab, then Question bank).
+Future<void> openPractice(
+  WidgetTester tester, {
+  String tab = 'Practice',
+  String bank = 'Question bank',
+}) async {
+  await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text(tab)));
+  await tester.pumpAndSettle();
+  await scrollTo(tester, find.text(bank));
+  await tester.tap(find.text(bank));
   await tester.pumpAndSettle();
 }
 
@@ -256,10 +262,7 @@ void main() {
 
   testAppWidgets('question bank is localised in Hindi', (tester, db) async {
     await pumpPrepLoopApp(tester, db, deviceLocale: const Locale('hi'), questions: sampleBank());
-    await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text('अभ्यास')),
-    );
-    await tester.pumpAndSettle();
+    await openPractice(tester, tab: 'अभ्यास', bank: 'प्रश्न बैंक');
 
     expect(find.text('प्रश्न बैंक'), findsOneWidget);
     expect(find.text('ध्यान ज़रूरी'), findsOneWidget);

@@ -136,3 +136,23 @@ See [question-bank.md](question-bank.md) for segmentation rules, issue codes and
 
 `POST /api/v1/documents` also accepts an optional `exam_format_code` form field. `DocumentRead` now
 includes `exam_format_id`, `segmentation_status` and `questions_found`.
+
+## Practice and mock tests (Phase 6)
+
+See [practice.md](practice.md) for selection rules, the timer, idempotency, scoring and the offline queue.
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/v1/practice/sessions` | Untimed practice: `{exam_code?, subject?, section?, topic_id?, include_unverified=false, count=10 (1–100)}` → `201 SessionRead`. `422 no_questions_available` if nothing eligible matches. |
+| GET | `/api/v1/practice/mock-tests` | Verified formats (`?exam=`) with `available`, duration, negative marks and per-section `needed`/`available` |
+| POST | `/api/v1/practice/mock-tests` | `{exam_format_code}` → `201 SessionRead` with `deadline_at`. `422 not_enough_questions` (message names the short sections); `422 invalid_reference` for an unknown format. |
+| GET | `/api/v1/practice/sessions` | History, newest first (`limit`, `offset`): mode, status, format, counts, score |
+| GET | `/api/v1/practice/sessions/{id}` | Items (question, options, source label, selection, feedback when allowed), `server_now`, `deadline_at`, result when submitted. Auto-submits an expired mock first. |
+| PUT | `/api/v1/practice/sessions/{id}/answers/{position}` | `{selected_position: 1–6 \| null, client_seq ≥ 0, time_spent_ms?}` → `AnswerAck {position, selected_position, applied, feedback}`. Older `client_seq` → `applied: false`. Practice answers are final. `409 session_closed` after submission or expiry; `422 invalid_answer` for a bad position/option. |
+| POST | `/api/v1/practice/sessions/{id}/submit` | Idempotent. Returns the scored session (totals, sections, topics, explanation, marking note). |
+| PUT / DELETE | `/api/v1/questions/{id}/bookmark` | Add or remove a bookmark (`204`, idempotent) |
+| GET | `/api/v1/questions/{id}/history` | Attempts, correct count, last result and when |
+| GET | `/api/v1/practice/bookmarks` | Bookmarked questions (`QuestionList`) |
+| GET | `/api/v1/practice/incorrect` | Questions whose latest answer was wrong (`QuestionList`) |
+
+All timestamps are UTC (the database session timezone is forced to UTC).

@@ -51,6 +51,11 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-30 | Section counts are matched by name, never by position | The SSC notice lists Tier-I parts "not in sequence" |
 | ADR-31 | Re-segmentation preserves verified and rejected questions | Human review decisions are never overwritten by a parser re-run |
 | ADR-32 | Topic keywords only *suggest*; confirmation needs a human | Avoids false certainty in categorisation |
+| ADR-33 | Practice and mock state lives on the server; the mock timer is derived from the server's `deadline_at`, and expiry auto-submits lazily on the next request | Closing the app, reinstalling or changing the device clock can't reset the timer; no scheduler is needed |
+| ADR-34 | Answers carry a client sequence number; the server keeps the highest. Submit is idempotent | Offline replays, retries and out-of-order delivery are harmless |
+| ADR-35 | Offline answer queue in Drift (`pending_answers`), replayed oldest-first; non-network errors drop the entry | Answers survive connectivity loss without endless retries; starting and opening sessions stay online-only (simple, honest) |
+| ADR-36 | Scoring is a pure module using `Decimal`; each session item snapshots its marks and correct answer | Exact marks (e.g. 2.00, −0.50); unit-testable; later edits to a question can't change a past score |
+| ADR-37 | Practice answers are final, with immediate feedback; mock answers can change, with no feedback until submission | Mirrors learning (feedback) vs exam (no feedback) conditions; keeps practice accuracy honest |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -77,6 +82,7 @@ schemas/           Pydantic request/response models
 - Phase 3 (done): onboarding, a dashboard built on real data, concept details, editing and filters, a bundled Hindi font, and Drift schema v2.
 - Phase 4 (done): document upload, validation and storage; per-page text and OCR extraction worker; mobile import screen.
 - Phase 5 (done): question segmentation, question bank, verified exam formats, review workflow, question browser.
+- Phase 6 (done): practice sessions, timed mock tests from verified formats, scoring with explanations, offline answer queue, bookmarks, incorrect-answer review and history.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

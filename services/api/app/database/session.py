@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import Settings
 
+UTC_SESSION_OPTIONS = "-c timezone=UTC"
+
 
 def build_engine(settings: Settings) -> Engine | None:
     if settings.database_url is None:
@@ -17,7 +19,11 @@ def build_engine(settings: Settings) -> Engine | None:
         settings.database_url.get_secret_value(),
         pool_size=settings.database_pool_size,
         pool_pre_ping=True,
-        connect_args={"connect_timeout": settings.database_connect_timeout_seconds},
+        connect_args={
+            "connect_timeout": settings.database_connect_timeout_seconds,
+            # Timestamps come back in UTC regardless of the server's local timezone.
+            "options": UTC_SESSION_OPTIONS,
+        },
     )
 
 

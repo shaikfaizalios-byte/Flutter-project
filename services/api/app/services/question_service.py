@@ -92,6 +92,23 @@ class QuestionService:
             items=[self._read(q, filenames) for q in rows], total=total, limit=limit, offset=offset
         )
 
+    def by_ids(self, ids: list[uuid.UUID]) -> QuestionList:
+        """Questions in the given order (missing ids are skipped)."""
+        if not ids:
+            return QuestionList(items=[], total=0, limit=len(ids), offset=0)
+        rows = self._session.scalars(
+            select(Question).where(Question.id.in_(ids)).options(*self._load_options())
+        ).all()
+        by_id = {q.id: q for q in rows}
+        ordered = [by_id[i] for i in ids if i in by_id]
+        filenames = self._filenames({q.document_id for q in ordered if q.document_id})
+        return QuestionList(
+            items=[self._read(q, filenames) for q in ordered],
+            total=len(ordered),
+            limit=len(ids),
+            offset=0,
+        )
+
     def get(self, question_id: uuid.UUID) -> QuestionRead:
         question = self._get_or_404(question_id)
         return self._read(question, self._filenames({question.document_id} - {None}))

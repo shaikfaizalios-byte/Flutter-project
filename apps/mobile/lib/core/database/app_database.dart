@@ -12,7 +12,7 @@ part 'app_database.g.dart';
 /// Schema changes: bump [schemaVersion], then run
 /// `dart run drift_dev make-migrations` and implement the generated step in
 /// [migration]. Never edit a released schema in place.
-@DriftDatabase(tables: [Concepts, AppSettings, StudyProfiles])
+@DriftDatabase(tables: [Concepts, AppSettings, StudyProfiles, PendingAnswers])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
@@ -30,7 +30,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -39,6 +39,10 @@ class AppDatabase extends _$AppDatabase {
       // v2: onboarding / study profile.
       from1To2: (m, schema) async {
         await m.createTable(schema.studyProfiles);
+      },
+      // v3: offline queue for practice answers.
+      from2To3: (m, schema) async {
+        await m.createTable(schema.pendingAnswers);
       },
     ),
     beforeOpen: (details) async {

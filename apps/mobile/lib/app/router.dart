@@ -11,6 +11,9 @@ import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
+import '../features/practice/presentation/practice_hub_screen.dart';
+import '../features/practice/presentation/question_list_screen.dart';
+import '../features/practice/presentation/session_screen.dart';
 import '../features/question_bank/presentation/document_review_screen.dart';
 import '../features/question_bank/presentation/question_bank_screen.dart';
 import '../features/question_bank/presentation/question_review_screen.dart';
@@ -102,7 +105,39 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          _branch(AppRoutes.practice, const QuestionBankScreen()),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.practice,
+                builder: (context, state) => const PracticeHubScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'bank',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const QuestionBankScreen(),
+                  ),
+                  GoRoute(
+                    path: 'bookmarks',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const PracticeQuestionListScreen(kind: PracticeQuestionList.bookmarks),
+                  ),
+                  GoRoute(
+                    path: 'incorrect',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const PracticeQuestionListScreen(kind: PracticeQuestionList.incorrect),
+                  ),
+                  GoRoute(
+                    path: 'sessions/:id',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        SessionScreen(sessionId: state.pathParameters['id']!),
+                  ),
+                ],
+              ),
+            ],
+          ),
           _branch(AppRoutes.progress, const ProgressScreen()),
           _branch(AppRoutes.profile, const SettingsScreen()),
         ],

@@ -832,4 +832,255 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bankLoadError => 'Questions could not be loaded.';
+
+  @override
+  String get practiceHubTitle => 'Practice';
+
+  @override
+  String get practiceStartTitle => 'Practice questions';
+
+  @override
+  String get practiceStartMessage => 'Untimed. You see whether you are right after each answer.';
+
+  @override
+  String get practiceStart => 'Start practice';
+
+  @override
+  String get practiceSetupTitle => 'Set up practice';
+
+  @override
+  String get practiceMixed => 'Mixed (all subjects)';
+
+  @override
+  String get practiceSubject => 'Subject';
+
+  @override
+  String get practiceTopic => 'Topic (optional)';
+
+  @override
+  String get practiceTopicAny => 'Any topic';
+
+  @override
+  String get practiceCount => 'Number of questions';
+
+  @override
+  String get practiceIncludeUnverified => 'Include questions not yet reviewed';
+
+  @override
+  String get practiceIncludeUnverifiedHint =>
+      'They are labelled, and their answers may contain extraction mistakes.';
+
+  @override
+  String get practiceNoQuestions =>
+      'No reviewed questions match. Approve questions in the question bank, or include ones not yet reviewed.';
+
+  @override
+  String get mockTestsTitle => 'Mock tests';
+
+  @override
+  String get mockTestsMessage => 'Timed tests built only from verified official exam formats.';
+
+  @override
+  String get mockTestsNone => 'No verified exam formats are available yet.';
+
+  @override
+  String mockTestDetails(int questions, int minutes) {
+    return '$questions questions · $minutes min';
+  }
+
+  @override
+  String mockNegative(String marks) {
+    return '−$marks per wrong answer';
+  }
+
+  @override
+  String get mockStart => 'Start mock test';
+
+  @override
+  String get mockUnavailable => 'Not enough reviewed questions yet:';
+
+  @override
+  String mockSectionShort(String subject, int available, int needed) {
+    return '$subject: $available of $needed';
+  }
+
+  @override
+  String get mockConfirmTitle => 'Start the mock test?';
+
+  @override
+  String get mockConfirmMessage =>
+      'The timer starts now and keeps running even if you close the app. The test is submitted automatically when time is up.';
+
+  @override
+  String get reviewToolsTitle => 'Review';
+
+  @override
+  String get bookmarksTitle => 'Bookmarks';
+
+  @override
+  String get bookmarksEmpty => 'No bookmarked questions.';
+
+  @override
+  String get incorrectTitle => 'Questions to revisit';
+
+  @override
+  String get incorrectEmpty => 'No incorrect answers to review.';
+
+  @override
+  String get questionBankOpen => 'Question bank';
+
+  @override
+  String get historyTitle => 'Recent sessions';
+
+  @override
+  String get historyEmpty => 'Your practice sessions will appear here.';
+
+  @override
+  String get historyPractice => 'Practice';
+
+  @override
+  String historyMock(String name) {
+    return 'Mock: $name';
+  }
+
+  @override
+  String get historyInProgress => 'In progress';
+
+  @override
+  String historyScore(String score, String max) {
+    return '$score / $max';
+  }
+
+  @override
+  String sessionQuestionOf(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String get sessionNotReviewed => 'Not yet reviewed';
+
+  @override
+  String get sessionPrevious => 'Previous';
+
+  @override
+  String get sessionNext => 'Next';
+
+  @override
+  String get sessionSubmit => 'Submit';
+
+  @override
+  String get sessionFinish => 'Finish';
+
+  @override
+  String get sessionCorrect => 'Correct';
+
+  @override
+  String get sessionIncorrect => 'Incorrect';
+
+  @override
+  String sessionCorrectAnswer(String label) {
+    return 'Correct answer: ($label)';
+  }
+
+  @override
+  String get sessionSavedOffline =>
+      'Saved on this device. It will be sent when you are back online.';
+
+  @override
+  String get sessionFeedbackOffline => 'Feedback will appear when you are back online.';
+
+  @override
+  String get sessionSubmitTitle => 'Submit now?';
+
+  @override
+  String sessionUnanswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions are unanswered.',
+      one: '1 question is unanswered.',
+      zero: 'All questions are answered.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionTimeUp => 'Time is up. Your saved answers were submitted.';
+
+  @override
+  String sessionTimeLeft(String time) {
+    return 'Time left $time';
+  }
+
+  @override
+  String get sessionQuestionRemoved => 'This question was removed from the question bank.';
+
+  @override
+  String get sessionLoadError => 'This session could not be loaded.';
+
+  @override
+  String get sessionOfflineOpen =>
+      'Opening a session needs a connection. Answers you give during a session are saved on this device if the connection drops.';
+
+  @override
+  String get sessionPalette => 'All questions';
+
+  @override
+  String get sessionBookmark => 'Bookmark';
+
+  @override
+  String get sessionRemoveBookmark => 'Remove bookmark';
+
+  @override
+  String get sessionSubmitFailed =>
+      'Could not submit. Your answers are saved; try again when you are online.';
+
+  @override
+  String get resultTitle => 'Result';
+
+  @override
+  String resultScore(String score, String max) {
+    return '$score of $max';
+  }
+
+  @override
+  String resultAccuracy(int percent) {
+    return 'Accuracy $percent%';
+  }
+
+  @override
+  String get resultAccuracyNone => 'No questions attempted';
+
+  @override
+  String resultTime(String time) {
+    return 'Time taken $time';
+  }
+
+  @override
+  String resultCounts(int correct, int wrong, int unattempted) {
+    return '$correct correct · $wrong wrong · $unattempted unattempted';
+  }
+
+  @override
+  String get resultHowScored => 'How this score was calculated';
+
+  @override
+  String get resultSections => 'By section';
+
+  @override
+  String get resultTopics => 'By topic';
+
+  @override
+  String get resultReviewAnswers => 'Review answers';
+
+  @override
+  String resultYourAnswer(String label) {
+    return 'Your answer: ($label)';
+  }
+
+  @override
+  String get resultNotAnswered => 'Not answered';
+
+  @override
+  String get resultSubmittedTimeUp => 'Submitted automatically when time was up.';
 }

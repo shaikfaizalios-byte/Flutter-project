@@ -11,7 +11,7 @@ from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session
 
 from app.core.config import Environment, Settings
-from app.database.session import get_session
+from app.database.session import UTC_SESSION_OPTIONS, get_session
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
 
@@ -67,7 +67,7 @@ def db_engine() -> Iterator[Engine]:
     url = _TestDatabaseSettings().test_database_url
     if url is None:
         pytest.skip("PREPLOOP_TEST_DATABASE_URL is not set; skipping database tests.")
-    engine = create_engine(url.get_secret_value())
+    engine = create_engine(url.get_secret_value(), connect_args={"options": UTC_SESSION_OPTIONS})
     with engine.begin() as connection:
         connection.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
         connection.execute(text("CREATE SCHEMA public"))
