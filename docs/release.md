@@ -18,6 +18,9 @@ done from the development machine or need the operator's accounts, legal input o
 - [x] **Device tests** workflow (Android 14 emulator, API 34) passes: onboarding → concept flow, real secure storage
   round trip, on-disk database at the current schema. Start it from the Actions tab or with
   `git push origin HEAD:device-tests`.
+- [x] **Test APK** workflow (`test-apk.yml`): `git push origin HEAD:test-apk/<LAN IP>` builds a debug APK pointing
+  at `http://<LAN IP>:8000` and attaches it to the `test-apk` pre-release. Run the API with
+  `.\scripts\dev-api.ps1 -Lan` (allow Python on *private* networks only) plus the document worker.
 
 ## 2. Backend deployment
 
