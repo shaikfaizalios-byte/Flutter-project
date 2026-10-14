@@ -15,8 +15,9 @@ done from the development machine or need the operator's accounts, legal input o
   and `container`; require pull requests.
 - [ ] **(you)** Pin third-party actions to commit SHAs (optional hardening; currently major tags). Enable Dependabot for
   pip, pub, GitHub Actions and Docker.
-- [ ] Run the manual **Device tests** workflow (Android emulator: integration tests, including real secure storage and
-  on-disk DB migration).
+- [x] **Device tests** workflow (Android 14 emulator, API 34) passes: onboarding → concept flow, real secure storage
+  round trip, on-disk database at the current schema. Start it from the Actions tab or with
+  `git push origin HEAD:device-tests`.
 
 ## 2. Backend deployment
 

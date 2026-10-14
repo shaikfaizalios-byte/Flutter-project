@@ -141,8 +141,9 @@ emulator. Release/deployment steps: docs/release.md, docs/deployment.md.
 
 ## Current phase: Phase 11 complete → release candidate (operator steps in docs/release.md)
 Known limitations right now:
-- Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
-  on a device. iOS needs macOS + Xcode. The native PDF picker is only exercised via a fake in tests.
+- Android SDK / Android Studio not installed locally. CI builds the Android APK, and the device-tests workflow
+  ran `integration_test/` green on an Android 14 emulator (secure storage, on-disk DB, onboarding flow).
+  Not yet verified on a physical phone: notifications, PDF picker, R8. iOS needs macOS + Xcode.
 - Visual Studio C++ workload not installed → Windows desktop target unavailable (not a product target anyway).
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
   (app shows first-run onboarding after a 3 s timeout; concept list stays loading). Server-backed screens
