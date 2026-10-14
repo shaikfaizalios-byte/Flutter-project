@@ -7,6 +7,7 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.v1.endpoints.analytics import get_analytics_service
@@ -14,10 +15,12 @@ from app.core.config import Settings
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
 from app.models.document import Document
-from app.models.question import Topic
+from app.models.question import Question, Topic
+from app.models.user import User
 from app.schemas.practice import AnswerUpdate, MockCreate, PracticeCreate
 from app.services.analytics_service import AnalyticsService
 from app.services.practice_service import PracticeService
+from tests.conftest import auth_headers
 from tests.test_practice import Clock, document, make_formats_ready, make_question
 
 __all__ = ["document"]  # fixture re-used from test_practice
@@ -40,15 +43,16 @@ def api(
     db_session: Session,
     storage: LocalDocumentStorage,
     clock: Clock,
+    user: User,
 ) -> Iterator[TestClient]:
     from app.database.session import get_session
 
     app = create_app(settings, engine=db_engine, storage=storage)
     app.dependency_overrides[get_session] = lambda: db_session
     app.dependency_overrides[get_analytics_service] = lambda: AnalyticsService(
-        db_session, now=clock
+        db_session, owner_id=user.id, now=clock
     )
-    with TestClient(app, raise_server_exceptions=False) as client:
+    with TestClient(app, raise_server_exceptions=False, headers=auth_headers(user)) as client:
         yield client
 
 
@@ -66,6 +70,13 @@ def topic(db: Session, subject: str, name: str) -> Topic:
     return row
 
 
+def topic_row_owner(db: Session, topic_row: Topic) -> uuid.UUID:
+    """The owner of the questions practised on [topic_row] (tests use one learner)."""
+    owner = db.scalar(select(Question.owner_id).where(Question.topic_id == topic_row.id))
+    assert owner is not None
+    return owner
+
+
 def practise(
     db: Session,
     clock: Clock,
@@ -73,7 +84,8 @@ def practise(
     selections: list[int | None],
 ) -> uuid.UUID:
     """Starts a practice session on [topic_row] and answers in order (option 1 is right)."""
-    service = PracticeService(db, now=clock)
+    owner = topic_row_owner(db, topic_row)
+    service = PracticeService(db, owner_id=owner, now=clock)
     session = service.start_practice(PracticeCreate(topic_id=topic_row.id, count=len(selections)))
     for position, selected in enumerate(selections, start=1):
         service.answer(
@@ -158,10 +170,10 @@ def test_recent_window_and_daily_range(
 
 
 def test_mock_answers_count_only_after_submission(
-    api: TestClient, db_session: Session, document: Document, clock: Clock
+    api: TestClient, db_session: Session, document: Document, clock: Clock, user: User
 ) -> None:
     make_formats_ready(db_session, document)
-    service = PracticeService(db_session, now=clock)
+    service = PracticeService(db_session, owner_id=user.id, now=clock)
     mock = service.start_mock(MockCreate(exam_format_code="SSC_CHSL_2026_TIER1"))
     service.answer(mock.id, 1, AnswerUpdate(selected_position=1, client_seq=1))
     service.answer(mock.id, 2, AnswerUpdate(selected_position=2, client_seq=2))

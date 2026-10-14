@@ -55,7 +55,14 @@ AI_LANGUAGE_REVIEW = "ai_language_review"
 
 
 class AIService:
-    def __init__(self, session: Session, provider: AIProvider | None, settings: Settings) -> None:
+    def __init__(
+        self,
+        session: Session,
+        owner_id: uuid.UUID,
+        provider: AIProvider | None,
+        settings: Settings,
+    ) -> None:
+        self._owner_id = owner_id
         self._session = session
         self._provider = provider
         self._settings = settings
@@ -128,6 +135,8 @@ class AIService:
         self, explanation_id: uuid.UUID, review: ExplanationReview
     ) -> AIExplanationRead:
         draft = self._session.get(AIExplanation, explanation_id)
+        if draft is not None and self._question_owner(draft.question_id) != self._owner_id:
+            draft = None  # another account's draft looks exactly like a missing one
         if draft is None:
             raise NotFoundError("AI explanation not found.")
         if review.status == "approved":
@@ -217,6 +226,7 @@ class AIService:
             avoid.append(valid.stem)  # no duplicates within one batch
             question = Question(
                 origin=QuestionOrigin.AI,
+                owner_id=self._owner_id,
                 exam_code=exam_code,
                 section=section,
                 subject=subject,
@@ -267,7 +277,7 @@ class AIService:
         )
         self._session.commit()
         return GenerateQuestionsResult(
-            created=QuestionService(self._session).by_ids(created).items,
+            created=QuestionService(self._session, self._owner_id).by_ids(created).items,
             rejected=rejected,
             rejection_reasons=sorted(set(reasons)),
         )
@@ -314,7 +324,8 @@ class AIService:
         )
         self._session.commit()
         return TopicSuggestionResult(
-            question=QuestionService(self._session).get(question.id), suggested=chosen is not None
+            question=QuestionService(self._session, self._owner_id).get(question.id),
+            suggested=chosen is not None,
         )
 
     # --- helpers --------------------------------------------------------------------------
@@ -324,9 +335,12 @@ class AIService:
             raise AIDisabledError("AI assistance is not configured on this server.")
         return self._provider
 
+    def _question_owner(self, question_id: uuid.UUID) -> uuid.UUID | None:
+        return self._session.scalar(select(Question.owner_id).where(Question.id == question_id))
+
     def _question(self, question_id: uuid.UUID) -> Question:
         question = self._session.get(Question, question_id)
-        if question is None:
+        if question is None or question.owner_id != self._owner_id:
             raise NotFoundError("Question not found.")
         return question
 
@@ -392,6 +406,7 @@ class AIService:
     ) -> None:
         self._session.add(
             AIGeneration(
+                owner_id=self._owner_id,
                 task=task,
                 provider=provider.name,
                 model=provider.model,

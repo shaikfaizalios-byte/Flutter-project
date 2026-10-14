@@ -54,6 +54,11 @@ class AIGeneration(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    # Owner (Phase 10). Null only for data created before accounts existed, until the first
+    # account claims it; every query filters by the signed-in owner.
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
     task: Mapped[str] = mapped_column(String(16))
     provider: Mapped[str] = mapped_column(String(32))
     model: Mapped[str] = mapped_column(String(64))

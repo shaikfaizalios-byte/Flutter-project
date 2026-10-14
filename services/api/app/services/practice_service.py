@@ -109,14 +109,23 @@ def _eligible(include_unverified: bool, include_ai: bool = False) -> Select[Ques
 
 
 class PracticeService:
-    def __init__(self, session: Session, *, now: Callable[[], datetime] | None = None) -> None:
+    def __init__(
+        self,
+        session: Session,
+        *,
+        owner_id: uuid.UUID,
+        now: Callable[[], datetime] | None = None,
+    ) -> None:
+        self._owner_id = owner_id
         self._session = session
         self._now = now or (lambda: datetime.now(UTC))
 
     # --- creating sessions ----------------------------------------------------------
 
     def start_practice(self, request: PracticeCreate) -> SessionRead:
-        stmt = _eligible(request.include_unverified, request.include_ai)
+        stmt = _eligible(request.include_unverified, request.include_ai).where(
+            Question.owner_id == self._owner_id
+        )
         if request.exam_code:
             stmt = stmt.where(Question.exam_code == request.exam_code)
         if request.subject:
@@ -132,6 +141,7 @@ class PracticeService:
                 "or include questions that are not yet reviewed."
             )
         practice = PracticeSession(
+            owner_id=self._owner_id,
             mode=SessionMode.PRACTICE,
             exam_code=request.exam_code,
             selection=request.model_dump(mode="json"),
@@ -175,6 +185,7 @@ class PracticeService:
         rng = random.Random(seed)  # noqa: S311 - question sampling, recorded for reproducibility
         started = self._now()
         mock = PracticeSession(
+            owner_id=self._owner_id,
             mode=SessionMode.MOCK,
             exam_code=exam_format.exam_code,
             exam_format_id=exam_format.id,
@@ -205,7 +216,10 @@ class PracticeService:
         self, exam_format: ExamFormat
     ) -> tuple[MockAvailability, list[list[Question]]]:
         candidates = self._session.scalars(
-            _eligible(include_unverified=False).where(Question.exam_code == exam_format.exam_code)
+            _eligible(include_unverified=False).where(
+                Question.exam_code == exam_format.exam_code,
+                Question.owner_id == self._owner_id,
+            )
         ).all()
         pools: list[list[Question]] = []
         sections: list[SectionAvailability] = []
@@ -438,6 +452,7 @@ class PracticeService:
     def list_sessions(self, *, limit: int, offset: int) -> SessionList:
         rows = self._session.scalars(
             select(PracticeSession)
+            .where(PracticeSession.owner_id == self._owner_id)
             .options(selectinload(PracticeSession.items))
             .order_by(PracticeSession.started_at.desc())
             .limit(limit)
@@ -476,8 +491,7 @@ class PracticeService:
     # --- bookmarks, incorrect answers, history ----------------------------------------
 
     def set_bookmark(self, question_id: uuid.UUID, *, bookmarked: bool) -> None:
-        if self._session.get(Question, question_id) is None:
-            raise NotFoundError("Question not found.")
+        self._owned_question(question_id)
         existing = self._session.get(Bookmark, question_id)
         if bookmarked and existing is None:
             self._session.add(Bookmark(question_id=question_id))
@@ -487,7 +501,12 @@ class PracticeService:
 
     def bookmarked_ids(self) -> list[uuid.UUID]:
         return list(
-            self._session.scalars(select(Bookmark.question_id).order_by(Bookmark.created_at.desc()))
+            self._session.scalars(
+                select(Bookmark.question_id)
+                .join(Question, Question.id == Bookmark.question_id)
+                .where(Question.owner_id == self._owner_id)
+                .order_by(Bookmark.created_at.desc())
+            )
         )
 
     def incorrect_ids(self) -> list[uuid.UUID]:
@@ -497,8 +516,11 @@ class PracticeService:
                 SessionAnswer.question_id,
                 func.max(SessionAnswer.answered_at).label("last"),
             )
+            .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
             .where(
-                SessionAnswer.question_id.is_not(None), SessionAnswer.selected_position.is_not(None)
+                SessionAnswer.question_id.is_not(None),
+                SessionAnswer.selected_position.is_not(None),
+                PracticeSession.owner_id == self._owner_id,
             )
             .group_by(SessionAnswer.question_id)
             .subquery()
@@ -513,7 +535,7 @@ class PracticeService:
                 ),
             )
             .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
-            .where(SessionAnswer.is_correct.is_(False))
+            .where(SessionAnswer.is_correct.is_(False), PracticeSession.owner_id == self._owner_id)
             .order_by(SessionAnswer.answered_at.desc())
         ).all()
         # Mock answers count only once the test is submitted (no hints during a test).
@@ -525,14 +547,14 @@ class PracticeService:
         ]
 
     def history(self, question_id: uuid.UUID) -> QuestionHistory:
-        if self._session.get(Question, question_id) is None:
-            raise NotFoundError("Question not found.")
+        self._owned_question(question_id)
         rows = self._session.execute(
             select(SessionAnswer.is_correct, SessionAnswer.answered_at)
             .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
             .where(
                 SessionAnswer.question_id == question_id,
                 SessionAnswer.selected_position.is_not(None),
+                PracticeSession.owner_id == self._owner_id,
                 (PracticeSession.mode == SessionMode.PRACTICE)
                 | (PracticeSession.status == SessionStatus.SUBMITTED),
             )
@@ -551,10 +573,16 @@ class PracticeService:
 
     # --- helpers ----------------------------------------------------------------------
 
+    def _owned_question(self, question_id: uuid.UUID) -> Question:
+        question = self._session.get(Question, question_id)
+        if question is None or question.owner_id != self._owner_id:
+            raise NotFoundError("Question not found.")
+        return question
+
     def _load(self, session_id: uuid.UUID) -> PracticeSession:
         practice = self._session.scalars(
             select(PracticeSession)
-            .where(PracticeSession.id == session_id)
+            .where(PracticeSession.id == session_id, PracticeSession.owner_id == self._owner_id)
             .options(selectinload(PracticeSession.items), selectinload(PracticeSession.answers))
             .with_for_update(of=PracticeSession)
         ).first()

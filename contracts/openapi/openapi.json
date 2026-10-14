@@ -188,6 +188,37 @@
         "title": "AIStatus",
         "type": "object"
       },
+      "AccountExport": {
+        "description": "Everything the server holds for the account (privacy export).",
+        "properties": {
+          "data": {
+            "additionalProperties": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "title": "Data",
+            "type": "object"
+          },
+          "exported_at": {
+            "format": "date-time",
+            "title": "Exported At",
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserRead"
+          }
+        },
+        "required": [
+          "exported_at",
+          "user",
+          "data"
+        ],
+        "title": "AccountExport",
+        "type": "object"
+      },
       "AnalyticsOverview": {
         "properties": {
           "answered": {
@@ -389,6 +420,52 @@
           "language"
         ],
         "title": "Body_upload_document_api_v1_documents_post",
+        "type": "object"
+      },
+      "Change": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "deleted": {
+            "default": false,
+            "title": "Deleted",
+            "type": "boolean"
+          },
+          "entity": {
+            "enum": [
+              "concept",
+              "study_profile",
+              "revision_card",
+              "card_review",
+              "setting"
+            ],
+            "title": "Entity",
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_\\-]+$",
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity",
+          "id"
+        ],
+        "title": "Change",
         "type": "object"
       },
       "ConceptCreate": {
@@ -801,6 +878,22 @@
           "correct"
         ],
         "title": "DailyStats",
+        "type": "object"
+      },
+      "DeleteAccountRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
+        ],
+        "title": "DeleteAccountRequest",
         "type": "object"
       },
       "DocumentFormatUpdate": {
@@ -1537,6 +1630,29 @@
         "title": "ItemSource",
         "type": "object"
       },
+      "LoginRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "maxLength": 254,
+            "minLength": 3,
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest",
+        "type": "object"
+      },
       "MockAvailability": {
         "properties": {
           "available": {
@@ -2039,6 +2155,79 @@
           }
         },
         "title": "PracticeCreate",
+        "type": "object"
+      },
+      "PullResult": {
+        "properties": {
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/ServerChange"
+            },
+            "title": "Changes",
+            "type": "array"
+          },
+          "cursor": {
+            "title": "Cursor",
+            "type": "integer"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "changes",
+          "cursor",
+          "has_more"
+        ],
+        "title": "PullResult",
+        "type": "object"
+      },
+      "PushRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/Change"
+            },
+            "maxItems": 500,
+            "title": "Changes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "changes"
+        ],
+        "title": "PushRequest",
+        "type": "object"
+      },
+      "PushResult": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          },
+          "ignored_deleted": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ignored Deleted",
+            "type": "array"
+          },
+          "rejected": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Rejected",
+            "type": "object"
+          }
+        },
+        "required": [
+          "accepted",
+          "ignored_deleted",
+          "rejected"
+        ],
+        "title": "PushResult",
         "type": "object"
       },
       "QuestionHistory": {
@@ -2595,6 +2784,58 @@
         "title": "ReadinessResponse",
         "type": "object"
       },
+      "RefreshRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "refresh_token": {
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Refresh Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshRequest",
+        "type": "object"
+      },
+      "RegisterRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "maxLength": 254,
+            "minLength": 3,
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 10,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "RegisterRequest",
+        "type": "object"
+      },
       "SectionAvailability": {
         "properties": {
           "available": {
@@ -2671,6 +2912,60 @@
           "name"
         ],
         "title": "SectionResult",
+        "type": "object"
+      },
+      "ServerChange": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "deleted": {
+            "title": "Deleted",
+            "type": "boolean"
+          },
+          "entity": {
+            "enum": [
+              "concept",
+              "study_profile",
+              "revision_card",
+              "card_review",
+              "setting"
+            ],
+            "title": "Entity",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity",
+          "id",
+          "deleted",
+          "data",
+          "seq",
+          "updated_at"
+        ],
+        "title": "ServerChange",
         "type": "object"
       },
       "SessionItemRead": {
@@ -3191,6 +3486,38 @@
         "title": "SubjectStats",
         "type": "object"
       },
+      "TokenPair": {
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          },
+          "token_type": {
+            "default": "bearer",
+            "title": "Token Type",
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserRead"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token",
+          "expires_in",
+          "user"
+        ],
+        "title": "TokenPair",
+        "type": "object"
+      },
       "TopicRead": {
         "properties": {
           "id": {
@@ -3336,6 +3663,43 @@
         "title": "TopicSuggestionResult",
         "type": "object"
       },
+      "UserRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "created_at"
+        ],
+        "title": "UserRead",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -3375,6 +3739,13 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "description": "Access token from /auth/login",
+        "scheme": "bearer",
+        "type": "http"
       }
     }
   },
@@ -3481,6 +3852,11 @@
             "description": "Database or AI not available"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Approve (optionally edited) or reject an AI explanation",
         "tags": [
           "ai"
@@ -3572,6 +3948,11 @@
             "description": "Database or AI not available"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate unverified AI practice questions from a verified question or a concept",
         "tags": [
           "ai"
@@ -3665,6 +4046,11 @@
             "description": "Database or AI not available"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Draft an AI explanation for a verified source question without one",
         "tags": [
           "ai"
@@ -3758,6 +4144,11 @@
             "description": "Database or AI not available"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Suggest a topic from the taxonomy for a question without one",
         "tags": [
           "ai"
@@ -3789,6 +4180,11 @@
             "description": "Database or AI not available"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Whether AI assistance is available",
         "tags": [
           "ai"
@@ -3873,14 +4269,398 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Answer counts per subject, topic and local day, plus mock results",
         "tags": [
           "analytics"
         ]
       }
     },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPair"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not signed in / invalid"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Sign in",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "logout_api_v1_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Revoke this device's session (refresh-token family)",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "me_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not signed in / invalid"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "The signed-in account",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me/delete": {
+      "post": {
+        "operationId": "delete_account_api_v1_auth_me_delete_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not signed in / invalid"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Permanently delete the account and all its data (password required)",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me/export": {
+      "get": {
+        "operationId": "export_api_v1_auth_me_export_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountExport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not signed in / invalid"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Download everything the server holds for this account",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "refresh_api_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPair"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not signed in / invalid"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Exchange a refresh token for new tokens (rotation; reuse revokes the session)",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPair"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Email already registered"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "summary": "Create an account (the first account claims data created before accounts)",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/v1/concepts": {
       "get": {
+        "deprecated": true,
         "operationId": "list_concepts_api_v1_concepts_get",
         "parameters": [
           {
@@ -4057,12 +4837,18 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Search and list concepts",
         "tags": [
           "concepts"
         ]
       },
       "post": {
+        "deprecated": true,
         "operationId": "create_concept_api_v1_concepts_post",
         "requestBody": {
           "content": {
@@ -4106,6 +4892,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Create Concept",
         "tags": [
           "concepts"
@@ -4114,6 +4905,7 @@
     },
     "/api/v1/concepts/{concept_id}": {
       "delete": {
+        "deprecated": true,
         "operationId": "delete_concept_api_v1_concepts__concept_id__delete",
         "parameters": [
           {
@@ -4162,12 +4954,18 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Delete Concept",
         "tags": [
           "concepts"
         ]
       },
       "get": {
+        "deprecated": true,
         "operationId": "get_concept_api_v1_concepts__concept_id__get",
         "parameters": [
           {
@@ -4223,12 +5021,18 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get Concept",
         "tags": [
           "concepts"
         ]
       },
       "patch": {
+        "deprecated": true,
         "operationId": "update_concept_api_v1_concepts__concept_id__patch",
         "parameters": [
           {
@@ -4294,6 +5098,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Update Concept",
         "tags": [
           "concepts"
@@ -4302,6 +5111,7 @@
     },
     "/api/v1/concepts/{concept_id}/archive": {
       "post": {
+        "deprecated": true,
         "operationId": "archive_concept_api_v1_concepts__concept_id__archive_post",
         "parameters": [
           {
@@ -4357,6 +5167,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Archive Concept",
         "tags": [
           "concepts"
@@ -4365,6 +5180,7 @@
     },
     "/api/v1/concepts/{concept_id}/unarchive": {
       "post": {
+        "deprecated": true,
         "operationId": "unarchive_concept_api_v1_concepts__concept_id__unarchive_post",
         "parameters": [
           {
@@ -4420,6 +5236,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Unarchive Concept",
         "tags": [
           "concepts"
@@ -4509,6 +5330,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "List uploaded documents",
         "tags": [
           "documents"
@@ -4588,6 +5414,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Upload a PDF for processing",
         "tags": [
           "documents"
@@ -4644,6 +5475,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Permanently delete a document, its pages and the original file",
         "tags": [
           "documents"
@@ -4705,6 +5541,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get Document",
         "tags": [
           "documents"
@@ -4778,6 +5619,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Link (or unlink) a verified paper format; re-run segmentation to apply it",
         "tags": [
           "documents"
@@ -4865,6 +5711,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Extracted text per page (with review flags)",
         "tags": [
           "documents"
@@ -4928,6 +5779,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Question segmentation results and document-level issues",
         "tags": [
           "documents"
@@ -5001,6 +5857,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Re-run question segmentation (keeps verified and rejected questions)",
         "tags": [
           "documents"
@@ -5065,6 +5926,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Verified paper formats (with official source references)",
         "tags": [
           "exams"
@@ -5173,6 +6039,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Bookmarked questions",
         "tags": [
           "practice"
@@ -5204,6 +6075,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Questions whose latest answer was wrong (for review)",
         "tags": [
           "practice"
@@ -5268,6 +6144,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Mock tests available from verified exam formats",
         "tags": [
           "practice"
@@ -5317,6 +6198,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Start a timed mock test (structure and marking from the verified format)",
         "tags": [
           "practice"
@@ -5384,6 +6270,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Session history",
         "tags": [
           "practice"
@@ -5433,6 +6324,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Start an untimed practice session (topic, subject, section or mixed)",
         "tags": [
           "practice"
@@ -5496,6 +6392,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get Session",
         "tags": [
           "practice"
@@ -5588,6 +6489,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Save an answer (idempotent; older client_seq values are ignored)",
         "tags": [
           "practice"
@@ -5651,6 +6557,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Submit (idempotent: returns the existing result if already submitted)",
         "tags": [
           "practice"
@@ -5915,6 +6826,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Search questions",
         "tags": [
           "questions"
@@ -5978,6 +6894,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get Question",
         "tags": [
           "questions"
@@ -6049,6 +6970,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Review a question (edit, verify, reject)",
         "tags": [
           "questions"
@@ -6105,6 +7031,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Remove Bookmark",
         "tags": [
           "practice"
@@ -6159,6 +7090,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Add Bookmark",
         "tags": [
           "practice"
@@ -6222,6 +7158,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Attempts and last result for a question",
         "tags": [
           "practice"
@@ -6295,9 +7236,141 @@
             "description": "Database or AI not available"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Report a question as wrong or unclear (sends it back to review)",
         "tags": [
           "ai"
+        ]
+      }
+    },
+    "/api/v1/sync/pull": {
+      "get": {
+        "operationId": "pull_api_v1_sync_pull_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PullResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Changes for this account after `cursor`, oldest first",
+        "tags": [
+          "sync"
+        ]
+      }
+    },
+    "/api/v1/sync/push": {
+      "post": {
+        "operationId": "push_api_v1_sync_push_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upload this device's changes (last writer wins; deletes win over edits)",
+        "tags": [
+          "sync"
         ]
       }
     },
@@ -6359,6 +7432,11 @@
             "description": "Database unavailable"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "List Topics",
         "tags": [
           "questions"

@@ -1,8 +1,12 @@
+import uuid
+
 from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine
 
 from app.core.config import Settings
 from app.main import create_app
+from app.models.user import User
+from tests.conftest import auth_headers
 
 
 def test_ready_without_database_reports_not_configured(client: TestClient) -> None:
@@ -51,7 +55,8 @@ def test_database_endpoint_with_unreachable_database_returns_503(settings: Setti
         connect_args={"connect_timeout": 1},
     )
     with TestClient(create_app(settings, engine=engine), raise_server_exceptions=False) as client:
-        response = client.get("/api/v1/concepts")
+        # A token makes the request reach the database (loading the account).
+        response = client.get("/api/v1/concepts", headers=auth_headers(User(id=uuid.uuid4())))
 
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "database_unavailable"

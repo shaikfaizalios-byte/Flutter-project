@@ -6,6 +6,7 @@ they are not "results" until then). Days are the learner's local calendar days i
 requested IANA timezone, computed by PostgreSQL (``timezone(zone, answered_at)``).
 """
 
+import uuid
 import zoneinfo
 from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
@@ -48,7 +49,14 @@ def _zone(name: str) -> zoneinfo.ZoneInfo:
 
 
 class AnalyticsService:
-    def __init__(self, session: Session, *, now: Callable[[], datetime] | None = None) -> None:
+    def __init__(
+        self,
+        session: Session,
+        *,
+        owner_id: uuid.UUID,
+        now: Callable[[], datetime] | None = None,
+    ) -> None:
+        self._owner_id = owner_id
         self._session = session
         self._now = now or (lambda: datetime.now(UTC))
 
@@ -78,7 +86,11 @@ class AnalyticsService:
                     ),
                 )
                 .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
-                .where(SessionAnswer.selected_position.is_not(None), _counts_as_result())
+                .where(
+                    SessionAnswer.selected_position.is_not(None),
+                    _counts_as_result(),
+                    PracticeSession.owner_id == self._owner_id,
+                )
             )
 
         total = self._session.execute(
@@ -162,6 +174,7 @@ class AnalyticsService:
             .outerjoin(ExamFormat, ExamFormat.id == PracticeSession.exam_format_id)
             .where(
                 PracticeSession.mode == SessionMode.MOCK,
+                PracticeSession.owner_id == self._owner_id,
                 PracticeSession.status == SessionStatus.SUBMITTED,
             )
             .order_by(PracticeSession.submitted_at.desc())

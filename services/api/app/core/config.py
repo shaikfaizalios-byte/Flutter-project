@@ -76,6 +76,14 @@ class Settings(BaseSettings):
     ai_max_output_tokens: int = Field(default=4000, ge=256, le=32000)
     ai_rate_limit: int = Field(default=30, ge=1)
     ai_rate_window_seconds: int = Field(default=3600, ge=1)
+    # Accounts. The signing secret is required outside development/test; locally a random
+    # one is generated per process (tokens then stop working after a restart).
+    auth_secret: SecretStr | None = None
+    access_token_minutes: int = Field(default=15, ge=1, le=60)
+    refresh_token_days: int = Field(default=30, ge=1, le=90)
+    # Sign-in/registration attempts per client and email within the window (brute force).
+    auth_rate_limit: int = Field(default=10, ge=1)
+    auth_rate_window_seconds: int = Field(default=900, ge=1)
 
     @model_validator(mode="before")
     @classmethod
@@ -93,6 +101,10 @@ class Settings(BaseSettings):
                 raise ValueError("Wildcard CORS origin is not allowed in production.")
             if self.cors_origin_regex:
                 raise ValueError("cors_origin_regex is not allowed in production.")
+        if self.environment in (Environment.PRODUCTION, Environment.STAGING) and (
+            self.auth_secret is None or len(self.auth_secret.get_secret_value()) < 32
+        ):
+            raise ValueError("PREPLOOP_AUTH_SECRET (32+ characters) is required here.")
         return self
 
     @property

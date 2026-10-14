@@ -11,11 +11,14 @@ from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session
 
 from app.core.config import Environment, Settings
+from app.core.security import TokenSigner, hash_password
 from app.database.session import UTC_SESSION_OPTIONS, get_session
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
+from app.models.user import User
 
 API_ROOT = Path(__file__).resolve().parents[1]
+TEST_AUTH_SECRET = "test-secret-" + "x" * 40
 
 
 class _TestDatabaseSettings(BaseSettings):
@@ -36,6 +39,7 @@ def settings(tmp_path: Path) -> Settings:
         upload_dir=tmp_path / "uploads",
         # Tests drive processing explicitly; no background thread.
         document_worker_in_process=False,
+        auth_secret=SecretStr(TEST_AUTH_SECRET),
     )
 
 
@@ -102,9 +106,34 @@ def db_session(db_engine: Engine) -> Iterator[Session]:
 
 @pytest.fixture
 def db_client(
-    settings: Settings, db_engine: Engine, db_session: Session, storage: LocalDocumentStorage
+    settings: Settings,
+    db_engine: Engine,
+    db_session: Session,
+    storage: LocalDocumentStorage,
+    user: User,
 ) -> Iterator[TestClient]:
+    """App on the test database, signed in as ``user``."""
     app = create_app(settings, engine=db_engine, storage=storage)
     app.dependency_overrides[get_session] = lambda: db_session
     with TestClient(app, raise_server_exceptions=False) as test_client:
+        test_client.headers.update(auth_headers(user))
         yield test_client
+
+
+def make_user(db: Session, email: str = "learner@example.com") -> User:
+    user = User(email=email, password_hash=hash_password("correct horse battery"))
+    db.add(user)
+    db.flush()
+    return user
+
+
+@pytest.fixture
+def user(db_session: Session) -> User:
+    """The signed-in learner most tests act as."""
+    return make_user(db_session)
+
+
+def auth_headers(user: User) -> dict[str, str]:
+    """A valid access token for ``user`` (signed with the test secret)."""
+    token = TokenSigner(TEST_AUTH_SECRET, 15).access_token(user.id)
+    return {"Authorization": f"Bearer {token}"}

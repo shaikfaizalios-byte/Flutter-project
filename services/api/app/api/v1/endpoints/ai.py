@@ -3,6 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request, status
 
+from app.api.deps import CurrentUser, client_key
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.integrations.ai import AIProvider
@@ -42,14 +43,14 @@ def get_ai_service(
     session: DbSession,
     provider: Annotated[AIProvider | None, Depends(get_ai_provider)],
     settings: Annotated[Settings, Depends(get_settings)],
+    user: CurrentUser,
 ) -> AIService:
-    return AIService(session, provider, settings)
+    return AIService(session, user.id, provider, settings)
 
 
-def guard_ai(request: Request) -> None:
-    """Rate limit for calls that reach the AI provider (cost and abuse control)."""
-    client = request.client.host if request.client else "unknown"
-    request.app.state.ai_rate_limiter.check(client)
+def guard_ai(request: Request, user: CurrentUser) -> None:
+    """Rate limit per account for calls that reach the AI provider (cost and abuse)."""
+    request.app.state.ai_rate_limiter.check(client_key(request, user))
 
 
 Service = Annotated[AIService, Depends(get_ai_service)]
@@ -115,6 +116,6 @@ def suggest_topic(question_id: uuid.UUID, service: Service) -> TopicSuggestionRe
     summary="Report a question as wrong or unclear (sends it back to review)",
 )
 def report_question(
-    question_id: uuid.UUID, body: QuestionReport, session: DbSession
+    question_id: uuid.UUID, body: QuestionReport, session: DbSession, user: CurrentUser
 ) -> QuestionRead:
-    return QuestionService(session).report(question_id, body.reason, body.note)
+    return QuestionService(session, user.id).report(question_id, body.reason, body.note)

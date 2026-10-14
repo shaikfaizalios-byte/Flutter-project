@@ -171,6 +171,7 @@ class SegmentationService:
         topic_id = suggest_topic(parsed.stem, subject=subject, topics=topics)
         question = Question(
             origin=QuestionOrigin.SOURCE,
+            owner_id=document.owner_id,  # questions belong to the document's owner
             exam_code=document.exam_code,
             exam_format_id=exam_format.id if exam_format else None,
             section=parsed.section,

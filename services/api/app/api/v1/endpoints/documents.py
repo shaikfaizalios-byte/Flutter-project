@@ -3,6 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile, status
 
+from app.api.deps import CurrentUser, client_key
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.domain.errors import UploadTooLargeError
@@ -43,19 +44,23 @@ _MULTIPART_OVERHEAD = 64 * 1024
 
 
 def get_document_service(
-    request: Request, session: DbSession, settings: Annotated[Settings, Depends(get_settings)]
+    request: Request,
+    session: DbSession,
+    settings: Annotated[Settings, Depends(get_settings)],
+    user: CurrentUser,
 ) -> DocumentService:
-    return DocumentService(session, request.app.state.document_storage, settings)
+    return DocumentService(session, request.app.state.document_storage, settings, owner_id=user.id)
 
 
 Service = Annotated[DocumentService, Depends(get_document_service)]
 
 
-def guard_upload(request: Request, settings: Annotated[Settings, Depends(get_settings)]) -> None:
+def guard_upload(
+    request: Request, settings: Annotated[Settings, Depends(get_settings)], user: CurrentUser
+) -> None:
     """Runs before the body is parsed: rate limit, and reject declared oversize bodies early
     (the streaming copy enforces the limit again for bodies without a length)."""
-    client = request.client.host if request.client else "unknown"
-    request.app.state.upload_rate_limiter.check(client)
+    request.app.state.upload_rate_limiter.check(client_key(request, user))
     declared = request.headers.get("content-length")
     if (
         declared
@@ -140,8 +145,10 @@ def delete_document(document_id: uuid.UUID, service: Service) -> None:
     responses=NOT_FOUND,
     summary="Question segmentation results and document-level issues",
 )
-def get_parse_summary(document_id: uuid.UUID, session: DbSession) -> ParseSummary:
-    return QuestionService(session).parse_summary(document_id)
+def get_parse_summary(
+    document_id: uuid.UUID, session: DbSession, user: CurrentUser
+) -> ParseSummary:
+    return QuestionService(session, user.id).parse_summary(document_id)
 
 
 @router.put(
@@ -166,8 +173,8 @@ def set_exam_format(
     summary="Re-run question segmentation (keeps verified and rejected questions)",
 )
 def resegment_document(
-    document_id: uuid.UUID, service: Service, session: DbSession
+    document_id: uuid.UUID, service: Service, session: DbSession, user: CurrentUser
 ) -> ParseSummary:
-    service.require_extracted(document_id)
+    service.require_extracted(document_id)  # also checks the document is the user's
     SegmentationService(session).segment_document(document_id)
-    return QuestionService(session).parse_summary(document_id)
+    return QuestionService(session, user.id).parse_summary(document_id)

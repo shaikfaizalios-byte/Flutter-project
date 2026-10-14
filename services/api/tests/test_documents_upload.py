@@ -8,7 +8,9 @@ from sqlalchemy import Engine
 from app.core.config import Settings
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
+from app.models.user import User
 from app.services.document_service import sanitize_filename
+from tests.conftest import auth_headers
 from tests.pdf_factory import CORRUPT_PDF, PNG_BYTES, blank_pages_pdf, text_pdf
 
 URL = "/api/v1/documents"
@@ -99,7 +101,7 @@ def test_non_pdf_content_is_rejected_even_with_pdf_name(
     [
         (b"", "empty_file"),
         (CORRUPT_PDF, "invalid_pdf"),
-        (text_pdf(password="user-pass"), "encrypted_pdf"),  # noqa: S106 - test fixture
+        (text_pdf(password="user-pass"), "encrypted_pdf"),
     ],
 )
 def test_bad_pdfs_are_rejected_without_storing(
@@ -152,14 +154,18 @@ def test_missing_file_field(db_client: TestClient) -> None:
 
 
 def test_uploads_are_rate_limited(
-    settings: Settings, db_engine: Engine, db_session: object, storage: LocalDocumentStorage
+    settings: Settings,
+    db_engine: Engine,
+    db_session: object,
+    storage: LocalDocumentStorage,
+    user: User,
 ) -> None:
     from app.database.session import get_session
 
     settings.upload_rate_limit = 2
     app = create_app(settings, engine=db_engine, storage=storage)
     app.dependency_overrides[get_session] = lambda: db_session
-    with TestClient(app) as client:
+    with TestClient(app, headers=auth_headers(user)) as client:
         assert upload(client, text_pdf()).status_code == 201
         assert upload(client, text_pdf()).status_code == 201
         limited = upload(client, text_pdf())

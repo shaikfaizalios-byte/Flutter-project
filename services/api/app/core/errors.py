@@ -63,6 +63,8 @@ async def domain_error_handler(_: Request, exc: Exception) -> JSONResponse:
     response = _response(exc.status_code, exc.code, exc.message)
     if isinstance(exc, RateLimitedError):
         response.headers["Retry-After"] = str(exc.retry_after_seconds)
+    if exc.status_code == 401:
+        response.headers["WWW-Authenticate"] = "Bearer"
     return response
 
 

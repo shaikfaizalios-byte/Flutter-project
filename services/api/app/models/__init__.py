@@ -13,6 +13,8 @@ from app.models.question import (
     QuestionOption,
     Topic,
 )
+from app.models.sync import SyncItem
+from app.models.user import RefreshToken, User
 
 __all__ = [
     "AIExplanation",
@@ -28,7 +30,10 @@ __all__ = [
     "Question",
     "QuestionIssue",
     "QuestionOption",
+    "RefreshToken",
     "SessionAnswer",
     "SessionItem",
+    "SyncItem",
     "Topic",
+    "User",
 ]

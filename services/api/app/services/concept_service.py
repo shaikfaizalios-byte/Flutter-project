@@ -13,9 +13,9 @@ from app.schemas.concept import ConceptCreate, ConceptPage, ConceptRead, Concept
 class ConceptService:
     """Business rules for concepts. Owns the transaction boundary (commit per operation)."""
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, owner_id: uuid.UUID) -> None:
         self._session = session
-        self._concepts = ConceptRepository(session)
+        self._concepts = ConceptRepository(session, owner_id)
         self._exams = ExamRepository(session)
 
     def create(self, data: ConceptCreate) -> ConceptRead:

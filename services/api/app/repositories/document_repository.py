@@ -27,10 +27,10 @@ class DocumentRepository:
         self._session.flush()
 
     def list(
-        self, *, status: str | None, limit: int, offset: int
+        self, *, owner_id: uuid.UUID, status: str | None, limit: int, offset: int
     ) -> tuple[Sequence[Document], int]:
-        query = select(Document)
-        count = select(func.count()).select_from(Document)
+        query = select(Document).where(Document.owner_id == owner_id)
+        count = select(func.count()).select_from(Document).where(Document.owner_id == owner_id)
         if status is not None:
             query = query.where(Document.status == status)
             count = count.where(Document.status == status)

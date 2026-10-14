@@ -80,8 +80,9 @@ _OPEN_ISSUE = exists().where(
 
 
 class QuestionService:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, owner_id: uuid.UUID) -> None:
         self._session = session
+        self._owner_id = owner_id
 
     # --- reads ------------------------------------------------------------------------
 
@@ -103,7 +104,9 @@ class QuestionService:
         if not ids:
             return QuestionList(items=[], total=0, limit=len(ids), offset=0)
         rows = self._session.scalars(
-            select(Question).where(Question.id.in_(ids)).options(*self._load_options())
+            select(Question)
+            .where(Question.id.in_(ids), Question.owner_id == self._owner_id)
+            .options(*self._load_options())
         ).all()
         by_id = {q.id: q for q in rows}
         ordered = [by_id[i] for i in ids if i in by_id]
@@ -131,7 +134,7 @@ class QuestionService:
 
     def parse_summary(self, document_id: uuid.UUID) -> ParseSummary:
         document = self._session.get(Document, document_id)
-        if document is None:
+        if document is None or document.owner_id != self._owner_id:
             raise NotFoundError("Document not found.")
         questions = self._session.scalars(
             select(Question)
@@ -261,7 +264,9 @@ class QuestionService:
 
     def _get_or_404(self, question_id: uuid.UUID) -> Question:
         question = self._session.scalars(
-            select(Question).where(Question.id == question_id).options(*self._load_options())
+            select(Question)
+            .where(Question.id == question_id, Question.owner_id == self._owner_id)
+            .options(*self._load_options())
         ).first()
         if question is None:
             raise NotFoundError("Question not found.")
@@ -285,8 +290,8 @@ class QuestionService:
         ).all()
         return {row[0]: row[1] for row in rows}
 
-    @staticmethod
-    def _apply[*Ts](stmt: Select[*Ts], f: QuestionFilter) -> Select[*Ts]:
+    def _apply[*Ts](self, stmt: Select[*Ts], f: QuestionFilter) -> Select[*Ts]:
+        stmt = stmt.where(Question.owner_id == self._owner_id)
         if f.exam_code:
             stmt = stmt.where(Question.exam_code == f.exam_code)
         if f.section:

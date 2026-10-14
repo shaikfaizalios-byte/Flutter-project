@@ -3,6 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query, status
 
+from app.api.deps import CurrentUser
 from app.database.session import DbSession
 from app.schemas.errors import ErrorResponse
 from app.schemas.practice import (
@@ -29,8 +30,8 @@ NOT_FOUND: dict[int | str, dict[str, Any]] = {
 }
 
 
-def get_practice_service(session: DbSession) -> PracticeService:
-    return PracticeService(session)
+def get_practice_service(session: DbSession, user: CurrentUser) -> PracticeService:
+    return PracticeService(session, owner_id=user.id)
 
 
 Service = Annotated[PracticeService, Depends(get_practice_service)]
@@ -138,8 +139,8 @@ def question_history(question_id: uuid.UUID, service: Service) -> QuestionHistor
 
 
 @router.get("/practice/bookmarks", response_model=QuestionList, summary="Bookmarked questions")
-def bookmarks(service: Service, session: DbSession) -> QuestionList:
-    return QuestionService(session).by_ids(service.bookmarked_ids())
+def bookmarks(service: Service, session: DbSession, user: CurrentUser) -> QuestionList:
+    return QuestionService(session, user.id).by_ids(service.bookmarked_ids())
 
 
 @router.get(
@@ -147,5 +148,5 @@ def bookmarks(service: Service, session: DbSession) -> QuestionList:
     response_model=QuestionList,
     summary="Questions whose latest answer was wrong (for review)",
 )
-def incorrect(service: Service, session: DbSession) -> QuestionList:
-    return QuestionService(session).by_ids(service.incorrect_ids())
+def incorrect(service: Service, session: DbSession, user: CurrentUser) -> QuestionList:
+    return QuestionService(session, user.id).by_ids(service.incorrect_ids())

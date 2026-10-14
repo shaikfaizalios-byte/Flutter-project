@@ -15,6 +15,8 @@ from app.main import create_app
 from app.models.ai import AIGeneration
 from app.models.document import Document
 from app.models.question import Question, Topic, VerificationStatus
+from app.models.user import User
+from tests.conftest import auth_headers, make_user
 from tests.fakes import FakeAIProvider
 from tests.test_practice import document, make_formats_ready, make_question
 
@@ -25,7 +27,11 @@ AppFactory = Callable[..., TestClient]
 
 @pytest.fixture
 def make_api(
-    settings: Settings, db_engine: Any, db_session: Session, storage: LocalDocumentStorage
+    settings: Settings,
+    db_engine: Any,
+    db_session: Session,
+    storage: LocalDocumentStorage,
+    user: User,
 ) -> Iterator[AppFactory]:
     from app.database.session import get_session
 
@@ -39,7 +45,7 @@ def make_api(
             ai_provider=provider,
         )
         app.dependency_overrides[get_session] = lambda: db_session
-        client = TestClient(app, raise_server_exceptions=False)
+        client = TestClient(app, raise_server_exceptions=False, headers=auth_headers(user))
         client.__enter__()
         clients.append(client)
         return client
@@ -483,3 +489,26 @@ def test_ai_calls_are_rate_limited(
     assert limited.json()["error"]["code"] == "rate_limited"
     assert int(limited.headers["Retry-After"]) >= 1
     assert len(provider.calls) == 2
+
+
+def test_ai_works_only_on_the_learners_own_questions(
+    api: TestClient, ai: FakeAIProvider, db_session: Session, document: Document
+) -> None:
+    question = make_question(db_session, document, explanation=None)
+    other = auth_headers(make_user(db_session, "other@example.com"))
+
+    for response in (
+        api.post(f"/api/v1/ai/questions/{question.id}/explanation", headers=other),
+        api.post(f"/api/v1/ai/questions/{question.id}/topic-suggestion", headers=other),
+        api.post(
+            "/api/v1/ai/questions/generate",
+            json={
+                "exam_code": "SSC_CHSL",
+                "language": "en",
+                "source_question_id": str(question.id),
+            },
+            headers=other,
+        ),
+    ):
+        assert response.status_code == 404
+    assert ai.calls == []  # nothing was sent to the provider

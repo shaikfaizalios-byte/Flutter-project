@@ -1,5 +1,7 @@
 """FastAPI application factory."""
 
+import logging
+import secrets
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -14,11 +16,22 @@ from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import REQUEST_ID_HEADER, RequestContextMiddleware
 from app.core.rate_limit import SlidingWindowRateLimiter
+from app.core.security import TokenSigner
 from app.database.session import build_engine, build_sessionmaker
 from app.integrations.ai import AIProvider, provider_from_settings
 from app.integrations.storage import DocumentStorage, LocalDocumentStorage
 from app.schemas.health import HealthResponse
 from app.workers.document_worker import start_background_worker
+
+
+def _auth_secret(settings: Settings) -> str:
+    if settings.auth_secret is not None:
+        return settings.auth_secret.get_secret_value()
+    # Development/test only (the settings validator requires a secret elsewhere).
+    logging.getLogger(__name__).warning(
+        "PREPLOOP_AUTH_SECRET is not set: using a random secret; sign-ins end on restart."
+    )
+    return secrets.token_urlsafe(48)
 
 
 def create_app(
@@ -62,6 +75,12 @@ def create_app(
     app.state.document_storage = storage or LocalDocumentStorage(settings.upload_dir)
     app.state.upload_rate_limiter = SlidingWindowRateLimiter(
         settings.upload_rate_limit, settings.upload_rate_window_seconds
+    )
+    app.state.token_signer = TokenSigner(_auth_secret(settings), settings.access_token_minutes)
+    app.state.auth_rate_limiter = SlidingWindowRateLimiter(
+        settings.auth_rate_limit,
+        settings.auth_rate_window_seconds,
+        message="Too many attempts. Please wait and try again.",
     )
     # AI is off unless a provider is injected (tests) or an API key is configured.
     app.state.ai_provider = (

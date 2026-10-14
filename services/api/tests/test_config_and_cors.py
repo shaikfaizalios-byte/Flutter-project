@@ -29,7 +29,9 @@ def test_production_rejects_origin_regex() -> None:
 
 
 def test_production_disables_interactive_docs() -> None:
-    app = create_app(Settings(_env_file=None, environment=Environment.PRODUCTION))
+    app = create_app(
+        Settings(_env_file=None, environment=Environment.PRODUCTION, auth_secret="s" * 40)
+    )
     client = TestClient(app)
 
     assert client.get("/docs").status_code == 404
@@ -46,3 +48,11 @@ def test_cors_rejects_unknown_origin(client: TestClient) -> None:
     response = client.get("/health", headers={"Origin": "https://evil.example"})
 
     assert "access-control-allow-origin" not in response.headers
+
+
+def test_production_and_staging_require_an_auth_secret() -> None:
+    for environment in (Environment.PRODUCTION, Environment.STAGING):
+        with pytest.raises(ValueError, match="PREPLOOP_AUTH_SECRET"):
+            Settings(_env_file=None, environment=environment)
+        with pytest.raises(ValueError, match="PREPLOOP_AUTH_SECRET"):
+            Settings(_env_file=None, environment=environment, auth_secret="too-short")

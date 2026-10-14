@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from app.api.deps import CurrentUser
 from app.database.session import DbSession
 from app.schemas.analytics import AnalyticsOverview
 from app.schemas.errors import ErrorResponse
@@ -13,8 +14,8 @@ router = APIRouter(
 )
 
 
-def get_analytics_service(session: DbSession) -> AnalyticsService:
-    return AnalyticsService(session)
+def get_analytics_service(session: DbSession, user: CurrentUser) -> AnalyticsService:
+    return AnalyticsService(session, owner_id=user.id)
 
 
 Service = Annotated[AnalyticsService, Depends(get_analytics_service)]

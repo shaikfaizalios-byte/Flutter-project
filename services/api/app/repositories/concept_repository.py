@@ -26,13 +26,16 @@ def _escape_like(value: str) -> str:
 class ConceptRepository:
     """Persistence for concepts. Owns queries only; transactions belong to the service."""
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, owner_id: uuid.UUID) -> None:
         self._session = session
+        self._owner_id = owner_id
 
     def get(self, concept_id: uuid.UUID) -> Concept | None:
-        return self._session.get(Concept, concept_id)
+        concept = self._session.get(Concept, concept_id)
+        return concept if concept is not None and concept.owner_id == self._owner_id else None
 
     def add(self, concept: Concept) -> Concept:
+        concept.owner_id = self._owner_id
         self._session.add(concept)
         self._session.flush()
         return concept
@@ -53,8 +56,8 @@ class ConceptRepository:
         ).all()
         return items, total or 0
 
-    @staticmethod
-    def _apply_filters[*Ts](stmt: Select[*Ts], f: ConceptFilter) -> Select[*Ts]:
+    def _apply_filters[*Ts](self, stmt: Select[*Ts], f: ConceptFilter) -> Select[*Ts]:
+        stmt = stmt.where(Concept.owner_id == self._owner_id)
         if not f.include_archived:
             stmt = stmt.where(Concept.archived_at.is_(None))
         if f.exam_code:

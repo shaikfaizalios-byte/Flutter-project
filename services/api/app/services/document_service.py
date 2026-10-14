@@ -55,7 +55,15 @@ def sanitize_filename(raw: str | None) -> str:
 
 
 class DocumentService:
-    def __init__(self, session: Session, storage: DocumentStorage, settings: Settings) -> None:
+    def __init__(
+        self,
+        session: Session,
+        storage: DocumentStorage,
+        settings: Settings,
+        *,
+        owner_id: uuid.UUID,
+    ) -> None:
+        self._owner_id = owner_id
         self._session = session
         self._storage = storage
         self._settings = settings
@@ -90,6 +98,7 @@ class DocumentService:
             temp.unlink(missing_ok=True)
 
         document = Document(
+            owner_id=self._owner_id,
             exam_code=exam_code,
             language=language,
             original_filename=sanitize_filename(filename),
@@ -118,7 +127,9 @@ class DocumentService:
         return DocumentRead.model_validate(self._get_or_404(document_id))
 
     def list(self, *, status: str | None, limit: int, offset: int) -> DocumentPageList:
-        items, total = self._documents.list(status=status, limit=limit, offset=offset)
+        items, total = self._documents.list(
+            owner_id=self._owner_id, status=status, limit=limit, offset=offset
+        )
         return DocumentPageList(
             items=[DocumentRead.model_validate(d) for d in items],
             total=total,
@@ -170,6 +181,8 @@ class DocumentService:
 
     def _get_or_404(self, document_id: uuid.UUID) -> Document:
         document = self._documents.get(document_id)
+        if document is not None and document.owner_id != self._owner_id:
+            document = None  # another account's document looks exactly like a missing one
         if document is None:
             raise NotFoundError("Document not found.")
         return document

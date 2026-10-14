@@ -3,6 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query, status
 
+from app.api.deps import CurrentUser
 from app.database.session import DbSession
 from app.repositories.concept_repository import ConceptFilter
 from app.schemas.concept import ConceptCreate, ConceptPage, ConceptRead, ConceptUpdate, Language
@@ -19,8 +20,8 @@ NOT_FOUND: dict[int | str, dict[str, Any]] = {
 }
 
 
-def get_concept_service(session: DbSession) -> ConceptService:
-    return ConceptService(session)
+def get_concept_service(session: DbSession, user: CurrentUser) -> ConceptService:
+    return ConceptService(session, user.id)
 
 
 Service = Annotated[ConceptService, Depends(get_concept_service)]

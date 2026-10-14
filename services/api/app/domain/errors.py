@@ -80,3 +80,20 @@ class NotEligibleError(DomainError):
 
     status_code = 422
     code = "not_eligible"
+
+
+class UnauthorizedError(DomainError):
+    """Missing, malformed or expired credentials."""
+
+    status_code = 401
+    code = "unauthorized"
+
+
+class InvalidCredentialsError(DomainError):
+    status_code = 401
+    code = "invalid_credentials"
+
+
+class EmailTakenError(DomainError):
+    status_code = 409
+    code = "email_taken"

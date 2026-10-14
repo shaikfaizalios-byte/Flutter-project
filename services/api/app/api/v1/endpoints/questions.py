@@ -3,6 +3,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, Query
 
+from app.api.deps import CurrentUser
 from app.database.session import DbSession
 from app.schemas.concept import Language
 from app.schemas.errors import ErrorResponse
@@ -23,8 +24,8 @@ NOT_FOUND: dict[int | str, dict[str, Any]] = {
 }
 
 
-def get_question_service(session: DbSession) -> QuestionService:
-    return QuestionService(session)
+def get_question_service(session: DbSession, user: CurrentUser) -> QuestionService:
+    return QuestionService(session, user.id)
 
 
 Service = Annotated[QuestionService, Depends(get_question_service)]

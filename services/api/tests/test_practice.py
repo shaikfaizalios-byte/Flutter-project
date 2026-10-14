@@ -25,7 +25,9 @@ from app.models.question import (
     Topic,
     VerificationStatus,
 )
+from app.models.user import User
 from app.services.practice_service import PracticeService
+from tests.conftest import auth_headers
 
 T0 = datetime(2026, 10, 14, 9, 0, tzinfo=UTC)
 CHSL_SUBJECTS = [
@@ -56,19 +58,23 @@ def api(
     db_session: Session,
     storage: LocalDocumentStorage,
     clock: Clock,
+    user: User,
 ) -> Iterator[TestClient]:
     from app.database.session import get_session
 
     app = create_app(settings, engine=db_engine, storage=storage)
     app.dependency_overrides[get_session] = lambda: db_session
-    app.dependency_overrides[get_practice_service] = lambda: PracticeService(db_session, now=clock)
-    with TestClient(app, raise_server_exceptions=False) as client:
+    app.dependency_overrides[get_practice_service] = lambda: PracticeService(
+        db_session, owner_id=user.id, now=clock
+    )
+    with TestClient(app, raise_server_exceptions=False, headers=auth_headers(user)) as client:
         yield client
 
 
 @pytest.fixture
-def document(db_session: Session) -> Document:
+def document(db_session: Session, user: User) -> Document:
     doc = Document(
+        owner_id=user.id,
         exam_code="SSC_CHSL",
         language="en",
         original_filename="sample.pdf",
@@ -100,6 +106,7 @@ def make_question(
 ) -> Question:
     number = next(_number)
     question = Question(
+        owner_id=doc.owner_id,
         origin=QuestionOrigin.SOURCE,
         exam_code="SSC_CHSL",
         section=subject,
@@ -350,7 +357,7 @@ def test_mock_structure_timer_and_marking_come_from_the_verified_format(
 
 
 def test_timer_survives_restarts_and_expiry_auto_submits_saved_answers(
-    api: TestClient, db_session: Session, document: Document, clock: Clock
+    api: TestClient, db_session: Session, document: Document, clock: Clock, user: User
 ) -> None:
     make_formats_ready(db_session, document)
     sid = api.post(
@@ -361,7 +368,7 @@ def test_timer_survives_restarts_and_expiry_auto_submits_saved_answers(
 
     # "Restart": a fresh service instance 10 minutes later sees the same server deadline.
     clock.now = T0 + timedelta(minutes=10)
-    restarted = PracticeService(db_session, now=clock).get(uuid.UUID(sid))
+    restarted = PracticeService(db_session, owner_id=user.id, now=clock).get(uuid.UUID(sid))
     assert restarted.status == "active"
     assert restarted.remaining_seconds == 50 * 60
     assert restarted.answered_count == 2
