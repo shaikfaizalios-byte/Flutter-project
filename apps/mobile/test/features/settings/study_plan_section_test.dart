@@ -74,6 +74,7 @@ void main() {
   testAppWidgets('daily study time can be changed and cleared', (tester, db) async {
     await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
+    await scrollTo(tester, find.text('Daily study time'));
 
     await tester.tap(find.text('Daily study time'));
     await tester.pumpAndSettle();

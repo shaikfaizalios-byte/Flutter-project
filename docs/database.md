@@ -134,6 +134,21 @@ Original files are **not** stored in the database. They live in `DocumentStorage
 
   It never stores prompt or output text.
 
+### Schema (revisions `0006` and `0007`): accounts, ownership and sync
+
+- **`users`**: email (unique, CHECK lower-case), Argon2id `password_hash`, `display_name`, `created_at` and `last_login_at`.
+- **`refresh_tokens`**:
+  - `user_id` (CASCADE) and `family_id`
+  - `token_hash` (SHA-256, unique)
+  - `expires_at`, `used_at` and `revoked_at`
+- **`owner_id`** (FK `users`, `ON DELETE CASCADE`, indexed) on `documents`, `questions`, `practice_sessions`, `concepts`
+  and `ai_generations`. Pre-account rows stay NULL until the first account claims them.
+- **`sync_items`** (0007):
+  - primary key (`owner_id`, `entity`, `item_id`)
+  - `data` JSONB (NULL when deleted) and the `deleted` tombstone
+  - `seq` BIGINT from the `sync_seq` sequence, and `updated_at`
+  - index (`owner_id`, `seq`)
+
 ### Migration workflow
 
 ```powershell
@@ -173,7 +188,12 @@ creates the table). **v3** adds `pending_answers`, the offline answer queue for 
 
 Snapshots of every version are in `drift_schemas/`. The generated tests in `test/drift/app_database/` upgrade
 every version to every later one and compare the result with the snapshot. Custom tests check that v1→v2 keeps
-concepts and settings, and that v3→v4 keeps concepts and queued answers.
+concepts and settings, v3→v4 keeps concepts and queued answers, and v4→v5 keeps cards and reviews and gives
+reviews a sync id.
+
+**v5** (migration `from4To5`) adds **`sync_outbox`** (primary key (`entity`, `entity_id`), `version`, `changed_at`), which lists the
+records changed on the device that still need uploading. It also adds **`card_reviews.sync_id`** (a stable id across devices,
+with a unique index; existing rows get random ids).
 
 ### Migration strategy
 
@@ -198,9 +218,10 @@ Serve the app **cross-origin isolated** (COOP `same-origin` + COEP) so Drift can
 
 **Known limitation:** the Claude desktop app's embedded browser pane cannot fetch from web workers, so the web database never opens there. The app still renders (startup storage access times out after 3 s), but the concept list cannot load. Use Chrome or Edge to try web persistence. Android and iOS use native SQLite and are unaffected.
 
-## Sync rules (designed; not implemented)
+## Sync rules (implemented in Phase 10)
 
-Phase 2 is **local-only**: concepts created on the device stay on the device, and nothing is uploaded. These rules govern the sync work in Phase 10:
+These rules were designed in Phase 2 and are now implemented; see [accounts-sync.md](accounts-sync.md) for details. The cursor
+is a server sequence number rather than `updated_at` + `id`, because it is monotonic and needs no tiebreaker:
 
 1. **Identity:** the client generates UUIDs, and the server accepts them, so no ID remapping is needed.
 2. **Direction:** each device pushes its local changes, then pulls server changes made since its last sync cursor (server `updated_at` plus `id` as tiebreaker).

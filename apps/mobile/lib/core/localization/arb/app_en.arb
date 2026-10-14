@@ -1219,5 +1219,80 @@
   "practiceIncludeAiHint": "They are labelled \"AI-generated\" and are not previous-year questions. Mock tests never use them.",
   "topicSuggestedByAi": "Suggested by AI. Confirm or change it.",
   "issueLearnerReport": "Reported by a learner",
-  "issueAiLanguageReview": "AI-written Hindi: check the language"
+  "issueAiLanguageReview": "AI-written Hindi: check the language",
+  "authSignInTitle": "Sign in to your study account.",
+  "authCreateTitle": "Create your study account.",
+  "authSessionExpired": "You were signed out. Please sign in again.",
+  "authName": "Name (optional)",
+  "authEmail": "Email",
+  "authEmailInvalid": "Enter a valid email address.",
+  "authPassword": "Password",
+  "authPasswordHint": "At least {min} characters",
+  "@authPasswordHint": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "authPasswordRequired": "Enter your password.",
+  "authShowPassword": "Show password",
+  "authHidePassword": "Hide password",
+  "authSignIn": "Sign in",
+  "authCreate": "Create account",
+  "authNoAccount": "New here? Create an account",
+  "authHaveAccount": "Already have an account? Sign in",
+  "authSyncNote": "Your concepts, flashcards and study plan are saved to your account, so you can continue on another device. Imported papers and practice results are kept on the server for your account only.",
+  "authErrorCredentials": "Email or password is not correct.",
+  "authErrorEmailTaken": "An account with this email already exists. Sign in instead.",
+  "authErrorRateLimited": "Too many attempts. Please wait a few minutes and try again.",
+  "authErrorInvalid": "Check the email and password and try again.",
+  "authErrorOffline": "You are offline. Connect to the internet to continue.",
+  "authErrorGeneric": "Something went wrong. Please try again.",
+  "accountTitle": "Account",
+  "syncNow": "Sync now",
+  "syncInProgress": "Syncing…",
+  "syncNever": "Not synced yet",
+  "syncDone": "Synced {when}",
+  "@syncDone": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "syncPending": "{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
+  "@syncPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncOffline": "{count, plural, =0{Offline. Changes will sync when you are back online.} other{Offline. {count} changes will sync when you are back online.}}",
+  "@syncOffline": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncFailed": "Could not sync. It will be retried.",
+  "accountExport": "Copy my data",
+  "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
+  "accountSignOut": "Sign out",
+  "accountSignOutTitle": "Sign out?",
+  "accountSignOutMessage": "Your study data will be removed from this device. It stays in your account.",
+  "accountSignOutUnsynced": "{count, plural, =1{1 change has not synced yet and will be lost if you sign out now.} other{{count} changes have not synced yet and will be lost if you sign out now.}}",
+  "@accountSignOutUnsynced": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountDelete": "Delete account",
+  "accountDeleteTitle": "Delete your account?",
+  "accountDeleteMessage": "This permanently deletes your account and everything in it: concepts, flashcards, imported papers, questions and practice history. It cannot be undone. Enter your password to confirm.",
+  "accountDeleteConfirm": "Delete permanently"
 }

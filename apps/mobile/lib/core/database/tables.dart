@@ -135,9 +135,13 @@ class RevisionCards extends Table {
 /// One row per flashcard review (recall rating and the resulting schedule), kept for
 /// progress analytics in Phase 8. Added in schema v4.
 @DataClassName('CardReviewRow')
+@TableIndex(name: 'card_reviews_sync_id', columns: {#syncId}, unique: true)
 class CardReviews extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get cardId => text().references(RevisionCards, #id, onDelete: KeyAction.cascade)();
+
+  /// Stable id across devices (sync, schema v5); local [id]s are per device.
+  TextColumn get syncId => text().nullable()();
   DateTimeColumn get reviewedAt => dateTime()();
 
   /// `again`, `hard`, `good` or `easy`.
@@ -145,4 +149,19 @@ class CardReviews extends Table {
   TextColumn get dueBefore => text()();
   TextColumn get dueAfter => text()();
   IntColumn get gapDays => integer()();
+}
+
+/// Records changed on this device that still need uploading (sync, schema v5). One row per
+/// record: the upload reads the record's current state, so repeated edits coalesce. The
+/// version grows on every change, so an edit made during an upload is not lost.
+@DataClassName('SyncOutboxRow')
+class SyncOutbox extends Table {
+  /// `concept`, `study_profile`, `revision_card`, `card_review` or `setting`.
+  TextColumn get entity => text()();
+  TextColumn get entityId => text()();
+  IntColumn get version => integer().withDefault(const Constant(1))();
+  DateTimeColumn get changedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {entity, entityId};
 }

@@ -1731,4 +1731,156 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get issueAiLanguageReview => 'AI द्वारा लिखी हिंदी: भाषा जाँचें';
+
+  @override
+  String get authSignInTitle => 'अपने अध्ययन खाते में साइन इन करें।';
+
+  @override
+  String get authCreateTitle => 'अपना अध्ययन खाता बनाएँ।';
+
+  @override
+  String get authSessionExpired => 'आप साइन आउट हो गए थे। कृपया फिर से साइन इन करें।';
+
+  @override
+  String get authName => 'नाम (वैकल्पिक)';
+
+  @override
+  String get authEmail => 'ईमेल';
+
+  @override
+  String get authEmailInvalid => 'मान्य ईमेल पता लिखें।';
+
+  @override
+  String get authPassword => 'पासवर्ड';
+
+  @override
+  String authPasswordHint(int min) {
+    return 'कम से कम $min अक्षर';
+  }
+
+  @override
+  String get authPasswordRequired => 'अपना पासवर्ड लिखें।';
+
+  @override
+  String get authShowPassword => 'पासवर्ड दिखाएँ';
+
+  @override
+  String get authHidePassword => 'पासवर्ड छिपाएँ';
+
+  @override
+  String get authSignIn => 'साइन इन करें';
+
+  @override
+  String get authCreate => 'खाता बनाएँ';
+
+  @override
+  String get authNoAccount => 'नए हैं? खाता बनाएँ';
+
+  @override
+  String get authHaveAccount => 'पहले से खाता है? साइन इन करें';
+
+  @override
+  String get authSyncNote =>
+      'आपके कॉन्सेप्ट, फ्लैशकार्ड और अध्ययन योजना आपके खाते में सहेजे जाते हैं, ताकि आप दूसरे डिवाइस पर जारी रख सकें। आयात किए गए प्रश्न-पत्र और अभ्यास परिणाम केवल आपके खाते के लिए सर्वर पर रखे जाते हैं।';
+
+  @override
+  String get authErrorCredentials => 'ईमेल या पासवर्ड सही नहीं है।';
+
+  @override
+  String get authErrorEmailTaken => 'इस ईमेल से पहले से एक खाता है। इसके बजाय साइन इन करें।';
+
+  @override
+  String get authErrorRateLimited => 'बहुत अधिक प्रयास। कृपया कुछ मिनट रुककर फिर कोशिश करें।';
+
+  @override
+  String get authErrorInvalid => 'ईमेल और पासवर्ड जाँचकर फिर कोशिश करें।';
+
+  @override
+  String get authErrorOffline => 'आप ऑफ़लाइन हैं। जारी रखने के लिए इंटरनेट से जुड़ें।';
+
+  @override
+  String get authErrorGeneric => 'कुछ गलत हो गया। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get accountTitle => 'खाता';
+
+  @override
+  String get syncNow => 'अभी सिंक करें';
+
+  @override
+  String get syncInProgress => 'सिंक हो रहा है…';
+
+  @override
+  String get syncNever => 'अभी तक सिंक नहीं हुआ';
+
+  @override
+  String syncDone(String when) {
+    return '$when को सिंक हुआ';
+  }
+
+  @override
+  String syncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count बदलाव सिंक होना बाकी',
+      one: '1 बदलाव सिंक होना बाकी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncOffline(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ऑफ़लाइन। ऑनलाइन होने पर $count बदलाव सिंक होंगे।',
+      zero: 'ऑफ़लाइन। ऑनलाइन होने पर बदलाव सिंक होंगे।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncFailed => 'सिंक नहीं हो सका। फिर से कोशिश की जाएगी।';
+
+  @override
+  String get accountExport => 'मेरा डेटा कॉपी करें';
+
+  @override
+  String get accountExported =>
+      'आपका डेटा JSON के रूप में कॉपी हो गया। सुरक्षित रखने के लिए इसे किसी फ़ाइल में पेस्ट करें।';
+
+  @override
+  String get accountSignOut => 'साइन आउट करें';
+
+  @override
+  String get accountSignOutTitle => 'साइन आउट करें?';
+
+  @override
+  String get accountSignOutMessage =>
+      'आपका अध्ययन डेटा इस डिवाइस से हटा दिया जाएगा। यह आपके खाते में रहेगा।';
+
+  @override
+  String accountSignOutUnsynced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count बदलाव अभी सिंक नहीं हुए हैं और अभी साइन आउट करने पर खो जाएँगे।',
+      one: '1 बदलाव अभी सिंक नहीं हुआ है और अभी साइन आउट करने पर खो जाएगा।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountDelete => 'खाता हटाएँ';
+
+  @override
+  String get accountDeleteTitle => 'अपना खाता हटाएँ?';
+
+  @override
+  String get accountDeleteMessage =>
+      'इससे आपका खाता और उसमें सब कुछ स्थायी रूप से हट जाएगा: कॉन्सेप्ट, फ्लैशकार्ड, आयात किए गए प्रश्न-पत्र, प्रश्न और अभ्यास इतिहास। इसे वापस नहीं किया जा सकता। पुष्टि के लिए अपना पासवर्ड लिखें।';
+
+  @override
+  String get accountDeleteConfirm => 'स्थायी रूप से हटाएँ';
 }

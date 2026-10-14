@@ -7,6 +7,8 @@ import 'app/app.dart';
 import 'core/config/app_config.dart';
 import 'core/database/app_database.dart';
 import 'core/utils/app_log.dart';
+import 'features/auth/application/auth_controller.dart';
+import 'features/auth/data/auth_api.dart';
 import 'features/settings/application/app_preferences.dart';
 import 'features/settings/data/preferences_repository.dart';
 import 'features/study_plan/application/study_profile_controller.dart';
@@ -34,6 +36,8 @@ Future<void> bootstrap() async {
     PreferencesRepository(database).load,
     const AppPreferences(),
   );
+  final tokenStore = SecureTokenStore();
+  final session = await _loadOrDefault<AuthSession?>('session', tokenStore.read, null);
   final studyProfile = await _loadOrDefault(
     'study profile',
     StudyProfileRepository(database).load,
@@ -47,6 +51,8 @@ Future<void> bootstrap() async {
         appDatabaseProvider.overrideWithValue(database),
         initialPreferencesProvider.overrideWithValue(preferences),
         initialStudyProfileProvider.overrideWithValue(studyProfile),
+        tokenStoreProvider.overrideWithValue(tokenStore),
+        initialAuthSessionProvider.overrideWithValue(session),
       ],
       child: const PrepLoopApp(),
     ),

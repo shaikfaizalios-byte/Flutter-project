@@ -1727,4 +1727,155 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issueAiLanguageReview => 'AI-written Hindi: check the language';
+
+  @override
+  String get authSignInTitle => 'Sign in to your study account.';
+
+  @override
+  String get authCreateTitle => 'Create your study account.';
+
+  @override
+  String get authSessionExpired => 'You were signed out. Please sign in again.';
+
+  @override
+  String get authName => 'Name (optional)';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String authPasswordHint(int min) {
+    return 'At least $min characters';
+  }
+
+  @override
+  String get authPasswordRequired => 'Enter your password.';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authCreate => 'Create account';
+
+  @override
+  String get authNoAccount => 'New here? Create an account';
+
+  @override
+  String get authHaveAccount => 'Already have an account? Sign in';
+
+  @override
+  String get authSyncNote =>
+      'Your concepts, flashcards and study plan are saved to your account, so you can continue on another device. Imported papers and practice results are kept on the server for your account only.';
+
+  @override
+  String get authErrorCredentials => 'Email or password is not correct.';
+
+  @override
+  String get authErrorEmailTaken => 'An account with this email already exists. Sign in instead.';
+
+  @override
+  String get authErrorRateLimited => 'Too many attempts. Please wait a few minutes and try again.';
+
+  @override
+  String get authErrorInvalid => 'Check the email and password and try again.';
+
+  @override
+  String get authErrorOffline => 'You are offline. Connect to the internet to continue.';
+
+  @override
+  String get authErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get syncInProgress => 'Syncing…';
+
+  @override
+  String get syncNever => 'Not synced yet';
+
+  @override
+  String syncDone(String when) {
+    return 'Synced $when';
+  }
+
+  @override
+  String syncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncOffline(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Offline. $count changes will sync when you are back online.',
+      zero: 'Offline. Changes will sync when you are back online.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncFailed => 'Could not sync. It will be retried.';
+
+  @override
+  String get accountExport => 'Copy my data';
+
+  @override
+  String get accountExported => 'Your data was copied as JSON. Paste it into a file to keep it.';
+
+  @override
+  String get accountSignOut => 'Sign out';
+
+  @override
+  String get accountSignOutTitle => 'Sign out?';
+
+  @override
+  String get accountSignOutMessage =>
+      'Your study data will be removed from this device. It stays in your account.';
+
+  @override
+  String accountSignOutUnsynced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes have not synced yet and will be lost if you sign out now.',
+      one: '1 change has not synced yet and will be lost if you sign out now.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountDelete => 'Delete account';
+
+  @override
+  String get accountDeleteTitle => 'Delete your account?';
+
+  @override
+  String get accountDeleteMessage =>
+      'This permanently deletes your account and everything in it: concepts, flashcards, imported papers, questions and practice history. It cannot be undone. Enter your password to confirm.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete permanently';
 }

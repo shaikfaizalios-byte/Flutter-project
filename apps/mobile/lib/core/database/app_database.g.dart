@@ -2806,6 +2806,15 @@ class $CardReviewsTable extends CardReviews with TableInfo<$CardReviewsTable, Ca
       'REFERENCES revision_cards (id) ON DELETE CASCADE',
     ),
   );
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+    'sync_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _reviewedAtMeta = const VerificationMeta('reviewedAt');
   @override
   late final GeneratedColumn<DateTime> reviewedAt = GeneratedColumn<DateTime>(
@@ -2855,6 +2864,7 @@ class $CardReviewsTable extends CardReviews with TableInfo<$CardReviewsTable, Ca
   List<GeneratedColumn> get $columns => [
     id,
     cardId,
+    syncId,
     reviewedAt,
     rating,
     dueBefore,
@@ -2880,6 +2890,9 @@ class $CardReviewsTable extends CardReviews with TableInfo<$CardReviewsTable, Ca
       context.handle(_cardIdMeta, cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
     } else if (isInserting) {
       context.missing(_cardIdMeta);
+    }
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta, syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
     }
     if (data.containsKey('reviewed_at')) {
       context.handle(
@@ -2929,6 +2942,10 @@ class $CardReviewsTable extends CardReviews with TableInfo<$CardReviewsTable, Ca
         DriftSqlType.string,
         data['${effectivePrefix}card_id'],
       )!,
+      syncId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_id'],
+      ),
       reviewedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}reviewed_at'],
@@ -2961,6 +2978,9 @@ class $CardReviewsTable extends CardReviews with TableInfo<$CardReviewsTable, Ca
 class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
   final int id;
   final String cardId;
+
+  /// Stable id across devices (sync, schema v5); local [id]s are per device.
+  final String? syncId;
   final DateTime reviewedAt;
 
   /// `again`, `hard`, `good` or `easy`.
@@ -2971,6 +2991,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
   const CardReviewRow({
     required this.id,
     required this.cardId,
+    this.syncId,
     required this.reviewedAt,
     required this.rating,
     required this.dueBefore,
@@ -2982,6 +3003,9 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['card_id'] = Variable<String>(cardId);
+    if (!nullToAbsent || syncId != null) {
+      map['sync_id'] = Variable<String>(syncId);
+    }
     map['reviewed_at'] = Variable<DateTime>(reviewedAt);
     map['rating'] = Variable<String>(rating);
     map['due_before'] = Variable<String>(dueBefore);
@@ -2994,6 +3018,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
     return CardReviewsCompanion(
       id: Value(id),
       cardId: Value(cardId),
+      syncId: syncId == null && nullToAbsent ? const Value.absent() : Value(syncId),
       reviewedAt: Value(reviewedAt),
       rating: Value(rating),
       dueBefore: Value(dueBefore),
@@ -3007,6 +3032,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
     return CardReviewRow(
       id: serializer.fromJson<int>(json['id']),
       cardId: serializer.fromJson<String>(json['cardId']),
+      syncId: serializer.fromJson<String?>(json['syncId']),
       reviewedAt: serializer.fromJson<DateTime>(json['reviewedAt']),
       rating: serializer.fromJson<String>(json['rating']),
       dueBefore: serializer.fromJson<String>(json['dueBefore']),
@@ -3020,6 +3046,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'cardId': serializer.toJson<String>(cardId),
+      'syncId': serializer.toJson<String?>(syncId),
       'reviewedAt': serializer.toJson<DateTime>(reviewedAt),
       'rating': serializer.toJson<String>(rating),
       'dueBefore': serializer.toJson<String>(dueBefore),
@@ -3031,6 +3058,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
   CardReviewRow copyWith({
     int? id,
     String? cardId,
+    Value<String?> syncId = const Value.absent(),
     DateTime? reviewedAt,
     String? rating,
     String? dueBefore,
@@ -3039,6 +3067,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
   }) => CardReviewRow(
     id: id ?? this.id,
     cardId: cardId ?? this.cardId,
+    syncId: syncId.present ? syncId.value : this.syncId,
     reviewedAt: reviewedAt ?? this.reviewedAt,
     rating: rating ?? this.rating,
     dueBefore: dueBefore ?? this.dueBefore,
@@ -3049,6 +3078,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
     return CardReviewRow(
       id: data.id.present ? data.id.value : this.id,
       cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
       reviewedAt: data.reviewedAt.present ? data.reviewedAt.value : this.reviewedAt,
       rating: data.rating.present ? data.rating.value : this.rating,
       dueBefore: data.dueBefore.present ? data.dueBefore.value : this.dueBefore,
@@ -3062,6 +3092,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
     return (StringBuffer('CardReviewRow(')
           ..write('id: $id, ')
           ..write('cardId: $cardId, ')
+          ..write('syncId: $syncId, ')
           ..write('reviewedAt: $reviewedAt, ')
           ..write('rating: $rating, ')
           ..write('dueBefore: $dueBefore, ')
@@ -3072,13 +3103,15 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, cardId, reviewedAt, rating, dueBefore, dueAfter, gapDays);
+  int get hashCode =>
+      Object.hash(id, cardId, syncId, reviewedAt, rating, dueBefore, dueAfter, gapDays);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CardReviewRow &&
           other.id == this.id &&
           other.cardId == this.cardId &&
+          other.syncId == this.syncId &&
           other.reviewedAt == this.reviewedAt &&
           other.rating == this.rating &&
           other.dueBefore == this.dueBefore &&
@@ -3089,6 +3122,7 @@ class CardReviewRow extends DataClass implements Insertable<CardReviewRow> {
 class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
   final Value<int> id;
   final Value<String> cardId;
+  final Value<String?> syncId;
   final Value<DateTime> reviewedAt;
   final Value<String> rating;
   final Value<String> dueBefore;
@@ -3097,6 +3131,7 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
   const CardReviewsCompanion({
     this.id = const Value.absent(),
     this.cardId = const Value.absent(),
+    this.syncId = const Value.absent(),
     this.reviewedAt = const Value.absent(),
     this.rating = const Value.absent(),
     this.dueBefore = const Value.absent(),
@@ -3106,6 +3141,7 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
   CardReviewsCompanion.insert({
     this.id = const Value.absent(),
     required String cardId,
+    this.syncId = const Value.absent(),
     required DateTime reviewedAt,
     required String rating,
     required String dueBefore,
@@ -3120,6 +3156,7 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
   static Insertable<CardReviewRow> custom({
     Expression<int>? id,
     Expression<String>? cardId,
+    Expression<String>? syncId,
     Expression<DateTime>? reviewedAt,
     Expression<String>? rating,
     Expression<String>? dueBefore,
@@ -3129,6 +3166,7 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (cardId != null) 'card_id': cardId,
+      if (syncId != null) 'sync_id': syncId,
       if (reviewedAt != null) 'reviewed_at': reviewedAt,
       if (rating != null) 'rating': rating,
       if (dueBefore != null) 'due_before': dueBefore,
@@ -3140,6 +3178,7 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
   CardReviewsCompanion copyWith({
     Value<int>? id,
     Value<String>? cardId,
+    Value<String?>? syncId,
     Value<DateTime>? reviewedAt,
     Value<String>? rating,
     Value<String>? dueBefore,
@@ -3149,6 +3188,7 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
     return CardReviewsCompanion(
       id: id ?? this.id,
       cardId: cardId ?? this.cardId,
+      syncId: syncId ?? this.syncId,
       reviewedAt: reviewedAt ?? this.reviewedAt,
       rating: rating ?? this.rating,
       dueBefore: dueBefore ?? this.dueBefore,
@@ -3165,6 +3205,9 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
     }
     if (cardId.present) {
       map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
     }
     if (reviewedAt.present) {
       map['reviewed_at'] = Variable<DateTime>(reviewedAt.value);
@@ -3189,11 +3232,304 @@ class CardReviewsCompanion extends UpdateCompanion<CardReviewRow> {
     return (StringBuffer('CardReviewsCompanion(')
           ..write('id: $id, ')
           ..write('cardId: $cardId, ')
+          ..write('syncId: $syncId, ')
           ..write('reviewedAt: $reviewedAt, ')
           ..write('rating: $rating, ')
           ..write('dueBefore: $dueBefore, ')
           ..write('dueAfter: $dueAfter, ')
           ..write('gapDays: $gapDays')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncOutboxTable extends SyncOutbox with TableInfo<$SyncOutboxTable, SyncOutboxRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncOutboxTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entityMeta = const VerificationMeta('entity');
+  @override
+  late final GeneratedColumn<String> entity = GeneratedColumn<String>(
+    'entity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta('entityId');
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta('version');
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+    'version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _changedAtMeta = const VerificationMeta('changedAt');
+  @override
+  late final GeneratedColumn<DateTime> changedAt = GeneratedColumn<DateTime>(
+    'changed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [entity, entityId, version, changedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_outbox';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncOutboxRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entity')) {
+      context.handle(_entityMeta, entity.isAcceptableOrUnknown(data['entity']!, _entityMeta));
+    } else if (isInserting) {
+      context.missing(_entityMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(_versionMeta, version.isAcceptableOrUnknown(data['version']!, _versionMeta));
+    }
+    if (data.containsKey('changed_at')) {
+      context.handle(
+        _changedAtMeta,
+        changedAt.isAcceptableOrUnknown(data['changed_at']!, _changedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_changedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entity, entityId};
+  @override
+  SyncOutboxRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncOutboxRow(
+      entity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}version'],
+      )!,
+      changedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}changed_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SyncOutboxTable createAlias(String alias) {
+    return $SyncOutboxTable(attachedDatabase, alias);
+  }
+}
+
+class SyncOutboxRow extends DataClass implements Insertable<SyncOutboxRow> {
+  /// `concept`, `study_profile`, `revision_card`, `card_review` or `setting`.
+  final String entity;
+  final String entityId;
+  final int version;
+  final DateTime changedAt;
+  const SyncOutboxRow({
+    required this.entity,
+    required this.entityId,
+    required this.version,
+    required this.changedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entity'] = Variable<String>(entity);
+    map['entity_id'] = Variable<String>(entityId);
+    map['version'] = Variable<int>(version);
+    map['changed_at'] = Variable<DateTime>(changedAt);
+    return map;
+  }
+
+  SyncOutboxCompanion toCompanion(bool nullToAbsent) {
+    return SyncOutboxCompanion(
+      entity: Value(entity),
+      entityId: Value(entityId),
+      version: Value(version),
+      changedAt: Value(changedAt),
+    );
+  }
+
+  factory SyncOutboxRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncOutboxRow(
+      entity: serializer.fromJson<String>(json['entity']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      version: serializer.fromJson<int>(json['version']),
+      changedAt: serializer.fromJson<DateTime>(json['changedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entity': serializer.toJson<String>(entity),
+      'entityId': serializer.toJson<String>(entityId),
+      'version': serializer.toJson<int>(version),
+      'changedAt': serializer.toJson<DateTime>(changedAt),
+    };
+  }
+
+  SyncOutboxRow copyWith({String? entity, String? entityId, int? version, DateTime? changedAt}) =>
+      SyncOutboxRow(
+        entity: entity ?? this.entity,
+        entityId: entityId ?? this.entityId,
+        version: version ?? this.version,
+        changedAt: changedAt ?? this.changedAt,
+      );
+  SyncOutboxRow copyWithCompanion(SyncOutboxCompanion data) {
+    return SyncOutboxRow(
+      entity: data.entity.present ? data.entity.value : this.entity,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      version: data.version.present ? data.version.value : this.version,
+      changedAt: data.changedAt.present ? data.changedAt.value : this.changedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxRow(')
+          ..write('entity: $entity, ')
+          ..write('entityId: $entityId, ')
+          ..write('version: $version, ')
+          ..write('changedAt: $changedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(entity, entityId, version, changedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncOutboxRow &&
+          other.entity == this.entity &&
+          other.entityId == this.entityId &&
+          other.version == this.version &&
+          other.changedAt == this.changedAt);
+}
+
+class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxRow> {
+  final Value<String> entity;
+  final Value<String> entityId;
+  final Value<int> version;
+  final Value<DateTime> changedAt;
+  final Value<int> rowid;
+  const SyncOutboxCompanion({
+    this.entity = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.version = const Value.absent(),
+    this.changedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncOutboxCompanion.insert({
+    required String entity,
+    required String entityId,
+    this.version = const Value.absent(),
+    required DateTime changedAt,
+    this.rowid = const Value.absent(),
+  }) : entity = Value(entity),
+       entityId = Value(entityId),
+       changedAt = Value(changedAt);
+  static Insertable<SyncOutboxRow> custom({
+    Expression<String>? entity,
+    Expression<String>? entityId,
+    Expression<int>? version,
+    Expression<DateTime>? changedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entity != null) 'entity': entity,
+      if (entityId != null) 'entity_id': entityId,
+      if (version != null) 'version': version,
+      if (changedAt != null) 'changed_at': changedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncOutboxCompanion copyWith({
+    Value<String>? entity,
+    Value<String>? entityId,
+    Value<int>? version,
+    Value<DateTime>? changedAt,
+    Value<int>? rowid,
+  }) {
+    return SyncOutboxCompanion(
+      entity: entity ?? this.entity,
+      entityId: entityId ?? this.entityId,
+      version: version ?? this.version,
+      changedAt: changedAt ?? this.changedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entity.present) {
+      map['entity'] = Variable<String>(entity.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (changedAt.present) {
+      map['changed_at'] = Variable<DateTime>(changedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxCompanion(')
+          ..write('entity: $entity, ')
+          ..write('entityId: $entityId, ')
+          ..write('version: $version, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -3208,6 +3544,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PendingAnswersTable pendingAnswers = $PendingAnswersTable(this);
   late final $RevisionCardsTable revisionCards = $RevisionCardsTable(this);
   late final $CardReviewsTable cardReviews = $CardReviewsTable(this);
+  late final $SyncOutboxTable syncOutbox = $SyncOutboxTable(this);
+  late final Index cardReviewsSyncId = Index(
+    'card_reviews_sync_id',
+    'CREATE UNIQUE INDEX card_reviews_sync_id ON card_reviews (sync_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3219,6 +3560,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     pendingAnswers,
     revisionCards,
     cardReviews,
+    syncOutbox,
+    cardReviewsSyncId,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -4716,6 +5059,7 @@ typedef $$RevisionCardsTableProcessedTableManager =
 typedef $$CardReviewsTableCreateCompanionBuilder = CardReviewsCompanion Function({
   Value<int> id,
   required String cardId,
+  Value<String?> syncId,
   required DateTime reviewedAt,
   required String rating,
   required String dueBefore,
@@ -4725,6 +5069,7 @@ typedef $$CardReviewsTableCreateCompanionBuilder = CardReviewsCompanion Function
 typedef $$CardReviewsTableUpdateCompanionBuilder = CardReviewsCompanion Function({
   Value<int> id,
   Value<String> cardId,
+  Value<String?> syncId,
   Value<DateTime> reviewedAt,
   Value<String> rating,
   Value<String> dueBefore,
@@ -4762,6 +5107,9 @@ class $$CardReviewsTableFilterComposer extends Composer<_$AppDatabase, $CardRevi
   });
   ColumnFilters<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get reviewedAt =>
       $composableBuilder(column: $table.reviewedAt, builder: (column) => ColumnFilters(column));
@@ -4808,6 +5156,9 @@ class $$CardReviewsTableOrderingComposer extends Composer<_$AppDatabase, $CardRe
   ColumnOrderings<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get reviewedAt =>
       $composableBuilder(column: $table.reviewedAt, builder: (column) => ColumnOrderings(column));
 
@@ -4851,6 +5202,9 @@ class $$CardReviewsTableAnnotationComposer extends Composer<_$AppDatabase, $Card
     super.$removeJoinBuilderFromRootComposer,
   });
   GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
 
   GeneratedColumn<DateTime> get reviewedAt =>
       $composableBuilder(column: $table.reviewedAt, builder: (column) => column);
@@ -4914,6 +5268,7 @@ class $$CardReviewsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> cardId = const Value.absent(),
+                Value<String?> syncId = const Value.absent(),
                 Value<DateTime> reviewedAt = const Value.absent(),
                 Value<String> rating = const Value.absent(),
                 Value<String> dueBefore = const Value.absent(),
@@ -4922,6 +5277,7 @@ class $$CardReviewsTableTableManager
               }) => CardReviewsCompanion(
                 id: id,
                 cardId: cardId,
+                syncId: syncId,
                 reviewedAt: reviewedAt,
                 rating: rating,
                 dueBefore: dueBefore,
@@ -4932,6 +5288,7 @@ class $$CardReviewsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String cardId,
+                Value<String?> syncId = const Value.absent(),
                 required DateTime reviewedAt,
                 required String rating,
                 required String dueBefore,
@@ -4940,6 +5297,7 @@ class $$CardReviewsTableTableManager
               }) => CardReviewsCompanion.insert(
                 id: id,
                 cardId: cardId,
+                syncId: syncId,
                 reviewedAt: reviewedAt,
                 rating: rating,
                 dueBefore: dueBefore,
@@ -5008,6 +5366,163 @@ typedef $$CardReviewsTableProcessedTableManager =
       CardReviewRow,
       PrefetchHooks Function({bool cardId})
     >;
+typedef $$SyncOutboxTableCreateCompanionBuilder = SyncOutboxCompanion Function({
+  required String entity,
+  required String entityId,
+  Value<int> version,
+  required DateTime changedAt,
+  Value<int> rowid,
+});
+typedef $$SyncOutboxTableUpdateCompanionBuilder = SyncOutboxCompanion Function({
+  Value<String> entity,
+  Value<String> entityId,
+  Value<int> version,
+  Value<DateTime> changedAt,
+  Value<int> rowid,
+});
+
+class $$SyncOutboxTableFilterComposer extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get entity =>
+      $composableBuilder(column: $table.entity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncOutboxTableOrderingComposer extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get entity =>
+      $composableBuilder(column: $table.entity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncOutboxTableAnnotationComposer extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get entity =>
+      $composableBuilder(column: $table.entity, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => column);
+}
+
+class $$SyncOutboxTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncOutboxTable,
+          SyncOutboxRow,
+          $$SyncOutboxTableFilterComposer,
+          $$SyncOutboxTableOrderingComposer,
+          $$SyncOutboxTableAnnotationComposer,
+          $$SyncOutboxTableCreateCompanionBuilder,
+          $$SyncOutboxTableUpdateCompanionBuilder,
+          (SyncOutboxRow, BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxRow>),
+          SyncOutboxRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncOutboxTableTableManager(_$AppDatabase db, $SyncOutboxTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$SyncOutboxTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SyncOutboxTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncOutboxTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> entity = const Value.absent(),
+                Value<String> entityId = const Value.absent(),
+                Value<int> version = const Value.absent(),
+                Value<DateTime> changedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncOutboxCompanion(
+                entity: entity,
+                entityId: entityId,
+                version: version,
+                changedAt: changedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String entity,
+                required String entityId,
+                Value<int> version = const Value.absent(),
+                required DateTime changedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SyncOutboxCompanion.insert(
+                entity: entity,
+                entityId: entityId,
+                version: version,
+                changedAt: changedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SyncOutboxTable, SyncOutboxRow>(table),
+                  BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxRow>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncOutboxTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncOutboxTable,
+      SyncOutboxRow,
+      $$SyncOutboxTableFilterComposer,
+      $$SyncOutboxTableOrderingComposer,
+      $$SyncOutboxTableAnnotationComposer,
+      $$SyncOutboxTableCreateCompanionBuilder,
+      $$SyncOutboxTableUpdateCompanionBuilder,
+      (SyncOutboxRow, BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxRow>),
+      SyncOutboxRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5023,4 +5538,6 @@ class $AppDatabaseManager {
       $$RevisionCardsTableTableManager(_db, _db.revisionCards);
   $$CardReviewsTableTableManager get cardReviews =>
       $$CardReviewsTableTableManager(_db, _db.cardReviews);
+  $$SyncOutboxTableTableManager get syncOutbox =>
+      $$SyncOutboxTableTableManager(_db, _db.syncOutbox);
 }

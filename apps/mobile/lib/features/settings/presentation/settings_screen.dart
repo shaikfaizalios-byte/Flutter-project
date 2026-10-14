@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/presentation/account_section.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -28,6 +29,8 @@ class SettingsScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.md),
             children: [
+              const AccountSection(),
+              const SizedBox(height: AppSpacing.md),
               const StudyPlanSection(),
               const SizedBox(height: AppSpacing.md),
               SectionCard(

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/sync_outbox.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../../analytics/domain/analytics_models.dart';
 import '../../question_bank/domain/question.dart';
@@ -40,11 +41,14 @@ class RevisionRepository {
     if (!RevisionSettings.isValid(settings.dayOffsets)) {
       throw ArgumentError.value(settings.dayOffsets, 'dayOffsets', 'Not a valid ladder');
     }
-    await _db
-        .into(_db.appSettings)
-        .insertOnConflictUpdate(
-          AppSettingsCompanion.insert(key: settingsKey, value: settings.serialize()),
-        );
+    await _db.transaction(() async {
+      await _db
+          .into(_db.appSettings)
+          .insertOnConflictUpdate(
+            AppSettingsCompanion.insert(key: settingsKey, value: settings.serialize()),
+          );
+      await _db.markDirty(SyncEntity.setting, SyncEntity.revisionOffsetsId);
+    });
   }
 
   // --- reading ----------------------------------------------------------------------
@@ -111,21 +115,26 @@ class RevisionRepository {
     final settings = await loadSettings();
     final schedule = RevisionScheduler.initial(_today, settings);
     final now = _clock().toUtc();
-    await _db
-        .into(_db.revisionCards)
-        .insert(
-          RevisionCardsCompanion.insert(
-            id: _uuid.v4(),
-            kind: CardKind.concept.name,
-            conceptId: Value(conceptId),
-            step: schedule.step,
-            gapDays: schedule.gapDays,
-            dueOn: schedule.dueOn.toIsoString(),
-            createdAt: now,
-            updatedAt: now,
-          ),
-          mode: InsertMode.insertOrIgnore,
-        );
+    final id = _uuid.v4();
+    await _db.transaction(() async {
+      final inserted = await _db
+          .into(_db.revisionCards)
+          .insert(
+            RevisionCardsCompanion.insert(
+              id: id,
+              kind: CardKind.concept.name,
+              conceptId: Value(conceptId),
+              step: schedule.step,
+              gapDays: schedule.gapDays,
+              dueOn: schedule.dueOn.toIsoString(),
+              createdAt: now,
+              updatedAt: now,
+            ),
+            mode: InsertMode.insertOrIgnore,
+          );
+      // insertOrIgnore returns 0 when the concept already had a card.
+      if (inserted > 0) await _db.markDirty(SyncEntity.revisionCard, id);
+    });
   }
 
   /// Turns questions into cards. Only verified questions from imported papers that
@@ -149,36 +158,42 @@ class RevisionRepository {
     final settings = await loadSettings();
     final schedule = RevisionScheduler.initial(_today, settings);
     final now = _clock().toUtc();
-    await _db.batch((batch) {
-      for (final q in fresh) {
-        final answer = q.options.firstWhere((o) => o.position == q.correctPosition);
-        final explanation = q.explanation?.trim() ?? '';
-        batch.insert(
-          _db.revisionCards,
-          RevisionCardsCompanion.insert(
-            id: _uuid.v4(),
-            kind: CardKind.question.name,
-            questionId: Value(q.id),
-            front: Value(questionFront(q)),
-            back: Value(
-              explanation.isEmpty
-                  ? '(${answer.label}) ${answer.text}'
-                  : '(${answer.label}) ${answer.text}\n\n$explanation',
+    final ids = {for (final q in fresh) q.id: _uuid.v4()};
+    await _db.transaction(() async {
+      await _db.batch((batch) {
+        for (final q in fresh) {
+          final answer = q.options.firstWhere((o) => o.position == q.correctPosition);
+          final explanation = q.explanation?.trim() ?? '';
+          batch.insert(
+            _db.revisionCards,
+            RevisionCardsCompanion.insert(
+              id: ids[q.id]!,
+              kind: CardKind.question.name,
+              questionId: Value(q.id),
+              front: Value(questionFront(q)),
+              back: Value(
+                explanation.isEmpty
+                    ? '(${answer.label}) ${answer.text}'
+                    : '(${answer.label}) ${answer.text}\n\n$explanation',
+              ),
+              sourceFilename: Value(q.documentFilename),
+              sourcePage: Value(q.sourcePages.firstOrNull),
+              examCode: Value(q.examCode),
+              subject: Value(q.subject ?? q.section),
+              topic: Value(q.topic?.name),
+              reason: Value(reason.code),
+              step: schedule.step,
+              gapDays: schedule.gapDays,
+              dueOn: schedule.dueOn.toIsoString(),
+              createdAt: now,
+              updatedAt: now,
             ),
-            sourceFilename: Value(q.documentFilename),
-            sourcePage: Value(q.sourcePages.firstOrNull),
-            examCode: Value(q.examCode),
-            subject: Value(q.subject ?? q.section),
-            topic: Value(q.topic?.name),
-            reason: Value(reason.code),
-            step: schedule.step,
-            gapDays: schedule.gapDays,
-            dueOn: schedule.dueOn.toIsoString(),
-            createdAt: now,
-            updatedAt: now,
-          ),
-          mode: InsertMode.insertOrIgnore,
-        );
+            mode: InsertMode.insertOrIgnore,
+          );
+        }
+      });
+      for (final id in ids.values) {
+        await _db.markDirty(SyncEntity.revisionCard, id);
       }
     });
     return AddQuestionsResult(
@@ -206,8 +221,10 @@ class RevisionRepository {
     return buffer.toString();
   }
 
-  Future<void> removeCard(String id) =>
-      (_db.delete(_db.revisionCards)..where((c) => c.id.equals(id))).go();
+  Future<void> removeCard(String id) => _db.transaction(() async {
+    final deleted = await (_db.delete(_db.revisionCards)..where((c) => c.id.equals(id))).go();
+    if (deleted > 0) await _db.markDirty(SyncEntity.revisionCard, id);
+  });
 
   // --- reviewing --------------------------------------------------------------------
 
@@ -215,6 +232,7 @@ class RevisionRepository {
   Future<CardSchedule> review(String cardId, RecallRating rating) async {
     final settings = await loadSettings();
     final today = _today;
+    final reviewId = _uuid.v4();
     final now = _clock().toUtc();
     return _db.transaction(() async {
       final row = await (_db.select(
@@ -244,6 +262,7 @@ class RevisionRepository {
           .insert(
             CardReviewsCompanion.insert(
               cardId: cardId,
+              syncId: Value(reviewId),
               reviewedAt: now,
               rating: rating.name,
               dueBefore: current.dueOn.toIsoString(),
@@ -251,6 +270,8 @@ class RevisionRepository {
               gapDays: next.gapDays,
             ),
           );
+      await _db.markDirty(SyncEntity.revisionCard, cardId);
+      await _db.markDirty(SyncEntity.cardReview, reviewId);
       return next;
     });
   }

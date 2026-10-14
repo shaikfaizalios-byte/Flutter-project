@@ -30,7 +30,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v4)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v5)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -47,6 +47,17 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
   answer in Drift `pending_answers` (schema v3) and replays it. See docs/practice.md.
+- Accounts (Phase 10): own email+password — Argon2id, 15-min HS256 access JWT (`PREPLOOP_AUTH_SECRET`,
+  required in staging/prod), rotating SHA-256-stored refresh tokens with family reuse detection
+  (`app/core/security.py`, `app/services/auth_service.py`). Every learner router requires `CurrentUser`
+  (`app/api/deps.py`) AND every service takes the owner id and scopes every query (other accounts → 404).
+  First account claims pre-account (owner NULL) rows. Mobile: `flutter_secure_storage`, `AuthInterceptor`
+  (single refresh + one retry via a separate client), sign-in gate in `appRedirect`.
+- Sync (Phase 10): server `sync_items` per account (strict per-entity schemas, `sync_seq` cursor, LWW,
+  tombstones win, per-account advisory lock). Device: repositories call `db.markDirty(entity, id)` in the
+  same transaction; `SyncEngine` pushes current state of outbox ids (versioned clear), pulls all pages and
+  applies in one deferred-FK transaction skipping pending records. Switching account erases device data.
+  See docs/accounts-sync.md.
 - AI (optional; off without `PREPLOOP_AI_API_KEY`): server-only `AIProvider` (`app/integrations/ai.py`,
   Anthropic SDK, default `claude-haiku-5-5`; `FakeAIProvider` in tests). Prompts/schemas/validation are pure
   (`app/domain/ai_content.py`, versioned `PROMPT_VERSION`). AI questions = `origin=ai` rows with provenance
@@ -83,7 +94,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Every question shows its origin (source PDF vs AI). Exam patterns/counts/marking come only from
   `exam_formats` (verified, sourced) — never hard-code them in code or UI.
 - Mobile app tests get `FakeQuestionsRepository`, `FakePracticeRepository`, `FakeReminderScheduler`,
-  `FakeAnalyticsRepository` (timezone fixed to Asia/Kolkata), `FakeAiRepository` (AI off) by default
+  `FakeAnalyticsRepository` (timezone fixed to Asia/Kolkata), `FakeAiRepository` (AI off), and start
+  signed in (`testSession`, `FakeAuthApi`, `FakeTokenStore`, `FakeSyncServer`, auto-sync off) by default
   (`pumpPrepLoopApp(questions: ..., practice: ..., clockOverride: ...)`).
 - Mobile time: read "now" from `clockProvider`; date-only values use `CalendarDate` (never `DateTime`).
 - New ARB keys go in both files; `arb_parity_test.dart` fails otherwise. Hindi-capable text needs no
@@ -116,7 +128,7 @@ Shells opened before installation need a restart for PATH.
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 9 complete → next is Phase 10 (accounts, ownership & sync)
+## Current phase: Phase 10 complete → next is Phase 11 (release readiness)
 Known limitations right now:
 - Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
   on a device. iOS needs macOS + Xcode. The native PDF picker is only exercised via a fake in tests.
@@ -124,16 +136,17 @@ Known limitations right now:
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
   (app shows first-run onboarding after a 3 s timeout; concept list stays loading). Server-backed screens
   (documents, question review) work there. Verify web persistence in Chrome/Edge. Native is unaffected.
-- **No auth/ownership on `/api/v1/concepts`, `/documents`, `/questions`, `/practice`, `/analytics`, `/ai`** (single-tenant dev
-  API until Phase 10) — never deploy publicly. Bookmarks and history are global, not per learner.
-- Mobile concepts and study profile are local-only (sync = Phase 10). Documents, the question bank and practice
-  sessions are server-only: starting/opening a session needs a connection; only answers are queued offline.
+- Accounts: no password reset / email verification yet (needs an email provider); no device list or
+  remote session revocation UI. Not deployed anywhere yet (no HTTPS/edge set-up — Phase 11).
+- Sync is last-writer-wins per record (no field merge, no conflict UI). Documents, the question bank and
+  practice sessions are server-only: starting/opening a session needs a connection; only answers queue offline.
+- The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
 - Only one verified exam format exists (SSC CHSL 2026 Tier-I, from the official notice). **SSC CGL has
   none** — add only after verifying the current official notice (record source in a migration).
 - Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
   aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
   Issue details are English (labels are localised).
-- Upload rate limiter is per-process; no malware scanning; PDF parsing runs in the worker process.
+- Upload, AI and sign-in rate limiters are per-process; no malware scanning; PDF parsing runs in the worker process.
 - Hindi OCR quality depends on scan quality; low-confidence pages are flagged, never corrected.
 - Mock tests need enough *verified* questions per section (CHSL: 25 × 4); with only a few reviewed papers
   the hub shows the shortfall. No mock for SSC CGL (no verified format). Mocks never use AI questions (by design).
@@ -144,8 +157,8 @@ Known limitations right now:
 - Reminder notifications are implemented but **never run on a device** (no Android SDK / macOS): delivery,
   permission dialogs, boot receiver, desugaring and the Gradle build are unverified. Web/desktop: unsupported
   (UI says so). A timezone change while the app stays closed keeps the old zone until the next open.
-- Flashcards and the revision schedule are device-only (sync = Phase 10); the web preview pane can't open
-  Drift, so revision can't be tried there.
+- The web preview pane can't open Drift, so revision/sync can't be tried there. Secure storage and sync
+  between two real devices are unverified (no devices).
 - Analytics/plan need the server for practice data; offline they show device revision only (UI says so).
   Weak-topic thresholds (10 answers, 60 %, 5 reviews, 40 % forgotten) are product choices, not validated research.
 - No CI workflow yet; no typed Dart API client generated yet (hand-written DTO parsing per feature).
@@ -153,17 +166,20 @@ Known limitations right now:
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
 - PostgreSQL is a native install; no docker-compose yet (optional).
 
-## Phase 10 acceptance criteria (accounts, ownership & sync)
-1. Accounts on the server (email + password with a vetted hashing library, or a vetted identity provider —
-   choice, licence and data handling documented first); short-lived access tokens + refresh tokens;
-   mobile stores tokens in `flutter_secure_storage`; logout and token revocation.
-2. Ownership enforced in services/repositories for documents, questions (learner-owned vs shared),
-   practice sessions, bookmarks, analytics and AI calls; tests prove one user can't read or change another's data.
-3. Rate limits keyed by user (not just IP); AI usage counted per user.
-4. Sync for device data (concepts, study profile, revision cards/reviews, settings) following the designed
-   rules in docs/database.md: client UUIDs, `updated_at` + tombstones, last-writer-wins per field where
-   documented, idempotent push/pull with a server cursor; offline edits survive and merge.
-5. Migration path for existing single-tenant data (assign to the first account) via Alembic.
-6. Account deletion and data export (privacy); no personal data in logs.
-7. EN/HI UI for sign-in, sign-up, account and sync status; tests for auth, ownership, sync conflicts and
-   offline merge; `scripts/check.ps1` passes; docs (security, API, database) updated.
+## Phase 11 acceptance criteria (release readiness)
+1. CI (GitHub Actions): backend lint/type/tests on PostgreSQL service, Alembic up/down, mobile format/analyze/
+   tests, OpenAPI drift check; required before merge. No secrets in CI logs.
+2. Deployment: backend + worker container images (non-root, pinned, minimal), docker-compose for local and a
+   documented production topology (managed Postgres, object storage for PDFs via `DocumentStorage`,
+   HTTPS edge with security headers, explicit CORS, docs disabled, secrets via environment/secret store,
+   migrations as a release step, health/readiness probes, backups).
+3. Shared rate-limit store (e.g. Redis) behind the existing limiter interface; worker isolation limits.
+4. Mobile release builds: Android app bundle with release signing (keystore outside the repo), app id,
+   icons/splash, version scheme; iOS build notes (needs macOS); flavors via `--dart-define`; `integration_test/`
+   run on an emulator/device; verify notifications, secure storage and PDF picker on device.
+5. Password reset + email verification via a vetted email provider (licence/data handling documented).
+6. Privacy policy + terms drafts, in-app links; data-retention statement (incl. AI provider); Play data-safety
+   answers drafted from the actual data flows.
+7. Observability without personal data: structured logs, error reporting choice documented (opt-in), basic
+   metrics; accessibility and performance pass (screen reader labels, contrast, large fonts, startup time).
+8. `scripts/check.ps1` passes; release checklist doc; CLAUDE.md updated with deployment commands.

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/sync_outbox.dart';
 import '../../../core/exams/exam_catalog.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../domain/study_profile.dart';
@@ -39,19 +40,22 @@ class StudyProfileRepository {
     if (reminder != null && !StudyProfileRules.isValidReminderMinutes(reminder)) {
       throw ArgumentError.value(reminder, 'reminderMinutes');
     }
-    return _db
-        .into(_db.studyProfiles)
-        .insertOnConflictUpdate(
-          StudyProfilesCompanion.insert(
-            id: const Value(_rowId),
-            examCodes: Value(profile.examCodes),
-            targetExamDate: Value(profile.targetExamDate?.toIsoString()),
-            dailyStudyMinutes: Value(daily),
-            reminderMinutes: Value(reminder),
-            onboardingCompletedAt: Value(profile.onboardingCompletedAt?.toUtc()),
-            updatedAt: _clock().toUtc(),
-          ),
-        );
+    return _db.transaction(() async {
+      await _db
+          .into(_db.studyProfiles)
+          .insertOnConflictUpdate(
+            StudyProfilesCompanion.insert(
+              id: const Value(_rowId),
+              examCodes: Value(profile.examCodes),
+              targetExamDate: Value(profile.targetExamDate?.toIsoString()),
+              dailyStudyMinutes: Value(daily),
+              reminderMinutes: Value(reminder),
+              onboardingCompletedAt: Value(profile.onboardingCompletedAt?.toUtc()),
+              updatedAt: _clock().toUtc(),
+            ),
+          );
+      await _db.markDirty(SyncEntity.studyProfile, SyncEntity.profileId);
+    });
   }
 
   static int? _validOrNull(int? value, bool Function(int) isValid) =>

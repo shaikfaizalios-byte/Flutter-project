@@ -70,6 +70,12 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-49 | AI explanations live in their own table; AI questions are `origin = ai` rows with provenance enforced by a CHECK; both enter as draft/unverified | Source and AI content never mix; existing review workflow reused; provenance can't be forgotten |
 | ADR-50 | AI questions are opt-in for practice and excluded from mocks | Mocks simulate the real exam from verified papers only; learners choose AI practice knowingly |
 | ADR-51 | Every AI call is logged as task/model/outcome/tokens, without text | Cost and quality auditing without storing learner notes or document text |
+| ADR-52 | Own email + password accounts (Argon2id, short JWT access tokens, rotating hashed refresh tokens with reuse detection) | No third-party identity dependency or data sharing; standard, testable building blocks |
+| ADR-53 | Ownership enforced in every service (owner id required by constructors) plus a router-level sign-in requirement | Defence in depth; forgetting a filter fails type checks rather than leaking data |
+| ADR-54 | Sync uses a generic per-account `sync_items` store with strict per-entity schemas and a server sequence cursor | One code path for all device entities; monotonic cursor; validation equals the app's rules |
+| ADR-55 | Device outbox lists changed record *ids*; the upload reads current state, and versioned outbox rows survive edits made during an upload | Coalesces edits, no payload duplication, no lost updates |
+| ADR-56 | Pull applies in one transaction with deferred foreign keys; records with pending local changes are skipped | Order-independent application; local intent wins until pushed (last writer wins) |
+| ADR-57 | Device data belongs to one account: switching account erases it; the first account adopts existing data | No cross-account leakage on shared devices; smooth upgrade from the single-user app |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -100,6 +106,7 @@ schemas/           Pydantic request/response models
 - Phase 7 (done): flashcards from concepts and verified questions, a configurable Day 1/4/7 revision ladder with adaptive follow-up, due counts on the dashboard, and a daily reminder notification.
 - Phase 8 (done): analytics endpoint (timezone-aware raw counts), weak-topic rules combining practice and flashcard recall, the Progress screen, and a deterministic daily study plan.
 - Phase 9 (done): optional AI assistance (Claude), clearly labelled and reviewed: explanation drafts, generated practice questions, topic suggestions, learner reports.
+- Phase 10 (done): accounts (email + password), per-account ownership on every route, privacy export and deletion, and device-data sync (outbox, last writer wins, tombstones).
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

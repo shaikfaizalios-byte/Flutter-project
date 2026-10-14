@@ -183,3 +183,23 @@ See [ai.md](ai.md). AI is off unless the server has `PREPLOOP_AI_API_KEY`. Calls
 AI errors: `503 ai_disabled`, `502 ai_unavailable` (retryable). `QuestionRead` gains `topic_suggested_by`, `ai`
 (provenance for AI questions) and `ai_explanation` (the latest non-rejected draft). `PracticeCreate` gains `include_ai`
 (default false; mocks never use AI questions). Practice `Feedback` gains `explanation_origin` (`source`/`ai`).
+
+## Accounts and sync (Phase 10)
+
+See [accounts-sync.md](accounts-sync.md). Every learner route needs `Authorization: Bearer <access_token>`.
+Without it, or with an expired, forged or unknown token, the response is `401 unauthorized` with `WWW-Authenticate: Bearer`.
+Another account's records answer `404`. Public routes: `/health`, `/ready`, `/exams` and `/auth/register|login|refresh|logout`.
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/v1/auth/register` | `{email, password (10–128), display_name?}` → `201 TokenPair` (`access_token`, `refresh_token`, `expires_in`, `user`). `409 email_taken`. The first account claims data created before accounts. |
+| POST | `/api/v1/auth/login` | `{email, password}` → `TokenPair`. `401 invalid_credentials` (same for an unknown email); `429 rate_limited` |
+| POST | `/api/v1/auth/refresh` | `{refresh_token}` → new `TokenPair` (rotation). Reusing a rotated token → `401` and the whole session family is revoked |
+| POST | `/api/v1/auth/logout` | `{refresh_token}` → `204`; revokes this device's session family |
+| GET | `/api/v1/auth/me` | The signed-in account |
+| GET | `/api/v1/auth/me/export` | `{exported_at, user, data: {concepts, documents, questions, question_options, practice_sessions, session_answers, ai_generations, sync_items}}` |
+| POST | `/api/v1/auth/me/delete` | `{password}` → `204`; deletes the account, all owned data and the stored PDFs. `401 invalid_credentials` |
+| POST | `/api/v1/sync/push` | `{changes: [{entity, id, deleted?, data?}]}` (max 500). Entities: `concept`, `study_profile` (id `profile`), `revision_card`, `card_review`, `setting` (id `revision_day_offsets`). → `{accepted, ignored_deleted: ["entity:id"], rejected: {"entity:id": reason}}` |
+| GET | `/api/v1/sync/pull` | `?cursor=<int>&limit=<1–500>` → `{changes: [{entity, id, deleted, data, seq, updated_at}], cursor, has_more}` |
+
+The `/api/v1/concepts` routes are **deprecated**. They are a separate server-side store; the app syncs concepts through `/sync`.

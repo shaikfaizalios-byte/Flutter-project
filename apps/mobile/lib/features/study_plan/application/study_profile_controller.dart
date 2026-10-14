@@ -37,6 +37,15 @@ class StudyProfileController extends Notifier<StudyProfile> {
     await _update(state.copyWith(onboardingCompletedAt: () => now.toUtc()));
   }
 
+  /// Re-reads the profile from the device database (after sync or an account change).
+  Future<void> reload() async {
+    try {
+      state = await ref.read(studyProfileRepositoryProvider).load();
+    } on Object catch (error, stack) {
+      logError('Reloading study profile failed', error, stack);
+    }
+  }
+
   Future<void> _update(StudyProfile next) async {
     // Apply immediately; a storage failure must not block the learner.
     state = next;

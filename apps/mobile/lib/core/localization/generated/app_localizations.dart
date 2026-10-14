@@ -2852,6 +2852,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI-written Hindi: check the language'**
   String get issueAiLanguageReview;
+
+  /// No description provided for @authSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your study account.'**
+  String get authSignInTitle;
+
+  /// No description provided for @authCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your study account.'**
+  String get authCreateTitle;
+
+  /// No description provided for @authSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'You were signed out. Please sign in again.'**
+  String get authSessionExpired;
+
+  /// No description provided for @authName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get authName;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get authEmailInvalid;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min} characters'**
+  String authPasswordHint(int min);
+
+  /// No description provided for @authPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password.'**
+  String get authPasswordRequired;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// No description provided for @authHidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authHidePassword;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authCreate;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'New here? Create an account'**
+  String get authNoAccount;
+
+  /// No description provided for @authHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get authHaveAccount;
+
+  /// No description provided for @authSyncNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your concepts, flashcards and study plan are saved to your account, so you can continue on another device. Imported papers and practice results are kept on the server for your account only.'**
+  String get authSyncNote;
+
+  /// No description provided for @authErrorCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or password is not correct.'**
+  String get authErrorCredentials;
+
+  /// No description provided for @authErrorEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists. Sign in instead.'**
+  String get authErrorEmailTaken;
+
+  /// No description provided for @authErrorRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please wait a few minutes and try again.'**
+  String get authErrorRateLimited;
+
+  /// No description provided for @authErrorInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the email and password and try again.'**
+  String get authErrorInvalid;
+
+  /// No description provided for @authErrorOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline. Connect to the internet to continue.'**
+  String get authErrorOffline;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get authErrorGeneric;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// No description provided for @syncInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get syncInProgress;
+
+  /// No description provided for @syncNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get syncNever;
+
+  /// No description provided for @syncDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced {when}'**
+  String syncDone(String when);
+
+  /// No description provided for @syncPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String syncPending(int count);
+
+  /// No description provided for @syncOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Offline. Changes will sync when you are back online.} other{Offline. {count} changes will sync when you are back online.}}'**
+  String syncOffline(int count);
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sync. It will be retried.'**
+  String get syncFailed;
+
+  /// No description provided for @accountExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy my data'**
+  String get accountExport;
+
+  /// No description provided for @accountExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data was copied as JSON. Paste it into a file to keep it.'**
+  String get accountExported;
+
+  /// No description provided for @accountSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get accountSignOut;
+
+  /// No description provided for @accountSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out?'**
+  String get accountSignOutTitle;
+
+  /// No description provided for @accountSignOutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your study data will be removed from this device. It stays in your account.'**
+  String get accountSignOutMessage;
+
+  /// No description provided for @accountSignOutUnsynced.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change has not synced yet and will be lost if you sign out now.} other{{count} changes have not synced yet and will be lost if you sign out now.}}'**
+  String accountSignOutUnsynced(int count);
+
+  /// No description provided for @accountDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDelete;
+
+  /// No description provided for @accountDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get accountDeleteTitle;
+
+  /// No description provided for @accountDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account and everything in it: concepts, flashcards, imported papers, questions and practice history. It cannot be undone. Enter your password to confirm.'**
+  String get accountDeleteMessage;
+
+  /// No description provided for @accountDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get accountDeleteConfirm;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

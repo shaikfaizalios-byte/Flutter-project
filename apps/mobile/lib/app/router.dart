@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../core/localization/generated/app_localizations.dart';
 import '../core/widgets/empty_state.dart';
 import '../features/analytics/presentation/progress_screen.dart';
+import '../features/auth/application/auth_controller.dart';
+import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/concepts/presentation/concept_detail_screen.dart';
 import '../features/concepts/presentation/concept_form_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
@@ -28,8 +30,19 @@ export 'routes.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-/// Pure redirect rule, separated for testing: first-run users go to onboarding,
-/// and onboarding is not reachable again once completed.
+/// Pure redirect rule, separated for testing: without an account only sign-in is
+/// reachable; then first-run users go to onboarding.
+String? appRedirect({
+  required bool signedIn,
+  required bool onboardingCompleted,
+  required String path,
+}) {
+  if (!signedIn) return path == AppRoutes.signIn ? null : AppRoutes.signIn;
+  if (path == AppRoutes.signIn) return onboardingCompleted ? AppRoutes.home : AppRoutes.onboarding;
+  return onboardingRedirect(onboardingCompleted: onboardingCompleted, path: path);
+}
+
+/// First-run users go to onboarding, and onboarding is not reachable again once completed.
 String? onboardingRedirect({required bool onboardingCompleted, required String path}) {
   if (!onboardingCompleted && path != AppRoutes.onboarding) return AppRoutes.onboarding;
   if (onboardingCompleted && (path == AppRoutes.onboarding || path == '/')) return AppRoutes.home;
@@ -46,15 +59,21 @@ final routerProvider = Provider<GoRouter>((ref) {
     studyProfileProvider.select((p) => p.onboardingCompleted),
     (_, done) => onboardingDone.value = done,
   );
+  final signedIn = ValueNotifier<bool>(ref.read(authControllerProvider).signedIn);
+  ref.listen(authControllerProvider.select((a) => a.signedIn), (_, v) => signedIn.value = v);
 
   final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.home,
-    refreshListenable: onboardingDone,
-    redirect: (context, state) =>
-        onboardingRedirect(onboardingCompleted: onboardingDone.value, path: state.uri.path),
+    refreshListenable: Listenable.merge([onboardingDone, signedIn]),
+    redirect: (context, state) => appRedirect(
+      signedIn: signedIn.value,
+      onboardingCompleted: onboardingDone.value,
+      path: state.uri.path,
+    ),
     errorBuilder: (context, state) => const _NotFoundScreen(),
     routes: [
+      GoRoute(path: AppRoutes.signIn, builder: (context, state) => const SignInScreen()),
       GoRoute(path: AppRoutes.onboarding, builder: (context, state) => const OnboardingScreen()),
       GoRoute(
         path: '/questions/:id',
@@ -161,6 +180,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(() {
     router.dispose();
     onboardingDone.dispose();
+    signedIn.dispose();
   });
   return router;
 });

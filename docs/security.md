@@ -45,18 +45,33 @@
 - Model output is untrusted. It is schema-constrained, validated before storage, stored unverified or as a draft, and labelled everywhere. Topic suggestions are limited to the existing taxonomy.
 - Calls that reach the provider are rate-limited (default 30 per hour per client) and limited in size (max 5 questions, notes ≤ 4000 characters, output tokens capped). Provider timeouts and errors map to `502 ai_unavailable` without details.
 
+## Implemented (Phase 10: accounts and ownership)
+
+- **Passwords:**
+  - Argon2id hashes, re-hashed when parameters change.
+  - 10–128 characters, and not equal to the email.
+  - The same error and similar timing for unknown emails (dummy hash).
+  - Sign-in and registration are rate-limited per client and email.
+- **Access tokens** are 15-minute HS256 JWTs. They check issuer, audience, type and expiry. `PREPLOOP_AUTH_SECRET` (32+ characters) is required in staging and production.
+- **Refresh tokens** are opaque, stored only as SHA-256, and rotate on every use. Reusing a rotated token revokes the whole family. Logout revokes it too.
+- **Phone storage:** the session lives in the platform keystore (`flutter_secure_storage`). Signing out or switching account erases the previous learner's data from the device. Signing out warns about unsynced changes first.
+- **Ownership** is enforced in every service as well as at the router. Another account's data looks exactly like a missing record (404). Tests cover each route family, including AI and sync.
+- **Rate limits:** uploads and AI calls are limited per account.
+- **Privacy:** account deletion removes every owned row by cascade, plus the stored PDF files. The export returns everything the server holds for the account (no password hash).
+- **Sync records** are validated per entity with the app's limits, and rejected one by one. Pushes are serialised per account.
+
 ## Known gaps (accepted for now)
 
-- **No authentication on `/api/v1/documents`.** Anyone who can reach the API can list, read and delete uploads. Never expose it publicly before Phase 10 adds accounts and ownership checks.
 - The rate limiter is per process and keyed by client IP. Behind a proxy it needs trusted forwarded-for handling, and when scaled out it needs a shared store such as Redis.
 - Uploaded files are not malware-scanned. They are only ever parsed by PDFium and never served back to clients. Add scanning if originals are ever made downloadable.
 - PDFium parses untrusted input in-process. A dedicated worker process (`python -m app.workers.document_worker`) limits the impact of a parser crash. Container sandboxing is planned for Phase 11.
-- **No authentication or ownership on `/api/v1/concepts`.** It is single-tenant and must not be deployed publicly before Phase 10.
+- No password reset or email verification yet (needs an email provider). Accounts can't be recovered if the password is lost.
+- No list of signed-in devices or remote session revocation in the app (logout and reuse detection revoke sessions).
 - The on-device database is not encrypted. It holds study notes only (no credentials). Revisit if sensitive data is ever stored locally.
 
 ## Required before the relevant phases ship
 
-- Authentication, secure token storage (`flutter_secure_storage`), and ownership checks in services and repositories, covering concepts and documents (Phase 10).
+- Password reset and email verification through an email provider (before public release).
 - Upload and AI rate limiting exist per process; move them to a shared store before scaling out. Review the AI provider's data-retention terms before enabling AI in production.
 - Worker process isolation (separate container, limited memory and CPU) for PDF parsing and OCR (Phase 11).
 - Server-side entitlement verification for subscriptions (Phase 10).

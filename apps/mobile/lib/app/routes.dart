@@ -1,6 +1,7 @@
 /// Route paths. Kept separate from the router so features can link to routes
 /// without importing every screen.
 abstract final class AppRoutes {
+  static const signIn = '/sign-in';
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const study = '/study';

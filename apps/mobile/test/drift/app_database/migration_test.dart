@@ -11,6 +11,7 @@ import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
+import 'generated/schema_v5.dart' as v5;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -121,4 +122,57 @@ void main() {
       },
     );
   });
+
+  // v4 -> v5 adds the sync outbox and gives existing card reviews a stable sync id.
+  test(
+    'migration from v4 to v5 keeps cards and reviews and assigns sync ids',
+    () async {
+      const card = v4.RevisionCardsData(
+        id: 'card-1',
+        kind: 'question',
+        questionId: 'q1',
+        front: 'What is 20% of 150?',
+        back: '(2) 30',
+        reason: 'added',
+        step: 1,
+        gapDays: 3,
+        dueOn: '2026-10-17',
+        reviewCount: 1,
+        lapseCount: 0,
+        createdAt: '2026-10-13T09:00:00.000Z',
+        updatedAt: '2026-10-14T09:00:00.000Z',
+      );
+      const review = v4.CardReviewsData(
+        id: 1,
+        cardId: 'card-1',
+        reviewedAt: '2026-10-14T09:00:00.000Z',
+        rating: 'good',
+        dueBefore: '2026-10-14',
+        dueAfter: '2026-10-17',
+        gapDays: 3,
+      );
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 4,
+        newVersion: 5,
+        createOld: v4.DatabaseAtV4.new,
+        createNew: v5.DatabaseAtV5.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) {
+          batch.insert(oldDb.revisionCards, card);
+          batch.insert(oldDb.cardReviews, review);
+        },
+        validateItems: (newDb) async {
+          expect(
+            (await newDb.select(newDb.revisionCards).get()).single.id,
+            'card-1',
+          );
+          final migrated = (await newDb.select(newDb.cardReviews).get()).single;
+          expect(migrated.cardId, 'card-1');
+          expect(migrated.syncId, hasLength(32));
+          expect(await newDb.select(newDb.syncOutbox).get(), isEmpty);
+        },
+      );
+    },
+  );
 }

@@ -15,18 +15,25 @@ import 'package:preploop/features/study_plan/application/study_profile_controlle
 import 'package:preploop/features/study_plan/domain/study_profile.dart';
 import 'package:preploop/core/utils/clock.dart';
 import 'package:preploop/features/ai/application/ai_providers.dart';
+import 'package:preploop/features/auth/application/auth_controller.dart';
+import 'package:preploop/features/auth/data/auth_api.dart';
+import 'package:preploop/features/sync/application/sync_controller.dart';
 import 'package:preploop/features/analytics/application/analytics_providers.dart';
 import 'package:preploop/features/practice/application/practice_providers.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
 import 'package:preploop/features/reminders/application/reminder_controller.dart';
 
 import 'fake_ai.dart';
+import 'fake_auth.dart';
+import 'fake_sync.dart';
 import 'fake_analytics.dart';
 import 'fake_practice.dart';
 import 'fake_questions.dart';
 import 'fake_reminders.dart';
 
 export 'fake_ai.dart';
+export 'fake_auth.dart';
+export 'fake_sync.dart';
 export 'fake_analytics.dart';
 export 'fake_practice.dart';
 export 'fake_questions.dart';
@@ -112,6 +119,11 @@ Future<void> pumpPrepLoopApp(
   FakeReminderScheduler? reminders,
   FakeAnalyticsRepository? analytics,
   FakeAiRepository? ai,
+  AuthSession? session = testSession,
+  FakeAuthApi? authApi,
+  FakeTokenStore? tokenStore,
+  FakeSyncServer? syncServer,
+  bool autoSync = false,
 }) async {
   if (deviceLocale != null) {
     tester.platformDispatcher.localesTestValue = [deviceLocale];
@@ -132,6 +144,11 @@ Future<void> pumpPrepLoopApp(
     analyticsRepositoryProvider.overrideWithValue(analytics ?? FakeAnalyticsRepository()),
     localTimezoneProvider.overrideWith((ref) async => 'Asia/Kolkata'),
     aiRepositoryProvider.overrideWithValue(ai ?? FakeAiRepository()),
+    initialAuthSessionProvider.overrideWithValue(session),
+    authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
+    tokenStoreProvider.overrideWithValue(tokenStore ?? FakeTokenStore(session)),
+    syncApiProvider.overrideWithValue(syncServer ?? FakeSyncServer()),
+    autoSyncProvider.overrideWithValue(autoSync),
     ...extraOverrides,
   ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: const PrepLoopApp()));

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/sync_outbox.dart';
 import '../domain/concept.dart';
 import '../domain/concepts_repository.dart';
 
@@ -75,44 +76,53 @@ class LocalConceptsRepository implements ConceptsRepository {
   Future<Concept> create(ConceptDraft draft) async {
     final clean = _validated(draft);
     final now = _clock().toUtc();
-    final row = await _db
-        .into(_db.concepts)
-        .insertReturning(
-          ConceptsCompanion.insert(
-            id: _uuid.v4(),
-            examCode: clean.examCode,
-            title: clean.title,
-            notes: Value(clean.notes),
-            subject: clean.subject,
-            topic: clean.topic,
-            subtopic: Value(clean.subtopic),
-            language: clean.language.code,
-            tags: Value(clean.tags),
-            sourceReference: Value(clean.sourceReference),
-            createdAt: now,
-            updatedAt: now,
-          ),
-        );
+    final row = await _db.transaction(() async {
+      final inserted = await _db
+          .into(_db.concepts)
+          .insertReturning(
+            ConceptsCompanion.insert(
+              id: _uuid.v4(),
+              examCode: clean.examCode,
+              title: clean.title,
+              notes: Value(clean.notes),
+              subject: clean.subject,
+              topic: clean.topic,
+              subtopic: Value(clean.subtopic),
+              language: clean.language.code,
+              tags: Value(clean.tags),
+              sourceReference: Value(clean.sourceReference),
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+      await _db.markDirty(SyncEntity.concept, inserted.id);
+      return inserted;
+    });
     return _toDomain(row);
   }
 
   @override
   Future<Concept> update(String id, ConceptDraft draft) async {
     final clean = _validated(draft);
-    final rows = await (_db.update(_db.concepts)..where((c) => c.id.equals(id))).writeReturning(
-      ConceptsCompanion(
-        examCode: Value(clean.examCode),
-        title: Value(clean.title),
-        notes: Value(clean.notes),
-        subject: Value(clean.subject),
-        topic: Value(clean.topic),
-        subtopic: Value(clean.subtopic),
-        language: Value(clean.language.code),
-        tags: Value(clean.tags),
-        sourceReference: Value(clean.sourceReference),
-        updatedAt: Value(_clock().toUtc()),
-      ),
-    );
+    final rows = await _db.transaction(() async {
+      final updated = await (_db.update(_db.concepts)..where((c) => c.id.equals(id)))
+          .writeReturning(
+            ConceptsCompanion(
+              examCode: Value(clean.examCode),
+              title: Value(clean.title),
+              notes: Value(clean.notes),
+              subject: Value(clean.subject),
+              topic: Value(clean.topic),
+              subtopic: Value(clean.subtopic),
+              language: Value(clean.language.code),
+              tags: Value(clean.tags),
+              sourceReference: Value(clean.sourceReference),
+              updatedAt: Value(_clock().toUtc()),
+            ),
+          );
+      if (updated.isNotEmpty) await _db.markDirty(SyncEntity.concept, id);
+      return updated;
+    });
     if (rows.isEmpty) throw ConceptNotFoundException(id);
     return _toDomain(rows.single);
   }
@@ -125,15 +135,30 @@ class LocalConceptsRepository implements ConceptsRepository {
       // Keep the first archive timestamp if already archived.
       query.where((c) => c.archivedAt.isNull());
     }
-    await query.write(
-      ConceptsCompanion(archivedAt: Value(archived ? now : null), updatedAt: Value(now)),
-    );
+    await _db.transaction(() async {
+      final changed = await query.write(
+        ConceptsCompanion(archivedAt: Value(archived ? now : null), updatedAt: Value(now)),
+      );
+      if (changed > 0) await _db.markDirty(SyncEntity.concept, id);
+    });
   }
 
   @override
-  Future<void> delete(String id) async {
-    await (_db.delete(_db.concepts)..where((c) => c.id.equals(id))).go();
-  }
+  Future<void> delete(String id) => _db.transaction(() async {
+    // Its revision card is deleted with it (cascade); the deletion must sync too.
+    final cards =
+        await (_db.selectOnly(_db.revisionCards)
+              ..addColumns([_db.revisionCards.id])
+              ..where(_db.revisionCards.conceptId.equals(id)))
+            .map((r) => r.read(_db.revisionCards.id)!)
+            .get();
+    final deleted = await (_db.delete(_db.concepts)..where((c) => c.id.equals(id))).go();
+    if (deleted == 0) return;
+    await _db.markDirty(SyncEntity.concept, id);
+    for (final card in cards) {
+      await _db.markDirty(SyncEntity.revisionCard, card);
+    }
+  });
 
   static ConceptDraft _validated(ConceptDraft draft) {
     final clean = draft.normalized();

@@ -13,7 +13,15 @@ part 'app_database.g.dart';
 /// `dart run drift_dev make-migrations` and implement the generated step in
 /// [migration]. Never edit a released schema in place.
 @DriftDatabase(
-  tables: [Concepts, AppSettings, StudyProfiles, PendingAnswers, RevisionCards, CardReviews],
+  tables: [
+    Concepts,
+    AppSettings,
+    StudyProfiles,
+    PendingAnswers,
+    RevisionCards,
+    CardReviews,
+    SyncOutbox,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
@@ -32,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -50,6 +58,15 @@ class AppDatabase extends _$AppDatabase {
       from3To4: (m, schema) async {
         await m.createTable(schema.revisionCards);
         await m.createTable(schema.cardReviews);
+      },
+      // v5: sync outbox and stable ids for card reviews.
+      from4To5: (m, schema) async {
+        await m.createTable(schema.syncOutbox);
+        await m.addColumn(schema.cardReviews, schema.cardReviews.syncId);
+        await customStatement(
+          'UPDATE card_reviews SET sync_id = lower(hex(randomblob(16))) WHERE sync_id IS NULL',
+        );
+        await m.createIndex(schema.cardReviewsSyncId);
       },
     ),
     beforeOpen: (details) async {

@@ -1,20 +1,31 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/auth/application/auth_controller.dart';
 import '../config/app_config.dart';
+import 'auth_interceptor.dart';
 
-/// Shared HTTP client for the PrepLoop API. Auth and retry interceptors are
-/// added here when those features are introduced.
+/// A Dio for the PrepLoop API with the shared options (no interceptors).
+Dio buildApiDio(AppConfig config) => Dio(
+  BaseOptions(
+    baseUrl: config.apiBaseUrl,
+    connectTimeout: const Duration(seconds: 10),
+    sendTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
+    headers: {'Accept': 'application/json'},
+    responseType: ResponseType.json,
+  ),
+);
+
+/// Shared HTTP client for the PrepLoop API. Adds the access token to every request and,
+/// when the server answers 401, refreshes the tokens once and retries.
 final dioProvider = Provider<Dio>((ref) {
-  final config = ref.watch(appConfigProvider);
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: config.apiBaseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      sendTimeout: const Duration(seconds: 20),
-      receiveTimeout: const Duration(seconds: 20),
-      headers: {'Accept': 'application/json'},
-      responseType: ResponseType.json,
+  final dio = buildApiDio(ref.watch(appConfigProvider));
+  dio.interceptors.add(
+    AuthInterceptor(
+      dio,
+      accessToken: () => ref.read(authControllerProvider).session?.accessToken,
+      refresh: () => ref.read(authControllerProvider.notifier).refreshAccessToken(),
     ),
   );
   ref.onDispose(dio.close);

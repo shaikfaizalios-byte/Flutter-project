@@ -128,7 +128,25 @@ timezone by default.
 App tests get `FakeAiRepository` (`test/helpers/fake_ai.dart`, AI disabled by default). Backend tests use
 `FakeAIProvider` (`tests/fakes.py`).
 
+## Accounts, ownership and sync (Phase 10)
+
+| File | Covers |
+|---|---|
+| `services/api/tests/test_auth.py` | Registration normalises the email and stores Argon2id and hashed refresh tokens; rules (duplicate, short password, bad email, password = email); uniform login failures; rate limit; every learner route needs a valid token (expired, forged, garbage refused; public routes open); **refresh rotation and reuse detection** revoke the family; logout and expiry; **first account claims pre-account data**; export only includes the account's data; **deletion removes data, stored files and access** |
+| `services/api/tests/test_ownership.py` | A second account sees none of the first account's documents, questions, sessions, bookmarks or analytics; every read and write by id is 404; practice and mocks never use another account's questions; concepts are private |
+| `services/api/tests/test_sync.py` | Push/pull round trip with cursor; **last writer wins**; **deletes win over later edits**; replays are harmless; per-record validation errors; paging; each account syncs only its own data |
+| `services/api/tests/test_ai.py`, `test_concept_service.py` | AI and concept services refuse another account's records |
+| `apps/mobile/test/features/sync/sync_engine_test.dart` | Two simulated devices on a fake server: upload and outbox clearing; full download with children after parents across pages; last writer wins and convergence; a pending local change isn't overwritten; deletes win (including cascaded cards); **an edit during upload is kept**; rejected changes dropped; first-sync upload of existing data; erase keeps device preferences; outbox coalescing |
+| `apps/mobile/test/core/auth_interceptor_test.dart` | Token added; 401 → one refresh and retry; **concurrent 401s share one refresh**; refresh failure passes the 401 on; at most one retry (no deadlock) |
+| `apps/mobile/test/features/auth/auth_flow_test.dart` | Redirect rule; sign-in errors; sign-in adopts and uploads existing data; **another learner's data is erased**; account creation leads to onboarding; sign out syncs, revokes and erases; offline sign-out warns about unsynced changes; Sync now and status; deletion needs the password; export to the clipboard; expired session message; Hindi |
+| `apps/mobile/test/drift/app_database/migration_test.dart` | Every upgrade to v5, plus v4→v5 keeping cards and reviews with new sync ids |
+
+App tests start signed in (`testSession`) with `FakeAuthApi`, `FakeTokenStore`, `FakeSyncServer` and auto-sync
+off (`test/helpers/fake_auth.dart`, `fake_sync.dart`).
+
 ## Not yet covered
+
+- Secure storage on a real Android or iOS keystore, and sync between two real devices, need devices.
 
 - No real AI provider call has been made (it needs an API key). Answer quality, Hindi quality, latency and cost are unmeasured.
 
