@@ -3,7 +3,7 @@
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -84,6 +84,23 @@ class Settings(BaseSettings):
     # Sign-in/registration attempts per client and email within the window (brute force).
     auth_rate_limit: int = Field(default=10, ge=1)
     auth_rate_window_seconds: int = Field(default=900, ge=1)
+    # Rate-limit store: "memory" (one process) or "postgres" (shared; required in staging/prod).
+    rate_limit_backend: Literal["memory", "postgres"] = "memory"
+    # Email (password reset, verification). "file" writes .eml files to email_outbox_dir
+    # (development); "smtp" sends via any SMTP provider (required in staging/prod).
+    email_backend: Literal["file", "smtp", "disabled"] = "file"
+    email_outbox_dir: Path = Path("var/outbox")
+    smtp_host: str | None = None
+    smtp_port: int = Field(default=587, ge=1, le=65535)
+    smtp_username: str | None = None
+    smtp_password: SecretStr | None = None
+    smtp_from: str | None = None  # e.g. "PrepLoop <no-reply@example.com>"
+    smtp_security: Literal["starttls", "ssl"] = "starttls"
+    # One-time codes for password reset and email verification.
+    account_code_minutes: int = Field(default=15, ge=5, le=60)
+    account_code_max_attempts: int = Field(default=5, ge=1, le=10)
+    # Prometheus-format metrics at /api/v1/metrics, only with this bearer token.
+    metrics_token: SecretStr | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -101,10 +118,15 @@ class Settings(BaseSettings):
                 raise ValueError("Wildcard CORS origin is not allowed in production.")
             if self.cors_origin_regex:
                 raise ValueError("cors_origin_regex is not allowed in production.")
-        if self.environment in (Environment.PRODUCTION, Environment.STAGING) and (
-            self.auth_secret is None or len(self.auth_secret.get_secret_value()) < 32
-        ):
-            raise ValueError("PREPLOOP_AUTH_SECRET (32+ characters) is required here.")
+        if self.environment in (Environment.PRODUCTION, Environment.STAGING):
+            if self.auth_secret is None or len(self.auth_secret.get_secret_value()) < 32:
+                raise ValueError("PREPLOOP_AUTH_SECRET (32+ characters) is required here.")
+            if self.rate_limit_backend != "postgres":
+                raise ValueError("PREPLOOP_RATE_LIMIT_BACKEND=postgres is required here.")
+            if self.email_backend != "smtp" or not self.smtp_host or not self.smtp_from:
+                raise ValueError("SMTP email (PREPLOOP_SMTP_HOST, _FROM) is required here.")
+        if self.email_backend == "smtp" and (not self.smtp_host or not self.smtp_from):
+            raise ValueError("PREPLOOP_SMTP_HOST and PREPLOOP_SMTP_FROM are required for SMTP.")
         return self
 
     @property

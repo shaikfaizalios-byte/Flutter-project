@@ -57,6 +57,7 @@ class UserRead(BaseModel):
     id: uuid.UUID
     email: str
     display_name: str | None
+    email_verified: bool
     created_at: datetime
 
 
@@ -75,3 +76,25 @@ class AccountExport(BaseModel):
     exported_at: datetime
     user: UserRead
     data: dict[str, list[dict[str, Any]]]
+
+
+Code = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^[0-9]{6}$")]
+
+
+class PasswordResetRequest(_EmailInput):
+    pass
+
+
+class PasswordResetConfirm(_EmailInput):
+    code: Code
+    new_password: Password
+
+
+class VerifyEmailConfirm(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: Code
+
+
+class Accepted(BaseModel):
+    detail: str

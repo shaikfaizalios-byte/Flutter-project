@@ -97,3 +97,10 @@ class InvalidCredentialsError(DomainError):
 class EmailTakenError(DomainError):
     status_code = 409
     code = "email_taken"
+
+
+class InvalidCodeError(DomainError):
+    """A one-time code is wrong, expired, used up or unknown (all look the same)."""
+
+    status_code = 400
+    code = "invalid_code"

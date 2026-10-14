@@ -1,6 +1,9 @@
 """Accounts: registration, sign-in, rotating refresh tokens, sign-out, export, deletion."""
 
+import hashlib
+import hmac
 import logging
+import secrets
 import uuid
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
@@ -18,7 +21,13 @@ from app.core.security import (
     new_refresh_token,
     verify_password,
 )
-from app.domain.errors import EmailTakenError, InvalidCredentialsError, UnauthorizedError
+from app.domain.errors import (
+    EmailTakenError,
+    InvalidCodeError,
+    InvalidCredentialsError,
+    UnauthorizedError,
+)
+from app.integrations.email import OutgoingEmail
 from app.integrations.storage import DocumentStorage
 from app.models.ai import AIGeneration
 from app.models.concept import Concept
@@ -26,7 +35,7 @@ from app.models.document import Document
 from app.models.practice import PracticeSession
 from app.models.question import Question
 from app.models.sync import SyncItem
-from app.models.user import RefreshToken, User
+from app.models.user import AccountCode, RefreshToken, User
 from app.schemas.auth import AccountExport, TokenPair, UserRead
 
 logger = logging.getLogger(__name__)
@@ -168,6 +177,100 @@ class AuthService:
             except OSError:
                 logger.warning("Could not delete a stored file during account deletion")
 
+    # --- one-time codes (password reset, email verification) -------------------------------
+
+    def request_password_reset(self, email: str) -> OutgoingEmail | None:
+        """A reset code email for an existing account, or None. Callers answer the same way
+        either way (no account enumeration) and send the email in the background."""
+        user = self._session.scalars(select(User).where(User.email == email)).first()
+        if user is None:
+            return None
+        code = self._new_code(user, "reset")
+        self._session.commit()
+        return _reset_email(user.email, code, self._settings.account_code_minutes)
+
+    def confirm_password_reset(self, email: str, code: str, new_password: str) -> None:
+        user = self._session.scalars(select(User).where(User.email == email)).first()
+        if user is None:
+            raise InvalidCodeError("The code is not valid. Request a new one.")
+        self._use_code(user, "reset", code)
+        if new_password.strip().lower() == user.email:
+            raise InvalidCredentialsError("Choose a password that is not your email address.")
+        user.password_hash = hash_password(new_password)
+        if user.email_verified_at is None:
+            user.email_verified_at = self._now()  # receiving the code proves the address
+        # Sign out every device: whoever knew the old password loses access.
+        self._session.execute(
+            update(RefreshToken)
+            .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))
+            .values(revoked_at=self._now())
+        )
+        self._session.commit()
+
+    def request_verification(self, user: User) -> OutgoingEmail | None:
+        if user.email_verified_at is not None:
+            return None
+        code = self._new_code(user, "verify")
+        self._session.commit()
+        return _verify_email(user.email, code, self._settings.account_code_minutes)
+
+    def confirm_verification(self, user: User, code: str) -> User:
+        if user.email_verified_at is None:
+            self._use_code(user, "verify", code)
+            user.email_verified_at = self._now()
+            self._session.commit()
+        return user
+
+    def _code_hash(self, user: User, purpose: str, code: str) -> str:
+        return hmac.new(
+            self._signer.secret.encode(), f"{purpose}:{user.id}:{code}".encode(), hashlib.sha256
+        ).hexdigest()
+
+    def _new_code(self, user: User, purpose: str) -> str:
+        # A new code replaces any earlier unused code for the same purpose.
+        self._session.execute(
+            update(AccountCode)
+            .where(
+                AccountCode.user_id == user.id,
+                AccountCode.purpose == purpose,
+                AccountCode.used_at.is_(None),
+            )
+            .values(used_at=self._now())
+        )
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        self._session.add(
+            AccountCode(
+                user_id=user.id,
+                purpose=purpose,
+                code_hash=self._code_hash(user, purpose, code),
+                expires_at=self._now() + timedelta(minutes=self._settings.account_code_minutes),
+            )
+        )
+        return code
+
+    def _use_code(self, user: User, purpose: str, code: str) -> None:
+        row = self._session.scalars(
+            select(AccountCode)
+            .where(
+                AccountCode.user_id == user.id,
+                AccountCode.purpose == purpose,
+                AccountCode.used_at.is_(None),
+            )
+            .order_by(AccountCode.created_at.desc())
+            .limit(1)
+            .with_for_update()
+        ).first()
+        invalid = InvalidCodeError("The code is not valid. Request a new one.")
+        if row is None or row.expires_at <= self._now():
+            raise invalid
+        if row.attempts >= self._settings.account_code_max_attempts:
+            raise invalid
+        if not hmac.compare_digest(row.code_hash, self._code_hash(user, purpose, code)):
+            row.attempts += 1
+            self._session.commit()
+            raise invalid
+        row.used_at = self._now()
+
     # --- helpers --------------------------------------------------------------------------
 
     def _issue(self, user: User, *, family_id: uuid.UUID) -> TokenPair:
@@ -197,3 +300,28 @@ class AuthService:
 
 def _row_dict(row: Any) -> dict[str, Any]:
     return {attr.key: getattr(row, attr.key) for attr in row.__mapper__.column_attrs}
+
+
+def _reset_email(to: str, code: str, minutes: int) -> OutgoingEmail:
+    return OutgoingEmail(
+        to=to,
+        subject="PrepLoop password reset code / पासवर्ड रीसेट कोड",
+        text=(
+            f"Your PrepLoop password reset code is {code}. It expires in {minutes} minutes.\n"
+            "If you did not ask to reset your password, ignore this email; your password "
+            "stays the same.\n\n"
+            f"आपका PrepLoop पासवर्ड रीसेट कोड {code} है। यह {minutes} मिनट में समाप्त हो जाएगा।\n"
+            "अगर आपने पासवर्ड रीसेट नहीं माँगा, तो इस ईमेल को अनदेखा करें।\n"
+        ),
+    )
+
+
+def _verify_email(to: str, code: str, minutes: int) -> OutgoingEmail:
+    return OutgoingEmail(
+        to=to,
+        subject="Confirm your PrepLoop email / अपना ईमेल पुष्टि करें",
+        text=(
+            f"Your PrepLoop confirmation code is {code}. It expires in {minutes} minutes.\n\n"
+            f"आपका PrepLoop पुष्टि कोड {code} है। यह {minutes} मिनट में समाप्त हो जाएगा।\n"
+        ),
+    )

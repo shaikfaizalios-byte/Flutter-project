@@ -14,11 +14,13 @@ from app.api.v1.router import api_router
 from app.core.config import Settings, get_settings
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging
+from app.core.metrics import RequestMetrics
 from app.core.middleware import REQUEST_ID_HEADER, RequestContextMiddleware
-from app.core.rate_limit import SlidingWindowRateLimiter
+from app.core.rate_limit import PostgresRateLimiter, RateLimiter, SlidingWindowRateLimiter
 from app.core.security import TokenSigner
 from app.database.session import build_engine, build_sessionmaker
 from app.integrations.ai import AIProvider, provider_from_settings
+from app.integrations.email import EmailSender, email_sender_from_settings
 from app.integrations.storage import DocumentStorage, LocalDocumentStorage
 from app.schemas.health import HealthResponse
 from app.workers.document_worker import start_background_worker
@@ -40,6 +42,7 @@ def create_app(
     engine: Engine | None = None,
     storage: DocumentStorage | None = None,
     ai_provider: AIProvider | None = None,
+    email_sender: EmailSender | None = None,
 ) -> FastAPI:
     """Build the app. ``engine`` and ``storage`` let tests inject dependencies; by default
     they are created from settings (no engine if ``database_url`` is unset)."""
@@ -73,23 +76,35 @@ def create_app(
     app.state.engine = engine
     app.state.sessionmaker = session_factory
     app.state.document_storage = storage or LocalDocumentStorage(settings.upload_dir)
-    app.state.upload_rate_limiter = SlidingWindowRateLimiter(
-        settings.upload_rate_limit, settings.upload_rate_window_seconds
+    app.state.metrics = RequestMetrics()
+    app.state.email_sender = (
+        email_sender if email_sender is not None else email_sender_from_settings(settings)
+    )
+
+    def limiter(limit: int, window: int, message: str) -> RateLimiter:
+        if settings.rate_limit_backend == "postgres" and engine is not None:
+            return PostgresRateLimiter(engine, limit, window, message=message)
+        return SlidingWindowRateLimiter(limit, window, message=message)
+
+    app.state.upload_rate_limiter = limiter(
+        settings.upload_rate_limit,
+        settings.upload_rate_window_seconds,
+        "Too many uploads. Please try again later.",
     )
     app.state.token_signer = TokenSigner(_auth_secret(settings), settings.access_token_minutes)
-    app.state.auth_rate_limiter = SlidingWindowRateLimiter(
+    app.state.auth_rate_limiter = limiter(
         settings.auth_rate_limit,
         settings.auth_rate_window_seconds,
-        message="Too many attempts. Please wait and try again.",
+        "Too many attempts. Please wait and try again.",
     )
     # AI is off unless a provider is injected (tests) or an API key is configured.
     app.state.ai_provider = (
         ai_provider if ai_provider is not None else provider_from_settings(settings)
     )
-    app.state.ai_rate_limiter = SlidingWindowRateLimiter(
+    app.state.ai_rate_limiter = limiter(
         settings.ai_rate_limit,
         settings.ai_rate_window_seconds,
-        message="Too many AI requests. Please try again later.",
+        "Too many AI requests. Please try again later.",
     )
     # Use the injected settings everywhere, including Depends(get_settings).
     app.dependency_overrides[get_settings] = lambda: settings
@@ -105,7 +120,7 @@ def create_app(
         allow_headers=["Authorization", "Content-Type", REQUEST_ID_HEADER],
         expose_headers=[REQUEST_ID_HEADER],
     )
-    app.add_middleware(RequestContextMiddleware)
+    app.add_middleware(RequestContextMiddleware, metrics=app.state.metrics)
 
     register_exception_handlers(app)
 

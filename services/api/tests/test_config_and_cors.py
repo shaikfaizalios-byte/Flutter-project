@@ -30,7 +30,15 @@ def test_production_rejects_origin_regex() -> None:
 
 def test_production_disables_interactive_docs() -> None:
     app = create_app(
-        Settings(_env_file=None, environment=Environment.PRODUCTION, auth_secret="s" * 40)
+        Settings(
+            _env_file=None,
+            environment=Environment.PRODUCTION,
+            auth_secret="s" * 40,
+            rate_limit_backend="postgres",
+            email_backend="smtp",
+            smtp_host="smtp.example.com",
+            smtp_from="PrepLoop <no-reply@example.com>",
+        )
     )
     client = TestClient(app)
 

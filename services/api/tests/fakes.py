@@ -4,6 +4,7 @@ from typing import Any
 from PIL import Image
 
 from app.integrations.ai import AIProviderError, AIResult
+from app.integrations.email import OutgoingEmail
 from app.integrations.ocr import OcrFailedError, OcrResult, OcrUnavailableError
 
 
@@ -55,3 +56,20 @@ class FakeAIProvider:
         if isinstance(response, AIProviderError):
             raise response
         return AIResult(data=response, input_tokens=120, output_tokens=80)
+
+
+@dataclass
+class FakeEmailSender:
+    """Captures outgoing emails instead of sending them."""
+
+    sent: list[OutgoingEmail] = field(default_factory=list)
+
+    def send(self, email: OutgoingEmail) -> None:
+        self.sent.append(email)
+
+    def last_code(self) -> str:
+        import re
+
+        match = re.search(r"\b(\d{6})\b", self.sent[-1].text)
+        assert match is not None
+        return match.group(1)

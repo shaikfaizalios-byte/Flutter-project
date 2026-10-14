@@ -1,22 +1,30 @@
+import logging
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response, status
 
 from app.api.deps import CurrentUser, client_key, get_token_signer
 from app.core.config import Settings, get_settings
 from app.core.security import TokenSigner
 from app.database.session import DbSession
+from app.integrations.email import EmailSender, OutgoingEmail
 from app.schemas.auth import (
+    Accepted,
     AccountExport,
     DeleteAccountRequest,
     LoginRequest,
+    PasswordResetConfirm,
+    PasswordResetRequest,
     RefreshRequest,
     RegisterRequest,
     TokenPair,
     UserRead,
+    VerifyEmailConfirm,
 )
 from app.schemas.errors import ErrorResponse
 from app.services.auth_service import AuthService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/auth",
@@ -52,9 +60,13 @@ def _limit(request: Request, email: str) -> None:
     responses={409: {"model": ErrorResponse, "description": "Email already registered"}},
     summary="Create an account (the first account claims data created before accounts)",
 )
-def register(body: RegisterRequest, request: Request, service: Service) -> TokenPair:
+def register(
+    body: RegisterRequest, request: Request, service: Service, background: BackgroundTasks
+) -> TokenPair:
     _limit(request, body.email)
-    return service.register(body.email, body.password, body.display_name)
+    pair = service.register(body.email, body.password, body.display_name)
+    _send(request, background, service.request_verification(service.user(pair.user.id)))
+    return pair
 
 
 @router.post("/login", response_model=TokenPair, responses=UNAUTHORIZED, summary="Sign in")
@@ -109,3 +121,75 @@ def delete_account(
 ) -> Response:
     service.delete_account(user, body.password, request.app.state.document_storage)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+def _send(request: Request, background: BackgroundTasks, email: OutgoingEmail | None) -> None:
+    """Sends after the response, so timing never reveals whether an account exists."""
+    if email is not None:
+        background.add_task(_deliver, request.app.state.email_sender, email)
+
+
+def _deliver(sender: EmailSender, email: OutgoingEmail) -> None:
+    try:
+        sender.send(email)
+    except Exception:
+        logger.warning("An account email could not be sent")
+
+
+ACCEPTED = "If an account exists for this email, a code has been sent."
+
+
+@router.post(
+    "/password-reset/request",
+    response_model=Accepted,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Email a 6-digit reset code (same answer whether or not the account exists)",
+)
+def request_password_reset(
+    body: PasswordResetRequest, request: Request, service: Service, background: BackgroundTasks
+) -> Accepted:
+    _limit(request, body.email)
+    _send(request, background, service.request_password_reset(body.email))
+    return Accepted(detail=ACCEPTED)
+
+
+@router.post(
+    "/password-reset/confirm",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {"model": ErrorResponse, "description": "invalid_code"}},
+    summary="Set a new password with the emailed code (signs out every device)",
+)
+def confirm_password_reset(
+    body: PasswordResetConfirm, request: Request, service: Service
+) -> Response:
+    _limit(request, body.email)
+    service.confirm_password_reset(body.email, body.code, body.new_password)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/verify-email/request",
+    response_model=Accepted,
+    status_code=status.HTTP_202_ACCEPTED,
+    responses=UNAUTHORIZED,
+    summary="Email a 6-digit code to confirm the account's address",
+)
+def request_verification(
+    request: Request, user: CurrentUser, service: Service, background: BackgroundTasks
+) -> Accepted:
+    _limit(request, user.email)
+    _send(request, background, service.request_verification(user))
+    return Accepted(detail="If the email is not confirmed yet, a code has been sent.")
+
+
+@router.post(
+    "/verify-email/confirm",
+    response_model=UserRead,
+    responses={**UNAUTHORIZED, 400: {"model": ErrorResponse, "description": "invalid_code"}},
+    summary="Confirm the account's email with the emailed code",
+)
+def confirm_verification(
+    body: VerifyEmailConfirm, request: Request, user: CurrentUser, service: Service
+) -> UserRead:
+    _limit(request, user.email)
+    return UserRead.model_validate(service.confirm_verification(user, body.code))

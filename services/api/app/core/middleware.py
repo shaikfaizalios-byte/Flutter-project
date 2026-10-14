@@ -9,6 +9,7 @@ from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.core.logging import request_id_var
+from app.core.metrics import RequestMetrics, route_label
 
 REQUEST_ID_HEADER = "X-Request-ID"
 # Accept a caller-supplied ID only if it is short and safe to log.
@@ -18,8 +19,9 @@ logger = logging.getLogger("app.request")
 
 
 class RequestContextMiddleware:
-    def __init__(self, app: ASGIApp) -> None:
+    def __init__(self, app: ASGIApp, metrics: RequestMetrics | None = None) -> None:
         self.app = app
+        self.metrics = metrics
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -50,6 +52,10 @@ class RequestContextMiddleware:
         try:
             await self.app(scope, receive, send_wrapper)
         finally:
+            elapsed = time.perf_counter() - started
+            if self.metrics is not None:
+                route = route_label(str(scope.get("path"))) if scope.get("route") else "unmatched"
+                self.metrics.record(str(scope.get("method")), route, status_code, elapsed)
             logger.info(
                 "request completed",
                 extra={
@@ -58,7 +64,7 @@ class RequestContextMiddleware:
                         # Path only: query strings may carry user data.
                         "path": scope.get("path"),
                         "status": status_code,
-                        "duration_ms": round((time.perf_counter() - started) * 1000, 2),
+                        "duration_ms": round(elapsed * 1000, 2),
                     }
                 },
             )
