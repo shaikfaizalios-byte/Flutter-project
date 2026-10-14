@@ -6,13 +6,13 @@ diagnosed from the run page. Usage: python scripts/ci/junit_annotations.py repor
 
 import os
 import sys
-import xml.etree.ElementTree as ET  # noqa: S405 - our own CI report, not untrusted input
+import xml.etree.ElementTree as ET
 
 MAX = 20
 
 
 def main(path: str) -> int:
-    root = ET.parse(path).getroot()  # noqa: S314
+    root = ET.parse(path).getroot()
     failures = []
     for case in root.iter("testcase"):
         problem = case.find("failure")
@@ -34,7 +34,9 @@ def main(path: str) -> int:
         with open(summary, "a", encoding="utf-8") as out:
             out.write(f"## Test failures ({len(failures)})\n\n")
             for name, text in failures[:MAX]:
-                out.write(f"<details><summary>{name}</summary>\n\n```\n{text[-4000:]}\n```\n</details>\n\n")
+                out.write(
+                    f"<details><summary>{name}</summary>\n\n```\n{text[-4000:]}\n```\n</details>\n\n"
+                )
     return 0
 
 

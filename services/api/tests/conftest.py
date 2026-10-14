@@ -31,9 +31,12 @@ class _TestDatabaseSettings(BaseSettings):
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
-    # _env_file=None keeps a developer's local .env from influencing tests.
+    # _env_file=None keeps a developer's local .env from influencing tests, and database_url=None
+    # keeps an exported PREPLOOP_DATABASE_URL (as in CI) out of them: database tests use the
+    # dedicated test engine, and "no database configured" tests must really have none.
     return Settings(
         _env_file=None,
+        database_url=None,
         environment=Environment.TEST,
         cors_origins=["https://allowed.example"],
         upload_dir=tmp_path / "uploads",
