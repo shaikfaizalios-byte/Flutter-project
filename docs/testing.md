@@ -144,6 +144,17 @@ App tests get `FakeAiRepository` (`test/helpers/fake_ai.dart`, AI disabled by de
 App tests start signed in (`testSession`) with `FakeAuthApi`, `FakeTokenStore`, `FakeSyncServer` and auto-sync
 off (`test/helpers/fake_auth.dart`, `fake_sync.dart`).
 
+## Release readiness (Phase 11)
+
+| File | Covers |
+|---|---|
+| `services/api/tests/test_account_codes.py` | Verification code at registration (EN and HI, HMAC stored, confirm, no re-send once confirmed); **reset flow signs out every device** and confirms the email; single use; **no account enumeration**; newer codes replace older; attempt limit; expiry; format rules; file outbox; staging needs SMTP and Postgres limits |
+| `services/api/tests/test_rate_limit_and_metrics.py` | **Postgres limiter shared between instances** (window, retry-after, key isolation); only hashed keys stored; app wiring; metrics hidden without the token, no ids in labels |
+| `apps/mobile/test/features/auth/account_recovery_test.dart` | Public reset and legal routes; forgot-password with a wrong code, then the right code; the same answer for unknown emails; confirming the email from Profile; legal drafts open from sign-in |
+| `apps/mobile/test/a11y/accessibility_test.dart` | Tap-target, label and contrast guidelines on every tab (light and dark) and on sign-in; 2× text without overflow |
+| `apps/mobile/integration_test/device_plugins_test.dart` | On a device: real secure-storage round trip; on-disk database opens at the current schema version |
+| `.github/workflows/ci.yml` | Everything above, plus the Android build, the image build and compose validation, on GitHub's Linux runners |
+
 ## Not yet covered
 
 - Secure storage on a real Android or iOS keystore, and sync between two real devices, need devices.

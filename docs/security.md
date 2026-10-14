@@ -60,18 +60,31 @@
 - **Privacy:** account deletion removes every owned row by cascade, plus the stored PDF files. The export returns everything the server holds for the account (no password hash).
 - **Sync records** are validated per entity with the app's limits, and rejected one by one. Pushes are serialised per account.
 
+## Implemented (Phase 11: release readiness)
+
+- **Password reset and email verification** use emailed 6-digit codes:
+  - stored only as an HMAC
+  - 15 minutes, 5 attempts, single use
+  - the reset request gives the same answer for unknown emails, and emails are sent after the response (no timing leak)
+  - a reset revokes every session
+  - email bodies are never logged
+- **Rate limits** are shared through PostgreSQL in staging and production, with hashed keys.
+- **Staging and production refuse to start** without the auth secret, Postgres rate limits and TLS SMTP.
+- **Container:** non-root (uid 10001), read-only root filesystem in compose, `no-new-privileges`, runtime-only dependencies, the worker isolated with resource limits.
+- **CI** needs no secrets (throwaway database credentials only).
+- **Metrics** are hidden without a bearer token, and labels carry no ids.
+
 ## Known gaps (accepted for now)
 
 - The rate limiter is per process and keyed by client IP. Behind a proxy it needs trusted forwarded-for handling, and when scaled out it needs a shared store such as Redis.
 - Uploaded files are not malware-scanned. They are only ever parsed by PDFium and never served back to clients. Add scanning if originals are ever made downloadable.
 - PDFium parses untrusted input in-process. A dedicated worker process (`python -m app.workers.document_worker`) limits the impact of a parser crash. Container sandboxing is planned for Phase 11.
-- No password reset or email verification yet (needs an email provider). Accounts can't be recovered if the password is lost.
 - No list of signed-in devices or remote session revocation in the app (logout and reuse detection revoke sessions).
 - The on-device database is not encrypted. It holds study notes only (no credentials). Revisit if sensitive data is ever stored locally.
 
 ## Required before the relevant phases ship
 
-- Password reset and email verification through an email provider (before public release).
+- Malware scanning if original PDFs ever become downloadable; an S3-compatible `DocumentStorage` adapter for multi-instance storage.
 - Upload and AI rate limiting exist per process; move them to a shared store before scaling out. Review the AI provider's data-retention terms before enabling AI in production.
 - Worker process isolation (separate container, limited memory and CPU) for PDF parsing and OCR (Phase 11).
 - Server-side entitlement verification for subscriptions (Phase 10).

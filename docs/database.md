@@ -149,6 +149,16 @@ Original files are **not** stored in the database. They live in `DocumentStorage
   - `seq` BIGINT from the `sync_seq` sequence, and `updated_at`
   - index (`owner_id`, `seq`)
 
+### Schema (revision `0008`): account codes and shared rate limits
+
+- **`users.email_verified_at`**.
+- **`account_codes`**:
+  - `user_id` (CASCADE), `purpose` (`reset`/`verify`)
+  - `code_hash`: an HMAC-SHA256 with the auth secret; the code itself is never stored
+  - `expires_at`, `attempts` and `used_at`
+- **`rate_limit_counters`**: (`key_hash` SHA-256, `window_start`) → `hits`. Fixed windows shared by every API process, with old windows
+  pruned after 2 days. Used when `PREPLOOP_RATE_LIMIT_BACKEND=postgres`.
+
 ### Migration workflow
 
 ```powershell

@@ -53,6 +53,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`app/api/deps.py`) AND every service takes the owner id and scopes every query (other accounts → 404).
   First account claims pre-account (owner NULL) rows. Mobile: `flutter_secure_storage`, `AuthInterceptor`
   (single refresh + one retry via a separate client), sign-in gate in `appRedirect`.
+- Account recovery (Phase 11): emailed 6-digit codes (`account_codes`, HMAC-stored, 15 min, 5 tries) for
+  password reset (no enumeration; emails sent in background; reset revokes all sessions) and email
+  verification. Email via `EmailSender` (`app/integrations/email.py`): SMTP (stdlib) or dev file outbox.
+  Rate limits: `RateLimiter` protocol, `PostgresRateLimiter` (shared) in staging/prod. Staging/prod settings
+  refuse to start without auth secret, postgres limits and TLS SMTP. Metrics: `/api/v1/metrics` (token).
 - Sync (Phase 10): server `sync_items` per account (strict per-entity schemas, `sync_seq` cursor, LWW,
   tombstones win, per-account advisory lock). Device: repositories call `db.markDirty(entity, id)` in the
   same transaction; `SyncEngine` pushes current state of outbox ids (versioned clear), pulls all pages and
@@ -112,6 +117,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 .\scripts\check.ps1          # ruff, mypy, pytest (real Postgres), alembic check, dart format, analyze, test
 .\scripts\export-openapi.ps1 # refresh contracts/openapi/openapi.json after API changes
 python scripts\serve_web.py  # serve apps/mobile/build/web with COOP/COEP headers on :8080
+docker compose -f infra/docker-compose.yml up --build   # full stack + Mailpit (needs Docker; copy infra/compose.env.example)
+services\api\.venv\Scripts\python.exe scripts\generate_app_icons.py  # launcher icons (Android/iOS/web)
+cd apps\mobile; flutter build appbundle --release --dart-define=FLAVOR=production --dart-define=API_BASE_URL=https://...
 cd services\api; .\.venv\Scripts\python.exe -m app.workers.document_worker  # standalone worker
 ```
 Toolchain locations on the dev machine: Flutter SDK `D:\dev\flutter` (on user PATH), Python 3.12 (winget),
@@ -120,6 +128,9 @@ backend venv `services/api/.venv`, PostgreSQL 17 Windows service `postgresql-x64
 `%USERPROFILE%\.preploop\postgres-superuser.txt`), Tesseract 5.4 at `C:\Program Files\Tesseract-OCR`
 with eng+hin data in `%USERPROFILE%\.preploop\tessdata` (configured in `services/api/.env`).
 Shells opened before installation need a restart for PATH.
+Docker and the Android SDK are NOT installed locally: CI (GitHub Actions, `.github/workflows/ci.yml`) builds the
+image, validates compose and builds the Android APK; `device-tests.yml` (manual) runs integration tests on an
+emulator. Release/deployment steps: docs/release.md, docs/deployment.md.
 
 ## Security rules
 - Never commit secrets, `.env`, signing keys, service-account files, local DBs or uploads (.gitignore covers these).
@@ -128,7 +139,7 @@ Shells opened before installation need a restart for PATH.
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 10 complete → next is Phase 11 (release readiness)
+## Current phase: Phase 11 complete → release candidate (operator steps in docs/release.md)
 Known limitations right now:
 - Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
   on a device. iOS needs macOS + Xcode. The native PDF picker is only exercised via a fake in tests.
@@ -136,8 +147,12 @@ Known limitations right now:
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
   (app shows first-run onboarding after a 3 s timeout; concept list stays loading). Server-backed screens
   (documents, question review) work there. Verify web persistence in Chrome/Edge. Native is unaffected.
-- Accounts: no password reset / email verification yet (needs an email provider); no device list or
-  remote session revocation UI. Not deployed anywhere yet (no HTTPS/edge set-up — Phase 11).
+- Not deployed anywhere yet; production topology documented (docs/deployment.md) but no hosting chosen.
+  Docker image/compose and the Android build are verified only by CI (no Docker/Android SDK locally).
+- Accounts: no device list or remote session revocation UI. Unverified emails can still use the app.
+- Legal texts are DRAFTS with [placeholders] (operator, contact, processors, retention, law, minimum age).
+- Launcher icon/splash are provisional (generated); application id `com.preploop.preploop` must be changed
+  to the operator's domain before the first Play upload. R8 shrinking is off until verified on a device.
 - Sync is last-writer-wins per record (no field merge, no conflict UI). Documents, the question bank and
   practice sessions are server-only: starting/opening a session needs a connection; only answers queue offline.
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
@@ -146,7 +161,8 @@ Known limitations right now:
 - Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
   aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
   Issue details are English (labels are localised).
-- Upload, AI and sign-in rate limiters are per-process; no malware scanning; PDF parsing runs in the worker process.
+- Rate limits are shared via Postgres only when `PREPLOOP_RATE_LIMIT_BACKEND=postgres` (required in staging/prod);
+  metrics are per process; PDFs live on a shared volume (no S3 adapter yet); no malware scanning.
 - Hindi OCR quality depends on scan quality; low-confidence pages are flagged, never corrected.
 - Mock tests need enough *verified* questions per section (CHSL: 25 × 4); with only a few reviewed papers
   the hub shows the shortfall. No mock for SSC CGL (no verified format). Mocks never use AI questions (by design).
@@ -161,25 +177,16 @@ Known limitations right now:
   between two real devices are unverified (no devices).
 - Analytics/plan need the server for practice data; offline they show device revision only (UI says so).
   Weak-topic thresholds (10 answers, 60 %, 5 reviews, 40 % forgotten) are product choices, not validated research.
-- No CI workflow yet; no typed Dart API client generated yet (hand-written DTO parsing per feature).
+- No typed Dart API client generated yet (hand-written DTO parsing per feature). CI branch protection must be
+  enabled by the repo owner.
 - Hindi strings were written without native-speaker review.
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
-- PostgreSQL is a native install; no docker-compose yet (optional).
+- Locally PostgreSQL is a native install; docker-compose exists for a full stack where Docker is available.
 
-## Phase 11 acceptance criteria (release readiness)
-1. CI (GitHub Actions): backend lint/type/tests on PostgreSQL service, Alembic up/down, mobile format/analyze/
-   tests, OpenAPI drift check; required before merge. No secrets in CI logs.
-2. Deployment: backend + worker container images (non-root, pinned, minimal), docker-compose for local and a
-   documented production topology (managed Postgres, object storage for PDFs via `DocumentStorage`,
-   HTTPS edge with security headers, explicit CORS, docs disabled, secrets via environment/secret store,
-   migrations as a release step, health/readiness probes, backups).
-3. Shared rate-limit store (e.g. Redis) behind the existing limiter interface; worker isolation limits.
-4. Mobile release builds: Android app bundle with release signing (keystore outside the repo), app id,
-   icons/splash, version scheme; iOS build notes (needs macOS); flavors via `--dart-define`; `integration_test/`
-   run on an emulator/device; verify notifications, secure storage and PDF picker on device.
-5. Password reset + email verification via a vetted email provider (licence/data handling documented).
-6. Privacy policy + terms drafts, in-app links; data-retention statement (incl. AI provider); Play data-safety
-   answers drafted from the actual data flows.
-7. Observability without personal data: structured logs, error reporting choice documented (opt-in), basic
-   metrics; accessibility and performance pass (screen reader labels, contrast, large fonts, startup time).
-8. `scripts/check.ps1` passes; release checklist doc; CLAUDE.md updated with deployment commands.
+## Post-release backlog (not scheduled)
+- Verify on devices (docs/release.md §3): notifications, secure storage, PDF picker, Hindi, offline sync, R8.
+- S3-compatible `DocumentStorage`; malware scanning if originals become downloadable.
+- Device/session list with remote sign-out; field-level sync merge or conflict UI.
+- Verified SSC CGL exam format (from the current official notice, source recorded).
+- Native-speaker review of Hindi strings; typed Dart API client from `contracts/openapi`.
+- Opt-in server error reporting (documented in the privacy policy before enabling).

@@ -76,6 +76,11 @@ monorepo but have independent dependency management, tooling and tests.
 | ADR-55 | Device outbox lists changed record *ids*; the upload reads current state, and versioned outbox rows survive edits made during an upload | Coalesces edits, no payload duplication, no lost updates |
 | ADR-56 | Pull applies in one transaction with deferred foreign keys; records with pending local changes are skipped | Order-independent application; local intent wins until pushed (last writer wins) |
 | ADR-57 | Device data belongs to one account: switching account erases it; the first account adopts existing data | No cross-account leakage on shared devices; smooth upgrade from the single-user app |
+| ADR-58 | Shared rate limits in PostgreSQL (fixed windows, hashed keys) instead of Redis | No new infrastructure; the database is already shared by every instance |
+| ADR-59 | Provider-agnostic SMTP (standard library) with a development file outbox and Mailpit in compose | No vendor lock-in or extra dependency; email testable locally |
+| ADR-60 | 6-digit emailed codes (not links) for reset and verification | Works in a mobile app without deep links or hosted web pages |
+| ADR-61 | One image for API, worker and migrations; runtime-only lock installed with `--no-deps` | Exact, minimal, reproducible containers; migrations as an explicit release step |
+| ADR-62 | Hand-rolled Prometheus text metrics behind a token | No client library; ids never appear in labels |
 
 ## Mobile layout (`apps/mobile/lib`)
 
@@ -107,6 +112,7 @@ schemas/           Pydantic request/response models
 - Phase 8 (done): analytics endpoint (timezone-aware raw counts), weak-topic rules combining practice and flashcard recall, the Progress screen, and a deterministic daily study plan.
 - Phase 9 (done): optional AI assistance (Claude), clearly labelled and reviewed: explanation drafts, generated practice questions, topic suggestions, learner reports.
 - Phase 10 (done): accounts (email + password), per-account ownership on every route, privacy export and deletion, and device-data sync (outbox, last writer wins, tombstones).
+- Phase 11 (done): CI, containers and compose, deployment guide, shared rate limits, password reset and email verification, metrics, legal drafts, release signing config, accessibility pass. See docs/release.md for what still needs devices or the operator.
 - Phase 4+: background worker (queue chosen then) for OCR and parsing; object-storage interface.
 - Phase 9: `AIProvider` interface with a mock implementation for tests.
 - Typed Dart client generated from `contracts/openapi/openapi.json` when the app first calls the concepts API (sync, Phase 10). Until then the app only calls `/health`.

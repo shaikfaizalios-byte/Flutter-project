@@ -203,3 +203,15 @@ Another account's records answer `404`. Public routes: `/health`, `/ready`, `/ex
 | GET | `/api/v1/sync/pull` | `?cursor=<int>&limit=<1–500>` → `{changes: [{entity, id, deleted, data, seq, updated_at}], cursor, has_more}` |
 
 The `/api/v1/concepts` routes are **deprecated**. They are a separate server-side store; the app syncs concepts through `/sync`.
+
+## Account recovery and operations (Phase 11)
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/v1/auth/password-reset/request` | `{email}` → `202 {detail}`, always the same answer. A 6-digit code is emailed in the background if the account exists |
+| POST | `/api/v1/auth/password-reset/confirm` | `{email, code (6 digits), new_password}` → `204`. Signs out every device. `400 invalid_code` (wrong, expired, used or too many attempts all look the same) |
+| POST | `/api/v1/auth/verify-email/request` | Signed in → `202`; emails a code unless already confirmed (also sent at registration) |
+| POST | `/api/v1/auth/verify-email/confirm` | `{code}` → `UserRead` (`email_verified: true`); `400 invalid_code` |
+| GET | `/api/v1/metrics` | Prometheus text format; only with `Authorization: Bearer <PREPLOOP_METRICS_TOKEN>` (404 otherwise; not in OpenAPI) |
+
+`UserRead` gains `email_verified`. Codes: 6 digits, 15 minutes, 5 attempts, single use; a newer code replaces older ones.
