@@ -1878,4 +1878,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeleteConfirm => 'Delete permanently';
+
+  @override
+  String get authForgotPassword => 'Forgot password?';
+
+  @override
+  String get authErrorCode => 'That code is not valid or has expired. Request a new one.';
+
+  @override
+  String get resetTitle => 'Reset password';
+
+  @override
+  String get resetIntro => 'Enter your account email. We will send you a 6-digit code.';
+
+  @override
+  String get resetCodeSent =>
+      'If an account exists for this email, we sent a 6-digit code. It expires in 15 minutes.';
+
+  @override
+  String get resetCode => '6-digit code';
+
+  @override
+  String get resetCodeInvalid => 'Enter the 6-digit code from the email.';
+
+  @override
+  String get resetNewPassword => 'New password';
+
+  @override
+  String get resetSend => 'Send code';
+
+  @override
+  String get resetSave => 'Set new password';
+
+  @override
+  String get resetResend => 'Send a new code';
+
+  @override
+  String get resetDone => 'Password changed. Sign in with your new password.';
+
+  @override
+  String get legalPrivacy => 'Privacy policy';
+
+  @override
+  String get legalTerms => 'Terms of use';
+
+  @override
+  String get legalLoadError => 'Could not open the document.';
+
+  @override
+  String get verifyTitle => 'Confirm your email';
+
+  @override
+  String get verifyMessage =>
+      'Confirming your email lets you reset your password if you forget it.';
+
+  @override
+  String get verifyAction => 'Confirm';
+
+  @override
+  String get verifyCodeSent => 'We sent a 6-digit code to your email.';
+
+  @override
+  String get verifyConfirm => 'Confirm';
+
+  @override
+  String get verifyDone => 'Email confirmed.';
 }

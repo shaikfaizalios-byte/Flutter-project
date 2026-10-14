@@ -2,6 +2,9 @@
 /// without importing every screen.
 abstract final class AppRoutes {
   static const signIn = '/sign-in';
+  static const forgotPassword = '/forgot-password';
+  static const privacy = '/legal/privacy';
+  static const terms = '/legal/terms';
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const study = '/study';

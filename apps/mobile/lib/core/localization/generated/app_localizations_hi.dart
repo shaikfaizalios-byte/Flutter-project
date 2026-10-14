@@ -1883,4 +1883,68 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get accountDeleteConfirm => 'स्थायी रूप से हटाएँ';
+
+  @override
+  String get authForgotPassword => 'पासवर्ड भूल गए?';
+
+  @override
+  String get authErrorCode => 'यह कोड मान्य नहीं है या समाप्त हो चुका है। नया कोड मँगाएँ।';
+
+  @override
+  String get resetTitle => 'पासवर्ड रीसेट करें';
+
+  @override
+  String get resetIntro => 'अपने खाते का ईमेल लिखें। हम आपको 6 अंकों का कोड भेजेंगे।';
+
+  @override
+  String get resetCodeSent =>
+      'अगर इस ईमेल से कोई खाता है, तो हमने 6 अंकों का कोड भेजा है। यह 15 मिनट में समाप्त हो जाएगा।';
+
+  @override
+  String get resetCode => '6 अंकों का कोड';
+
+  @override
+  String get resetCodeInvalid => 'ईमेल में आया 6 अंकों का कोड लिखें।';
+
+  @override
+  String get resetNewPassword => 'नया पासवर्ड';
+
+  @override
+  String get resetSend => 'कोड भेजें';
+
+  @override
+  String get resetSave => 'नया पासवर्ड सेट करें';
+
+  @override
+  String get resetResend => 'नया कोड भेजें';
+
+  @override
+  String get resetDone => 'पासवर्ड बदल गया। नए पासवर्ड से साइन इन करें।';
+
+  @override
+  String get legalPrivacy => 'गोपनीयता नीति';
+
+  @override
+  String get legalTerms => 'उपयोग की शर्तें';
+
+  @override
+  String get legalLoadError => 'दस्तावेज़ नहीं खुल सका।';
+
+  @override
+  String get verifyTitle => 'अपना ईमेल पुष्टि करें';
+
+  @override
+  String get verifyMessage => 'ईमेल की पुष्टि करने से पासवर्ड भूलने पर आप उसे रीसेट कर सकते हैं।';
+
+  @override
+  String get verifyAction => 'पुष्टि करें';
+
+  @override
+  String get verifyCodeSent => 'हमने आपके ईमेल पर 6 अंकों का कोड भेजा है।';
+
+  @override
+  String get verifyConfirm => 'पुष्टि करें';
+
+  @override
+  String get verifyDone => 'ईमेल की पुष्टि हो गई।';
 }

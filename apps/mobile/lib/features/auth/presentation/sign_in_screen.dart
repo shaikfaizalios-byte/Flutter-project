@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
+import '../../../app/routes.dart';
+import '../../legal/presentation/legal_links.dart';
 import '../application/auth_controller.dart';
 
 /// Minimum password length (same rule as the server).
@@ -16,6 +19,7 @@ String authErrorMessage(AppLocalizations l10n, Object error) => switch (error) {
   ServerFailure(code: 'email_taken') => l10n.authErrorEmailTaken,
   ServerFailure(code: 'rate_limited') => l10n.authErrorRateLimited,
   ServerFailure(code: 'validation_error') => l10n.authErrorInvalid,
+  ServerFailure(code: 'invalid_code') => l10n.authErrorCode,
   _ => l10n.authErrorGeneric,
 };
 
@@ -160,6 +164,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               )
                             : Text(_creating ? l10n.authCreate : l10n.authSignIn),
                       ),
+                      if (!_creating)
+                        TextButton(
+                          onPressed: _busy ? null : () => context.push(AppRoutes.forgotPassword),
+                          child: Text(l10n.authForgotPassword),
+                        ),
                       TextButton(
                         onPressed: _busy
                             ? null
@@ -176,6 +185,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      const LegalLinks(),
                     ],
                   ),
                 ),

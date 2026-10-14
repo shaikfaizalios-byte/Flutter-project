@@ -8,6 +8,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../legal/presentation/legal_links.dart';
 import '../../sync/application/sync_controller.dart';
 import '../application/auth_controller.dart';
 import 'sign_in_screen.dart';
@@ -44,6 +45,21 @@ class AccountSection extends ConsumerWidget {
         children: [
           if (user.displayName != null) Text(user.displayName!, style: theme.textTheme.titleMedium),
           Text(user.email),
+          if (!user.emailVerified) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Card(
+              color: theme.colorScheme.secondaryContainer,
+              child: ListTile(
+                leading: const Icon(Icons.mark_email_unread_outlined),
+                title: Text(l10n.verifyTitle),
+                subtitle: Text(l10n.verifyMessage),
+                trailing: TextButton(
+                  onPressed: () => _verify(context, ref),
+                  child: Text(l10n.verifyAction),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
@@ -84,9 +100,36 @@ class AccountSection extends ConsumerWidget {
               ),
             ],
           ),
+          const LegalLinks(),
         ],
       ),
     );
+  }
+
+  Future<void> _verify(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final auth = ref.read(authControllerProvider.notifier);
+    try {
+      await auth.requestEmailVerification();
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Verification request failed', error, stack);
+      messenger.showSnackBar(SnackBar(content: Text(authErrorMessage(l10n, error))));
+      return;
+    }
+    if (!context.mounted) return;
+    final code = await showDialog<String>(
+      context: context,
+      builder: (context) => const _CodeDialog(),
+    );
+    if (code == null || code.isEmpty) return;
+    try {
+      await auth.confirmEmail(code);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.verifyDone)));
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Verification failed', error, stack);
+      messenger.showSnackBar(SnackBar(content: Text(authErrorMessage(l10n, error))));
+    }
   }
 
   Future<void> _export(BuildContext context, WidgetRef ref) async {
@@ -184,6 +227,51 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
           style: FilledButton.styleFrom(backgroundColor: theme.colorScheme.error),
           onPressed: () => Navigator.of(context).pop(_password.text),
           child: Text(l10n.accountDeleteConfirm),
+        ),
+      ],
+    );
+  }
+}
+
+class _CodeDialog extends StatefulWidget {
+  const _CodeDialog();
+
+  @override
+  State<_CodeDialog> createState() => _CodeDialogState();
+}
+
+class _CodeDialogState extends State<_CodeDialog> {
+  final _code = TextEditingController();
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l10n.verifyTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.verifyCodeSent),
+          TextField(
+            controller: _code,
+            keyboardType: TextInputType.number,
+            autofillHints: const [AutofillHints.oneTimeCode],
+            maxLength: 6,
+            decoration: InputDecoration(labelText: l10n.resetCode),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.cancel)),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_code.text.trim()),
+          child: Text(l10n.verifyConfirm),
         ),
       ],
     );

@@ -36,6 +36,11 @@ class FakeAuthApi implements AuthApi {
   int refreshCount = 0;
   final loggedOut = <String>[];
   final deleted = <String>[];
+
+  /// Emailed codes: email → code (reset), and the verification code.
+  final resetCodes = <String, String>{};
+  String? verificationCode;
+  final resetPasswords = <String, String>{};
   int _n = 1;
 
   AuthSession _issue(String email) {
@@ -101,5 +106,42 @@ class FakeAuthApi implements AuthApi {
       throw const ServerFailure(statusCode: 401, code: 'invalid_credentials');
     }
     deleted.add(accessToken);
+  }
+
+  @override
+  Future<void> requestPasswordReset(String email) async {
+    _online();
+    if (passwords.containsKey(email)) resetCodes[email] = '123456';
+  }
+
+  @override
+  Future<void> confirmPasswordReset(String email, String code, String newPassword) async {
+    _online();
+    if (resetCodes[email] != code) {
+      throw const ServerFailure(statusCode: 400, code: 'invalid_code');
+    }
+    resetCodes.remove(email);
+    passwords[email] = newPassword;
+    resetPasswords[email] = newPassword;
+  }
+
+  @override
+  Future<void> requestVerification(String accessToken) async {
+    _online();
+    verificationCode = '654321';
+  }
+
+  @override
+  Future<AuthUser> confirmVerification(String accessToken, String code) async {
+    _online();
+    if (code != verificationCode) {
+      throw const ServerFailure(statusCode: 400, code: 'invalid_code');
+    }
+    return const AuthUser(
+      id: 'user-1',
+      email: 'learner@example.com',
+      displayName: 'Asha',
+      emailVerified: true,
+    );
   }
 }

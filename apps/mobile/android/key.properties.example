@@ -1,0 +1,6 @@
+# Copy to android/key.properties (gitignored). Keep the keystore OUTSIDE the repository and back it
+# up securely: losing it means you can no longer update the app (unless Play App Signing is used).
+storeFile=C:/Users/you/.preploop/preploop-release.jks
+storePassword=
+keyAlias=preploop
+keyPassword=

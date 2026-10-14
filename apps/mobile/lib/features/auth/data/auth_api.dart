@@ -8,19 +8,31 @@ import '../../../core/errors/app_failure.dart';
 
 @immutable
 class AuthUser {
-  const AuthUser({required this.id, required this.email, this.displayName});
+  const AuthUser({
+    required this.id,
+    required this.email,
+    this.displayName,
+    this.emailVerified = false,
+  });
 
   factory AuthUser.fromJson(Map<String, dynamic> json) => AuthUser(
     id: json['id'] as String,
     email: json['email'] as String,
     displayName: json['display_name'] as String?,
+    emailVerified: json['email_verified'] as bool? ?? false,
   );
 
   final String id;
   final String email;
   final String? displayName;
+  final bool emailVerified;
 
-  Map<String, Object?> toJson() => {'id': id, 'email': email, 'display_name': displayName};
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'email': email,
+    'display_name': displayName,
+    'email_verified': emailVerified,
+  };
 }
 
 /// Tokens for the signed-in account. The access token is short-lived; the refresh token
@@ -97,6 +109,16 @@ abstract interface class AuthApi {
   Future<String> export(String accessToken);
 
   Future<void> deleteAccount(String accessToken, String password);
+
+  /// Emails a 6-digit reset code (the answer is the same whether or not the account exists).
+  Future<void> requestPasswordReset(String email);
+
+  Future<void> confirmPasswordReset(String email, String code, String newPassword);
+
+  /// Emails a 6-digit code to confirm the account's address.
+  Future<void> requestVerification(String accessToken);
+
+  Future<AuthUser> confirmVerification(String accessToken, String code);
 }
 
 class RemoteAuthApi implements AuthApi {
@@ -137,6 +159,33 @@ class RemoteAuthApi implements AuthApi {
       '$_base/me/delete',
       data: {'password': password},
       options: _bearer(accessToken),
+    ),
+  );
+
+  @override
+  Future<void> requestPasswordReset(String email) =>
+      _guard(() => _dio.post<void>('$_base/password-reset/request', data: {'email': email}));
+
+  @override
+  Future<void> confirmPasswordReset(String email, String code, String newPassword) => _guard(
+    () => _dio.post<void>(
+      '$_base/password-reset/confirm',
+      data: {'email': email, 'code': code, 'new_password': newPassword},
+    ),
+  );
+
+  @override
+  Future<void> requestVerification(String accessToken) =>
+      _guard(() => _dio.post<void>('$_base/verify-email/request', options: _bearer(accessToken)));
+
+  @override
+  Future<AuthUser> confirmVerification(String accessToken, String code) => _guard(
+    () async => AuthUser.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/verify-email/confirm',
+        data: {'code': code},
+        options: _bearer(accessToken),
+      )).data!,
     ),
   );
 

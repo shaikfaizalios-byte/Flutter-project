@@ -8,6 +8,8 @@ import '../../helpers/pump_app.dart';
 Future<void> openProfile(WidgetTester tester) async {
   await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Profile')));
   await tester.pumpAndSettle();
+  // The account section comes first; bring the study plan into view.
+  await scrollTo(tester, find.text('Exams'));
 }
 
 void main() {

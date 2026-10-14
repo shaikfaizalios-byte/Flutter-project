@@ -3092,6 +3092,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete permanently'**
   String get accountDeleteConfirm;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get authForgotPassword;
+
+  /// No description provided for @authErrorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not valid or has expired. Request a new one.'**
+  String get authErrorCode;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetTitle;
+
+  /// No description provided for @resetIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account email. We will send you a 6-digit code.'**
+  String get resetIntro;
+
+  /// No description provided for @resetCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for this email, we sent a 6-digit code. It expires in 15 minutes.'**
+  String get resetCodeSent;
+
+  /// No description provided for @resetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get resetCode;
+
+  /// No description provided for @resetCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code from the email.'**
+  String get resetCodeInvalid;
+
+  /// No description provided for @resetNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get resetNewPassword;
+
+  /// No description provided for @resetSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get resetSend;
+
+  /// No description provided for @resetSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get resetSave;
+
+  /// No description provided for @resetResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a new code'**
+  String get resetResend;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Sign in with your new password.'**
+  String get resetDone;
+
+  /// No description provided for @legalPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get legalPrivacy;
+
+  /// No description provided for @legalTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get legalTerms;
+
+  /// No description provided for @legalLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the document.'**
+  String get legalLoadError;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your email lets you reset your password if you forget it.'**
+  String get verifyMessage;
+
+  /// No description provided for @verifyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get verifyAction;
+
+  /// No description provided for @verifyCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to your email.'**
+  String get verifyCodeSent;
+
+  /// No description provided for @verifyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get verifyConfirm;
+
+  /// No description provided for @verifyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Email confirmed.'**
+  String get verifyDone;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

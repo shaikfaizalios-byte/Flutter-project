@@ -41,6 +41,8 @@ flutter:
   assets:
     # Licence text for the bundled font (registered in bootstrap.dart).
     - assets/fonts/noto_sans_devanagari/OFL.txt
+    # Privacy policy and terms (drafts), shown in the app.
+    - assets/legal/
 
   fonts:
     # Noto Sans Devanagari v2.007 (SIL OFL 1.1), from github.com/notofonts/devanagari.

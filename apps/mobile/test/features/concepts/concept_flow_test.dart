@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:preploop/core/widgets/search_field.dart';
 import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/features/concepts/data/local_concepts_repository.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
@@ -82,12 +83,12 @@ void main() {
     await pumpPrepLoopApp(tester, db);
     await openStudy(tester);
 
-    await tester.enterText(find.byType(SearchBar), 'ratio');
+    await tester.enterText(find.byType(AppSearchField), 'ratio');
     await tester.pumpAndSettle();
     expect(find.text('Ratio tricks'), findsOneWidget);
     expect(find.text('Percentage basics'), findsNothing);
 
-    await tester.enterText(find.byType(SearchBar), 'zzz');
+    await tester.enterText(find.byType(AppSearchField), 'zzz');
     await tester.pumpAndSettle();
     expect(find.text('No concepts match "zzz".'), findsOneWidget);
   });

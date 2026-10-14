@@ -104,6 +104,33 @@ class AuthController extends Notifier<AuthState> {
     await _forgetAccount();
   }
 
+  Future<void> requestPasswordReset(String email) =>
+      ref.read(authApiProvider).requestPasswordReset(email.trim());
+
+  Future<void> resetPassword(String email, String code, String newPassword) =>
+      ref.read(authApiProvider).confirmPasswordReset(email.trim(), code.trim(), newPassword);
+
+  Future<void> requestEmailVerification() async {
+    final session = state.session;
+    if (session != null) await ref.read(authApiProvider).requestVerification(session.accessToken);
+  }
+
+  /// Confirms the account's email; the stored session then shows it as confirmed.
+  Future<void> confirmEmail(String code) async {
+    final session = state.session;
+    if (session == null) return;
+    final user = await ref
+        .read(authApiProvider)
+        .confirmVerification(session.accessToken, code.trim());
+    final next = AuthSession(
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+      user: user,
+    );
+    await ref.read(tokenStoreProvider).write(next);
+    state = AuthState(session: next);
+  }
+
   Future<String> exportData() async {
     final session = state.session;
     if (session == null) throw const ServerFailure(statusCode: 401, code: 'unauthorized');

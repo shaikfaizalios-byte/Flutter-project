@@ -6,12 +6,14 @@ import '../core/localization/generated/app_localizations.dart';
 import '../core/widgets/empty_state.dart';
 import '../features/analytics/presentation/progress_screen.dart';
 import '../features/auth/application/auth_controller.dart';
+import '../features/auth/presentation/forgot_password_screen.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/concepts/presentation/concept_detail_screen.dart';
 import '../features/concepts/presentation/concept_form_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
+import '../features/legal/presentation/legal_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/practice/presentation/practice_hub_screen.dart';
 import '../features/practice/presentation/question_list_screen.dart';
@@ -37,7 +39,10 @@ String? appRedirect({
   required bool onboardingCompleted,
   required String path,
 }) {
-  if (!signedIn) return path == AppRoutes.signIn ? null : AppRoutes.signIn;
+  // Reachable without an account: sign-in, password reset and the legal documents.
+  final public =
+      path == AppRoutes.signIn || path == AppRoutes.forgotPassword || path.startsWith('/legal/');
+  if (!signedIn) return public ? null : AppRoutes.signIn;
   if (path == AppRoutes.signIn) return onboardingCompleted ? AppRoutes.home : AppRoutes.onboarding;
   return onboardingRedirect(onboardingCompleted: onboardingCompleted, path: path);
 }
@@ -74,6 +79,18 @@ final routerProvider = Provider<GoRouter>((ref) {
     errorBuilder: (context, state) => const _NotFoundScreen(),
     routes: [
       GoRoute(path: AppRoutes.signIn, builder: (context, state) => const SignInScreen()),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.privacy,
+        builder: (context, state) => const LegalScreen(document: LegalDocument.privacy),
+      ),
+      GoRoute(
+        path: AppRoutes.terms,
+        builder: (context, state) => const LegalScreen(document: LegalDocument.terms),
+      ),
       GoRoute(path: AppRoutes.onboarding, builder: (context, state) => const OnboardingScreen()),
       GoRoute(
         path: '/questions/:id',

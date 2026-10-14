@@ -10,6 +10,7 @@ import '../../../core/exams/exam_catalog.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/search_field.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 import '../domain/concepts_repository.dart';
@@ -59,10 +60,8 @@ class ConceptListScreen extends ConsumerWidget {
                   AppSpacing.md,
                   AppSpacing.xs,
                 ),
-                child: SearchBar(
+                child: AppSearchField(
                   hintText: l10n.conceptsSearchHint,
-                  leading: const Icon(Icons.search),
-                  elevation: const WidgetStatePropertyAll(0),
                   onChanged: ref.read(conceptQueryProvider.notifier).setText,
                 ),
               ),

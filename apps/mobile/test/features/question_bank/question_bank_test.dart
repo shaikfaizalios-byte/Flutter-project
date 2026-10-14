@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:preploop/core/widgets/search_field.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/features/documents/application/documents_providers.dart';
 import 'package:preploop/features/documents/domain/imported_document.dart';
@@ -86,7 +87,7 @@ void main() {
     expect(repo.queries.last.examCode, 'SSC_CGL');
     expect(find.textContaining('synonym of RAPID'), findsOneWidget);
 
-    await tester.enterText(find.byType(SearchBar), 'zzz');
+    await tester.enterText(find.byType(AppSearchField), 'zzz');
     await tester.pumpAndSettle();
     expect(repo.queries.last.text, 'zzz');
     expect(find.text('No questions in this view.'), findsOneWidget);

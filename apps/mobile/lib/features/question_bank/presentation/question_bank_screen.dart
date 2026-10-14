@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_spacing.dart';
+import '../../../core/widgets/search_field.dart';
 import '../../../core/exams/exam_catalog.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -30,12 +31,7 @@ class QuestionBankScreen extends ConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
-                child: SearchBar(
-                  hintText: l10n.bankSearchHint,
-                  leading: const Icon(Icons.search),
-                  elevation: const WidgetStatePropertyAll(0),
-                  onChanged: controller.setText,
-                ),
+                child: AppSearchField(hintText: l10n.bankSearchHint, onChanged: controller.setText),
               ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
