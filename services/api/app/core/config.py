@@ -95,7 +95,8 @@ class Settings(BaseSettings):
     smtp_username: str | None = None
     smtp_password: SecretStr | None = None
     smtp_from: str | None = None  # e.g. "PrepLoop <no-reply@example.com>"
-    smtp_security: Literal["starttls", "ssl"] = "starttls"
+    # "none" is only for a local test server (e.g. Mailpit); refused in staging/production.
+    smtp_security: Literal["starttls", "ssl", "none"] = "starttls"
     # One-time codes for password reset and email verification.
     account_code_minutes: int = Field(default=15, ge=5, le=60)
     account_code_max_attempts: int = Field(default=5, ge=1, le=10)
@@ -125,6 +126,8 @@ class Settings(BaseSettings):
                 raise ValueError("PREPLOOP_RATE_LIMIT_BACKEND=postgres is required here.")
             if self.email_backend != "smtp" or not self.smtp_host or not self.smtp_from:
                 raise ValueError("SMTP email (PREPLOOP_SMTP_HOST, _FROM) is required here.")
+            if self.smtp_security == "none":
+                raise ValueError("Unencrypted SMTP is not allowed here.")
         if self.email_backend == "smtp" and (not self.smtp_host or not self.smtp_from):
             raise ValueError("PREPLOOP_SMTP_HOST and PREPLOOP_SMTP_FROM are required for SMTP.")
         return self

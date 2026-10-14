@@ -1,0 +1,120 @@
+# Required checks before merging (enable branch protection on `main` in the GitHub settings).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17.5-bookworm
+        env:
+          POSTGRES_USER: preploop
+          POSTGRES_PASSWORD: preploop
+          POSTGRES_DB: preploop
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U preploop" --health-interval 5s --health-retries 20
+    env:
+      # CI-only throwaway database credentials (not secrets).
+      PREPLOOP_DATABASE_URL: postgresql+psycopg://preploop:preploop@localhost:5432/preploop
+      PREPLOOP_TEST_DATABASE_URL: postgresql+psycopg://preploop:preploop@localhost:5432/preploop_test
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+          cache: pip
+          cache-dependency-path: services/api/requirements.lock.txt
+      - name: OCR tools (real Tesseract tests)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-hin fonts-noto-core
+      - name: Install
+        run: |
+          python -m pip install -r requirements.lock.txt
+          python -m pip install --no-deps -e .
+      - name: Create the test database
+        run: PGPASSWORD=preploop psql -h localhost -U preploop -d preploop -c "CREATE DATABASE preploop_test"
+      - run: ruff format --check .
+      - run: ruff check .
+      - run: mypy app tests
+      - name: Migrations (upgrade, drift check)
+        run: |
+          alembic upgrade head
+          alembic check
+      - run: pytest -q
+      - name: OpenAPI contract is up to date
+        run: |
+          python -m app.openapi_export ../../contracts/openapi/openapi.json
+          git diff --exit-code -- ../../contracts/openapi/openapi.json
+
+  mobile:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.7"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Format (generated code excluded)
+        run: |
+          find lib test integration_test -name '*.dart' ! -name '*.g.dart' ! -path '*/generated/*' -print0 \
+            | xargs -0 dart format --output=none --set-exit-if-changed
+      - run: flutter analyze
+      - run: flutter test
+
+  android:
+    # Verifies the Gradle build (plugins, desugaring, manifest). Release signing needs the
+    # keystore secrets and runs in the release workflow, not here.
+    needs: mobile
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.7"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --debug --dart-define=API_BASE_URL=http://10.0.2.2:8000
+
+  container:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the API/worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: services/api
+          push: false
+          tags: preploop-api:ci
+      - name: Validate docker-compose
+        run: |
+          cp infra/compose.env.example infra/compose.env
+          docker compose -f infra/docker-compose.yml config --quiet

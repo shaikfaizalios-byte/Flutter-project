@@ -76,7 +76,8 @@ class SmtpEmailSender:
                     self._deliver(smtp, message)
             else:
                 with smtplib.SMTP(self._host, self._port, timeout=self._timeout) as smtp:
-                    smtp.starttls(context=context)
+                    if self._security == "starttls":
+                        smtp.starttls(context=context)
                     self._deliver(smtp, message)
         except (smtplib.SMTPException, OSError) as exc:
             # Log the failure type only; never the recipient's code.

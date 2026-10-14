@@ -1,0 +1,79 @@
+# Local full stack: PostgreSQL, migrations, API, document worker and Mailpit (catches email).
+#   cp infra/compose.env.example infra/compose.env   # then set PREPLOOP_AUTH_SECRET
+#   docker compose -f infra/docker-compose.yml up --build
+# API: http://localhost:8000/docs   Mail UI: http://localhost:8025
+name: preploop
+
+x-api: &api
+  build: ../services/api
+  image: preploop-api:local
+  env_file: compose.env
+  environment:
+    PREPLOOP_DATABASE_URL: postgresql+psycopg://preploop:preploop@db:5432/preploop
+    PREPLOOP_RATE_LIMIT_BACKEND: postgres
+    PREPLOOP_EMAIL_BACKEND: smtp
+    PREPLOOP_SMTP_HOST: mailpit
+    PREPLOOP_SMTP_PORT: "1025"
+    PREPLOOP_SMTP_SECURITY: none
+    PREPLOOP_SMTP_FROM: PrepLoop <no-reply@preploop.local>
+  volumes:
+    - uploads:/app/var/uploads
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  db:
+    image: postgres:17.5-bookworm
+    environment:
+      POSTGRES_USER: preploop
+      POSTGRES_PASSWORD: preploop
+      POSTGRES_DB: preploop
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U preploop -d preploop"]
+      interval: 5s
+      retries: 20
+
+  migrate:
+    <<: *api
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    <<: *api
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *api
+    command: ["python", "-m", "app.workers.document_worker"]
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    # PDF parsing and OCR run here, isolated from the API, with bounded resources.
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1g
+
+  mailpit:
+    image: axllent/mailpit:v1.20.0
+    ports:
+      - "8025:8025"
+
+volumes:
+  pgdata:
+  uploads:
