@@ -1,5 +1,6 @@
 """Import every model here so Alembic autogenerate sees the full metadata."""
 
+from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
@@ -14,6 +15,8 @@ from app.models.question import (
 )
 
 __all__ = [
+    "AIExplanation",
+    "AIGeneration",
     "Bookmark",
     "Concept",
     "Document",

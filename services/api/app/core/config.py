@@ -68,6 +68,14 @@ class Settings(BaseSettings):
     # run `python -m app.workers.document_worker` as a separate process instead.
     document_worker_in_process: bool = True
     document_worker_poll_seconds: float = Field(default=2.0, gt=0)
+    # Optional AI assistance (Anthropic Claude). Off unless an API key is configured; the key
+    # stays on the server and is never logged or returned.
+    ai_api_key: SecretStr | None = None
+    ai_model: str = "claude-haiku-5-5"
+    ai_timeout_seconds: float = Field(default=60.0, gt=0, le=600)
+    ai_max_output_tokens: int = Field(default=4000, ge=256, le=32000)
+    ai_rate_limit: int = Field(default=30, ge=1)
+    ai_rate_window_seconds: int = Field(default=3600, ge=1)
 
     @model_validator(mode="before")
     @classmethod

@@ -14,16 +14,19 @@ import 'package:preploop/features/settings/domain/server_health.dart';
 import 'package:preploop/features/study_plan/application/study_profile_controller.dart';
 import 'package:preploop/features/study_plan/domain/study_profile.dart';
 import 'package:preploop/core/utils/clock.dart';
+import 'package:preploop/features/ai/application/ai_providers.dart';
 import 'package:preploop/features/analytics/application/analytics_providers.dart';
 import 'package:preploop/features/practice/application/practice_providers.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
 import 'package:preploop/features/reminders/application/reminder_controller.dart';
 
+import 'fake_ai.dart';
 import 'fake_analytics.dart';
 import 'fake_practice.dart';
 import 'fake_questions.dart';
 import 'fake_reminders.dart';
 
+export 'fake_ai.dart';
 export 'fake_analytics.dart';
 export 'fake_practice.dart';
 export 'fake_questions.dart';
@@ -108,6 +111,7 @@ Future<void> pumpPrepLoopApp(
   FakePracticeRepository? practice,
   FakeReminderScheduler? reminders,
   FakeAnalyticsRepository? analytics,
+  FakeAiRepository? ai,
 }) async {
   if (deviceLocale != null) {
     tester.platformDispatcher.localesTestValue = [deviceLocale];
@@ -127,6 +131,7 @@ Future<void> pumpPrepLoopApp(
     reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
     analyticsRepositoryProvider.overrideWithValue(analytics ?? FakeAnalyticsRepository()),
     localTimezoneProvider.overrideWith((ref) async => 'Asia/Kolkata'),
+    aiRepositoryProvider.overrideWithValue(ai ?? FakeAiRepository()),
     ...extraOverrides,
   ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: const PrepLoopApp()));
@@ -142,5 +147,26 @@ Future<void> scrollTo(WidgetTester tester, Finder finder) async {
         .byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down)
         .first,
   );
+  await tester.pumpAndSettle();
+}
+
+/// Drags the first vertical list inside [screen] until [finder] (inside it) is built.
+/// Use when other screens stay mounted underneath (tabs, pushed routes) or the screen
+/// has several scrollables.
+Future<void> scrollWithin(WidgetTester tester, Type screen, Finder finder) async {
+  final target = find.descendant(of: find.byType(screen), matching: finder);
+  final list = find
+      .descendant(
+        of: find.byType(screen),
+        matching: find.byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+        ),
+      )
+      .first;
+  for (var i = 0; i < 30 && target.evaluate().isEmpty; i++) {
+    await tester.drag(list, const Offset(0, -200));
+    await tester.pumpAndSettle();
+  }
+  await tester.ensureVisible(target.first);
   await tester.pumpAndSettle();
 }

@@ -19,7 +19,9 @@ class SlidingWindowRateLimiter:
         limit: int,
         window_seconds: float,
         clock: Callable[[], float] = time.monotonic,
+        message: str = "Too many uploads. Please try again later.",
     ) -> None:
+        self._message = message
         self._limit = limit
         self._window = window_seconds
         self._clock = clock
@@ -35,9 +37,7 @@ class SlidingWindowRateLimiter:
                 hits.popleft()
             if len(hits) >= self._limit:
                 retry_after = math.ceil(hits[0] + self._window - now)
-                raise RateLimitedError(
-                    "Too many uploads. Please try again later.", max(retry_after, 1)
-                )
+                raise RateLimitedError(self._message, max(retry_after, 1))
             hits.append(now)
             # Drop keys with no recent hits so memory stays bounded.
             if len(self._hits) > 10_000:

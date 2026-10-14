@@ -16,7 +16,7 @@ import random
 import uuid
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, Literal
 
 from sqlalchemy import Select, and_, func, select
 from sqlalchemy.orm import Session, selectinload
@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
 from app.domain.scoring import ScoredItem, score_session, tally_json, to_decimal
 from app.domain.segmentation import same_subject
+from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
 from app.models.practice import (
     Bookmark,
@@ -81,9 +82,10 @@ class InvalidAnswerError(DomainError):
     code = "invalid_answer"
 
 
-def _eligible(include_unverified: bool) -> Select[Question]:
-    """Questions fit for practice: from a source document, answer known, at least two
-    options, not image-dependent, never rejected (unverified only on request)."""
+def _eligible(include_unverified: bool, include_ai: bool = False) -> Select[Question]:
+    """Questions fit for practice: from a source document (AI questions only on request),
+    answer known, at least two options, not image-dependent, never rejected (unverified
+    only on request)."""
     option_count = (
         select(func.count())
         .select_from(QuestionOption)
@@ -93,8 +95,11 @@ def _eligible(include_unverified: bool) -> Select[Question]:
     statuses = [VerificationStatus.VERIFIED]
     if include_unverified:
         statuses.append(VerificationStatus.UNVERIFIED)
+    origins = [QuestionOrigin.SOURCE]
+    if include_ai:
+        origins.append(QuestionOrigin.AI)
     return select(Question).where(
-        Question.origin == QuestionOrigin.SOURCE,
+        Question.origin.in_(origins),
         Question.verification_status.in_(statuses),
         Question.image_dependent.is_(False),
         Question.correct_option_position.is_not(None),
@@ -111,7 +116,7 @@ class PracticeService:
     # --- creating sessions ----------------------------------------------------------
 
     def start_practice(self, request: PracticeCreate) -> SessionRead:
-        stmt = _eligible(request.include_unverified)
+        stmt = _eligible(request.include_unverified, request.include_ai)
         if request.exam_code:
             stmt = stmt.where(Question.exam_code == request.exam_code)
         if request.subject:
@@ -573,10 +578,28 @@ class PracticeService:
             return None
         if question is None and item.question_id is not None:
             question = self._session.get(Question, item.question_id)
+        explanation: str | None = None
+        origin: Literal["source", "ai"] | None = None
+        if question is not None and question.explanation:
+            explanation = question.explanation
+            origin = "ai" if question.origin == QuestionOrigin.AI else "source"
+        elif question is not None:
+            approved = self._session.scalars(
+                select(AIExplanation)
+                .where(
+                    AIExplanation.question_id == question.id,
+                    AIExplanation.status == DraftStatus.APPROVED,
+                )
+                .order_by(AIExplanation.created_at.desc())
+                .limit(1)
+            ).first()
+            if approved is not None:
+                explanation, origin = approved.text, "ai"
         return Feedback(
             correct_position=item.correct_position,
             is_correct=answer.is_correct if answer else None,
-            explanation=question.explanation if question else None,
+            explanation=explanation,
+            explanation_origin=origin,
         )
 
     def _questions(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, Question]:

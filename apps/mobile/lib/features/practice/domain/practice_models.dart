@@ -11,17 +11,26 @@ enum SessionMode {
 
 @immutable
 class AnswerFeedback {
-  const AnswerFeedback({required this.correctPosition, this.isCorrect, this.explanation});
+  const AnswerFeedback({
+    required this.correctPosition,
+    this.isCorrect,
+    this.explanation,
+    this.explanationByAi = false,
+  });
 
   factory AnswerFeedback.fromJson(Map<String, dynamic> json) => AnswerFeedback(
     correctPosition: json['correct_position'] as int,
     isCorrect: json['is_correct'] as bool?,
     explanation: json['explanation'] as String?,
+    explanationByAi: json['explanation_origin'] == 'ai',
   );
 
   final int correctPosition;
   final bool? isCorrect; // null = not attempted
   final String? explanation;
+
+  /// The explanation is AI-generated (labelled in the UI).
+  final bool explanationByAi;
 }
 
 @immutable
@@ -336,6 +345,7 @@ class PracticeRequest {
     this.subject,
     this.topicId,
     this.includeUnverified = false,
+    this.includeAi = false,
     this.count = 10,
   });
 
@@ -343,6 +353,9 @@ class PracticeRequest {
   final String? subject;
   final String? topicId;
   final bool includeUnverified;
+
+  /// AI-generated questions (labelled) are used only when the learner opts in.
+  final bool includeAi;
   final int count;
 
   Map<String, Object> toJson() => {
@@ -350,6 +363,7 @@ class PracticeRequest {
     'subject': ?subject,
     'topic_id': ?topicId,
     'include_unverified': includeUnverified,
+    'include_ai': includeAi,
     'count': count,
   };
 }

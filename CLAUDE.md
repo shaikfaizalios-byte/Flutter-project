@@ -47,6 +47,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
   answer in Drift `pending_answers` (schema v3) and replays it. See docs/practice.md.
+- AI (optional; off without `PREPLOOP_AI_API_KEY`): server-only `AIProvider` (`app/integrations/ai.py`,
+  Anthropic SDK, default `claude-haiku-5-5`; `FakeAIProvider` in tests). Prompts/schemas/validation are pure
+  (`app/domain/ai_content.py`, versioned `PROMPT_VERSION`). AI questions = `origin=ai` rows with provenance
+  (CHECK), unverified; AI explanations in `ai_explanations` (draft→approved), never in `questions.explanation`;
+  every call logged in `ai_generations` without text. Practice uses AI only with `include_ai`; mocks never.
+  See docs/ai.md.
 - Analytics: `GET /api/v1/analytics/overview?timezone=<IANA>` returns RAW counts only (days bucketed in
   PostgreSQL with `timezone(zone, answered_at)`; mock answers count only once submitted). Mobile decides
   accuracy/"weak" with named `AnalyticsRules` (shown in UI) and builds the daily plan with the pure
@@ -77,7 +83,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Every question shows its origin (source PDF vs AI). Exam patterns/counts/marking come only from
   `exam_formats` (verified, sourced) — never hard-code them in code or UI.
 - Mobile app tests get `FakeQuestionsRepository`, `FakePracticeRepository`, `FakeReminderScheduler`,
-  `FakeAnalyticsRepository` (timezone fixed to Asia/Kolkata) by default
+  `FakeAnalyticsRepository` (timezone fixed to Asia/Kolkata), `FakeAiRepository` (AI off) by default
   (`pumpPrepLoopApp(questions: ..., practice: ..., clockOverride: ...)`).
 - Mobile time: read "now" from `clockProvider`; date-only values use `CalendarDate` (never `DateTime`).
 - New ARB keys go in both files; `arb_parity_test.dart` fails otherwise. Hindi-capable text needs no
@@ -110,7 +116,7 @@ Shells opened before installation need a restart for PATH.
 - Enforce ownership at the service/repository boundary once accounts exist; never trust filenames/paths as auth.
 - Production: HTTPS only, explicit CORS origins, interactive docs disabled, migrations (never create_all).
 
-## Current phase: Phase 8 complete → next is Phase 9 (AI assistance, clearly labelled)
+## Current phase: Phase 9 complete → next is Phase 10 (accounts, ownership & sync)
 Known limitations right now:
 - Android SDK / Android Studio not installed → no Android build verified; `integration_test/` not yet run
   on a device. iOS needs macOS + Xcode. The native PDF picker is only exercised via a fake in tests.
@@ -118,7 +124,7 @@ Known limitations right now:
 - Web: the Claude desktop browser pane can't fetch from web workers, so Drift's web DB never opens there
   (app shows first-run onboarding after a 3 s timeout; concept list stays loading). Server-backed screens
   (documents, question review) work there. Verify web persistence in Chrome/Edge. Native is unaffected.
-- **No auth/ownership on `/api/v1/concepts`, `/documents`, `/questions`, `/practice`, `/analytics`** (single-tenant dev
+- **No auth/ownership on `/api/v1/concepts`, `/documents`, `/questions`, `/practice`, `/analytics`, `/ai`** (single-tenant dev
   API until Phase 10) — never deploy publicly. Bookmarks and history are global, not per learner.
 - Mobile concepts and study profile are local-only (sync = Phase 10). Documents, the question bank and practice
   sessions are server-only: starting/opening a session needs a connection; only answers are queued offline.
@@ -130,7 +136,9 @@ Known limitations right now:
 - Upload rate limiter is per-process; no malware scanning; PDF parsing runs in the worker process.
 - Hindi OCR quality depends on scan quality; low-confidence pages are flagged, never corrected.
 - Mock tests need enough *verified* questions per section (CHSL: 25 × 4); with only a few reviewed papers
-  the hub shows the shortfall. No mock for SSC CGL (no verified format). AI questions are never used yet.
+  the hub shows the shortfall. No mock for SSC CGL (no verified format). Mocks never use AI questions (by design).
+- AI: no real provider call made yet (needs a key); answer/Hindi quality, latency and cost unmeasured.
+  AI rate limit is per process. Review Anthropic's data-retention terms before production use.
 - Practice has no analytics UI beyond the session summary (Phase 8); no resume-list of unfinished sessions
   other than history.
 - Reminder notifications are implemented but **never run on a device** (no Android SDK / macOS): delivery,
@@ -145,19 +153,17 @@ Known limitations right now:
 - Starlette 1.7 warns that `httpx` for TestClient is deprecated in favour of `httpx2`; deferred until vetted.
 - PostgreSQL is a native install; no docker-compose yet (optional).
 
-## Phase 9 acceptance criteria (AI assistance, clearly labelled)
-1. `AIProvider` interface on the server only (keys from `PREPLOOP_*` env, never in the app or logs) with a
-   deterministic fake for tests; provider choice, model, cost and data handling documented before enabling.
-2. Features (each optional, off when no provider is configured): explanation drafts for verified source
-   questions that lack one; practice questions generated from a learner's concept or a verified question's
-   topic; topic suggestions for unassigned questions. Never answers to unverified questions as fact.
-3. Every AI output is stored with `origin = ai`, model/provider, prompt version and source reference, and is
-   labelled "AI-generated" everywhere; never presented as a previous-year question; never mixed into
-   practice/mocks without the label (mocks stay source-only).
-4. AI output enters as **unverified** and goes through the existing review workflow; learners can report a
-   bad AI item. Generated questions are validated (options, single answer) before storage; failures flagged.
-5. Rate limiting and per-request size limits on AI endpoints; timeouts and provider errors map to clear,
-   retryable errors; no document text or personal data in logs.
-6. EN/HI UI and prompts that request the learner's language; Hindi output flagged for review like OCR text.
-7. Tests with the fake provider (labelling, storage, validation, rate limits, errors, no-provider state);
-   `scripts/check.ps1` passes; docs (incl. security.md) updated.
+## Phase 10 acceptance criteria (accounts, ownership & sync)
+1. Accounts on the server (email + password with a vetted hashing library, or a vetted identity provider —
+   choice, licence and data handling documented first); short-lived access tokens + refresh tokens;
+   mobile stores tokens in `flutter_secure_storage`; logout and token revocation.
+2. Ownership enforced in services/repositories for documents, questions (learner-owned vs shared),
+   practice sessions, bookmarks, analytics and AI calls; tests prove one user can't read or change another's data.
+3. Rate limits keyed by user (not just IP); AI usage counted per user.
+4. Sync for device data (concepts, study profile, revision cards/reviews, settings) following the designed
+   rules in docs/database.md: client UUIDs, `updated_at` + tombstones, last-writer-wins per field where
+   documented, idempotent push/pull with a server cursor; offline edits survive and merge.
+5. Migration path for existing single-tenant data (assign to the first account) via Alembic.
+6. Account deletion and data export (privacy); no personal data in logs.
+7. EN/HI UI for sign-in, sign-up, account and sync status; tests for auth, ownership, sync conflicts and
+   offline merge; `scripts/check.ps1` passes; docs (security, API, database) updated.

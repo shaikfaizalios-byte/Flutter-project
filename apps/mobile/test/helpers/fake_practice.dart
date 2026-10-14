@@ -182,6 +182,7 @@ class FakePracticeRepository implements PracticeRepository {
       correctPosition: q.correctPosition!,
       isCorrect: selected == null ? null : selected == q.correctPosition,
       explanation: q.explanation ?? 'Explanation ${q.sourceNumber}.',
+      explanationByAi: q.origin == QuestionOrigin.ai,
     );
   }
 

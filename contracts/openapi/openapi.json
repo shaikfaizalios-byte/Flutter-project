@@ -1,6 +1,193 @@
 {
   "components": {
     "schemas": {
+      "AIExplanationRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "edited": {
+            "title": "Edited",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "language": {
+            "enum": [
+              "en",
+              "hi"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "model_confident": {
+            "title": "Model Confident",
+            "type": "boolean"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "approved",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "question_id",
+          "text",
+          "language",
+          "model_confident",
+          "provider",
+          "model",
+          "prompt_version",
+          "status",
+          "edited",
+          "created_at",
+          "reviewed_at"
+        ],
+        "title": "AIExplanationRead",
+        "type": "object"
+      },
+      "AIProvenance": {
+        "description": "How an AI question was made. AI questions are never official questions.",
+        "properties": {
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "source_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Note"
+          },
+          "source_question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Question Id"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "prompt_version",
+          "source_question_id",
+          "source_note"
+        ],
+        "title": "AIProvenance",
+        "type": "object"
+      },
+      "AIStatus": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "features": {
+            "items": {
+              "enum": [
+                "explanations",
+                "questions",
+                "topics"
+              ],
+              "type": "string"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          }
+        },
+        "required": [
+          "enabled",
+          "provider",
+          "model",
+          "features"
+        ],
+        "title": "AIStatus",
+        "type": "object"
+      },
       "AnalyticsOverview": {
         "properties": {
           "answered": {
@@ -288,6 +475,43 @@
           "language"
         ],
         "title": "ConceptCreate",
+        "type": "object"
+      },
+      "ConceptInput": {
+        "additionalProperties": false,
+        "description": "A learner's own concept (device data) used as the basis for practice questions.\nIt is sent to the AI provider; only the title is stored (as the source note).",
+        "properties": {
+          "notes": {
+            "default": "",
+            "maxLength": 4000,
+            "title": "Notes",
+            "type": "string"
+          },
+          "subject": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Subject",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "topic": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "subject",
+          "topic"
+        ],
+        "title": "ConceptInput",
         "type": "object"
       },
       "ConceptPage": {
@@ -1013,6 +1237,37 @@
         "title": "ExamRead",
         "type": "object"
       },
+      "ExplanationReview": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "enum": [
+              "approved",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "maxLength": 3000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ExplanationReview",
+        "type": "object"
+      },
       "Feedback": {
         "properties": {
           "correct_position": {
@@ -1030,6 +1285,21 @@
             ],
             "title": "Explanation"
           },
+          "explanation_origin": {
+            "anyOf": [
+              {
+                "enum": [
+                  "source",
+                  "ai"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation Origin"
+          },
           "is_correct": {
             "anyOf": [
               {
@@ -1045,7 +1315,8 @@
         "required": [
           "correct_position",
           "is_correct",
-          "explanation"
+          "explanation",
+          "explanation_origin"
         ],
         "title": "Feedback",
         "type": "object"
@@ -1066,6 +1337,89 @@
           "name"
         ],
         "title": "FormatRef",
+        "type": "object"
+      },
+      "GenerateQuestionsRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "concept": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConceptInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "count": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "exam_code": {
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "language": {
+            "enum": [
+              "en",
+              "hi"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "source_question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Question Id"
+          }
+        },
+        "required": [
+          "exam_code",
+          "language"
+        ],
+        "title": "GenerateQuestionsRequest",
+        "type": "object"
+      },
+      "GenerateQuestionsResult": {
+        "properties": {
+          "created": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionRead"
+            },
+            "title": "Created",
+            "type": "array"
+          },
+          "rejected": {
+            "title": "Rejected",
+            "type": "integer"
+          },
+          "rejection_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rejection Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "created",
+          "rejected",
+          "rejection_reasons"
+        ],
+        "title": "GenerateQuestionsResult",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -1637,6 +1991,11 @@
             ],
             "title": "Exam Code"
           },
+          "include_ai": {
+            "default": false,
+            "title": "Include Ai",
+            "type": "boolean"
+          },
           "include_unverified": {
             "default": false,
             "title": "Include Unverified",
@@ -1778,6 +2137,26 @@
       },
       "QuestionRead": {
         "properties": {
+          "ai": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AIProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ai_explanation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AIExplanationRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "answer_source": {
             "anyOf": [
               {
@@ -1959,6 +2338,21 @@
             "title": "Topic Status",
             "type": "string"
           },
+          "topic_suggested_by": {
+            "anyOf": [
+              {
+                "enum": [
+                  "keywords",
+                  "ai"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Suggested By"
+          },
           "updated_at": {
             "format": "date-time",
             "title": "Updated At",
@@ -1994,6 +2388,7 @@
           "subject",
           "topic",
           "topic_status",
+          "topic_suggested_by",
           "stem",
           "language",
           "document_id",
@@ -2010,10 +2405,39 @@
           "verified_at",
           "issues",
           "open_issue_count",
+          "ai",
+          "ai_explanation",
           "created_at",
           "updated_at"
         ],
         "title": "QuestionRead",
+        "type": "object"
+      },
+      "QuestionReport": {
+        "additionalProperties": false,
+        "description": "A learner flags a question (any origin) as wrong or unclear. The question goes back\nto review.",
+        "properties": {
+          "note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Note",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "wrong_answer",
+              "unclear",
+              "incorrect_content",
+              "other"
+            ],
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "QuestionReport",
         "type": "object"
       },
       "QuestionUpdate": {
@@ -2895,6 +3319,23 @@
         "title": "TopicStats",
         "type": "object"
       },
+      "TopicSuggestionResult": {
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/QuestionRead"
+          },
+          "suggested": {
+            "title": "Suggested",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "question",
+          "suggested"
+        ],
+        "title": "TopicSuggestionResult",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -2943,6 +3384,417 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/ai/explanations/{explanation_id}": {
+      "patch": {
+        "operationId": "review_explanation_api_v1_ai_explanations__explanation_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "explanation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Explanation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplanationReview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIExplanationRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "summary": "Approve (optionally edited) or reject an AI explanation",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/questions/generate": {
+      "post": {
+        "operationId": "generate_questions_api_v1_ai_questions_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateQuestionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateQuestionsResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "summary": "Generate unverified AI practice questions from a verified question or a concept",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/questions/{question_id}/explanation": {
+      "post": {
+        "operationId": "draft_explanation_api_v1_ai_questions__question_id__explanation_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIExplanationRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "summary": "Draft an AI explanation for a verified source question without one",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/questions/{question_id}/topic-suggestion": {
+      "post": {
+        "operationId": "suggest_topic_api_v1_ai_questions__question_id__topic_suggestion_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicSuggestionResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "summary": "Suggest a topic from the taxonomy for a question without one",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/status": {
+      "get": {
+        "operationId": "ai_status_api_v1_ai_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "summary": "Whether AI assistance is available",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
     "/api/v1/analytics/overview": {
       "get": {
         "operationId": "overview_api_v1_analytics_overview_get",
@@ -5373,6 +6225,79 @@
         "summary": "Attempts and last result for a question",
         "tags": [
           "practice"
+        ]
+      }
+    },
+    "/api/v1/questions/{question_id}/report": {
+      "post": {
+        "operationId": "report_question_api_v1_questions__question_id__report_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionReport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "summary": "Report a question as wrong or unclear (sends it back to review)",
+        "tags": [
+          "ai"
         ]
       }
     },

@@ -117,7 +117,20 @@ mirrors the OS's scheduled notifications by id.
 App tests get `FakeAnalyticsRepository` (`test/helpers/fake_analytics.dart`) and a fixed `Asia/Kolkata`
 timezone by default.
 
+## AI assistance (Phase 9)
+
+| File | Covers |
+|---|---|
+| `services/api/tests/test_ai.py` | Status without secrets; no-provider state (`503 ai_disabled`); explanation draft provenance and prompt contents, drafts hidden from learners, edited approval shown with the AI label, ineligible and existing explanations, provider errors and unusable output logged; generated questions validated, stored unverified with provenance and an AI-suggested topic (partial batch logged with tokens); copies and duplicate options rejected; a verified basis required; concept-based Hindi generation (language issue, notes not stored); AI excluded from practice unless chosen and **always excluded from mocks**; topic suggestions only from the taxonomy; reports send questions back to review; rate limit with Retry-After |
+| `services/api/tests/test_ai_content.py` | Generated-question validation cases; normalisation without rewriting; copy detection; topic picking; explanation validation; language in prompts; AI off without a key; key hidden in settings; Anthropic adapter request shape and parsing, refusal, truncation, invalid JSON and SDK error mapping (stub client, no network) |
+| `apps/mobile/test/features/ai/ai_flow_test.dart` | No AI actions when the server has none; draft labelled, then approved; unsure-draft warning; AI only from reviewed questions; topic "Suggested by AI"; similar questions with a rejection count; AI errors explained; concept notes with a data notice; AI questions and explanations labelled in practice (opt-in sent); reporting from a session; Hindi |
+
+App tests get `FakeAiRepository` (`test/helpers/fake_ai.dart`, AI disabled by default). Backend tests use
+`FakeAIProvider` (`tests/fakes.py`).
+
 ## Not yet covered
+
+- No real AI provider call has been made (it needs an API key). Answer quality, Hindi quality, latency and cost are unmeasured.
 
 - Real notification delivery, the permission dialogs and the boot receiver need an Android or iOS device (not available yet).
 

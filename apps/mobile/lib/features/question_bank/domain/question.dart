@@ -81,6 +81,68 @@ class Passage {
 
 /// A question-bank entry with its provenance. Server is the source of truth.
 @immutable
+/// How an AI-generated question was made (never an official question).
+@immutable
+class AiProvenance {
+  const AiProvenance({
+    required this.provider,
+    required this.model,
+    required this.promptVersion,
+    this.sourceQuestionId,
+    this.sourceNote,
+  });
+
+  factory AiProvenance.fromJson(Map<String, dynamic> json) => AiProvenance(
+    provider: json['provider'] as String,
+    model: json['model'] as String,
+    promptVersion: json['prompt_version'] as String,
+    sourceQuestionId: json['source_question_id'] as String?,
+    sourceNote: json['source_note'] as String?,
+  );
+
+  final String provider;
+  final String model;
+  final String promptVersion;
+  final String? sourceQuestionId;
+  final String? sourceNote;
+}
+
+enum AiDraftStatus { draft, approved, rejected }
+
+/// An AI explanation for a source question without one. Always labelled "AI-generated".
+@immutable
+class AiExplanation {
+  const AiExplanation({
+    required this.id,
+    required this.questionId,
+    required this.text,
+    required this.status,
+    required this.modelConfident,
+    required this.model,
+    this.edited = false,
+  });
+
+  factory AiExplanation.fromJson(Map<String, dynamic> json) => AiExplanation(
+    id: json['id'] as String,
+    questionId: json['question_id'] as String,
+    text: json['text'] as String,
+    status: AiDraftStatus.values.byName(json['status'] as String),
+    modelConfident: json['model_confident'] as bool,
+    model: json['model'] as String,
+    edited: json['edited'] as bool? ?? false,
+  );
+
+  final String id;
+  final String questionId;
+  final String text;
+  final AiDraftStatus status;
+
+  /// False when the model doubted the given answer; reviewers see a warning.
+  final bool modelConfident;
+  final String model;
+  final bool edited;
+}
+
 class BankQuestion {
   const BankQuestion({
     required this.id,
@@ -104,6 +166,9 @@ class BankQuestion {
     this.correctPosition,
     this.answerSource,
     this.explanation,
+    this.topicSuggestedBy,
+    this.ai,
+    this.aiExplanation,
   });
 
   factory BankQuestion.fromJson(Map<String, dynamic> json) => BankQuestion(
@@ -114,6 +179,11 @@ class BankQuestion {
     subject: json['subject'] as String?,
     topic: json['topic'] == null ? null : TopicRef.fromJson(json['topic'] as Map<String, dynamic>),
     topicStatus: json['topic_status'] as String,
+    topicSuggestedBy: json['topic_suggested_by'] as String?,
+    ai: json['ai'] == null ? null : AiProvenance.fromJson(json['ai'] as Map<String, dynamic>),
+    aiExplanation: json['ai_explanation'] == null
+        ? null
+        : AiExplanation.fromJson(json['ai_explanation'] as Map<String, dynamic>),
     stem: json['stem'] as String,
     language: ContentLanguage.fromCode(json['language'] as String),
     documentId: json['document_id'] as String?,
@@ -145,6 +215,15 @@ class BankQuestion {
   final String? subject;
   final TopicRef? topic;
   final String topicStatus; // unassigned | suggested | confirmed
+
+  /// Who suggested the topic while [topicStatus] is "suggested": `keywords` or `ai`.
+  final String? topicSuggestedBy;
+
+  /// Set for AI-generated questions.
+  final AiProvenance? ai;
+
+  /// Latest AI explanation (draft or approved) for a source question without one.
+  final AiExplanation? aiExplanation;
   final String stem;
   final ContentLanguage language;
   final String? documentId;
@@ -164,6 +243,42 @@ class BankQuestion {
     for (final i in issues)
       if (!i.resolved) i,
   ];
+
+  /// Copy with fields that AI actions and reports change. Nullable fields take a getter so
+  /// they can be cleared: `copyWith(topic: () => null)`.
+  BankQuestion copyWith({
+    TopicRef? Function()? topic,
+    String? topicStatus,
+    String? Function()? topicSuggestedBy,
+    AiExplanation? Function()? aiExplanation,
+    VerificationStatus? status,
+    List<QuestionIssue>? issues,
+  }) => BankQuestion(
+    id: id,
+    origin: origin,
+    examCode: examCode,
+    stem: stem,
+    language: language,
+    options: options,
+    issues: issues ?? this.issues,
+    status: status ?? this.status,
+    sourcePages: sourcePages,
+    imageDependent: imageDependent,
+    topicStatus: topicStatus ?? this.topicStatus,
+    section: section,
+    subject: subject,
+    topic: topic != null ? topic() : this.topic,
+    documentId: documentId,
+    documentFilename: documentFilename,
+    sourceNumber: sourceNumber,
+    passage: passage,
+    correctPosition: correctPosition,
+    answerSource: answerSource,
+    explanation: explanation,
+    topicSuggestedBy: topicSuggestedBy != null ? topicSuggestedBy() : this.topicSuggestedBy,
+    ai: ai,
+    aiExplanation: aiExplanation != null ? aiExplanation() : this.aiExplanation,
+  );
 }
 
 @immutable

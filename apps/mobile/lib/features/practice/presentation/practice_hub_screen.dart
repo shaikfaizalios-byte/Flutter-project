@@ -146,6 +146,7 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
   String? _topicId;
   int _count = 10;
   bool _includeUnverified = false;
+  bool _includeAi = false;
 
   @override
   Widget build(BuildContext context) {
@@ -154,8 +155,9 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
     final subjects = {for (final t in topics) t.subject}.toList()..sort();
     final subjectTopics = topics.where((t) => t.subject == _subject).toList();
 
+    // Scrolls on short screens (the sheet has grown with each option).
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           AppSpacing.lg,
           0,
@@ -212,6 +214,13 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
               value: _includeUnverified,
               onChanged: (v) => setState(() => _includeUnverified = v),
             ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.practiceIncludeAi),
+              subtitle: Text(l10n.practiceIncludeAiHint),
+              value: _includeAi,
+              onChanged: (v) => setState(() => _includeAi = v),
+            ),
             const SizedBox(height: AppSpacing.sm),
             Align(
               alignment: AlignmentDirectional.centerEnd,
@@ -222,6 +231,7 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
                     topicId: _topicId,
                     count: _count,
                     includeUnverified: _includeUnverified,
+                    includeAi: _includeAi,
                   ),
                 ),
                 child: Text(l10n.practiceStart),

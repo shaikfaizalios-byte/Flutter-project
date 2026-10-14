@@ -18,6 +18,9 @@ class PracticeCreate(BaseModel):
     topic_id: uuid.UUID | None = None
     # Questions not yet reviewed are excluded unless the learner opts in (and are labelled).
     include_unverified: bool = False
+    # AI-generated questions are excluded unless the learner opts in (and are labelled).
+    # Mock tests never use them.
+    include_ai: bool = False
     count: int = Field(default=10, ge=1, le=100)
 
 
@@ -40,6 +43,9 @@ class Feedback(BaseModel):
     correct_position: int
     is_correct: bool | None
     explanation: str | None
+    # "source": from the paper (or the reviewer); "ai": AI-generated (an AI question's own
+    # explanation, or an approved AI explanation for a source question).
+    explanation_origin: Literal["source", "ai"] | None
 
 
 class ItemSource(BaseModel):

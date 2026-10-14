@@ -177,6 +177,7 @@ class SegmentationService:
             subject=subject,
             topic_id=topic_id,
             topic_status=TopicStatus.SUGGESTED if topic_id else TopicStatus.UNASSIGNED,
+            topic_suggested_by="keywords" if topic_id else None,
             stem=parsed.stem,
             language=document.language,
             document_id=document.id,

@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
+from typing import Any
 
 from PIL import Image
 
+from app.integrations.ai import AIProviderError, AIResult
 from app.integrations.ocr import OcrFailedError, OcrResult, OcrUnavailableError
 
 
@@ -23,3 +25,33 @@ class FakeOcrEngine:
         return OcrResult(
             text=self.text, mean_confidence=self.confidence, word_count=len(self.text.split())
         )
+
+
+@dataclass
+class AICall:
+    system: str
+    prompt: str
+    schema: dict[str, Any]
+    max_tokens: int
+
+
+@dataclass
+class FakeAIProvider:
+    """Deterministic AI provider: returns scripted JSON (or raises scripted errors) in order,
+    and records every call so prompts can be checked. No network."""
+
+    responses: list[dict[str, Any] | AIProviderError] = field(default_factory=list)
+    calls: list[AICall] = field(default_factory=list)
+    name: str = "fake"
+    model: str = "fake-model-1"
+
+    def complete_json(
+        self, *, system: str, prompt: str, schema: dict[str, Any], max_tokens: int
+    ) -> AIResult:
+        self.calls.append(AICall(system, prompt, schema, max_tokens))
+        if not self.responses:
+            raise AssertionError("FakeAIProvider: no scripted response left")
+        response = self.responses.pop(0)
+        if isinstance(response, AIProviderError):
+            raise response
+        return AIResult(data=response, input_tokens=120, output_tokens=80)

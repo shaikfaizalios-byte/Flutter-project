@@ -109,6 +109,31 @@ Original files are **not** stored in the database. They live in `DocumentStorage
 - **`bookmarks`**: one row per question (unique), with `created_at`.
 - Deleting a question (or its document) keeps past sessions and scores: `session_items.question_id` and `session_answers.question_id` become NULL, while the snapshot stays. Bookmarks cascade. Exams and formats used by sessions are `RESTRICT`.
 
+### Schema (revision `0005`): AI assistance
+
+- **`questions`** gains:
+  - `topic_suggested_by` (`keywords`/`ai`; existing suggestions were backfilled to `keywords`)
+  - `ai_provider`, `ai_model`, `ai_prompt_version`
+  - `ai_source_question_id` (FK to questions, SET NULL)
+  - `ai_source_note` (e.g. "Concept: <title>"; never the notes themselves)
+
+  CHECK `ai_has_provenance`: `origin = 'ai'` requires provider, model and prompt version.
+- **`ai_explanations`**: AI explanation drafts for source questions, kept apart from `questions.explanation`:
+  - text and language
+  - `model_confident`
+  - provider, model and prompt version
+  - `status` (draft/approved/rejected), `edited` and `reviewed_at`
+
+  It cascades with the question.
+- **`ai_generations`**: one row per AI call, for auditing and cost:
+  - task (explanation/questions/topic) and outcome (ok/partial/invalid/error)
+  - reason-code detail
+  - input and output tokens
+  - items created and rejected
+  - the question (SET NULL)
+
+  It never stores prompt or output text.
+
 ### Migration workflow
 
 ```powershell

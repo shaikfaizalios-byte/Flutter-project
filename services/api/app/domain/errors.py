@@ -59,3 +59,24 @@ class RateLimitedError(DomainError):
     def __init__(self, message: str, retry_after_seconds: int) -> None:
         super().__init__(message)
         self.retry_after_seconds = retry_after_seconds
+
+
+class AIDisabledError(DomainError):
+    """AI assistance is not configured on this server (no provider key)."""
+
+    status_code = 503
+    code = "ai_disabled"
+
+
+class AIUnavailableError(DomainError):
+    """The AI provider failed or returned unusable output; usually worth retrying."""
+
+    status_code = 502
+    code = "ai_unavailable"
+
+
+class NotEligibleError(DomainError):
+    """The item does not meet the rules for this action (e.g. AI on unverified content)."""
+
+    status_code = 422
+    code = "not_eligible"

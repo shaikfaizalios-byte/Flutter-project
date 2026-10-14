@@ -8,6 +8,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../ai/presentation/ai_widgets.dart';
 import '../../question_bank/presentation/question_widgets.dart';
 import '../application/practice_providers.dart';
 import '../domain/practice_models.dart';
@@ -104,6 +105,12 @@ class _SessionBody extends ConsumerWidget {
               tooltip: item.bookmarked ? l10n.sessionRemoveBookmark : l10n.sessionBookmark,
               icon: Icon(item.bookmarked ? Icons.bookmark : Icons.bookmark_border),
               onPressed: () => _controller(ref).toggleBookmark(),
+            ),
+          if (item.questionId != null)
+            IconButton(
+              tooltip: l10n.reportTitle,
+              icon: const Icon(Icons.flag_outlined),
+              onPressed: () => reportQuestion(context, ref, item.questionId!),
             ),
           if (isMock)
             IconButton(
@@ -336,6 +343,7 @@ class _FeedbackPanel extends StatelessWidget {
             Text(l10n.sessionCorrectAnswer(correctLabel)),
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
+              if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),
               SelectableText(feedback.explanation!),
             ],
           ],

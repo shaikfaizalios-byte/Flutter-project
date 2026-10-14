@@ -1575,4 +1575,160 @@ class AppLocalizationsHi extends AppLocalizations {
   String progressRules(String accuracy, int answers, String forget, int reviews, int recentDays) {
     return 'कोई टॉपिक कमज़ोर तब माना जाता है जब कम से कम $answers उत्तरों के बाद $accuracy से कम सही हो, या कम से कम $reviews फ्लैशकार्ड दोहराव में से $forget या अधिक में भूले हों। रुझान पिछले $recentDays दिनों की तुलना पहले के उत्तरों से करता है।';
   }
+
+  @override
+  String get aiAssistTitle => 'AI सहायता';
+
+  @override
+  String get aiReviewNote =>
+      'AI का आउटपुट एक मसौदा है। इस पर \"AI द्वारा बनाया गया\" लिखा होता है और शिक्षार्थियों को दिखाने से पहले इसकी जाँच ज़रूरी है।';
+
+  @override
+  String aiProvenance(String model, String version) {
+    return '$model द्वारा AI से बनाया गया (प्रॉम्प्ट $version)';
+  }
+
+  @override
+  String get aiBasedOnQuestion => 'एक जाँचे गए प्रश्न के आधार पर';
+
+  @override
+  String get aiDraftLabel => 'AI द्वारा बनाया गया मसौदा, जाँचा नहीं गया';
+
+  @override
+  String get aiExplanationApproved => 'AI द्वारा बनाई गई व्याख्या (स्वीकृत)';
+
+  @override
+  String get aiExplanationLabel => 'AI द्वारा बनाई गई व्याख्या';
+
+  @override
+  String get aiUnsure =>
+      'AI को दिए गए उत्तर के सही होने पर संदेह था। स्वीकृत करने से पहले उत्तर जाँचें।';
+
+  @override
+  String get aiApprove => 'स्वीकृत करें';
+
+  @override
+  String get aiEditApprove => 'संपादित करके स्वीकृत करें';
+
+  @override
+  String get aiDraftExplanation => 'AI से व्याख्या का मसौदा बनाएँ';
+
+  @override
+  String get aiSuggestTopic => 'AI से टॉपिक सुझाएँ';
+
+  @override
+  String get aiNoTopic => 'AI को कोई मेल खाता टॉपिक नहीं मिला। खुद चुनें।';
+
+  @override
+  String get aiGenerateSimilar => 'मिलते-जुलते अभ्यास प्रश्न बनाएँ';
+
+  @override
+  String get aiApproveFirst =>
+      'पहले इस प्रश्न को स्वीकृत करें; AI केवल जाँचे गए, उत्तर वाले प्रश्नों से काम करता है।';
+
+  @override
+  String get aiGenerateTitle => 'अभ्यास प्रश्न बनाएँ';
+
+  @override
+  String get aiGenerate => 'बनाएँ';
+
+  @override
+  String get aiGenerateFromQuestionNotice =>
+      'उसी टॉपिक पर AI नए प्रश्न लिखता है। ये AI द्वारा बनाए गए और बिना जाँचे प्रश्न के रूप में सहेजे जाते हैं, और कभी पिछले वर्ष के प्रश्न नहीं माने जाते।';
+
+  @override
+  String get aiGenerateFromConcept => 'मेरे नोट्स से अभ्यास प्रश्न (AI)';
+
+  @override
+  String get aiConceptNotice =>
+      'प्रश्न लिखने के लिए कॉन्सेप्ट का शीर्षक और आपके नोट्स AI सेवा को भेजे जाते हैं। प्रश्न AI द्वारा बनाए गए के रूप में सहेजे जाते हैं और अभ्यास से पहले प्रश्न बैंक में जाँच ज़रूरी है।';
+
+  @override
+  String aiGenerated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count AI प्रश्न जाँच के लिए प्रश्न बैंक में जोड़े गए।',
+      one: '1 AI प्रश्न जाँच के लिए प्रश्न बैंक में जोड़ा गया।',
+      zero: 'कोई उपयोगी प्रश्न नहीं बना।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String aiGeneratedRejected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count जाँच में अस्वीकार हुए।',
+      one: '1 जाँच में अस्वीकार हुआ।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiErrorOffline => 'आप ऑफ़लाइन हैं। AI सहायता के लिए इंटरनेट चाहिए।';
+
+  @override
+  String get aiErrorDisabled => 'सर्वर पर AI सहायता सेट नहीं है।';
+
+  @override
+  String get aiErrorUnavailable =>
+      'AI सेवा अभी उपलब्ध नहीं है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
+
+  @override
+  String get aiErrorRateLimited => 'बहुत अधिक AI अनुरोध। कृपया बाद में फिर कोशिश करें।';
+
+  @override
+  String get aiErrorNotEligible =>
+      'AI केवल जाँचे गए, उत्तर वाले और बिना चित्र वाले प्रश्नों से काम करता है।';
+
+  @override
+  String get aiErrorExplanationExists => 'इस प्रश्न की पहले से व्याख्या है।';
+
+  @override
+  String get aiErrorTopicSet => 'इस प्रश्न का पहले से टॉपिक है।';
+
+  @override
+  String get aiErrorGeneric => 'कुछ गलत हो गया। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get reportTitle => 'समस्या बताएँ';
+
+  @override
+  String get reportNote => 'क्या गलत है? (वैकल्पिक)';
+
+  @override
+  String get reportSend => 'रिपोर्ट भेजें';
+
+  @override
+  String get reportSent => 'धन्यवाद। प्रश्न फिर से जाँच के लिए भेजा गया।';
+
+  @override
+  String get reportWrongAnswer => 'उत्तर गलत है';
+
+  @override
+  String get reportUnclear => 'प्रश्न स्पष्ट नहीं है';
+
+  @override
+  String get reportIncorrectContent => 'सामग्री गलत है';
+
+  @override
+  String get reportOther => 'कुछ और';
+
+  @override
+  String get practiceIncludeAi => 'AI द्वारा बनाए गए प्रश्न शामिल करें';
+
+  @override
+  String get practiceIncludeAiHint =>
+      'इन पर \"AI द्वारा बनाया गया\" लिखा होता है और ये पिछले वर्ष के प्रश्न नहीं हैं। मॉक टेस्ट में इनका उपयोग कभी नहीं होता।';
+
+  @override
+  String get topicSuggestedByAi => 'AI द्वारा सुझाया गया। पुष्टि करें या बदलें।';
+
+  @override
+  String get issueLearnerReport => 'शिक्षार्थी द्वारा रिपोर्ट किया गया';
+
+  @override
+  String get issueAiLanguageReview => 'AI द्वारा लिखी हिंदी: भाषा जाँचें';
 }

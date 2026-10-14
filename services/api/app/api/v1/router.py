@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
+    ai,
     analytics,
     concepts,
     documents,
@@ -18,3 +19,4 @@ api_router.include_router(documents.router, tags=["documents"])
 api_router.include_router(questions.router)
 api_router.include_router(practice.router)
 api_router.include_router(analytics.router)
+api_router.include_router(ai.router)

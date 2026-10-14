@@ -8,6 +8,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../ai/presentation/ai_widgets.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../application/question_bank_providers.dart';
 import '../data/questions_repository.dart';
@@ -194,6 +195,13 @@ class _EditorState extends ConsumerState<_Editor> {
             ),
           ),
         ],
+        AiAssistCard(
+          question: q,
+          onChanged: (updated) => setState(() {
+            _question = updated;
+            _topicId = updated.topic?.id;
+          }),
+        ),
         if (q.passage != null) ...[
           const SizedBox(height: AppSpacing.md),
           ExpansionTile(
@@ -258,6 +266,7 @@ class _EditorState extends ConsumerState<_Editor> {
         _TopicPicker(
           selectedId: _topicId,
           suggested: q.topicStatus == 'suggested',
+          suggestedByAi: q.topicSuggestedBy == 'ai',
           onChanged: (id) => setState(() => _topicId = id),
         ),
         SwitchListTile(
@@ -331,10 +340,16 @@ class _EditorState extends ConsumerState<_Editor> {
 }
 
 class _TopicPicker extends ConsumerWidget {
-  const _TopicPicker({required this.selectedId, required this.suggested, required this.onChanged});
+  const _TopicPicker({
+    required this.selectedId,
+    required this.suggested,
+    required this.onChanged,
+    this.suggestedByAi = false,
+  });
 
   final String? selectedId;
   final bool suggested;
+  final bool suggestedByAi;
   final ValueChanged<String?> onChanged;
 
   @override
@@ -358,7 +373,10 @@ class _TopicPicker extends ConsumerWidget {
         if (suggested && selectedId != null)
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.xs),
-            child: Text(l10n.topicSuggested, style: Theme.of(context).textTheme.bodySmall),
+            child: Text(
+              suggestedByAi ? l10n.topicSuggestedByAi : l10n.topicSuggested,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
       ],
     );

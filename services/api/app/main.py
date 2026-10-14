@@ -15,6 +15,7 @@ from app.core.logging import configure_logging
 from app.core.middleware import REQUEST_ID_HEADER, RequestContextMiddleware
 from app.core.rate_limit import SlidingWindowRateLimiter
 from app.database.session import build_engine, build_sessionmaker
+from app.integrations.ai import AIProvider, provider_from_settings
 from app.integrations.storage import DocumentStorage, LocalDocumentStorage
 from app.schemas.health import HealthResponse
 from app.workers.document_worker import start_background_worker
@@ -25,6 +26,7 @@ def create_app(
     *,
     engine: Engine | None = None,
     storage: DocumentStorage | None = None,
+    ai_provider: AIProvider | None = None,
 ) -> FastAPI:
     """Build the app. ``engine`` and ``storage`` let tests inject dependencies; by default
     they are created from settings (no engine if ``database_url`` is unset)."""
@@ -60,6 +62,15 @@ def create_app(
     app.state.document_storage = storage or LocalDocumentStorage(settings.upload_dir)
     app.state.upload_rate_limiter = SlidingWindowRateLimiter(
         settings.upload_rate_limit, settings.upload_rate_window_seconds
+    )
+    # AI is off unless a provider is injected (tests) or an API key is configured.
+    app.state.ai_provider = (
+        ai_provider if ai_provider is not None else provider_from_settings(settings)
+    )
+    app.state.ai_rate_limiter = SlidingWindowRateLimiter(
+        settings.ai_rate_limit,
+        settings.ai_rate_window_seconds,
+        message="Too many AI requests. Please try again later.",
     )
     # Use the injected settings everywhere, including Depends(get_settings).
     app.dependency_overrides[get_settings] = lambda: settings

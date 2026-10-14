@@ -37,6 +37,14 @@
 - Reminder text is generic. No card content, counts or personal data appear on the lock screen.
 - Android uses inexact alarms, so the app requests no `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM` permission. The only added permission is `RECEIVE_BOOT_COMPLETED` (restores the reminder after a reboot). Notification receivers are not exported.
 
+## Implemented (Phase 9: AI)
+
+- The provider key (`PREPLOOP_AI_API_KEY`) is a `SecretStr` that lives only in the server's gitignored `.env`. It is never returned (`/ai/status` exposes only enabled, provider and model) and never logged. The app embeds no AI key.
+- Only the minimum is sent to the provider: one verified question and its answer, or the concept the learner chose (they are told first). No account or device data is sent.
+- The AI audit log (`ai_generations`) stores reason codes and token counts, never prompt or output text. Learner notes are not stored on the server.
+- Model output is untrusted. It is schema-constrained, validated before storage, stored unverified or as a draft, and labelled everywhere. Topic suggestions are limited to the existing taxonomy.
+- Calls that reach the provider are rate-limited (default 30 per hour per client) and limited in size (max 5 questions, notes ≤ 4000 characters, output tokens capped). Provider timeouts and errors map to `502 ai_unavailable` without details.
+
 ## Known gaps (accepted for now)
 
 - **No authentication on `/api/v1/documents`.** Anyone who can reach the API can list, read and delete uploads. Never expose it publicly before Phase 10 adds accounts and ownership checks.
@@ -49,7 +57,7 @@
 ## Required before the relevant phases ship
 
 - Authentication, secure token storage (`flutter_secure_storage`), and ownership checks in services and repositories, covering concepts and documents (Phase 10).
-- Rate limiting on AI endpoints (Phase 9). Upload rate limiting exists; move it to a shared store before scaling out.
+- Upload and AI rate limiting exist per process; move them to a shared store before scaling out. Review the AI provider's data-retention terms before enabling AI in production.
 - Worker process isolation (separate container, limited memory and CPU) for PDF parsing and OCR (Phase 11).
 - Server-side entitlement verification for subscriptions (Phase 10).
 - HTTPS termination and security headers at the deployment edge (Phase 11).

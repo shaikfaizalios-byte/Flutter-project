@@ -1,0 +1,91 @@
+# AI assistance (Phase 9)
+
+Code:
+- Backend:
+  - `services/api/app/integrations/ai.py` (provider)
+  - `app/domain/ai_content.py` (prompts, schemas, validation; pure)
+  - `app/services/ai_service.py`
+  - `app/api/v1/endpoints/ai.py`
+- Mobile: `apps/mobile/lib/features/ai/`
+
+AI is **optional and off by default**. Every AI result is labelled "AI-generated", stored with its
+provenance, and reviewed before learners rely on it. AI never produces previous-year questions and never feeds mock tests.
+
+## Provider, model, cost and data handling
+
+| Item | Choice |
+|---|---|
+| Provider | Anthropic Claude through the official `anthropic` Python SDK (MIT), called **only from the server** |
+| Model | `claude-haiku-5-5` by default (low cost); set with `PREPLOOP_AI_MODEL` |
+| Switching on | Set `PREPLOOP_AI_API_KEY` in the gitignored `services/api/.env`. Without a key, `/ai/status` reports `enabled: false`, AI endpoints return `503 ai_disabled`, and the app hides AI actions. |
+| Output | JSON-schema structured output (`output_config.format`), parsed and then validated by our own rules |
+| Cost control | Rate limit (`PREPLOOP_AI_RATE_LIMIT` per `PREPLOOP_AI_RATE_WINDOW_SECONDS`, default 30 per hour per client), `PREPLOOP_AI_MAX_OUTPUT_TOKENS` (default 4000), and at most 5 questions per request. Every call logs input and output tokens in `ai_generations`, so spend can be computed with the provider's current price list (prices aren't hard-coded here). |
+| What is sent | One question's stem, options and known answer (from a **verified** paper question); or, when the learner asks for questions from a concept, that concept's title, notes, subject and topic. The app tells the learner their notes will be sent before it sends them. Nothing else is sent: no account or device data. |
+| What is stored | AI output (questions, explanation drafts, topic choice) with provider, model, prompt version and source. `ai_generations` stores the task, model, outcome, reason codes and token counts, but **never prompt or output text**. A concept's notes are not stored on the server. Only `ai_source_note = "Concept: <title>"` is kept. |
+| Logging | Only reason codes (e.g. `timeout`, `provider_status_529`). No prompts, document text, notes or keys. The key is a `SecretStr`. |
+| Provider's data retention | Governed by Anthropic's API terms. Review these before enabling in production. |
+
+## Features
+
+| Feature | Endpoint | Rules |
+|---|---|---|
+| Explanation draft | `POST /ai/questions/{id}/explanation` | **Verified** source question, with an answer and no figure, that has no explanation of its own. Stored in `ai_explanations` as a `draft`, separate from `questions.explanation`, so source text and AI text never mix. A newer draft replaces older drafts. The model also reports `confident`; when it doubts the given answer, reviewers see a warning. |
+| Review the explanation | `PATCH /ai/explanations/{id}` | `approved` (optionally with edited text, recorded as `edited`) or `rejected`. Only one approved explanation per question. Practice feedback then shows it with `explanation_origin = "ai"`, and the app labels it "AI-generated explanation". Drafts are never shown to learners. |
+| Practice questions | `POST /ai/questions/generate` | The basis is either a **verified** source question or the learner's concept (`concept: {title, notes ≤ 4000, subject, topic}`). The language (`en`/`hi`) is requested in the prompt. At most 5 per request. See below for validation and storage. |
+| Topic suggestion | `POST /ai/questions/{id}/topic-suggestion` | Only for questions without a topic that have a subject. The model must choose **from the existing taxonomy** for that subject; any other answer is ignored (`suggested: false`). Sets `topic_status = suggested`, `topic_suggested_by = ai`, which the app shows as "Suggested by AI". The reviewer confirms it. |
+| Status | `GET /ai/status` | `enabled`, provider, model, features. No secrets. |
+| Report | `POST /questions/{id}/report` | Any question, any origin. Adds an open `learner_report` issue (reason + note) and moves a verified question back to **unverified**, so it leaves practice until re-approved. |
+
+### Generated questions: validation and storage
+
+- **Each item is checked** (`validate_generated`). Failing items are **rejected and counted, never repaired**.
+  - Stem: 10–2000 characters.
+  - Options: exactly 4 non-empty options of up to 500 characters each, all distinct (ignoring case and spacing).
+  - Answer: `correct_option` must be 1–4.
+  - Explanation: must not be empty.
+  - Copies: the item must not repeat the source question or an earlier item in the batch.
+  - The response returns `rejected` and `rejection_reasons`.
+- **Stored fields:** valid items are saved as `questions` with:
+  - `origin = ai` and `verification_status = unverified`
+  - `answer_source = ai`
+  - `ai_provider`, `ai_model`, `ai_prompt_version` (`p9.1`), and `ai_source_question_id` or `ai_source_note`
+  - no document or page
+
+  The `ai_has_provenance` database CHECK guarantees the provenance fields are present.
+- **Topic:** inherited from the source question, or matched to the concept's topic by name, always as *suggested by AI*.
+- **Hindi:** Hindi output gets an `ai_language_review` issue, so a reviewer checks the language, as with OCR text.
+- **Review:** AI questions appear in the question bank (filter: AI-generated) and go through the normal review: edit, approve or reject.
+
+## Where AI content can appear
+
+- **Practice:** only when the learner turns on *Include AI-generated questions* (`include_ai`). Unverified ones also need
+  *Include questions not yet reviewed*. Each item keeps `origin = ai` and is labelled.
+- **Mock tests:** never. They use verified source questions only.
+- **Review screens:** always labelled. Provenance shows the model, the prompt version and the basis.
+
+## Errors
+
+| Code | When |
+|---|---|
+| `503 ai_disabled` | No provider configured |
+| `502 ai_unavailable` | Provider timeout, connection or status error, refusal, truncated or unusable output. Retryable (the message says so). The failure is logged in `ai_generations` with a reason code. |
+| `429 rate_limited` | Too many AI calls (`Retry-After` header) |
+| `422 not_eligible` | Not a verified source question with an answer and no figure; or no subject or taxonomy for a topic |
+| `409 explanation_exists` / `409 topic_already_set` | Already done |
+| `422 invalid_reference` | Unknown exam for concept generation |
+
+## Verified and not verified
+
+- **Verified by tests**, using a deterministic `FakeAIProvider` (no network):
+  - labelling and provenance
+  - storage, validation and rejection
+  - drafts never shown to learners; approval shown with the AI label
+  - the AI opt-in in practice and source-only mocks
+  - topic choices limited to the taxonomy
+  - reports
+  - rate limits, provider errors and the no-provider state
+  - prompts carrying the learner's language
+- **The Anthropic adapter** is tested with a stubbed client: request shape, JSON parsing, refusal, truncation and SDK error mapping.
+- **Not verified:** no real Claude call has been made yet; that needs a key in `.env`. Answer quality, Hindi quality and real latency
+  and cost are unknown until then.
+- Rate limits are per process (as for uploads). Use a shared store before scaling out.

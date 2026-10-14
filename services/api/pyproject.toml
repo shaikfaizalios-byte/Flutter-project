@@ -25,6 +25,8 @@ dependencies = [
     "python-multipart>=0.0.32,<0.1",
     # IANA timezone data for zoneinfo on Windows (Apache-2.0; already locked via psycopg).
     "tzdata>=2026.1",
+    # Optional AI assistance via Anthropic Claude (MIT). Off unless PREPLOOP_AI_API_KEY is set.
+    "anthropic>=1.13,<2.0",
 ]
 
 [project.optional-dependencies]
@@ -54,6 +56,8 @@ select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "N", "RUF"]
 "app/domain/scoring.py" = ["RUF001", "RUF002"]
 "tests/test_scoring.py" = ["RUF001"]
 "tests/test_practice.py" = ["RUF001"]
+"tests/test_ai.py" = ["RUF001"]
+"tests/test_ai_content.py" = ["RUF001"]
 
 [tool.mypy]
 python_version = "3.12"

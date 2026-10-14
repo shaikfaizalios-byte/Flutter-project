@@ -18,13 +18,20 @@ BankQuestion bankQuestion({
   String topicStatus = 'unassigned',
   TopicRef? topic,
   Passage? passage,
+  String? subject,
+  String? explanation,
+  ContentLanguage language = ContentLanguage.english,
+  AiProvenance? ai,
+  AiExplanation? aiExplanation,
+  String? topicSuggestedBy,
 }) => BankQuestion(
   id: id,
   origin: origin,
   examCode: exam,
   section: section,
+  subject: subject,
   stem: stem,
-  language: ContentLanguage.english,
+  language: language,
   options: [
     for (final (i, text) in options.indexed)
       QuestionOption(position: i + 1, label: '${i + 1}', text: text),
@@ -41,6 +48,10 @@ BankQuestion bankQuestion({
   passage: passage,
   correctPosition: answer,
   answerSource: answer == null ? null : 'answer_key',
+  explanation: explanation,
+  ai: ai,
+  aiExplanation: aiExplanation,
+  topicSuggestedBy: topicSuggestedBy,
 );
 
 const sampleTopics = [

@@ -68,6 +68,33 @@ class PassageRead(BaseModel):
     source_pages: list[int]
 
 
+class AIProvenance(BaseModel):
+    """How an AI question was made. AI questions are never official questions."""
+
+    provider: str
+    model: str
+    prompt_version: str
+    source_question_id: uuid.UUID | None
+    source_note: str | None
+
+
+class AIExplanationRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    question_id: uuid.UUID
+    text: str
+    language: Literal["en", "hi"]
+    model_confident: bool
+    provider: str
+    model: str
+    prompt_version: str
+    status: Literal["draft", "approved", "rejected"]
+    edited: bool
+    created_at: datetime
+    reviewed_at: datetime | None
+
+
 class QuestionRead(BaseModel):
     id: uuid.UUID
     origin: Literal["source", "ai"]
@@ -76,6 +103,7 @@ class QuestionRead(BaseModel):
     subject: str | None
     topic: TopicRead | None
     topic_status: Literal["unassigned", "suggested", "confirmed"]
+    topic_suggested_by: Literal["keywords", "ai"] | None
     stem: str
     language: Literal["en", "hi"]
     document_id: uuid.UUID | None
@@ -92,6 +120,10 @@ class QuestionRead(BaseModel):
     verified_at: datetime | None
     issues: list[IssueRead]
     open_issue_count: int
+    # Set for origin = ai.
+    ai: AIProvenance | None
+    # Latest AI explanation that is not rejected (source questions without an explanation).
+    ai_explanation: AIExplanationRead | None
     created_at: datetime
     updated_at: datetime
 

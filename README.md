@@ -3,7 +3,7 @@
 PrepLoop helps SSC CGL and SSC CHSL aspirants turn scattered PDFs, previous-year papers and notes into a
 personalised study loop: practise, find weak topics, revise on schedule, and track real progress.
 
-> **Status:** Phase 8 (analytics and daily study plan). Onboarding, a dashboard built on real data and offline concept
+> **Status:** Phase 9 (optional AI assistance, clearly labelled). Onboarding, a dashboard built on real data and offline concept
 > management work in English and Hindi. Imported PDFs are read page by page (embedded text or OCR), then
 > split into questions with options, answers, shared passages and source references. Every uncertain
 > result is flagged for human review in the app, and verified exam formats are recorded with their official
@@ -14,7 +14,9 @@ personalised study loop: practise, find weak topics, revise on schedule, and tra
 > recorded results. Weak topics are judged by stated thresholds, and Home builds an explainable daily plan. See
 > [CLAUDE.md](CLAUDE.md), [docs/document-ingestion.md](docs/document-ingestion.md),
 > [docs/question-bank.md](docs/question-bank.md), [docs/practice.md](docs/practice.md),
-> [docs/revision.md](docs/revision.md) and [docs/analytics.md](docs/analytics.md).
+> [docs/revision.md](docs/revision.md), [docs/analytics.md](docs/analytics.md) and [docs/ai.md](docs/ai.md). Optional AI
+> assistance (off without a server key) drafts explanations and practice questions. Its output is always labelled
+> "AI-generated" and reviewed before use, and is never used in mock tests.
 
 ## Repository layout
 

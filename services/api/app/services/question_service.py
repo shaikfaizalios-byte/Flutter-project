@@ -1,6 +1,7 @@
 """Question bank queries and reviewer edits."""
 
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
@@ -10,17 +11,21 @@ from sqlalchemy.sql.base import ExecutableOption
 
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.segmentation import EXPECTED_OPTIONS, Issue, IssueCode, content_issues
+from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
 from app.models.question import (
     ExamFormat,
     Question,
     QuestionIssue,
     QuestionOption,
+    QuestionOrigin,
     Topic,
     TopicStatus,
     VerificationStatus,
 )
 from app.schemas.question import (
+    AIExplanationRead,
+    AIProvenance,
     ExamFormatRead,
     IssueRead,
     OptionRead,
@@ -39,6 +44,10 @@ CONTENT_ISSUE_CODES = {
     IssueCode.EMPTY_OPTION,
     IssueCode.ANSWER_NOT_IN_OPTIONS,
 }
+
+
+# A learner reported the question as wrong or unclear (resolved when it is re-verified).
+LEARNER_REPORT = "learner_report"
 
 
 class CannotVerifyError(DomainError):
@@ -87,10 +96,7 @@ class QuestionService:
             .limit(limit)
             .offset(offset)
         ).all()
-        filenames = self._filenames({q.document_id for q in rows if q.document_id})
-        return QuestionList(
-            items=[self._read(q, filenames) for q in rows], total=total, limit=limit, offset=offset
-        )
+        return QuestionList(items=self._reads(rows), total=total, limit=limit, offset=offset)
 
     def by_ids(self, ids: list[uuid.UUID]) -> QuestionList:
         """Questions in the given order (missing ids are skipped)."""
@@ -101,17 +107,15 @@ class QuestionService:
         ).all()
         by_id = {q.id: q for q in rows}
         ordered = [by_id[i] for i in ids if i in by_id]
-        filenames = self._filenames({q.document_id for q in ordered if q.document_id})
         return QuestionList(
-            items=[self._read(q, filenames) for q in ordered],
+            items=self._reads(ordered),
             total=len(ordered),
             limit=len(ids),
             offset=0,
         )
 
     def get(self, question_id: uuid.UUID) -> QuestionRead:
-        question = self._get_or_404(question_id)
-        return self._read(question, self._filenames({question.document_id} - {None}))
+        return self._reads([self._get_or_404(question_id)])[0]
 
     def topics(self, subject: str | None) -> list[TopicRead]:
         stmt = select(Topic).order_by(Topic.subject, Topic.name)
@@ -185,6 +189,7 @@ class QuestionService:
                 raise InvalidReferenceError("Unknown topic.")
             question.topic_id = topic_id
             question.topic_status = TopicStatus.CONFIRMED if topic_id else TopicStatus.UNASSIGNED
+            question.topic_suggested_by = None
         for field_name, value in changes.items():
             setattr(question, field_name, value)
 
@@ -201,6 +206,22 @@ class QuestionService:
             question.verification_status = VerificationStatus.UNVERIFIED
             question.verified_at = None
 
+        self._session.commit()
+        return self.get(question_id)
+
+    def report(self, question_id: uuid.UUID, reason: str, note: str) -> QuestionRead:
+        """A learner flags a question. It gets an open "learner_report" issue and, if it was
+        verified, goes back to review (out of practice until re-approved)."""
+        question = self._get_or_404(question_id)
+        detail = f"{reason}: {note}" if note else reason
+        question.issues.append(
+            QuestionIssue(
+                document_id=question.document_id, code=LEARNER_REPORT, detail=detail[:500]
+            )
+        )
+        if question.verification_status == VerificationStatus.VERIFIED:
+            question.verification_status = VerificationStatus.UNVERIFIED
+            question.verified_at = None
         self._session.commit()
         return self.get(question_id)
 
@@ -290,8 +311,27 @@ class QuestionService:
             stmt = stmt.where(Question.stem.ilike(f"%{_escape_like(f.query)}%", escape="\\"))
         return stmt
 
+    def _reads(self, questions: Sequence[Question]) -> list[QuestionRead]:
+        filenames = self._filenames({q.document_id for q in questions if q.document_id})
+        explanations: dict[uuid.UUID, AIExplanation] = {}
+        ids = [q.id for q in questions]
+        if ids:
+            for row in self._session.scalars(
+                select(AIExplanation)
+                .where(
+                    AIExplanation.question_id.in_(ids), AIExplanation.status != DraftStatus.REJECTED
+                )
+                .order_by(AIExplanation.created_at)
+            ):
+                explanations[row.question_id] = row  # latest wins
+        return [self._read(q, filenames, explanations.get(q.id)) for q in questions]
+
     @staticmethod
-    def _read(question: Question, filenames: dict[uuid.UUID, str]) -> QuestionRead:
+    def _read(
+        question: Question,
+        filenames: dict[uuid.UUID, str],
+        ai_explanation: AIExplanation | None = None,
+    ) -> QuestionRead:
         return QuestionRead(
             id=question.id,
             origin=question.origin,
@@ -300,6 +340,9 @@ class QuestionService:
             subject=question.subject,
             topic=TopicRead.model_validate(question.topic) if question.topic else None,
             topic_status=question.topic_status,
+            topic_suggested_by=question.topic_suggested_by
+            if question.topic_status == TopicStatus.SUGGESTED
+            else None,
             stem=question.stem,
             language=question.language,
             document_id=question.document_id,
@@ -316,6 +359,18 @@ class QuestionService:
             verified_at=question.verified_at,
             issues=[IssueRead.model_validate(i) for i in question.issues],
             open_issue_count=sum(not i.resolved for i in question.issues),
+            ai=AIProvenance(
+                provider=question.ai_provider or "",
+                model=question.ai_model or "",
+                prompt_version=question.ai_prompt_version or "",
+                source_question_id=question.ai_source_question_id,
+                source_note=question.ai_source_note,
+            )
+            if question.origin == QuestionOrigin.AI
+            else None,
+            ai_explanation=AIExplanationRead.model_validate(ai_explanation)
+            if ai_explanation
+            else None,
             created_at=question.created_at,
             updated_at=question.updated_at,
         )

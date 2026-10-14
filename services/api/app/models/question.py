@@ -114,6 +114,16 @@ class Question(Base):
             "origin <> 'source' OR (document_id IS NOT NULL AND source_question_number IS NOT NULL)",  # noqa: E501
             name="source_has_provenance",
         ),
+        # AI questions must record how they were made.
+        CheckConstraint(
+            "origin <> 'ai' OR (ai_provider IS NOT NULL AND ai_model IS NOT NULL"
+            " AND ai_prompt_version IS NOT NULL)",
+            name="ai_has_provenance",
+        ),
+        CheckConstraint(
+            "topic_suggested_by IS NULL OR topic_suggested_by IN ('keywords', 'ai')",
+            name="topic_suggested_by_valid",
+        ),
         Index("ix_questions_exam_section", "exam_code", "section"),
         Index("ix_questions_document_number", "document_id", "source_question_number"),
     )
@@ -151,6 +161,17 @@ class Question(Base):
         String(12), default=VerificationStatus.UNVERIFIED
     )
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Who suggested topic_id while topic_status is "suggested" (keywords or ai).
+    topic_suggested_by: Mapped[str | None] = mapped_column(String(8))
+    # AI provenance (origin = ai): never presented as an official question.
+    ai_provider: Mapped[str | None] = mapped_column(String(32))
+    ai_model: Mapped[str | None] = mapped_column(String(64))
+    ai_prompt_version: Mapped[str | None] = mapped_column(String(32))
+    ai_source_question_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("questions.id", ondelete="SET NULL")
+    )
+    # Learner-provided basis (e.g. "Concept: Percent change"); no notes text is stored.
+    ai_source_note: Mapped[str | None] = mapped_column(String(300))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

@@ -24,6 +24,8 @@ String issueLabel(AppLocalizations l10n, String code) => switch (code) {
   'answer_key_ambiguous_numbering' => l10n.issueAnswerKeyAmbiguous,
   'count_mismatch' => l10n.issueCountMismatch,
   'section_count_mismatch' => l10n.issueSectionCountMismatch,
+  'learner_report' => l10n.issueLearnerReport,
+  'ai_language_review' => l10n.issueAiLanguageReview,
   _ => l10n.issueOther,
 };
 

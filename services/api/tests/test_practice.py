@@ -205,7 +205,12 @@ def test_practice_feedback_is_immediate_and_answers_are_final(
 
     wrong = answer(api, sid, 1, 2, seq=10).json()
     assert wrong["applied"] is True
-    assert wrong["feedback"] == {"correct_position": 3, "is_correct": False, "explanation": "x = 3"}
+    assert wrong["feedback"] == {
+        "correct_position": 3,
+        "is_correct": False,
+        "explanation": "x = 3",
+        "explanation_origin": "source",
+    }
 
     # A second try after seeing the feedback does not change the answer.
     retry = answer(api, sid, 1, 3, seq=11).json()
@@ -294,6 +299,7 @@ def make_formats_ready(db: Session, doc: Document, per_section: int = 25) -> Non
             db.scalars(
                 select(Question).where(
                     Question.subject == subject,
+                    Question.origin == QuestionOrigin.SOURCE,
                     Question.verification_status == VerificationStatus.VERIFIED,
                 )
             ).all()

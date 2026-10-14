@@ -166,3 +166,20 @@ See [analytics.md](analytics.md) for what counts and how judgements are made.
 | GET | `/api/v1/analytics/overview` | `timezone` (IANA, **required**), `days` (1–365, default 30), `recent_days` (1–90, default 14). Returns raw counts: `answered`, `correct`, `sessions`; `subjects[]` and `topics[]` with `answered`, `correct`, `recent_answered`, `recent_correct`; `daily[]` (local dates); and `mocks[]` (last 20 submitted: format, local date, score, max score, marking note, submit reason). `422 invalid_timezone` for an unknown zone. |
 
 `GET /api/v1/practice/mock-tests` items now include `exam_code`.
+
+## AI assistance (Phase 9)
+
+See [ai.md](ai.md). AI is off unless the server has `PREPLOOP_AI_API_KEY`. Calls that reach the provider are rate-limited (`429 rate_limited` + `Retry-After`).
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/ai/status` | `enabled`, `provider`, `model`, `features` (no secrets) |
+| POST | `/api/v1/ai/questions/{id}/explanation` | `201 AIExplanationRead` (`status: draft`, provider, model, prompt version, `model_confident`). Only for a verified source question without an explanation: `422 not_eligible`, `409 explanation_exists` |
+| PATCH | `/api/v1/ai/explanations/{id}` | `{status: approved\|rejected, text?}`. Approved explanations appear in practice feedback with `explanation_origin: "ai"` |
+| POST | `/api/v1/ai/questions/generate` | `{exam_code, language: en\|hi, count: 1–5, source_question_id \| concept: {title, notes, subject, topic}}` → `201 {created: QuestionRead[], rejected, rejection_reasons}`. Created questions are `origin: ai` and unverified |
+| POST | `/api/v1/ai/questions/{id}/topic-suggestion` | `{question, suggested}`. The topic comes from the existing taxonomy only. `409 topic_already_set` |
+| POST | `/api/v1/questions/{id}/report` | `{reason: wrong_answer\|unclear\|incorrect_content\|other, note ≤ 300}` → the question with an open `learner_report` issue. A verified question becomes unverified |
+
+AI errors: `503 ai_disabled`, `502 ai_unavailable` (retryable). `QuestionRead` gains `topic_suggested_by`, `ai`
+(provenance for AI questions) and `ai_explanation` (the latest non-rejected draft). `PracticeCreate` gains `include_ai`
+(default false; mocks never use AI questions). Practice `Feedback` gains `explanation_origin` (`source`/`ai`).
