@@ -1,8 +1,12 @@
-# Integration tests on an Android emulator (run manually; emulators are slow on CI).
+# Integration tests on an Android emulator (on demand; emulators are slow on CI).
 name: Device tests
 
 on:
   workflow_dispatch:
+  # Also runs when this branch is pushed (git push origin HEAD:device-tests), which needs no
+  # GitHub sign-in or token.
+  push:
+    branches: [device-tests]
 
 permissions:
   contents: read
