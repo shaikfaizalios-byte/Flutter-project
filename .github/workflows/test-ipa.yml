@@ -1,0 +1,75 @@
+# Unsigned iOS build for side-loading on a test iPhone. The API address is baked in at build time.
+#
+#   git push origin HEAD:test-ipa/192.168.1.25      -> API_BASE_URL=http://192.168.1.25:8000
+#
+# The .ipa is attached to the "test-ipa" pre-release (replaced on every run). It is NOT signed:
+# sign and install it with your own Apple ID (e.g. Sideloadly on Windows). Test-only changes
+# (plain HTTP to local-network addresses, the local-network prompt text) are made to the
+# runner's copy of Info.plist here, never to the committed app.
+name: Test IPA
+
+on:
+  push:
+    branches: ["test-ipa/*"]
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: "API base URL the iPhone can reach, e.g. http://192.168.1.25:8000"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v5
+      - name: Resolve API address
+        id: api
+        env:
+          INPUT_URL: ${{ inputs.api_base_url }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ -n "$INPUT_URL" ]; then url="$INPUT_URL"; else url="http://${REF_NAME#test-ipa/}:8000"; fi
+          if ! printf '%s' "$url" | grep -Eq '^https?://[A-Za-z0-9.-]+(:[0-9]+)?$'; then
+            echo "::error::Invalid API address: $url"; exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.7"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Allow plain HTTP to local-network addresses (test build only)
+        run: |
+          plist=ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$plist"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsLocalNetworking bool true" "$plist"
+          /usr/libexec/PlistBuddy -c "Add :NSLocalNetworkUsageDescription string 'PrepLoop (test) connects to the PrepLoop server on your computer.'" "$plist"
+      # Release mode: debug builds can't start on an iPhone without Xcode attached.
+      - run: >
+          flutter build ios --release --no-codesign
+          --dart-define=FLAVOR=development
+          --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
+          --dart-define=APP_NAME="PrepLoop (test)"
+      - name: Package .ipa
+        run: |
+          mkdir -p Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -qry preploop-test.ipa Payload
+          ls -l preploop-test.ipa
+      - name: Publish pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          API_URL: ${{ steps.api.outputs.url }}
+        run: |
+          gh release delete test-ipa --yes --cleanup-tag || true
+          gh release create test-ipa preploop-test.ipa --prerelease --target "$GITHUB_SHA" \
+            --title "Test IPA (unsigned, not for distribution)" \
+            --notes "Unsigned iOS build of $GITHUB_SHA for side-loading. API: $API_URL"
