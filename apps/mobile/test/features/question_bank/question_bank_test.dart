@@ -221,7 +221,7 @@ void main() {
     expect(repo.queries.last.documentId, 'doc1');
     expect(find.textContaining('Q.1  What is 20% of 150?'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Parse again'));
+    await tester.tap(find.text('Parse again'));
     await tester.pumpAndSettle();
     expect(repo.resegmentCalls, 1);
     expect(find.text('Questions parsed again. Your reviewed questions were kept.'), findsOneWidget);

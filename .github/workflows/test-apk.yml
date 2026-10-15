@@ -48,6 +48,13 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+      # Keep one debug signing key across runs: Android refuses to update an installed app
+      # signed with a different key. (Created by Gradle on the first run; a cache entry unused
+      # for 7 days is evicted, and then the old test app must be uninstalled once.)
+      - uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: test-apk-debug-keystore-v1
       - run: >
           flutter build apk --debug
           --dart-define=FLAVOR=development

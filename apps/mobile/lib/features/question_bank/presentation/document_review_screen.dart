@@ -68,14 +68,14 @@ class _DocumentReviewScreenState extends ConsumerState<DocumentReviewScreen> {
       appBar: AppBar(
         title: Text(l10n.reviewTitle),
         actions: [
-          IconButton(
-            tooltip: l10n.reviewReparse,
+          TextButton.icon(
             icon: _reparsing
                 ? const SizedBox.square(
                     dimension: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.refresh),
+            label: Text(l10n.reviewReparse),
             onPressed: _reparsing ? null : _reparse,
           ),
         ],
