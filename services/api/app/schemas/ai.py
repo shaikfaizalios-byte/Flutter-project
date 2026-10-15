@@ -65,6 +65,17 @@ class ExplanationReview(BaseModel):
     ) = None
 
 
+class PaperTopicsResult(BaseModel):
+    # Questions sent to the AI in this request (at most a few batches per request).
+    considered: int
+    # Topics suggested (unverified until a reviewer accepts them).
+    suggested: int
+    # Questions the AI left without a usable topic (null, unknown or wrong-subject answer).
+    no_match: int
+    # Questions of the paper still without a topic and not yet sent; call again for them.
+    remaining: int
+
+
 class TopicSuggestionResult(BaseModel):
     question: QuestionRead
     # False when the model found no fitting topic in the taxonomy (nothing changed).

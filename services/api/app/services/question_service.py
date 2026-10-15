@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from sqlalchemy import Select, and_, exists, func, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
@@ -16,6 +16,7 @@ from app.models.document import Document
 from app.models.question import (
     ExamFormat,
     Question,
+    QuestionFigure,
     QuestionIssue,
     QuestionOption,
     QuestionOrigin,
@@ -27,6 +28,7 @@ from app.schemas.question import (
     AIExplanationRead,
     AIProvenance,
     ExamFormatRead,
+    FigureRead,
     IssueRead,
     OptionRead,
     ParseSummary,
@@ -139,7 +141,7 @@ class QuestionService:
         questions = self._session.scalars(
             select(Question)
             .where(Question.document_id == document_id)
-            .options(selectinload(Question.issues))
+            .options(selectinload(Question.issues), selectinload(Question.figures))
         ).all()
         sections: list[str] = []
         for q in sorted(questions, key=lambda q: q.source_question_number or 0):
@@ -164,6 +166,27 @@ class QuestionService:
             with_open_issues=sum(any(not i.resolved for i in q.issues) for q in questions),
             missing_answers=sum(q.correct_option_position is None for q in questions),
             image_dependent=sum(q.image_dependent for q in questions),
+            with_figures=sum(bool(q.figures) for q in questions),
+            unreadable_text=sum(
+                any(i.code == IssueCode.UNREADABLE_TEXT and not i.resolved for i in q.issues)
+                for q in questions
+            ),
+            topics_suggested=sum(
+                q.topic_status == TopicStatus.SUGGESTED
+                and q.verification_status != VerificationStatus.REJECTED
+                for q in questions
+            ),
+            topics_unassigned=sum(
+                q.topic_status == TopicStatus.UNASSIGNED
+                and q.verification_status != VerificationStatus.REJECTED
+                for q in questions
+            ),
+            topics_ai_pending=sum(
+                q.topic_status == TopicStatus.UNASSIGNED
+                and q.topic_suggested_by is None
+                and q.verification_status != VerificationStatus.REJECTED
+                for q in questions
+            ),
             sections=sections,
             exam_format=ExamFormatRead.model_validate(exam_format) if exam_format else None,
             document_issues=[IssueRead.model_validate(i) for i in doc_issues],
@@ -188,11 +211,15 @@ class QuestionService:
                 question.answer_source = "manual" if position is not None else None
         if "topic_id" in changes:
             topic_id = changes.pop("topic_id")
-            if topic_id is not None and self._session.get(Topic, topic_id) is None:
+            topic = self._session.get(Topic, topic_id) if topic_id is not None else None
+            if topic_id is not None and topic is None:
                 raise InvalidReferenceError("Unknown topic.")
             question.topic_id = topic_id
             question.topic_status = TopicStatus.CONFIRMED if topic_id else TopicStatus.UNASSIGNED
             question.topic_suggested_by = None
+            question.topic_suggestion_reason = None
+            if topic is not None and "subject" not in changes:
+                question.subject = topic.subject
         for field_name, value in changes.items():
             setattr(question, field_name, value)
 
@@ -249,6 +276,7 @@ class QuestionService:
             option_texts=[o.text for o in question.options],
             answer_position=question.correct_option_position,
             expected_options=EXPECTED_OPTIONS,
+            option_figures={f.option_position for f in question.figures if f.option_position},
         )
         position = question.correct_option_position
         if position is not None and position > len(question.options):
@@ -259,6 +287,47 @@ class QuestionService:
                     document_id=question.document_id, code=issue.code, detail=issue.detail
                 )
             )
+
+    def figure(self, question_id: uuid.UUID, figure_id: uuid.UUID) -> QuestionFigure:
+        """A figure with its image bytes; 404 unless the question is the caller's."""
+        figure = self._session.scalars(
+            select(QuestionFigure)
+            .join(Question, Question.id == QuestionFigure.question_id)
+            .where(
+                QuestionFigure.id == figure_id,
+                QuestionFigure.question_id == question_id,
+                Question.owner_id == self._owner_id,
+            )
+            .options(undefer(QuestionFigure.data))
+        ).first()
+        if figure is None:
+            raise NotFoundError("Figure not found.")
+        return figure
+
+    def accept_suggested_topics(self, document_id: uuid.UUID) -> int:
+        """Confirm every suggested topic of a paper's (non-rejected) questions."""
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        questions = self._session.scalars(
+            select(Question)
+            .where(
+                Question.document_id == document_id,
+                Question.owner_id == self._owner_id,
+                Question.topic_status == TopicStatus.SUGGESTED,
+                Question.topic_id.is_not(None),
+                Question.verification_status != VerificationStatus.REJECTED,
+            )
+            .options(selectinload(Question.topic))
+        ).all()
+        for question in questions:
+            question.topic_status = TopicStatus.CONFIRMED
+            question.topic_suggested_by = None
+            question.topic_suggestion_reason = None
+            if question.subject is None and question.topic is not None:
+                question.subject = question.topic.subject
+        self._session.commit()
+        return len(questions)
 
     # --- helpers ----------------------------------------------------------------------
 
@@ -279,6 +348,7 @@ class QuestionService:
             selectinload(Question.issues),
             selectinload(Question.passage),
             selectinload(Question.topic),
+            selectinload(Question.figures),
         ]
 
     def _filenames(self, ids: set[uuid.UUID | None]) -> dict[uuid.UUID, str]:
@@ -348,6 +418,9 @@ class QuestionService:
             topic_suggested_by=question.topic_suggested_by
             if question.topic_status == TopicStatus.SUGGESTED
             else None,
+            topic_suggestion_reason=question.topic_suggestion_reason
+            if question.topic_status == TopicStatus.SUGGESTED
+            else None,
             stem=question.stem,
             language=question.language,
             document_id=question.document_id,
@@ -360,6 +433,7 @@ class QuestionService:
             answer_source=question.answer_source,
             explanation=question.explanation,
             image_dependent=question.image_dependent,
+            figures=[FigureRead.model_validate(f) for f in question.figures],
             verification_status=question.verification_status,
             verified_at=question.verified_at,
             issues=[IssueRead.model_validate(i) for i in question.issues],

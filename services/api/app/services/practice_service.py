@@ -18,7 +18,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from sqlalchemy import Select, and_, func, select
+from sqlalchemy import Select, and_, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
@@ -37,6 +37,7 @@ from app.models.practice import (
 from app.models.question import (
     ExamFormat,
     Question,
+    QuestionFigure,
     QuestionOption,
     QuestionOrigin,
     Topic,
@@ -62,7 +63,7 @@ from app.schemas.practice import (
     TallyRead,
     TopicResult,
 )
-from app.schemas.question import OptionRead, PassageRead
+from app.schemas.question import FigureRead, OptionRead, PassageRead
 
 PRACTICE_MARKING_NOTE = "Practice: 1 point per correct answer, no negative marking."
 
@@ -84,8 +85,8 @@ class InvalidAnswerError(DomainError):
 
 def _eligible(include_unverified: bool, include_ai: bool = False) -> Select[Question]:
     """Questions fit for practice: from a source document (AI questions only on request),
-    answer known, at least two options, not image-dependent, never rejected (unverified
-    only on request)."""
+    answer known, at least two options, never rejected (unverified only on request), and
+    not image-dependent unless the figure was cropped from the paper (then it is shown)."""
     option_count = (
         select(func.count())
         .select_from(QuestionOption)
@@ -101,7 +102,10 @@ def _eligible(include_unverified: bool, include_ai: bool = False) -> Select[Ques
     return select(Question).where(
         Question.origin.in_(origins),
         Question.verification_status.in_(statuses),
-        Question.image_dependent.is_(False),
+        or_(
+            Question.image_dependent.is_(False),
+            select(QuestionFigure.id).where(QuestionFigure.question_id == Question.id).exists(),
+        ),
         Question.correct_option_position.is_not(None),
         option_count >= 2,
         Question.correct_option_position <= option_count,
@@ -410,6 +414,9 @@ class PracticeService:
                     options=[OptionRead.model_validate(o) for o in question.options]
                     if question
                     else [],
+                    figures=[FigureRead.model_validate(f) for f in question.figures]
+                    if question
+                    else [],
                     passage=PassageRead.model_validate(question.passage)
                     if question and question.passage
                     else None,
@@ -636,7 +643,11 @@ class PracticeService:
         rows = self._session.scalars(
             select(Question)
             .where(Question.id.in_(ids))
-            .options(selectinload(Question.options), selectinload(Question.passage))
+            .options(
+                selectinload(Question.options),
+                selectinload(Question.passage),
+                selectinload(Question.figures),
+            )
         ).all()
         return {q.id: q for q in rows}
 

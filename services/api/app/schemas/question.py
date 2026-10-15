@@ -49,6 +49,22 @@ class OptionRead(BaseModel):
     text: str
 
 
+class FigureRead(BaseModel):
+    """An image cropped from the question's source PDF page (fetch it from
+    ``/questions/{question_id}/figures/{id}``)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    # stem: a figure in the question; option: an option that is a figure;
+    # original: the whole question as printed (its text could not be read in full).
+    kind: Literal["stem", "option", "original"]
+    option_position: int | None
+    page_number: int
+    width: int
+    height: int
+
+
 class IssueRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -104,6 +120,8 @@ class QuestionRead(BaseModel):
     topic: TopicRead | None
     topic_status: Literal["unassigned", "suggested", "confirmed"]
     topic_suggested_by: Literal["keywords", "ai"] | None
+    # Why it was suggested ("Matched ..." or the AI model), while the topic is suggested.
+    topic_suggestion_reason: str | None
     stem: str
     language: Literal["en", "hi"]
     document_id: uuid.UUID | None
@@ -116,6 +134,7 @@ class QuestionRead(BaseModel):
     answer_source: str | None
     explanation: str | None
     image_dependent: bool
+    figures: list[FigureRead]
     verification_status: VerificationLiteral
     verified_at: datetime | None
     issues: list[IssueRead]
@@ -174,9 +193,19 @@ class ParseSummary(BaseModel):
     with_open_issues: int
     missing_answers: int
     image_dependent: int
+    with_figures: int
+    unreadable_text: int
+    topics_suggested: int
+    topics_unassigned: int
+    # Unassigned questions the AI has not been asked about yet.
+    topics_ai_pending: int
     sections: list[str]
     exam_format: ExamFormatRead | None
     document_issues: list[IssueRead]
+
+
+class TopicAcceptResult(BaseModel):
+    accepted: int
 
 
 class DocumentFormatUpdate(BaseModel):

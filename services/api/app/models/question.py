@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     String,
     Text,
     UniqueConstraint,
@@ -168,6 +169,8 @@ class Question(Base):
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Who suggested topic_id while topic_status is "suggested" (keywords or ai).
     topic_suggested_by: Mapped[str | None] = mapped_column(String(8))
+    # Why the topic was suggested (matched words, or the AI model), shown to reviewers.
+    topic_suggestion_reason: Mapped[str | None] = mapped_column(String(200))
     # AI provenance (origin = ai): never presented as an official question.
     ai_provider: Mapped[str | None] = mapped_column(String(32))
     ai_model: Mapped[str | None] = mapped_column(String(64))
@@ -192,6 +195,11 @@ class Question(Base):
     )
     passage: Mapped[Passage | None] = relationship()
     topic: Mapped[Topic | None] = relationship()
+    figures: Mapped[list["QuestionFigure"]] = relationship(
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="QuestionFigure.sort_order",
+    )
 
 
 class QuestionOption(Base):
@@ -222,4 +230,40 @@ class QuestionIssue(Base):
     code: Mapped[str] = mapped_column(String(48))
     detail: Mapped[str] = mapped_column(String(500), default="", server_default="")
     resolved: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class FigureKind(StrEnum):
+    STEM = "stem"  # a figure in the question itself
+    OPTION = "option"  # an option that is a figure
+    ORIGINAL = "original"  # the whole question as printed (its text could not be read in full)
+
+
+class QuestionFigure(Base):
+    """An image cropped from the source PDF page (never generated). ``data`` is PNG bytes,
+    loaded only when the image itself is requested."""
+
+    __tablename__ = "question_figures"
+    __table_args__ = (
+        CheckConstraint("kind IN ('stem', 'option', 'original')", name="kind_valid"),
+        CheckConstraint(
+            "(kind = 'option') = (option_position IS NOT NULL)", name="option_position_iff_option"
+        ),
+        CheckConstraint("page_number >= 1", name="page_positive"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    question_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("questions.id", ondelete="CASCADE"), index=True
+    )
+    kind: Mapped[str] = mapped_column(String(8))
+    option_position: Mapped[int | None] = mapped_column(Integer)  # 1-based, for kind = option
+    sort_order: Mapped[int] = mapped_column(Integer)
+    page_number: Mapped[int] = mapped_column(Integer)
+    # (left, bottom, right, top) in PDF points on that page.
+    box: Mapped[list[float]] = mapped_column(ARRAY(Float))
+    width: Mapped[int] = mapped_column(Integer)  # pixels
+    height: Mapped[int] = mapped_column(Integer)
+    content_type: Mapped[str] = mapped_column(String(32), default="image/png")
+    data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

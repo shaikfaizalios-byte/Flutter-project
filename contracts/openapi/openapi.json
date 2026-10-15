@@ -1427,6 +1427,58 @@
         "title": "Feedback",
         "type": "object"
       },
+      "FigureRead": {
+        "description": "An image cropped from the question's source PDF page (fetch it from\n``/questions/{question_id}/figures/{id}``).",
+        "properties": {
+          "height": {
+            "title": "Height",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "stem",
+              "option",
+              "original"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "option_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Option Position"
+          },
+          "page_number": {
+            "title": "Page Number",
+            "type": "integer"
+          },
+          "width": {
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "option_position",
+          "page_number",
+          "width",
+          "height"
+        ],
+        "title": "FigureRead",
+        "type": "object"
+      },
       "FormatRef": {
         "properties": {
           "code": {
@@ -1965,6 +2017,34 @@
         "title": "PageRead",
         "type": "object"
       },
+      "PaperTopicsResult": {
+        "properties": {
+          "considered": {
+            "title": "Considered",
+            "type": "integer"
+          },
+          "no_match": {
+            "title": "No Match",
+            "type": "integer"
+          },
+          "remaining": {
+            "title": "Remaining",
+            "type": "integer"
+          },
+          "suggested": {
+            "title": "Suggested",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "considered",
+          "suggested",
+          "no_match",
+          "remaining"
+        ],
+        "title": "PaperTopicsResult",
+        "type": "object"
+      },
       "ParseSummary": {
         "properties": {
           "document_id": {
@@ -2021,8 +2101,28 @@
             "title": "Segmentation Status",
             "type": "string"
           },
+          "topics_ai_pending": {
+            "title": "Topics Ai Pending",
+            "type": "integer"
+          },
+          "topics_suggested": {
+            "title": "Topics Suggested",
+            "type": "integer"
+          },
+          "topics_unassigned": {
+            "title": "Topics Unassigned",
+            "type": "integer"
+          },
+          "unreadable_text": {
+            "title": "Unreadable Text",
+            "type": "integer"
+          },
           "verified": {
             "title": "Verified",
+            "type": "integer"
+          },
+          "with_figures": {
+            "title": "With Figures",
             "type": "integer"
           },
           "with_open_issues": {
@@ -2039,6 +2139,11 @@
           "with_open_issues",
           "missing_answers",
           "image_dependent",
+          "with_figures",
+          "unreadable_text",
+          "topics_suggested",
+          "topics_unassigned",
+          "topics_ai_pending",
           "sections",
           "exam_format",
           "document_issues"
@@ -2469,6 +2574,13 @@
             ],
             "title": "Explanation"
           },
+          "figures": {
+            "items": {
+              "$ref": "#/components/schemas/FigureRead"
+            },
+            "title": "Figures",
+            "type": "array"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -2600,6 +2712,17 @@
             ],
             "title": "Topic Suggested By"
           },
+          "topic_suggestion_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Suggestion Reason"
+          },
           "updated_at": {
             "format": "date-time",
             "title": "Updated At",
@@ -2636,6 +2759,7 @@
           "topic",
           "topic_status",
           "topic_suggested_by",
+          "topic_suggestion_reason",
           "stem",
           "language",
           "document_id",
@@ -2648,6 +2772,7 @@
           "answer_source",
           "explanation",
           "image_dependent",
+          "figures",
           "verification_status",
           "verified_at",
           "issues",
@@ -3042,6 +3167,13 @@
               }
             ]
           },
+          "figures": {
+            "items": {
+              "$ref": "#/components/schemas/FigureRead"
+            },
+            "title": "Figures",
+            "type": "array"
+          },
           "options": {
             "items": {
               "$ref": "#/components/schemas/OptionRead"
@@ -3149,6 +3281,7 @@
           "subject",
           "stem",
           "options",
+          "figures",
           "passage",
           "origin",
           "verified",
@@ -3576,6 +3709,19 @@
         "title": "TokenPair",
         "type": "object"
       },
+      "TopicAcceptResult": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accepted"
+        ],
+        "title": "TopicAcceptResult",
+        "type": "object"
+      },
       "TopicRead": {
         "properties": {
           "id": {
@@ -3833,6 +3979,104 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/ai/documents/{document_id}/topic-suggestions": {
+      "post": {
+        "operationId": "suggest_paper_topics_api_v1_ai_documents__document_id__topic_suggestions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaperTopicsResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Suggest topics for a paper's questions that have none (call again while 'remaining' > 0)",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
     "/api/v1/ai/explanations/{explanation_id}": {
       "patch": {
         "operationId": "review_explanation_api_v1_ai_explanations__explanation_id__patch",
@@ -6173,6 +6417,74 @@
         ]
       }
     },
+    "/api/v1/documents/{document_id}/topics/accept": {
+      "post": {
+        "operationId": "accept_suggested_topics_api_v1_documents__document_id__topics_accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicAcceptResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Accept every suggested topic of the paper's questions (rejected ones excluded)",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/v1/exam-formats": {
       "get": {
         "operationId": "list_exam_formats_api_v1_exam_formats_get",
@@ -7403,6 +7715,80 @@
         "summary": "Add Bookmark",
         "tags": [
           "practice"
+        ]
+      }
+    },
+    "/api/v1/questions/{question_id}/figures/{figure_id}": {
+      "get": {
+        "operationId": "get_question_figure_api_v1_questions__question_id__figures__figure_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "figure_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Figure Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {}
+            },
+            "description": "The image"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Figure not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A figure cropped from the question's source PDF (PNG)",
+        "tags": [
+          "questions"
         ]
       }
     },

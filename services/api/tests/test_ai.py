@@ -119,7 +119,7 @@ def test_explanation_draft_review_and_labelled_use_in_practice(
     assert response.status_code == 201, response.text
     draft = response.json()
     assert (draft["status"], draft["provider"], draft["model"]) == ("draft", "fake", "fake-model-1")
-    assert draft["prompt_version"] == "p9.1"
+    assert draft["prompt_version"] == "p9.2"
 
     # The prompt carries the question and its known answer; the system prompt forbids
     # presenting output as official.
@@ -243,7 +243,7 @@ def test_generated_questions_are_validated_stored_unverified_and_labelled(
     assert first["ai"] == {
         "provider": "fake",
         "model": "fake-model-1",
-        "prompt_version": "p9.1",
+        "prompt_version": "p9.2",
         "source_question_id": str(source.id),
         "source_note": None,
     }
@@ -444,6 +444,59 @@ def test_topic_suggestions_come_only_from_the_taxonomy(
     again = api.post(f"/api/v1/ai/questions/{question.id}/topic-suggestion")
     assert again.status_code == 409
     assert again.json()["error"]["code"] == "topic_already_set"
+
+
+def test_paper_topics_are_suggested_in_batches_from_the_taxonomy_only(
+    api: TestClient, ai: FakeAIProvider, db_session: Session, document: Document
+) -> None:
+    unsectioned = make_question(db_session, document, status=VerificationStatus.UNVERIFIED)
+    unsectioned.section = unsectioned.subject = None
+    english = make_question(db_session, document, subject="English Language")
+    invented = make_question(db_session, document, subject="English Language")
+    rejected = make_question(db_session, document, status=VerificationStatus.REJECTED)
+    db_session.flush()
+    ai.responses.append(
+        {
+            "answers": [
+                # Sent in section order (questions without a section last).
+                # A topic of another subject than the question's section: dropped.
+                {"number": 1, "topic": "Quantitative Aptitude > Percentage"},
+                {"number": 2, "topic": "English Language > Invented Topic"},
+                {"number": 3, "topic": "General Awareness > Polity"},
+            ]
+        }
+    )
+
+    response = api.post(f"/api/v1/ai/documents/{document.id}/topic-suggestions")
+
+    assert response.status_code == 200, response.text
+    assert response.json() == {"considered": 3, "suggested": 1, "no_match": 2, "remaining": 0}
+    prompt = ai.calls[0].prompt
+    assert "- English Language > Para Jumbles" in prompt
+    assert "(subject: English Language)" in prompt
+    assert rejected.stem not in prompt  # rejected questions are not sent
+    read = api.get(f"/api/v1/questions/{unsectioned.id}").json()
+    assert (read["topic"]["name"], read["topic_suggested_by"], read["subject"]) == (
+        "Polity",
+        "ai",
+        "General Awareness",
+    )
+    assert read["topic_suggestion_reason"] == "AI suggestion (fake-model-1)"
+    for question in (english, invented):
+        assert api.get(f"/api/v1/questions/{question.id}").json()["topic"] is None
+
+    # Questions the AI could not place are not sent again.
+    again = api.post(f"/api/v1/ai/documents/{document.id}/topic-suggestions").json()
+    assert again == {"considered": 0, "suggested": 0, "no_match": 0, "remaining": 0}
+    assert len(ai.calls) == 1
+    [generation] = db_session.scalars(select(AIGeneration)).all()
+    assert (generation.task, generation.items_created, generation.items_rejected) == (
+        "topic",
+        1,
+        2,
+    )
+    summary = api.get(f"/api/v1/documents/{document.id}/parse-summary").json()
+    assert summary["topics_ai_pending"] == 0
 
 
 def test_reporting_sends_a_question_back_to_review(

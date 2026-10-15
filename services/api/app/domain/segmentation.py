@@ -20,8 +20,10 @@ Paper layouts vary, so the rules are conservative:
 
 import re
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable, Sequence
 from dataclasses import dataclass, field
+
+from app.domain.text_quality import UNREADABLE_CHARS
 
 EXPECTED_OPTIONS = 4  # SSC objective papers; formats with other counts can pass their own.
 _DASHES = "-" + chr(0x2013) + chr(0x2014)  # hyphen, en dash, em dash
@@ -40,6 +42,9 @@ class IssueCode:
     ANSWER_NOT_IN_OPTIONS = "answer_not_in_options"
     CONFLICTING_ANSWERS = "conflicting_answers"
     SOURCE_PAGE_NEEDS_REVIEW = "source_page_needs_review"
+    # Some characters (ligatures, formulas, symbols) could not be read from the PDF text;
+    # the question also carries an image of it as printed.
+    UNREADABLE_TEXT = "unreadable_text"
     # Document level
     NO_QUESTIONS_FOUND = "no_questions_found"
     NUMBERING_GAPS = "numbering_gaps"
@@ -47,6 +52,7 @@ class IssueCode:
     ANSWER_KEY_AMBIGUOUS = "answer_key_ambiguous_numbering"
     COUNT_MISMATCH = "count_mismatch"
     SECTION_COUNT_MISMATCH = "section_count_mismatch"
+    FIGURES_NOT_EXTRACTED = "figures_not_extracted"
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,6 +103,8 @@ class SegmentationResult:
     passages: list[ParsedPassage]
     document_issues: list[Issue]
     sections: list[str]
+    # True when the paper marks questions with "Q.12"-style markers (plain "12." otherwise).
+    strong_numbering: bool = True
 
 
 # --- patterns --------------------------------------------------------------------------
@@ -178,6 +186,24 @@ IMAGE_HINTS = (
 MAX_STEM_CHARS = 2500
 
 
+def _hint_pattern(hint: str) -> re.Pattern[str]:
+    """Match ``hint`` even when its first letters were an unreadable glyph (PDF ligatures:
+    "figure" is often extracted as U+001F + "gure")."""
+    variants = [re.escape(hint)] + [
+        UNREADABLE_CHARS + re.escape(hint[k:]) for k in (1, 2) if len(hint) - k >= 3
+    ]
+    return re.compile("|".join(variants))
+
+
+_IMAGE_HINT_PATTERNS = [(hint, _hint_pattern(hint)) for hint in IMAGE_HINTS]
+
+
+def image_hint(text: str) -> str | None:
+    """The first image hint found in ``text`` (case-insensitive), else None."""
+    folded = text.casefold()
+    return next((hint for hint, pattern in _IMAGE_HINT_PATTERNS if pattern.search(folded)), None)
+
+
 def option_position(label: str) -> int:
     """'1'/'a'/'A' -> 1, '2'/'b'/'B' -> 2, ..."""
     return int(label) if label.isdigit() else ord(label.lower()) - ord("a") + 1
@@ -198,7 +224,8 @@ def _lines(pages: Sequence[PageText]) -> list[_Line]:
     ]
 
 
-def _section_name(line: str) -> str | None:
+def section_heading(line: str) -> str | None:
+    """The section name if ``line`` is a section heading, else None."""
     if len(line) > 80:
         return None
     normalized = line.rstrip(f" :.{_DASHES}").strip()
@@ -262,7 +289,9 @@ def segment(
     )
     _attach_explanations(state.questions, state.explanations, state.restarted_numbering)
     _validate(state.questions, pages, expected_options, document_issues)
-    return SegmentationResult(state.questions, state.passages, document_issues, state.sections)
+    return SegmentationResult(
+        state.questions, state.passages, document_issues, state.sections, state.strong_numbering
+    )
 
 
 def _handle_line(state: _State, line: _Line) -> None:
@@ -287,7 +316,7 @@ def _handle_line(state: _State, line: _Line) -> None:
             state.key_entries.extend(pairs)
             return
         # A heading or a question after the key means the paper continues.
-        if not (_section_name(text) or STRONG_QUESTION.match(text)):
+        if not (section_heading(text) or STRONG_QUESTION.match(text)):
             return
         state.mode = "questions"
 
@@ -300,7 +329,7 @@ def _handle_line(state: _State, line: _Line) -> None:
             state.explanations[state.explanation_target].append(text)
         return
 
-    name = _section_name(text)
+    name = section_heading(text)
     if name is not None:
         state.finish_question()
         state.passage = None
@@ -531,7 +560,7 @@ def _validate(
         if seen[(question.section, question.number)] > 1:
             question.issues.append(Issue(IssueCode.DUPLICATE_NUMBER))
         question.issues.extend(validate_question_content(question, expected_options))
-        hint = next((h for h in IMAGE_HINTS if h in question.stem.casefold()), None)
+        hint = image_hint(question.stem)
         if hint or (not question.options and len(question.stem) < 40):
             question.image_dependent = True
             question.issues.append(
@@ -556,18 +585,27 @@ def _validate(
         document_issues.append(Issue(IssueCode.NUMBERING_GAPS, _number_list("Missing", missing)))
 
 
-def validate_question_content(question: ParsedQuestion, expected_options: int) -> list[Issue]:
+def validate_question_content(
+    question: ParsedQuestion, expected_options: int, option_figures: Collection[int] = ()
+) -> list[Issue]:
     """Checks that also apply after a reviewer edits a question."""
     return content_issues(
         option_texts=[o.text for o in question.options],
         answer_position=question.answer_position,
         expected_options=expected_options,
+        option_figures=option_figures,
     )
 
 
 def content_issues(
-    *, option_texts: Sequence[str], answer_position: int | None, expected_options: int
+    *,
+    option_texts: Sequence[str],
+    answer_position: int | None,
+    expected_options: int,
+    option_figures: Collection[int] = (),
 ) -> list[Issue]:
+    """``option_figures``: 1-based positions of options that are figures (their text may be
+    empty)."""
     issues: list[Issue] = []
     if len(option_texts) != expected_options:
         issues.append(
@@ -576,7 +614,10 @@ def content_issues(
                 f"{len(option_texts)} of {expected_options} options found",
             )
         )
-    if any(not text.strip() for text in option_texts):
+    if any(
+        not text.strip() and position not in option_figures
+        for position, text in enumerate(option_texts, start=1)
+    ):
         issues.append(Issue(IssueCode.EMPTY_OPTION))
     if answer_position is None:
         issues.append(Issue(IssueCode.MISSING_ANSWER))

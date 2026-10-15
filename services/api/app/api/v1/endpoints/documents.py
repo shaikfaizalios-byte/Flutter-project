@@ -15,7 +15,7 @@ from app.schemas.document import (
     PageList,
 )
 from app.schemas.errors import ErrorResponse
-from app.schemas.question import DocumentFormatUpdate, ParseSummary
+from app.schemas.question import DocumentFormatUpdate, ParseSummary, TopicAcceptResult
 from app.services.document_service import DocumentService
 from app.services.question_service import QuestionService
 from app.services.segmentation_service import SegmentationService
@@ -173,8 +173,25 @@ def set_exam_format(
     summary="Re-run question segmentation (keeps verified and rejected questions)",
 )
 def resegment_document(
-    document_id: uuid.UUID, service: Service, session: DbSession, user: CurrentUser
+    document_id: uuid.UUID,
+    service: Service,
+    session: DbSession,
+    user: CurrentUser,
+    request: Request,
 ) -> ParseSummary:
     service.require_extracted(document_id)  # also checks the document is the user's
-    SegmentationService(session).segment_document(document_id)
+    SegmentationService(session, request.app.state.document_storage).segment_document(document_id)
     return QuestionService(session, user.id).parse_summary(document_id)
+
+
+@router.post(
+    "/{document_id}/topics/accept",
+    response_model=TopicAcceptResult,
+    responses=NOT_FOUND,
+    summary="Accept every suggested topic of the paper's questions (rejected ones excluded)",
+)
+def accept_suggested_topics(
+    document_id: uuid.UUID, session: DbSession, user: CurrentUser
+) -> TopicAcceptResult:
+    accepted = QuestionService(session, user.id).accept_suggested_topics(document_id)
+    return TopicAcceptResult(accepted=accepted)

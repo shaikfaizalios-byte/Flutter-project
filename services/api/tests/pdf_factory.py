@@ -85,3 +85,70 @@ PNG_BYTES = (
     b"\x00\x00\x00IEND\xaeB`\x82"
 )
 CORRUPT_PDF = b"%PDF-1.7\n1 0 obj << /Type /Catalog >> endobj\ntrailer garbage\n%%EOF"
+
+
+def _page_furniture(pdf: canvas.Canvas) -> None:
+    """A logo and a footer rule at the same place on every page (decoration)."""
+    pdf.circle(560, 760, 15, stroke=1, fill=1)
+    pdf.line(36, 30, 576, 30)
+
+
+def figure_paper_pdf() -> bytes:
+    """Two pages of questions with drawn figures (vector paths), for figure detection.
+
+    Q1: four options that are figures; Q2: text only; Q3: a figure in the stem, options on
+    one line; Q4: a bar chart with value labels inside it; Q5: a "formula" drawn as graphics
+    on the text line; Q6: a question inside a bordered box (layout, not a figure).
+    """
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=(612, 792))
+    _page_furniture(pdf)
+    pdf.drawString(36, 720, "Q.1 Select the Venn diagram that best illustrates the classes.")
+    pdf.drawString(36, 700, "(a)")
+    pdf.circle(100, 670, 18)
+    pdf.circle(120, 670, 18)
+    pdf.drawString(36, 630, "(b)")
+    for x in (90, 130, 170):
+        pdf.circle(x, 600, 14)
+    pdf.drawString(36, 560, "(c)")
+    pdf.circle(110, 530, 25)
+    pdf.circle(110, 530, 15)
+    pdf.drawString(36, 490, "(d)")
+    pdf.circle(100, 460, 20)
+    pdf.drawString(36, 420, "Q.2 What is 20 percent of 150?")
+    for i, option in enumerate(["(a) 20", "(b) 30", "(c) 40", "(d) 50"]):
+        pdf.drawString(36, 400 - 15 * i, option)
+    pdf.drawString(36, 320, "Q.3 How many triangles are there in the following figure?")
+    pdf.line(80, 240, 200, 240)
+    pdf.line(80, 240, 140, 300)
+    pdf.line(200, 240, 140, 300)
+    pdf.line(140, 300, 140, 240)
+    pdf.drawString(36, 220, "(a) 4 (b) 6 (c) 8 (d) 10")
+    pdf.showPage()
+
+    _page_furniture(pdf)
+    pdf.drawString(36, 740, "Q.4 The bar graph shows the sales of shops A and B.")
+    pdf.rect(60, 600, 200, 120)  # chart frame
+    pdf.rect(90, 610, 30, 80, fill=1)
+    pdf.rect(170, 610, 30, 50, fill=1)
+    pdf.drawString(95, 695, "100")
+    pdf.drawString(178, 665, "70")
+    pdf.drawString(100, 603, "A")
+    pdf.drawString(180, 603, "B")
+    pdf.drawString(36, 580, "What is the total sales of both shops?")
+    for i, option in enumerate(["(a) 170", "(b) 150", "(c) 130", "(d) 30"]):
+        pdf.drawString(36, 560 - 15 * i, option)
+    pdf.drawString(36, 480, "Q.5 Find the value of")
+    pdf.rect(150, 476, 24, 14)  # a formula drawn as graphics on the text line
+    pdf.line(150, 483, 174, 483)
+    for i, option in enumerate(["(a) 1", "(b) 2", "(c) 3", "(d) 4"]):
+        pdf.drawString(36, 460 - 15 * i, option)
+    pdf.rect(30, 290, 400, 100)  # a bordered question
+    pdf.drawString(36, 370, "Q.6 Choose the synonym of RAPID.")
+    for i, option in enumerate(["(a) Slow", "(b) Quick", "(c) Late", "(d) Weak"]):
+        pdf.drawString(36, 350 - 15 * i, option)
+    pdf.drawString(36, 200, "Answer Key")
+    pdf.drawString(36, 180, "1-(a) 2-(b) 3-(b) 4-(a) 5-(a) 6-(b)")
+    pdf.showPage()
+    pdf.save()
+    return buffer.getvalue()

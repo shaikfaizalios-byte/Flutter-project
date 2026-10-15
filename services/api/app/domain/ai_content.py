@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-PROMPT_VERSION = "p9.1"
+PROMPT_VERSION = "p9.2"
 OPTIONS_PER_QUESTION = 4  # SSC CGL/CHSL objective questions have four options
 MAX_GENERATED = 5
 
@@ -62,6 +62,40 @@ TOPIC_SCHEMA: dict[str, Any] = {
     "required": ["topic"],
     "additionalProperties": False,
 }
+
+
+# One answer per question number; topic is "Subject > Topic" copied from the list, or null.
+PAPER_TOPICS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "answers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "number": {"type": "integer"},
+                    "topic": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                },
+                "required": ["number", "topic"],
+                "additionalProperties": False,
+            },
+        }
+    },
+    "required": ["answers"],
+    "additionalProperties": False,
+}
+TOPIC_SEPARATOR = " > "
+PAPER_TOPICS_BATCH = 20  # questions per AI call
+MAX_TOPIC_STEM = 600
+MAX_TOPIC_OPTION = 120
+
+
+@dataclass(frozen=True, slots=True)
+class TopicQuestion:
+    number: int  # position in this batch (1-based), not the paper's question number
+    stem: str
+    options: Sequence[str]
+    subject: str | None  # set when the paper's section heading names it
 
 
 def _fmt_options(options: list[str]) -> str:
@@ -122,6 +156,25 @@ def topic_prompt(*, stem: str, subject: str, topics: list[str]) -> str:
         f"Subject: {subject}\nQuestion:\n{stem}\n\n"
         f"Choose the single best topic for this question from this list, copying the name "
         f"exactly:\n{listed}\n\nUse null if none fits."
+    )
+
+
+def paper_topics_prompt(questions: Sequence[TopicQuestion], topics: Sequence[str]) -> str:
+    """``topics`` are "Subject > Topic" labels."""
+    listed = "\n".join(f"- {t}" for t in topics)
+    blocks = []
+    for q in questions:
+        options = " | ".join(o[:MAX_TOPIC_OPTION] for o in q.options)
+        subject = f" (subject: {q.subject})" if q.subject else ""
+        blocks.append(f"[{q.number}]{subject} {q.stem[:MAX_TOPIC_STEM]}\nOptions: {options}")
+    return (
+        "These are questions from an SSC exam paper. Some text may be incomplete where the "
+        "paper had a figure or formula. For each question, choose the single best topic from "
+        'this list, copying the label exactly ("Subject > Topic"). If a question names its '
+        "subject, choose a topic of that subject. Use null when you are not sure or nothing "
+        f"fits; a wrong topic is worse than none.\n\nTopics:\n{listed}\n\nQuestions:\n"
+        + "\n\n".join(blocks)
+        + "\n\nAnswer once for every question number."
     )
 
 
@@ -199,6 +252,30 @@ def validate_explanation(data: dict[str, Any]) -> tuple[str | None, bool]:
     if not isinstance(text, str) or not (0 < len(text.strip()) <= MAX_EXPLANATION):
         return None, confident
     return unicodedata.normalize("NFC", text.strip()), confident
+
+
+def pick_paper_topics(
+    data: dict[str, Any], numbers: Sequence[int], topics: Sequence[str]
+) -> dict[int, str]:
+    """number -> exact topic label, only for numbers asked about, answered exactly once, with
+    a label from the list. Everything else is dropped (and counted by the caller)."""
+    answers = data.get("answers")
+    if not isinstance(answers, list):
+        return {}
+    by_key = {_norm(t): t for t in topics}
+    wanted = set(numbers)
+    seen: dict[int, int] = {}
+    chosen: dict[int, str] = {}
+    for answer in answers:
+        if not isinstance(answer, dict):
+            continue
+        number, topic = answer.get("number"), answer.get("topic")
+        if not isinstance(number, int) or isinstance(number, bool) or number not in wanted:
+            continue
+        seen[number] = seen.get(number, 0) + 1
+        if isinstance(topic, str) and _norm(topic) in by_key:
+            chosen[number] = by_key[_norm(topic)]
+    return {n: t for n, t in chosen.items() if seen[n] == 1}
 
 
 def pick_topic(data: dict[str, Any], topics: list[str]) -> str | None:

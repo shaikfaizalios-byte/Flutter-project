@@ -64,6 +64,37 @@ def test_topic_must_be_one_of_the_offered_names() -> None:
     assert ai_content.pick_topic({"topic": None}, topics) is None
 
 
+def test_paper_topics_keep_only_exact_single_answers_for_asked_numbers() -> None:
+    labels = ["English Language > Synonyms", "Quantitative Aptitude > Percentage"]
+    data = {
+        "answers": [
+            {"number": 1, "topic": "english language > synonyms"},
+            {"number": 2, "topic": "Quantitative Aptitude > Percentage"},
+            {"number": 2, "topic": "English Language > Synonyms"},  # answered twice
+            {"number": 3, "topic": "Made Up > Topic"},
+            {"number": 4, "topic": None},
+            {"number": 9, "topic": "English Language > Synonyms"},  # not asked
+            {"number": True, "topic": "English Language > Synonyms"},
+            "junk",
+        ]
+    }
+    assert ai_content.pick_paper_topics(data, [1, 2, 3, 4], labels) == {
+        1: "English Language > Synonyms"
+    }
+    assert ai_content.pick_paper_topics({"answers": "x"}, [1], labels) == {}
+
+
+def test_paper_topics_prompt_lists_topics_and_truncates_questions() -> None:
+    prompt = ai_content.paper_topics_prompt(
+        [ai_content.TopicQuestion(1, "Q" * 2000, ["a", "b"], "English Language")],
+        ["English Language > Synonyms"],
+    )
+    assert "- English Language > Synonyms" in prompt
+    expected = "[1] (subject: English Language) " + "Q" * ai_content.MAX_TOPIC_STEM
+    assert expected + "\nOptions:" in prompt
+    assert "Options: a | b" in prompt
+
+
 def test_explanation_validation() -> None:
     assert ai_content.validate_explanation({"explanation": " Because. ", "confident": False}) == (
         "Because.",

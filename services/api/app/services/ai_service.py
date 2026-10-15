@@ -14,7 +14,7 @@ import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
 from app.domain import ai_content
@@ -26,8 +26,10 @@ from app.domain.errors import (
     NotEligibleError,
     NotFoundError,
 )
+from app.domain.segmentation import same_subject
 from app.integrations.ai import AIProvider, AIProviderError, AIResult
 from app.models.ai import AIExplanation, AIGeneration, DraftStatus
+from app.models.document import Document
 from app.models.exam import Exam
 from app.models.question import (
     Question,
@@ -43,6 +45,7 @@ from app.schemas.ai import (
     ExplanationReview,
     GenerateQuestionsRequest,
     GenerateQuestionsResult,
+    PaperTopicsResult,
     TopicSuggestionResult,
 )
 from app.schemas.question import AIExplanationRead
@@ -328,6 +331,88 @@ class AIService:
             suggested=chosen is not None,
         )
 
+    def suggest_paper_topics(self, document_id: uuid.UUID) -> PaperTopicsResult:
+        """AI topic suggestions for a paper's questions that have none (the keyword rules found
+        nothing). Up to ``MAX_PAPER_TOPIC_BATCHES`` batches per request; ``remaining`` says
+        how many are left for another request."""
+        provider = self._require_provider()
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        # Questions the AI already found no topic for keep topic_suggested_by = "ai" while
+        # unassigned, so they are not sent again.
+        pending = self._session.scalars(
+            select(Question)
+            .where(
+                Question.document_id == document_id,
+                Question.owner_id == self._owner_id,
+                Question.topic_status == TopicStatus.UNASSIGNED,
+                Question.topic_suggested_by.is_(None),
+                Question.verification_status != VerificationStatus.REJECTED,
+            )
+            .order_by(Question.section, Question.source_question_number, Question.id)
+            .options(selectinload(Question.options))
+        ).all()
+        topics = self._session.scalars(select(Topic).order_by(Topic.subject, Topic.name)).all()
+        if not topics:
+            raise NotEligibleError("There are no topics yet.")
+        labels = {f"{t.subject}{ai_content.TOPIC_SEPARATOR}{t.name}": t for t in topics}
+
+        size = ai_content.PAPER_TOPICS_BATCH
+        batches = [pending[i : i + size] for i in range(0, len(pending), size)]
+        considered = suggested = 0
+        for batch in batches[:MAX_PAPER_TOPIC_BATCHES]:
+            items = [
+                ai_content.TopicQuestion(
+                    number=n,
+                    stem=q.stem,
+                    options=[o.text for o in q.options],
+                    subject=q.subject,
+                )
+                for n, q in enumerate(batch, start=1)
+            ]
+            result = self._call(
+                provider,
+                task="topic",
+                question_id=None,
+                prompt=ai_content.paper_topics_prompt(items, list(labels)),
+                schema=ai_content.PAPER_TOPICS_SCHEMA,
+            )
+            chosen = ai_content.pick_paper_topics(
+                result.data, [i.number for i in items], list(labels)
+            )
+            batch_suggested = 0
+            for number, question in enumerate(batch, start=1):
+                topic = labels.get(chosen.get(number, ""))
+                question.topic_suggested_by = "ai"
+                if topic is not None and (
+                    question.subject is None or same_subject(question.subject, topic.subject)
+                ):
+                    question.topic_id = topic.id
+                    question.topic_status = TopicStatus.SUGGESTED
+                    question.topic_suggestion_reason = f"AI suggestion ({provider.model})"[:200]
+                    question.subject = question.subject or topic.subject
+                    batch_suggested += 1
+            self._record(
+                provider,
+                "topic",
+                "ok" if batch_suggested == len(batch) else "partial",
+                result,
+                None,
+                f"paper batch of {len(batch)}",
+                created=batch_suggested,
+                rejected=len(batch) - batch_suggested,
+            )
+            self._session.commit()
+            considered += len(batch)
+            suggested += batch_suggested
+        return PaperTopicsResult(
+            considered=considered,
+            suggested=suggested,
+            no_match=considered - suggested,
+            remaining=len(pending) - considered,
+        )
+
     # --- helpers --------------------------------------------------------------------------
 
     def _require_provider(self) -> AIProvider:
@@ -420,6 +505,9 @@ class AIService:
                 question_id=question_id,
             )
         )
+
+
+MAX_PAPER_TOPIC_BATCHES = 3
 
 
 def _summarise(reasons: list[str]) -> str:

@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
-from app.schemas.question import OptionRead, PassageRead
+from app.schemas.question import FigureRead, OptionRead, PassageRead
 
 
 class PracticeCreate(BaseModel):
@@ -61,6 +61,8 @@ class SessionItemRead(BaseModel):
     subject: str | None
     stem: str | None  # None if the question was deleted after the session started
     options: list[OptionRead]
+    # Figures cropped from the source paper (fetch via /questions/{question_id}/figures/{id}).
+    figures: list[FigureRead]
     passage: PassageRead | None
     origin: Literal["source", "ai"] | None
     verified: bool

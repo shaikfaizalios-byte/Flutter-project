@@ -8,6 +8,10 @@ from dataclasses import dataclass
 DEVANAGARI = re.compile(r"[ऀ-ॿ]")
 LETTER = re.compile(r"[^\W\d_]", re.UNICODE)
 REPLACEMENT_CHAR = "�"
+# Characters a PDF text layer yields for glyphs it cannot map to text: control characters
+# (PDFium returns e.g. U+001F for an unmapped "fi" ligature) and replacement/non-characters.
+UNREADABLE_CHARS = r"[\x00-\x08\x0b\x0c\x0e-\x1f\ufffd\ufffe\uffff]"
+UNREADABLE = re.compile(UNREADABLE_CHARS)
 
 
 class ReviewReason:
@@ -29,6 +33,10 @@ def normalize_text(text: str) -> str:
     lines = [line.rstrip() for line in text.split("\n")]
     collapsed = re.sub(r"\n{3,}", "\n\n", "\n".join(lines))
     return collapsed.strip()
+
+
+def unreadable_char_count(text: str) -> int:
+    return len(UNREADABLE.findall(text))
 
 
 def meaningful_char_count(text: str) -> int:

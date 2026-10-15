@@ -12,6 +12,7 @@ from app.schemas.ai import (
     ExplanationReview,
     GenerateQuestionsRequest,
     GenerateQuestionsResult,
+    PaperTopicsResult,
     QuestionReport,
     TopicSuggestionResult,
 )
@@ -96,6 +97,18 @@ def review_explanation(
 )
 def generate_questions(body: GenerateQuestionsRequest, service: Service) -> GenerateQuestionsResult:
     return service.generate_questions(body)
+
+
+@router.post(
+    "/ai/documents/{document_id}/topic-suggestions",
+    response_model=PaperTopicsResult,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="Suggest topics for a paper's questions that have none (call again while "
+    "'remaining' > 0)",
+)
+def suggest_paper_topics(document_id: uuid.UUID, service: Service) -> PaperTopicsResult:
+    return service.suggest_paper_topics(document_id)
 
 
 @router.post(

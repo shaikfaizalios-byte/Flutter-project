@@ -124,7 +124,7 @@ class DocumentProcessor:
             session, document, DocumentStatus.COMPLETED, summary=summarize_methods(methods)
         )
         # Question segmentation runs right after extraction; its failure never fails the document.
-        SegmentationService(session).segment_document(document_id)
+        SegmentationService(session, self._storage).segment_document(document_id)
 
     def _finish_by_id(self, session: Session, document_id: uuid.UUID, *, error_code: str) -> None:
         document = DocumentRepository(session).get(document_id)

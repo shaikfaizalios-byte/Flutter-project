@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
@@ -85,6 +85,26 @@ def get_question(question_id: uuid.UUID, service: Service) -> QuestionRead:
 )
 def update_question(question_id: uuid.UUID, body: QuestionUpdate, service: Service) -> QuestionRead:
     return service.update(question_id, body)
+
+
+@router.get(
+    "/questions/{question_id}/figures/{figure_id}",
+    tags=["questions"],
+    summary="A figure cropped from the question's source PDF (PNG)",
+    response_class=Response,
+    responses={
+        200: {"content": {"image/png": {}}, "description": "The image"},
+        404: {"model": ErrorResponse, "description": "Figure not found"},
+    },
+)
+def get_question_figure(question_id: uuid.UUID, figure_id: uuid.UUID, service: Service) -> Response:
+    figure = service.figure(question_id, figure_id)
+    return Response(
+        content=figure.data,
+        media_type=figure.content_type,
+        # Figures never change (a re-run creates new ids); only this account may cache them.
+        headers={"Cache-Control": "private, max-age=604800, immutable"},
+    )
 
 
 @router.get("/topics", response_model=list[TopicRead], tags=["questions"])

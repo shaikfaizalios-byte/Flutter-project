@@ -3,28 +3,48 @@
 Re-running is safe: questions a reviewer has verified or rejected are kept untouched, and
 freshly parsed questions with the same (section, number) are skipped so human decisions are
 never overwritten. Everything else from a previous run is replaced.
+
+When the original PDF is available, pages with a text layer are also read for their layout:
+figures (diagrams, charts, formulas drawn as graphics) are cropped from the page and stored
+with their question, and labels inside a figure (chart values) are kept out of the question
+text. Pages read by OCR have no layout and only get the text-based checks.
 """
 
 import logging
 import uuid
+from collections.abc import Sequence
 from datetime import UTC, datetime
+from pathlib import Path
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.domain.figures import (
+    PageAnalysis,
+    QuestionFigures,
+    analyse_page,
+    decorations,
+    locate_figures,
+)
 from app.domain.segmentation import (
     EXPECTED_OPTIONS,
+    Issue,
+    IssueCode,
     PageText,
     ParsedQuestion,
     check_against_format,
+    content_issues,
     segment,
 )
+from app.domain.text_quality import normalize_text, unreadable_char_count
 from app.domain.topics import TopicCandidate, subject_for_section, suggest_topic
-from app.models.document import Document, DocumentPage
+from app.integrations.storage import DocumentStorage
+from app.models.document import Document, DocumentPage, ExtractionMethod
 from app.models.question import (
     ExamFormat,
     Passage,
     Question,
+    QuestionFigure,
     QuestionIssue,
     QuestionOption,
     QuestionOrigin,
@@ -32,13 +52,15 @@ from app.models.question import (
     TopicStatus,
     VerificationStatus,
 )
+from app.services.page_layout import PdfRenderer, read_layouts
 
 logger = logging.getLogger("app.segmentation")
 
 
 class SegmentationService:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, storage: DocumentStorage | None = None) -> None:
         self._session = session
+        self._storage = storage
 
     def segment_document(self, document_id: uuid.UUID) -> None:
         """Segment and persist. On unexpected errors the document's segmentation_status is
@@ -58,15 +80,45 @@ class SegmentationService:
                 document.segmentation_status = "failed"
                 self._session.commit()
 
+    def _pdf_path(self, document: Document) -> Path | None:
+        if self._storage is None:
+            return None
+        try:
+            path = self._storage.path_for(document.storage_key)
+        except ValueError:
+            return None
+        return path if path.is_file() else None
+
     def _run(self, document: Document) -> None:
         pages = self._session.scalars(
             select(DocumentPage)
             .where(DocumentPage.document_id == document.id)
             .order_by(DocumentPage.page_number)
         ).all()
+        pdf_path = self._pdf_path(document)
+        analyses, layout_issue = _analyse(pdf_path, pages)
+        figure_text = {
+            a.layout.number: normalize_text(a.text()) for a in analyses if a.figure_lines
+        }
         result = segment(
-            [PageText(p.page_number, p.text, p.needs_review) for p in pages],
+            [
+                PageText(p.page_number, figure_text.get(p.page_number, p.text), p.needs_review)
+                for p in pages
+            ],
             expected_options=EXPECTED_OPTIONS,
+        )
+        if layout_issue is not None:
+            result.document_issues.append(layout_issue)
+        unreadable = [_unreadable_count(q) for q in result.questions]
+        located = (
+            locate_figures(
+                result.questions,
+                analyses,
+                strong_numbering=result.strong_numbering,
+                unreadable=[n > 0 for n in unreadable],
+            )
+            if analyses
+            else [QuestionFigures() for _ in result.questions]
         )
         exam_format = (
             self._session.get(ExamFormat, document.exam_format_id)
@@ -130,13 +182,22 @@ class SegmentationService:
         ]
         subjects = sorted({t.subject for t in topics})
         created = 0
-        for parsed in result.questions:
-            if (parsed.section, parsed.number) in kept_keys:
-                continue
-            self._session.add(
-                self._build_question(document, exam_format, parsed, passage_rows, topics, subjects)
-            )
-            created += 1
+        renderer = PdfRenderer(pdf_path) if pdf_path is not None and analyses else None
+        try:
+            for parsed, figures, unreadable_chars in zip(
+                result.questions, located, unreadable, strict=True
+            ):
+                if (parsed.section, parsed.number) in kept_keys:
+                    continue
+                question = self._build_question(
+                    document, exam_format, parsed, passage_rows, topics, subjects
+                )
+                _apply_figures(question, parsed, figures, unreadable_chars, renderer)
+                self._session.add(question)
+                created += 1
+        finally:
+            if renderer is not None:
+                renderer.close()
 
         for issue in result.document_issues:
             self._session.add(
@@ -168,17 +229,20 @@ class SegmentationService:
         subjects: list[str],
     ) -> Question:
         subject = subject_for_section(parsed.section, subjects)
-        topic_id = suggest_topic(parsed.stem, subject=subject, topics=topics)
+        suggestion = suggest_topic(parsed.stem, subject=subject, topics=topics)
         question = Question(
             origin=QuestionOrigin.SOURCE,
             owner_id=document.owner_id,  # questions belong to the document's owner
             exam_code=document.exam_code,
             exam_format_id=exam_format.id if exam_format else None,
             section=parsed.section,
-            subject=subject,
-            topic_id=topic_id,
-            topic_status=TopicStatus.SUGGESTED if topic_id else TopicStatus.UNASSIGNED,
-            topic_suggested_by="keywords" if topic_id else None,
+            # Without a section heading the subject follows the suggested topic (and is shown
+            # as part of that suggestion until a reviewer accepts it).
+            subject=subject or (suggestion.subject if suggestion else None),
+            topic_id=suggestion.topic_id if suggestion else None,
+            topic_status=TopicStatus.SUGGESTED if suggestion else TopicStatus.UNASSIGNED,
+            topic_suggested_by="keywords" if suggestion else None,
+            topic_suggestion_reason=suggestion.reason[:200] if suggestion else None,
             stem=parsed.stem,
             language=document.language,
             document_id=document.id,
@@ -202,3 +266,102 @@ class SegmentationService:
             for i in parsed.issues
         ]
         return question
+
+
+def _unreadable_count(question: ParsedQuestion) -> int:
+    return unreadable_char_count(
+        "\n".join([question.stem, *(option.text for option in question.options)])
+    )
+
+
+def _analyse(
+    pdf_path: Path | None, pages: Sequence[DocumentPage]
+) -> tuple[list[PageAnalysis], Issue | None]:
+    """Layout analysis of the pages that have a text layer. Never fails segmentation: on
+    any error the paper is segmented from its stored text only, with a document issue."""
+    text_pages = {p.page_number for p in pages if p.method == ExtractionMethod.TEXT}
+    if pdf_path is None or not text_pages:
+        return [], None
+    try:
+        layouts = list(read_layouts(pdf_path, text_pages))
+        decoration_keys = decorations(layouts)
+        analyses = [analyse_page(layout, decoration_keys) for layout in layouts]
+    except Exception:
+        logger.exception("page layout analysis failed")
+        return [], Issue(IssueCode.FIGURES_NOT_EXTRACTED, "The page layout could not be read.")
+    skipped = sorted(a.layout.number for a in analyses if not a.supported)
+    issue = (
+        Issue(
+            IssueCode.FIGURES_NOT_EXTRACTED,
+            "Pages not analysed for figures: " + ", ".join(str(p) for p in skipped),
+        )
+        if skipped
+        else None
+    )
+    return analyses, issue
+
+
+def _apply_figures(
+    question: Question,
+    parsed: ParsedQuestion,
+    figures: QuestionFigures,
+    unreadable_chars: int,
+    renderer: PdfRenderer | None,
+) -> None:
+    """Store figure crops on ``question`` and adjust its issues and image flag."""
+    rows: list[QuestionFigure] = []
+    if renderer is not None:
+        for crop in figures.crops:
+            try:
+                data, width, height = renderer.render(crop.page, crop.box)
+            except Exception:
+                logger.exception("figure crop failed")
+                continue
+            rows.append(
+                QuestionFigure(
+                    kind=crop.kind,
+                    option_position=crop.option_index + 1
+                    if crop.option_index is not None
+                    else None,
+                    sort_order=len(rows),
+                    page_number=crop.page,
+                    box=crop.box.as_list(),
+                    width=width,
+                    height=height,
+                    content_type="image/png",
+                    data=data,
+                )
+            )
+    question.figures = rows
+    option_figures = {f.option_position for f in rows if f.option_position is not None}
+    pictured = [f for f in rows if f.kind in ("stem", "option")]
+
+    issues = [i for i in parsed.issues if i.code != IssueCode.EMPTY_OPTION]
+    issues += [
+        i
+        for i in content_issues(
+            option_texts=[o.text for o in parsed.options],
+            answer_position=parsed.answer_position,
+            expected_options=EXPECTED_OPTIONS,
+            option_figures=option_figures,
+        )
+        if i.code == IssueCode.EMPTY_OPTION
+    ]
+    if pictured or (figures.ambiguous_options and rows):
+        question.image_dependent = True
+        pages = sorted({f.page_number for f in rows})
+        detail = "Figure from page " + ", ".join(str(p) for p in pages)
+        issues = [i for i in issues if i.code != IssueCode.IMAGE_DEPENDENT]
+        issues.append(Issue(IssueCode.IMAGE_DEPENDENT, detail))
+    reasons = []
+    if unreadable_chars:
+        reasons.append(f"{unreadable_chars} character(s) could not be read from the PDF")
+    if figures.text_incomplete:
+        reasons.append("part of the text is drawn as graphics (formula or symbols)")
+    if reasons:
+        detail = "; ".join(reasons) + ". Compare with the image of the question as printed."
+        issues.append(Issue(IssueCode.UNREADABLE_TEXT, detail[:500]))
+    question.issues = [
+        QuestionIssue(document_id=question.document_id, code=i.code, detail=i.detail)
+        for i in issues
+    ]
