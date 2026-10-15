@@ -7,6 +7,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../ai/application/ai_providers.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../application/question_bank_providers.dart';
 import '../data/questions_repository.dart';
@@ -93,7 +94,13 @@ class _DocumentReviewScreenState extends ConsumerState<DocumentReviewScreen> {
               slivers: [
                 SliverToBoxAdapter(
                   child: switch (summary) {
-                    AsyncData(:final value) => _SummaryCard(summary: value),
+                    AsyncData(:final value) => Column(
+                      children: [
+                        _SummaryCard(summary: value),
+                        if (value.segmentationStatus == 'completed' && value.questionsFound > 0)
+                          _TopicsCard(documentId: widget.documentId, summary: value),
+                      ],
+                    ),
                     AsyncError() => Padding(
                       padding: const EdgeInsets.all(AppSpacing.md),
                       child: Text(l10n.bankLoadError),
@@ -171,6 +178,10 @@ class _SummaryCard extends StatelessWidget {
                   Chip(label: Text(l10n.reviewSummaryVerified(summary.verified))),
                   Chip(label: Text(l10n.reviewSummaryAttention(summary.withOpenIssues))),
                   Chip(label: Text(l10n.reviewSummaryMissingAnswers(summary.missingAnswers))),
+                  if (summary.withFigures > 0)
+                    Chip(label: Text(l10n.reviewSummaryFigures(summary.withFigures))),
+                  if (summary.unreadableText > 0)
+                    Chip(label: Text(l10n.reviewSummaryUnreadable(summary.unreadableText))),
                 ],
               ),
             const SizedBox(height: AppSpacing.xs),
@@ -197,6 +208,157 @@ class _SummaryCard extends StatelessWidget {
                 ],
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Topic suggestions for the whole paper: accept them all in one step, or ask the AI about
+/// the questions the keyword rules couldn't place. Every suggestion stays labelled until
+/// accepted, and can be changed on the question afterwards.
+class _TopicsCard extends ConsumerStatefulWidget {
+  const _TopicsCard({required this.documentId, required this.summary});
+
+  final String documentId;
+  final ParseSummary summary;
+
+  @override
+  ConsumerState<_TopicsCard> createState() => _TopicsCardState();
+}
+
+class _TopicsCardState extends ConsumerState<_TopicsCard> {
+  bool _busy = false;
+  int? _aiRemaining;
+
+  void _refresh() => ref
+    ..invalidate(parseSummaryProvider(widget.documentId))
+    ..invalidate(questionListProvider)
+    ..invalidate(questionProvider);
+
+  Future<void> _run(Future<void> Function(ScaffoldMessengerState messenger) action) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      await action(messenger);
+    } on AppFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
+    } on Object catch (error, stack) {
+      logError('Topic action failed', error, stack);
+    } finally {
+      _refresh();
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _aiRemaining = null;
+        });
+      }
+    }
+  }
+
+  Future<bool> _confirm(String title, String body, String action) async {
+    final l10n = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: Text(action)),
+        ],
+      ),
+    );
+    return ok ?? false;
+  }
+
+  Future<void> _acceptAll() async {
+    final l10n = AppLocalizations.of(context);
+    if (!await _confirm(
+      l10n.topicsAcceptConfirmTitle,
+      l10n.topicsAcceptConfirmBody,
+      l10n.topicsAcceptAction,
+    )) {
+      return;
+    }
+    await _run((messenger) async {
+      final accepted = await ref
+          .read(questionsRepositoryProvider)
+          .acceptSuggestedTopics(widget.documentId);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.topicsAccepted(accepted))));
+    });
+  }
+
+  Future<void> _suggestWithAi() async {
+    final l10n = AppLocalizations.of(context);
+    if (!await _confirm(
+      l10n.topicsAiSuggest(widget.summary.topicsAiPending),
+      l10n.topicsAiNotice,
+      l10n.topicsAiConfirm,
+    )) {
+      return;
+    }
+    await _run((messenger) async {
+      final ai = ref.read(aiRepositoryProvider);
+      var suggested = 0;
+      var noMatch = 0;
+      setState(() => _aiRemaining = widget.summary.topicsAiPending);
+      // The server handles a few batches per call; keep going until none are left.
+      while (mounted) {
+        final step = await ai.suggestPaperTopics(widget.documentId);
+        suggested += step.suggested;
+        noMatch += step.noMatch;
+        if (mounted) setState(() => _aiRemaining = step.remaining);
+        if (step.remaining == 0 || step.considered == 0) break;
+      }
+      messenger.showSnackBar(SnackBar(content: Text(l10n.topicsAiDone(suggested, noMatch))));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final summary = widget.summary;
+    final aiEnabled = ref.watch(aiStatusProvider).value?.enabled ?? false;
+    final remaining = _aiRemaining;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
+      child: SectionCard(
+        icon: Icons.label_outline,
+        title: l10n.topicsCardTitle,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpacing.sm,
+          children: [
+            Text(l10n.topicsSummary(summary.topicsSuggested, summary.topicsUnassigned)),
+            Text(l10n.topicsRulesNote, style: theme.textTheme.bodySmall),
+            if (summary.topicsSuggested > 0)
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.done_all),
+                label: Text(l10n.topicsAcceptAll(summary.topicsSuggested)),
+                onPressed: _busy ? null : _acceptAll,
+              ),
+            if (aiEnabled && summary.topicsAiPending > 0)
+              OutlinedButton.icon(
+                icon: const Icon(Icons.auto_awesome),
+                label: Text(l10n.topicsAiSuggest(summary.topicsAiPending)),
+                onPressed: _busy ? null : _suggestWithAi,
+              ),
+            if (remaining != null)
+              Row(
+                spacing: AppSpacing.sm,
+                children: [
+                  const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  Expanded(child: Text(l10n.topicsAiRunning(remaining))),
+                ],
+              ),
           ],
         ),
       ),

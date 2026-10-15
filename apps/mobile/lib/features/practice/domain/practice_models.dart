@@ -40,6 +40,7 @@ class SessionItemView {
     required this.options,
     required this.verified,
     required this.bookmarked,
+    this.figures = const [],
     this.questionId,
     this.section,
     this.stem,
@@ -63,6 +64,7 @@ class SessionItemView {
         for (final o in json['options'] as List<dynamic>)
           QuestionOption.fromJson(o as Map<String, dynamic>),
       ],
+      figures: figuresFromJson(json['figures']),
       passage: json['passage'] == null
           ? null
           : Passage.fromJson(json['passage'] as Map<String, dynamic>),
@@ -86,6 +88,9 @@ class SessionItemView {
   /// Null when the question was deleted after the session started.
   final String? stem;
   final List<QuestionOption> options;
+
+  /// Figures cropped from the source paper (fetched by [questionId] and figure id).
+  final List<QuestionFigure> figures;
   final Passage? passage;
   final QuestionOrigin? origin;
   final bool verified;
@@ -106,6 +111,7 @@ class SessionItemView {
     section: section,
     stem: stem,
     options: options,
+    figures: figures,
     passage: passage,
     origin: origin,
     verified: verified,

@@ -208,6 +208,7 @@ class FakePracticeRepository implements PracticeRepository {
             section: q.section,
             stem: q.stem,
             options: q.options,
+            figures: q.figures,
             passage: q.passage,
             origin: q.origin,
             verified: q.status == VerificationStatus.verified,

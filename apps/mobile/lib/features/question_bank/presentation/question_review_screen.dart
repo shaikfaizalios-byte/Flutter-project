@@ -13,6 +13,7 @@ import '../../documents/presentation/documents_screen.dart' show uploadErrorMess
 import '../application/question_bank_providers.dart';
 import '../data/questions_repository.dart';
 import '../domain/question.dart';
+import 'figure_view.dart';
 import 'question_widgets.dart';
 
 class QuestionReviewScreen extends ConsumerWidget {
@@ -222,14 +223,27 @@ class _EditorState extends ConsumerState<_Editor> {
           minLines: 2,
           maxLines: 8,
         ),
+        if (questionFigures(q.figures).isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          Text(l10n.figuresFromPaper, style: Theme.of(context).textTheme.titleSmall),
+          QuestionFigures(questionId: q.id, figures: q.figures),
+        ],
         const SizedBox(height: AppSpacing.md),
         Text(l10n.fieldOptions, style: Theme.of(context).textTheme.titleSmall),
-        for (final (label, controller) in _options)
+        for (final (i, (label, controller)) in _options.indexed)
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.sm),
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(labelText: l10n.fieldOption(label)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpacing.xs,
+              children: [
+                TextField(
+                  controller: controller,
+                  decoration: InputDecoration(labelText: l10n.fieldOption(label)),
+                ),
+                if (optionFigure(q.figures, i + 1) case final figure?)
+                  QuestionFigureView(questionId: q.id, figure: figure),
+              ],
             ),
           ),
         if (_options.length < 6)
@@ -267,6 +281,7 @@ class _EditorState extends ConsumerState<_Editor> {
           selectedId: _topicId,
           suggested: q.topicStatus == 'suggested',
           suggestedByAi: q.topicSuggestedBy == 'ai',
+          reason: q.topicSuggestionReason,
           onChanged: (id) => setState(() => _topicId = id),
         ),
         SwitchListTile(
@@ -345,11 +360,15 @@ class _TopicPicker extends ConsumerWidget {
     required this.suggested,
     required this.onChanged,
     this.suggestedByAi = false,
+    this.reason,
   });
 
   final String? selectedId;
   final bool suggested;
   final bool suggestedByAi;
+
+  /// Why it was suggested (matched keywords or the AI model).
+  final String? reason;
   final ValueChanged<String?> onChanged;
 
   @override
@@ -374,7 +393,10 @@ class _TopicPicker extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.xs),
             child: Text(
-              suggestedByAi ? l10n.topicSuggestedByAi : l10n.topicSuggested,
+              [
+                suggestedByAi ? l10n.topicSuggestedByAi : l10n.topicSuggested,
+                if (reason != null && reason!.isNotEmpty) l10n.topicSuggestionReason(reason!),
+              ].join('\n'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),

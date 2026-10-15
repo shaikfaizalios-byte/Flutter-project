@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/questions_repository.dart';
@@ -24,6 +26,12 @@ final parseSummaryProvider = FutureProvider.autoDispose.family<ParseSummary, Str
 
 final topicsProvider = FutureProvider<List<TopicRef>>(
   (ref) => ref.watch(questionsRepositoryProvider).topics(),
+  retry: _noRetry,
+);
+
+/// Figure images never change (a re-parse creates new ids), so they stay cached.
+final figureBytesProvider = FutureProvider.family<Uint8List, (String, String)>(
+  (ref, key) => ref.watch(questionsRepositoryProvider).figure(key.$1, key.$2),
   retry: _noRetry,
 );
 

@@ -43,6 +43,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a
   recorded official source; topic keywords only suggest. See docs/question-bank.md.
+- Figures: after segmentation the worker reads page layouts with PDFium (`app/services/page_layout.py`) and
+  the pure `app/domain/figures.py` assigns figure crops (stem / option / `original` = question as printed)
+  to questions → `question_figures` (PNG in Postgres), served by `GET /questions/{id}/figures/{fid}`; mobile
+  shows them as printed (`QuestionFigureView`, bytes via Dio for auth). Questions with figures are practice-
+  eligible. Topics: keyword rules store a reason (`topic_suggestion_reason`); optional per-paper AI step
+  (`POST /ai/documents/{id}/topic-suggestions`) for the rest; `POST /documents/{id}/topics/accept` bulk-confirms.
 - Practice (`app/services/practice_service.py`, pure `app/domain/scoring.py`): server-side sessions with
   per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
@@ -159,6 +165,9 @@ Known limitations right now:
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
 - Only one verified exam format exists (SSC CHSL 2026 Tier-I, from the official notice). **SSC CGL has
   none** — add only after verifying the current official notice (record source in a migration).
+- Figures are found only from PDF vector/image objects: scanned papers (one image per page), multi-column
+  and rotated pages give no crops (flagged `figures_not_extracted`; reviewer uses the source page).
+  Topic rules suggested 83/100 on one sample CHSL paper (coverage, not validated accuracy).
 - Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
   aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
   Issue details are English (labels are localised).

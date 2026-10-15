@@ -127,6 +127,20 @@ class FakeAiRepository implements AiRepository {
     return (updated, topic != null);
   }
 
+  /// Steps returned by [suggestPaperTopics], in order (the last one repeats).
+  List<PaperTopicsResult> paperSteps = const [
+    PaperTopicsResult(considered: 2, suggested: 1, noMatch: 1, remaining: 0),
+  ];
+
+  @override
+  Future<PaperTopicsResult> suggestPaperTopics(String documentId) async {
+    calls.add('paper-topics:$documentId');
+    _maybeFail();
+    final step = paperSteps.first;
+    if (paperSteps.length > 1) paperSteps = paperSteps.sublist(1);
+    return step;
+  }
+
   @override
   Future<BankQuestion> report(String questionId, ReportReason reason, {String note = ''}) async {
     reports.add((questionId, reason, note));

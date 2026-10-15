@@ -19,17 +19,41 @@ access and is unit-tested on synthetic text (`tests/test_segmentation.py`).
 | Answers | Inline (`Ans: 2`, `उत्तर: (2)`) or an **answer-key section** (`1-(3) 2-(b)`), joined **by question number, never by position**. Keys using letters for numbered options are mapped by position (a→1). Disagreeing answers are not guessed: `conflicting_answers`, and the answer is left unset. |
 | Explanations | A `Solutions`/`Explanations`/`हल` section joined by number, or inline `Sol:` lines. |
 | Section-restarted numbering | If numbers restart in each section (`Q.1–25` per section), the key cannot be matched by number. It is not applied, and the document gets `answer_key_ambiguous_numbering`. |
-| Image-dependent | Stems mentioning figures, mirror or water images, cubes, dice, charts and similar (EN/HI keywords), or questions with no options and a very short stem. They are flagged, with the source page kept. Missing visual content is never reconstructed. |
+| Image-dependent | Stems mentioning figures, mirror or water images, cubes, dice, charts and similar (EN/HI keywords, also when a ligature like "fi" was lost from the text), or questions with no options and a very short stem. They are flagged, with the source page kept. When the figure is found on the page it is cropped and stored (see below). Missing visual content is never redrawn or reconstructed. |
 | Provenance | Every question keeps the source document, page(s) and printed question number. Questions spanning pages record both pages. |
 
 ### Issue codes
 
 Question level: `missing_answer`, `incomplete_options`, `empty_option`, `duplicate_number`,
 `ambiguous_boundary`, `image_dependent`, `repeated_option_labels`, `answer_not_in_options`,
-`conflicting_answers`, `source_page_needs_review` (a source page was flagged during extraction or OCR).
+`conflicting_answers`, `source_page_needs_review` (a source page was flagged during extraction or OCR),
+`unreadable_text` (characters lost from the PDF text, or a formula drawn as graphics; the question
+carries an image of itself as printed).
 
 Document level: `no_questions_found`, `numbering_gaps`, `answer_key_unmatched`,
-`answer_key_ambiguous_numbering`, `count_mismatch`, `section_count_mismatch`.
+`answer_key_ambiguous_numbering`, `count_mismatch`, `section_count_mismatch`,
+`figures_not_extracted` (pages whose layout could not be analysed for figures).
+
+## Figures (`app/domain/figures.py`, `app/services/page_layout.py`)
+
+A PDF's text layer has no pictures, so Venn diagrams, figure series, charts and formulas drawn as
+vector paths would be lost. After segmentation the worker reads each page's **layout** with PDFium
+(text lines with positions, image objects, vector paths) and decides, from geometry only:
+
+- which graphics are page decoration (logos, rules repeated on most pages) and are ignored;
+- which touching objects form one figure (a minimum visible size, so underlines and table rules don't count);
+- which text lines are labels *inside* a figure (chart values, axis labels), which are moved out of the stem;
+- which question, and which option of it, each figure belongs to.
+
+Each figure is rendered at 2× (144 dpi; very wide crops are scaled down, at most ~1 MB) and stored as PNG in
+`question_figures` (kind `stem`, `option` with its position, or `original` = the whole question as printed
+when its text could not be read in full), with page number and box. The app fetches them from
+`GET /questions/{id}/figures/{figure_id}` (owner only, cached privately) and shows them **as printed**
+in review and practice. An option that is a picture counts as option content (no `empty_option`).
+
+Questions with a stored figure are eligible for practice (image-dependent questions without one are
+still excluded). Pages with several text columns, rotated pages or too many objects are skipped and
+reported with `figures_not_extracted`; those questions keep the text-only checks.
 
 ## Exam formats: verified only
 
@@ -50,10 +74,24 @@ A document is linked to a format at upload (`exam_format_code`) or later
 
 ## Topics (taxonomy as data)
 
-`topics` (subject, name, keywords) is seeded with a small starter set of general subjects and topics.
-Edit it with migrations or SQL; no code changes are needed. Keywords only produce **suggestions**
-(`topic_status = suggested`). There is no suggestion on ties or without a match, and a suggestion becomes
-`confirmed` only when a reviewer approves the question or picks a topic.
+`topics` (subject, name, keywords) holds the SSC subject/topic taxonomy (about 60 topics since migration
+0009). Edit it with migrations or SQL; no code changes are needed. Topics are only ever **suggested**
+(`topic_status = suggested`) and become `confirmed` when a reviewer approves the question, picks a topic,
+or accepts all suggestions of a paper.
+
+1. **Keyword rules** (`app/domain/topics.py`, free, deterministic): a matching keyword scores its number
+   of words, three times as much in the question's first sentence (where SSC questions state the task).
+   The section heading limits the subject. No suggestion on ties or without a match. The reason is stored
+   (`topic_suggestion_reason`, e.g. `Matched "venn diagram"`) and shown in the app.
+2. **AI, optional** (`POST /ai/documents/{id}/topic-suggestions`, only with an AI key): the questions the rules
+   left unassigned are sent in batches of 20 (stem and options, truncated) and the model must pick from the
+   taxonomy; anything else is ignored. Suggestions are labelled as AI. Questions the AI found nothing for
+   are not sent again. See [ai.md](ai.md).
+3. **Accept all** (`POST /documents/{id}/topics/accept`): confirms every suggested topic of a paper's
+   non-rejected questions in one step. Each topic can still be changed afterwards.
+
+On the sample SSC CHSL paper used for tuning, the rules alone suggest a topic for about 83 of 100 questions.
+That figure is from one paper and is not a validated accuracy; suggestions still need a reviewer.
 
 ## Review workflow
 
@@ -76,3 +114,7 @@ and AI questions are never presented as official previous-year questions.
   set answers during review.
 - Bilingual papers keep only the first language's options per question (the other set is in the issue detail).
 - Issue *details* are generated by the server in English. Issue *labels* are localised in the app.
+- Figure detection works on the PDF's vector/image objects. Scanned papers (one image per page) give no
+  separate figures: those questions stay flagged and the reviewer uses the source page. Multi-column and
+  rotated pages are skipped.
+- Figure crops are stored in PostgreSQL (`bytea`), not in object storage.

@@ -9,6 +9,8 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../ai/presentation/ai_widgets.dart';
+import '../../question_bank/domain/question.dart';
+import '../../question_bank/presentation/figure_view.dart';
 import '../../question_bank/presentation/question_widgets.dart';
 import '../application/practice_providers.dart';
 import '../domain/practice_models.dart';
@@ -165,11 +167,23 @@ class _SessionBody extends ConsumerWidget {
                 Text(l10n.sessionQuestionRemoved)
               else
                 SelectableText(item.stem!, style: Theme.of(context).textTheme.titleMedium),
+              if (item.questionId != null)
+                QuestionFigures(questionId: item.questionId!, figures: item.figures),
               const SizedBox(height: AppSpacing.md),
               for (final option in item.options)
                 _OptionTile(
                   label: option.label,
                   text: option.text,
+                  figure: item.questionId == null
+                      ? null
+                      : switch (optionFigure(item.figures, option.position)) {
+                          final f? => QuestionFigureView(
+                            questionId: item.questionId!,
+                            figure: f,
+                            zoomable: false,
+                          ),
+                          null => null,
+                        },
                   selected: item.selectedPosition == option.position,
                   correct: item.feedback?.correctPosition == option.position,
                   showFeedback: item.feedback != null,
@@ -266,10 +280,14 @@ class _OptionTile extends StatelessWidget {
     required this.correct,
     required this.showFeedback,
     required this.onTap,
+    this.figure,
   });
 
   final String label;
   final String text;
+
+  /// The option's figure from the paper, when the option is a picture.
+  final Widget? figure;
   final bool selected;
   final bool correct;
   final bool showFeedback;
@@ -301,7 +319,15 @@ class _OptionTile extends StatelessWidget {
                   Icon(icon),
                   const SizedBox(width: AppSpacing.sm),
                   Text('($label)  ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Expanded(child: Text(text)),
+                  Expanded(
+                    child: figure == null
+                        ? Text(text)
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: AppSpacing.xs,
+                            children: [if (text.isNotEmpty) Text(text), figure!],
+                          ),
+                  ),
                 ],
               ),
             ),

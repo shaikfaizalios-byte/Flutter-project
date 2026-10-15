@@ -3218,6 +3218,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email confirmed.'**
   String get verifyDone;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @figureLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Figure from the paper (page {page})'**
+  String figureLabel(int page);
+
+  /// No description provided for @figureOptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Option figure from the paper (page {page})'**
+  String figureOptionLabel(int page);
+
+  /// No description provided for @figureOriginalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Question as printed in the paper (page {page})'**
+  String figureOriginalLabel(int page);
+
+  /// No description provided for @figureLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the figure.'**
+  String get figureLoadError;
+
+  /// No description provided for @figuresFromPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Figures from the paper (shown as printed)'**
+  String get figuresFromPaper;
+
+  /// No description provided for @issueUnreadableText.
+  ///
+  /// In en, this message translates to:
+  /// **'Some characters couldn\'t be read'**
+  String get issueUnreadableText;
+
+  /// No description provided for @issueFiguresNotExtracted.
+  ///
+  /// In en, this message translates to:
+  /// **'Some figures couldn\'t be extracted'**
+  String get issueFiguresNotExtracted;
+
+  /// No description provided for @reviewSummaryFigures.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} with figures'**
+  String reviewSummaryFigures(int count);
+
+  /// No description provided for @reviewSummaryUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} with unreadable text'**
+  String reviewSummaryUnreadable(int count);
+
+  /// No description provided for @topicsCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subjects and topics'**
+  String get topicsCardTitle;
+
+  /// No description provided for @topicsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{suggested} suggested · {unassigned} without a topic'**
+  String topicsSummary(int suggested, int unassigned);
+
+  /// No description provided for @topicsAcceptAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept all suggested topics ({count})'**
+  String topicsAcceptAll(int count);
+
+  /// No description provided for @topicsAcceptConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept all suggested topics?'**
+  String get topicsAcceptConfirmTitle;
+
+  /// No description provided for @topicsAcceptConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every suggested topic of this paper becomes confirmed. Rejected questions are skipped, and you can still change any topic afterwards.'**
+  String get topicsAcceptConfirmBody;
+
+  /// No description provided for @topicsAcceptAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept all'**
+  String get topicsAcceptAction;
+
+  /// No description provided for @topicsAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} topics accepted.'**
+  String topicsAccepted(int count);
+
+  /// No description provided for @topicsAiSuggest.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest topics with AI ({count} questions)'**
+  String topicsAiSuggest(int count);
+
+  /// No description provided for @topicsAiNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'The text of these questions is sent to the AI service. Its suggestions are labelled AI and need your confirmation.'**
+  String get topicsAiNotice;
+
+  /// No description provided for @topicsAiConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to AI'**
+  String get topicsAiConfirm;
+
+  /// No description provided for @topicsAiRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking the AI… {remaining} left'**
+  String topicsAiRunning(int remaining);
+
+  /// No description provided for @topicsAiDone.
+  ///
+  /// In en, this message translates to:
+  /// **'AI suggested {suggested} topics. {noMatch} questions had no match.'**
+  String topicsAiDone(int suggested, int noMatch);
+
+  /// No description provided for @topicsRulesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions come from keyword rules (and the AI if you ask). Each one shows why it was made.'**
+  String get topicsRulesNote;
+
+  /// No description provided for @topicSuggestionReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why: {reason}'**
+  String topicSuggestionReason(String reason);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

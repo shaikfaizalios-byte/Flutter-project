@@ -1947,4 +1947,103 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get verifyDone => 'ईमेल की पुष्टि हो गई।';
+
+  @override
+  String get close => 'बंद करें';
+
+  @override
+  String figureLabel(int page) {
+    return 'पेपर से चित्र (पृष्ठ $page)';
+  }
+
+  @override
+  String figureOptionLabel(int page) {
+    return 'पेपर से विकल्प का चित्र (पृष्ठ $page)';
+  }
+
+  @override
+  String figureOriginalLabel(int page) {
+    return 'पेपर में छपा प्रश्न (पृष्ठ $page)';
+  }
+
+  @override
+  String get figureLoadError => 'चित्र लोड नहीं हो सका।';
+
+  @override
+  String get figuresFromPaper => 'पेपर से चित्र (जैसे छपे हैं)';
+
+  @override
+  String get issueUnreadableText => 'कुछ अक्षर पढ़े नहीं जा सके';
+
+  @override
+  String get issueFiguresNotExtracted => 'कुछ चित्र निकाले नहीं जा सके';
+
+  @override
+  String reviewSummaryFigures(int count) {
+    return '$count चित्र वाले';
+  }
+
+  @override
+  String reviewSummaryUnreadable(int count) {
+    return '$count में अपठनीय अक्षर';
+  }
+
+  @override
+  String get topicsCardTitle => 'विषय और टॉपिक';
+
+  @override
+  String topicsSummary(int suggested, int unassigned) {
+    return '$suggested सुझाए गए · $unassigned बिना टॉपिक';
+  }
+
+  @override
+  String topicsAcceptAll(int count) {
+    return 'सभी सुझाए गए टॉपिक स्वीकारें ($count)';
+  }
+
+  @override
+  String get topicsAcceptConfirmTitle => 'सभी सुझाए गए टॉपिक स्वीकारें?';
+
+  @override
+  String get topicsAcceptConfirmBody =>
+      'इस पेपर के सभी सुझाए गए टॉपिक पक्के हो जाएँगे। अस्वीकृत प्रश्न छोड़ दिए जाते हैं, और बाद में भी आप कोई भी टॉपिक बदल सकते हैं।';
+
+  @override
+  String get topicsAcceptAction => 'सभी स्वीकारें';
+
+  @override
+  String topicsAccepted(int count) {
+    return '$count टॉपिक स्वीकार किए गए।';
+  }
+
+  @override
+  String topicsAiSuggest(int count) {
+    return 'AI से टॉपिक सुझाएँ ($count प्रश्न)';
+  }
+
+  @override
+  String get topicsAiNotice =>
+      'इन प्रश्नों का पाठ AI सेवा को भेजा जाता है। इसके सुझावों पर AI लिखा होता है और आपकी पुष्टि ज़रूरी है।';
+
+  @override
+  String get topicsAiConfirm => 'AI को भेजें';
+
+  @override
+  String topicsAiRunning(int remaining) {
+    return 'AI से पूछ रहे हैं… $remaining बाकी';
+  }
+
+  @override
+  String topicsAiDone(int suggested, int noMatch) {
+    return 'AI ने $suggested टॉपिक सुझाए। $noMatch प्रश्नों का कोई मेल नहीं मिला।';
+  }
+
+  @override
+  String get topicsRulesNote =>
+      'सुझाव कीवर्ड नियमों से आते हैं (और आपके कहने पर AI से)। हर सुझाव के साथ उसका कारण दिखता है।';
+
+  @override
+  String topicSuggestionReason(String reason) {
+    return 'कारण: $reason';
+  }
 }

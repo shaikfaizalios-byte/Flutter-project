@@ -30,6 +30,33 @@ class GeneratedQuestions {
   final List<String> reasons;
 }
 
+/// One step of AI topic suggestion for a paper (the server handles a few batches per call).
+@immutable
+class PaperTopicsResult {
+  const PaperTopicsResult({
+    required this.considered,
+    required this.suggested,
+    required this.noMatch,
+    required this.remaining,
+  });
+
+  factory PaperTopicsResult.fromJson(Map<String, dynamic> json) => PaperTopicsResult(
+    considered: json['considered'] as int,
+    suggested: json['suggested'] as int,
+    noMatch: json['no_match'] as int,
+    remaining: json['remaining'] as int,
+  );
+
+  final int considered;
+
+  /// Suggested topics; still need a reviewer's confirmation.
+  final int suggested;
+  final int noMatch;
+
+  /// Questions not sent yet; call again while this is above zero.
+  final int remaining;
+}
+
 enum ReportReason {
   wrongAnswer('wrong_answer'),
   unclear('unclear'),
@@ -64,6 +91,9 @@ abstract interface class AiRepository {
 
   /// Returns the updated question and whether a topic was suggested.
   Future<(BankQuestion, bool)> suggestTopic(String questionId);
+
+  /// Asks the AI for topics of the paper's questions that have none (one step).
+  Future<PaperTopicsResult> suggestPaperTopics(String documentId);
 
   Future<BankQuestion> report(String questionId, ReportReason reason, {String note = ''});
 }
@@ -151,6 +181,14 @@ class RemoteAiRepository implements AiRepository {
       BankQuestion.fromJson(data['question'] as Map<String, dynamic>),
       data['suggested'] as bool,
     );
+  });
+
+  @override
+  Future<PaperTopicsResult> suggestPaperTopics(String documentId) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_base/ai/documents/$documentId/topic-suggestions',
+    );
+    return PaperTopicsResult.fromJson(response.data!);
   });
 
   @override

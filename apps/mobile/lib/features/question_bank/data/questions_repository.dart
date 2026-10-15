@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +15,12 @@ abstract interface class QuestionsRepository {
   Future<List<TopicRef>> topics();
   Future<ParseSummary> parseSummary(String documentId);
   Future<ParseSummary> resegment(String documentId);
+
+  /// Accepts every suggested topic of the paper's questions; returns how many were accepted.
+  Future<int> acceptSuggestedTopics(String documentId);
+
+  /// PNG bytes of a figure cropped from the question's source PDF.
+  Future<Uint8List> figure(String questionId, String figureId);
 
   /// Extracted text of one source page (1-based), for side-by-side review.
   Future<String> pageText(String documentId, int page);
@@ -72,6 +80,23 @@ class RemoteQuestionsRepository implements QuestionsRepository {
   Future<ParseSummary> resegment(String documentId) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>('/api/v1/documents/$documentId/segment');
     return ParseSummary.fromJson(response.data!);
+  });
+
+  @override
+  Future<int> acceptSuggestedTopics(String documentId) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/documents/$documentId/topics/accept',
+    );
+    return response.data!['accepted'] as int;
+  });
+
+  @override
+  Future<Uint8List> figure(String questionId, String figureId) => _guard(() async {
+    final response = await _dio.get<List<int>>(
+      '/api/v1/questions/$questionId/figures/$figureId',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(response.data!);
   });
 
   @override

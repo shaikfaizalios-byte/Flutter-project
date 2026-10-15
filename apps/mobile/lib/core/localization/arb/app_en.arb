@@ -1315,5 +1315,119 @@
   "verifyAction": "Confirm",
   "verifyCodeSent": "We sent a 6-digit code to your email.",
   "verifyConfirm": "Confirm",
-  "verifyDone": "Email confirmed."
+  "verifyDone": "Email confirmed.",
+  "close": "Close",
+  "figureLabel": "Figure from the paper (page {page})",
+  "@figureLabel": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "figureOptionLabel": "Option figure from the paper (page {page})",
+  "@figureOptionLabel": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "figureOriginalLabel": "Question as printed in the paper (page {page})",
+  "@figureOriginalLabel": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "figureLoadError": "Couldn't load the figure.",
+  "figuresFromPaper": "Figures from the paper (shown as printed)",
+  "issueUnreadableText": "Some characters couldn't be read",
+  "issueFiguresNotExtracted": "Some figures couldn't be extracted",
+  "reviewSummaryFigures": "{count} with figures",
+  "@reviewSummaryFigures": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewSummaryUnreadable": "{count} with unreadable text",
+  "@reviewSummaryUnreadable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsCardTitle": "Subjects and topics",
+  "topicsSummary": "{suggested} suggested · {unassigned} without a topic",
+  "@topicsSummary": {
+    "placeholders": {
+      "suggested": {
+        "type": "int"
+      },
+      "unassigned": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsAcceptAll": "Accept all suggested topics ({count})",
+  "@topicsAcceptAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsAcceptConfirmTitle": "Accept all suggested topics?",
+  "topicsAcceptConfirmBody": "Every suggested topic of this paper becomes confirmed. Rejected questions are skipped, and you can still change any topic afterwards.",
+  "topicsAcceptAction": "Accept all",
+  "topicsAccepted": "{count} topics accepted.",
+  "@topicsAccepted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsAiSuggest": "Suggest topics with AI ({count} questions)",
+  "@topicsAiSuggest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsAiNotice": "The text of these questions is sent to the AI service. Its suggestions are labelled AI and need your confirmation.",
+  "topicsAiConfirm": "Send to AI",
+  "topicsAiRunning": "Asking the AI… {remaining} left",
+  "@topicsAiRunning": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsAiDone": "AI suggested {suggested} topics. {noMatch} questions had no match.",
+  "@topicsAiDone": {
+    "placeholders": {
+      "suggested": {
+        "type": "int"
+      },
+      "noMatch": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsRulesNote": "Suggestions come from keyword rules (and the AI if you ask). Each one shows why it was made.",
+  "topicSuggestionReason": "Why: {reason}",
+  "@topicSuggestionReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  }
 }

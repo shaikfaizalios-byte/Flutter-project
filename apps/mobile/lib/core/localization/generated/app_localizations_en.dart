@@ -1943,4 +1943,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verifyDone => 'Email confirmed.';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String figureLabel(int page) {
+    return 'Figure from the paper (page $page)';
+  }
+
+  @override
+  String figureOptionLabel(int page) {
+    return 'Option figure from the paper (page $page)';
+  }
+
+  @override
+  String figureOriginalLabel(int page) {
+    return 'Question as printed in the paper (page $page)';
+  }
+
+  @override
+  String get figureLoadError => 'Couldn\'t load the figure.';
+
+  @override
+  String get figuresFromPaper => 'Figures from the paper (shown as printed)';
+
+  @override
+  String get issueUnreadableText => 'Some characters couldn\'t be read';
+
+  @override
+  String get issueFiguresNotExtracted => 'Some figures couldn\'t be extracted';
+
+  @override
+  String reviewSummaryFigures(int count) {
+    return '$count with figures';
+  }
+
+  @override
+  String reviewSummaryUnreadable(int count) {
+    return '$count with unreadable text';
+  }
+
+  @override
+  String get topicsCardTitle => 'Subjects and topics';
+
+  @override
+  String topicsSummary(int suggested, int unassigned) {
+    return '$suggested suggested · $unassigned without a topic';
+  }
+
+  @override
+  String topicsAcceptAll(int count) {
+    return 'Accept all suggested topics ($count)';
+  }
+
+  @override
+  String get topicsAcceptConfirmTitle => 'Accept all suggested topics?';
+
+  @override
+  String get topicsAcceptConfirmBody =>
+      'Every suggested topic of this paper becomes confirmed. Rejected questions are skipped, and you can still change any topic afterwards.';
+
+  @override
+  String get topicsAcceptAction => 'Accept all';
+
+  @override
+  String topicsAccepted(int count) {
+    return '$count topics accepted.';
+  }
+
+  @override
+  String topicsAiSuggest(int count) {
+    return 'Suggest topics with AI ($count questions)';
+  }
+
+  @override
+  String get topicsAiNotice =>
+      'The text of these questions is sent to the AI service. Its suggestions are labelled AI and need your confirmation.';
+
+  @override
+  String get topicsAiConfirm => 'Send to AI';
+
+  @override
+  String topicsAiRunning(int remaining) {
+    return 'Asking the AI… $remaining left';
+  }
+
+  @override
+  String topicsAiDone(int suggested, int noMatch) {
+    return 'AI suggested $suggested topics. $noMatch questions had no match.';
+  }
+
+  @override
+  String get topicsRulesNote =>
+      'Suggestions come from keyword rules (and the AI if you ask). Each one shows why it was made.';
+
+  @override
+  String topicSuggestionReason(String reason) {
+    return 'Why: $reason';
+  }
 }

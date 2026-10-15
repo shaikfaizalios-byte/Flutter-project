@@ -79,6 +79,69 @@ class Passage {
   final int? lastQuestion;
 }
 
+/// What a figure cropped from the source PDF shows.
+enum FigureKind {
+  /// A figure inside the question (Venn diagram, figure series, chart, formula).
+  stem,
+
+  /// An option that is a figure; see [QuestionFigure.optionPosition].
+  option,
+
+  /// The whole question as printed, because its text could not be read in full.
+  original;
+
+  static FigureKind fromCode(String code) =>
+      values.firstWhere((k) => k.name == code, orElse: () => stem);
+}
+
+/// An image cropped from the question's source page. Its pixels are fetched separately.
+@immutable
+class QuestionFigure {
+  const QuestionFigure({
+    required this.id,
+    required this.kind,
+    required this.pageNumber,
+    required this.width,
+    required this.height,
+    this.optionPosition,
+  });
+
+  factory QuestionFigure.fromJson(Map<String, dynamic> json) => QuestionFigure(
+    id: json['id'] as String,
+    kind: FigureKind.fromCode(json['kind'] as String),
+    optionPosition: json['option_position'] as int?,
+    pageNumber: json['page_number'] as int,
+    width: json['width'] as int,
+    height: json['height'] as int,
+  );
+
+  final String id;
+  final FigureKind kind;
+  final int? optionPosition;
+  final int pageNumber;
+
+  /// Image size in pixels (rendered at 2× the PDF's point size).
+  final int width;
+  final int height;
+}
+
+List<QuestionFigure> figuresFromJson(Object? json) => [
+  for (final f in json as List<dynamic>? ?? const [])
+    QuestionFigure.fromJson(f as Map<String, dynamic>),
+];
+
+/// Figures shown with the question text (not with an option), the printed original first.
+List<QuestionFigure> questionFigures(List<QuestionFigure> figures) => [
+  for (final f in figures)
+    if (f.kind == FigureKind.original) f,
+  for (final f in figures)
+    if (f.kind == FigureKind.stem) f,
+];
+
+/// The figure of the option at [position], if that option is a figure.
+QuestionFigure? optionFigure(List<QuestionFigure> figures, int position) =>
+    figures.where((f) => f.kind == FigureKind.option && f.optionPosition == position).firstOrNull;
+
 /// A question-bank entry with its provenance. Server is the source of truth.
 @immutable
 /// How an AI-generated question was made (never an official question).
@@ -167,6 +230,8 @@ class BankQuestion {
     this.answerSource,
     this.explanation,
     this.topicSuggestedBy,
+    this.topicSuggestionReason,
+    this.figures = const [],
     this.ai,
     this.aiExplanation,
   });
@@ -180,6 +245,8 @@ class BankQuestion {
     topic: json['topic'] == null ? null : TopicRef.fromJson(json['topic'] as Map<String, dynamic>),
     topicStatus: json['topic_status'] as String,
     topicSuggestedBy: json['topic_suggested_by'] as String?,
+    topicSuggestionReason: json['topic_suggestion_reason'] as String?,
+    figures: figuresFromJson(json['figures']),
     ai: json['ai'] == null ? null : AiProvenance.fromJson(json['ai'] as Map<String, dynamic>),
     aiExplanation: json['ai_explanation'] == null
         ? null
@@ -219,6 +286,12 @@ class BankQuestion {
   /// Who suggested the topic while [topicStatus] is "suggested": `keywords` or `ai`.
   final String? topicSuggestedBy;
 
+  /// Why the topic was suggested (matched keywords or the AI model), while suggested.
+  final String? topicSuggestionReason;
+
+  /// Figures cropped from the source PDF (diagram questions, figure options, formulas).
+  final List<QuestionFigure> figures;
+
   /// Set for AI-generated questions.
   final AiProvenance? ai;
 
@@ -250,6 +323,7 @@ class BankQuestion {
     TopicRef? Function()? topic,
     String? topicStatus,
     String? Function()? topicSuggestedBy,
+    String? Function()? topicSuggestionReason,
     AiExplanation? Function()? aiExplanation,
     VerificationStatus? status,
     List<QuestionIssue>? issues,
@@ -276,6 +350,10 @@ class BankQuestion {
     answerSource: answerSource,
     explanation: explanation,
     topicSuggestedBy: topicSuggestedBy != null ? topicSuggestedBy() : this.topicSuggestedBy,
+    topicSuggestionReason: topicSuggestionReason != null
+        ? topicSuggestionReason()
+        : this.topicSuggestionReason,
+    figures: figures,
     ai: ai,
     aiExplanation: aiExplanation != null ? aiExplanation() : this.aiExplanation,
   );
@@ -292,6 +370,11 @@ class ParseSummary {
     required this.missingAnswers,
     required this.imageDependent,
     required this.sections,
+    this.withFigures = 0,
+    this.unreadableText = 0,
+    this.topicsSuggested = 0,
+    this.topicsUnassigned = 0,
+    this.topicsAiPending = 0,
     required this.documentIssues,
     this.formatName,
   });
@@ -304,6 +387,11 @@ class ParseSummary {
     withOpenIssues: json['with_open_issues'] as int,
     missingAnswers: json['missing_answers'] as int,
     imageDependent: json['image_dependent'] as int,
+    withFigures: json['with_figures'] as int? ?? 0,
+    unreadableText: json['unreadable_text'] as int? ?? 0,
+    topicsSuggested: json['topics_suggested'] as int? ?? 0,
+    topicsUnassigned: json['topics_unassigned'] as int? ?? 0,
+    topicsAiPending: json['topics_ai_pending'] as int? ?? 0,
     sections: [for (final s in json['sections'] as List<dynamic>) s as String],
     formatName: (json['exam_format'] as Map<String, dynamic>?)?['name'] as String?,
     documentIssues: [
@@ -319,6 +407,15 @@ class ParseSummary {
   final int withOpenIssues;
   final int missingAnswers;
   final int imageDependent;
+  final int withFigures;
+  final int unreadableText;
+
+  /// Questions with a suggested (not yet accepted) topic.
+  final int topicsSuggested;
+  final int topicsUnassigned;
+
+  /// Unassigned questions the AI has not been asked about yet.
+  final int topicsAiPending;
   final List<String> sections;
   final String? formatName;
   final List<QuestionIssue> documentIssues;

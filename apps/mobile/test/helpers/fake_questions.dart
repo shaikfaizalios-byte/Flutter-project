@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
@@ -24,6 +26,8 @@ BankQuestion bankQuestion({
   AiProvenance? ai,
   AiExplanation? aiExplanation,
   String? topicSuggestedBy,
+  String? topicSuggestionReason,
+  List<QuestionFigure> figures = const [],
 }) => BankQuestion(
   id: id,
   origin: origin,
@@ -52,6 +56,8 @@ BankQuestion bankQuestion({
   ai: ai,
   aiExplanation: aiExplanation,
   topicSuggestedBy: topicSuggestedBy,
+  topicSuggestionReason: topicSuggestionReason,
+  figures: figures,
 );
 
 const sampleTopics = [
@@ -152,6 +158,43 @@ class FakeQuestionsRepository implements QuestionsRepository {
   Future<ParseSummary> resegment(String documentId) async {
     resegmentCalls++;
     return summary;
+  }
+
+  final figureRequests = <(String, String)>[];
+  final acceptCalls = <String>[];
+
+  /// A valid 1x1 PNG, so `Image.memory` can decode it in widget tests.
+  static final pngPixel = Uint8List.fromList(const [
+    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, //
+    0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F,
+    0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0xF8,
+    0x0F, 0x04, 0x00, 0x09, 0xFB, 0x03, 0xFD, 0xFB, 0x5E, 0x6B, 0x2B, 0x00, 0x00, 0x00, 0x00,
+    0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
+  ]);
+
+  @override
+  Future<int> acceptSuggestedTopics(String documentId) async {
+    acceptCalls.add(documentId);
+    var accepted = 0;
+    for (final q in questions.values.toList()) {
+      if (q.documentId == documentId &&
+          q.topicStatus == 'suggested' &&
+          q.status != VerificationStatus.rejected) {
+        questions[q.id] = q.copyWith(
+          topicStatus: 'confirmed',
+          topicSuggestedBy: () => null,
+          topicSuggestionReason: () => null,
+        );
+        accepted++;
+      }
+    }
+    return accepted;
+  }
+
+  @override
+  Future<Uint8List> figure(String questionId, String figureId) async {
+    figureRequests.add((questionId, figureId));
+    return pngPixel;
   }
 
   @override
