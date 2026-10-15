@@ -200,6 +200,14 @@ class QuestionUpdate(BaseModel):
     verification_status: VerificationLiteral | None = None
 
 
+class PaperDateRead(BaseModel):
+    exam_year: int | None
+    exam_date: date | None
+    exam_shift: int | None
+    status: Literal["unknown", "suggested", "confirmed"]
+    reason: str | None  # why it was suggested (while suggested)
+
+
 class ParseSummary(BaseModel):
     document_id: uuid.UUID
     segmentation_status: Literal["pending", "completed", "failed"]
@@ -218,6 +226,7 @@ class ParseSummary(BaseModel):
     # Questions with a suggested (not yet accepted) pattern.
     patterns_suggested: int
     sections: list[str]
+    paper_date: PaperDateRead
     exam_format: ExamFormatRead | None
     document_issues: list[IssueRead]
 

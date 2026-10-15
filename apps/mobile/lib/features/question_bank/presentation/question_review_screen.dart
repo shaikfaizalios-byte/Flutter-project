@@ -61,6 +61,7 @@ class _EditorState extends ConsumerState<_Editor> {
   late List<(String, TextEditingController)> _options;
   int? _answer;
   String? _topicId;
+  String? _patternId;
   late bool _imageDependent;
   bool _busy = false;
 
@@ -83,6 +84,7 @@ class _EditorState extends ConsumerState<_Editor> {
     _options = [for (final o in q.options) (o.label, TextEditingController(text: o.text))];
     _answer = q.correctPosition;
     _topicId = q.topic?.id;
+    _patternId = q.pattern?.id;
     _imageDependent = q.imageDependent;
   }
 
@@ -102,9 +104,14 @@ class _EditorState extends ConsumerState<_Editor> {
     correctPosition: _answer,
     explanation: _explanation.text,
     topicId: _topicId,
+    patternId: _patternId,
     imageDependent: _imageDependent,
     status: status,
-    clear: {if (_answer == null) 'correct_option_position', if (_topicId == null) 'topic_id'},
+    clear: {
+      if (_answer == null) 'correct_option_position',
+      if (_topicId == null) 'topic_id',
+      if (_patternId == null && _question.pattern != null) 'pattern_id',
+    },
   );
 
   Future<void> _submit({VerificationStatus? status}) async {
@@ -282,7 +289,17 @@ class _EditorState extends ConsumerState<_Editor> {
           suggested: q.topicStatus == 'suggested',
           suggestedByAi: q.topicSuggestedBy == 'ai',
           reason: q.topicSuggestionReason,
-          onChanged: (id) => setState(() => _topicId = id),
+          onChanged: (id) => setState(() {
+            if (id != _topicId) _patternId = null; // patterns belong to one topic
+            _topicId = id;
+          }),
+        ),
+        _PatternPicker(
+          topicId: _topicId,
+          selectedId: _patternId,
+          suggested: q.patternStatus == 'suggested' && q.pattern?.id == _patternId,
+          reason: q.patternSuggestionReason,
+          onChanged: (id) => setState(() => _patternId = id),
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
@@ -401,6 +418,63 @@ class _TopicPicker extends ConsumerWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Question type within the chosen topic. Hidden when the topic has no named patterns.
+class _PatternPicker extends ConsumerWidget {
+  const _PatternPicker({
+    required this.topicId,
+    required this.selectedId,
+    required this.suggested,
+    required this.onChanged,
+    this.reason,
+  });
+
+  final String? topicId;
+  final String? selectedId;
+  final bool suggested;
+  final String? reason;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final patterns = [
+      for (final p in ref.watch(patternsProvider).value ?? const <PatternRef>[])
+        if (p.topicId == topicId) p,
+    ];
+    if (topicId == null || patterns.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<String?>(
+            key: ValueKey(topicId),
+            initialValue: patterns.any((p) => p.id == selectedId) ? selectedId : null,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: l10n.fieldPattern),
+            items: [
+              DropdownMenuItem(value: null, child: Text(l10n.patternNone)),
+              for (final p in patterns) DropdownMenuItem(value: p.id, child: Text(p.name)),
+            ],
+            onChanged: onChanged,
+          ),
+          if (suggested && selectedId != null)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                [
+                  l10n.patternSuggested,
+                  if (reason != null && reason!.isNotEmpty) l10n.topicSuggestionReason(reason!),
+                ].join('\n'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

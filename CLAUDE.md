@@ -49,6 +49,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   shows them as printed (`QuestionFigureView`, bytes via Dio for auth). Questions with figures are practice-
   eligible. Topics: keyword rules store a reason (`topic_suggestion_reason`); optional per-paper AI step
   (`POST /ai/documents/{id}/topic-suggestions`) for the rest; `POST /documents/{id}/topics/accept` bulk-confirms.
+- Repeated models (the product's core insight): `question_patterns` (named question types under topics,
+  seeded in migration 0010) suggested by keyword rules within the topic, confirmed like topics; paper
+  date/shift suggested from filename/first page (`app/domain/paper_date.py`), confirmed via
+  `PUT /documents/{id}/paper-date`; `GET /insights/repeats` counts reviewed topics/patterns per paper and
+  confirmed year (unreviewed apart) + wording-similarity groups (`app/domain/similarity.py`, numbers masked).
+  Mobile `features/insights` (Practice tab → Repeated models; `RepeatRules` shown in UI). See docs/insights.md.
 - Practice (`app/services/practice_service.py`, pure `app/domain/scoring.py`): server-side sessions with
   per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
@@ -168,6 +174,8 @@ Known limitations right now:
 - Figures are found only from PDF vector/image objects: scanned papers (one image per page), multi-column
   and rotated pages give no crops (flagged `figures_not_extracted`; reviewer uses the source page).
   Topic rules suggested 83/100 on one sample CHSL paper (coverage, not validated accuracy).
+- Repeats are counted only from the learner's own imported + reviewed papers (no bundled papers); pattern
+  list is a starter set (41/100 sample questions got a pattern); similarity is wording-only.
 - Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
   aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
   Issue details are English (labels are localised).

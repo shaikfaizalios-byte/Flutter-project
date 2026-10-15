@@ -1998,15 +1998,15 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String topicsAcceptAll(int count) {
-    return 'सभी सुझाए गए टॉपिक स्वीकारें ($count)';
+    return 'सभी सुझाव स्वीकारें ($count)';
   }
 
   @override
-  String get topicsAcceptConfirmTitle => 'सभी सुझाए गए टॉपिक स्वीकारें?';
+  String get topicsAcceptConfirmTitle => 'सभी सुझाव स्वीकारें?';
 
   @override
   String get topicsAcceptConfirmBody =>
-      'इस पेपर के सभी सुझाए गए टॉपिक पक्के हो जाएँगे। अस्वीकृत प्रश्न छोड़ दिए जाते हैं, और बाद में भी आप कोई भी टॉपिक बदल सकते हैं।';
+      'इस पेपर के सभी सुझाए गए टॉपिक और प्रश्न-प्रकार पक्के हो जाएँगे। अस्वीकृत प्रश्न छोड़ दिए जाते हैं, और बाद में भी आप इनमें से कोई भी बदल सकते हैं।';
 
   @override
   String get topicsAcceptAction => 'सभी स्वीकारें';
@@ -2046,4 +2046,166 @@ class AppLocalizationsHi extends AppLocalizations {
   String topicSuggestionReason(String reason) {
     return 'कारण: $reason';
   }
+
+  @override
+  String get repeatsTitle => 'बार-बार आने वाले प्रश्न';
+
+  @override
+  String get repeatsHubMessage =>
+      'देखें कि आपके जोड़े गए पेपरों में कौन-से टॉपिक और प्रश्न-प्रकार सबसे ज़्यादा आए, ताकि आप उन्हें न छोड़ें।';
+
+  @override
+  String get repeatsOpen => 'बार-बार आने वाले प्रश्न देखें';
+
+  @override
+  String get repeatsEmptyTitle => 'अभी कोई पेपर नहीं';
+
+  @override
+  String get repeatsEmptyMessage =>
+      'पिछले पेपर जोड़ें। PrepLoop गिनता है कि हर टॉपिक और प्रश्न-प्रकार उनमें कितनी बार आया।';
+
+  @override
+  String get repeatsImportPapers => 'पेपर जोड़ें';
+
+  @override
+  String get repeatsNeedsReviewTitle => 'गिनती के लिए टॉपिक जाँचें';
+
+  @override
+  String get repeatsNeedsReviewMessage =>
+      'टॉपिक अभी सिर्फ़ सुझाव हैं। किसी पेपर को खोलकर उसके सुझाव स्वीकारें (या प्रश्न स्वीकृत करें), तब वे यहाँ गिने जाएँगे।';
+
+  @override
+  String get repeatsSimilarTitle => 'अलग-अलग पेपरों में मिलते-जुलते प्रश्न';
+
+  @override
+  String get repeatsSimilarNote =>
+      'शब्दों की तुलना से मिले (संख्याएँ छोड़कर)। यह एक संकेत है, जाँचा हुआ वर्गीकरण नहीं: भरोसा करने से पहले देख लें।';
+
+  @override
+  String repeatsBasis(int count) {
+    return 'आपके $count पेपरों के आधार पर';
+  }
+
+  @override
+  String repeatsBasisYears(int count, int first, int last) {
+    return 'आपके $count पेपरों के आधार पर ($first–$last)';
+  }
+
+  @override
+  String repeatsUndated(int count) {
+    return '$count पेपरों की तारीख़ पक्की नहीं है, इसलिए वे साल-वार गिनती में नहीं हैं। हर पेपर की जाँच स्क्रीन पर तारीख़ पक्की करें।';
+  }
+
+  @override
+  String get repeatsReviewedNote =>
+      'गिनती में वही प्रश्न हैं जिनका टॉपिक या प्रकार आपने पक्का किया है। बिना पुष्टि वाले सुझाव अलग दिखाए जाते हैं।';
+
+  @override
+  String repeatsMostPapersRule(int percent, int min) {
+    return '“ज़्यादातर पेपरों में” का मतलब है आपके कम से कम $percent% पेपरों में, जब आपके पास $min या ज़्यादा पेपर हों।';
+  }
+
+  @override
+  String repeatsInPapers(int papers, int total, int questions) {
+    return '$total में से $papers पेपरों में · $questions प्रश्न';
+  }
+
+  @override
+  String repeatsUnreviewed(int count) {
+    return '+$count अभी जाँचे नहीं गए';
+  }
+
+  @override
+  String get repeatsSeenInMost => 'ज़्यादातर पेपरों में';
+
+  @override
+  String repeatsByYear(String years) {
+    return 'साल-वार: $years';
+  }
+
+  @override
+  String get repeatsPractise => 'अभ्यास';
+
+  @override
+  String get repeatsPractiseTopic => 'इस टॉपिक का अभ्यास';
+
+  @override
+  String repeatsWithoutPattern(int count) {
+    return 'इस टॉपिक के $count अन्य प्रश्न (कोई तय प्रकार नहीं)';
+  }
+
+  @override
+  String get repeatsSimilarUnclassified => 'अभी कोई टॉपिक नहीं';
+
+  @override
+  String repeatsSimilarPapers(int papers, int total) {
+    return '$total में से $papers पेपरों में';
+  }
+
+  @override
+  String get fieldPattern => 'प्रश्न-प्रकार';
+
+  @override
+  String get patternNone => 'कोई प्रकार नहीं';
+
+  @override
+  String get patternSuggested =>
+      'सुझाया गया प्रकार। प्रश्न स्वीकृत करने पर इसकी पुष्टि हो जाती है।';
+
+  @override
+  String patternsSuggestedCount(int count) {
+    return '$count प्रश्न-प्रकार सुझाए गए';
+  }
+
+  @override
+  String topicsAcceptedWithPatterns(int topics, int patterns) {
+    return '$topics टॉपिक और $patterns प्रश्न-प्रकार स्वीकार किए गए।';
+  }
+
+  @override
+  String get paperDateTitle => 'यह पेपर कब हुआ था?';
+
+  @override
+  String get paperDateMissing => 'अभी पता नहीं';
+
+  @override
+  String get paperDateUnknownConfirmed => 'तारीख़ पता नहीं';
+
+  @override
+  String get paperDateConfirmed => 'पक्का। साल-वार गिनती में शामिल।';
+
+  @override
+  String get paperDateSuggested => 'सुझाव: साल-वार गिनती में शामिल करने के लिए पुष्टि करें';
+
+  @override
+  String get paperDateWhy => 'तारीख़ डालें ताकि दिखे कि कोई टॉपिक किन सालों में आया।';
+
+  @override
+  String get paperDateConfirm => 'पुष्टि करें';
+
+  @override
+  String get paperDateEdit => 'बदलें';
+
+  @override
+  String get paperDateSet => 'तारीख़ डालें';
+
+  @override
+  String get paperDateSaved => 'पेपर की तारीख़ सहेजी गई।';
+
+  @override
+  String paperShift(int shift) {
+    return 'पाली $shift';
+  }
+
+  @override
+  String get paperYear => 'साल';
+
+  @override
+  String get paperShiftLabel => 'पाली';
+
+  @override
+  String get paperDateNotKnown => 'पता नहीं';
+
+  @override
+  String get paperDatePickDay => 'दिन चुनें (वैकल्पिक)';
 }

@@ -178,6 +178,8 @@ void main() {
     final clock = TestClock();
     final repo = await pumpPractice(tester, db, clock: clock, mocks: [chslMock]);
 
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
     expect(find.text('Start the mock test?'), findsOneWidget);
@@ -201,6 +203,8 @@ void main() {
   testAppWidgets('mock: reopening keeps the server deadline (no timer reset)', (tester, db) async {
     final clock = TestClock();
     final repo = await pumpPractice(tester, db, clock: clock, mocks: [chslMock]);
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test').last);
@@ -224,6 +228,8 @@ void main() {
   testAppWidgets('mock: time up submits automatically with saved answers', (tester, db) async {
     final clock = TestClock();
     final repo = await pumpPractice(tester, db, clock: clock, mocks: [chslMock]);
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test').last);

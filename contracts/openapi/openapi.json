@@ -2076,6 +2076,73 @@
         "title": "PageRead",
         "type": "object"
       },
+      "PaperDateRead": {
+        "properties": {
+          "exam_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Date"
+          },
+          "exam_shift": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Shift"
+          },
+          "exam_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Year"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "enum": [
+              "unknown",
+              "suggested",
+              "confirmed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_year",
+          "exam_date",
+          "exam_shift",
+          "status",
+          "reason"
+        ],
+        "title": "PaperDateRead",
+        "type": "object"
+      },
       "PaperDateUpdate": {
         "additionalProperties": false,
         "description": "The reviewer's confirmed date of the paper. All null = \"date unknown\" (confirmed).",
@@ -2213,6 +2280,9 @@
             "title": "Missing Answers",
             "type": "integer"
           },
+          "paper_date": {
+            "$ref": "#/components/schemas/PaperDateRead"
+          },
           "patterns_suggested": {
             "title": "Patterns Suggested",
             "type": "integer"
@@ -2286,6 +2356,7 @@
           "topics_ai_pending",
           "patterns_suggested",
           "sections",
+          "paper_date",
           "exam_format",
           "document_issues"
         ],

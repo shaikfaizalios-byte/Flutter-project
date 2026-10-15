@@ -13,6 +13,7 @@ import '../features/concepts/presentation/concept_form_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
+import '../features/insights/presentation/repeats_screen.dart';
 import '../features/legal/presentation/legal_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/practice/presentation/practice_hub_screen.dart';
@@ -177,6 +178,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) =>
                         const PracticeQuestionListScreen(kind: PracticeQuestionList.incorrect),
+                  ),
+                  GoRoute(
+                    path: 'repeats',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const RepeatsScreen(),
                   ),
                   GoRoute(
                     path: 'sessions/:id',

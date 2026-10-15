@@ -93,6 +93,10 @@ or accepts all suggestions of a paper.
 On the sample SSC CHSL paper used for tuning, the rules alone suggest a topic for about 83 of 100 questions.
 That figure is from one paper and is not a validated accuracy; suggestions still need a reviewer.
 
+Each topic can also have named **patterns** (question types), suggested and confirmed the same way, and
+each paper has a suggested/confirmed **exam date and shift**. Both feed the repeated-models report: see
+[insights.md](insights.md).
+
 ## Review workflow
 
 | Action | Effect |

@@ -54,6 +54,23 @@ class PracticeHubScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
+                SectionCard(
+                  icon: Icons.insights_outlined,
+                  title: l10n.repeatsTitle,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.repeatsHubMessage),
+                      const SizedBox(height: AppSpacing.sm),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.insights_outlined),
+                        label: Text(l10n.repeatsOpen),
+                        onPressed: () => context.push(AppRoutes.repeats),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
                 const _MockTestsCard(),
                 const SizedBox(height: AppSpacing.md),
                 SectionCard(

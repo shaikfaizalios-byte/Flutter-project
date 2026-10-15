@@ -350,6 +350,7 @@ class PracticeRequest {
     this.examCode,
     this.subject,
     this.topicId,
+    this.patternId,
     this.includeUnverified = false,
     this.includeAi = false,
     this.count = 10,
@@ -358,6 +359,9 @@ class PracticeRequest {
   final String? examCode;
   final String? subject;
   final String? topicId;
+
+  /// Only questions of this question type (pattern).
+  final String? patternId;
   final bool includeUnverified;
 
   /// AI-generated questions (labelled) are used only when the learner opts in.
@@ -368,6 +372,7 @@ class PracticeRequest {
     'exam_code': ?examCode,
     'subject': ?subject,
     'topic_id': ?topicId,
+    'pattern_id': ?patternId,
     'include_unverified': includeUnverified,
     'include_ai': includeAi,
     'count': count,

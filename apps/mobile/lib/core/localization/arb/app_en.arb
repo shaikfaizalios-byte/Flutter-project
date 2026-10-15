@@ -1373,7 +1373,7 @@
       }
     }
   },
-  "topicsAcceptAll": "Accept all suggested topics ({count})",
+  "topicsAcceptAll": "Accept all suggestions ({count})",
   "@topicsAcceptAll": {
     "placeholders": {
       "count": {
@@ -1381,8 +1381,8 @@
       }
     }
   },
-  "topicsAcceptConfirmTitle": "Accept all suggested topics?",
-  "topicsAcceptConfirmBody": "Every suggested topic of this paper becomes confirmed. Rejected questions are skipped, and you can still change any topic afterwards.",
+  "topicsAcceptConfirmTitle": "Accept all suggestions?",
+  "topicsAcceptConfirmBody": "Every suggested topic and question type of this paper becomes confirmed. Rejected questions are skipped, and you can still change any of them afterwards.",
   "topicsAcceptAction": "Accept all",
   "topicsAccepted": "{count} topics accepted.",
   "@topicsAccepted": {
@@ -1429,5 +1429,154 @@
         "type": "String"
       }
     }
-  }
+  },
+  "repeatsTitle": "Repeated models",
+  "repeatsHubMessage": "See which topics and question types came up most often in the papers you imported, so you don't miss them.",
+  "repeatsOpen": "See repeated models",
+  "repeatsEmptyTitle": "No papers yet",
+  "repeatsEmptyMessage": "Import previous papers. PrepLoop counts how often each topic and question type appears in them.",
+  "repeatsImportPapers": "Import papers",
+  "repeatsNeedsReviewTitle": "Review topics to count them",
+  "repeatsNeedsReviewMessage": "Topics are only suggestions so far. Open a paper and accept its suggestions (or approve questions) to count them here.",
+  "repeatsSimilarTitle": "Worded alike in different papers",
+  "repeatsSimilarNote": "Found by comparing wording, with numbers ignored. A hint, not a reviewed classification: check before relying on it.",
+  "repeatsBasis": "Based on {count} of your papers",
+  "@repeatsBasis": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatsBasisYears": "Based on {count} of your papers ({first}–{last})",
+  "@repeatsBasisYears": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "first": {
+        "type": "int"
+      },
+      "last": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatsUndated": "{count} papers have no confirmed date, so they aren't in the year counts. Confirm dates on each paper's review screen.",
+  "@repeatsUndated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatsReviewedNote": "Counts use questions whose topic or type you have confirmed. Unconfirmed suggestions are shown separately.",
+  "repeatsMostPapersRule": "“Seen in most papers” means in at least {percent}% of your papers, once you have {min} or more.",
+  "@repeatsMostPapersRule": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatsInPapers": "In {papers} of {total} papers · {questions} questions",
+  "@repeatsInPapers": {
+    "placeholders": {
+      "papers": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "questions": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatsUnreviewed": "+{count} not yet reviewed",
+  "@repeatsUnreviewed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatsSeenInMost": "Seen in most papers",
+  "repeatsByYear": "By year: {years}",
+  "@repeatsByYear": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "repeatsPractise": "Practise",
+  "repeatsPractiseTopic": "Practise this topic",
+  "repeatsWithoutPattern": "{count} other questions in this topic (no named type)",
+  "@repeatsWithoutPattern": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatsSimilarUnclassified": "No topic yet",
+  "repeatsSimilarPapers": "In {papers} of {total} papers",
+  "@repeatsSimilarPapers": {
+    "placeholders": {
+      "papers": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "fieldPattern": "Question type",
+  "patternNone": "No type",
+  "patternSuggested": "Suggested type. Approving the question confirms it.",
+  "patternsSuggestedCount": "{count} question types suggested",
+  "@patternsSuggestedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsAcceptedWithPatterns": "{topics} topics and {patterns} question types accepted.",
+  "@topicsAcceptedWithPatterns": {
+    "placeholders": {
+      "topics": {
+        "type": "int"
+      },
+      "patterns": {
+        "type": "int"
+      }
+    }
+  },
+  "paperDateTitle": "When was this paper held?",
+  "paperDateMissing": "Not known yet",
+  "paperDateUnknownConfirmed": "Date not known",
+  "paperDateConfirmed": "Confirmed. Used in year counts.",
+  "paperDateSuggested": "Suggested: confirm it to use it in year counts",
+  "paperDateWhy": "Set the date to see which years a topic appeared in.",
+  "paperDateConfirm": "Confirm",
+  "paperDateEdit": "Change",
+  "paperDateSet": "Set date",
+  "paperDateSaved": "Paper date saved.",
+  "paperShift": "Shift {shift}",
+  "@paperShift": {
+    "placeholders": {
+      "shift": {
+        "type": "int"
+      }
+    }
+  },
+  "paperYear": "Year",
+  "paperShiftLabel": "Shift",
+  "paperDateNotKnown": "Not known",
+  "paperDatePickDay": "Pick the day (optional)"
 }

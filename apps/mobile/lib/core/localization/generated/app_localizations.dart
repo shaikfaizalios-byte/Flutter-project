@@ -3294,19 +3294,19 @@ abstract class AppLocalizations {
   /// No description provided for @topicsAcceptAll.
   ///
   /// In en, this message translates to:
-  /// **'Accept all suggested topics ({count})'**
+  /// **'Accept all suggestions ({count})'**
   String topicsAcceptAll(int count);
 
   /// No description provided for @topicsAcceptConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Accept all suggested topics?'**
+  /// **'Accept all suggestions?'**
   String get topicsAcceptConfirmTitle;
 
   /// No description provided for @topicsAcceptConfirmBody.
   ///
   /// In en, this message translates to:
-  /// **'Every suggested topic of this paper becomes confirmed. Rejected questions are skipped, and you can still change any topic afterwards.'**
+  /// **'Every suggested topic and question type of this paper becomes confirmed. Rejected questions are skipped, and you can still change any of them afterwards.'**
   String get topicsAcceptConfirmBody;
 
   /// No description provided for @topicsAcceptAction.
@@ -3362,6 +3362,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Why: {reason}'**
   String topicSuggestionReason(String reason);
+
+  /// No description provided for @repeatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeated models'**
+  String get repeatsTitle;
+
+  /// No description provided for @repeatsHubMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'See which topics and question types came up most often in the papers you imported, so you don\'t miss them.'**
+  String get repeatsHubMessage;
+
+  /// No description provided for @repeatsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'See repeated models'**
+  String get repeatsOpen;
+
+  /// No description provided for @repeatsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No papers yet'**
+  String get repeatsEmptyTitle;
+
+  /// No description provided for @repeatsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Import previous papers. PrepLoop counts how often each topic and question type appears in them.'**
+  String get repeatsEmptyMessage;
+
+  /// No description provided for @repeatsImportPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'Import papers'**
+  String get repeatsImportPapers;
+
+  /// No description provided for @repeatsNeedsReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review topics to count them'**
+  String get repeatsNeedsReviewTitle;
+
+  /// No description provided for @repeatsNeedsReviewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics are only suggestions so far. Open a paper and accept its suggestions (or approve questions) to count them here.'**
+  String get repeatsNeedsReviewMessage;
+
+  /// No description provided for @repeatsSimilarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Worded alike in different papers'**
+  String get repeatsSimilarTitle;
+
+  /// No description provided for @repeatsSimilarNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Found by comparing wording, with numbers ignored. A hint, not a reviewed classification: check before relying on it.'**
+  String get repeatsSimilarNote;
+
+  /// No description provided for @repeatsBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {count} of your papers'**
+  String repeatsBasis(int count);
+
+  /// No description provided for @repeatsBasisYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {count} of your papers ({first}–{last})'**
+  String repeatsBasisYears(int count, int first, int last);
+
+  /// No description provided for @repeatsUndated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} papers have no confirmed date, so they aren\'t in the year counts. Confirm dates on each paper\'s review screen.'**
+  String repeatsUndated(int count);
+
+  /// No description provided for @repeatsReviewedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts use questions whose topic or type you have confirmed. Unconfirmed suggestions are shown separately.'**
+  String get repeatsReviewedNote;
+
+  /// No description provided for @repeatsMostPapersRule.
+  ///
+  /// In en, this message translates to:
+  /// **'“Seen in most papers” means in at least {percent}% of your papers, once you have {min} or more.'**
+  String repeatsMostPapersRule(int percent, int min);
+
+  /// No description provided for @repeatsInPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'In {papers} of {total} papers · {questions} questions'**
+  String repeatsInPapers(int papers, int total, int questions);
+
+  /// No description provided for @repeatsUnreviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} not yet reviewed'**
+  String repeatsUnreviewed(int count);
+
+  /// No description provided for @repeatsSeenInMost.
+  ///
+  /// In en, this message translates to:
+  /// **'Seen in most papers'**
+  String get repeatsSeenInMost;
+
+  /// No description provided for @repeatsByYear.
+  ///
+  /// In en, this message translates to:
+  /// **'By year: {years}'**
+  String repeatsByYear(String years);
+
+  /// No description provided for @repeatsPractise.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise'**
+  String get repeatsPractise;
+
+  /// No description provided for @repeatsPractiseTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise this topic'**
+  String get repeatsPractiseTopic;
+
+  /// No description provided for @repeatsWithoutPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} other questions in this topic (no named type)'**
+  String repeatsWithoutPattern(int count);
+
+  /// No description provided for @repeatsSimilarUnclassified.
+  ///
+  /// In en, this message translates to:
+  /// **'No topic yet'**
+  String get repeatsSimilarUnclassified;
+
+  /// No description provided for @repeatsSimilarPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'In {papers} of {total} papers'**
+  String repeatsSimilarPapers(int papers, int total);
+
+  /// No description provided for @fieldPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Question type'**
+  String get fieldPattern;
+
+  /// No description provided for @patternNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No type'**
+  String get patternNone;
+
+  /// No description provided for @patternSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested type. Approving the question confirms it.'**
+  String get patternSuggested;
+
+  /// No description provided for @patternsSuggestedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} question types suggested'**
+  String patternsSuggestedCount(int count);
+
+  /// No description provided for @topicsAcceptedWithPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'{topics} topics and {patterns} question types accepted.'**
+  String topicsAcceptedWithPatterns(int topics, int patterns);
+
+  /// No description provided for @paperDateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When was this paper held?'**
+  String get paperDateTitle;
+
+  /// No description provided for @paperDateMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not known yet'**
+  String get paperDateMissing;
+
+  /// No description provided for @paperDateUnknownConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Date not known'**
+  String get paperDateUnknownConfirmed;
+
+  /// No description provided for @paperDateConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed. Used in year counts.'**
+  String get paperDateConfirmed;
+
+  /// No description provided for @paperDateSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested: confirm it to use it in year counts'**
+  String get paperDateSuggested;
+
+  /// No description provided for @paperDateWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the date to see which years a topic appeared in.'**
+  String get paperDateWhy;
+
+  /// No description provided for @paperDateConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get paperDateConfirm;
+
+  /// No description provided for @paperDateEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get paperDateEdit;
+
+  /// No description provided for @paperDateSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set date'**
+  String get paperDateSet;
+
+  /// No description provided for @paperDateSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper date saved.'**
+  String get paperDateSaved;
+
+  /// No description provided for @paperShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift {shift}'**
+  String paperShift(int shift);
+
+  /// No description provided for @paperYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get paperYear;
+
+  /// No description provided for @paperShiftLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift'**
+  String get paperShiftLabel;
+
+  /// No description provided for @paperDateNotKnown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not known'**
+  String get paperDateNotKnown;
+
+  /// No description provided for @paperDatePickDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the day (optional)'**
+  String get paperDatePickDay;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

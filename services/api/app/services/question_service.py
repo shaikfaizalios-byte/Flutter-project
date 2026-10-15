@@ -32,6 +32,7 @@ from app.schemas.question import (
     FigureRead,
     IssueRead,
     OptionRead,
+    PaperDateRead,
     ParseSummary,
     PassageRead,
     PatternRead,
@@ -206,6 +207,15 @@ class QuestionService:
                 for q in questions
             ),
             sections=sections,
+            paper_date=PaperDateRead(
+                exam_year=document.exam_year,
+                exam_date=document.exam_date,
+                exam_shift=document.exam_shift,
+                status=document.paper_date_status,
+                reason=document.paper_date_reason
+                if document.paper_date_status == "suggested"
+                else None,
+            ),
             exam_format=ExamFormatRead.model_validate(exam_format) if exam_format else None,
             document_issues=[IssueRead.model_validate(i) for i in doc_issues],
         )

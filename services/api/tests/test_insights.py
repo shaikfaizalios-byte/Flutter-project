@@ -261,6 +261,13 @@ def test_approving_and_accept_all_confirm_suggested_patterns(
 
     summary = db_client.get(f"/api/v1/documents/{doc.id}/parse-summary").json()
     assert summary["patterns_suggested"] == 2
+    assert summary["paper_date"] == {
+        "exam_year": None,
+        "exam_date": None,
+        "exam_shift": None,
+        "status": "unknown",
+        "reason": None,
+    }
 
     body = db_client.patch(
         f"/api/v1/questions/{first.id}", json={"verification_status": "verified"}

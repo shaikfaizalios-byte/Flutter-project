@@ -35,6 +35,11 @@ final figureBytesProvider = FutureProvider.family<Uint8List, (String, String)>(
   retry: _noRetry,
 );
 
+final patternsProvider = FutureProvider<List<PatternRef>>(
+  (ref) => ref.watch(questionsRepositoryProvider).patterns(),
+  retry: _noRetry,
+);
+
 final sourcePageTextProvider = FutureProvider.autoDispose.family<String, (String, int)>(
   (ref, key) => ref.watch(questionsRepositoryProvider).pageText(key.$1, key.$2),
   retry: _noRetry,

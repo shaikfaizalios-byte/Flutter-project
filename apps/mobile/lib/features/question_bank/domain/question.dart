@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/utils/calendar_date.dart';
 import '../../concepts/domain/concept.dart';
 
 enum VerificationStatus {
@@ -61,6 +62,22 @@ class TopicRef {
 
   final String id;
   final String subject;
+  final String name;
+}
+
+/// A named question type within a topic (e.g. Venn diagrams: "Relationship between classes").
+@immutable
+class PatternRef {
+  const PatternRef({required this.id, required this.topicId, required this.name});
+
+  factory PatternRef.fromJson(Map<String, dynamic> json) => PatternRef(
+    id: json['id'] as String,
+    topicId: json['topic_id'] as String,
+    name: json['name'] as String,
+  );
+
+  final String id;
+  final String topicId;
   final String name;
 }
 
@@ -231,6 +248,9 @@ class BankQuestion {
     this.explanation,
     this.topicSuggestedBy,
     this.topicSuggestionReason,
+    this.pattern,
+    this.patternStatus = 'unassigned',
+    this.patternSuggestionReason,
     this.figures = const [],
     this.ai,
     this.aiExplanation,
@@ -246,6 +266,11 @@ class BankQuestion {
     topicStatus: json['topic_status'] as String,
     topicSuggestedBy: json['topic_suggested_by'] as String?,
     topicSuggestionReason: json['topic_suggestion_reason'] as String?,
+    pattern: json['pattern'] == null
+        ? null
+        : PatternRef.fromJson(json['pattern'] as Map<String, dynamic>),
+    patternStatus: json['pattern_status'] as String? ?? 'unassigned',
+    patternSuggestionReason: json['pattern_suggestion_reason'] as String?,
     figures: figuresFromJson(json['figures']),
     ai: json['ai'] == null ? null : AiProvenance.fromJson(json['ai'] as Map<String, dynamic>),
     aiExplanation: json['ai_explanation'] == null
@@ -288,6 +313,11 @@ class BankQuestion {
 
   /// Why the topic was suggested (matched keywords or the AI model), while suggested.
   final String? topicSuggestionReason;
+
+  /// Question type within the topic, and whether it is only suggested.
+  final PatternRef? pattern;
+  final String patternStatus; // unassigned | suggested | confirmed
+  final String? patternSuggestionReason;
 
   /// Figures cropped from the source PDF (diagram questions, figure options, formulas).
   final List<QuestionFigure> figures;
@@ -353,10 +383,36 @@ class BankQuestion {
     topicSuggestionReason: topicSuggestionReason != null
         ? topicSuggestionReason()
         : this.topicSuggestionReason,
+    pattern: pattern,
+    patternStatus: patternStatus,
+    patternSuggestionReason: patternSuggestionReason,
     figures: figures,
     ai: ai,
     aiExplanation: aiExplanation != null ? aiExplanation() : this.aiExplanation,
   );
+}
+
+/// When a paper was held: suggested from its file name / first page, confirmed by the reviewer.
+@immutable
+class PaperDate {
+  const PaperDate({this.year, this.date, this.shift, this.status = 'unknown', this.reason});
+
+  factory PaperDate.fromJson(Map<String, dynamic> json) => PaperDate(
+    year: json['exam_year'] as int?,
+    date: json['exam_date'] == null ? null : CalendarDate.tryParse(json['exam_date'] as String),
+    shift: json['exam_shift'] as int?,
+    status: json['status'] as String? ?? 'unknown',
+    reason: json['reason'] as String?,
+  );
+
+  final int? year;
+  final CalendarDate? date;
+  final int? shift;
+  final String status; // unknown | suggested | confirmed
+  final String? reason;
+
+  bool get confirmed => status == 'confirmed';
+  bool get known => year != null || shift != null;
 }
 
 @immutable
@@ -375,6 +431,8 @@ class ParseSummary {
     this.topicsSuggested = 0,
     this.topicsUnassigned = 0,
     this.topicsAiPending = 0,
+    this.patternsSuggested = 0,
+    this.paperDate = const PaperDate(),
     required this.documentIssues,
     this.formatName,
   });
@@ -392,6 +450,10 @@ class ParseSummary {
     topicsSuggested: json['topics_suggested'] as int? ?? 0,
     topicsUnassigned: json['topics_unassigned'] as int? ?? 0,
     topicsAiPending: json['topics_ai_pending'] as int? ?? 0,
+    patternsSuggested: json['patterns_suggested'] as int? ?? 0,
+    paperDate: json['paper_date'] == null
+        ? const PaperDate()
+        : PaperDate.fromJson(json['paper_date'] as Map<String, dynamic>),
     sections: [for (final s in json['sections'] as List<dynamic>) s as String],
     formatName: (json['exam_format'] as Map<String, dynamic>?)?['name'] as String?,
     documentIssues: [
@@ -416,6 +478,10 @@ class ParseSummary {
 
   /// Unassigned questions the AI has not been asked about yet.
   final int topicsAiPending;
+
+  /// Questions with a suggested (not yet accepted) pattern.
+  final int patternsSuggested;
+  final PaperDate paperDate;
   final List<String> sections;
   final String? formatName;
   final List<QuestionIssue> documentIssues;
@@ -470,6 +536,7 @@ class QuestionEdit {
     this.correctPosition,
     this.explanation,
     this.topicId,
+    this.patternId,
     this.imageDependent,
     this.status,
     this.clear = const {},
@@ -480,6 +547,7 @@ class QuestionEdit {
   final int? correctPosition;
   final String? explanation;
   final String? topicId;
+  final String? patternId;
   final bool? imageDependent;
   final VerificationStatus? status;
 
@@ -495,6 +563,7 @@ class QuestionEdit {
     'correct_option_position': ?correctPosition,
     'explanation': ?explanation,
     'topic_id': ?topicId,
+    'pattern_id': ?patternId,
     'image_dependent': ?imageDependent,
     'verification_status': ?status?.name,
     for (final field in clear) field: null,

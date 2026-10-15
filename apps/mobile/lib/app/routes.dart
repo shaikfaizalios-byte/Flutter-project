@@ -16,6 +16,7 @@ abstract final class AppRoutes {
   static const questionBank = '/practice/bank';
   static const bookmarks = '/practice/bookmarks';
   static const incorrect = '/practice/incorrect';
+  static const repeats = '/practice/repeats';
   static const progress = '/progress';
   static const profile = '/profile';
 

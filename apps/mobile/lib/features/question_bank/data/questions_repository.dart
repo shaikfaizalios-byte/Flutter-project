@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_failure.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/utils/calendar_date.dart';
 import '../domain/question.dart';
 
 /// Server-backed question bank. Methods throw `AppFailure`s.
@@ -13,11 +14,17 @@ abstract interface class QuestionsRepository {
   Future<BankQuestion> get(String id);
   Future<BankQuestion> update(String id, QuestionEdit edit);
   Future<List<TopicRef>> topics();
+
+  /// Named question types (patterns) of every topic.
+  Future<List<PatternRef>> patterns();
   Future<ParseSummary> parseSummary(String documentId);
   Future<ParseSummary> resegment(String documentId);
 
-  /// Accepts every suggested topic of the paper's questions; returns how many were accepted.
-  Future<int> acceptSuggestedTopics(String documentId);
+  /// Accepts every suggested topic and pattern of the paper's questions; returns how many.
+  Future<({int topics, int patterns})> acceptSuggestedTopics(String documentId);
+
+  /// Confirms when the paper was held (all null = date unknown).
+  Future<void> setPaperDate(String documentId, {int? year, CalendarDate? date, int? shift});
 
   /// PNG bytes of a figure cropped from the question's source PDF.
   Future<Uint8List> figure(String questionId, String figureId);
@@ -69,6 +76,12 @@ class RemoteQuestionsRepository implements QuestionsRepository {
   });
 
   @override
+  Future<List<PatternRef>> patterns() => _guard(() async {
+    final response = await _dio.get<List<dynamic>>('/api/v1/patterns');
+    return [for (final p in response.data!) PatternRef.fromJson(p as Map<String, dynamic>)];
+  });
+
+  @override
   Future<ParseSummary> parseSummary(String documentId) => _guard(() async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/documents/$documentId/parse-summary',
@@ -83,12 +96,22 @@ class RemoteQuestionsRepository implements QuestionsRepository {
   });
 
   @override
-  Future<int> acceptSuggestedTopics(String documentId) => _guard(() async {
+  Future<({int topics, int patterns})> acceptSuggestedTopics(String documentId) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/documents/$documentId/topics/accept',
     );
-    return response.data!['accepted'] as int;
+    final data = response.data!;
+    return (topics: data['accepted'] as int, patterns: data['patterns_accepted'] as int? ?? 0);
   });
+
+  @override
+  Future<void> setPaperDate(String documentId, {int? year, CalendarDate? date, int? shift}) =>
+      _guard(() async {
+        await _dio.put<Map<String, dynamic>>(
+          '/api/v1/documents/$documentId/paper-date',
+          data: {'exam_year': year, 'exam_date': date?.toIsoString(), 'exam_shift': shift},
+        );
+      });
 
   @override
   Future<Uint8List> figure(String questionId, String figureId) => _guard(() async {

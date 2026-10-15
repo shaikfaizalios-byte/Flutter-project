@@ -219,6 +219,7 @@ void main() {
       findsOneWidget,
     );
     expect(repo.queries.last.documentId, 'doc1');
+    await scrollTo(tester, find.textContaining('Q.1  What is 20% of 150?'));
     expect(find.textContaining('Q.1  What is 20% of 150?'), findsOneWidget);
 
     await tester.tap(find.text('Parse again'));

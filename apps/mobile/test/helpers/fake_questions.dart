@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:preploop/core/errors/app_failure.dart';
+import 'package:preploop/core/utils/calendar_date.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
 import 'package:preploop/features/question_bank/domain/question.dart';
@@ -27,6 +28,9 @@ BankQuestion bankQuestion({
   AiExplanation? aiExplanation,
   String? topicSuggestedBy,
   String? topicSuggestionReason,
+  PatternRef? pattern,
+  String patternStatus = 'unassigned',
+  String? patternSuggestionReason,
   List<QuestionFigure> figures = const [],
 }) => BankQuestion(
   id: id,
@@ -57,8 +61,17 @@ BankQuestion bankQuestion({
   aiExplanation: aiExplanation,
   topicSuggestedBy: topicSuggestedBy,
   topicSuggestionReason: topicSuggestionReason,
+  pattern: pattern,
+  patternStatus: patternStatus,
+  patternSuggestionReason: patternSuggestionReason,
   figures: figures,
 );
+
+const samplePatterns = [
+  PatternRef(id: 'p-income', topicId: 't-percent', name: 'Income, expenditure and savings'),
+  PatternRef(id: 'p-votes', topicId: 't-percent', name: 'Votes and marks'),
+  PatternRef(id: 'p-share', topicId: 't-ratio', name: 'Dividing an amount'),
+];
 
 const sampleTopics = [
   TopicRef(id: 't-percent', subject: 'Quantitative Aptitude', name: 'Percentage'),
@@ -143,6 +156,14 @@ class FakeQuestionsRepository implements QuestionsRepository {
       issues: status == VerificationStatus.verified ? const [] : contentIssues,
       origin: current.origin,
       documentId: current.documentId,
+      topic: json.containsKey('topic_id')
+          ? sampleTopics.where((t) => t.id == json['topic_id']).firstOrNull
+          : current.topic,
+      topicStatus: json['topic_id'] != null ? 'confirmed' : current.topicStatus,
+      pattern: json.containsKey('pattern_id')
+          ? samplePatterns.where((p) => p.id == json['pattern_id']).firstOrNull
+          : current.pattern,
+      patternStatus: json['pattern_id'] != null ? 'confirmed' : 'unassigned',
     );
     questions[id] = updated;
     return updated;
@@ -172,10 +193,35 @@ class FakeQuestionsRepository implements QuestionsRepository {
     0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
   ]);
 
+  final paperDates = <(String, int?, CalendarDate?, int?)>[];
+
   @override
-  Future<int> acceptSuggestedTopics(String documentId) async {
+  Future<List<PatternRef>> patterns() async => samplePatterns;
+
+  @override
+  Future<void> setPaperDate(String documentId, {int? year, CalendarDate? date, int? shift}) async {
+    paperDates.add((documentId, year, date, shift));
+    summary = ParseSummary(
+      segmentationStatus: summary.segmentationStatus,
+      questionsFound: summary.questionsFound,
+      verified: summary.verified,
+      rejected: summary.rejected,
+      withOpenIssues: summary.withOpenIssues,
+      missingAnswers: summary.missingAnswers,
+      imageDependent: summary.imageDependent,
+      sections: summary.sections,
+      documentIssues: summary.documentIssues,
+      topicsSuggested: summary.topicsSuggested,
+      topicsUnassigned: summary.topicsUnassigned,
+      paperDate: PaperDate(year: year, date: date, shift: shift, status: 'confirmed'),
+    );
+  }
+
+  @override
+  Future<({int topics, int patterns})> acceptSuggestedTopics(String documentId) async {
     acceptCalls.add(documentId);
     var accepted = 0;
+    var patterns = 0;
     for (final q in questions.values.toList()) {
       if (q.documentId == documentId &&
           q.topicStatus == 'suggested' &&
@@ -186,9 +232,10 @@ class FakeQuestionsRepository implements QuestionsRepository {
           topicSuggestionReason: () => null,
         );
         accepted++;
+        if (q.patternStatus == 'suggested') patterns++;
       }
     }
-    return accepted;
+    return (topics: accepted, patterns: patterns);
   }
 
   @override

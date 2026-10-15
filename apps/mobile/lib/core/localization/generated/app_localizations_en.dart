@@ -1994,15 +1994,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String topicsAcceptAll(int count) {
-    return 'Accept all suggested topics ($count)';
+    return 'Accept all suggestions ($count)';
   }
 
   @override
-  String get topicsAcceptConfirmTitle => 'Accept all suggested topics?';
+  String get topicsAcceptConfirmTitle => 'Accept all suggestions?';
 
   @override
   String get topicsAcceptConfirmBody =>
-      'Every suggested topic of this paper becomes confirmed. Rejected questions are skipped, and you can still change any topic afterwards.';
+      'Every suggested topic and question type of this paper becomes confirmed. Rejected questions are skipped, and you can still change any of them afterwards.';
 
   @override
   String get topicsAcceptAction => 'Accept all';
@@ -2042,4 +2042,165 @@ class AppLocalizationsEn extends AppLocalizations {
   String topicSuggestionReason(String reason) {
     return 'Why: $reason';
   }
+
+  @override
+  String get repeatsTitle => 'Repeated models';
+
+  @override
+  String get repeatsHubMessage =>
+      'See which topics and question types came up most often in the papers you imported, so you don\'t miss them.';
+
+  @override
+  String get repeatsOpen => 'See repeated models';
+
+  @override
+  String get repeatsEmptyTitle => 'No papers yet';
+
+  @override
+  String get repeatsEmptyMessage =>
+      'Import previous papers. PrepLoop counts how often each topic and question type appears in them.';
+
+  @override
+  String get repeatsImportPapers => 'Import papers';
+
+  @override
+  String get repeatsNeedsReviewTitle => 'Review topics to count them';
+
+  @override
+  String get repeatsNeedsReviewMessage =>
+      'Topics are only suggestions so far. Open a paper and accept its suggestions (or approve questions) to count them here.';
+
+  @override
+  String get repeatsSimilarTitle => 'Worded alike in different papers';
+
+  @override
+  String get repeatsSimilarNote =>
+      'Found by comparing wording, with numbers ignored. A hint, not a reviewed classification: check before relying on it.';
+
+  @override
+  String repeatsBasis(int count) {
+    return 'Based on $count of your papers';
+  }
+
+  @override
+  String repeatsBasisYears(int count, int first, int last) {
+    return 'Based on $count of your papers ($first–$last)';
+  }
+
+  @override
+  String repeatsUndated(int count) {
+    return '$count papers have no confirmed date, so they aren\'t in the year counts. Confirm dates on each paper\'s review screen.';
+  }
+
+  @override
+  String get repeatsReviewedNote =>
+      'Counts use questions whose topic or type you have confirmed. Unconfirmed suggestions are shown separately.';
+
+  @override
+  String repeatsMostPapersRule(int percent, int min) {
+    return '“Seen in most papers” means in at least $percent% of your papers, once you have $min or more.';
+  }
+
+  @override
+  String repeatsInPapers(int papers, int total, int questions) {
+    return 'In $papers of $total papers · $questions questions';
+  }
+
+  @override
+  String repeatsUnreviewed(int count) {
+    return '+$count not yet reviewed';
+  }
+
+  @override
+  String get repeatsSeenInMost => 'Seen in most papers';
+
+  @override
+  String repeatsByYear(String years) {
+    return 'By year: $years';
+  }
+
+  @override
+  String get repeatsPractise => 'Practise';
+
+  @override
+  String get repeatsPractiseTopic => 'Practise this topic';
+
+  @override
+  String repeatsWithoutPattern(int count) {
+    return '$count other questions in this topic (no named type)';
+  }
+
+  @override
+  String get repeatsSimilarUnclassified => 'No topic yet';
+
+  @override
+  String repeatsSimilarPapers(int papers, int total) {
+    return 'In $papers of $total papers';
+  }
+
+  @override
+  String get fieldPattern => 'Question type';
+
+  @override
+  String get patternNone => 'No type';
+
+  @override
+  String get patternSuggested => 'Suggested type. Approving the question confirms it.';
+
+  @override
+  String patternsSuggestedCount(int count) {
+    return '$count question types suggested';
+  }
+
+  @override
+  String topicsAcceptedWithPatterns(int topics, int patterns) {
+    return '$topics topics and $patterns question types accepted.';
+  }
+
+  @override
+  String get paperDateTitle => 'When was this paper held?';
+
+  @override
+  String get paperDateMissing => 'Not known yet';
+
+  @override
+  String get paperDateUnknownConfirmed => 'Date not known';
+
+  @override
+  String get paperDateConfirmed => 'Confirmed. Used in year counts.';
+
+  @override
+  String get paperDateSuggested => 'Suggested: confirm it to use it in year counts';
+
+  @override
+  String get paperDateWhy => 'Set the date to see which years a topic appeared in.';
+
+  @override
+  String get paperDateConfirm => 'Confirm';
+
+  @override
+  String get paperDateEdit => 'Change';
+
+  @override
+  String get paperDateSet => 'Set date';
+
+  @override
+  String get paperDateSaved => 'Paper date saved.';
+
+  @override
+  String paperShift(int shift) {
+    return 'Shift $shift';
+  }
+
+  @override
+  String get paperYear => 'Year';
+
+  @override
+  String get paperShiftLabel => 'Shift';
+
+  @override
+  String get paperDateNotKnown => 'Not known';
+
+  @override
+  String get paperDatePickDay => 'Pick the day (optional)';
 }

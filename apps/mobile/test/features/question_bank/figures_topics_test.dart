@@ -119,20 +119,21 @@ void main() {
     // AI is off by default: no AI action is offered.
     expect(find.textContaining('Suggest topics with AI'), findsNothing);
 
-    await tester.tap(find.text('Accept all suggested topics (3)'));
+    await scrollTo(tester, find.text('Accept all suggestions (3)'));
+    await tester.tap(find.text('Accept all suggestions (3)'));
     await tester.pumpAndSettle();
-    expect(find.text('Accept all suggested topics?'), findsOneWidget);
+    expect(find.text('Accept all suggestions?'), findsOneWidget);
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(repo.acceptCalls, isEmpty);
 
-    await tester.tap(find.text('Accept all suggested topics (3)'));
+    await tester.tap(find.text('Accept all suggestions (3)'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Accept all'));
     await tester.pumpAndSettle();
     expect(repo.acceptCalls, ['doc1']);
     expect(repo.questions['venn']!.topicStatus, 'confirmed');
-    expect(find.text('1 topics accepted.'), findsOneWidget);
+    expect(find.text('1 topics and 0 question types accepted.'), findsOneWidget);
   });
 
   testAppWidgets('paper review: AI topic suggestion runs until nothing is left', (
@@ -154,6 +155,7 @@ void main() {
     );
     await openPaperReview(tester);
 
+    await scrollTo(tester, find.text('Suggest topics with AI (30 questions)'));
     await tester.tap(find.text('Suggest topics with AI (30 questions)'));
     await tester.pumpAndSettle();
     // The learner is told that question text goes to the AI service.
