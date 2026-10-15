@@ -26,6 +26,7 @@ from app.domain.figures import (
     decorations,
     locate_figures,
 )
+from app.domain.paper_date import suggest_paper_date
 from app.domain.segmentation import (
     EXPECTED_OPTIONS,
     Issue,
@@ -53,6 +54,7 @@ from app.models.question import (
     VerificationStatus,
 )
 from app.services.page_layout import PdfRenderer, read_layouts
+from app.services.patterns import pattern_candidates, refresh_pattern
 
 logger = logging.getLogger("app.segmentation")
 
@@ -181,6 +183,11 @@ class SegmentationService:
             for t in self._session.scalars(select(Topic)).all()
         ]
         subjects = sorted({t.subject for t in topics})
+        patterns = pattern_candidates(self._session)
+        for question in kept:  # reviewed questions only gain a pattern suggestion
+            if question.pattern_status == TopicStatus.UNASSIGNED:
+                refresh_pattern(question, patterns)
+        _suggest_paper_date(document, pages)
         created = 0
         renderer = PdfRenderer(pdf_path) if pdf_path is not None and analyses else None
         try:
@@ -193,6 +200,7 @@ class SegmentationService:
                     document, exam_format, parsed, passage_rows, topics, subjects
                 )
                 _apply_figures(question, parsed, figures, unreadable_chars, renderer)
+                refresh_pattern(question, patterns)
                 self._session.add(question)
                 created += 1
         finally:
@@ -299,6 +307,24 @@ def _analyse(
         else None
     )
     return analyses, issue
+
+
+def _suggest_paper_date(document: Document, pages: Sequence[DocumentPage]) -> None:
+    """Suggest when the paper was held, unless the reviewer has confirmed it already."""
+    if document.paper_date_status == "confirmed":
+        return
+    first_page = pages[0].text if pages else ""
+    suggestion = suggest_paper_date(document.original_filename, first_page)
+    if suggestion.empty:
+        document.exam_year = document.exam_date = document.exam_shift = None
+        document.paper_date_status = "unknown"
+        document.paper_date_reason = suggestion.reason or None
+        return
+    document.exam_year = suggestion.year
+    document.exam_date = suggestion.date
+    document.exam_shift = suggestion.shift
+    document.paper_date_status = "suggested"
+    document.paper_date_reason = suggestion.reason or None
 
 
 def _apply_figures(

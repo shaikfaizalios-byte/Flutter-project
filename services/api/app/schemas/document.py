@@ -1,8 +1,8 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 DocumentStatusLiteral = Literal["queued", "processing", "completed", "failed"]
 
@@ -27,10 +27,35 @@ class DocumentRead(BaseModel):
     exam_format_id: uuid.UUID | None
     segmentation_status: Literal["pending", "completed", "failed"]
     questions_found: int
+    # When the paper was held: suggested from the file name / first page, then confirmed.
+    exam_year: int | None
+    exam_date: date | None
+    exam_shift: int | None
+    paper_date_status: Literal["unknown", "suggested", "confirmed"]
+    paper_date_reason: str | None
     created_at: datetime
     updated_at: datetime
     processing_started_at: datetime | None
     processing_finished_at: datetime | None
+
+
+class PaperDateUpdate(BaseModel):
+    """The reviewer's confirmed date of the paper. All null = "date unknown" (confirmed)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    exam_year: int | None = Field(default=None, ge=1990, le=2100)
+    exam_date: date | None = None
+    exam_shift: int | None = Field(default=None, ge=1, le=9)
+
+    @model_validator(mode="after")
+    def _date_matches_year(self) -> "PaperDateUpdate":
+        if self.exam_date is not None:
+            if self.exam_year is None:
+                self.exam_year = self.exam_date.year
+            elif self.exam_year != self.exam_date.year:
+                raise ValueError("exam_date must be in exam_year")
+        return self
 
 
 class DocumentPageList(BaseModel):

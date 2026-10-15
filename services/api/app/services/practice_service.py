@@ -138,6 +138,8 @@ class PracticeService:
             stmt = stmt.where(Question.section == request.section)
         if request.topic_id:
             stmt = stmt.where(Question.topic_id == request.topic_id)
+        if request.pattern_id:
+            stmt = stmt.where(Question.pattern_id == request.pattern_id)
         questions = self._session.scalars(stmt.order_by(func.random()).limit(request.count)).all()
         if not questions:
             raise NoQuestionsAvailableError(

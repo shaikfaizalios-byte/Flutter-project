@@ -20,6 +20,7 @@ from app.models.question import (
     QuestionIssue,
     QuestionOption,
     QuestionOrigin,
+    QuestionPattern,
     Topic,
     TopicStatus,
     VerificationStatus,
@@ -33,11 +34,13 @@ from app.schemas.question import (
     OptionRead,
     ParseSummary,
     PassageRead,
+    PatternRead,
     QuestionList,
     QuestionRead,
     QuestionUpdate,
     TopicRead,
 )
+from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
 
 # Issues recomputed from the question's current content after every edit.
 CONTENT_ISSUE_CODES = {
@@ -64,6 +67,7 @@ class QuestionFilter:
     section: str | None = None
     subject: str | None = None
     topic_id: uuid.UUID | None = None
+    pattern_id: uuid.UUID | None = None
     language: str | None = None
     document_id: uuid.UUID | None = None
     status: str | None = None
@@ -128,6 +132,14 @@ class QuestionService:
             stmt = stmt.where(Topic.subject == subject)
         return [TopicRead.model_validate(t) for t in self._session.scalars(stmt).all()]
 
+    def patterns(self, topic_id: uuid.UUID | None) -> list[PatternRead]:
+        stmt = select(QuestionPattern).order_by(
+            QuestionPattern.topic_id, QuestionPattern.sort_order, QuestionPattern.name
+        )
+        if topic_id:
+            stmt = stmt.where(QuestionPattern.topic_id == topic_id)
+        return [PatternRead.model_validate(p) for p in self._session.scalars(stmt).all()]
+
     def exam_formats(self, exam_code: str | None) -> list[ExamFormatRead]:
         stmt = select(ExamFormat).order_by(ExamFormat.exam_code, ExamFormat.code)
         if exam_code:
@@ -187,6 +199,12 @@ class QuestionService:
                 and q.verification_status != VerificationStatus.REJECTED
                 for q in questions
             ),
+            patterns_suggested=sum(
+                q.pattern_status == TopicStatus.SUGGESTED
+                and q.pattern_id is not None
+                and q.verification_status != VerificationStatus.REJECTED
+                for q in questions
+            ),
             sections=sections,
             exam_format=ExamFormatRead.model_validate(exam_format) if exam_format else None,
             document_issues=[IssueRead.model_validate(i) for i in doc_issues],
@@ -220,8 +238,14 @@ class QuestionService:
             question.topic_suggestion_reason = None
             if topic is not None and "subject" not in changes:
                 question.subject = topic.subject
+        pattern_change = "pattern_id" in changes
+        pattern_id = changes.pop("pattern_id", None)
         for field_name, value in changes.items():
             setattr(question, field_name, value)
+        if pattern_change:
+            self._set_pattern(question, pattern_id)
+        elif data.model_fields_set & {"topic_id", "stem"}:
+            refresh_pattern(question, pattern_candidates(self._session))
 
         content_changed = bool(data.model_fields_set - {"verification_status"})
         self._refresh_content_issues(question)
@@ -237,6 +261,7 @@ class QuestionService:
             question.verified_at = None
 
         self._session.commit()
+        self._session.expire(question)  # reload relationships changed via their ids
         return self.get(question_id)
 
     def report(self, question_id: uuid.UUID, reason: str, note: str) -> QuestionRead:
@@ -267,8 +292,27 @@ class QuestionService:
         question.verified_at = datetime.now(UTC)
         if question.topic_status == TopicStatus.SUGGESTED:
             question.topic_status = TopicStatus.CONFIRMED  # the reviewer saw and kept it
+        if question.pattern_status == TopicStatus.SUGGESTED and question.pattern_id is not None:
+            question.pattern_status = TopicStatus.CONFIRMED
+            question.pattern_suggestion_reason = None
         for issue in question.issues:
             issue.resolved = True
+
+    def _set_pattern(self, question: Question, pattern_id: uuid.UUID | None) -> None:
+        """A reviewer's choice: a pattern of the question's topic, or none."""
+        if pattern_id is None:
+            clear_pattern(question)
+            return
+        pattern = self._session.get(QuestionPattern, pattern_id)
+        if pattern is None or pattern.topic_id != question.topic_id:
+            raise InvalidReferenceError("Unknown pattern for this question's topic.")
+        question.pattern_id = pattern.id
+        question.pattern_status = TopicStatus.CONFIRMED
+        question.pattern_suggestion_reason = None
+        if question.topic_status == TopicStatus.SUGGESTED:
+            question.topic_status = TopicStatus.CONFIRMED  # choosing a pattern keeps the topic
+            question.topic_suggested_by = None
+            question.topic_suggestion_reason = None
 
     def _refresh_content_issues(self, question: Question) -> None:
         question.issues = [i for i in question.issues if i.code not in CONTENT_ISSUE_CODES]
@@ -304,8 +348,9 @@ class QuestionService:
             raise NotFoundError("Figure not found.")
         return figure
 
-    def accept_suggested_topics(self, document_id: uuid.UUID) -> int:
-        """Confirm every suggested topic of a paper's (non-rejected) questions."""
+    def accept_suggested_topics(self, document_id: uuid.UUID) -> tuple[int, int]:
+        """Confirm every suggested topic, and every suggested pattern, of a paper's
+        (non-rejected) questions. Returns (topics accepted, patterns accepted)."""
         document = self._session.get(Document, document_id)
         if document is None or document.owner_id != self._owner_id:
             raise NotFoundError("Document not found.")
@@ -314,20 +359,29 @@ class QuestionService:
             .where(
                 Question.document_id == document_id,
                 Question.owner_id == self._owner_id,
-                Question.topic_status == TopicStatus.SUGGESTED,
-                Question.topic_id.is_not(None),
                 Question.verification_status != VerificationStatus.REJECTED,
             )
             .options(selectinload(Question.topic))
         ).all()
+        topics = patterns = 0
         for question in questions:
-            question.topic_status = TopicStatus.CONFIRMED
-            question.topic_suggested_by = None
-            question.topic_suggestion_reason = None
-            if question.subject is None and question.topic is not None:
-                question.subject = question.topic.subject
+            if question.topic_status == TopicStatus.SUGGESTED and question.topic_id is not None:
+                question.topic_status = TopicStatus.CONFIRMED
+                question.topic_suggested_by = None
+                question.topic_suggestion_reason = None
+                if question.subject is None and question.topic is not None:
+                    question.subject = question.topic.subject
+                topics += 1
+            if (
+                question.pattern_status == TopicStatus.SUGGESTED
+                and question.pattern_id is not None
+                and question.topic_status == TopicStatus.CONFIRMED
+            ):
+                question.pattern_status = TopicStatus.CONFIRMED
+                question.pattern_suggestion_reason = None
+                patterns += 1
         self._session.commit()
-        return len(questions)
+        return topics, patterns
 
     # --- helpers ----------------------------------------------------------------------
 
@@ -348,6 +402,7 @@ class QuestionService:
             selectinload(Question.issues),
             selectinload(Question.passage),
             selectinload(Question.topic),
+            selectinload(Question.pattern),
             selectinload(Question.figures),
         ]
 
@@ -370,6 +425,8 @@ class QuestionService:
             stmt = stmt.where(Question.subject == f.subject)
         if f.topic_id:
             stmt = stmt.where(Question.topic_id == f.topic_id)
+        if f.pattern_id:
+            stmt = stmt.where(Question.pattern_id == f.pattern_id)
         if f.language:
             stmt = stmt.where(Question.language == f.language)
         if f.document_id:
@@ -420,6 +477,11 @@ class QuestionService:
             else None,
             topic_suggestion_reason=question.topic_suggestion_reason
             if question.topic_status == TopicStatus.SUGGESTED
+            else None,
+            pattern=PatternRead.model_validate(question.pattern) if question.pattern else None,
+            pattern_status=question.pattern_status if question.pattern else TopicStatus.UNASSIGNED,
+            pattern_suggestion_reason=question.pattern_suggestion_reason
+            if question.pattern and question.pattern_status == TopicStatus.SUGGESTED
             else None,
             stem=question.stem,
             language=question.language,

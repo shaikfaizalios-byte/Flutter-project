@@ -84,6 +84,25 @@ class Topic(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class QuestionPattern(Base):
+    """A named question type within a topic (e.g. Venn diagrams: "Relationship between
+    classes"). Editable taxonomy data; ``keywords`` drive pattern *suggestions* only."""
+
+    __tablename__ = "question_patterns"
+    __table_args__ = (UniqueConstraint("topic_id", "name", name="uq_question_patterns_topic_name"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    topic_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("topics.id", ondelete="CASCADE"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(120))
+    keywords: Mapped[list[str]] = mapped_column(
+        ARRAY(String(60)), default=list, server_default="{}"
+    )
+    sort_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class Passage(Base):
     """Shared directions or a reading passage that governs several questions."""
 
@@ -124,6 +143,10 @@ class Question(Base):
         CheckConstraint(
             "topic_suggested_by IS NULL OR topic_suggested_by IN ('keywords', 'ai')",
             name="topic_suggested_by_valid",
+        ),
+        CheckConstraint(
+            "pattern_status IN ('unassigned', 'suggested', 'confirmed')",
+            name="pattern_status_valid",
         ),
         Index("ix_questions_exam_section", "exam_code", "section"),
         Index("ix_questions_document_number", "document_id", "source_question_number"),
@@ -171,6 +194,14 @@ class Question(Base):
     topic_suggested_by: Mapped[str | None] = mapped_column(String(8))
     # Why the topic was suggested (matched words, or the AI model), shown to reviewers.
     topic_suggestion_reason: Mapped[str | None] = mapped_column(String(200))
+    # Question type within the topic (suggested by keyword rules, confirmed by a reviewer).
+    pattern_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("question_patterns.id", ondelete="SET NULL"), index=True
+    )
+    pattern_status: Mapped[str] = mapped_column(
+        String(12), default=TopicStatus.UNASSIGNED, server_default="unassigned"
+    )
+    pattern_suggestion_reason: Mapped[str | None] = mapped_column(String(200))
     # AI provenance (origin = ai): never presented as an official question.
     ai_provider: Mapped[str | None] = mapped_column(String(32))
     ai_model: Mapped[str | None] = mapped_column(String(64))
@@ -195,6 +226,7 @@ class Question(Base):
     )
     passage: Mapped[Passage | None] = relationship()
     topic: Mapped[Topic | None] = relationship()
+    pattern: Mapped[QuestionPattern | None] = relationship()
     figures: Mapped[list["QuestionFigure"]] = relationship(
         cascade="all, delete-orphan",
         passive_deletes=True,

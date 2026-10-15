@@ -50,9 +50,17 @@ def subject_for_section(section: str | None, subjects: Sequence[str]) -> str | N
     return matches[0] if len(matches) == 1 else None
 
 
+_HYPHEN = re.compile(r"\s*-\s*")
+
+
+def _fold(text: str) -> str:
+    """Case-folded, with spaces around hyphens removed (PDF text often has "letter -cluster")."""
+    return _HYPHEN.sub("-", text.casefold())
+
+
 @lru_cache(maxsize=2048)
 def _pattern(keyword: str) -> re.Pattern[str]:
-    keyword = keyword.casefold()
+    keyword = _fold(keyword)
     variants = [re.escape(keyword)] + [
         UNREADABLE_CHARS + re.escape(keyword[k:]) for k in (1, 2) if len(keyword) - k >= 3
     ]
@@ -73,25 +81,30 @@ def _weight(keyword: str) -> int:
     return max(1, len(keyword.split()))
 
 
+def _score(text: str, instruction: str, keywords: Sequence[str]) -> tuple[int, tuple[str, ...]]:
+    hits: list[tuple[int, str]] = []
+    for keyword in keywords:
+        pattern = _pattern(keyword)
+        if not pattern.search(text):
+            continue
+        factor = INSTRUCTION_WEIGHT if pattern.search(instruction) else 1
+        hits.append((_weight(keyword) * factor, keyword))
+    hits.sort(key=lambda h: -h[0])
+    return sum(h[0] for h in hits), tuple(k for _, k in hits)
+
+
 def suggest_topic(
     stem: str, *, subject: str | None, topics: Sequence[TopicCandidate]
 ) -> TopicSuggestion | None:
-    text = stem.casefold()
+    text = _fold(stem)
     instruction = _instruction(text)
     scored: list[tuple[int, TopicCandidate, tuple[str, ...]]] = []
     for topic in topics:
         if subject is not None and topic.subject != subject:
             continue
-        hits: list[tuple[int, str]] = []
-        for keyword in topic.keywords:
-            pattern = _pattern(keyword)
-            if not pattern.search(text):
-                continue
-            factor = INSTRUCTION_WEIGHT if pattern.search(instruction) else 1
-            hits.append((_weight(keyword) * factor, keyword))
-        if hits:
-            hits.sort(key=lambda h: -h[0])
-            scored.append((sum(h[0] for h in hits), topic, tuple(k for _, k in hits)))
+        score, matched = _score(text, instruction, topic.keywords)
+        if score:
+            scored.append((score, topic, matched))
     if not scored:
         return None
     scored.sort(key=lambda s: -s[0])
@@ -99,3 +112,47 @@ def suggest_topic(
         return None  # tie: leave it to the reviewer
     _, best, matched = scored[0]
     return TopicSuggestion(best.id, best.subject, matched)
+
+
+@dataclass(frozen=True, slots=True)
+class PatternCandidate:
+    id: uuid.UUID
+    topic_id: uuid.UUID
+    name: str
+    keywords: Sequence[str]
+
+
+@dataclass(frozen=True, slots=True)
+class PatternSuggestion:
+    pattern_id: uuid.UUID
+    matched: tuple[str, ...]
+
+    @property
+    def reason(self) -> str:
+        shown = ", ".join(f'"{k}"' for k in self.matched[:MAX_REASON_KEYWORDS])
+        return f"Matched {shown}"
+
+
+def suggest_pattern(
+    stem: str, *, topic_id: uuid.UUID | None, patterns: Sequence[PatternCandidate]
+) -> PatternSuggestion | None:
+    """The question type (pattern) within the question's topic, by the same keyword scoring
+    as topics. No topic, no match or a tie -> no suggestion."""
+    if topic_id is None:
+        return None
+    text = _fold(stem)
+    instruction = _instruction(text)
+    scored = []
+    for candidate in patterns:
+        if candidate.topic_id != topic_id:
+            continue
+        score, matched = _score(text, instruction, candidate.keywords)
+        if score:
+            scored.append((score, candidate, matched))
+    if not scored:
+        return None
+    scored.sort(key=lambda s: -s[0])
+    if len(scored) > 1 and scored[0][0] == scored[1][0]:
+        return None
+    _, best, matched = scored[0]
+    return PatternSuggestion(best.id, matched)

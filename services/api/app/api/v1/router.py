@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     documents,
     exams,
     health,
+    insights,
     ops,
     practice,
     questions,
@@ -32,5 +33,6 @@ api_router.include_router(documents.router, tags=["documents"], dependencies=_si
 api_router.include_router(questions.router, dependencies=_signed_in)
 api_router.include_router(practice.router, dependencies=_signed_in)
 api_router.include_router(analytics.router, dependencies=_signed_in)
+api_router.include_router(insights.router, dependencies=_signed_in)
 api_router.include_router(ai.router, dependencies=_signed_in)
 api_router.include_router(sync.router, dependencies=_signed_in)

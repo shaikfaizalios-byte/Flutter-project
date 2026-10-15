@@ -1,9 +1,10 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 
 from sqlalchemy import (
     CheckConstraint,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -45,6 +46,18 @@ class Document(Base):
             "status IN ('queued', 'processing', 'completed', 'failed')", name="status_valid"
         ),
         CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
+        CheckConstraint(
+            "paper_date_status IN ('unknown', 'suggested', 'confirmed')",
+            name="paper_date_status_valid",
+        ),
+        CheckConstraint(
+            "exam_shift IS NULL OR exam_shift BETWEEN 1 AND 9", name="exam_shift_range"
+        ),
+        CheckConstraint(
+            "exam_date IS NULL OR (exam_year IS NOT NULL"
+            " AND exam_year = EXTRACT(YEAR FROM exam_date))",
+            name="exam_date_matches_year",
+        ),
         Index("ix_documents_status_created", "status", "created_at"),
     )
 
@@ -78,6 +91,15 @@ class Document(Base):
         String(16), default="pending", server_default="pending"
     )
     questions_found: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # When the paper was held. Suggested from the file name / first page, confirmed by the
+    # reviewer; year trends use confirmed values only.
+    exam_year: Mapped[int | None] = mapped_column(Integer)
+    exam_date: Mapped[date | None] = mapped_column(Date)
+    exam_shift: Mapped[int | None] = mapped_column(Integer)
+    paper_date_status: Mapped[str] = mapped_column(
+        String(12), default="unknown", server_default="unknown"
+    )
+    paper_date_reason: Mapped[str | None] = mapped_column(String(200))
     segmented_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

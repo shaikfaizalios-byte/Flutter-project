@@ -13,6 +13,7 @@ from app.schemas.document import (
     DocumentRead,
     DocumentStatusLiteral,
     PageList,
+    PaperDateUpdate,
 )
 from app.schemas.errors import ErrorResponse
 from app.schemas.question import DocumentFormatUpdate, ParseSummary, TopicAcceptResult
@@ -163,6 +164,16 @@ def set_exam_format(
     return service.set_exam_format(document_id, body.exam_format_code)
 
 
+@router.put(
+    "/{document_id}/paper-date",
+    response_model=DocumentRead,
+    responses=NOT_FOUND,
+    summary="Confirm when the paper was held (year, date, shift); used for year trends",
+)
+def set_paper_date(document_id: uuid.UUID, body: PaperDateUpdate, service: Service) -> DocumentRead:
+    return service.set_paper_date(document_id, body)
+
+
 @router.post(
     "/{document_id}/segment",
     response_model=ParseSummary,
@@ -188,10 +199,11 @@ def resegment_document(
     "/{document_id}/topics/accept",
     response_model=TopicAcceptResult,
     responses=NOT_FOUND,
-    summary="Accept every suggested topic of the paper's questions (rejected ones excluded)",
+    summary="Accept every suggested topic and pattern of the paper's questions "
+    "(rejected ones excluded)",
 )
 def accept_suggested_topics(
     document_id: uuid.UUID, session: DbSession, user: CurrentUser
 ) -> TopicAcceptResult:
-    accepted = QuestionService(session, user.id).accept_suggested_topics(document_id)
-    return TopicAcceptResult(accepted=accepted)
+    accepted, patterns = QuestionService(session, user.id).accept_suggested_topics(document_id)
+    return TopicAcceptResult(accepted=accepted, patterns_accepted=patterns)

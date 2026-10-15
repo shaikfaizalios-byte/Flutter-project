@@ -326,12 +326,14 @@ def test_topics_are_suggested_with_a_reason_and_accepted_in_one_go(
 
     accepted = db_client.post(f"/api/v1/documents/{figure_paper}/topics/accept")
     assert accepted.status_code == 200, accepted.text
-    assert accepted.json() == {"accepted": suggested}
+    assert accepted.json()["accepted"] == suggested
+    assert accepted.json()["patterns_accepted"] >= 1  # e.g. Venn: relationship between classes
     venn = paper_questions(db_client, figure_paper)[1]
     assert venn["topic_status"] == "confirmed"
     assert venn["topic_suggestion_reason"] is None
     assert db_client.post(f"/api/v1/documents/{figure_paper}/topics/accept").json() == {
-        "accepted": 0
+        "accepted": 0,
+        "patterns_accepted": 0,
     }
 
 

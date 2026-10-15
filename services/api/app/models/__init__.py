@@ -13,6 +13,7 @@ from app.models.question import (
     QuestionFigure,
     QuestionIssue,
     QuestionOption,
+    QuestionPattern,
     Topic,
 )
 from app.models.sync import SyncItem
@@ -34,6 +35,7 @@ __all__ = [
     "QuestionFigure",
     "QuestionIssue",
     "QuestionOption",
+    "QuestionPattern",
     "RateLimitCounter",
     "RefreshToken",
     "SessionAnswer",

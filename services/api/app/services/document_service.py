@@ -31,7 +31,13 @@ from app.models.document import Document, DocumentStatus
 from app.models.question import ExamFormat
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.exam_repository import ExamRepository
-from app.schemas.document import DocumentPageList, DocumentRead, PageList, PageRead
+from app.schemas.document import (
+    DocumentPageList,
+    DocumentRead,
+    PageList,
+    PageRead,
+    PaperDateUpdate,
+)
 
 logger = logging.getLogger("app.documents")
 
@@ -160,6 +166,17 @@ class DocumentService:
         document = self._get_or_404(document_id)
         exam_format = self._find_format(document.exam_code, exam_format_code)
         document.exam_format_id = exam_format.id if exam_format else None
+        self._session.commit()
+        return DocumentRead.model_validate(document)
+
+    def set_paper_date(self, document_id: uuid.UUID, data: PaperDateUpdate) -> DocumentRead:
+        """The reviewer confirms (or corrects) when the paper was held."""
+        document = self._get_or_404(document_id)
+        document.exam_year = data.exam_year
+        document.exam_date = data.exam_date
+        document.exam_shift = data.exam_shift
+        document.paper_date_status = "confirmed"
+        document.paper_date_reason = None
         self._session.commit()
         return DocumentRead.model_validate(document)
 

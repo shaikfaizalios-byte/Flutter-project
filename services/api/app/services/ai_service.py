@@ -49,6 +49,7 @@ from app.schemas.ai import (
     TopicSuggestionResult,
 )
 from app.schemas.question import AIExplanationRead
+from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.question_service import QuestionService
 
 logger = logging.getLogger(__name__)
@@ -317,6 +318,7 @@ class AIService:
             question.topic_id = topic.id
             question.topic_status = TopicStatus.SUGGESTED
             question.topic_suggested_by = "ai"
+            refresh_pattern(question, pattern_candidates(self._session))
         self._record(
             provider,
             "topic",
@@ -358,6 +360,7 @@ class AIService:
             raise NotEligibleError("There are no topics yet.")
         labels = {f"{t.subject}{ai_content.TOPIC_SEPARATOR}{t.name}": t for t in topics}
 
+        patterns = pattern_candidates(self._session)
         size = ai_content.PAPER_TOPICS_BATCH
         batches = [pending[i : i + size] for i in range(0, len(pending), size)]
         considered = suggested = 0
@@ -392,6 +395,7 @@ class AIService:
                     question.topic_status = TopicStatus.SUGGESTED
                     question.topic_suggestion_reason = f"AI suggestion ({provider.model})"[:200]
                     question.subject = question.subject or topic.subject
+                    refresh_pattern(question, patterns)
                     batch_suggested += 1
             self._record(
                 provider,

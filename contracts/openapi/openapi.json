@@ -984,6 +984,18 @@
             "title": "Exam Code",
             "type": "string"
           },
+          "exam_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Date"
+          },
           "exam_format_id": {
             "anyOf": [
               {
@@ -995,6 +1007,28 @@
               }
             ],
             "title": "Exam Format Id"
+          },
+          "exam_shift": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Shift"
+          },
+          "exam_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Year"
           },
           "extraction_summary": {
             "anyOf": [
@@ -1041,6 +1075,26 @@
           "pages_processed": {
             "title": "Pages Processed",
             "type": "integer"
+          },
+          "paper_date_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paper Date Reason"
+          },
+          "paper_date_status": {
+            "enum": [
+              "unknown",
+              "suggested",
+              "confirmed"
+            ],
+            "title": "Paper Date Status",
+            "type": "string"
           },
           "processing_finished_at": {
             "anyOf": [
@@ -1119,6 +1173,11 @@
           "exam_format_id",
           "segmentation_status",
           "questions_found",
+          "exam_year",
+          "exam_date",
+          "exam_shift",
+          "paper_date_status",
+          "paper_date_reason",
           "created_at",
           "updated_at",
           "processing_started_at",
@@ -2017,6 +2076,52 @@
         "title": "PageRead",
         "type": "object"
       },
+      "PaperDateUpdate": {
+        "additionalProperties": false,
+        "description": "The reviewer's confirmed date of the paper. All null = \"date unknown\" (confirmed).",
+        "properties": {
+          "exam_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Date"
+          },
+          "exam_shift": {
+            "anyOf": [
+              {
+                "maximum": 9.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Shift"
+          },
+          "exam_year": {
+            "anyOf": [
+              {
+                "maximum": 2100.0,
+                "minimum": 1990.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Year"
+          }
+        },
+        "title": "PaperDateUpdate",
+        "type": "object"
+      },
       "PaperTopicsResult": {
         "properties": {
           "considered": {
@@ -2043,6 +2148,37 @@
           "remaining"
         ],
         "title": "PaperTopicsResult",
+        "type": "object"
+      },
+      "PapersBasis": {
+        "properties": {
+          "dated": {
+            "title": "Dated",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "undated": {
+            "title": "Undated",
+            "type": "integer"
+          },
+          "years": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "total",
+          "dated",
+          "undated",
+          "years"
+        ],
+        "title": "PapersBasis",
         "type": "object"
       },
       "ParseSummary": {
@@ -2075,6 +2211,10 @@
           },
           "missing_answers": {
             "title": "Missing Answers",
+            "type": "integer"
+          },
+          "patterns_suggested": {
+            "title": "Patterns Suggested",
             "type": "integer"
           },
           "questions_found": {
@@ -2144,6 +2284,7 @@
           "topics_suggested",
           "topics_unassigned",
           "topics_ai_pending",
+          "patterns_suggested",
           "sections",
           "exam_format",
           "document_issues"
@@ -2247,6 +2388,60 @@
         "title": "PasswordResetRequest",
         "type": "object"
       },
+      "PatternRead": {
+        "description": "A named question type within a topic.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "name"
+        ],
+        "title": "PatternRead",
+        "type": "object"
+      },
+      "PatternRepeat": {
+        "properties": {
+          "confirmed": {
+            "$ref": "#/components/schemas/RepeatCounts"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "pattern_id": {
+            "format": "uuid",
+            "title": "Pattern Id",
+            "type": "string"
+          },
+          "unreviewed": {
+            "title": "Unreviewed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pattern_id",
+          "name",
+          "confirmed",
+          "unreviewed"
+        ],
+        "title": "PatternRepeat",
+        "type": "object"
+      },
       "PracticeCreate": {
         "additionalProperties": false,
         "description": "Untimed practice. Without filters it is a mixed session.",
@@ -2279,6 +2474,18 @@
             "default": false,
             "title": "Include Unverified",
             "type": "boolean"
+          },
+          "pattern_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
           },
           "section": {
             "anyOf": [
@@ -2634,6 +2841,36 @@
               }
             ]
           },
+          "pattern": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PatternRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pattern_status": {
+            "enum": [
+              "unassigned",
+              "suggested",
+              "confirmed"
+            ],
+            "title": "Pattern Status",
+            "type": "string"
+          },
+          "pattern_suggestion_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Suggestion Reason"
+          },
           "section": {
             "anyOf": [
               {
@@ -2760,6 +2997,9 @@
           "topic_status",
           "topic_suggested_by",
           "topic_suggestion_reason",
+          "pattern",
+          "pattern_status",
+          "pattern_suggestion_reason",
           "stem",
           "language",
           "document_id",
@@ -2867,6 +3107,18 @@
               }
             ],
             "title": "Options"
+          },
+          "pattern_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
           },
           "section": {
             "anyOf": [
@@ -3017,6 +3269,78 @@
           "password"
         ],
         "title": "RegisterRequest",
+        "type": "object"
+      },
+      "RepeatCounts": {
+        "description": "How often something appeared in the learner's own papers.",
+        "properties": {
+          "papers": {
+            "title": "Papers",
+            "type": "integer"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/YearCount"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "questions",
+          "papers",
+          "years"
+        ],
+        "title": "RepeatCounts",
+        "type": "object"
+      },
+      "RepeatsReport": {
+        "properties": {
+          "exam_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "papers": {
+            "$ref": "#/components/schemas/PapersBasis"
+          },
+          "similar_groups": {
+            "items": {
+              "$ref": "#/components/schemas/SimilarGroup"
+            },
+            "title": "Similar Groups",
+            "type": "array"
+          },
+          "similarity_threshold": {
+            "title": "Similarity Threshold",
+            "type": "number"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicRepeat"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "exam_code",
+          "papers",
+          "topics",
+          "similar_groups",
+          "similarity_threshold"
+        ],
+        "title": "RepeatsReport",
         "type": "object"
       },
       "SectionAvailability": {
@@ -3644,6 +3968,119 @@
         "title": "SessionSummary",
         "type": "object"
       },
+      "SimilarGroup": {
+        "description": "Questions worded alike (numbers ignored) in different papers. A suggestion based on\nwording only, not a reviewed classification.",
+        "properties": {
+          "papers": {
+            "title": "Papers",
+            "type": "integer"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/SimilarQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "topic_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Name"
+          },
+          "years": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "subject",
+          "topic_name",
+          "papers",
+          "years",
+          "questions"
+        ],
+        "title": "SimilarGroup",
+        "type": "object"
+      },
+      "SimilarQuestion": {
+        "properties": {
+          "document_filename": {
+            "title": "Document Filename",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "exam_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Year"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "question_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Number"
+          },
+          "stem_excerpt": {
+            "title": "Stem Excerpt",
+            "type": "string"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "question_id",
+          "document_id",
+          "document_filename",
+          "exam_year",
+          "question_number",
+          "stem_excerpt",
+          "verified"
+        ],
+        "title": "SimilarQuestion",
+        "type": "object"
+      },
       "SubjectStats": {
         "properties": {
           "answered": {
@@ -3714,6 +4151,11 @@
           "accepted": {
             "title": "Accepted",
             "type": "integer"
+          },
+          "patterns_accepted": {
+            "default": 0,
+            "title": "Patterns Accepted",
+            "type": "integer"
           }
         },
         "required": [
@@ -3744,6 +4186,52 @@
           "name"
         ],
         "title": "TopicRead",
+        "type": "object"
+      },
+      "TopicRepeat": {
+        "properties": {
+          "confirmed": {
+            "$ref": "#/components/schemas/RepeatCounts"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/PatternRepeat"
+            },
+            "title": "Patterns",
+            "type": "array"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "unreviewed": {
+            "title": "Unreviewed",
+            "type": "integer"
+          },
+          "without_pattern": {
+            "title": "Without Pattern",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "topic_id",
+          "subject",
+          "name",
+          "confirmed",
+          "unreviewed",
+          "patterns",
+          "without_pattern"
+        ],
+        "title": "TopicRepeat",
         "type": "object"
       },
       "TopicResult": {
@@ -3962,6 +4450,24 @@
           "code"
         ],
         "title": "VerifyEmailConfirm",
+        "type": "object"
+      },
+      "YearCount": {
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "questions"
+        ],
+        "title": "YearCount",
         "type": "object"
       }
     },
@@ -6271,6 +6777,84 @@
         ]
       }
     },
+    "/api/v1/documents/{document_id}/paper-date": {
+      "put": {
+        "operationId": "set_paper_date_api_v1_documents__document_id__paper_date_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaperDateUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm when the paper was held (year, date, shift); used for year trends",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/v1/documents/{document_id}/parse-summary": {
       "get": {
         "operationId": "get_parse_summary_api_v1_documents__document_id__parse_summary_get",
@@ -6479,7 +7063,7 @@
             "HTTPBearer": []
           }
         ],
-        "summary": "Accept every suggested topic of the paper's questions (rejected ones excluded)",
+        "summary": "Accept every suggested topic and pattern of the paper's questions (rejected ones excluded)",
         "tags": [
           "documents"
         ]
@@ -6628,6 +7212,143 @@
         "summary": "Readiness check (dependencies reachable)",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/api/v1/insights/repeats": {
+      "get": {
+        "operationId": "repeats_api_v1_insights_repeats_get",
+        "parameters": [
+          {
+            "description": "Exam code, e.g. SSC_CHSL",
+            "in": "query",
+            "name": "exam",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 32,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exam code, e.g. SSC_CHSL",
+              "title": "Exam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepeatsReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "How often each topic and question pattern appeared in your imported papers",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/patterns": {
+      "get": {
+        "description": "Named question types within topics (taxonomy data).",
+        "operationId": "list_patterns_api_v1_patterns_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "topic_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Topic Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PatternRead"
+                  },
+                  "title": "Response List Patterns Api V1 Patterns Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Patterns",
+        "tags": [
+          "questions"
         ]
       }
     },
@@ -7274,6 +7995,23 @@
                 }
               ],
               "title": "Topic Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pattern_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pattern Id"
             }
           },
           {

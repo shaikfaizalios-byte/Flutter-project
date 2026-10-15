@@ -15,6 +15,16 @@ class TopicRead(BaseModel):
     name: str
 
 
+class PatternRead(BaseModel):
+    """A named question type within a topic."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    topic_id: uuid.UUID
+    name: str
+
+
 class ExamFormatSection(BaseModel):
     part: str
     subject: str
@@ -122,6 +132,10 @@ class QuestionRead(BaseModel):
     topic_suggested_by: Literal["keywords", "ai"] | None
     # Why it was suggested ("Matched ..." or the AI model), while the topic is suggested.
     topic_suggestion_reason: str | None
+    # Question type within the topic; suggested by keyword rules, confirmed by a reviewer.
+    pattern: PatternRead | None
+    pattern_status: Literal["unassigned", "suggested", "confirmed"]
+    pattern_suggestion_reason: str | None
     stem: str
     language: Literal["en", "hi"]
     document_id: uuid.UUID | None
@@ -180,6 +194,8 @@ class QuestionUpdate(BaseModel):
     section: Annotated[str, StringConstraints(strip_whitespace=True, max_length=120)] | None = None
     subject: Annotated[str, StringConstraints(strip_whitespace=True, max_length=100)] | None = None
     topic_id: uuid.UUID | None = None
+    # Must belong to the question's topic (after any topic change in the same request).
+    pattern_id: uuid.UUID | None = None
     image_dependent: bool | None = None
     verification_status: VerificationLiteral | None = None
 
@@ -199,13 +215,16 @@ class ParseSummary(BaseModel):
     topics_unassigned: int
     # Unassigned questions the AI has not been asked about yet.
     topics_ai_pending: int
+    # Questions with a suggested (not yet accepted) pattern.
+    patterns_suggested: int
     sections: list[str]
     exam_format: ExamFormatRead | None
     document_issues: list[IssueRead]
 
 
 class TopicAcceptResult(BaseModel):
-    accepted: int
+    accepted: int  # topics confirmed
+    patterns_accepted: int = 0
 
 
 class DocumentFormatUpdate(BaseModel):

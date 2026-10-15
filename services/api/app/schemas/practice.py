@@ -16,6 +16,7 @@ class PracticeCreate(BaseModel):
     subject: Annotated[str, StringConstraints(max_length=100)] | None = None
     section: Annotated[str, StringConstraints(max_length=120)] | None = None
     topic_id: uuid.UUID | None = None
+    pattern_id: uuid.UUID | None = None
     # Questions not yet reviewed are excluded unless the learner opts in (and are labelled).
     include_unverified: bool = False
     # AI-generated questions are excluded unless the learner opts in (and are labelled).

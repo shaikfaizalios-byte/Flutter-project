@@ -9,6 +9,7 @@ from app.schemas.concept import Language
 from app.schemas.errors import ErrorResponse
 from app.schemas.question import (
     ExamFormatRead,
+    PatternRead,
     QuestionList,
     QuestionRead,
     QuestionUpdate,
@@ -41,6 +42,7 @@ def list_questions(
     section: Annotated[str | None, Query(max_length=120)] = None,
     subject: Annotated[str | None, Query(max_length=100)] = None,
     topic_id: uuid.UUID | None = None,
+    pattern_id: uuid.UUID | None = None,
     language: Language | None = None,
     document_id: uuid.UUID | None = None,
     status: VerificationLiteral | None = None,
@@ -56,6 +58,7 @@ def list_questions(
         section=section,
         subject=subject,
         topic_id=topic_id,
+        pattern_id=pattern_id,
         language=language,
         document_id=document_id,
         status=status,
@@ -105,6 +108,12 @@ def get_question_figure(question_id: uuid.UUID, figure_id: uuid.UUID, service: S
         # Figures never change (a re-run creates new ids); only this account may cache them.
         headers={"Cache-Control": "private, max-age=604800, immutable"},
     )
+
+
+@router.get("/patterns", response_model=list[PatternRead], tags=["questions"])
+def list_patterns(service: Service, topic_id: uuid.UUID | None = None) -> list[PatternRead]:
+    """Named question types within topics (taxonomy data)."""
+    return service.patterns(topic_id)
 
 
 @router.get("/topics", response_model=list[TopicRead], tags=["questions"])
