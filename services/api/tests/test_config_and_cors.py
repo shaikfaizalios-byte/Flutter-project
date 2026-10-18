@@ -46,6 +46,15 @@ def test_production_disables_interactive_docs() -> None:
     assert client.get("/api/v1/openapi.json").status_code == 404
 
 
+def test_development_docs_can_be_hidden() -> None:
+    # A development server reachable from the internet (tunnel) hides its interactive docs.
+    hidden = TestClient(create_app(Settings(_env_file=None, expose_docs=False)))
+    assert hidden.get("/docs").status_code == 404
+    assert hidden.get("/api/v1/openapi.json").status_code == 404
+    shown = TestClient(create_app(Settings(_env_file=None)))
+    assert shown.get("/docs").status_code == 200
+
+
 def test_cors_allows_configured_origin(client: TestClient) -> None:
     response = client.get("/health", headers={"Origin": "https://allowed.example"})
 

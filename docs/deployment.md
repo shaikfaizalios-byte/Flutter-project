@@ -46,6 +46,21 @@ docker compose -f infra/docker-compose.yml up --build
 This starts PostgreSQL, migrations, the API on :8000, the worker and **Mailpit**. Mailpit catches reset and verification emails, with
 a UI on :8025. Local SMTP is unencrypted (`PREPLOOP_SMTP_SECURITY=none`), which staging and production refuse.
 
+## Testing from your PC (Cloudflare quick tunnel)
+
+Until a server exists, the development API on the PC is reachable from the internet through a free
+Cloudflare quick tunnel (`cloudflared`, no account). The website's web app uses it.
+
+1. `.\scripts\dev-api.ps1 -Lan` (and the document worker) in their own windows.
+2. `powershell -ExecutionPolicy Bypass -File scripts	unnel.ps1` in another window, kept open.
+   Quick tunnels get a **new random address** each time. The script writes it to `deploy/public-api-url`
+   and pushes; the Pages workflow then rebuilds the web app (5–10 minutes).
+
+Before exposing the development server, `services/api/.env` sets a fixed `PREPLOOP_AUTH_SECRET`,
+`PREPLOOP_EXPOSE_DOCS=false` (no interactive docs) and the website origin in `PREPLOOP_CORS_ORIGINS`.
+Limits: online only while the PC is on; no uptime guarantee (Cloudflare marks quick tunnels as for testing);
+emails stay in the development outbox, so other people can't receive reset codes until SMTP is set.
+
 ## Small server with docker compose (chosen set-up)
 
 One Ubuntu 24.04 server (2 vCPU / 4 GB RAM is comfortable for OCR) runs everything from

@@ -147,6 +147,7 @@ cd apps\mobile; flutter build appbundle --release --dart-define=FLAVOR=productio
 cd services\api; .\.venv\Scripts\python.exe -m app.workers.document_worker  # standalone worker
 python website\build.py --out website\_site   # public website (GitHub Pages: .github/workflows/pages.yml)
 # Production backend: infra/production (VPS + docker compose + Caddy); steps in docs/deployment.md
+powershell -ExecutionPolicy Bypass -File scripts	unnel.ps1   # public test tunnel to the PC API (updates deploy/public-api-url)
 ```
 Toolchain locations on the dev machine: Flutter SDK `D:\dev\flutter` (on user PATH), Python 3.12 (winget),
 backend venv `services/api/.venv`, PostgreSQL 17 Windows service `postgresql-x64-17` (port 5432; role

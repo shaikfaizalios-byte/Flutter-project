@@ -1,8 +1,8 @@
 # Public website (+ the web app once the API is online) on GitHub Pages.
 #
 # One-time setup by the repository owner: Settings -> Pages -> Source: "GitHub Actions".
-# When the API runs on the server, set API_BASE_URL below (https only) and push: the web app is
-# then built and published at <site>/app/. Until then only the website is published.
+# The API address comes from deploy/public-api-url (https only; empty file = website only).
+# scripts/tunnel.ps1 updates it when the development tunnel's address changes.
 name: Pages
 
 on:
@@ -11,6 +11,7 @@ on:
     paths:
       - "website/**"
       - "apps/mobile/**"
+      - "deploy/public-api-url"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -23,15 +24,13 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
-env:
-  # e.g. https://203-0-113-10.sslip.io  (empty: website only)
-  API_BASE_URL: ""
-
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+      - name: Read the API address
+        run: echo "API_BASE_URL=$(tr -d '[:space:]' < deploy/public-api-url 2>/dev/null)" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"

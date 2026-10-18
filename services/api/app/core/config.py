@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
 
     # Comma-separated list of exact allowed origins, e.g. "https://app.example.com".
+    # Interactive docs (/docs, OpenAPI) outside production. Turn off when a development server
+    # is reachable from the internet (e.g. through a tunnel).
+    expose_docs: bool = True
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
     # Optional regex for allowed origins. Intended for local development only, where the
     # Flutter web dev server picks a random localhost port.
@@ -134,7 +137,9 @@ class Settings(BaseSettings):
 
     @property
     def docs_enabled(self) -> bool:
-        return self.environment is not Environment.PRODUCTION
+        if self.environment is Environment.PRODUCTION:
+            return False  # never in production, whatever the setting says
+        return self.expose_docs
 
 
 @lru_cache
