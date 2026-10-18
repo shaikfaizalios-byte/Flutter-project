@@ -7,6 +7,7 @@ from app.api.v1.endpoints import (
     auth,
     concepts,
     documents,
+    exam_topics,
     exams,
     health,
     insights,
@@ -32,6 +33,7 @@ api_router.include_router(
 )
 api_router.include_router(documents.router, tags=["documents"], dependencies=_signed_in)
 api_router.include_router(questions.router, dependencies=_signed_in)
+api_router.include_router(exam_topics.router, dependencies=_signed_in)
 api_router.include_router(practice.router, dependencies=_signed_in)
 api_router.include_router(analytics.router, dependencies=_signed_in)
 api_router.include_router(insights.router, dependencies=_signed_in)

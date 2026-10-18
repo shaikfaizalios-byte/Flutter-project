@@ -32,7 +32,16 @@ def test_list_exams_returns_seeded_reference_data(db_client: TestClient) -> None
     response = db_client.get("/api/v1/exams")
 
     assert response.status_code == 200
-    assert [e["code"] for e in response.json()] == ["SSC_CGL", "SSC_CHSL"]
+    exams = response.json()
+    assert [e["code"] for e in exams][:2] == ["SSC_CGL", "SSC_CHSL"]
+    assert exams[0] == {
+        "code": "SSC_CGL",
+        "name": "SSC Combined Graduate Level",
+        "category": "Staff Selection",
+        "featured": True,
+        "custom": False,
+    }
+    assert all(not e["custom"] for e in exams)  # nobody's own exams in the public catalog
 
 
 def test_create_concept_normalises_input(db_client: TestClient) -> None:

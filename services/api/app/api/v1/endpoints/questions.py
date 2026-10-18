@@ -118,9 +118,13 @@ def list_patterns(service: Service, topic_id: uuid.UUID | None = None) -> list[P
 
 @router.get("/topics", response_model=list[TopicRead], tags=["questions"])
 def list_topics(
-    service: Service, subject: Annotated[str | None, Query(max_length=100)] = None
+    service: Service,
+    subject: Annotated[str | None, Query(max_length=100)] = None,
+    exam: Annotated[
+        str | None, Query(max_length=32, description="Only topics of this exam")
+    ] = None,
 ) -> list[TopicRead]:
-    return service.topics(subject)
+    return service.topics(subject, exam)
 
 
 @router.get(

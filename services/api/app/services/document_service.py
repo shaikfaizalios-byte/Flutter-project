@@ -85,8 +85,7 @@ class DocumentService:
         language: str,
         exam_format_code: str | None = None,
     ) -> DocumentRead:
-        exam = self._exams.get(exam_code)
-        if exam is None or not exam.is_active:
+        if self._exams.get_visible(exam_code, self._owner_id) is None:
             raise InvalidReferenceError(f"Unknown exam '{exam_code}'.")
         exam_format = self._find_format(exam_code, exam_format_code)
 

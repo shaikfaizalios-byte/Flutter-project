@@ -30,7 +30,6 @@ from app.domain.segmentation import same_subject
 from app.integrations.ai import AIProvider, AIProviderError, AIResult
 from app.models.ai import AIExplanation, AIGeneration, DraftStatus
 from app.models.document import Document
-from app.models.exam import Exam
 from app.models.question import (
     Question,
     QuestionIssue,
@@ -40,6 +39,7 @@ from app.models.question import (
     TopicStatus,
     VerificationStatus,
 )
+from app.repositories.exam_repository import ExamRepository
 from app.schemas.ai import (
     AIStatus,
     ExplanationReview,
@@ -51,6 +51,7 @@ from app.schemas.ai import (
 from app.schemas.question import AIExplanationRead
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.question_service import QuestionService
+from app.services.topic_service import topic_scope, visible_topics
 
 logger = logging.getLogger(__name__)
 
@@ -191,11 +192,12 @@ class AIService:
         else:
             concept = request.concept
             assert concept is not None  # noqa: S101 - guaranteed by the request validator
-            if self._session.get(Exam, request.exam_code) is None:
+            if ExamRepository(self._session).get_visible(request.exam_code, self._owner_id) is None:
                 raise InvalidReferenceError(f"Unknown exam '{request.exam_code}'.")
             exam_code, subject, section = request.exam_code, concept.subject, concept.subject
             topic = self._session.scalars(
                 select(Topic).where(
+                    *topic_scope(self._owner_id, request.exam_code),
                     func.lower(Topic.subject) == concept.subject.lower(),
                     func.lower(Topic.name) == concept.topic.lower(),
                 )
@@ -297,7 +299,10 @@ class AIService:
             raise NotEligibleError("Set the question's subject first.")
         topics = self._session.scalars(
             select(Topic)
-            .where(func.lower(Topic.subject) == question.subject.lower())
+            .where(
+                *topic_scope(self._owner_id, question.exam_code),
+                func.lower(Topic.subject) == question.subject.lower(),
+            )
             .order_by(Topic.name)
         ).all()
         if not topics:
@@ -355,9 +360,9 @@ class AIService:
             .order_by(Question.section, Question.source_question_number, Question.id)
             .options(selectinload(Question.options))
         ).all()
-        topics = self._session.scalars(select(Topic).order_by(Topic.subject, Topic.name)).all()
+        topics = visible_topics(self._session, self._owner_id, document.exam_code)
         if not topics:
-            raise NotEligibleError("There are no topics yet.")
+            raise NotEligibleError("There are no topics for this exam yet.")
         labels = {f"{t.subject}{ai_content.TOPIC_SEPARATOR}{t.name}": t for t in topics}
 
         patterns = pattern_candidates(self._session)

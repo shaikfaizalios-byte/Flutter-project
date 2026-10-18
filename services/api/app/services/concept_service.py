@@ -17,6 +17,7 @@ class ConceptService:
         self._session = session
         self._concepts = ConceptRepository(session, owner_id)
         self._exams = ExamRepository(session)
+        self._owner_id = owner_id
 
     def create(self, data: ConceptCreate) -> ConceptRead:
         self._require_active_exam(data.exam_code)
@@ -69,6 +70,5 @@ class ConceptService:
         return concept
 
     def _require_active_exam(self, code: str) -> None:
-        exam = self._exams.get(code)
-        if exam is None or not exam.is_active:
+        if self._exams.get_visible(code, self._owner_id) is None:
             raise InvalidReferenceError(f"Unknown exam '{code}'.")

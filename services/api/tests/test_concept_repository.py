@@ -75,4 +75,6 @@ def test_database_rejects_unknown_exam(db_session: Session, user: User) -> None:
 
 
 def test_exam_repository_lists_active_exams(db_session: Session, user: User) -> None:
-    assert [e.code for e in ExamRepository(db_session).list_active()] == ["SSC_CGL", "SSC_CHSL"]
+    codes = [e.code for e in ExamRepository(db_session).list_active()]
+    assert codes[:2] == ["SSC_CGL", "SSC_CHSL"]  # featured first
+    assert {"IBPS_PO", "RRB_NTPC", "NEET_UG", "UPSC_CSE_PRE"} <= set(codes)

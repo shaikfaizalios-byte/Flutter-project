@@ -73,7 +73,16 @@ class Topic(Base):
     """Editable taxonomy (data, not code). ``keywords`` drive topic *suggestions* only."""
 
     __tablename__ = "topics"
-    __table_args__ = (UniqueConstraint("subject", "name", name="uq_topics_subject_name"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "owner_id",
+            "exam_codes",
+            "subject",
+            "name",
+            name="uq_topics_scope_subject_name",
+            postgresql_nulls_not_distinct=True,
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     subject: Mapped[str] = mapped_column(String(100))
@@ -81,6 +90,12 @@ class Topic(Base):
     keywords: Mapped[list[str]] = mapped_column(
         ARRAY(String(60)), default=list, server_default="{}"
     )
+    # NULL: shared taxonomy (visible to everyone); set: a learner's own topic.
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    # Exams the topic applies to; NULL means every exam.
+    exam_codes: Mapped[list[str] | None] = mapped_column(ARRAY(String(32)))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

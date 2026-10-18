@@ -224,12 +224,14 @@ def _lines(pages: Sequence[PageText]) -> list[_Line]:
     ]
 
 
-def section_heading(line: str) -> str | None:
-    """The section name if ``line`` is a section heading, else None."""
+def section_heading(line: str, extra: frozenset[str] = frozenset()) -> str | None:
+    """The section name if ``line`` is a section heading, else None. ``extra`` holds more
+    known headings (case-folded), e.g. the subjects of the paper's exam."""
     if len(line) > 80:
         return None
     normalized = line.rstrip(f" :.{_DASHES}").strip()
-    if normalized.casefold() in KNOWN_SECTION_HEADINGS:
+    folded = normalized.casefold()
+    if folded in KNOWN_SECTION_HEADINGS or folded in extra:
         return normalized
     match = SECTION_PREFIX.match(line)
     if match and (match.group(1) or match.group(2)):
@@ -247,6 +249,7 @@ def section_heading(line: str) -> str | None:
 class _State:
     expected_options: int
     strong_numbering: bool
+    extra_headings: frozenset[str] = frozenset()
     questions: list[ParsedQuestion] = field(default_factory=list)
     passages: list[ParsedPassage] = field(default_factory=list)
     sections: list[str] = field(default_factory=list)
@@ -272,11 +275,15 @@ class _State:
 
 
 def segment(
-    pages: Sequence[PageText], *, expected_options: int = EXPECTED_OPTIONS
+    pages: Sequence[PageText],
+    *,
+    expected_options: int = EXPECTED_OPTIONS,
+    extra_headings: Sequence[str] = (),
 ) -> SegmentationResult:
     lines = _lines(pages)
     state = _State(
         expected_options=expected_options,
+        extra_headings=frozenset(h.strip().casefold() for h in extra_headings if h.strip()),
         strong_numbering=any(STRONG_QUESTION.match(line.text) for line in lines),
     )
     for line in lines:
@@ -316,7 +323,7 @@ def _handle_line(state: _State, line: _Line) -> None:
             state.key_entries.extend(pairs)
             return
         # A heading or a question after the key means the paper continues.
-        if not (section_heading(text) or STRONG_QUESTION.match(text)):
+        if not (section_heading(text, state.extra_headings) or STRONG_QUESTION.match(text)):
             return
         state.mode = "questions"
 
@@ -329,7 +336,7 @@ def _handle_line(state: _State, line: _Line) -> None:
             state.explanations[state.explanation_target].append(text)
         return
 
-    name = section_heading(text)
+    name = section_heading(text, state.extra_headings)
     if name is not None:
         state.finish_question()
         state.passage = None

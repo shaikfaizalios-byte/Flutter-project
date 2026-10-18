@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from app.domain.errors import NotFoundError
 from app.domain.radar import MIN_ACCOUNTS, Contribution, PooledShift, ShiftKey, pool
 from app.models.document import Document
+from app.models.exam import Exam
 from app.models.question import (
     Question,
     QuestionOrigin,
@@ -94,10 +95,18 @@ class RadarService:
     # --- report ------------------------------------------------------------------------
 
     def report(self, exam_code: str | None) -> RadarReport:
+        # Only catalog exams and shared topics pool across accounts (own exams and topics
+        # are private, and two learners could never agree on them anyway).
         stmt = (
             _eligible_questions()
             .join(User, User.id == Question.owner_id)
-            .where(User.radar_opt_in.is_(True))
+            .join(Exam, Exam.code == Document.exam_code)
+            .join(Topic, Topic.id == Question.topic_id)
+            .where(
+                User.radar_opt_in.is_(True),
+                Exam.owner_id.is_(None),
+                Topic.owner_id.is_(None),
+            )
         )
         if exam_code:
             stmt = stmt.where(Document.exam_code == exam_code)

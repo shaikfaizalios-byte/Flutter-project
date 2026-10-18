@@ -42,6 +42,7 @@ from app.schemas.question import (
     TopicRead,
 )
 from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
+from app.services.topic_service import topic_scope
 
 # Issues recomputed from the question's current content after every edit.
 CONTENT_ISSUE_CODES = {
@@ -127,15 +128,23 @@ class QuestionService:
     def get(self, question_id: uuid.UUID) -> QuestionRead:
         return self._reads([self._get_or_404(question_id)])[0]
 
-    def topics(self, subject: str | None) -> list[TopicRead]:
-        stmt = select(Topic).order_by(Topic.subject, Topic.name)
+    def topics(self, subject: str | None, exam_code: str | None = None) -> list[TopicRead]:
+        """Shared topics plus the learner's own (for one exam, when given)."""
+        stmt = (
+            select(Topic)
+            .where(*topic_scope(self._owner_id, exam_code))
+            .order_by(Topic.subject, Topic.name)
+        )
         if subject:
             stmt = stmt.where(Topic.subject == subject)
         return [TopicRead.model_validate(t) for t in self._session.scalars(stmt).all()]
 
     def patterns(self, topic_id: uuid.UUID | None) -> list[PatternRead]:
-        stmt = select(QuestionPattern).order_by(
-            QuestionPattern.topic_id, QuestionPattern.sort_order, QuestionPattern.name
+        stmt = (
+            select(QuestionPattern)
+            .join(Topic, Topic.id == QuestionPattern.topic_id)
+            .where(*topic_scope(self._owner_id, None))
+            .order_by(QuestionPattern.topic_id, QuestionPattern.sort_order, QuestionPattern.name)
         )
         if topic_id:
             stmt = stmt.where(QuestionPattern.topic_id == topic_id)
@@ -239,9 +248,17 @@ class QuestionService:
                 question.answer_source = "manual" if position is not None else None
         if "topic_id" in changes:
             topic_id = changes.pop("topic_id")
-            topic = self._session.get(Topic, topic_id) if topic_id is not None else None
+            topic = (
+                self._session.scalar(
+                    select(Topic).where(
+                        Topic.id == topic_id, *topic_scope(self._owner_id, question.exam_code)
+                    )
+                )
+                if topic_id is not None
+                else None
+            )
             if topic_id is not None and topic is None:
-                raise InvalidReferenceError("Unknown topic.")
+                raise InvalidReferenceError("Unknown topic for this question's exam.")
             question.topic_id = topic_id
             question.topic_status = TopicStatus.CONFIRMED if topic_id else TopicStatus.UNASSIGNED
             question.topic_suggested_by = None

@@ -49,12 +49,12 @@ from app.models.question import (
     QuestionIssue,
     QuestionOption,
     QuestionOrigin,
-    Topic,
     TopicStatus,
     VerificationStatus,
 )
 from app.services.page_layout import PdfRenderer, read_layouts
 from app.services.patterns import pattern_candidates, refresh_pattern
+from app.services.topic_service import visible_topics
 
 logger = logging.getLogger("app.segmentation")
 
@@ -102,12 +102,15 @@ class SegmentationService:
         figure_text = {
             a.layout.number: normalize_text(a.text()) for a in analyses if a.figure_lines
         }
+        exam_topics = visible_topics(self._session, document.owner_id, document.exam_code)
         result = segment(
             [
                 PageText(p.page_number, figure_text.get(p.page_number, p.text), p.needs_review)
                 for p in pages
             ],
             expected_options=EXPECTED_OPTIONS,
+            # The exam's own subjects are recognised as section headings too.
+            extra_headings=sorted({t.subject for t in exam_topics}),
         )
         if layout_issue is not None:
             result.document_issues.append(layout_issue)
@@ -178,10 +181,7 @@ class SegmentationService:
         self._session.add_all(passage_rows)
         self._session.flush()
 
-        topics = [
-            TopicCandidate(t.id, t.subject, t.name, t.keywords)
-            for t in self._session.scalars(select(Topic)).all()
-        ]
+        topics = [TopicCandidate(t.id, t.subject, t.name, t.keywords) for t in exam_topics]
         subjects = sorted({t.subject for t in topics})
         patterns = pattern_candidates(self._session)
         for question in kept:  # reviewed questions only gain a pattern suggestion
