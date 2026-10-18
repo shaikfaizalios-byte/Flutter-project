@@ -260,6 +260,8 @@ class SegmentationService:
             if parsed.passage_index is not None
             else None,
             correct_option_position=parsed.answer_position,
+            answer_type=parsed.answer_type,
+            typed_answer=parsed.typed_answer,
             answer_source=parsed.answer_source,
             explanation=parsed.explanation,
             image_dependent=parsed.image_dependent,
@@ -370,6 +372,8 @@ def _apply_figures(
             answer_position=parsed.answer_position,
             expected_options=EXPECTED_OPTIONS,
             option_figures=option_figures,
+            answer_type=parsed.answer_type,
+            typed_answer=parsed.typed_answer,
         )
         if i.code == IssueCode.EMPTY_OPTION
     ]

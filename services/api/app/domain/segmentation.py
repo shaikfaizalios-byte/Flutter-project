@@ -23,6 +23,7 @@ from collections import Counter, defaultdict
 from collections.abc import Collection, Iterable, Sequence
 from dataclasses import dataclass, field
 
+from app.domain import typed_answers
 from app.domain.text_quality import UNREADABLE_CHARS
 
 EXPECTED_OPTIONS = 4  # SSC objective papers; formats with other counts can pass their own.
@@ -90,6 +91,8 @@ class ParsedQuestion:
     explanation: str | None = None
     image_dependent: bool = False
     issues: list[Issue] = field(default_factory=list)
+    answer_type: str = "choice"  # "choice" | "typed"
+    typed_answer: str | None = None
 
 
 @dataclass(slots=True)
@@ -306,12 +309,42 @@ class _State:
         if self.current is not None:
             if self.inline_explanation:
                 self.current.explanation = "\n".join(self.inline_explanation).strip() or None
+            _resolve_typed(self.current)
             self.questions.append(self.current)
         self.current = None
         self.inline_explanation = None
         if self.answer_line_seen:
             self.inline_answers = True
         self.answer_line_seen = False
+
+
+def _resolve_typed(question: ParsedQuestion) -> None:
+    """An answer line that names no option makes a typed-in (TITA) question when it gives a
+    typed answer and either the question has no options or the answer refers to its listed items
+    ("Sentence 5", an order "3-4-2-1"); the listed items then go back into the stem. Otherwise the
+    unrecognised answer stays for the reviewer."""
+    issue = next((i for i in question.issues if i.code == IssueCode.UNRECOGNISED_ANSWER), None)
+    if issue is None:
+        return
+    typed = typed_answers.from_paper(issue.detail)
+    lists_items = typed_answers.names_an_item(issue.detail) or typed_answers.orders_items(
+        issue.detail, len(question.options)
+    )
+    if typed is None or (question.options and not lists_items):
+        return
+    if question.options:
+        listed = "\n".join(f"{o.label}. {o.text}".strip() for o in question.options)
+        question.stem = f"{question.stem}\n{listed}".strip()
+        question.options = []
+    question.issues = [
+        i
+        for i in question.issues
+        if i.code not in (IssueCode.UNRECOGNISED_ANSWER, IssueCode.REPEATED_OPTION_LABELS)
+    ]
+    question.answer_type = "typed"
+    question.typed_answer = typed
+    question.answer_position = None
+    question.answer_source = "inline"
 
 
 def segment(
@@ -672,7 +705,9 @@ def _validate(
             question.issues.append(Issue(IssueCode.DUPLICATE_NUMBER))
         question.issues.extend(validate_question_content(question, expected_options))
         hint = image_hint(question.stem)
-        if hint or (not question.options and len(question.stem) < 40):
+        if hint or (
+            not question.options and question.answer_type == "choice" and len(question.stem) < 40
+        ):
             question.image_dependent = True
             question.issues.append(
                 Issue(IssueCode.IMAGE_DEPENDENT, f"matched '{hint}'" if hint else "no options")
@@ -705,6 +740,8 @@ def validate_question_content(
         answer_position=question.answer_position,
         expected_options=expected_options,
         option_figures=option_figures,
+        answer_type=question.answer_type,
+        typed_answer=question.typed_answer,
     )
 
 
@@ -714,9 +751,13 @@ def content_issues(
     answer_position: int | None,
     expected_options: int,
     option_figures: Collection[int] = (),
+    answer_type: str = "choice",
+    typed_answer: str | None = None,
 ) -> list[Issue]:
     """``option_figures``: 1-based positions of options that are figures (their text may be
-    empty)."""
+    empty). Typed-in questions have no options; they only need their typed answer."""
+    if answer_type == "typed":
+        return [] if typed_answer else [Issue(IssueCode.MISSING_ANSWER)]
     issues: list[Issue] = []
     if len(option_texts) != expected_options:
         issues.append(

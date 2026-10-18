@@ -214,6 +214,7 @@ def test_practice_feedback_is_immediate_and_answers_are_final(
     assert wrong["applied"] is True
     assert wrong["feedback"] == {
         "correct_position": 3,
+        "correct_typed_answer": None,
         "is_correct": False,
         "explanation": "x = 3",
         "explanation_origin": "source",

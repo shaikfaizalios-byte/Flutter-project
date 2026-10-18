@@ -163,6 +163,15 @@ class Question(Base):
             "pattern_status IN ('unassigned', 'suggested', 'confirmed')",
             name="pattern_status_valid",
         ),
+        CheckConstraint("answer_type IN ('choice', 'typed')", name="answer_type_valid"),
+        # A typed question has no option answer, and only typed questions have a typed answer.
+        CheckConstraint(
+            "answer_type = 'choice' OR correct_option_position IS NULL",
+            name="typed_has_no_option_answer",
+        ),
+        CheckConstraint(
+            "answer_type = 'typed' OR typed_answer IS NULL", name="typed_answer_only_typed"
+        ),
         Index("ix_questions_exam_section", "exam_code", "section"),
         Index("ix_questions_document_number", "document_id", "source_question_number"),
     )
@@ -197,6 +206,9 @@ class Question(Base):
         ForeignKey("passages.id", ondelete="SET NULL")
     )
     correct_option_position: Mapped[int | None] = mapped_column(Integer)
+    # "choice": pick an option; "typed": type the answer in (TITA), compared by typed_answers.
+    answer_type: Mapped[str] = mapped_column(String(8), default="choice", server_default="choice")
+    typed_answer: Mapped[str | None] = mapped_column(String(100))
     # "answer_key" | "inline" | "manual" — where the answer came from.
     answer_source: Mapped[str | None] = mapped_column(String(16))
     explanation: Mapped[str | None] = mapped_column(Text)

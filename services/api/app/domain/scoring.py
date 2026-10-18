@@ -12,15 +12,18 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
 
+from app.domain import typed_answers
+
 
 @dataclass(frozen=True, slots=True)
 class ScoredItem:
     position: int
     section: str | None
     topic_id: str | None
-    correct_position: int
+    correct_position: int | None  # None for a typed-in question
     marks_correct: Decimal
     marks_wrong: Decimal  # deducted for a wrong answer (>= 0)
+    typed_answer: str | None = None  # expected answer of a typed-in question
 
 
 @dataclass(slots=True)
@@ -56,16 +59,24 @@ def to_decimal(value: float) -> Decimal:
     return Decimal(str(value))
 
 
-def score_session(items: Sequence[ScoredItem], selections: Mapping[int, int | None]) -> ScoreResult:
-    """``selections`` maps item position to the chosen option position (None/missing =
-    unattempted)."""
+def is_correct(item: ScoredItem, answer: int | str) -> bool:
+    if item.typed_answer is not None:
+        return isinstance(answer, str) and typed_answers.matches(item.typed_answer, answer)
+    return answer == item.correct_position
+
+
+def score_session(
+    items: Sequence[ScoredItem], selections: Mapping[int, int | str | None]
+) -> ScoreResult:
+    """``selections`` maps item position to the chosen option position, or the typed answer
+    of a typed-in question (None/missing = unattempted)."""
     total = Tally()
     sections: dict[str, Tally] = {}
     topics: dict[str, Tally] = {}
     outcomes: dict[int, bool | None] = {}
     for item in items:
         selected = selections.get(item.position)
-        outcome = None if selected is None else selected == item.correct_position
+        outcome = None if selected is None else is_correct(item, selected)
         outcomes[item.position] = outcome
         tallies = [total]
         if item.section:

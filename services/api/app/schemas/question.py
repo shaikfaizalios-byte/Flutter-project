@@ -145,6 +145,11 @@ class QuestionRead(BaseModel):
     passage: PassageRead | None
     options: list[OptionRead]
     correct_option_position: int | None
+    # "choice": pick an option; "typed": type the answer in (TITA), see typed_answer.
+    answer_type: Literal["choice", "typed"]
+    typed_answer: str | None
+    # Whether typed_answer is a number (the app shows a number keyboard).
+    typed_answer_numeric: bool
     answer_source: str | None
     explanation: str | None
     image_dependent: bool
@@ -190,6 +195,11 @@ class QuestionUpdate(BaseModel):
     ) = None
     options: list[OptionInput] | None = Field(default=None, min_length=2, max_length=6)
     correct_option_position: int | None = Field(default=None, ge=1, le=6)
+    answer_type: Literal["choice", "typed"] | None = None
+    typed_answer: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+        | None
+    ) = None
     explanation: Annotated[str, StringConstraints(max_length=10_000)] | None = None
     section: Annotated[str, StringConstraints(strip_whitespace=True, max_length=120)] | None = None
     subject: Annotated[str, StringConstraints(strip_whitespace=True, max_length=100)] | None = None

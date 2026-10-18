@@ -338,6 +338,17 @@
               }
             ],
             "title": "Selected Position"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
           }
         },
         "required": [
@@ -382,6 +393,19 @@
               }
             ],
             "title": "Time Spent Ms"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
           }
         },
         "required": [
@@ -1536,8 +1560,26 @@
       "Feedback": {
         "properties": {
           "correct_position": {
-            "title": "Correct Position",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Position"
+          },
+          "correct_typed_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Typed Answer"
           },
           "explanation": {
             "anyOf": [
@@ -2982,6 +3024,14 @@
             ],
             "title": "Answer Source"
           },
+          "answer_type": {
+            "enum": [
+              "choice",
+              "typed"
+            ],
+            "title": "Answer Type",
+            "type": "string"
+          },
           "correct_option_position": {
             "anyOf": [
               {
@@ -3215,6 +3265,21 @@
             ],
             "title": "Topic Suggestion Reason"
           },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          },
+          "typed_answer_numeric": {
+            "title": "Typed Answer Numeric",
+            "type": "boolean"
+          },
           "updated_at": {
             "format": "date-time",
             "title": "Updated At",
@@ -3264,6 +3329,9 @@
           "passage",
           "options",
           "correct_option_position",
+          "answer_type",
+          "typed_answer",
+          "typed_answer_numeric",
           "answer_source",
           "explanation",
           "image_dependent",
@@ -3311,6 +3379,21 @@
         "additionalProperties": false,
         "description": "Reviewer edits. Only fields present are changed; null clears nullable fields.",
         "properties": {
+          "answer_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "choice",
+                  "typed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Type"
+          },
           "correct_option_position": {
             "anyOf": [
               {
@@ -3423,6 +3506,19 @@
               }
             ],
             "title": "Topic Id"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
           },
           "verification_status": {
             "anyOf": [
@@ -3935,6 +4031,15 @@
       },
       "SessionItemRead": {
         "properties": {
+          "answer_type": {
+            "default": "choice",
+            "enum": [
+              "choice",
+              "typed"
+            ],
+            "title": "Answer Type",
+            "type": "string"
+          },
           "bookmarked": {
             "title": "Bookmarked",
             "type": "boolean"
@@ -4050,6 +4155,22 @@
               }
             ],
             "title": "Subject"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          },
+          "typed_answer_numeric": {
+            "default": false,
+            "title": "Typed Answer Numeric",
+            "type": "boolean"
           },
           "verified": {
             "title": "Verified",

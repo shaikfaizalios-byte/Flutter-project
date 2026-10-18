@@ -94,7 +94,9 @@ class SessionItem(Base):
     section: Mapped[str | None] = mapped_column(String(120))
     subject: Mapped[str | None] = mapped_column(String(100))
     topic_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("topics.id", ondelete="SET NULL"))
-    correct_position: Mapped[int] = mapped_column(Integer)
+    correct_position: Mapped[int | None] = mapped_column(Integer)  # None for typed answers
+    answer_type: Mapped[str] = mapped_column(String(8), default="choice", server_default="choice")
+    typed_answer: Mapped[str | None] = mapped_column(String(100))  # expected, snapshotted
     option_count: Mapped[int] = mapped_column(Integer)
     marks_correct: Mapped[float] = mapped_column(Float)
     marks_wrong: Mapped[float] = mapped_column(Float)  # deducted for a wrong answer (>= 0)
@@ -115,6 +117,7 @@ class SessionAnswer(Base):
         ForeignKey("questions.id", ondelete="SET NULL"), index=True
     )
     selected_position: Mapped[int | None] = mapped_column(Integer)  # null = cleared
+    typed_answer: Mapped[str | None] = mapped_column(String(100))  # what the learner typed
     is_correct: Mapped[bool | None] = mapped_column(Boolean)
     client_seq: Mapped[int] = mapped_column(BigInteger)
     time_spent_ms: Mapped[int | None] = mapped_column(Integer)

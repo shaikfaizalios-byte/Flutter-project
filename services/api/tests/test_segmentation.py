@@ -373,16 +373,19 @@ def test_inline_answered_paper_with_label_rows_and_typed_answers() -> None:
     assert q1.answer_position == 2  # "Correct Answer: Option 2"
     assert q1.explanation == "The second option fits the tone of the sentence."
 
-    # Odd-one-out with five sentences: "5." is still question 2 (its answer comes later), and
-    # "Sentence 1" names no option: kept for the reviewer, never guessed.
+    # Odd-one-out with five sentences: "5." is still question 2 (its answer comes later);
+    # "Sentence 1" makes it a typed-in question and the sentences go back into the stem.
     q2 = by_number[2]
-    assert q2.answer_position is None
-    assert ("unrecognised_answer", "Sentence 1") in [(i.code, i.detail) for i in q2.issues]
+    assert q2.answer_type == "typed" and q2.typed_answer == "1"
+    assert q2.options == [] and q2.answer_position is None
+    assert "5. The fifth sentence of the set." in q2.stem
+    assert "unrecognised_answer" not in codes(q2.issues)
 
-    # A typed-in number for a question without options is not "option 4".
+    # A number for a question without options is a typed-in answer, not "option 4".
     q3 = by_number[3]
+    assert q3.answer_type == "typed" and q3.typed_answer == "4"
     assert q3.options == [] and q3.answer_position is None
-    assert ("unrecognised_answer", "4") in [(i.code, i.detail) for i in q3.issues]
+    assert codes(q3.issues) == []
 
     # "4:" numbering, two options per line, decimals intact, lower-case answer label.
     q4 = by_number[4]
@@ -451,3 +454,30 @@ def test_an_end_of_paper_solutions_section_still_works() -> None:
     by_number = {q.number: q for q in result.questions}
     assert by_number[1].answer_position == 2
     assert by_number[1].explanation == "Because b."
+
+
+def test_typed_answers_from_paper_and_what_stays_flagged() -> None:
+    result = run(
+        """
+        1. Arrange the sentences.
+        1. First. 2. Second. 3. Third. 4. Fourth.
+        Correct Answer: 3-4-2-1
+        2. How many?
+        Correct Answer: 2.50
+        3. Pick the right one.
+        (1) a (2) b (3) c (4) d
+        Correct Answer: see solution
+        4. Type the city.
+        Correct Answer: see solution
+        """
+    )
+    by_number = {q.number: q for q in result.questions}
+    assert (by_number[1].answer_type, by_number[1].typed_answer) == ("typed", "3421")
+    assert "4. Fourth." in by_number[1].stem
+    assert (by_number[2].answer_type, by_number[2].typed_answer) == ("typed", "2.50")
+    # An answer that isn't a typed answer for a question with options is never guessed.
+    assert by_number[3].answer_type == "choice" and by_number[3].answer_position is None
+    assert "unrecognised_answer" in codes(by_number[3].issues)
+    # Words are never turned into a typed answer by the parser.
+    assert by_number[4].answer_type == "choice"
+    assert "unrecognised_answer" in codes(by_number[4].issues)

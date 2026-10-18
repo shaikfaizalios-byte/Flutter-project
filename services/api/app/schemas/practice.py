@@ -35,13 +35,19 @@ class AnswerUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     selected_position: int | None = Field(default=None, ge=1, le=6)
+    # The answer of a typed-in question (instead of selected_position).
+    typed_answer: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+        | None
+    ) = None
     # Monotonic per device (e.g. microseconds since epoch). Older updates are ignored.
     client_seq: int = Field(ge=0)
     time_spent_ms: int | None = Field(default=None, ge=0, le=24 * 3600 * 1000)
 
 
 class Feedback(BaseModel):
-    correct_position: int
+    correct_position: int | None  # None for a typed-in question
+    correct_typed_answer: str | None = None  # the expected answer of a typed-in question
     is_correct: bool | None
     explanation: str | None
     # "source": from the paper (or the reviewer); "ai": AI-generated (an AI question's own
@@ -70,6 +76,10 @@ class SessionItemRead(BaseModel):
     source: ItemSource
     bookmarked: bool
     selected_position: int | None
+    answer_type: Literal["choice", "typed"] = "choice"
+    typed_answer: str | None = None  # what the learner typed
+    # Whether the expected typed answer is a number (show a number keyboard).
+    typed_answer_numeric: bool = False
     # Practice: shown once answered. Mock: shown only after submission.
     feedback: Feedback | None
 
@@ -144,6 +154,7 @@ class SessionList(BaseModel):
 class AnswerAck(BaseModel):
     position: int
     selected_position: int | None
+    typed_answer: str | None = None
     applied: bool  # False when the update was older than the stored one or the answer is locked
     feedback: Feedback | None
 

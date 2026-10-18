@@ -87,7 +87,10 @@ class AnalyticsService:
                 )
                 .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
                 .where(
-                    SessionAnswer.selected_position.is_not(None),
+                    or_(
+                        SessionAnswer.selected_position.is_not(None),
+                        SessionAnswer.typed_answer.is_not(None),
+                    ),
                     _counts_as_result(),
                     PracticeSession.owner_id == self._owner_id,
                 )

@@ -18,11 +18,12 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from sqlalchemy import Select, and_, func, or_, select
+from sqlalchemy import Select, and_, false, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
+from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
-from app.domain.scoring import ScoredItem, score_session, tally_json, to_decimal
+from app.domain.scoring import ScoredItem, is_correct, score_session, tally_json, to_decimal
 from app.domain.segmentation import same_subject
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
@@ -83,7 +84,20 @@ class InvalidAnswerError(DomainError):
     code = "invalid_answer"
 
 
-def _eligible(include_unverified: bool, include_ai: bool = False) -> Select[Question]:
+def _answered(answer: SessionAnswer | None) -> bool:
+    return answer is not None and (
+        answer.selected_position is not None or answer.typed_answer is not None
+    )
+
+
+ANSWERED = or_(
+    SessionAnswer.selected_position.is_not(None), SessionAnswer.typed_answer.is_not(None)
+)
+
+
+def _eligible(
+    include_unverified: bool, include_ai: bool = False, include_typed: bool = True
+) -> Select[Question]:
     """Questions fit for practice: from a source document (AI questions only on request),
     answer known, at least two options, never rejected (unverified only on request), and
     not image-dependent unless the figure was cropped from the paper (then it is shown)."""
@@ -106,9 +120,31 @@ def _eligible(include_unverified: bool, include_ai: bool = False) -> Select[Ques
             Question.image_dependent.is_(False),
             select(QuestionFigure.id).where(QuestionFigure.question_id == Question.id).exists(),
         ),
-        Question.correct_option_position.is_not(None),
-        option_count >= 2,
-        Question.correct_option_position <= option_count,
+        or_(
+            and_(
+                Question.answer_type == "choice",
+                Question.correct_option_position.is_not(None),
+                option_count >= 2,
+                Question.correct_option_position <= option_count,
+            ),
+            # Typed-in questions need their answer; mocks leave them out (their marking
+            # isn't part of any verified format yet).
+            and_(Question.answer_type == "typed", Question.typed_answer.is_not(None))
+            if include_typed
+            else false(),
+        ),
+    )
+
+
+def _scored(item: SessionItem) -> ScoredItem:
+    return ScoredItem(
+        position=item.position,
+        section=item.section,
+        topic_id=str(item.topic_id) if item.topic_id else None,
+        correct_position=item.correct_position,
+        marks_correct=to_decimal(item.marks_correct),
+        marks_wrong=to_decimal(item.marks_wrong),
+        typed_answer=item.typed_answer if item.answer_type == "typed" else None,
     )
 
 
@@ -222,7 +258,7 @@ class PracticeService:
         self, exam_format: ExamFormat
     ) -> tuple[MockAvailability, list[list[Question]]]:
         candidates = self._session.scalars(
-            _eligible(include_unverified=False).where(
+            _eligible(include_unverified=False, include_typed=False).where(
                 Question.exam_code == exam_format.exam_code,
                 Question.owner_id == self._owner_id,
             )
@@ -258,15 +294,17 @@ class PracticeService:
     def _item(
         position: int, question: Question, *, marks_correct: float, marks_wrong: float
     ) -> SessionItem:
-        assert question.correct_option_position is not None  # noqa: S101 - guaranteed by _eligible
+        typed = question.answer_type == "typed"
         return SessionItem(
             position=position,
             question_id=question.id,
             section=question.section,
             subject=question.subject,
             topic_id=question.topic_id,
-            correct_position=question.correct_option_position,
-            option_count=len(question.options),
+            correct_position=None if typed else question.correct_option_position,
+            option_count=0 if typed else len(question.options),
+            answer_type=question.answer_type,
+            typed_answer=question.typed_answer if typed else None,
             marks_correct=marks_correct,
             marks_wrong=marks_wrong,
             question_verified=question.verification_status == VerificationStatus.VERIFIED,
@@ -282,15 +320,16 @@ class PracticeService:
         item = next((i for i in practice.items if i.position == position), None)
         if item is None:
             raise InvalidAnswerError(f"No question at position {position}.")
+        typed = item.answer_type == "typed"
+        if typed and update.selected_position is not None:
+            raise InvalidAnswerError("This question takes a typed answer.")
+        if not typed and update.typed_answer is not None:
+            raise InvalidAnswerError("This question takes an option.")
         if update.selected_position is not None and update.selected_position > item.option_count:
             raise InvalidAnswerError("That option does not exist for this question.")
 
         existing = next((a for a in practice.answers if a.position == position), None)
-        locked = (
-            practice.mode == SessionMode.PRACTICE
-            and existing is not None
-            and existing.selected_position is not None
-        )
+        locked = practice.mode == SessionMode.PRACTICE and _answered(existing)
         applied = not locked and (existing is None or update.client_seq > existing.client_seq)
         if applied:
             if existing is None:
@@ -298,11 +337,11 @@ class PracticeService:
                 practice.answers.append(existing)
             existing.question_id = item.question_id
             existing.selected_position = update.selected_position
-            existing.is_correct = (
-                None
-                if update.selected_position is None
-                else update.selected_position == item.correct_position
+            existing.typed_answer = (
+                typed_answers.clean(update.typed_answer) if update.typed_answer else None
             )
+            given: int | str | None = existing.typed_answer if typed else existing.selected_position
+            existing.is_correct = None if given is None else is_correct(_scored(item), given)
             existing.client_seq = update.client_seq
             existing.time_spent_ms = update.time_spent_ms
             existing.answered_at = self._now()
@@ -311,6 +350,7 @@ class PracticeService:
         return AnswerAck(
             position=position,
             selected_position=existing.selected_position,
+            typed_answer=existing.typed_answer,
             applied=applied,
             feedback=self._feedback(practice, item, existing),
         )
@@ -334,18 +374,11 @@ class PracticeService:
         now = self._now()
         if reason == "time_up" and practice.deadline_at is not None:
             now = min(now, practice.deadline_at)
-        selections = {a.position: a.selected_position for a in practice.answers}
-        items = [
-            ScoredItem(
-                position=i.position,
-                section=i.section,
-                topic_id=str(i.topic_id) if i.topic_id else None,
-                correct_position=i.correct_position,
-                marks_correct=to_decimal(i.marks_correct),
-                marks_wrong=to_decimal(i.marks_wrong),
-            )
-            for i in practice.items
-        ]
+        selections: dict[int, int | str | None] = {
+            a.position: a.typed_answer if a.typed_answer is not None else a.selected_position
+            for a in practice.answers
+        }
+        items = [_scored(i) for i in practice.items]
         scored = score_session(items, selections)
         topic_names = self._topic_names({i.topic_id for i in practice.items if i.topic_id})
         practice.status = SessionStatus.SUBMITTED
@@ -435,6 +468,10 @@ class PracticeService:
                     ),
                     bookmarked=bool(item.question_id and item.question_id in bookmarks),
                     selected_position=answer.selected_position if answer else None,
+                    answer_type=item.answer_type,
+                    typed_answer=answer.typed_answer if answer else None,
+                    typed_answer_numeric=bool(item.typed_answer)
+                    and typed_answers.is_numeric(item.typed_answer or ""),
                     feedback=self._feedback(practice, item, answer, question),
                 )
             )
@@ -453,7 +490,7 @@ class PracticeService:
             server_now=now,
             remaining_seconds=remaining,
             item_count=len(practice.items),
-            answered_count=sum(a.selected_position is not None for a in practice.answers),
+            answered_count=sum(_answered(a) for a in practice.answers),
             items=items,
             result=self._result(practice.result) if practice.result else None,
         )
@@ -528,7 +565,7 @@ class PracticeService:
             .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
             .where(
                 SessionAnswer.question_id.is_not(None),
-                SessionAnswer.selected_position.is_not(None),
+                ANSWERED,
                 PracticeSession.owner_id == self._owner_id,
             )
             .group_by(SessionAnswer.question_id)
@@ -562,7 +599,7 @@ class PracticeService:
             .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
             .where(
                 SessionAnswer.question_id == question_id,
-                SessionAnswer.selected_position.is_not(None),
+                ANSWERED,
                 PracticeSession.owner_id == self._owner_id,
                 (PracticeSession.mode == SessionMode.PRACTICE)
                 | (PracticeSession.status == SessionStatus.SUBMITTED),
@@ -607,9 +644,7 @@ class PracticeService:
         question: Question | None = None,
     ) -> Feedback | None:
         reveal = practice.status == SessionStatus.SUBMITTED or (
-            practice.mode == SessionMode.PRACTICE
-            and answer is not None
-            and answer.selected_position is not None
+            practice.mode == SessionMode.PRACTICE and _answered(answer)
         )
         if not reveal:
             return None
@@ -634,6 +669,7 @@ class PracticeService:
                 explanation, origin = approved.text, "ai"
         return Feedback(
             correct_position=item.correct_position,
+            correct_typed_answer=item.typed_answer,
             is_correct=answer.is_correct if answer else None,
             explanation=explanation,
             explanation_origin=origin,

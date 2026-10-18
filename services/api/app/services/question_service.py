@@ -9,6 +9,7 @@ from sqlalchemy import Select, and_, exists, func, select
 from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
+from app.domain import typed_answers
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.segmentation import EXPECTED_OPTIONS, Issue, IssueCode, content_issues
 from app.models.ai import AIExplanation, DraftStatus
@@ -186,7 +187,12 @@ class QuestionService:
             verified=sum(q.verification_status == VerificationStatus.VERIFIED for q in questions),
             rejected=sum(q.verification_status == VerificationStatus.REJECTED for q in questions),
             with_open_issues=sum(any(not i.resolved for i in q.issues) for q in questions),
-            missing_answers=sum(q.correct_option_position is None for q in questions),
+            missing_answers=sum(
+                (q.typed_answer is None)
+                if q.answer_type == "typed"
+                else (q.correct_option_position is None)
+                for q in questions
+            ),
             image_dependent=sum(q.image_dependent for q in questions),
             with_figures=sum(bool(q.figures) for q in questions),
             unreadable_text=sum(
@@ -241,8 +247,26 @@ class QuestionService:
                 QuestionOption(position=i + 1, label=o["label"], text=o["text"])
                 for i, o in enumerate(changes.pop("options"))
             ]
+        if "answer_type" in changes:
+            answer_type = changes.pop("answer_type")
+            if answer_type is not None and answer_type != question.answer_type:
+                question.answer_type = answer_type
+                # Switching type drops the other kind of answer (a typed question has no
+                # option answer, and vice versa).
+                question.correct_option_position = None
+                question.typed_answer = None
+                question.answer_source = None
+        if "typed_answer" in changes:
+            typed = changes.pop("typed_answer")
+            if question.answer_type != "typed" and typed is not None:
+                raise InvalidReferenceError("Only typed-in questions have a typed answer.")
+            if typed != question.typed_answer:
+                question.typed_answer = typed_answers.clean(typed) if typed else None
+                question.answer_source = "manual" if typed else None
         if "correct_option_position" in changes:
             position = changes.pop("correct_option_position")
+            if position is not None and question.answer_type == "typed":
+                raise InvalidReferenceError("A typed-in question has no option answer.")
             if position != question.correct_option_position:
                 question.correct_option_position = position
                 question.answer_source = "manual" if position is not None else None
@@ -348,6 +372,8 @@ class QuestionService:
             answer_position=question.correct_option_position,
             expected_options=EXPECTED_OPTIONS,
             option_figures={f.option_position for f in question.figures if f.option_position},
+            answer_type=question.answer_type,
+            typed_answer=question.typed_answer,
         )
         position = question.correct_option_position
         if position is not None and position > len(question.options):
@@ -519,6 +545,10 @@ class QuestionService:
             passage=PassageRead.model_validate(question.passage) if question.passage else None,
             options=[OptionRead.model_validate(o) for o in question.options],
             correct_option_position=question.correct_option_position,
+            answer_type=question.answer_type,
+            typed_answer=question.typed_answer,
+            typed_answer_numeric=bool(question.typed_answer)
+            and typed_answers.is_numeric(question.typed_answer or ""),
             answer_source=question.answer_source,
             explanation=question.explanation,
             image_dependent=question.image_dependent,
