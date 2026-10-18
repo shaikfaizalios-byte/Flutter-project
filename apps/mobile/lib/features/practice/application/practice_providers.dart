@@ -111,7 +111,7 @@ class SessionController extends AsyncNotifier<SessionState> {
   Future<SessionState> build() async {
     final fetchedAt = ref.read(clockProvider)();
     final session = await _repo.session(sessionId);
-    final current = session.items.indexWhere((i) => i.selectedPosition == null);
+    final current = session.items.indexWhere((i) => !i.answered);
     return SessionState(
       session: session,
       clockOffset: session.serverNow.difference(fetchedAt),
@@ -131,7 +131,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     if (value == null || value.session.submitted) return false;
     final item = value.item;
     // Practice answers are final once given.
-    if (value.session.mode == SessionMode.practice && item.selectedPosition != null) return false;
+    if (value.session.mode == SessionMode.practice && item.answered) return false;
     final next = value.session.mode == SessionMode.mock && item.selectedPosition == optionPosition
         ? null // tapping the chosen option again clears it in a mock
         : optionPosition;
@@ -162,6 +162,42 @@ class SessionController extends AsyncNotifier<SessionState> {
       return false;
     } on Object catch (error, stack) {
       logError('Saving answer failed', error, stack);
+      return false;
+    }
+  }
+
+  /// Saves the answer of a typed-in question. Returns false when it could not be saved.
+  Future<bool> submitTyped(String text) async {
+    final value = state.value;
+    final answer = text.trim();
+    if (value == null || value.session.submitted || answer.isEmpty) return false;
+    final item = value.item;
+    if (!item.isTyped) return false;
+    if (value.session.mode == SessionMode.practice && item.answered) return false;
+    state = AsyncData(
+      value.copyWith(session: value.session.withItem(item.copyWith(typedAnswer: () => answer))),
+    );
+    try {
+      final outcome = await _repo.answer(sessionId, item.position, null, typedAnswer: answer);
+      final latest = state.value!;
+      final queued = {...latest.queuedPositions};
+      outcome.queued ? queued.add(item.position) : queued.remove(item.position);
+      var updated = latest.session.items.firstWhere((i) => i.position == item.position);
+      if (!outcome.queued) {
+        updated = updated.copyWith(
+          typedAnswer: () => outcome.applied ? answer : outcome.typedAnswer ?? answer,
+          feedback: () => outcome.feedback,
+        );
+      }
+      state = AsyncData(
+        latest.copyWith(session: latest.session.withItem(updated), queuedPositions: queued),
+      );
+      return true;
+    } on ServerFailure catch (failure) {
+      if (failure.code == 'session_closed') ref.invalidateSelf();
+      return false;
+    } on Object catch (error, stack) {
+      logError('Saving typed answer failed', error, stack);
       return false;
     }
   }

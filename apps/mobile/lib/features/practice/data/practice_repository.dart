@@ -57,7 +57,12 @@ class PracticeRepository {
     for (final p in pending) {
       final item = view.items.where((i) => i.position == p.position).firstOrNull;
       if (item != null) {
-        view = view.withItem(item.copyWith(selectedPosition: () => p.selectedPosition));
+        view = view.withItem(
+          item.copyWith(
+            selectedPosition: () => p.selectedPosition,
+            typedAnswer: () => p.typedAnswer,
+          ),
+        );
       }
     }
     return view;
@@ -82,11 +87,13 @@ class PracticeRepository {
     );
   }
 
-  /// Saves an answer: queued locally first, then sent.
+  /// Saves an answer: queued locally first, then sent. Typed-in questions pass
+  /// [typedAnswer] (and no [selectedPosition]).
   Future<AnswerOutcome> answer(
     String sessionId,
     int position,
     int? selectedPosition, {
+    String? typedAnswer,
     int? timeSpentMs,
   }) async {
     final seq = _nextSeq();
@@ -97,13 +104,21 @@ class PracticeRepository {
             sessionId: sessionId,
             position: position,
             selectedPosition: Value(selectedPosition),
+            typedAnswer: Value(typedAnswer),
             clientSeq: seq,
             timeSpentMs: Value(timeSpentMs),
             createdAt: _clock().toUtc(),
           ),
         );
     try {
-      final ack = await _send(sessionId, position, selectedPosition, seq, timeSpentMs);
+      final ack = await _send(
+        sessionId,
+        position,
+        selectedPosition,
+        seq,
+        timeSpentMs,
+        typed: typedAnswer,
+      );
       await _dequeue(sessionId, position, seq);
       return ack;
     } on NetworkFailure {
@@ -133,6 +148,7 @@ class PracticeRepository {
           row.selectedPosition,
           row.clientSeq,
           row.timeSpentMs,
+          typed: row.typedAnswer,
         );
         sent++;
       } on NetworkFailure {
@@ -177,11 +193,16 @@ class PracticeRepository {
     int position,
     int? selected,
     int seq,
-    int? timeSpentMs,
-  ) => _guard(() async {
+    int? timeSpentMs, {
+    String? typed,
+  }) => _guard(() async {
     final response = await _dio.put<Map<String, dynamic>>(
       '$_base/sessions/$sessionId/answers/$position',
-      data: {'selected_position': selected, 'client_seq': seq, 'time_spent_ms': ?timeSpentMs},
+      data: {
+        if (typed != null) 'typed_answer': typed else 'selected_position': selected,
+        'client_seq': seq,
+        'time_spent_ms': ?timeSpentMs,
+      },
     );
     final data = response.data!;
     return AnswerOutcome.confirmed(
@@ -190,6 +211,7 @@ class PracticeRepository {
           : AnswerFeedback.fromJson(data['feedback'] as Map<String, dynamic>),
       applied: data['applied'] as bool,
       selectedPosition: data['selected_position'] as int?,
+      typedAnswer: data['typed_answer'] as String?,
     );
   });
 

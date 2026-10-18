@@ -447,7 +447,7 @@ class PracticeService:
                     subject=item.subject,
                     stem=question.stem if question else None,
                     options=[OptionRead.model_validate(o) for o in question.options]
-                    if question
+                    if question and item.answer_type != "typed"
                     else [],
                     figures=[FigureRead.model_validate(f) for f in question.figures]
                     if question

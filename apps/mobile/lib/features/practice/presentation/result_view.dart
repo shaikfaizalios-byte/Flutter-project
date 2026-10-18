@@ -135,7 +135,11 @@ class _AnswerReview extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        item.selectedPosition == null
+        item.isTyped
+            ? (item.typedAnswer == null
+                  ? l10n.resultNotAnswered
+                  : l10n.resultYourTypedAnswer(item.typedAnswer!))
+            : item.selectedPosition == null
             ? l10n.resultNotAnswered
             : l10n.resultYourAnswer(labelOf(item.selectedPosition)),
       ),
@@ -148,7 +152,11 @@ class _AnswerReview extends StatelessWidget {
               children: [
                 for (final o in item.options) Text('(${o.label}) ${o.text}'),
                 const SizedBox(height: AppSpacing.xs),
-                Text(l10n.sessionCorrectAnswer(labelOf(feedback.correctPosition))),
+                Text(
+                  feedback.correctTypedAnswer != null
+                      ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
+                      : l10n.sessionCorrectAnswer(labelOf(feedback.correctPosition)),
+                ),
                 if (feedback.explanation != null) SelectableText(feedback.explanation!),
                 const SizedBox(height: AppSpacing.sm),
               ],

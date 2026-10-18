@@ -652,5 +652,15 @@
   "topicsKeywordsHelp": "इस टॉपिक के प्रश्नों में आने वाले शब्द, कॉमा से अलग। न दें तो टॉपिक का नाम इस्तेमाल होगा।",
   "topicsDraftLabel": "आपके {count} प्रश्नों से AI सुझाव ({model})। सिर्फ़ वही रखें जो सही हो।",
   "topicsDraftKeep": "{count} टॉपिक जोड़ें",
-  "issueUnrecognisedAnswer": "उत्तर कोई विकल्प नहीं है (जैसे टाइप किया जाने वाला उत्तर)"
+  "issueUnrecognisedAnswer": "उत्तर कोई विकल्प नहीं है (जैसे टाइप किया जाने वाला उत्तर)",
+  "sessionCorrectTypedAnswer": "सही उत्तर: {answer}",
+  "sessionTypedAnswerLabel": "आपका उत्तर",
+  "sessionTypedAnswerHelp": "उत्तर टाइप करें, जैसे 12, 2.5 या 3142।",
+  "sessionTypedAnswerSave": "उत्तर सहेजें",
+  "resultYourTypedAnswer": "आपका उत्तर: {answer}",
+  "fieldAnswerType": "उत्तर का प्रकार",
+  "answerTypeChoice": "विकल्प",
+  "answerTypeTyped": "टाइप किया उत्तर",
+  "fieldTypedAnswer": "सही टाइप किया जाने वाला उत्तर",
+  "fieldTypedAnswerHelp": "संख्याएँ मान से मिलाई जाती हैं (2.5 = 2.50, कभी पूर्णांकित नहीं); बाकी उत्तर बिल्कुल वैसे ही होने चाहिए, स्पेस और बड़े-छोटे अक्षर छोड़कर।"
 }

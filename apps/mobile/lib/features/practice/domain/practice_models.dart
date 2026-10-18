@@ -12,20 +12,23 @@ enum SessionMode {
 @immutable
 class AnswerFeedback {
   const AnswerFeedback({
-    required this.correctPosition,
+    this.correctPosition,
+    this.correctTypedAnswer,
     this.isCorrect,
     this.explanation,
     this.explanationByAi = false,
   });
 
   factory AnswerFeedback.fromJson(Map<String, dynamic> json) => AnswerFeedback(
-    correctPosition: json['correct_position'] as int,
+    correctPosition: json['correct_position'] as int?,
+    correctTypedAnswer: json['correct_typed_answer'] as String?,
     isCorrect: json['is_correct'] as bool?,
     explanation: json['explanation'] as String?,
     explanationByAi: json['explanation_origin'] == 'ai',
   );
 
-  final int correctPosition;
+  final int? correctPosition; // null for a typed-in question
+  final String? correctTypedAnswer; // the expected answer of a typed-in question
   final bool? isCorrect; // null = not attempted
   final String? explanation;
 
@@ -51,6 +54,9 @@ class SessionItemView {
     this.sourceNumber,
     this.selectedPosition,
     this.feedback,
+    this.answerType = 'choice',
+    this.typedAnswer,
+    this.typedAnswerNumeric = false,
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -75,6 +81,9 @@ class SessionItemView {
       sourceNumber: source['question_number'] as int?,
       bookmarked: json['bookmarked'] as bool,
       selectedPosition: json['selected_position'] as int?,
+      answerType: json['answer_type'] as String? ?? 'choice',
+      typedAnswer: json['typed_answer'] as String?,
+      typedAnswerNumeric: json['typed_answer_numeric'] as bool? ?? false,
       feedback: json['feedback'] == null
           ? null
           : AnswerFeedback.fromJson(json['feedback'] as Map<String, dynamic>),
@@ -101,8 +110,21 @@ class SessionItemView {
   final int? selectedPosition;
   final AnswerFeedback? feedback;
 
+  /// "choice" or "typed" (type the answer in, e.g. CAT TITA questions).
+  final String answerType;
+
+  /// What the learner typed (typed-in questions).
+  final String? typedAnswer;
+
+  /// The expected answer is a number: show a number keyboard.
+  final bool typedAnswerNumeric;
+
+  bool get isTyped => answerType == 'typed';
+  bool get answered => selectedPosition != null || typedAnswer != null;
+
   SessionItemView copyWith({
     int? Function()? selectedPosition,
+    String? Function()? typedAnswer,
     AnswerFeedback? Function()? feedback,
     bool? bookmarked,
   }) => SessionItemView(
@@ -120,6 +142,9 @@ class SessionItemView {
     sourceNumber: sourceNumber,
     bookmarked: bookmarked ?? this.bookmarked,
     selectedPosition: selectedPosition != null ? selectedPosition() : this.selectedPosition,
+    typedAnswer: typedAnswer != null ? typedAnswer() : this.typedAnswer,
+    answerType: answerType,
+    typedAnswerNumeric: typedAnswerNumeric,
     feedback: feedback != null ? feedback() : this.feedback,
   );
 }
@@ -237,7 +262,7 @@ class PracticeSessionView {
   final List<SessionItemView> items;
   final SessionResultView? result;
 
-  int get answeredCount => items.where((i) => i.selectedPosition != null).length;
+  int get answeredCount => items.where((i) => i.answered).length;
 
   PracticeSessionView withItem(SessionItemView item) => PracticeSessionView(
     id: id,
@@ -382,17 +407,23 @@ class PracticeRequest {
 /// Result of saving an answer: confirmed by the server, or queued while offline.
 @immutable
 class AnswerOutcome {
-  const AnswerOutcome.confirmed(this.feedback, {required this.applied, this.selectedPosition})
-    : queued = false;
+  const AnswerOutcome.confirmed(
+    this.feedback, {
+    required this.applied,
+    this.selectedPosition,
+    this.typedAnswer,
+  }) : queued = false;
 
   const AnswerOutcome.queued()
     : feedback = null,
       applied = false,
       selectedPosition = null,
+      typedAnswer = null,
       queued = true;
 
   final bool queued;
   final bool applied;
   final int? selectedPosition;
+  final String? typedAnswer;
   final AnswerFeedback? feedback;
 }

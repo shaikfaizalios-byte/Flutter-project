@@ -96,3 +96,20 @@ rule. Unit tests: `tests/test_scoring.py`.
 `session_answers` keeps, per question: the selected option, correctness, time spent and answered-at. Combined with
 each item's section/subject/topic snapshot, this is enough for per-topic and per-section analytics. No analytics
 UI exists yet beyond the session summary.
+
+## Typed-in answers (TITA)
+
+Questions with `answer_type = "typed"` (e.g. CAT's type-in-the-answer questions) have no options and a
+`typed_answer`. The learner types the answer (`PUT .../answers/{n}` with `typed_answer` instead of
+`selected_position`); `app/domain/typed_answers.py` decides: numbers are equal by value (`2.5` = `2.50`,
+never rounded, PDF minus sign and thousands separators handled), anything else must match ignoring spaces
+and case. Practice scores them like other questions (1 point, no negative marking). **Mocks leave typed
+questions out** until a verified exam format records their marking. The app shows a number keyboard when
+the expected answer is a number; offline, typed answers wait in the Drift `pending_answers` queue
+(schema v6) like option answers.
+
+From papers, an answer line that names no option becomes a typed answer when it is a number, "Sentence 5"
+(-> `5`) or an order like "3-4-2-1" (-> `3421`) and the question has no options or the answer refers to
+its listed items (which go back into the stem). Words are never turned into typed answers; reviewers can
+switch a question's type and type any answer.
+

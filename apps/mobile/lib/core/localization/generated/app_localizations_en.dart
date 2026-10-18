@@ -2437,4 +2437,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issueUnrecognisedAnswer => 'Answer isn\'t an option (e.g. typed-in answer)';
+
+  @override
+  String sessionCorrectTypedAnswer(String answer) {
+    return 'Correct answer: $answer';
+  }
+
+  @override
+  String get sessionTypedAnswerLabel => 'Your answer';
+
+  @override
+  String get sessionTypedAnswerHelp => 'Type the answer, e.g. 12, 2.5 or 3142.';
+
+  @override
+  String get sessionTypedAnswerSave => 'Save answer';
+
+  @override
+  String resultYourTypedAnswer(String answer) {
+    return 'Your answer: $answer';
+  }
+
+  @override
+  String get fieldAnswerType => 'Answer type';
+
+  @override
+  String get answerTypeChoice => 'Options';
+
+  @override
+  String get answerTypeTyped => 'Typed answer';
+
+  @override
+  String get fieldTypedAnswer => 'Correct typed answer';
+
+  @override
+  String get fieldTypedAnswerHelp =>
+      'Numbers match by value (2.5 = 2.50, never rounded); other answers must match exactly, ignoring spaces and case.';
 }

@@ -1395,6 +1395,15 @@ class $PendingAnswersTable extends PendingAnswers
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _typedAnswerMeta = const VerificationMeta('typedAnswer');
+  @override
+  late final GeneratedColumn<String> typedAnswer = GeneratedColumn<String>(
+    'typed_answer',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _clientSeqMeta = const VerificationMeta('clientSeq');
   @override
   late final GeneratedColumn<int> clientSeq = GeneratedColumn<int>(
@@ -1427,6 +1436,7 @@ class $PendingAnswersTable extends PendingAnswers
     sessionId,
     position,
     selectedPosition,
+    typedAnswer,
     clientSeq,
     timeSpentMs,
     createdAt,
@@ -1463,6 +1473,12 @@ class $PendingAnswersTable extends PendingAnswers
       context.handle(
         _selectedPositionMeta,
         selectedPosition.isAcceptableOrUnknown(data['selected_position']!, _selectedPositionMeta),
+      );
+    }
+    if (data.containsKey('typed_answer')) {
+      context.handle(
+        _typedAnswerMeta,
+        typedAnswer.isAcceptableOrUnknown(data['typed_answer']!, _typedAnswerMeta),
       );
     }
     if (data.containsKey('client_seq')) {
@@ -1508,6 +1524,10 @@ class $PendingAnswersTable extends PendingAnswers
         DriftSqlType.int,
         data['${effectivePrefix}selected_position'],
       ),
+      typedAnswer: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}typed_answer'],
+      ),
       clientSeq: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}client_seq'],
@@ -1536,6 +1556,9 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
   /// Null clears the answer.
   final int? selectedPosition;
 
+  /// The answer of a typed-in question (instead of [selectedPosition]). Added in schema v6.
+  final String? typedAnswer;
+
   /// Monotonic per device; the server ignores updates older than the one it has.
   final int clientSeq;
   final int? timeSpentMs;
@@ -1544,6 +1567,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     required this.sessionId,
     required this.position,
     this.selectedPosition,
+    this.typedAnswer,
     required this.clientSeq,
     this.timeSpentMs,
     required this.createdAt,
@@ -1555,6 +1579,9 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     map['position'] = Variable<int>(position);
     if (!nullToAbsent || selectedPosition != null) {
       map['selected_position'] = Variable<int>(selectedPosition);
+    }
+    if (!nullToAbsent || typedAnswer != null) {
+      map['typed_answer'] = Variable<String>(typedAnswer);
     }
     map['client_seq'] = Variable<int>(clientSeq);
     if (!nullToAbsent || timeSpentMs != null) {
@@ -1571,6 +1598,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
       selectedPosition: selectedPosition == null && nullToAbsent
           ? const Value.absent()
           : Value(selectedPosition),
+      typedAnswer: typedAnswer == null && nullToAbsent ? const Value.absent() : Value(typedAnswer),
       clientSeq: Value(clientSeq),
       timeSpentMs: timeSpentMs == null && nullToAbsent ? const Value.absent() : Value(timeSpentMs),
       createdAt: Value(createdAt),
@@ -1583,6 +1611,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
       sessionId: serializer.fromJson<String>(json['sessionId']),
       position: serializer.fromJson<int>(json['position']),
       selectedPosition: serializer.fromJson<int?>(json['selectedPosition']),
+      typedAnswer: serializer.fromJson<String?>(json['typedAnswer']),
       clientSeq: serializer.fromJson<int>(json['clientSeq']),
       timeSpentMs: serializer.fromJson<int?>(json['timeSpentMs']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -1595,6 +1624,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
       'sessionId': serializer.toJson<String>(sessionId),
       'position': serializer.toJson<int>(position),
       'selectedPosition': serializer.toJson<int?>(selectedPosition),
+      'typedAnswer': serializer.toJson<String?>(typedAnswer),
       'clientSeq': serializer.toJson<int>(clientSeq),
       'timeSpentMs': serializer.toJson<int?>(timeSpentMs),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -1605,6 +1635,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     String? sessionId,
     int? position,
     Value<int?> selectedPosition = const Value.absent(),
+    Value<String?> typedAnswer = const Value.absent(),
     int? clientSeq,
     Value<int?> timeSpentMs = const Value.absent(),
     DateTime? createdAt,
@@ -1612,6 +1643,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     sessionId: sessionId ?? this.sessionId,
     position: position ?? this.position,
     selectedPosition: selectedPosition.present ? selectedPosition.value : this.selectedPosition,
+    typedAnswer: typedAnswer.present ? typedAnswer.value : this.typedAnswer,
     clientSeq: clientSeq ?? this.clientSeq,
     timeSpentMs: timeSpentMs.present ? timeSpentMs.value : this.timeSpentMs,
     createdAt: createdAt ?? this.createdAt,
@@ -1623,6 +1655,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
       selectedPosition: data.selectedPosition.present
           ? data.selectedPosition.value
           : this.selectedPosition,
+      typedAnswer: data.typedAnswer.present ? data.typedAnswer.value : this.typedAnswer,
       clientSeq: data.clientSeq.present ? data.clientSeq.value : this.clientSeq,
       timeSpentMs: data.timeSpentMs.present ? data.timeSpentMs.value : this.timeSpentMs,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -1635,6 +1668,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
           ..write('sessionId: $sessionId, ')
           ..write('position: $position, ')
           ..write('selectedPosition: $selectedPosition, ')
+          ..write('typedAnswer: $typedAnswer, ')
           ..write('clientSeq: $clientSeq, ')
           ..write('timeSpentMs: $timeSpentMs, ')
           ..write('createdAt: $createdAt')
@@ -1643,8 +1677,15 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
   }
 
   @override
-  int get hashCode =>
-      Object.hash(sessionId, position, selectedPosition, clientSeq, timeSpentMs, createdAt);
+  int get hashCode => Object.hash(
+    sessionId,
+    position,
+    selectedPosition,
+    typedAnswer,
+    clientSeq,
+    timeSpentMs,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1652,6 +1693,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
           other.sessionId == this.sessionId &&
           other.position == this.position &&
           other.selectedPosition == this.selectedPosition &&
+          other.typedAnswer == this.typedAnswer &&
           other.clientSeq == this.clientSeq &&
           other.timeSpentMs == this.timeSpentMs &&
           other.createdAt == this.createdAt);
@@ -1661,6 +1703,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
   final Value<String> sessionId;
   final Value<int> position;
   final Value<int?> selectedPosition;
+  final Value<String?> typedAnswer;
   final Value<int> clientSeq;
   final Value<int?> timeSpentMs;
   final Value<DateTime> createdAt;
@@ -1669,6 +1712,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     this.sessionId = const Value.absent(),
     this.position = const Value.absent(),
     this.selectedPosition = const Value.absent(),
+    this.typedAnswer = const Value.absent(),
     this.clientSeq = const Value.absent(),
     this.timeSpentMs = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1678,6 +1722,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     required String sessionId,
     required int position,
     this.selectedPosition = const Value.absent(),
+    this.typedAnswer = const Value.absent(),
     required int clientSeq,
     this.timeSpentMs = const Value.absent(),
     required DateTime createdAt,
@@ -1690,6 +1735,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     Expression<String>? sessionId,
     Expression<int>? position,
     Expression<int>? selectedPosition,
+    Expression<String>? typedAnswer,
     Expression<int>? clientSeq,
     Expression<int>? timeSpentMs,
     Expression<DateTime>? createdAt,
@@ -1699,6 +1745,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
       if (sessionId != null) 'session_id': sessionId,
       if (position != null) 'position': position,
       if (selectedPosition != null) 'selected_position': selectedPosition,
+      if (typedAnswer != null) 'typed_answer': typedAnswer,
       if (clientSeq != null) 'client_seq': clientSeq,
       if (timeSpentMs != null) 'time_spent_ms': timeSpentMs,
       if (createdAt != null) 'created_at': createdAt,
@@ -1710,6 +1757,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     Value<String>? sessionId,
     Value<int>? position,
     Value<int?>? selectedPosition,
+    Value<String?>? typedAnswer,
     Value<int>? clientSeq,
     Value<int?>? timeSpentMs,
     Value<DateTime>? createdAt,
@@ -1719,6 +1767,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
       sessionId: sessionId ?? this.sessionId,
       position: position ?? this.position,
       selectedPosition: selectedPosition ?? this.selectedPosition,
+      typedAnswer: typedAnswer ?? this.typedAnswer,
       clientSeq: clientSeq ?? this.clientSeq,
       timeSpentMs: timeSpentMs ?? this.timeSpentMs,
       createdAt: createdAt ?? this.createdAt,
@@ -1737,6 +1786,9 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     }
     if (selectedPosition.present) {
       map['selected_position'] = Variable<int>(selectedPosition.value);
+    }
+    if (typedAnswer.present) {
+      map['typed_answer'] = Variable<String>(typedAnswer.value);
     }
     if (clientSeq.present) {
       map['client_seq'] = Variable<int>(clientSeq.value);
@@ -1759,6 +1811,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
           ..write('sessionId: $sessionId, ')
           ..write('position: $position, ')
           ..write('selectedPosition: $selectedPosition, ')
+          ..write('typedAnswer: $typedAnswer, ')
           ..write('clientSeq: $clientSeq, ')
           ..write('timeSpentMs: $timeSpentMs, ')
           ..write('createdAt: $createdAt, ')
@@ -4292,6 +4345,7 @@ typedef $$PendingAnswersTableCreateCompanionBuilder = PendingAnswersCompanion Fu
   required String sessionId,
   required int position,
   Value<int?> selectedPosition,
+  Value<String?> typedAnswer,
   required int clientSeq,
   Value<int?> timeSpentMs,
   required DateTime createdAt,
@@ -4301,6 +4355,7 @@ typedef $$PendingAnswersTableUpdateCompanionBuilder = PendingAnswersCompanion Fu
   Value<String> sessionId,
   Value<int> position,
   Value<int?> selectedPosition,
+  Value<String?> typedAnswer,
   Value<int> clientSeq,
   Value<int?> timeSpentMs,
   Value<DateTime> createdAt,
@@ -4325,6 +4380,9 @@ class $$PendingAnswersTableFilterComposer extends Composer<_$AppDatabase, $Pendi
     column: $table.selectedPosition,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get typedAnswer =>
+      $composableBuilder(column: $table.typedAnswer, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get clientSeq =>
       $composableBuilder(column: $table.clientSeq, builder: (column) => ColumnFilters(column));
@@ -4355,6 +4413,9 @@ class $$PendingAnswersTableOrderingComposer extends Composer<_$AppDatabase, $Pen
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get typedAnswer =>
+      $composableBuilder(column: $table.typedAnswer, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get clientSeq =>
       $composableBuilder(column: $table.clientSeq, builder: (column) => ColumnOrderings(column));
 
@@ -4382,6 +4443,9 @@ class $$PendingAnswersTableAnnotationComposer
 
   GeneratedColumn<int> get selectedPosition =>
       $composableBuilder(column: $table.selectedPosition, builder: (column) => column);
+
+  GeneratedColumn<String> get typedAnswer =>
+      $composableBuilder(column: $table.typedAnswer, builder: (column) => column);
 
   GeneratedColumn<int> get clientSeq =>
       $composableBuilder(column: $table.clientSeq, builder: (column) => column);
@@ -4424,6 +4488,7 @@ class $$PendingAnswersTableTableManager
                 Value<String> sessionId = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<int?> selectedPosition = const Value.absent(),
+                Value<String?> typedAnswer = const Value.absent(),
                 Value<int> clientSeq = const Value.absent(),
                 Value<int?> timeSpentMs = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -4432,6 +4497,7 @@ class $$PendingAnswersTableTableManager
                 sessionId: sessionId,
                 position: position,
                 selectedPosition: selectedPosition,
+                typedAnswer: typedAnswer,
                 clientSeq: clientSeq,
                 timeSpentMs: timeSpentMs,
                 createdAt: createdAt,
@@ -4442,6 +4508,7 @@ class $$PendingAnswersTableTableManager
                 required String sessionId,
                 required int position,
                 Value<int?> selectedPosition = const Value.absent(),
+                Value<String?> typedAnswer = const Value.absent(),
                 required int clientSeq,
                 Value<int?> timeSpentMs = const Value.absent(),
                 required DateTime createdAt,
@@ -4450,6 +4517,7 @@ class $$PendingAnswersTableTableManager
                 sessionId: sessionId,
                 position: position,
                 selectedPosition: selectedPosition,
+                typedAnswer: typedAnswer,
                 clientSeq: clientSeq,
                 timeSpentMs: timeSpentMs,
                 createdAt: createdAt,

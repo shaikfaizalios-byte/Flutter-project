@@ -60,6 +60,8 @@ class _EditorState extends ConsumerState<_Editor> {
   late final TextEditingController _explanation;
   late List<(String, TextEditingController)> _options;
   int? _answer;
+  String _answerType = 'choice';
+  late final TextEditingController _typed;
   String? _topicId;
   String? _patternId;
   late bool _imageDependent;
@@ -70,6 +72,7 @@ class _EditorState extends ConsumerState<_Editor> {
     super.initState();
     _stem = TextEditingController();
     _explanation = TextEditingController();
+    _typed = TextEditingController();
     _options = [];
     _load(widget.question);
   }
@@ -83,6 +86,8 @@ class _EditorState extends ConsumerState<_Editor> {
     }
     _options = [for (final o in q.options) (o.label, TextEditingController(text: o.text))];
     _answer = q.correctPosition;
+    _answerType = q.answerType;
+    _typed.text = q.typedAnswer ?? '';
     _topicId = q.topic?.id;
     _patternId = q.pattern?.id;
     _imageDependent = q.imageDependent;
@@ -92,13 +97,33 @@ class _EditorState extends ConsumerState<_Editor> {
   void dispose() {
     _stem.dispose();
     _explanation.dispose();
+    _typed.dispose();
     for (final (_, c) in _options) {
       c.dispose();
     }
     super.dispose();
   }
 
-  QuestionEdit _edit({VerificationStatus? status}) => QuestionEdit(
+  QuestionEdit _edit({VerificationStatus? status}) => _answerType == 'typed'
+      ? QuestionEdit(
+          stem: _stem.text,
+          answerType: 'typed',
+          typedAnswer: _typed.text.trim().isEmpty ? null : _typed.text.trim(),
+          explanation: _explanation.text,
+          topicId: _topicId,
+          patternId: _patternId,
+          imageDependent: _imageDependent,
+          status: status,
+          clear: {
+            if (_typed.text.trim().isEmpty && _question.typedAnswer != null) 'typed_answer',
+            if (_topicId == null) 'topic_id',
+            if (_patternId == null && _question.pattern != null) 'pattern_id',
+          },
+        )
+      : _choiceEdit(status: status);
+
+  QuestionEdit _choiceEdit({VerificationStatus? status}) => QuestionEdit(
+    answerType: _question.isTyped ? 'choice' : null,
     stem: _stem.text,
     options: [for (final (label, c) in _options) (label, c.text)],
     correctPosition: _answer,
@@ -239,53 +264,80 @@ class _EditorState extends ConsumerState<_Editor> {
           QuestionFigures(questionId: q.id, figures: q.figures),
         ],
         const SizedBox(height: AppSpacing.md),
-        Text(l10n.fieldOptions, style: Theme.of(context).textTheme.titleSmall),
-        for (final (i, (label, controller)) in _options.indexed)
-          Padding(
-            padding: const EdgeInsets.only(top: AppSpacing.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.xs,
-              children: [
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(labelText: l10n.fieldOption(label)),
-                ),
-                if (optionFigure(q.figures, i + 1) case final figure?)
-                  QuestionFigureView(questionId: q.id, figure: figure),
-              ],
-            ),
-          ),
-        if (_options.length < 6)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton.icon(
-              icon: const Icon(Icons.add),
-              label: Text(l10n.addOption),
-              onPressed: () => setState(
-                () => _options = [..._options, ('${_options.length + 1}', TextEditingController())],
-              ),
-            ),
-          ),
-        const SizedBox(height: AppSpacing.md),
-        Text(l10n.fieldCorrectAnswer, style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.fieldAnswerType, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: AppSpacing.sm),
-        Wrap(
-          spacing: AppSpacing.sm,
-          children: [
-            ChoiceChip(
-              label: Text(l10n.answerNotSet),
-              selected: _answer == null,
-              onSelected: (_) => setState(() => _answer = null),
-            ),
-            for (final (i, (label, _)) in _options.indexed)
-              ChoiceChip(
-                label: Text('($label)'),
-                selected: _answer == i + 1,
-                onSelected: (_) => setState(() => _answer = i + 1),
-              ),
+        SegmentedButton<String>(
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(value: 'choice', label: Text(l10n.answerTypeChoice)),
+            ButtonSegment(value: 'typed', label: Text(l10n.answerTypeTyped)),
           ],
+          selected: {_answerType},
+          onSelectionChanged: (s) => setState(() => _answerType = s.first),
         ),
+        if (_answerType == 'typed') ...[
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: _typed,
+            maxLength: 100,
+            decoration: InputDecoration(
+              labelText: l10n.fieldTypedAnswer,
+              helperText: l10n.fieldTypedAnswerHelp,
+              helperMaxLines: 3,
+            ),
+          ),
+        ],
+        if (_answerType == 'choice') ...[
+          const SizedBox(height: AppSpacing.md),
+          Text(l10n.fieldOptions, style: Theme.of(context).textTheme.titleSmall),
+          for (final (i, (label, controller)) in _options.indexed)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpacing.xs,
+                children: [
+                  TextField(
+                    controller: controller,
+                    decoration: InputDecoration(labelText: l10n.fieldOption(label)),
+                  ),
+                  if (optionFigure(q.figures, i + 1) case final figure?)
+                    QuestionFigureView(questionId: q.id, figure: figure),
+                ],
+              ),
+            ),
+          if (_options.length < 6)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: Text(l10n.addOption),
+                onPressed: () => setState(
+                  () =>
+                      _options = [..._options, ('${_options.length + 1}', TextEditingController())],
+                ),
+              ),
+            ),
+          const SizedBox(height: AppSpacing.md),
+          Text(l10n.fieldCorrectAnswer, style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            children: [
+              ChoiceChip(
+                label: Text(l10n.answerNotSet),
+                selected: _answer == null,
+                onSelected: (_) => setState(() => _answer = null),
+              ),
+              for (final (i, (label, _)) in _options.indexed)
+                ChoiceChip(
+                  label: Text('($label)'),
+                  selected: _answer == i + 1,
+                  onSelected: (_) => setState(() => _answer = i + 1),
+                ),
+            ],
+          ),
+        ],
         const SizedBox(height: AppSpacing.md),
         _TopicPicker(
           examCode: q.examCode,

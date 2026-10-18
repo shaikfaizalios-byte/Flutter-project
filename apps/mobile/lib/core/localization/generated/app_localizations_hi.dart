@@ -2443,4 +2443,39 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get issueUnrecognisedAnswer => 'उत्तर कोई विकल्प नहीं है (जैसे टाइप किया जाने वाला उत्तर)';
+
+  @override
+  String sessionCorrectTypedAnswer(String answer) {
+    return 'सही उत्तर: $answer';
+  }
+
+  @override
+  String get sessionTypedAnswerLabel => 'आपका उत्तर';
+
+  @override
+  String get sessionTypedAnswerHelp => 'उत्तर टाइप करें, जैसे 12, 2.5 या 3142।';
+
+  @override
+  String get sessionTypedAnswerSave => 'उत्तर सहेजें';
+
+  @override
+  String resultYourTypedAnswer(String answer) {
+    return 'आपका उत्तर: $answer';
+  }
+
+  @override
+  String get fieldAnswerType => 'उत्तर का प्रकार';
+
+  @override
+  String get answerTypeChoice => 'विकल्प';
+
+  @override
+  String get answerTypeTyped => 'टाइप किया उत्तर';
+
+  @override
+  String get fieldTypedAnswer => 'सही टाइप किया जाने वाला उत्तर';
+
+  @override
+  String get fieldTypedAnswerHelp =>
+      'संख्याएँ मान से मिलाई जाती हैं (2.5 = 2.50, कभी पूर्णांकित नहीं); बाकी उत्तर बिल्कुल वैसे ही होने चाहिए, स्पेस और बड़े-छोटे अक्षर छोड़कर।';
 }

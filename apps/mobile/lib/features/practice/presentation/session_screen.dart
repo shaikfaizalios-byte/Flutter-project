@@ -170,6 +170,13 @@ class _SessionBody extends ConsumerWidget {
               if (item.questionId != null)
                 QuestionFigures(questionId: item.questionId!, figures: item.figures),
               const SizedBox(height: AppSpacing.md),
+              if (item.isTyped)
+                _TypedAnswerBox(
+                  key: ValueKey('typed-${item.position}'),
+                  item: item,
+                  locked: !isMock && item.answered,
+                  onSubmit: (text) => _controller(ref).submitTyped(text),
+                ),
               for (final option in item.options)
                 _OptionTile(
                   label: option.label,
@@ -272,6 +279,66 @@ class _SessionBody extends ConsumerWidget {
   }
 }
 
+/// Answer box of a typed-in question (e.g. CAT TITA). Number keyboard for numeric answers.
+class _TypedAnswerBox extends StatefulWidget {
+  const _TypedAnswerBox({
+    super.key,
+    required this.item,
+    required this.locked,
+    required this.onSubmit,
+  });
+
+  final SessionItemView item;
+  final bool locked;
+  final Future<bool> Function(String text) onSubmit;
+
+  @override
+  State<_TypedAnswerBox> createState() => _TypedAnswerBoxState();
+}
+
+class _TypedAnswerBoxState extends State<_TypedAnswerBox> {
+  late final _controller = TextEditingController(text: widget.item.typedAnswer ?? '');
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_controller.text.trim().isEmpty) return;
+    FocusScope.of(context).unfocus();
+    widget.onSubmit(_controller.text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.sm,
+      children: [
+        TextField(
+          controller: _controller,
+          enabled: !widget.locked,
+          maxLength: 100,
+          keyboardType: widget.item.typedAnswerNumeric
+              ? const TextInputType.numberWithOptions(decimal: true, signed: true)
+              : TextInputType.text,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            labelText: l10n.sessionTypedAnswerLabel,
+            helperText: l10n.sessionTypedAnswerHelp,
+          ),
+        ),
+        if (!widget.locked)
+          FilledButton(onPressed: _submit, child: Text(l10n.sessionTypedAnswerSave)),
+      ],
+    );
+  }
+}
+
 class _OptionTile extends StatelessWidget {
   const _OptionTile({
     required this.label,
@@ -349,7 +416,7 @@ class _FeedbackPanel extends StatelessWidget {
     final feedback = item.feedback!;
     final correctLabel =
         item.options.where((o) => o.position == feedback.correctPosition).firstOrNull?.label ??
-        '${feedback.correctPosition}';
+        '${feedback.correctPosition ?? ''}';
     return Card(
       margin: const EdgeInsets.only(top: AppSpacing.sm),
       child: Padding(
@@ -366,7 +433,11 @@ class _FeedbackPanel extends StatelessWidget {
                       : Theme.of(context).colorScheme.error,
                 ),
               ),
-            Text(l10n.sessionCorrectAnswer(correctLabel)),
+            Text(
+              feedback.correctTypedAnswer != null
+                  ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
+                  : l10n.sessionCorrectAnswer(correctLabel),
+            ),
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),

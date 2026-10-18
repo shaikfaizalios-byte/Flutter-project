@@ -1779,5 +1779,29 @@
       }
     }
   },
-  "issueUnrecognisedAnswer": "Answer isn't an option (e.g. typed-in answer)"
+  "issueUnrecognisedAnswer": "Answer isn't an option (e.g. typed-in answer)",
+  "sessionCorrectTypedAnswer": "Correct answer: {answer}",
+  "@sessionCorrectTypedAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionTypedAnswerLabel": "Your answer",
+  "sessionTypedAnswerHelp": "Type the answer, e.g. 12, 2.5 or 3142.",
+  "sessionTypedAnswerSave": "Save answer",
+  "resultYourTypedAnswer": "Your answer: {answer}",
+  "@resultYourTypedAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldAnswerType": "Answer type",
+  "answerTypeChoice": "Options",
+  "answerTypeTyped": "Typed answer",
+  "fieldTypedAnswer": "Correct typed answer",
+  "fieldTypedAnswerHelp": "Numbers match by value (2.5 = 2.50, never rounded); other answers must match exactly, ignoring spaces and case."
 }

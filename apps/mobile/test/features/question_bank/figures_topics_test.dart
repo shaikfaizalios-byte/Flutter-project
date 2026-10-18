@@ -84,10 +84,13 @@ void main() {
     await openQuestion(tester, 'Q.7');
 
     expect(find.text('Figures from the paper (shown as printed)'), findsOneWidget);
-    expect(find.byType(QuestionFigureView), findsNWidgets(2));
     expect(find.bySemanticsLabel('Figure from the paper (page 3)'), findsOneWidget);
+    // The option figure sits under its option, further down.
+    await scrollTo(tester, find.bySemanticsLabel('Option figure from the paper (page 3)'));
     expect(find.bySemanticsLabel('Option figure from the paper (page 3)'), findsOneWidget);
     expect(repo.figureRequests, containsAll([('venn', 'f-stem'), ('venn', 'f-opt1')]));
+    await tester.drag(find.byType(ListView).first, const Offset(0, 2000));
+    await tester.pumpAndSettle();
 
     // A figure opens a zoomable view.
     await tester.tap(

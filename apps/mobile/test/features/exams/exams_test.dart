@@ -164,8 +164,9 @@ void main() {
     await openPractice(tester);
     await openQuestion(tester, 'Q.1');
 
-    expect(questions.topicRequests, contains('NEET_UG'));
     expect(find.text('NEET UG'), findsOneWidget); // exam chip uses the catalog name
+    await scrollTo(tester, find.text('Topic'));
+    expect(questions.topicRequests, contains('NEET_UG'));
   });
 
   testAppWidgets('draft needs imported papers: explained', (tester, db) async {

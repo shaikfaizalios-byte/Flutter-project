@@ -32,6 +32,8 @@ BankQuestion bankQuestion({
   String patternStatus = 'unassigned',
   String? patternSuggestionReason,
   List<QuestionFigure> figures = const [],
+  String answerType = 'choice',
+  String? typedAnswer,
 }) => BankQuestion(
   id: id,
   origin: origin,
@@ -65,6 +67,8 @@ BankQuestion bankQuestion({
   patternStatus: patternStatus,
   patternSuggestionReason: patternSuggestionReason,
   figures: figures,
+  answerType: answerType,
+  typedAnswer: typedAnswer,
 );
 
 const samplePatterns = [

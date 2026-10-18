@@ -22,6 +22,7 @@ class _FakeSession {
   final DateTime? deadline;
   final String? formatName;
   final Map<int, int?> answers = {};
+  final Map<int, String> typed = {};
   final Set<String> bookmarked = {};
   bool submitted = false;
   String? submitReason;
@@ -119,19 +120,28 @@ class FakePracticeRepository implements PracticeRepository {
     String sessionId,
     int position,
     int? selectedPosition, {
+    String? typedAnswer,
     int? timeSpentMs,
   }) async {
     final s = _get(sessionId);
     if (offline) return const AnswerOutcome.queued();
     _expire(s);
     if (s.submitted) throw const ServerFailure(statusCode: 409, code: 'session_closed');
-    final locked = s.mode == SessionMode.practice && s.answers[position] != null;
-    if (!locked) s.answers[position] = selectedPosition;
+    final answered = s.answers[position] != null || s.typed.containsKey(position);
+    final locked = s.mode == SessionMode.practice && answered;
+    if (!locked) {
+      if (typedAnswer != null) {
+        s.typed[position] = typedAnswer;
+      } else {
+        s.answers[position] = selectedPosition;
+      }
+    }
     final question = s.questions[position - 1];
     return AnswerOutcome.confirmed(
       s.mode == SessionMode.practice ? _feedback(s, position, question) : null,
       applied: !locked,
       selectedPosition: s.answers[position],
+      typedAnswer: s.typed[position],
     );
   }
 
@@ -169,18 +179,38 @@ class FakePracticeRepository implements PracticeRepository {
     }
   }
 
+  /// Same rule as the server: numbers by value, otherwise ignoring spaces and case.
+  static bool typedMatches(String expected, String given) {
+    final a = double.tryParse(expected.trim());
+    final b = double.tryParse(given.trim());
+    if (a != null && b != null) return a == b;
+    String norm(String v) => v.replaceAll(' ', '').toLowerCase();
+    return norm(expected) == norm(given);
+  }
+
+  bool? _outcome(_FakeSession s, int position, BankQuestion q) {
+    if (q.isTyped) {
+      final given = s.typed[position];
+      return given == null ? null : typedMatches(q.typedAnswer!, given);
+    }
+    final selected = s.answers[position];
+    return selected == null ? null : selected == q.correctPosition;
+  }
+
   int _correct(_FakeSession s) => [
     for (final (i, q) in s.questions.indexed)
-      if (s.answers[i + 1] == q.correctPosition) 1,
+      if (_outcome(s, i + 1, q) == true) 1,
   ].length;
 
   AnswerFeedback? _feedback(_FakeSession s, int position, BankQuestion q) {
-    final selected = s.answers[position];
-    final reveal = s.submitted || (s.mode == SessionMode.practice && selected != null);
+    final outcome = _outcome(s, position, q);
+    final answered = s.answers[position] != null || s.typed.containsKey(position);
+    final reveal = s.submitted || (s.mode == SessionMode.practice && answered);
     if (!reveal) return null;
     return AnswerFeedback(
-      correctPosition: q.correctPosition!,
-      isCorrect: selected == null ? null : selected == q.correctPosition,
+      correctPosition: q.isTyped ? null : q.correctPosition,
+      correctTypedAnswer: q.isTyped ? q.typedAnswer : null,
+      isCorrect: outcome,
       explanation: q.explanation ?? 'Explanation ${q.sourceNumber}.',
       explanationByAi: q.origin == QuestionOrigin.ai,
     );
@@ -188,7 +218,7 @@ class FakePracticeRepository implements PracticeRepository {
 
   PracticeSessionView _view(_FakeSession s) {
     final correct = _correct(s);
-    final attempted = s.answers.values.where((a) => a != null).length;
+    final attempted = s.answers.values.where((a) => a != null).length + s.typed.length;
     final wrong = attempted - correct;
     final unattempted = s.questions.length - attempted;
     return PracticeSessionView(
@@ -207,8 +237,11 @@ class FakePracticeRepository implements PracticeRepository {
             questionId: q.id,
             section: q.section,
             stem: q.stem,
-            options: q.options,
+            options: q.isTyped ? const [] : q.options,
             figures: q.figures,
+            answerType: q.answerType,
+            typedAnswer: s.typed[i + 1],
+            typedAnswerNumeric: q.isTyped && double.tryParse(q.typedAnswer ?? '') != null,
             passage: q.passage,
             origin: q.origin,
             verified: q.status == VerificationStatus.verified,

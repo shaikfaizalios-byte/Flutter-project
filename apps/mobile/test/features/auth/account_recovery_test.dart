@@ -91,9 +91,6 @@ void main() {
     await tester.tap(find.text('Terms of use'));
     await tester.pumpAndSettle();
     expect(find.text('Terms of use (draft)'), findsOneWidget);
-    expect(
-      find.textContaining('not affiliated with the Staff Selection Commission'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('not affiliated with any examining body'), findsOneWidget);
   });
 }

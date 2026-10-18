@@ -4010,6 +4010,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Answer isn\'t an option (e.g. typed-in answer)'**
   String get issueUnrecognisedAnswer;
+
+  /// No description provided for @sessionCorrectTypedAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct answer: {answer}'**
+  String sessionCorrectTypedAnswer(String answer);
+
+  /// No description provided for @sessionTypedAnswerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get sessionTypedAnswerLabel;
+
+  /// No description provided for @sessionTypedAnswerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the answer, e.g. 12, 2.5 or 3142.'**
+  String get sessionTypedAnswerHelp;
+
+  /// No description provided for @sessionTypedAnswerSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save answer'**
+  String get sessionTypedAnswerSave;
+
+  /// No description provided for @resultYourTypedAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer: {answer}'**
+  String resultYourTypedAnswer(String answer);
+
+  /// No description provided for @fieldAnswerType.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer type'**
+  String get fieldAnswerType;
+
+  /// No description provided for @answerTypeChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get answerTypeChoice;
+
+  /// No description provided for @answerTypeTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Typed answer'**
+  String get answerTypeTyped;
+
+  /// No description provided for @fieldTypedAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct typed answer'**
+  String get fieldTypedAnswer;
+
+  /// No description provided for @fieldTypedAnswerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers match by value (2.5 = 2.50, never rounded); other answers must match exactly, ignoring spaces and case.'**
+  String get fieldTypedAnswerHelp;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -32,7 +32,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v5)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v6)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -70,7 +70,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Practice (`app/services/practice_service.py`, pure `app/domain/scoring.py`): server-side sessions with
   per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
-  answer in Drift `pending_answers` (schema v3) and replays it. See docs/practice.md.
+  answer in Drift `pending_answers` (schema v3; v6 adds typed answers) and replays it. Typed-in (TITA) questions:
+  `answer_type`/`typed_answer`, pure `app/domain/typed_answers.py` (numbers by value), practice only (mocks exclude
+  them). See docs/practice.md.
 - Accounts (Phase 10): own email+password — Argon2id, 15-min HS256 access JWT (`PREPLOOP_AUTH_SECRET`,
   required in staging/prod), rotating SHA-256-stored refresh tokens with family reuse detection
   (`app/core/security.py`, `app/services/auth_service.py`). Every learner router requires `CurrentUser`
@@ -189,7 +191,8 @@ Known limitations right now:
 - Only one verified exam format exists (SSC CHSL 2026 Tier-I, from the official notice). **SSC CGL and every
   other catalog exam have none** — add only after verifying the current official notice (record source in a
   migration). Without a format: practice, repeats and Radar work; timed mocks and count checks don't.
-- Question model is multiple-choice only: numeric-entry, multi-select, descriptive questions are not supported.
+- Question types: multiple-choice and typed-in (TITA). Multi-select and descriptive answers are not supported;
+  timed mocks use multiple-choice only.
   Catalog exams other than SSC/banking/railways start with no shared topics (learners add their own or use
   the AI draft). Own exams/topics never join the Radar.
 - Figures are found only from PDF vector/image objects: scanned papers (one image per page), multi-column

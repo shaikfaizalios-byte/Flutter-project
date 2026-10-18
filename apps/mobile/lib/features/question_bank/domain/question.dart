@@ -244,6 +244,9 @@ class BankQuestion {
     this.sourceNumber,
     this.passage,
     this.correctPosition,
+    this.answerType = 'choice',
+    this.typedAnswer,
+    this.typedAnswerNumeric = false,
     this.answerSource,
     this.explanation,
     this.topicSuggestedBy,
@@ -290,6 +293,9 @@ class BankQuestion {
         QuestionOption.fromJson(o as Map<String, dynamic>),
     ],
     correctPosition: json['correct_option_position'] as int?,
+    answerType: json['answer_type'] as String? ?? 'choice',
+    typedAnswer: json['typed_answer'] as String?,
+    typedAnswerNumeric: json['typed_answer_numeric'] as bool? ?? false,
     answerSource: json['answer_source'] as String?,
     explanation: json['explanation'] as String?,
     imageDependent: json['image_dependent'] as bool,
@@ -336,6 +342,12 @@ class BankQuestion {
   final Passage? passage;
   final List<QuestionOption> options;
   final int? correctPosition;
+
+  /// "choice" (pick an option) or "typed" (type the answer in, e.g. CAT TITA).
+  final String answerType;
+  final String? typedAnswer;
+  final bool typedAnswerNumeric;
+  bool get isTyped => answerType == 'typed';
   final String? answerSource;
   final String? explanation;
   final bool imageDependent;
@@ -377,6 +389,9 @@ class BankQuestion {
     sourceNumber: sourceNumber,
     passage: passage,
     correctPosition: correctPosition,
+    answerType: answerType,
+    typedAnswer: typedAnswer,
+    typedAnswerNumeric: typedAnswerNumeric,
     answerSource: answerSource,
     explanation: explanation,
     topicSuggestedBy: topicSuggestedBy != null ? topicSuggestedBy() : this.topicSuggestedBy,
@@ -534,6 +549,8 @@ class QuestionEdit {
     this.stem,
     this.options,
     this.correctPosition,
+    this.answerType,
+    this.typedAnswer,
     this.explanation,
     this.topicId,
     this.patternId,
@@ -545,6 +562,8 @@ class QuestionEdit {
   final String? stem;
   final List<(String label, String text)>? options;
   final int? correctPosition;
+  final String? answerType;
+  final String? typedAnswer;
   final String? explanation;
   final String? topicId;
   final String? patternId;
@@ -561,6 +580,8 @@ class QuestionEdit {
         for (final (label, text) in options!) {'label': label, 'text': text},
       ],
     'correct_option_position': ?correctPosition,
+    'answer_type': ?answerType,
+    'typed_answer': ?typedAnswer,
     'explanation': ?explanation,
     'topic_id': ?topicId,
     'pattern_id': ?patternId,

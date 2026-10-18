@@ -80,6 +80,9 @@ class PendingAnswers extends Table {
   /// Null clears the answer.
   IntColumn get selectedPosition => integer().nullable()();
 
+  /// The answer of a typed-in question (instead of [selectedPosition]). Added in schema v6.
+  TextColumn get typedAnswer => text().nullable()();
+
   /// Monotonic per device; the server ignores updates older than the one it has.
   IntColumn get clientSeq => integer()();
   IntColumn get timeSpentMs => integer().nullable()();

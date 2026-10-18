@@ -40,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +67,10 @@ class AppDatabase extends _$AppDatabase {
           'UPDATE card_reviews SET sync_id = lower(hex(randomblob(16))) WHERE sync_id IS NULL',
         );
         await m.createIndex(schema.cardReviewsSyncId);
+      },
+      // v6: typed-in answers in the offline answer queue.
+      from5To6: (m, schema) async {
+        await m.addColumn(schema.pendingAnswers, schema.pendingAnswers.typedAnswer);
       },
     ),
     beforeOpen: (details) async {
