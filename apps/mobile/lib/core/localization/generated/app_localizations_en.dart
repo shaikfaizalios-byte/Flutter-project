@@ -2203,4 +2203,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paperDatePickDay => 'Pick the day (optional)';
+
+  @override
+  String get repeatsYourPapers => 'Your papers';
+
+  @override
+  String get repeatsAllLearners => 'All learners';
+
+  @override
+  String get radarShareTitle => 'Repeat Radar';
+
+  @override
+  String get radarShareSwitch => 'Share my counts with the Repeat Radar';
+
+  @override
+  String get radarShareWhat =>
+      'Only how many questions of each topic and question type your reviewed papers had, with the paper\'s exam date and shift. Never question text, your papers or your account details. Turning this off removes your counts at once.';
+
+  @override
+  String radarShareEligible(int count) {
+    return '$count of your papers can join (they need a confirmed date and shift).';
+  }
+
+  @override
+  String get radarEmptyTitle => 'Not enough shared data yet';
+
+  @override
+  String radarEmptyMessage(int min) {
+    return 'A paper shift appears here once at least $min learners have reviewed it and their counts agree. Turn on sharing below and confirm your papers\' date and shift to help.';
+  }
+
+  @override
+  String radarBasis(int shifts) {
+    return 'Based on $shifts exam shifts reviewed by learners';
+  }
+
+  @override
+  String radarBasisYears(int shifts, int first, int last) {
+    return 'Based on $shifts exam shifts reviewed by learners ($first–$last)';
+  }
+
+  @override
+  String radarHowCounted(int min) {
+    return 'Each shift counts only when at least $min learners reviewed it, and a number is shown only when their counts agree. One person can\'t change these numbers.';
+  }
+
+  @override
+  String radarWithheld(int count) {
+    return '$count counts are hidden because learners\' numbers didn\'t agree.';
+  }
+
+  @override
+  String radarMostRule(int percent, int min) {
+    return '“In most shifts” means in at least $percent% of the shifts, once there are $min or more.';
+  }
+
+  @override
+  String radarInShifts(int shifts, int total, int questions) {
+    return 'In $shifts of $total shifts · $questions questions';
+  }
+
+  @override
+  String get radarSeenInMost => 'In most shifts';
+
+  @override
+  String radarShiftsByYear(String years) {
+    return 'Shifts by year: $years';
+  }
 }

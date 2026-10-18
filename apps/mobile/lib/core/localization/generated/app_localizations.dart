@@ -3626,6 +3626,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick the day (optional)'**
   String get paperDatePickDay;
+
+  /// No description provided for @repeatsYourPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'Your papers'**
+  String get repeatsYourPapers;
+
+  /// No description provided for @repeatsAllLearners.
+  ///
+  /// In en, this message translates to:
+  /// **'All learners'**
+  String get repeatsAllLearners;
+
+  /// No description provided for @radarShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat Radar'**
+  String get radarShareTitle;
+
+  /// No description provided for @radarShareSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my counts with the Repeat Radar'**
+  String get radarShareSwitch;
+
+  /// No description provided for @radarShareWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'Only how many questions of each topic and question type your reviewed papers had, with the paper\'s exam date and shift. Never question text, your papers or your account details. Turning this off removes your counts at once.'**
+  String get radarShareWhat;
+
+  /// No description provided for @radarShareEligible.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of your papers can join (they need a confirmed date and shift).'**
+  String radarShareEligible(int count);
+
+  /// No description provided for @radarEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough shared data yet'**
+  String get radarEmptyTitle;
+
+  /// No description provided for @radarEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A paper shift appears here once at least {min} learners have reviewed it and their counts agree. Turn on sharing below and confirm your papers\' date and shift to help.'**
+  String radarEmptyMessage(int min);
+
+  /// No description provided for @radarBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {shifts} exam shifts reviewed by learners'**
+  String radarBasis(int shifts);
+
+  /// No description provided for @radarBasisYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {shifts} exam shifts reviewed by learners ({first}–{last})'**
+  String radarBasisYears(int shifts, int first, int last);
+
+  /// No description provided for @radarHowCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Each shift counts only when at least {min} learners reviewed it, and a number is shown only when their counts agree. One person can\'t change these numbers.'**
+  String radarHowCounted(int min);
+
+  /// No description provided for @radarWithheld.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} counts are hidden because learners\' numbers didn\'t agree.'**
+  String radarWithheld(int count);
+
+  /// No description provided for @radarMostRule.
+  ///
+  /// In en, this message translates to:
+  /// **'“In most shifts” means in at least {percent}% of the shifts, once there are {min} or more.'**
+  String radarMostRule(int percent, int min);
+
+  /// No description provided for @radarInShifts.
+  ///
+  /// In en, this message translates to:
+  /// **'In {shifts} of {total} shifts · {questions} questions'**
+  String radarInShifts(int shifts, int total, int questions);
+
+  /// No description provided for @radarSeenInMost.
+  ///
+  /// In en, this message translates to:
+  /// **'In most shifts'**
+  String get radarSeenInMost;
+
+  /// No description provided for @radarShiftsByYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Shifts by year: {years}'**
+  String radarShiftsByYear(String years);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

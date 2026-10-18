@@ -13,7 +13,9 @@ import '../../practice/domain/practice_models.dart';
 import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
 import '../../study_plan/application/study_profile_controller.dart';
 import '../data/insights_repository.dart';
+import '../domain/radar.dart';
 import '../domain/repeats.dart';
+import 'radar_sharing_card.dart';
 
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
 /// Every number states its basis; reviewed counts are kept apart from suggestions.
@@ -27,13 +29,13 @@ class RepeatsScreen extends ConsumerStatefulWidget {
 class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   String? _exam;
   bool _examChosen = false;
+  bool _shared = false; // false: your papers, true: all learners (Radar)
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final exams = ref.watch(studyProfileProvider).examCodes;
     if (!_examChosen) _exam = exams.isEmpty ? null : exams.first;
-    final report = ref.watch(repeatsProvider(_exam));
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.repeatsTitle)),
@@ -42,7 +44,9 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
           child: RefreshIndicator(
-            onRefresh: () async => ref.invalidate(repeatsProvider(_exam)),
+            onRefresh: () async => ref
+              ..invalidate(repeatsProvider(_exam))
+              ..invalidate(radarProvider(_exam)),
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
@@ -64,31 +68,116 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
                       ],
                     ),
                   ),
-                ...switch (report) {
-                  AsyncData(:final value) => _content(context, value),
-                  AsyncError() => [
-                    EmptyState(
-                      icon: Icons.cloud_off,
-                      title: l10n.bankLoadError,
-                      action: OutlinedButton(
-                        onPressed: () => ref.invalidate(repeatsProvider(_exam)),
-                        child: Text(l10n.retry),
-                      ),
-                    ),
-                  ],
-                  _ => [
-                    const Padding(
-                      padding: EdgeInsets.all(AppSpacing.xl),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                  ],
-                },
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: SegmentedButton<bool>(
+                    showSelectedIcon: false,
+                    segments: [
+                      ButtonSegment(value: false, label: Text(l10n.repeatsYourPapers)),
+                      ButtonSegment(value: true, label: Text(l10n.repeatsAllLearners)),
+                    ],
+                    selected: {_shared},
+                    onSelectionChanged: (s) => setState(() => _shared = s.first),
+                  ),
+                ),
+                if (_shared) ..._radar(context) else ..._own(context),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _radar(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      ...switch (ref.watch(radarProvider(_exam))) {
+        AsyncData(:final value) => _radarContent(context, value),
+        AsyncError() => [
+          EmptyState(
+            icon: Icons.cloud_off,
+            title: l10n.bankLoadError,
+            action: OutlinedButton(
+              onPressed: () => ref.invalidate(radarProvider(_exam)),
+              child: Text(l10n.retry),
+            ),
+          ),
+        ],
+        _ => [
+          const Padding(
+            padding: EdgeInsets.all(AppSpacing.xl),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ],
+      },
+      const SizedBox(height: AppSpacing.md),
+      RadarSharingCard(examCode: _exam),
+    ];
+  }
+
+  List<Widget> _radarContent(BuildContext context, RadarReport report) {
+    final l10n = AppLocalizations.of(context);
+    final small = Theme.of(context).textTheme.bodySmall;
+    final basis = report.basis;
+    if (basis.shifts == 0) {
+      return [
+        SectionCard(
+          icon: Icons.radar,
+          title: l10n.radarEmptyTitle,
+          child: Text(l10n.radarEmptyMessage(basis.minAccounts)),
+        ),
+      ];
+    }
+    final years = basis.years;
+    return [
+      SectionCard(
+        icon: Icons.info_outline,
+        title: years.isEmpty
+            ? l10n.radarBasis(basis.shifts)
+            : l10n.radarBasisYears(basis.shifts, years.first, years.last),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpacing.xs,
+          children: [
+            Text(l10n.radarHowCounted(basis.minAccounts), style: small),
+            if (basis.withheld > 0) Text(l10n.radarWithheld(basis.withheld), style: small),
+            Text(
+              l10n.radarMostRule((RepeatRules.share * 100).round(), RepeatRules.minPapers),
+              style: small,
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: AppSpacing.md),
+      for (final topic in report.topics)
+        _RadarTopicCard(topic: topic, basis: basis, examCode: _exam),
+    ];
+  }
+
+  List<Widget> _own(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      ...switch (ref.watch(repeatsProvider(_exam))) {
+        AsyncData(:final value) => _content(context, value),
+        AsyncError() => [
+          EmptyState(
+            icon: Icons.cloud_off,
+            title: l10n.bankLoadError,
+            action: OutlinedButton(
+              onPressed: () => ref.invalidate(repeatsProvider(_exam)),
+              child: Text(l10n.retry),
+            ),
+          ),
+        ],
+        _ => [
+          const Padding(
+            padding: EdgeInsets.all(AppSpacing.xl),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ],
+      },
+    ];
   }
 
   List<Widget> _content(BuildContext context, RepeatsReport report) {
@@ -308,6 +397,73 @@ class _SimilarCard extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _RadarTopicCard extends ConsumerWidget {
+  const _RadarTopicCard({required this.topic, required this.basis, required this.examCode});
+
+  final RadarTopic topic;
+  final RadarBasis basis;
+  final String? examCode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final small = theme.textTheme.bodySmall;
+    final most =
+        basis.shifts >= RepeatRules.minPapers &&
+        topic.counts.shifts / basis.shifts >= RepeatRules.share;
+    String years(List<RadarYear> ys) => ys.map((y) => '${y.year}: ${y.shifts}').join(' · ');
+
+    return Card(
+      child: ExpansionTile(
+        shape: const Border(),
+        title: Text('${topic.name}  ·  ${topic.subject}'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.radarInShifts(topic.counts.shifts, basis.shifts, topic.counts.questions)),
+            if (most)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Chip(
+                  visualDensity: VisualDensity.compact,
+                  avatar: const Icon(Icons.priority_high, size: 16),
+                  label: Text(l10n.radarSeenInMost),
+                  backgroundColor: theme.colorScheme.secondaryContainer,
+                ),
+              ),
+          ],
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (topic.counts.years.isNotEmpty)
+            Text(l10n.radarShiftsByYear(years(topic.counts.years)), style: small),
+          for (final pattern in topic.patterns)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(pattern.name),
+              subtitle: Text(
+                l10n.radarInShifts(pattern.counts.shifts, basis.shifts, pattern.counts.questions),
+              ),
+              trailing: TextButton(
+                onPressed: () => startAndOpen(
+                  context,
+                  () => ref
+                      .read(practiceRepositoryProvider)
+                      .startPractice(
+                        PracticeRequest(examCode: examCode, patternId: pattern.patternId),
+                      ),
+                ),
+                child: Text(l10n.repeatsPractise),
+              ),
+            ),
+        ],
       ),
     );
   }

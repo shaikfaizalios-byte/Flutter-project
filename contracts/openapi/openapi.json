@@ -3260,6 +3260,209 @@
         "title": "QuestionUpdate",
         "type": "object"
       },
+      "RadarBasis": {
+        "properties": {
+          "min_accounts": {
+            "title": "Min Accounts",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "withheld": {
+            "title": "Withheld",
+            "type": "integer"
+          },
+          "years": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "shifts",
+          "years",
+          "min_accounts",
+          "withheld"
+        ],
+        "title": "RadarBasis",
+        "type": "object"
+      },
+      "RadarCounts": {
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/RadarYear"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "shifts",
+          "questions",
+          "years"
+        ],
+        "title": "RadarCounts",
+        "type": "object"
+      },
+      "RadarPattern": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/RadarCounts"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "pattern_id": {
+            "format": "uuid",
+            "title": "Pattern Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pattern_id",
+          "name",
+          "counts"
+        ],
+        "title": "RadarPattern",
+        "type": "object"
+      },
+      "RadarReport": {
+        "properties": {
+          "basis": {
+            "$ref": "#/components/schemas/RadarBasis"
+          },
+          "exam_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/RadarTopic"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "exam_code",
+          "basis",
+          "topics"
+        ],
+        "title": "RadarReport",
+        "type": "object"
+      },
+      "RadarSettings": {
+        "properties": {
+          "eligible_papers": {
+            "title": "Eligible Papers",
+            "type": "integer"
+          },
+          "min_accounts": {
+            "title": "Min Accounts",
+            "type": "integer"
+          },
+          "share": {
+            "title": "Share",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "share",
+          "eligible_papers",
+          "min_accounts"
+        ],
+        "title": "RadarSettings",
+        "type": "object"
+      },
+      "RadarSettingsUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "share": {
+            "title": "Share",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "share"
+        ],
+        "title": "RadarSettingsUpdate",
+        "type": "object"
+      },
+      "RadarTopic": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/RadarCounts"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/RadarPattern"
+            },
+            "title": "Patterns",
+            "type": "array"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "subject",
+          "name",
+          "counts",
+          "patterns"
+        ],
+        "title": "RadarTopic",
+        "type": "object"
+      },
+      "RadarYear": {
+        "properties": {
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "shifts"
+        ],
+        "title": "RadarYear",
+        "type": "object"
+      },
       "ReadinessResponse": {
         "properties": {
           "checks": {
@@ -8744,6 +8947,163 @@
         "summary": "Report a question as wrong or unclear (sends it back to review)",
         "tags": [
           "ai"
+        ]
+      }
+    },
+    "/api/v1/radar": {
+      "get": {
+        "operationId": "radar_api_v1_radar_get",
+        "parameters": [
+          {
+            "description": "Exam code, e.g. SSC_CHSL",
+            "in": "query",
+            "name": "exam",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 32,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exam code, e.g. SSC_CHSL",
+              "title": "Exam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RadarReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Topic and question-type repetition pooled over learners who share their counts",
+        "tags": [
+          "radar"
+        ]
+      }
+    },
+    "/api/v1/radar/settings": {
+      "get": {
+        "operationId": "radar_settings_api_v1_radar_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RadarSettings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your Radar sharing choice",
+        "tags": [
+          "radar"
+        ]
+      },
+      "put": {
+        "operationId": "update_radar_settings_api_v1_radar_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RadarSettingsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RadarSettings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Turn sharing your confirmed counts with the Repeat Radar on or off",
+        "tags": [
+          "radar"
         ]
       }
     },

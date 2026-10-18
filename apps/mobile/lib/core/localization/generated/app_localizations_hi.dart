@@ -2208,4 +2208,71 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get paperDatePickDay => 'दिन चुनें (वैकल्पिक)';
+
+  @override
+  String get repeatsYourPapers => 'आपके पेपर';
+
+  @override
+  String get repeatsAllLearners => 'सभी शिक्षार्थी';
+
+  @override
+  String get radarShareTitle => 'रिपीट रडार';
+
+  @override
+  String get radarShareSwitch => 'मेरी गिनती रिपीट रडार के साथ साझा करें';
+
+  @override
+  String get radarShareWhat =>
+      'सिर्फ़ यह कि आपके जाँचे गए पेपरों में हर टॉपिक और प्रश्न-प्रकार के कितने प्रश्न थे, पेपर की परीक्षा-तिथि और पाली के साथ। प्रश्नों का पाठ, आपके पेपर या खाते की जानकारी कभी नहीं। इसे बंद करते ही आपकी गिनती तुरंत हट जाती है।';
+
+  @override
+  String radarShareEligible(int count) {
+    return 'आपके $count पेपर जुड़ सकते हैं (उनकी तिथि और पाली पक्की होनी चाहिए)।';
+  }
+
+  @override
+  String get radarEmptyTitle => 'अभी पर्याप्त साझा डेटा नहीं है';
+
+  @override
+  String radarEmptyMessage(int min) {
+    return 'कोई पेपर-पाली यहाँ तब दिखती है जब कम से कम $min शिक्षार्थी उसे जाँच लें और उनकी गिनती मेल खाए। मदद के लिए नीचे साझा करना चालू करें और अपने पेपरों की तिथि व पाली पक्की करें।';
+  }
+
+  @override
+  String radarBasis(int shifts) {
+    return 'शिक्षार्थियों द्वारा जाँची गई $shifts परीक्षा-पालियों के आधार पर';
+  }
+
+  @override
+  String radarBasisYears(int shifts, int first, int last) {
+    return 'शिक्षार्थियों द्वारा जाँची गई $shifts परीक्षा-पालियों के आधार पर ($first–$last)';
+  }
+
+  @override
+  String radarHowCounted(int min) {
+    return 'हर पाली तभी गिनी जाती है जब कम से कम $min शिक्षार्थियों ने उसे जाँचा हो, और कोई संख्या तभी दिखती है जब उनकी गिनती मेल खाए। कोई एक व्यक्ति इन संख्याओं को नहीं बदल सकता।';
+  }
+
+  @override
+  String radarWithheld(int count) {
+    return '$count गिनतियाँ छिपाई गई हैं क्योंकि शिक्षार्थियों की संख्याएँ मेल नहीं खाईं।';
+  }
+
+  @override
+  String radarMostRule(int percent, int min) {
+    return '“ज़्यादातर पालियों में” का मतलब है कम से कम $percent% पालियों में, जब $min या ज़्यादा पालियाँ हों।';
+  }
+
+  @override
+  String radarInShifts(int shifts, int total, int questions) {
+    return '$total में से $shifts पालियों में · $questions प्रश्न';
+  }
+
+  @override
+  String get radarSeenInMost => 'ज़्यादातर पालियों में';
+
+  @override
+  String radarShiftsByYear(String years) {
+    return 'साल-वार पालियाँ: $years';
+  }
 }

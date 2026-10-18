@@ -13,6 +13,7 @@ from app.api.v1.endpoints import (
     ops,
     practice,
     questions,
+    radar,
     sync,
 )
 
@@ -34,5 +35,6 @@ api_router.include_router(questions.router, dependencies=_signed_in)
 api_router.include_router(practice.router, dependencies=_signed_in)
 api_router.include_router(analytics.router, dependencies=_signed_in)
 api_router.include_router(insights.router, dependencies=_signed_in)
+api_router.include_router(radar.router, dependencies=_signed_in)
 api_router.include_router(ai.router, dependencies=_signed_in)
 api_router.include_router(sync.router, dependencies=_signed_in)

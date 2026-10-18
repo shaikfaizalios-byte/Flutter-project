@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/presentation/account_section.dart';
+import '../../insights/presentation/radar_sharing_card.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -32,6 +33,8 @@ class SettingsScreen extends ConsumerWidget {
               const AccountSection(),
               const SizedBox(height: AppSpacing.md),
               const StudyPlanSection(),
+              const SizedBox(height: AppSpacing.md),
+              const RadarSharingCard(),
               const SizedBox(height: AppSpacing.md),
               SectionCard(
                 icon: Icons.translate,

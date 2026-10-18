@@ -24,6 +24,7 @@ for the Play listing.
 | App activity → Other user-generated content | Yes | No | Required for the feature | App functionality | Notes, flashcards, study plan, practice answers |
 | Files and docs → Files and docs | Yes | No | Optional | App functionality | Imported question-paper PDFs and text read from them |
 | App activity → App interactions | Yes | No | Required | App functionality, analytics (own progress only) | Practice results and revision ratings, shown back to the learner; no third-party analytics |
+| App activity → Other actions (Repeat Radar counts) | Yes, only if the learner opts in | No: only aggregated, agreed counts with no identifiers are shown to other users | Optional | App functionality | Topic / question-type counts per confirmed exam shift; published only when at least 2 accounts agree; read live, removed when sharing is turned off |
 | App info and performance → Diagnostics | No | — | — | — | No crash reporting or analytics SDK in the app |
 | Location, contacts, photos, audio, health, finance, messages, calendar, device ids | No | — | — | — | Not accessed |
 

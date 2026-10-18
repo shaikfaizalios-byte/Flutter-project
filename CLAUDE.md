@@ -55,6 +55,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `PUT /documents/{id}/paper-date`; `GET /insights/repeats` counts reviewed topics/patterns per paper and
   confirmed year (unreviewed apart) + wording-similarity groups (`app/domain/similarity.py`, numbers masked).
   Mobile `features/insights` (Practice tab → Repeated models; `RepeatRules` shown in UI). See docs/insights.md.
+- Repeat Radar: opt-in (`users.radar_opt_in`) pooling of confirmed topic/pattern counts per confirmed exam
+  shift across accounts, read live; pure `app/domain/radar.py` publishes a shift only with >= 2 accounts and a
+  count only when >= 2 accounts agree. `GET /radar`, `GET/PUT /radar/settings`; mobile "All learners" view +
+  `RadarSharingCard` (Profile). Response-sheet score checker NOT built yet (needs a real sheet sample).
 - Practice (`app/services/practice_service.py`, pure `app/domain/scoring.py`): server-side sessions with
   per-item snapshots; mock timer = server `deadline_at`, expiry auto-submits lazily; answers carry
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
@@ -176,6 +180,7 @@ Known limitations right now:
   Topic rules suggested 83/100 on one sample CHSL paper (coverage, not validated accuracy).
 - Repeats are counted only from the learner's own imported + reviewed papers (no bundled papers); pattern
   list is a starter set (41/100 sample questions got a pattern); similarity is wording-only.
+  Radar shows nothing until 2 opted-in learners review the same shift (confirmed date + shift).
 - Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
   aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
   Issue details are English (labels are localised).

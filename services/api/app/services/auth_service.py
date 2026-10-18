@@ -160,6 +160,14 @@ class AuthService:
                 select(SessionAnswer).where(SessionAnswer.session_id.in_(session_ids))
             ).all()
             data["session_answers"] = [_row_dict(a) for a in answers]
+        data["account_settings"] = [
+            {
+                "radar_opt_in": user.radar_opt_in,
+                "radar_opt_in_at": user.radar_opt_in_at.isoformat()
+                if user.radar_opt_in_at
+                else None,
+            }
+        ]
         return AccountExport(exported_at=self._now(), user=UserRead.model_validate(user), data=data)
 
     def delete_account(self, user: User, password: str, storage: DocumentStorage) -> None:

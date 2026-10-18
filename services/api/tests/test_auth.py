@@ -246,6 +246,7 @@ def test_export_contains_only_the_accounts_data(anon: TestClient) -> None:
     assert export["user"]["email"] == "asha@example.com"
     assert [c["title"] for c in export["data"]["concepts"]] == ["Asha's note"]
     assert "password_hash" not in str(export)
+    assert export["data"]["account_settings"] == [{"radar_opt_in": False, "radar_opt_in_at": None}]
 
 
 def test_account_deletion_removes_data_files_and_access(

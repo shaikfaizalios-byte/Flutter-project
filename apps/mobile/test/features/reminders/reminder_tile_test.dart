@@ -23,14 +23,14 @@ void main() {
     expect(find.text('Off'), findsOneWidget);
     expect(os.permissionRequests, 0); // never asked before the learner opts in
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(reminderSwitch);
     await tester.pumpAndSettle();
 
     expect(find.text('Every day at 7:30 AM'), findsOneWidget);
     expect(os.permissionRequests, 1);
     expect(os.pending, hasLength(1));
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(reminderSwitch);
     await tester.pumpAndSettle();
     expect(find.text('Off'), findsOneWidget);
     expect(os.pending, isEmpty);
@@ -41,7 +41,7 @@ void main() {
     await pumpPrepLoopApp(tester, db, studyProfile: withTime, reminders: os);
     await openReminder(tester);
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(reminderSwitch);
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Notifications are turned off for PrepLoop'), findsOneWidget);
@@ -56,7 +56,7 @@ void main() {
     await pumpPrepLoopApp(tester, db);
     await openReminder(tester);
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(reminderSwitch);
     await tester.pumpAndSettle();
     expect(find.byType(TimePickerDialog), findsOneWidget);
     await tester.tap(find.text('Cancel'));
@@ -71,6 +71,12 @@ void main() {
     await openReminder(tester);
 
     expect(find.text('Reminders work in the Android and iOS apps.'), findsOneWidget);
-    expect(tester.widget<Switch>(find.byType(Switch)).onChanged, isNull);
+    expect(tester.widget<Switch>(reminderSwitch).onChanged, isNull);
   });
 }
+
+/// The reminder's own switch (Profile also has the Repeat Radar switch).
+final reminderSwitch = find.descendant(
+  of: find.widgetWithText(SwitchListTile, 'Daily study reminder'),
+  matching: find.byType(Switch),
+);

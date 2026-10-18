@@ -24,6 +24,15 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
   title and notes you chose) is sent to our AI provider, [Anthropic PBC], to write the answer.
 - We keep a record that an AI request happened (type, model, outcome, size) but not its text.
 
+**Repeat Radar** (only if you turn on "Share my counts with the Repeat Radar"; off by default)
+- For your reviewed papers with a confirmed exam date and shift, the Radar reads how many questions
+  of each topic and question type they had, together with that exam date and shift.
+- These counts are combined with other learners' counts and shown to all learners only when at
+  least 2 learners reviewed the same exam shift and their counts agree. Nothing that identifies you,
+  your papers or their questions is shown, and no question text is shared.
+- Nothing is copied: the Radar reads your counts live, so turning sharing off (or deleting your
+  account) removes them at once.
+
 **Technical data**
 - Server logs: time, request path, response status and duration, with a random request id. Logs do
   not contain your notes, document text, passwords, codes or tokens.
@@ -60,7 +69,7 @@ They process data only to provide these services to us.
 - **Copy your data**: Profile → Copy my data gives you everything we hold for your account.
 - **Correct** your profile and notes in the app at any time.
 - **Delete** your account and all its data: Profile → Delete account.
-- You can turn off reminders and AI features. To exercise other rights under applicable law
+- You can turn off reminders, AI features and Repeat Radar sharing. To exercise other rights under applicable law
   (for example India's Digital Personal Data Protection Act, 2023, or the GDPR), contact
   [privacy contact email].
 

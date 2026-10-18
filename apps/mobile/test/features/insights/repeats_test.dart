@@ -2,26 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/utils/calendar_date.dart';
 import 'package:preploop/features/documents/application/documents_providers.dart';
-import 'package:preploop/features/insights/data/insights_repository.dart';
+import 'package:preploop/features/insights/domain/radar.dart';
 import 'package:preploop/features/insights/domain/repeats.dart';
 import 'package:preploop/features/question_bank/domain/question.dart';
 
 import '../../helpers/pump_app.dart';
 import '../documents/documents_screen_test.dart' show FakeDocumentsRepository, doc;
 import '../question_bank/question_bank_test.dart' show openPractice, openQuestion;
-
-class FakeInsightsRepository implements InsightsRepository {
-  FakeInsightsRepository(this.report);
-
-  RepeatsReport report;
-  final requests = <String?>[];
-
-  @override
-  Future<RepeatsReport> repeats({String? examCode}) async {
-    requests.add(examCode);
-    return report;
-  }
-}
 
 const basis = PapersBasis(total: 4, dated: 3, undated: 1, years: [2019, 2021, 2022]);
 
@@ -80,13 +67,9 @@ Future<void> openRepeats(WidgetTester tester) async {
 void main() {
   testAppWidgets('no papers: explains and links to importing', (tester, db) async {
     final insights = FakeInsightsRepository(
-      const RepeatsReport(papers: PapersBasis(total: 0, dated: 0, undated: 0)),
+      report: const RepeatsReport(papers: PapersBasis(total: 0, dated: 0, undated: 0)),
     );
-    await pumpPrepLoopApp(
-      tester,
-      db,
-      extraOverrides: [insightsRepositoryProvider.overrideWithValue(insights)],
-    );
+    await pumpPrepLoopApp(tester, db, insights: insights);
     await openRepeats(tester);
 
     expect(find.text('Repeated models'), findsOneWidget);
@@ -99,15 +82,10 @@ void main() {
     db,
   ) async {
     final insights = FakeInsightsRepository(
-      const RepeatsReport(papers: basis, topics: [venn, rare], similarGroups: [group]),
+      report: const RepeatsReport(papers: basis, topics: [venn, rare], similarGroups: [group]),
     );
     final practice = FakePracticeRepository(serverNow: () => DateTime(2026, 10, 15, 9));
-    await pumpPrepLoopApp(
-      tester,
-      db,
-      practice: practice,
-      extraOverrides: [insightsRepositoryProvider.overrideWithValue(insights)],
-    );
+    await pumpPrepLoopApp(tester, db, practice: practice, insights: insights);
     await openRepeats(tester);
 
     expect(find.text('Based on 4 of your papers (2019–2022)'), findsOneWidget);
@@ -134,15 +112,10 @@ void main() {
     db,
   ) async {
     final insights = FakeInsightsRepository(
-      const RepeatsReport(papers: basis, similarGroups: [group]),
+      report: const RepeatsReport(papers: basis, similarGroups: [group]),
     );
     final questions = FakeQuestionsRepository([bankQuestion()]);
-    await pumpPrepLoopApp(
-      tester,
-      db,
-      questions: questions,
-      extraOverrides: [insightsRepositoryProvider.overrideWithValue(insights)],
-    );
+    await pumpPrepLoopApp(tester, db, questions: questions, insights: insights);
     await openRepeats(tester);
 
     expect(find.text('Worded alike in different papers'), findsOneWidget);
@@ -253,5 +226,80 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     expect(repo.paperDates.last, ('doc1', 2019, CalendarDate(2019, 7, 2), 2));
+  });
+
+  testAppWidgets('all learners: empty Radar explains the rule; sharing is opt-in', (
+    tester,
+    db,
+  ) async {
+    final insights = FakeInsightsRepository(eligiblePapers: 1);
+    await pumpPrepLoopApp(tester, db, insights: insights);
+    await openRepeats(tester);
+    await tester.tap(find.text('All learners'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Not enough shared data yet'), findsOneWidget);
+    expect(find.textContaining('at least 2 learners have reviewed it'), findsOneWidget);
+    await scrollTo(tester, find.text('Share my counts with the Repeat Radar'));
+    expect(find.textContaining('Never question text'), findsOneWidget);
+    expect(
+      find.text('1 of your papers can join (they need a confirmed date and shift).'),
+      findsOneWidget,
+    );
+    final toggle = find.byType(Switch);
+    expect(tester.widget<Switch>(toggle).value, isFalse);
+
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    expect(insights.shareChanges, [true]);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+  });
+
+  testAppWidgets('all learners: pooled shifts with basis, rule and practise', (tester, db) async {
+    final insights = FakeInsightsRepository(
+      radarReport: const RadarReport(
+        basis: RadarBasis(shifts: 6, minAccounts: 2, years: [2019, 2024], withheld: 3),
+        topics: [
+          RadarTopic(
+            topicId: 't-venn',
+            subject: 'General Intelligence',
+            name: 'Venn Diagrams',
+            counts: RadarCounts(
+              shifts: 5,
+              questions: 7,
+              years: [RadarYear(2019, 2), RadarYear(2024, 3)],
+            ),
+            patterns: [
+              RadarPattern(
+                patternId: 'p-classes',
+                name: 'Relationship between classes',
+                counts: RadarCounts(shifts: 4, questions: 4),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+    final practice = FakePracticeRepository(serverNow: () => DateTime(2026, 10, 18, 9));
+    await pumpPrepLoopApp(tester, db, insights: insights, practice: practice);
+    await openRepeats(tester);
+    await tester.tap(find.text('All learners'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Based on 6 exam shifts reviewed by learners (2019–2024)'), findsOneWidget);
+    expect(find.textContaining("One person can't change these numbers"), findsOneWidget);
+    expect(
+      find.text("3 counts are hidden because learners' numbers didn't agree."),
+      findsOneWidget,
+    );
+    expect(find.text('In 5 of 6 shifts · 7 questions'), findsOneWidget);
+    expect(find.text('In most shifts'), findsOneWidget);
+
+    await tester.tap(find.text('Venn Diagrams  ·  General Intelligence'));
+    await tester.pumpAndSettle();
+    expect(find.text('Shifts by year: 2019: 2 · 2024: 3'), findsOneWidget);
+    await tester.tap(find.text('Practise'));
+    await tester.pumpAndSettle();
+    expect(practice.practiceRequests.single.patternId, 'p-classes');
   });
 }

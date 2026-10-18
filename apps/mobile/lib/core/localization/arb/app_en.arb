@@ -1578,5 +1578,99 @@
   "paperYear": "Year",
   "paperShiftLabel": "Shift",
   "paperDateNotKnown": "Not known",
-  "paperDatePickDay": "Pick the day (optional)"
+  "paperDatePickDay": "Pick the day (optional)",
+  "repeatsYourPapers": "Your papers",
+  "repeatsAllLearners": "All learners",
+  "radarShareTitle": "Repeat Radar",
+  "radarShareSwitch": "Share my counts with the Repeat Radar",
+  "radarShareWhat": "Only how many questions of each topic and question type your reviewed papers had, with the paper's exam date and shift. Never question text, your papers or your account details. Turning this off removes your counts at once.",
+  "radarShareEligible": "{count} of your papers can join (they need a confirmed date and shift).",
+  "@radarShareEligible": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "radarEmptyTitle": "Not enough shared data yet",
+  "radarEmptyMessage": "A paper shift appears here once at least {min} learners have reviewed it and their counts agree. Turn on sharing below and confirm your papers' date and shift to help.",
+  "@radarEmptyMessage": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "radarBasis": "Based on {shifts} exam shifts reviewed by learners",
+  "@radarBasis": {
+    "placeholders": {
+      "shifts": {
+        "type": "int"
+      }
+    }
+  },
+  "radarBasisYears": "Based on {shifts} exam shifts reviewed by learners ({first}–{last})",
+  "@radarBasisYears": {
+    "placeholders": {
+      "shifts": {
+        "type": "int"
+      },
+      "first": {
+        "type": "int"
+      },
+      "last": {
+        "type": "int"
+      }
+    }
+  },
+  "radarHowCounted": "Each shift counts only when at least {min} learners reviewed it, and a number is shown only when their counts agree. One person can't change these numbers.",
+  "@radarHowCounted": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "radarWithheld": "{count} counts are hidden because learners' numbers didn't agree.",
+  "@radarWithheld": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "radarMostRule": "“In most shifts” means in at least {percent}% of the shifts, once there are {min} or more.",
+  "@radarMostRule": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "radarInShifts": "In {shifts} of {total} shifts · {questions} questions",
+  "@radarInShifts": {
+    "placeholders": {
+      "shifts": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "questions": {
+        "type": "int"
+      }
+    }
+  },
+  "radarSeenInMost": "In most shifts",
+  "radarShiftsByYear": "Shifts by year: {years}",
+  "@radarShiftsByYear": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  }
 }

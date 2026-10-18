@@ -57,9 +57,33 @@ different names can fall below the threshold.
   overwritten by a re-parse.
 - Confirmed in the paper's review screen (`PUT /documents/{id}/paper-date`; all null = "date unknown").
 
+## Repeat Radar (all learners)
+
+The same question, pooled across learners who opted in, so a new learner sees what repeats before
+importing anything. `app/domain/radar.py` (pure) + `app/services/radar_service.py`;
+`GET /api/v1/radar?exam=`, `GET/PUT /api/v1/radar/settings` (`users.radar_opt_in`, migration 0011).
+
+| Rule | Why |
+|---|---|
+| **Opt-in**, off by default (Profile, or the *All learners* view); the switch says exactly what is shared | New use of the learner's data; privacy policy updated |
+| Only papers with a **confirmed date and shift** contribute; a shift = exam + date + shift | Identifies the same paper across accounts without sharing files |
+| Counts are **read live** from confirmed topics/patterns of non-rejected source questions | Nothing copied: opting out or deleting the account removes them at once |
+| Each account counts once per shift (largest contribution) | Re-importing can't double-count |
+| A shift is published only with **at least 2 accounts**; a count only when at least 2 accounts report the **same** number (a missing topic counts as 0; ties withheld) | One account alone can never publish or skew a number |
+| Output has no account, paper or question ids, filenames or text; withheld counts are reported as a number | Privacy; transparency about gaps |
+
+The app shows the basis ("Based on 6 exam shifts reviewed by learners (2019–2024)"), how shifts are
+counted, how many counts were withheld, and "In most shifts" (same 50 % / 3 rule as for own papers).
+
+Not done yet: the **response-sheet score checker** (import a candidate's official response sheet, exact
+score with the verified marking scheme, questions added to practice) is waiting for a real response-sheet
+sample to build and test the importer against; it will also feed the Radar.
+
 ## Limits
 
 - Results depend on how many papers are imported and reviewed; with one paper nothing "repeats".
 - Pattern suggestions cover only listed patterns (41 of 100 questions of the sample CHSL paper got one);
   the rest stay without a type until a reviewer picks one.
 - Similarity is wording-only and per topic; it is not a semantic match.
+- The Radar needs at least two opted-in learners per shift with confirmed dates and shifts; until then it
+  shows nothing. Agreement is on exact counts, so partial reviews withhold numbers rather than guess.
