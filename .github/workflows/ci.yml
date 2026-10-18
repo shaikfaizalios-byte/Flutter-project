@@ -121,3 +121,6 @@ jobs:
         run: |
           cp infra/compose.env.example infra/compose.env
           docker compose -f infra/docker-compose.yml config --quiet
+          cp infra/production/.env.example infra/production/.env
+          docker compose -f infra/production/docker-compose.yml             --env-file infra/production/.env config --quiet
+          bash -n infra/production/setup-server.sh infra/production/deploy.sh infra/production/backup.sh

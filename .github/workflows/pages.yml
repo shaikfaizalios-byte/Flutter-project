@@ -1,0 +1,75 @@
+# Public website (+ the web app once the API is online) on GitHub Pages.
+#
+# One-time setup by the repository owner: Settings -> Pages -> Source: "GitHub Actions".
+# When the API runs on the server, set API_BASE_URL below (https only) and push: the web app is
+# then built and published at <site>/app/. Until then only the website is published.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "apps/mobile/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  # e.g. https://203-0-113-10.sslip.io  (empty: website only)
+  API_BASE_URL: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: subosito/flutter-action@v2
+        if: env.API_BASE_URL != ''
+        with:
+          flutter-version: "3.47.7"
+          channel: stable
+          cache: true
+      - name: Build the web app (production)
+        if: env.API_BASE_URL != ''
+        working-directory: apps/mobile
+        run: |
+          case "$API_BASE_URL" in https://*) ;; *) echo "::error::API_BASE_URL must be https"; exit 1;; esac
+          flutter pub get
+          flutter build web --release \
+            --base-href "/${{ github.event.repository.name }}/app/" \
+            --dart-define=FLAVOR=production \
+            --dart-define=API_BASE_URL="$API_BASE_URL" \
+            --dart-define=APP_NAME=PrepLoop
+      - name: Build the website
+        run: |
+          if [ -n "$API_BASE_URL" ]; then
+            python website/build.py --out _site --with-app
+            cp -R apps/mobile/build/web _site/app
+          else
+            python website/build.py --out _site
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

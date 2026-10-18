@@ -46,6 +46,38 @@ docker compose -f infra/docker-compose.yml up --build
 This starts PostgreSQL, migrations, the API on :8000, the worker and **Mailpit**. Mailpit catches reset and verification emails, with
 a UI on :8025. Local SMTP is unencrypted (`PREPLOOP_SMTP_SECURITY=none`), which staging and production refuse.
 
+## Small server with docker compose (chosen set-up)
+
+One Ubuntu 24.04 server (2 vCPU / 4 GB RAM is comfortable for OCR) runs everything from
+`infra/production/`: Caddy (HTTPS from Let's Encrypt, security headers) → API, the document worker,
+PostgreSQL and the shared PDF volume. Only ports 22, 80 and 443 are open.
+
+1. **Create the server** at a provider of your choice (Ubuntu 24.04, your SSH key). Note its IP.
+2. **Name**: without a domain use `<ip-with-dashes>.sslip.io` (e.g. `203-0-113-10.sslip.io`), a free
+   wildcard DNS name that points at the IP. With a domain, add an `A` record (e.g. `api.example.com`).
+3. **Email**: create SMTP credentials at an email provider. Production refuses to start without SMTP
+   over TLS, because password reset and verification codes must reach people.
+4. **Set up** (as root on the server):
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/shaikfaizalios-byte/Flutter-project/main/infra/production/setup-server.sh -o setup.sh
+   bash setup.sh
+   cp /opt/preploop/infra/production/.env.example /opt/preploop/infra/production/.env
+   nano /opt/preploop/infra/production/.env      # API_DOMAIN, secrets, SMTP, CORS origin
+   bash /opt/preploop/infra/production/deploy.sh
+   ```
+   `deploy.sh` pulls, builds, runs migrations (the API and worker wait for them), restarts and waits for
+   `/api/v1/health/ready`. Run it again for every update.
+5. **Web app**: set `API_BASE_URL` in `.github/workflows/pages.yml` to `https://<API_DOMAIN>` and push; the
+   web app is then published at `https://shaikfaizalios-byte.github.io/Flutter-project/app/`. The API's
+   `PREPLOOP_CORS_ORIGINS` must contain `https://shaikfaizalios-byte.github.io`.
+6. **First account**: register your own account first. The first account claims any data without an owner.
+7. **Backups**: `setup-server.sh` installs a nightly job (`/usr/local/bin/preploop-backup`, 14 days, in
+   `/var/backups/preploop`). Copy that folder off the server as well (provider snapshots or object storage);
+   a backup on the same disk does not survive losing the server. Test a restore:
+   `docker compose ... exec -T db pg_restore -U preploop -d preploop --clean < db-<stamp>.dump`.
+
+Updates: OS security updates install automatically (unattended-upgrades); reboot when the kernel asks.
+
 ## Production configuration
 
 Secrets come from the platform's secret store, never from files in the image:

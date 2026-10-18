@@ -1,0 +1,100 @@
+# Production on one small server: Caddy (HTTPS) -> API, plus the document worker and PostgreSQL,
+# with PDFs on a volume shared by API and worker. Only Caddy is reachable from outside.
+#
+#   cp infra/production/.env.example infra/production/.env   # fill in; never commit it
+#   docker compose -f infra/production/docker-compose.yml --env-file infra/production/.env up -d --build
+#
+# See docs/deployment.md ("Small server with docker compose").
+name: preploop
+
+x-api: &api
+  build: ../../services/api
+  image: preploop-api:production
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    PREPLOOP_ENVIRONMENT: production
+    PREPLOOP_DATABASE_URL: postgresql+psycopg://preploop:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/preploop
+    PREPLOOP_RATE_LIMIT_BACKEND: postgres
+    # The API has no published port: only Caddy reaches it, so its forwarded headers are trusted.
+    FORWARDED_ALLOW_IPS: "*"
+  volumes:
+    - uploads:/app/var/uploads
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+  networks: [internal]
+
+services:
+  db:
+    image: postgres:17.5-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: preploop
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: preploop
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U preploop -d preploop"]
+      interval: 5s
+      retries: 20
+    networks: [internal]
+
+  migrate:
+    <<: *api
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *api
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *api
+    command: ["python", "-m", "app.workers.document_worker"]
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    # PDF parsing and OCR run here with bounded resources, apart from the API.
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1g
+
+  caddy:
+    image: caddy:2.8.4-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
+  caddy_config:

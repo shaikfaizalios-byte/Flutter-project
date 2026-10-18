@@ -6,11 +6,15 @@ These terms are between you and [Operator name] ("we") for the PrepLoop app and 
 
 ## The service
 
-PrepLoop helps you prepare for SSC CGL and SSC CHSL examinations: you can import papers, review the
-questions found in them, practise, revise with flashcards and track your progress.
+PrepLoop helps you prepare for competitive examinations (for example SSC, banking, railway and
+entrance exams, or an exam you add yourself): you can import papers, review the questions found in
+them, practise, revise with flashcards and track your progress.
 
-- PrepLoop is **not affiliated with the Staff Selection Commission**. Official notices from the
-  Commission are the only authoritative source for exam patterns, dates, syllabus and results.
+- PrepLoop is **not affiliated with any examining body** (such as the Staff Selection Commission,
+  IBPS, RRBs, UPSC or NTA). Their official notices are the only authoritative source for exam
+  patterns, dates, syllabus and results.
+- Repetition counts (Repeated models, Repeat Radar) describe only papers imported by you or other
+  learners. They are not predictions of what an exam will contain.
 - Questions found in imported papers may contain reading mistakes. They are marked for review and
   should be checked against the original paper.
 - **AI-generated content** is always labelled as such. It may be wrong, is never an official or
