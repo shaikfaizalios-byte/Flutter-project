@@ -132,7 +132,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 .\scripts\dev-mobile.ps1     # Flutter on Chrome (cross-origin isolated); -Device emulator-5554 for Android
 .\scripts\check.ps1          # ruff, mypy, pytest (real Postgres), alembic check, dart format, analyze, test
 .\scripts\export-openapi.ps1 # refresh contracts/openapi/openapi.json after API changes
-python scripts\serve_web.py  # serve apps/mobile/build/web with COOP/COEP headers on :8080
+python scripts\serve_web.py  # serve apps/mobile/build/web with COOP/COEP headers on :8080 (--lan: phones on Wi-Fi; add origin to PREPLOOP_CORS_ORIGINS)
 docker compose -f infra/docker-compose.yml up --build   # full stack + Mailpit (needs Docker; copy infra/compose.env.example)
 services\api\.venv\Scripts\python.exe scripts\generate_app_icons.py  # launcher icons (Android/iOS/web)
 cd apps\mobile; flutter build appbundle --release --dart-define=FLAVOR=production --dart-define=API_BASE_URL=https://...
