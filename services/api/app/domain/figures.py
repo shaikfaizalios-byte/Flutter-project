@@ -29,10 +29,10 @@ from app.domain.segmentation import (
     OPTION_INLINE,
     OPTION_LINE_START,
     PASSAGE_START,
-    STRONG_QUESTION,
     WEAK_QUESTION,
     ParsedQuestion,
     section_heading,
+    strong_start,
 )
 
 # A figure must be at least this big (points) in both directions and in area; thinner marks
@@ -238,7 +238,7 @@ def _clusters(boxes: list[Box]) -> list[tuple[Box, int]]:
 def _is_anchor(text: str) -> bool:
     stripped = text.strip()
     return bool(
-        STRONG_QUESTION.match(stripped)
+        strong_start(stripped)
         or WEAK_QUESTION.match(stripped)
         or OPTION_LINE_START.match(stripped)
         or OPTION_INLINE.match(stripped)
@@ -298,7 +298,7 @@ def _anchors(analysis: PageAnalysis, strong_numbering: bool) -> list[_Anchor]:
         if i in analysis.figure_lines:
             continue
         text = line.text.strip()
-        match = (STRONG_QUESTION if strong_numbering else WEAK_QUESTION).match(text)
+        match = strong_start(text) if strong_numbering else WEAK_QUESTION.match(text)
         if match:
             anchors.append(
                 _Anchor(analysis.layout.number, line.box.top, int(match.group(1)), line.box.left)

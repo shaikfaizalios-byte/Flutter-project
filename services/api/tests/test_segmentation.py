@@ -321,3 +321,133 @@ def test_same_subject_matching() -> None:
     assert same_subject("General Intelligence and Reasoning", "General Intelligence")
     assert same_subject("Quantitative Aptitude", "Quantitative Aptitude (Basic Arithmetic Skill)")
     assert not same_subject("English Language", "General Awareness")
+
+
+# --- papers answered inline, CAT style (synthetic text) ----------------------------------
+
+CAT_STYLE = """
+    VARC Questions with Solutions
+    1. Which word best completes the sentence?
+    1. Option 3
+    2. Option 2
+    3. Option 4
+    4. Option 1
+    Correct Answer: Option 2
+    Explanation:
+    The second option fits the tone of the sentence.
+    DIRECTIONS for questions 2-3: Five jumbled sentences (labelled 1, 2, 3, 4, and 5) are
+    given. Key in the number of the odd sentence out.
+    2.
+    1. The first sentence of the set.
+    2. The second sentence of the set.
+    3. The third sentence of the set.
+    4. The fourth sentence of the set.
+    5. The fifth sentence of the set.
+    Correct Answer: Sentence 1
+    Explanation:
+    Sentence 1 is about something else.
+    3. How many quarters had growth?
+    Correct Answer: 4
+    Explanation:
+    Q1 Q2 Q3 Q4
+    10 12 14 16
+    All four quarters grew.
+    4: What is the trade balance?
+    1. Deficit of 10.0 Billion USD 2. Surplus of 15.0 Billion USD
+    3. Surplus of 10.0 Billion USD 4. Deficit of 15.0 Billion USD
+    Correct answer: option (4)
+    Solution:
+    Exports minus imports is -15.
+"""
+
+
+def test_inline_answered_paper_with_label_rows_and_typed_answers() -> None:
+    result = run(CAT_STYLE)
+    by_number = {q.number: q for q in result.questions}
+    assert sorted(by_number) == [1, 2, 3, 4]
+    # "Q1 Q2 Q3 Q4" table rows are not question markers.
+    assert result.strong_numbering is False
+
+    q1 = by_number[1]
+    assert [o.text for o in q1.options] == ["Option 3", "Option 2", "Option 4", "Option 1"]
+    assert q1.answer_position == 2  # "Correct Answer: Option 2"
+    assert q1.explanation == "The second option fits the tone of the sentence."
+
+    # Odd-one-out with five sentences: "5." is still question 2 (its answer comes later), and
+    # "Sentence 1" names no option: kept for the reviewer, never guessed.
+    q2 = by_number[2]
+    assert q2.answer_position is None
+    assert ("unrecognised_answer", "Sentence 1") in [(i.code, i.detail) for i in q2.issues]
+
+    # A typed-in number for a question without options is not "option 4".
+    q3 = by_number[3]
+    assert q3.options == [] and q3.answer_position is None
+    assert ("unrecognised_answer", "4") in [(i.code, i.detail) for i in q3.issues]
+
+    # "4:" numbering, two options per line, decimals intact, lower-case answer label.
+    q4 = by_number[4]
+    assert [o.text for o in q4.options] == [
+        "Deficit of 10.0 Billion USD",
+        "Surplus of 15.0 Billion USD",
+        "Surplus of 10.0 Billion USD",
+        "Deficit of 15.0 Billion USD",
+    ]
+    assert q4.answer_position == 4
+    assert q4.explanation == "Exports minus imports is -15."
+    assert codes(result.document_issues) == []
+
+
+def test_numbered_lines_in_directions_are_not_questions() -> None:
+    result = run(
+        """
+        1. First question?
+        (1) a (2) b (3) c (4) d
+        Ans: 1
+        DIRECTIONS for questions 2-3: Read the facts below.
+        1. Asha was in group A.
+        2. Bunty was in group B.
+        2. Second question?
+        (1) a (2) b (3) c (4) d
+        3. Third question?
+        (1) a (2) b (3) c (4) d
+        """
+    )
+    assert [q.number for q in result.questions] == [1, 2, 3]
+    assert "Asha was in group A." in result.passages[0].text
+
+
+def test_a_stray_q_marker_does_not_switch_a_plainly_numbered_paper() -> None:
+    result = run(
+        """
+        1. Sales in Q1 rose. What happened next?
+        (1) a (2) b (3) c (4) d
+        2. Second question?
+        (1) a (2) b (3) c (4) d
+        Q1 results were good.
+        3. Third question?
+        (1) a (2) b (3) c (4) d
+        """
+    )
+    assert result.strong_numbering is False
+    assert [q.number for q in result.questions] == [1, 2, 3]
+
+
+def test_an_end_of_paper_solutions_section_still_works() -> None:
+    result = run(
+        """
+        Q.1 First?
+        (1) a (2) b (3) c (4) d
+        Q.2 Second?
+        (1) a (2) b (3) c (4) d
+        Q.3 Third?
+        (1) a (2) b (3) c (4) d
+        Answer Key
+        1-(2) 2-(3) 3-(1)
+        Solutions
+        1. Because b.
+        2. Because c.
+        """
+    )
+    by_number = {q.number: q for q in result.questions}
+    assert by_number[1].answer_position == 2
+    assert by_number[1].explanation == "Because b."

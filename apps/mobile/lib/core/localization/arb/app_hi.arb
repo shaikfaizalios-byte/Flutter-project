@@ -651,5 +651,6 @@
   "topicsKeywords": "कीवर्ड (वैकल्पिक)",
   "topicsKeywordsHelp": "इस टॉपिक के प्रश्नों में आने वाले शब्द, कॉमा से अलग। न दें तो टॉपिक का नाम इस्तेमाल होगा।",
   "topicsDraftLabel": "आपके {count} प्रश्नों से AI सुझाव ({model})। सिर्फ़ वही रखें जो सही हो।",
-  "topicsDraftKeep": "{count} टॉपिक जोड़ें"
+  "topicsDraftKeep": "{count} टॉपिक जोड़ें",
+  "issueUnrecognisedAnswer": "उत्तर कोई विकल्प नहीं है (जैसे टाइप किया जाने वाला उत्तर)"
 }

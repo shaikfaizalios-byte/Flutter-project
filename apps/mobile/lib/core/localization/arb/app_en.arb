@@ -1778,5 +1778,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "issueUnrecognisedAnswer": "Answer isn't an option (e.g. typed-in answer)"
 }

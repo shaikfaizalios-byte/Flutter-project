@@ -2440,4 +2440,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String topicsDraftKeep(int count) {
     return '$count टॉपिक जोड़ें';
   }
+
+  @override
+  String get issueUnrecognisedAnswer => 'उत्तर कोई विकल्प नहीं है (जैसे टाइप किया जाने वाला उत्तर)';
 }

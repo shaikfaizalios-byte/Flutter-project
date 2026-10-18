@@ -4004,6 +4004,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add {count} topics'**
   String topicsDraftKeep(int count);
+
+  /// No description provided for @issueUnrecognisedAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer isn\'t an option (e.g. typed-in answer)'**
+  String get issueUnrecognisedAnswer;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

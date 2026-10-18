@@ -2434,4 +2434,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String topicsDraftKeep(int count) {
     return 'Add $count topics';
   }
+
+  @override
+  String get issueUnrecognisedAnswer => 'Answer isn\'t an option (e.g. typed-in answer)';
 }

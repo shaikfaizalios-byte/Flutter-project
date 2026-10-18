@@ -45,6 +45,9 @@ class IssueCode:
     # Some characters (ligatures, formulas, symbols) could not be read from the PDF text;
     # the question also carries an image of it as printed.
     UNREADABLE_TEXT = "unreadable_text"
+    # An answer line that names no option ("Correct Answer: Sentence 5", a typed-in number):
+    # kept as found for the reviewer, never mapped to an option.
+    UNRECOGNISED_ANSWER = "unrecognised_answer"
     # Document level
     NO_QUESTIONS_FOUND = "no_questions_found"
     NUMBERING_GAPS = "numbering_gaps"
@@ -114,7 +117,34 @@ STRONG_QUESTION = re.compile(
     rf"(\d{{1,3}})\s*(?:[.):]|{_DASH})?\s*(.*)$",
     re.IGNORECASE,
 )
-WEAK_QUESTION = re.compile(r"^(\d{1,3})\s*[.)]\s+(.*)$")
+# A row of labels such as "Q1 Q2 Q3 Q4" (quarters in a chart or table) is not a question.
+_LABEL_ROW = re.compile(r"^\s*(?:Q\s*\d{1,3}[\s,|/-]*){2,}$", re.IGNORECASE)
+# Fewer different strong numbers than this only count when the paper isn't plainly numbered.
+MIN_STRONG_NUMBERS = 3
+
+
+def strong_start(text: str) -> re.Match[str] | None:
+    """A strong question marker ("Q.12", "Question 12", "प्रश्न 12"), except label rows."""
+    if _LABEL_ROW.match(text):
+        return None
+    return STRONG_QUESTION.match(text)
+
+
+def uses_strong_numbering(texts: Sequence[str]) -> bool:
+    """Strong markers decide the numbering unless they are only a stray line or two in a paper
+    plainly numbered "1.", "2.", "3."... (e.g. "Q1 sales" in a passage)."""
+    strong = {int(m.group(1)) for t in texts if (m := strong_start(t))}
+    if not strong:
+        return False
+    if len(strong) >= MIN_STRONG_NUMBERS:
+        return True
+    plain = {int(m.group(1)) for t in texts if (m := WEAK_QUESTION.match(t))}
+    return len(plain) < MIN_STRONG_NUMBERS
+
+
+WEAK_QUESTION = re.compile(r"^(\d{1,3})\s*[.):]\s+(.*)$")
+# A question number alone on its line ("4."), its text on the next lines.
+BARE_NUMBER = re.compile(r"^(\d{1,3})\s*[.)]$")
 SECTION_PREFIX = re.compile(
     rf"^(?:section|part|खंड|भाग)\s*(?:{_DASH}|:)?\s*([A-D]|[IVX]{{1,4}}|\d{{1,2}})?\b\s*"
     rf"(?:{_DASH}|:|\.)?\s*(.*)$",
@@ -152,8 +182,12 @@ OPTION_INLINE = re.compile(r"(?:(?<=\s)|^)\(\s*([1-9]|[a-eA-E])\s*\)\s*")
 OPTION_LINE_START = re.compile(r"^([a-eA-E])\s*[.)]\s+(.*)$")
 INLINE_ANSWER = re.compile(
     rf"^(?:ans(?:wer)?|correct\s+answer|उत्तर)\s*(?:[.:]|{_DASH})?\s*"
-    r"\(?\s*([1-9]|[a-eA-E])\s*\)?(?:\s|$|[.,;])",
+    r"(?:option\s*)?\(?\s*([1-9]|[a-eA-E])\s*\)?(?:\s|$|[.,;])",
     re.IGNORECASE,
+)
+# Any answer line, recognised or not.
+ANSWER_LABEL = re.compile(
+    rf"^(?:ans(?:wer)?|correct\s+answer|उत्तर)\s*(?:[.:]|{_DASH})\s*(.*)$", re.IGNORECASE
 )
 INLINE_EXPLANATION = re.compile(
     rf"^(?:sol(?:ution)?|explanation|exp|हल|व्याख्या)\s*(?:[.:]|{_DASH})\s*(.*)$",
@@ -261,6 +295,9 @@ class _State:
     passage: ParsedPassage | None = None
     explanation_target: int | None = None
     inline_explanation: list[str] | None = None
+    answer_line_seen: bool = False  # the current question had an answer line
+    # Earlier questions each had their own answer line: the paper answers inline.
+    inline_answers: bool = False
     restarted_numbering: bool = False
     last_number: int | None = None
     last_section: str | None = None
@@ -272,6 +309,9 @@ class _State:
             self.questions.append(self.current)
         self.current = None
         self.inline_explanation = None
+        if self.answer_line_seen:
+            self.inline_answers = True
+        self.answer_line_seen = False
 
 
 def segment(
@@ -284,7 +324,7 @@ def segment(
     state = _State(
         expected_options=expected_options,
         extra_headings=frozenset(h.strip().casefold() for h in extra_headings if h.strip()),
-        strong_numbering=any(STRONG_QUESTION.match(line.text) for line in lines),
+        strong_numbering=uses_strong_numbering([line.text for line in lines]),
     )
     for line in lines:
         _handle_line(state, line)
@@ -311,7 +351,7 @@ def _handle_line(state: _State, line: _Line) -> None:
         state.mode = "answer_key"
         state.key_entries.extend(_key_pairs(ANSWER_KEY_HEADING.sub("", text)))
         return
-    if EXPLANATION_HEADING.match(text):
+    if EXPLANATION_HEADING.match(text) and not _explains_current(state):
         state.finish_question()
         state.passage = None
         state.mode = "explanations"
@@ -323,12 +363,12 @@ def _handle_line(state: _State, line: _Line) -> None:
             state.key_entries.extend(pairs)
             return
         # A heading or a question after the key means the paper continues.
-        if not (section_heading(text, state.extra_headings) or STRONG_QUESTION.match(text)):
+        if not (section_heading(text, state.extra_headings) or strong_start(text)):
             return
         state.mode = "questions"
 
     if state.mode == "explanations":
-        start = STRONG_QUESTION.match(text) or WEAK_QUESTION.match(text)
+        start = strong_start(text) or WEAK_QUESTION.match(text)
         if start:
             state.explanation_target = int(start.group(1))
             state.explanations[state.explanation_target].append(start.group(2))
@@ -373,9 +413,16 @@ def _handle_line(state: _State, line: _Line) -> None:
     if line.page not in current.pages:
         current.pages.append(line.page)
     answer = INLINE_ANSWER.match(text)
-    if answer:
+    # Without options, "Correct Answer: 4" is a typed-in answer, not option 4.
+    if answer and current.options:
         current.answer_position = option_position(answer.group(1))
         current.answer_source = "inline"
+        state.answer_line_seen = True
+        return
+    label = ANSWER_LABEL.match(text)
+    if label and state.inline_explanation is None:
+        state.answer_line_seen = True
+        current.issues.append(Issue(IssueCode.UNRECOGNISED_ANSWER, label.group(1).strip()[:500]))
         return
     explanation = INLINE_EXPLANATION.match(text)
     if explanation:
@@ -385,6 +432,18 @@ def _handle_line(state: _State, line: _Line) -> None:
         state.inline_explanation.append(text)
         return
     _consume(current, text, state.expected_options)
+
+
+def _explains_current(state: _State) -> bool:
+    """True when the current question just got its answer inline ("Correct Answer: ...") and
+    has no explanation yet: an "Explanation:" heading then belongs to it."""
+    current = state.current
+    return (
+        state.mode == "questions"
+        and current is not None
+        and state.answer_line_seen
+        and state.inline_explanation is None
+    )
 
 
 def _start_question(state: _State, number: int, rest: str, page: int) -> None:
@@ -416,20 +475,41 @@ def _start_question(state: _State, number: int, rest: str, page: int) -> None:
 def _question_start(
     text: str, current: ParsedQuestion | None, state: _State
 ) -> tuple[int | None, str]:
-    strong = STRONG_QUESTION.match(text)
+    # In a plainly numbered paper a stray "Q1 ..." line is text, not a question.
+    strong = strong_start(text) if state.strong_numbering else None
     if strong:
         return int(strong.group(1)), strong.group(2)
-    weak = None if state.strong_numbering else WEAK_QUESTION.match(text)
+    weak = None if state.strong_numbering else WEAK_QUESTION.match(text) or BARE_NUMBER.match(text)
     if weak is None:
         return None, text
     number = int(weak.group(1))
+    rest = (weak.group(2) or "") if weak.re is WEAK_QUESTION else ""
     if current is None:
-        return number, weak.group(2)
+        # Between questions (after directions or a heading) only the next number, or the first
+        # question a passage names, starts one: "1. ..." lines inside directions are not
+        # questions. A new section may start again at any number.
+        allowed = set()
+        if state.last_number is not None and state.section == state.last_section:
+            allowed.add(state.last_number + 1)
+            if state.passage is not None and state.passage.first_question is not None:
+                allowed.add(state.passage.first_question)
+        if allowed and number not in allowed:
+            return None, text
+        return number, rest
     # "2. ..." while option 2 is expected is an option line, not question 2.
     if len(current.options) < state.expected_options and number == len(current.options) + 1:
         return None, text
     if number == current.number + 1:
-        return number, weak.group(2)
+        # In a paper that answers each question inline, the next question doesn't start
+        # before this one's answer line: "5. ..." is then a fifth item (e.g. sentence 5 of an
+        # odd-one-out question), not question 5.
+        if (
+            state.inline_answers
+            and not state.answer_line_seen
+            and number == len(current.options) + 1
+        ):
+            return None, text
+        return number, rest
     return None, text
 
 
@@ -447,7 +527,8 @@ def _consume(question: ParsedQuestion, text: str, expected_options: int) -> None
             and len(question.options) < expected_options
             and int(numbered.group(1)) == len(question.options) + 1
         ):
-            _add_option(question, numbered.group(1), numbered.group(2))
+            for label, option_text in _numbered_options(text, len(question.options) + 1):
+                _add_option(question, label, option_text)
             return
         _append_text(question, text)
         return
@@ -459,6 +540,29 @@ def _consume(question: ParsedQuestion, text: str, expected_options: int) -> None
     for i, marker in enumerate(markers):
         end = markers[i + 1].start() if i + 1 < len(markers) else len(text)
         _add_option(question, marker.group(1), text[marker.end() : end].strip())
+
+
+_NUMBERED_MARKER = re.compile(r"(?:^|(?<=\s))(\d)\.\s+")
+
+
+def _numbered_options(text: str, first: int) -> list[tuple[str, str]]:
+    """Split "1. a 2. b" into options when the markers count up from ``first``; anything else
+    (a lone "1. a", or numbers out of sequence) stays one option."""
+    markers = [m for m in _NUMBERED_MARKER.finditer(text)]
+    chosen = []
+    expected = first
+    for marker in markers:
+        if int(marker.group(1)) == expected:
+            chosen.append(marker)
+            expected += 1
+    if len(chosen) < 2 or chosen[0].start() != 0:
+        match = WEAK_QUESTION.match(text)
+        return [(match.group(1), match.group(2))] if match else []
+    parts = []
+    for i, marker in enumerate(chosen):
+        end = chosen[i + 1].start() if i + 1 < len(chosen) else len(text)
+        parts.append((marker.group(1), text[marker.end() : end].strip()))
+    return parts
 
 
 def _append_text(question: ParsedQuestion, text: str) -> None:
@@ -574,7 +678,7 @@ def _validate(
                 Issue(IssueCode.IMAGE_DEPENDENT, f"matched '{hint}'" if hint else "no options")
             )
         if len(question.stem) > MAX_STEM_CHARS or any(
-            STRONG_QUESTION.match(part.strip()) for part in question.stem.split("\n")[1:]
+            strong_start(part.strip()) for part in question.stem.split("\n")[1:]
         ):
             question.issues.append(Issue(IssueCode.AMBIGUOUS_BOUNDARY))
         if question.answer_position is not None and question.answer_position > len(
