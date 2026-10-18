@@ -52,7 +52,7 @@ Until a server exists, the development API on the PC is reachable from the inter
 Cloudflare quick tunnel (`cloudflared`, no account). The website's web app uses it.
 
 1. `.\scripts\dev-api.ps1 -Lan` (and the document worker) in their own windows.
-2. `powershell -ExecutionPolicy Bypass -File scripts	unnel.ps1` in another window, kept open.
+2. `powershell -ExecutionPolicy Bypass -File scripts\tunnel.ps1` in another window, kept open.
    Quick tunnels get a **new random address** each time. The script writes it to `deploy/public-api-url`
    and pushes; the Pages workflow then rebuilds the web app (5–10 minutes).
 
