@@ -14,6 +14,7 @@ from app.schemas.ai import (
     GenerateQuestionsResult,
     PaperTopicsResult,
     QuestionReport,
+    TopicDraft,
     TopicSuggestionResult,
 )
 from app.schemas.errors import ErrorResponse
@@ -97,6 +98,17 @@ def review_explanation(
 )
 def generate_questions(body: GenerateQuestionsRequest, service: Service) -> GenerateQuestionsResult:
     return service.generate_questions(body)
+
+
+@router.post(
+    "/ai/exams/{exam_code}/topic-draft",
+    response_model=TopicDraft,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="Draft a topic list for an exam from your imported questions (nothing is saved)",
+)
+def draft_topics(exam_code: str, service: Service) -> TopicDraft:
+    return service.draft_topics(exam_code)
 
 
 @router.post(

@@ -65,6 +65,26 @@ class ExplanationReview(BaseModel):
     ) = None
 
 
+class DraftTopicRead(BaseModel):
+    name: str
+    keywords: list[str]
+
+
+class DraftSubjectRead(BaseModel):
+    name: str
+    topics: list[DraftTopicRead]
+
+
+class TopicDraft(BaseModel):
+    """An AI-proposed topic list for an exam. Nothing is saved: the learner edits it and saves
+    the topics they keep (POST /topics/bulk)."""
+
+    exam_code: str
+    model: str
+    questions_considered: int
+    subjects: list[DraftSubjectRead]
+
+
 class PaperTopicsResult(BaseModel):
     # Questions sent to the AI in this request (at most a few batches per request).
     considered: int

@@ -48,7 +48,9 @@ class AIGeneration(Base):
 
     __tablename__ = "ai_generations"
     __table_args__ = (
-        CheckConstraint("task IN ('explanation', 'questions', 'topic')", name="task_valid"),
+        CheckConstraint(
+            "task IN ('explanation', 'questions', 'topic', 'taxonomy')", name="task_valid"
+        ),
         CheckConstraint("outcome IN ('ok', 'partial', 'invalid', 'error')", name="outcome_valid"),
         Index("ix_ai_generations_created", "created_at"),
     )

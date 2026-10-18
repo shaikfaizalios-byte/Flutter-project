@@ -1218,6 +1218,48 @@
         "title": "DocumentRead",
         "type": "object"
       },
+      "DraftSubjectRead": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/DraftTopicRead"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "topics"
+        ],
+        "title": "DraftSubjectRead",
+        "type": "object"
+      },
+      "DraftTopicRead": {
+        "properties": {
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "keywords"
+        ],
+        "title": "DraftTopicRead",
+        "type": "object"
+      },
       "ErrorBody": {
         "properties": {
           "code": {
@@ -4616,6 +4658,38 @@
         "title": "TopicCreate",
         "type": "object"
       },
+      "TopicDraft": {
+        "description": "An AI-proposed topic list for an exam. Nothing is saved: the learner edits it and saves\nthe topics they keep (POST /topics/bulk).",
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "questions_considered": {
+            "title": "Questions Considered",
+            "type": "integer"
+          },
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/DraftSubjectRead"
+            },
+            "title": "Subjects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "exam_code",
+          "model",
+          "questions_considered",
+          "subjects"
+        ],
+        "title": "TopicDraft",
+        "type": "object"
+      },
       "TopicRead": {
         "properties": {
           "id": {
@@ -5107,6 +5181,103 @@
           }
         ],
         "summary": "Suggest topics for a paper's questions that have none (call again while 'remaining' > 0)",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/exams/{exam_code}/topic-draft": {
+      "post": {
+        "operationId": "draft_topics_api_v1_ai_exams__exam_code__topic_draft_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exam_code",
+            "required": true,
+            "schema": {
+              "title": "Exam Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicDraft"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Draft a topic list for an exam from your imported questions (nothing is saved)",
         "tags": [
           "ai"
         ]

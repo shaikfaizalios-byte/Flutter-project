@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-PROMPT_VERSION = "p9.2"
+PROMPT_VERSION = "p9.3"
 OPTIONS_PER_QUESTION = 4  # SSC CGL/CHSL objective questions have four options
 MAX_GENERATED = 5
 
@@ -159,7 +159,9 @@ def topic_prompt(*, stem: str, subject: str, topics: list[str]) -> str:
     )
 
 
-def paper_topics_prompt(questions: Sequence[TopicQuestion], topics: Sequence[str]) -> str:
+def paper_topics_prompt(
+    questions: Sequence[TopicQuestion], topics: Sequence[str], exam_name: str = "a competitive"
+) -> str:
     """``topics`` are "Subject > Topic" labels."""
     listed = "\n".join(f"- {t}" for t in topics)
     blocks = []
@@ -168,7 +170,8 @@ def paper_topics_prompt(questions: Sequence[TopicQuestion], topics: Sequence[str
         subject = f" (subject: {q.subject})" if q.subject else ""
         blocks.append(f"[{q.number}]{subject} {q.stem[:MAX_TOPIC_STEM]}\nOptions: {options}")
     return (
-        "These are questions from an SSC exam paper. Some text may be incomplete where the "
+        f"These are questions from a {exam_name} exam paper. Some text may be incomplete "
+        "where the "
         "paper had a figure or formula. For each question, choose the single best topic from "
         'this list, copying the label exactly ("Subject > Topic"). If a question names its '
         "subject, choose a topic of that subject. Use null when you are not sure or nothing "
@@ -176,6 +179,115 @@ def paper_topics_prompt(questions: Sequence[TopicQuestion], topics: Sequence[str
         + "\n\n".join(blocks)
         + "\n\nAnswer once for every question number."
     )
+
+
+# A draft topic list for an exam, from samples of the learner's own imported questions.
+TAXONOMY_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "subjects": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "topics": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "keywords": {"type": "array", "items": {"type": "string"}},
+                            },
+                            "required": ["name", "keywords"],
+                            "additionalProperties": False,
+                        },
+                    },
+                },
+                "required": ["name", "topics"],
+                "additionalProperties": False,
+            },
+        }
+    },
+    "required": ["subjects"],
+    "additionalProperties": False,
+}
+TAXONOMY_SAMPLE = 60  # questions sent
+TAXONOMY_STEM = 300  # characters per question
+MAX_DRAFT_SUBJECTS = 10
+MAX_DRAFT_TOPICS_PER_SUBJECT = 15
+MAX_DRAFT_TOPICS = 60
+MAX_DRAFT_KEYWORDS = 8
+
+
+def taxonomy_prompt(exam_name: str, stems: Sequence[str], existing: Sequence[str]) -> str:
+    """``existing`` are "Subject > Topic" labels the exam already has (not to repeat)."""
+    listed = "\n".join(f"- {s[:TAXONOMY_STEM]}" for s in stems)
+    have = "\n".join(f"- {t}" for t in existing) or "(none)"
+    return (
+        f"These are sample questions from {exam_name} papers a learner imported. Propose the "
+        "subjects and topics a learner would use to organise questions like these, as a "
+        'syllabus-style list. Use short, standard names (e.g. "Biology" > "Cell Biology"). '
+        "For each topic give up to 8 keywords or short phrases that appear in such questions' "
+        "wording, so questions can be matched to it. Only propose topics these questions "
+        "actually cover; do not invent exam patterns, question counts or marking. "
+        f"Do not repeat topics the exam already has.\n\nAlready has:\n{have}\n\n"
+        f"Questions:\n{listed}"
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class DraftTopic:
+    subject: str
+    name: str
+    keywords: tuple[str, ...]
+
+
+def _clean_name(value: object, longest: int) -> str | None:
+    if not isinstance(value, str):
+        return None
+    text = " ".join(unicodedata.normalize("NFC", value).split())
+    return text if 2 <= len(text) <= longest else None
+
+
+def validate_taxonomy(data: dict[str, Any], existing: Sequence[str]) -> list[DraftTopic]:
+    """Bounded, de-duplicated draft. Topics the exam already has are dropped, as is anything
+    malformed; the learner edits the rest before anything is saved."""
+    subjects = data.get("subjects")
+    if not isinstance(subjects, list):
+        return []
+    have = {_norm(t) for t in existing}
+    seen: set[str] = set()
+    result: list[DraftTopic] = []
+    for subject in subjects[:MAX_DRAFT_SUBJECTS]:
+        if not isinstance(subject, dict):
+            continue
+        subject_name = _clean_name(subject.get("name"), 80)
+        topics = subject.get("topics")
+        if subject_name is None or not isinstance(topics, list):
+            continue
+        for topic in topics[:MAX_DRAFT_TOPICS_PER_SUBJECT]:
+            if not isinstance(topic, dict):
+                continue
+            name = _clean_name(topic.get("name"), 80)
+            if name is None:
+                continue
+            label = _norm(f"{subject_name}{TOPIC_SEPARATOR}{name}")
+            if label in have or label in seen:
+                continue
+            seen.add(label)
+            keywords: list[str] = []
+            raw = topic.get("keywords")
+            for keyword in raw if isinstance(raw, list) else []:
+                clean = _clean_name(keyword, 40)
+                if clean and _norm(clean) not in {_norm(k) for k in keywords}:
+                    keywords.append(clean)
+                if len(keywords) == MAX_DRAFT_KEYWORDS:
+                    break
+            result.append(DraftTopic(subject_name, name, tuple(keywords)))
+            if len(result) == MAX_DRAFT_TOPICS:
+                return result
+    return result
 
 
 # --- validation -----------------------------------------------------------------------

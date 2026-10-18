@@ -119,7 +119,7 @@ def test_explanation_draft_review_and_labelled_use_in_practice(
     assert response.status_code == 201, response.text
     draft = response.json()
     assert (draft["status"], draft["provider"], draft["model"]) == ("draft", "fake", "fake-model-1")
-    assert draft["prompt_version"] == "p9.2"
+    assert draft["prompt_version"] == "p9.3"
 
     # The prompt carries the question and its known answer; the system prompt forbids
     # presenting output as official.
@@ -243,7 +243,7 @@ def test_generated_questions_are_validated_stored_unverified_and_labelled(
     assert first["ai"] == {
         "provider": "fake",
         "model": "fake-model-1",
-        "prompt_version": "p9.2",
+        "prompt_version": "p9.3",
         "source_question_id": str(source.id),
         "source_note": None,
     }

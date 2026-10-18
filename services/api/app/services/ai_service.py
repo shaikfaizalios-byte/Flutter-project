@@ -30,6 +30,7 @@ from app.domain.segmentation import same_subject
 from app.integrations.ai import AIProvider, AIProviderError, AIResult
 from app.models.ai import AIExplanation, AIGeneration, DraftStatus
 from app.models.document import Document
+from app.models.exam import Exam
 from app.models.question import (
     Question,
     QuestionIssue,
@@ -42,10 +43,13 @@ from app.models.question import (
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.ai import (
     AIStatus,
+    DraftSubjectRead,
+    DraftTopicRead,
     ExplanationReview,
     GenerateQuestionsRequest,
     GenerateQuestionsResult,
     PaperTopicsResult,
+    TopicDraft,
     TopicSuggestionResult,
 )
 from app.schemas.question import AIExplanationRead
@@ -53,6 +57,7 @@ from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.question_service import QuestionService
 from app.services.topic_service import topic_scope, visible_topics
 
+MIN_TAXONOMY_QUESTIONS = 5
 logger = logging.getLogger(__name__)
 
 # Issue raised on AI text in Hindi so a reviewer checks the language (like OCR text).
@@ -338,6 +343,61 @@ class AIService:
             suggested=chosen is not None,
         )
 
+    def draft_topics(self, exam_code: str) -> TopicDraft:
+        """Proposes a topic list for an exam from samples of the learner's own imported
+        questions (spread across their papers). Nothing is saved."""
+        provider = self._require_provider()
+        exam = ExamRepository(self._session).get_visible(exam_code, self._owner_id)
+        if exam is None:
+            raise InvalidReferenceError(f"Unknown exam '{exam_code}'.")
+        stems = self._session.scalars(
+            select(Question.stem)
+            .where(
+                Question.owner_id == self._owner_id,
+                Question.exam_code == exam_code,
+                Question.origin == QuestionOrigin.SOURCE,
+                Question.verification_status != VerificationStatus.REJECTED,
+            )
+            .order_by(Question.document_id, Question.source_question_number)
+        ).all()
+        if len(stems) < MIN_TAXONOMY_QUESTIONS:
+            raise NotEligibleError("Import at least one paper of this exam first.")
+        step = max(1, len(stems) // ai_content.TAXONOMY_SAMPLE)
+        sample = list(stems[::step])[: ai_content.TAXONOMY_SAMPLE]
+        existing = [
+            f"{t.subject}{ai_content.TOPIC_SEPARATOR}{t.name}"
+            for t in visible_topics(self._session, self._owner_id, exam_code)
+        ]
+        result = self._call(
+            provider,
+            task="taxonomy",
+            question_id=None,
+            prompt=ai_content.taxonomy_prompt(exam.name, sample, existing),
+            schema=ai_content.TAXONOMY_SCHEMA,
+        )
+        drafted = ai_content.validate_taxonomy(result.data, existing)
+        self._record(
+            provider,
+            "taxonomy",
+            "ok" if drafted else "invalid",
+            result,
+            None,
+            f"{len(sample)} questions",
+            created=len(drafted),
+        )
+        self._session.commit()
+        subjects: dict[str, list[DraftTopicRead]] = {}
+        for topic in drafted:
+            subjects.setdefault(topic.subject, []).append(
+                DraftTopicRead(name=topic.name, keywords=list(topic.keywords))
+            )
+        return TopicDraft(
+            exam_code=exam_code,
+            model=provider.model,
+            questions_considered=len(sample),
+            subjects=[DraftSubjectRead(name=n, topics=t) for n, t in subjects.items()],
+        )
+
     def suggest_paper_topics(self, document_id: uuid.UUID) -> PaperTopicsResult:
         """AI topic suggestions for a paper's questions that have none (the keyword rules found
         nothing). Up to ``MAX_PAPER_TOPIC_BATCHES`` batches per request; ``remaining`` says
@@ -364,6 +424,8 @@ class AIService:
         if not topics:
             raise NotEligibleError("There are no topics for this exam yet.")
         labels = {f"{t.subject}{ai_content.TOPIC_SEPARATOR}{t.name}": t for t in topics}
+        exam = self._session.get(Exam, document.exam_code)
+        exam_name = exam.name if exam else document.exam_code
 
         patterns = pattern_candidates(self._session)
         size = ai_content.PAPER_TOPICS_BATCH
@@ -383,7 +445,7 @@ class AIService:
                 provider,
                 task="topic",
                 question_id=None,
-                prompt=ai_content.paper_topics_prompt(items, list(labels)),
+                prompt=ai_content.paper_topics_prompt(items, list(labels), exam_name),
                 schema=ai_content.PAPER_TOPICS_SCHEMA,
             )
             chosen = ai_content.pick_paper_topics(
