@@ -343,7 +343,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeChooseExamMessage =>
-      'PrepLoop को अपने अनुसार बनाने के लिए SSC CGL, SSC CHSL या दोनों चुनें।';
+      'PrepLoop को अपने अनुसार बनाने के लिए वे परीक्षाएँ चुनें जिनकी आप तैयारी कर रहे हैं।';
 
   @override
   String get homeChooseExamAction => 'परीक्षा चुनें';
@@ -2274,5 +2274,170 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String radarShiftsByYear(String years) {
     return 'साल-वार पालियाँ: $years';
+  }
+
+  @override
+  String get delete => 'हटाएँ';
+
+  @override
+  String get examsMore => 'और परीक्षाएँ';
+
+  @override
+  String get examsOwnGroup => 'मेरी अपनी परीक्षाएँ';
+
+  @override
+  String get examsSearch => 'परीक्षा खोजें';
+
+  @override
+  String get examsNoMatch => 'कोई परीक्षा नहीं मिली। नीचे अपनी परीक्षा बनाएँ।';
+
+  @override
+  String get examsCreateOwn => 'अपनी परीक्षा बनाएँ';
+
+  @override
+  String get examsCreateOwnHint =>
+      'सूची में न होने वाली किसी भी परीक्षा के लिए। इसे सिर्फ़ आप देखते हैं।';
+
+  @override
+  String examsDone(int count) {
+    return 'हो गया ($count चुनी गईं)';
+  }
+
+  @override
+  String get examsRename => 'परीक्षा का नाम बदलें';
+
+  @override
+  String get examsNameLabel => 'परीक्षा का नाम';
+
+  @override
+  String get examsNameHint => 'जैसे राजस्थान पटवारी 2026';
+
+  @override
+  String get examsInUse =>
+      'पेपर, प्रश्न या नोट्स अभी भी इस परीक्षा का उपयोग करते हैं। पहले उन्हें हटाएँ।';
+
+  @override
+  String examsDeleteTitle(String name) {
+    return '$name हटाएँ?';
+  }
+
+  @override
+  String get examsDeleteBody =>
+      'इसके टॉपिक भी हट जाएँगे। जिन परीक्षाओं का उपयोग पेपर या नोट्स करते हैं, वे हटाई नहीं जा सकतीं।';
+
+  @override
+  String get examsDeleted => 'परीक्षा हटा दी गई।';
+
+  @override
+  String get examsTitle => 'परीक्षाएँ और टॉपिक';
+
+  @override
+  String get examsEmptyTitle => 'कोई परीक्षा नहीं चुनी गई';
+
+  @override
+  String get examsEmptyMessage => 'स्टडी प्लान में अपनी परीक्षाएँ चुनें, या अपनी परीक्षा बनाएँ।';
+
+  @override
+  String get examsIntro =>
+      'हर परीक्षा के अपने विषय और टॉपिक होते हैं। PrepLoop इनसे आपके पेपरों के प्रश्नों को छाँटता है और दिखाता है कि क्या दोहराया जाता है।';
+
+  @override
+  String get examsOwnLabel => 'मेरी अपनी परीक्षा (सिर्फ़ आप देखते हैं)';
+
+  @override
+  String get examsActions => 'और विकल्प';
+
+  @override
+  String get examsManageTile => 'परीक्षाएँ और टॉपिक';
+
+  @override
+  String get examsManageTileHint => 'अपनी परीक्षाएँ, विषय और टॉपिक जोड़ें';
+
+  @override
+  String get topicsExists => 'इस परीक्षा में यह टॉपिक पहले से है।';
+
+  @override
+  String get topicsDraftNeedsPapers => 'पहले इस परीक्षा का कम से कम एक पेपर जोड़ें।';
+
+  @override
+  String topicsDeleteTitle(String name) {
+    return '$name हटाएँ?';
+  }
+
+  @override
+  String get topicsDeleteBody => 'इस टॉपिक वाले प्रश्न “कोई टॉपिक नहीं” पर लौट जाएँगे।';
+
+  @override
+  String get topicsDraftTitle => 'AI से टॉपिक का मसौदा बनाएँ?';
+
+  @override
+  String get topicsDraftNotice =>
+      'इस परीक्षा के आपके पेपरों से अधिकतम 60 प्रश्न AI सेवा को भेजे जाते हैं ताकि वह विषय और टॉपिक सुझा सके। जब तक आप न चुनें कि क्या रखना है, कुछ भी सहेजा नहीं जाता।';
+
+  @override
+  String get topicsDraftEmpty => 'AI ने कोई नया टॉपिक नहीं सुझाया।';
+
+  @override
+  String topicsDraftSaved(int count) {
+    return '$count टॉपिक जोड़े गए।';
+  }
+
+  @override
+  String topicsScreenTitle(String exam) {
+    return '$exam: टॉपिक';
+  }
+
+  @override
+  String get topicsAdd => 'टॉपिक जोड़ें';
+
+  @override
+  String get topicsScreenIntro =>
+      'आपके पेपरों के प्रश्न कीवर्ड से इन टॉपिक से मिलाए जाते हैं; हर सुझाव की पुष्टि आप करते हैं। साझा टॉपिक PrepLoop के साथ आते हैं; अपने टॉपिक आप बदल सकते हैं।';
+
+  @override
+  String get topicsDraftAction => 'मेरे पेपरों से टॉपिक का मसौदा (AI)';
+
+  @override
+  String get topicsEmptyTitle => 'अभी कोई टॉपिक नहीं';
+
+  @override
+  String get topicsEmptyMessage =>
+      'इस परीक्षा के पाठ्यक्रम के विषय और टॉपिक जोड़ें, जैसे जीव विज्ञान › कोशिका।';
+
+  @override
+  String get topicsOwnLabel => 'आपका टॉपिक';
+
+  @override
+  String get topicsSharedLabel => 'साझा टॉपिक';
+
+  @override
+  String get topicsEdit => 'टॉपिक बदलें';
+
+  @override
+  String topicsAddTo(String subject) {
+    return '$subject में टॉपिक जोड़ें';
+  }
+
+  @override
+  String get topicsSubjectHint => 'जैसे जीव विज्ञान';
+
+  @override
+  String get topicsNameHint => 'जैसे कोशिका';
+
+  @override
+  String get topicsKeywords => 'कीवर्ड (वैकल्पिक)';
+
+  @override
+  String get topicsKeywordsHelp =>
+      'इस टॉपिक के प्रश्नों में आने वाले शब्द, कॉमा से अलग। न दें तो टॉपिक का नाम इस्तेमाल होगा।';
+
+  @override
+  String topicsDraftLabel(int count, String model) {
+    return 'आपके $count प्रश्नों से AI सुझाव ($model)। सिर्फ़ वही रखें जो सही हो।';
+  }
+
+  @override
+  String topicsDraftKeep(int count) {
+    return '$count टॉपिक जोड़ें';
   }
 }

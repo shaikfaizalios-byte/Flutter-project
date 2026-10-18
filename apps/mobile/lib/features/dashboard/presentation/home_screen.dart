@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../../../core/utils/clock.dart';
@@ -65,7 +65,7 @@ class HomeScreen extends ConsumerWidget {
                     for (final code in profile.examCodes)
                       Chip(
                         avatar: const Icon(Icons.flag_outlined, size: 18),
-                        label: Text(examShortName(code)),
+                        label: Text(ref.watch(examNameProvider(code))),
                       ),
                   ],
                 ),

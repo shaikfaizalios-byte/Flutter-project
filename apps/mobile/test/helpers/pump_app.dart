@@ -20,12 +20,16 @@ import 'package:preploop/features/auth/data/auth_api.dart';
 import 'package:preploop/features/sync/application/sync_controller.dart';
 import 'package:preploop/features/analytics/application/analytics_providers.dart';
 import 'package:preploop/features/practice/application/practice_providers.dart';
+import 'package:preploop/features/exams/application/exam_catalog_controller.dart';
+import 'package:preploop/features/exams/data/exams_repository.dart';
 import 'package:preploop/features/insights/data/insights_repository.dart';
+import 'package:preploop/core/exams/exam_catalog.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
 import 'package:preploop/features/reminders/application/reminder_controller.dart';
 
 import 'fake_ai.dart';
 import 'fake_auth.dart';
+import 'fake_exams.dart';
 import 'fake_insights.dart';
 import 'fake_sync.dart';
 import 'fake_analytics.dart';
@@ -35,6 +39,7 @@ import 'fake_reminders.dart';
 
 export 'fake_ai.dart';
 export 'fake_auth.dart';
+export 'fake_exams.dart';
 export 'fake_insights.dart';
 export 'fake_sync.dart';
 export 'fake_analytics.dart';
@@ -123,6 +128,8 @@ Future<void> pumpPrepLoopApp(
   FakeAnalyticsRepository? analytics,
   FakeAiRepository? ai,
   FakeInsightsRepository? insights,
+  FakeExamsRepository? exams,
+  List<ExamOption> examCatalog = testCatalog,
   AuthSession? session = testSession,
   FakeAuthApi? authApi,
   FakeTokenStore? tokenStore,
@@ -149,6 +156,8 @@ Future<void> pumpPrepLoopApp(
     localTimezoneProvider.overrideWith((ref) async => 'Asia/Kolkata'),
     aiRepositoryProvider.overrideWithValue(ai ?? FakeAiRepository()),
     insightsRepositoryProvider.overrideWithValue(insights ?? FakeInsightsRepository()),
+    examsRepositoryProvider.overrideWithValue(exams ?? FakeExamsRepository()),
+    initialExamCatalogProvider.overrideWithValue(examCatalog),
     initialAuthSessionProvider.overrideWithValue(session),
     authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
     tokenStoreProvider.overrideWithValue(tokenStore ?? FakeTokenStore(session)),

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -158,7 +158,7 @@ class _ConceptDetails extends ConsumerWidget {
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
                 children: [
-                  Chip(label: Text(examShortName(concept.examCode))),
+                  Chip(label: Text(ref.watch(examNameProvider(concept.examCode)))),
                   Chip(
                     label: Text(
                       concept.language == ContentLanguage.hindi

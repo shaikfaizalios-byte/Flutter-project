@@ -183,7 +183,7 @@
   "fieldReminder": "Reminder time",
   "settingsLicences": "Open-source licences",
   "homeChooseExamTitle": "Choose your exam",
-  "homeChooseExamMessage": "Select SSC CGL, SSC CHSL or both to personalise PrepLoop.",
+  "homeChooseExamMessage": "Choose the exams you're preparing for to personalise PrepLoop.",
   "homeChooseExamAction": "Choose exam",
   "homeExamCountdown": "{count, plural, =0{Your exam is today} =1{1 day to go} other{{count} days to go}}",
   "@homeExamCountdown": {
@@ -1670,6 +1670,112 @@
     "placeholders": {
       "years": {
         "type": "String"
+      }
+    }
+  },
+  "delete": "Delete",
+  "examsMore": "More exams",
+  "examsOwnGroup": "My own exams",
+  "examsSearch": "Search exams",
+  "examsNoMatch": "No exam matches. Create your own below.",
+  "examsCreateOwn": "Create my own exam",
+  "examsCreateOwnHint": "For any exam not in the list. Only you see it.",
+  "examsDone": "Done ({count} chosen)",
+  "@examsDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "examsRename": "Rename exam",
+  "examsNameLabel": "Exam name",
+  "examsNameHint": "e.g. Rajasthan Patwari 2026",
+  "examsInUse": "Papers, questions or notes still use this exam. Delete them first.",
+  "examsDeleteTitle": "Delete {name}?",
+  "@examsDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "examsDeleteBody": "Its topics are deleted too. Exams still used by papers or notes can't be deleted.",
+  "examsDeleted": "Exam deleted.",
+  "examsTitle": "Exams and topics",
+  "examsEmptyTitle": "No exams chosen",
+  "examsEmptyMessage": "Choose your exams in the study plan, or create your own.",
+  "examsIntro": "Each exam has its own subjects and topics. PrepLoop uses them to sort the questions in your papers and to show what repeats.",
+  "examsOwnLabel": "My own exam (only you see it)",
+  "examsActions": "More actions",
+  "examsManageTile": "Exams and topics",
+  "examsManageTileHint": "Add your own exams, subjects and topics",
+  "topicsExists": "This exam already has that topic.",
+  "topicsDraftNeedsPapers": "Import at least one paper of this exam first.",
+  "topicsDeleteTitle": "Delete {name}?",
+  "@topicsDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "topicsDeleteBody": "Questions with this topic go back to “no topic”.",
+  "topicsDraftTitle": "Draft topics with AI?",
+  "topicsDraftNotice": "Up to 60 questions from your imported papers of this exam are sent to the AI service to propose subjects and topics. Nothing is saved until you choose which to keep.",
+  "topicsDraftEmpty": "The AI proposed no new topics.",
+  "topicsDraftSaved": "{count} topics added.",
+  "@topicsDraftSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsScreenTitle": "{exam}: topics",
+  "@topicsScreenTitle": {
+    "placeholders": {
+      "exam": {
+        "type": "String"
+      }
+    }
+  },
+  "topicsAdd": "Add topic",
+  "topicsScreenIntro": "Questions in your papers are matched to these topics by their keywords; you confirm every suggestion. Shared topics come with PrepLoop; your own you can change.",
+  "topicsDraftAction": "Draft topics from my papers (AI)",
+  "topicsEmptyTitle": "No topics yet",
+  "topicsEmptyMessage": "Add the subjects and topics of this exam's syllabus, e.g. Biology › Cell Biology.",
+  "topicsOwnLabel": "Your topic",
+  "topicsSharedLabel": "Shared topic",
+  "topicsEdit": "Edit topic",
+  "topicsAddTo": "Add a topic to {subject}",
+  "@topicsAddTo": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "topicsSubjectHint": "e.g. Biology",
+  "topicsNameHint": "e.g. Cell Biology",
+  "topicsKeywords": "Keywords (optional)",
+  "topicsKeywordsHelp": "Words that appear in this topic's questions, separated by commas. Without any, the topic's name is used.",
+  "topicsDraftLabel": "AI suggestion from {count} of your questions ({model}). Keep only what fits.",
+  "@topicsDraftLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "topicsDraftKeep": "Add {count} topics",
+  "@topicsDraftKeep": {
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   }

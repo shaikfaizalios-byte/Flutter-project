@@ -13,6 +13,7 @@ class ExamRead(BaseModel):
 
     code: str
     name: str
+    short_name: str = ""  # display name: the short name, else the name
     category: str | None = None
     featured: bool = False
     # True for an exam the learner created (private to them).

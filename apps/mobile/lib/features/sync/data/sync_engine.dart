@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../exams/application/exam_catalog_controller.dart' show examCatalogCacheKey;
 import '../../../core/database/sync_outbox.dart';
 import '../../../core/utils/app_log.dart';
 import 'sync_api.dart';
@@ -102,9 +103,15 @@ class SyncEngine {
     await _db.delete(_db.studyProfiles).go();
     await _db.delete(_db.pendingAnswers).go();
     await _db.delete(_db.syncOutbox).go();
-    await (_db.delete(
-      _db.appSettings,
-    )..where((s) => s.key.isIn([SyncEntity.revisionOffsetsId, cursorKey, lastSyncedKey]))).go();
+    await (_db.delete(_db.appSettings)..where(
+          (s) => s.key.isIn([
+            SyncEntity.revisionOffsetsId,
+            cursorKey,
+            lastSyncedKey,
+            examCatalogCacheKey,
+          ]),
+        ))
+        .go();
   });
 
   // --- push ---------------------------------------------------------------------------

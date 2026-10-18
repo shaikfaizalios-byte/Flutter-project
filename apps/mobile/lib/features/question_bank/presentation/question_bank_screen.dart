@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/search_field.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../application/question_bank_providers.dart';
@@ -39,7 +39,7 @@ class QuestionBankScreen extends ConsumerWidget {
                 child: Row(
                   spacing: AppSpacing.sm,
                   children: [
-                    for (final exam in supportedExams)
+                    for (final exam in ref.watch(examCatalogProvider))
                       FilterChip(
                         label: Text(exam.shortName),
                         selected: query.examCode == exam.code,

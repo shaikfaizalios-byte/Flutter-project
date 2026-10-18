@@ -169,8 +169,13 @@ class FakeQuestionsRepository implements QuestionsRepository {
     return updated;
   }
 
+  final topicRequests = <String?>[];
+
   @override
-  Future<List<TopicRef>> topics() async => sampleTopics;
+  Future<List<TopicRef>> topics({String? examCode}) async {
+    topicRequests.add(examCode);
+    return sampleTopics;
+  }
 
   @override
   Future<ParseSummary> parseSummary(String documentId) async => summary;

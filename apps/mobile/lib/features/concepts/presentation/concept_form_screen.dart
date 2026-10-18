@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_spacing.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -45,7 +45,7 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
     super.initState();
     // New concepts default to the learner's first chosen exam.
     final chosen = ref.read(studyProfileProvider).examCodes;
-    _examCode = chosen.isNotEmpty ? chosen.first : supportedExams.first.code;
+    _examCode = chosen.isNotEmpty ? chosen.first : ref.read(examCatalogProvider).first.code;
     _loadState = _isEditing ? _LoadState.loading : _LoadState.ready;
     if (_isEditing) _load(widget.conceptId!);
   }
@@ -179,7 +179,7 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
                 const SizedBox(height: AppSpacing.sm),
                 SegmentedButton<String>(
                   segments: [
-                    for (final exam in supportedExams)
+                    for (final exam in ref.watch(examCatalogProvider))
                       ButtonSegment(value: exam.code, label: Text(exam.shortName)),
                   ],
                   selected: {_examCode},

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -174,7 +174,10 @@ class _EditorState extends ConsumerState<_Editor> {
               avatar: StatusIcon(question: q),
               label: Text(statusLabel(l10n, q.status)),
             ),
-            Chip(visualDensity: VisualDensity.compact, label: Text(examShortName(q.examCode))),
+            Chip(
+              visualDensity: VisualDensity.compact,
+              label: Text(ref.watch(examNameProvider(q.examCode))),
+            ),
           ],
         ),
         if (q.documentFilename != null && page != null)
@@ -285,6 +288,7 @@ class _EditorState extends ConsumerState<_Editor> {
         ),
         const SizedBox(height: AppSpacing.md),
         _TopicPicker(
+          examCode: q.examCode,
           selectedId: _topicId,
           suggested: q.topicStatus == 'suggested',
           suggestedByAi: q.topicSuggestedBy == 'ai',
@@ -373,6 +377,7 @@ class _EditorState extends ConsumerState<_Editor> {
 
 class _TopicPicker extends ConsumerWidget {
   const _TopicPicker({
+    required this.examCode,
     required this.selectedId,
     required this.suggested,
     required this.onChanged,
@@ -380,6 +385,7 @@ class _TopicPicker extends ConsumerWidget {
     this.reason,
   });
 
+  final String examCode;
   final String? selectedId;
   final bool suggested;
   final bool suggestedByAi;
@@ -391,7 +397,7 @@ class _TopicPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final topics = ref.watch(topicsProvider).value ?? const [];
+    final topics = ref.watch(topicsProvider(examCode)).value ?? const [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

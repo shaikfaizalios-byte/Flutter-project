@@ -7,6 +7,7 @@ import '../../../core/utils/calendar_date.dart';
 import '../../../core/utils/clock.dart';
 import '../../settings/application/app_preferences.dart';
 import '../../study_plan/application/study_profile_controller.dart';
+import '../../exams/presentation/exam_selector.dart';
 import '../../study_plan/presentation/study_profile_widgets.dart';
 
 /// First-run setup. Every step is optional; answers are saved as they are made,

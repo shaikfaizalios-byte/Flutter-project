@@ -13,7 +13,9 @@ abstract interface class QuestionsRepository {
   Future<(List<BankQuestion> items, int total)> list(QuestionQuery query);
   Future<BankQuestion> get(String id);
   Future<BankQuestion> update(String id, QuestionEdit edit);
-  Future<List<TopicRef>> topics();
+
+  /// Topics the learner can use (for one exam when given).
+  Future<List<TopicRef>> topics({String? examCode});
 
   /// Named question types (patterns) of every topic.
   Future<List<PatternRef>> patterns();
@@ -70,8 +72,11 @@ class RemoteQuestionsRepository implements QuestionsRepository {
   });
 
   @override
-  Future<List<TopicRef>> topics() => _guard(() async {
-    final response = await _dio.get<List<dynamic>>('/api/v1/topics');
+  Future<List<TopicRef>> topics({String? examCode}) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/api/v1/topics',
+      queryParameters: {'exam': ?examCode},
+    );
     return [for (final t in response.data!) TopicRef.fromJson(t as Map<String, dynamic>)];
   });
 

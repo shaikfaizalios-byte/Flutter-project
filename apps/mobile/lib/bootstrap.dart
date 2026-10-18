@@ -6,9 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app.dart';
 import 'core/config/app_config.dart';
 import 'core/database/app_database.dart';
+import 'core/exams/exam_catalog.dart';
 import 'core/utils/app_log.dart';
 import 'features/auth/application/auth_controller.dart';
 import 'features/auth/data/auth_api.dart';
+import 'features/exams/application/exam_catalog_controller.dart';
 import 'features/settings/application/app_preferences.dart';
 import 'features/settings/data/preferences_repository.dart';
 import 'features/study_plan/application/study_profile_controller.dart';
@@ -42,6 +44,11 @@ Future<void> bootstrap() async {
     onFallback: (error) => logError('Secure storage unavailable; session kept in memory', error),
   );
   final session = await _loadOrDefault<AuthSession?>('session', tokenStore.read, null);
+  final examCatalog = await _loadOrDefault(
+    'exam list',
+    () => loadCachedExamCatalog(database),
+    builtInExams,
+  );
   final studyProfile = await _loadOrDefault(
     'study profile',
     StudyProfileRepository(database).load,
@@ -55,6 +62,7 @@ Future<void> bootstrap() async {
         appDatabaseProvider.overrideWithValue(database),
         initialPreferencesProvider.overrideWithValue(preferences),
         initialStudyProfileProvider.overrideWithValue(studyProfile),
+        initialExamCatalogProvider.overrideWithValue(examCatalog),
         tokenStoreProvider.overrideWithValue(tokenStore),
         initialAuthSessionProvider.overrideWithValue(session),
       ],

@@ -22,6 +22,8 @@ class Exam(Base):
 
     code: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
+    # Short display name for catalog exams ("SSC CGL"); own exams show ``name``.
+    short_name: Mapped[str | None] = mapped_column(String(40))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     owner_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), index=True

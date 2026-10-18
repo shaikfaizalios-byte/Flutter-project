@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
@@ -58,7 +58,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
                       children: [
                         for (final code in exams)
                           ChoiceChip(
-                            label: Text(examShortName(code)),
+                            label: Text(ref.watch(examNameProvider(code))),
                             selected: _exam == code,
                             onSelected: (_) => setState(() {
                               _exam = code;

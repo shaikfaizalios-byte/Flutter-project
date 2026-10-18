@@ -72,6 +72,21 @@ current official notice, and record its source in a migration.
 A document is linked to a format at upload (`exam_format_code`) or later
 (`PUT /documents/{id}/exam-format`). Re-run segmentation to apply a newly linked format.
 
+## Exams and topics for any exam
+
+- `exams`: the **catalog** (names, short names, categories, featured; added by migrations; no patterns or marking)
+  plus each learner's **own exams** (private, code `MY_...`). `GET /exams` (public catalog),
+  `GET/POST /me/exams`, `PATCH/DELETE /me/exams/{code}` (delete only when no paper, question or note uses it).
+- `topics.owner_id` (NULL = shared) and `topics.exam_codes` (NULL = every exam). The shared aptitude taxonomy
+  applies to the SSC, banking and railway catalog exams; NEET, CUET, UPSC prelims and own exams start empty.
+- Learners add their own subjects/topics (`POST /topics`, `/topics/bulk`; edit/delete their own only; deleting
+  sends questions back to "no topic") and question types under their own topics (`POST /patterns`).
+- With AI configured, `POST /ai/exams/{code}/topic-draft` proposes subjects/topics (with keywords) from up to 60
+  of the learner's own questions of that exam. Bounded, de-duplicated, existing topics dropped; **nothing is
+  saved** until the learner keeps topics from it.
+- Everywhere topics are used (parsing, suggestions, review, AI, uploads) the same rule applies: shared or own,
+  and applying to the question's exam. A paper's section headings also match its exam's subject names.
+
 ## Topics (taxonomy as data)
 
 `topics` (subject, name, keywords) holds the SSC subject/topic taxonomy (about 60 topics since migration

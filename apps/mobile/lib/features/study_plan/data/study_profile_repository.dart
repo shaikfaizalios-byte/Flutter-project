@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/sync_outbox.dart';
-import '../../../core/exams/exam_catalog.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../domain/study_profile.dart';
 
@@ -20,10 +19,9 @@ class StudyProfileRepository {
       _db.studyProfiles,
     )..where((p) => p.id.equals(_rowId))).getSingleOrNull();
     if (row == null) return const StudyProfile();
-    final known = supportedExams.map((e) => e.code).toSet();
     return StudyProfile(
-      // Ignore codes this app version doesn't know (e.g. written by a newer version).
-      examCodes: row.examCodes.where(known.contains).toList(),
+      // Any exam code: catalog exams load from the server, own exams are `MY_...`.
+      examCodes: row.examCodes,
       targetExamDate: CalendarDate.tryParse(row.targetExamDate),
       dailyStudyMinutes: _validOrNull(row.dailyStudyMinutes, StudyProfileRules.isValidDailyMinutes),
       reminderMinutes: _validOrNull(row.reminderMinutes, StudyProfileRules.isValidReminderMinutes),

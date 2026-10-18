@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -191,7 +191,7 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
   void initState() {
     super.initState();
     final chosen = ref.read(studyProfileProvider).examCodes;
-    _exam = chosen.isNotEmpty ? chosen.first : supportedExams.first.code;
+    _exam = chosen.isNotEmpty ? chosen.first : ref.read(examCatalogProvider).first.code;
   }
 
   @override
@@ -220,7 +220,7 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
             const SizedBox(height: AppSpacing.sm),
             SegmentedButton<String>(
               segments: [
-                for (final exam in supportedExams)
+                for (final exam in ref.watch(examCatalogProvider))
                   ButtonSegment(value: exam.code, label: Text(exam.shortName)),
               ],
               selected: {_exam},
@@ -290,7 +290,7 @@ class _DocumentTile extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${examShortName(document.examCode)} · $language · '
+            '${ref.watch(examNameProvider(document.examCode))} · $language · '
             '${l10n.documentPages(document.pageCount)}',
           ),
           Text(statusText, style: TextStyle(color: statusColor)),

@@ -168,7 +168,7 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final topics = ref.watch(topicsProvider).value ?? const [];
+    final topics = ref.watch(topicsProvider(null)).value ?? const [];
     final subjects = {for (final t in topics) t.subject}.toList()..sort();
     final subjectTopics = topics.where((t) => t.subject == _subject).toList();
 

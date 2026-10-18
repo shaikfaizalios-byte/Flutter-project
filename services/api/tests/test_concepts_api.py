@@ -37,6 +37,7 @@ def test_list_exams_returns_seeded_reference_data(db_client: TestClient) -> None
     assert exams[0] == {
         "code": "SSC_CGL",
         "name": "SSC Combined Graduate Level",
+        "short_name": "SSC CGL",
         "category": "Staff Selection",
         "featured": True,
         "custom": False,

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../core/exams/exam_catalog.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -128,7 +128,7 @@ class _FilterBar extends ConsumerWidget {
           _MenuFilterChip(
             label: l10n.filterExam,
             value: query.examCode,
-            options: [for (final e in supportedExams) (e.code, e.shortName)],
+            options: [for (final e in ref.watch(examCatalogProvider)) (e.code, e.shortName)],
             onSelected: controller.setExam,
           ),
           _MenuFilterChip(
@@ -243,7 +243,7 @@ class _ConceptTile extends ConsumerWidget {
     return ListTile(
       onTap: () => context.push(AppRoutes.concept(concept.id)),
       title: Text(concept.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-      subtitle: Text('${examShortName(concept.examCode)} · $path'),
+      subtitle: Text('${ref.watch(examNameProvider(concept.examCode))} · $path'),
       leading: CircleAvatar(
         child: Text(
           concept.language == ContentLanguage.hindi ? 'हि' : 'En',

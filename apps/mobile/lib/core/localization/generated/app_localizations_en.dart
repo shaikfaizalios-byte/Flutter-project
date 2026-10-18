@@ -342,7 +342,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeChooseExamTitle => 'Choose your exam';
 
   @override
-  String get homeChooseExamMessage => 'Select SSC CGL, SSC CHSL or both to personalise PrepLoop.';
+  String get homeChooseExamMessage =>
+      'Choose the exams you\'re preparing for to personalise PrepLoop.';
 
   @override
   String get homeChooseExamAction => 'Choose exam';
@@ -2269,5 +2270,168 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String radarShiftsByYear(String years) {
     return 'Shifts by year: $years';
+  }
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get examsMore => 'More exams';
+
+  @override
+  String get examsOwnGroup => 'My own exams';
+
+  @override
+  String get examsSearch => 'Search exams';
+
+  @override
+  String get examsNoMatch => 'No exam matches. Create your own below.';
+
+  @override
+  String get examsCreateOwn => 'Create my own exam';
+
+  @override
+  String get examsCreateOwnHint => 'For any exam not in the list. Only you see it.';
+
+  @override
+  String examsDone(int count) {
+    return 'Done ($count chosen)';
+  }
+
+  @override
+  String get examsRename => 'Rename exam';
+
+  @override
+  String get examsNameLabel => 'Exam name';
+
+  @override
+  String get examsNameHint => 'e.g. Rajasthan Patwari 2026';
+
+  @override
+  String get examsInUse => 'Papers, questions or notes still use this exam. Delete them first.';
+
+  @override
+  String examsDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get examsDeleteBody =>
+      'Its topics are deleted too. Exams still used by papers or notes can\'t be deleted.';
+
+  @override
+  String get examsDeleted => 'Exam deleted.';
+
+  @override
+  String get examsTitle => 'Exams and topics';
+
+  @override
+  String get examsEmptyTitle => 'No exams chosen';
+
+  @override
+  String get examsEmptyMessage => 'Choose your exams in the study plan, or create your own.';
+
+  @override
+  String get examsIntro =>
+      'Each exam has its own subjects and topics. PrepLoop uses them to sort the questions in your papers and to show what repeats.';
+
+  @override
+  String get examsOwnLabel => 'My own exam (only you see it)';
+
+  @override
+  String get examsActions => 'More actions';
+
+  @override
+  String get examsManageTile => 'Exams and topics';
+
+  @override
+  String get examsManageTileHint => 'Add your own exams, subjects and topics';
+
+  @override
+  String get topicsExists => 'This exam already has that topic.';
+
+  @override
+  String get topicsDraftNeedsPapers => 'Import at least one paper of this exam first.';
+
+  @override
+  String topicsDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get topicsDeleteBody => 'Questions with this topic go back to “no topic”.';
+
+  @override
+  String get topicsDraftTitle => 'Draft topics with AI?';
+
+  @override
+  String get topicsDraftNotice =>
+      'Up to 60 questions from your imported papers of this exam are sent to the AI service to propose subjects and topics. Nothing is saved until you choose which to keep.';
+
+  @override
+  String get topicsDraftEmpty => 'The AI proposed no new topics.';
+
+  @override
+  String topicsDraftSaved(int count) {
+    return '$count topics added.';
+  }
+
+  @override
+  String topicsScreenTitle(String exam) {
+    return '$exam: topics';
+  }
+
+  @override
+  String get topicsAdd => 'Add topic';
+
+  @override
+  String get topicsScreenIntro =>
+      'Questions in your papers are matched to these topics by their keywords; you confirm every suggestion. Shared topics come with PrepLoop; your own you can change.';
+
+  @override
+  String get topicsDraftAction => 'Draft topics from my papers (AI)';
+
+  @override
+  String get topicsEmptyTitle => 'No topics yet';
+
+  @override
+  String get topicsEmptyMessage =>
+      'Add the subjects and topics of this exam\'s syllabus, e.g. Biology › Cell Biology.';
+
+  @override
+  String get topicsOwnLabel => 'Your topic';
+
+  @override
+  String get topicsSharedLabel => 'Shared topic';
+
+  @override
+  String get topicsEdit => 'Edit topic';
+
+  @override
+  String topicsAddTo(String subject) {
+    return 'Add a topic to $subject';
+  }
+
+  @override
+  String get topicsSubjectHint => 'e.g. Biology';
+
+  @override
+  String get topicsNameHint => 'e.g. Cell Biology';
+
+  @override
+  String get topicsKeywords => 'Keywords (optional)';
+
+  @override
+  String get topicsKeywordsHelp =>
+      'Words that appear in this topic\'s questions, separated by commas. Without any, the topic\'s name is used.';
+
+  @override
+  String topicsDraftLabel(int count, String model) {
+    return 'AI suggestion from $count of your questions ($model). Keep only what fits.';
+  }
+
+  @override
+  String topicsDraftKeep(int count) {
+    return 'Add $count topics';
   }
 }

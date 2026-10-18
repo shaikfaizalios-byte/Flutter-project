@@ -702,7 +702,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeChooseExamMessage.
   ///
   /// In en, this message translates to:
-  /// **'Select SSC CGL, SSC CHSL or both to personalise PrepLoop.'**
+  /// **'Choose the exams you\'re preparing for to personalise PrepLoop.'**
   String get homeChooseExamMessage;
 
   /// No description provided for @homeChooseExamAction.
@@ -3722,6 +3722,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shifts by year: {years}'**
   String radarShiftsByYear(String years);
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @examsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More exams'**
+  String get examsMore;
+
+  /// No description provided for @examsOwnGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'My own exams'**
+  String get examsOwnGroup;
+
+  /// No description provided for @examsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search exams'**
+  String get examsSearch;
+
+  /// No description provided for @examsNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No exam matches. Create your own below.'**
+  String get examsNoMatch;
+
+  /// No description provided for @examsCreateOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Create my own exam'**
+  String get examsCreateOwn;
+
+  /// No description provided for @examsCreateOwnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For any exam not in the list. Only you see it.'**
+  String get examsCreateOwnHint;
+
+  /// No description provided for @examsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done ({count} chosen)'**
+  String examsDone(int count);
+
+  /// No description provided for @examsRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename exam'**
+  String get examsRename;
+
+  /// No description provided for @examsNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam name'**
+  String get examsNameLabel;
+
+  /// No description provided for @examsNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Rajasthan Patwari 2026'**
+  String get examsNameHint;
+
+  /// No description provided for @examsInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Papers, questions or notes still use this exam. Delete them first.'**
+  String get examsInUse;
+
+  /// No description provided for @examsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String examsDeleteTitle(String name);
+
+  /// No description provided for @examsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its topics are deleted too. Exams still used by papers or notes can\'t be deleted.'**
+  String get examsDeleteBody;
+
+  /// No description provided for @examsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam deleted.'**
+  String get examsDeleted;
+
+  /// No description provided for @examsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams and topics'**
+  String get examsTitle;
+
+  /// No description provided for @examsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No exams chosen'**
+  String get examsEmptyTitle;
+
+  /// No description provided for @examsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your exams in the study plan, or create your own.'**
+  String get examsEmptyMessage;
+
+  /// No description provided for @examsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Each exam has its own subjects and topics. PrepLoop uses them to sort the questions in your papers and to show what repeats.'**
+  String get examsIntro;
+
+  /// No description provided for @examsOwnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'My own exam (only you see it)'**
+  String get examsOwnLabel;
+
+  /// No description provided for @examsActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get examsActions;
+
+  /// No description provided for @examsManageTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams and topics'**
+  String get examsManageTile;
+
+  /// No description provided for @examsManageTileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your own exams, subjects and topics'**
+  String get examsManageTileHint;
+
+  /// No description provided for @topicsExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam already has that topic.'**
+  String get topicsExists;
+
+  /// No description provided for @topicsDraftNeedsPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'Import at least one paper of this exam first.'**
+  String get topicsDraftNeedsPapers;
+
+  /// No description provided for @topicsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String topicsDeleteTitle(String name);
+
+  /// No description provided for @topicsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions with this topic go back to “no topic”.'**
+  String get topicsDeleteBody;
+
+  /// No description provided for @topicsDraftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft topics with AI?'**
+  String get topicsDraftTitle;
+
+  /// No description provided for @topicsDraftNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 60 questions from your imported papers of this exam are sent to the AI service to propose subjects and topics. Nothing is saved until you choose which to keep.'**
+  String get topicsDraftNotice;
+
+  /// No description provided for @topicsDraftEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI proposed no new topics.'**
+  String get topicsDraftEmpty;
+
+  /// No description provided for @topicsDraftSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} topics added.'**
+  String topicsDraftSaved(int count);
+
+  /// No description provided for @topicsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{exam}: topics'**
+  String topicsScreenTitle(String exam);
+
+  /// No description provided for @topicsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add topic'**
+  String get topicsAdd;
+
+  /// No description provided for @topicsScreenIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions in your papers are matched to these topics by their keywords; you confirm every suggestion. Shared topics come with PrepLoop; your own you can change.'**
+  String get topicsScreenIntro;
+
+  /// No description provided for @topicsDraftAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft topics from my papers (AI)'**
+  String get topicsDraftAction;
+
+  /// No description provided for @topicsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No topics yet'**
+  String get topicsEmptyTitle;
+
+  /// No description provided for @topicsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the subjects and topics of this exam\'s syllabus, e.g. Biology › Cell Biology.'**
+  String get topicsEmptyMessage;
+
+  /// No description provided for @topicsOwnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your topic'**
+  String get topicsOwnLabel;
+
+  /// No description provided for @topicsSharedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared topic'**
+  String get topicsSharedLabel;
+
+  /// No description provided for @topicsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit topic'**
+  String get topicsEdit;
+
+  /// No description provided for @topicsAddTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a topic to {subject}'**
+  String topicsAddTo(String subject);
+
+  /// No description provided for @topicsSubjectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Biology'**
+  String get topicsSubjectHint;
+
+  /// No description provided for @topicsNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Cell Biology'**
+  String get topicsNameHint;
+
+  /// No description provided for @topicsKeywords.
+  ///
+  /// In en, this message translates to:
+  /// **'Keywords (optional)'**
+  String get topicsKeywords;
+
+  /// No description provided for @topicsKeywordsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Words that appear in this topic\'s questions, separated by commas. Without any, the topic\'s name is used.'**
+  String get topicsKeywordsHelp;
+
+  /// No description provided for @topicsDraftLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI suggestion from {count} of your questions ({model}). Keep only what fits.'**
+  String topicsDraftLabel(int count, String model);
+
+  /// No description provided for @topicsDraftKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {count} topics'**
+  String topicsDraftKeep(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

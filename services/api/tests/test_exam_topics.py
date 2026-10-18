@@ -34,6 +34,7 @@ def test_own_exams_are_private_and_listed_after_the_catalog(
 ) -> None:
     exam = _create_exam(db_client)
     assert exam["code"].startswith("MY_") and exam["custom"] is True
+    assert exam["short_name"] == "Rajasthan Patwari"
 
     mine = db_client.get("/api/v1/me/exams").json()
     assert mine[0]["code"] == "SSC_CGL" and mine[-1]["code"] == exam["code"]

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/calendar_date.dart';
@@ -8,6 +10,8 @@ import '../../../core/utils/clock.dart';
 import '../../../core/widgets/section_card.dart';
 import '../../reminders/presentation/reminder_tile.dart';
 import '../application/study_profile_controller.dart';
+import '../../exams/application/exam_catalog_controller.dart';
+import '../../exams/presentation/exam_selector.dart';
 import 'study_profile_widgets.dart';
 
 /// Profile section for editing everything collected in onboarding.
@@ -31,7 +35,9 @@ class StudyPlanSection extends ConsumerWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(l10n.fieldExams),
-            subtitle: Text(formatExamNames(l10n, profile.examCodes)),
+            subtitle: Text(
+              formatExamNames(l10n, profile.examCodes, ref.watch(examCatalogProvider)),
+            ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showSheet(
               context,
@@ -43,6 +49,14 @@ class StudyPlanSection extends ConsumerWidget {
                 ),
               ),
             ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.label_outline),
+            title: Text(l10n.examsManageTile),
+            subtitle: Text(l10n.examsManageTileHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.myExams),
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,

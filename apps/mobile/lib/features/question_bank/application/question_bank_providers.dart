@@ -24,8 +24,9 @@ final parseSummaryProvider = FutureProvider.autoDispose.family<ParseSummary, Str
   retry: _noRetry,
 );
 
-final topicsProvider = FutureProvider<List<TopicRef>>(
-  (ref) => ref.watch(questionsRepositoryProvider).topics(),
+/// Topics for one exam (null: every exam the learner can see).
+final topicsProvider = FutureProvider.family<List<TopicRef>, String?>(
+  (ref, examCode) => ref.watch(questionsRepositoryProvider).topics(examCode: examCode),
   retry: _noRetry,
 );
 

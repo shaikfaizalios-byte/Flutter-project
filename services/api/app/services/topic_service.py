@@ -62,6 +62,7 @@ def exam_read(exam: Exam) -> ExamRead:
     return ExamRead(
         code=exam.code,
         name=exam.name,
+        short_name=exam.short_name or exam.name,
         category=exam.category,
         featured=exam.featured,
         custom=exam.owner_id is not None,

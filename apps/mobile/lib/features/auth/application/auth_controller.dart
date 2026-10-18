@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/errors/app_failure.dart';
@@ -154,6 +155,7 @@ class AuthController extends Notifier<AuthState> {
     await ref.read(tokenStoreProvider).write(session);
     await ref.read(studyProfileProvider.notifier).reload();
     state = AuthState(session: session);
+    unawaited(ref.read(examCatalogProvider.notifier).refresh());
     unawaited(ref.read(syncControllerProvider.notifier).syncNow());
   }
 
@@ -163,6 +165,7 @@ class AuthController extends Notifier<AuthState> {
     await (db.delete(db.appSettings)..where((s) => s.key.equals(lastUserKey))).go();
     await ref.read(tokenStoreProvider).clear();
     await ref.read(studyProfileProvider.notifier).reload();
+    ref.read(examCatalogProvider.notifier).reset();
     state = const AuthState();
   }
 

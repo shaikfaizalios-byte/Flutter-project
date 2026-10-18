@@ -52,14 +52,14 @@ void main() {
     expect(() => repo.save(const StudyProfile(reminderMinutes: 1440)), throwsArgumentError);
   });
 
-  test('ignores unknown exam codes and corrupt values written elsewhere', () async {
+  test('keeps any exam code (catalog or own) but ignores corrupt values', () async {
     final db = createTestDatabase();
     await db
         .into(db.studyProfiles)
         .insert(
           StudyProfilesCompanion.insert(
             id: const Value(1),
-            examCodes: const Value(['SSC_CGL', 'UPSC_CSE']),
+            examCodes: const Value(['SSC_CGL', 'MY_1A2B']),
             targetExamDate: const Value('not-a-date'),
             dailyStudyMinutes: const Value(-5),
             updatedAt: DateTime.utc(2026),
@@ -68,7 +68,8 @@ void main() {
 
     final profile = await StudyProfileRepository(db).load();
 
-    expect(profile.examCodes, ['SSC_CGL']);
+    // Own exams (MY_...) and catalog exams loaded later from the server are kept.
+    expect(profile.examCodes, ['SSC_CGL', 'MY_1A2B']);
     expect(profile.targetExamDate, isNull);
     expect(profile.dailyStudyMinutes, isNull);
   });

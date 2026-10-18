@@ -13,6 +13,8 @@ import '../features/concepts/presentation/concept_form_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
+import '../features/exams/presentation/exam_topics_screen.dart';
+import '../features/exams/presentation/my_exams_screen.dart';
 import '../features/insights/presentation/repeats_screen.dart';
 import '../features/legal/presentation/legal_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
@@ -93,6 +95,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LegalScreen(document: LegalDocument.terms),
       ),
       GoRoute(path: AppRoutes.onboarding, builder: (context, state) => const OnboardingScreen()),
+      GoRoute(path: AppRoutes.myExams, builder: (context, state) => const MyExamsScreen()),
+      GoRoute(
+        path: '/profile/exams/:code',
+        builder: (context, state) => ExamTopicsScreen(examCode: state.pathParameters['code']!),
+      ),
       GoRoute(
         path: '/questions/:id',
         builder: (context, state) => QuestionReviewScreen(questionId: state.pathParameters['id']!),

@@ -26,36 +26,8 @@ String formatReminderTime(BuildContext context, int minutes) =>
     MaterialLocalizations.of(context)
         .formatTimeOfDay(TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60));
 
-String formatExamNames(AppLocalizations l10n, List<String> codes) =>
-    codes.isEmpty ? l10n.examsNotChosen : codes.map(examShortName).join(' · ');
-
-/// Multi-select exam chips (CGL / CHSL / both).
-class ExamSelector extends StatelessWidget {
-  const ExamSelector({super.key, required this.selected, required this.onChanged});
-
-  final List<String> selected;
-  final ValueChanged<List<String>> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
-      children: [
-        for (final exam in supportedExams)
-          FilterChip(
-            label: Text(exam.shortName),
-            selected: selected.contains(exam.code),
-            onSelected: (on) => onChanged([
-              // Keep catalogue order so the stored list is stable.
-              for (final e in supportedExams)
-                if (e.code == exam.code ? on : selected.contains(e.code)) e.code,
-            ]),
-          ),
-      ],
-    );
-  }
-}
+String formatExamNames(AppLocalizations l10n, List<String> codes, List<ExamOption> catalog) =>
+    codes.isEmpty ? l10n.examsNotChosen : codes.map((c) => examShortNameIn(catalog, c)).join(' · ');
 
 /// Single-select daily study time.
 class DailyMinutesSelector extends StatelessWidget {
