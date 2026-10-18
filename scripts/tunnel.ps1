@@ -41,7 +41,9 @@ if ($old -ne $url) {
         git add deploy/public-api-url
         git commit -m "Tunnel address changed" | Out-Null
         git push origin HEAD:main
-        Write-Host 'Pushed: the web app is being rebuilt on GitHub (5-10 minutes).'
+        # The test APK is rebuilt for the new address too.
+        git push --force origin HEAD:refs/heads/test-apk/tunnel
+        Write-Host 'Pushed: the web app and the test APK are being rebuilt on GitHub (5-10 minutes).'
     } finally { Pop-Location }
 } else {
     Write-Host 'Address unchanged; nothing to rebuild.'
