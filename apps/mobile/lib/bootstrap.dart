@@ -36,7 +36,11 @@ Future<void> bootstrap() async {
     PreferencesRepository(database).load,
     const AppPreferences(),
   );
-  final tokenStore = SecureTokenStore();
+  final tokenStore = FallbackTokenStore(
+    SecureTokenStore(),
+    allowFallback: kIsWeb && config.flavor == AppFlavor.development,
+    onFallback: (error) => logError('Secure storage unavailable; session kept in memory', error),
+  );
   final session = await _loadOrDefault<AuthSession?>('session', tokenStore.read, null);
   final studyProfile = await _loadOrDefault(
     'study profile',

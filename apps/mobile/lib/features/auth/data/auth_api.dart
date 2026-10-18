@@ -95,6 +95,47 @@ class SecureTokenStore implements TokenStore {
   Future<void> clear() => _storage.delete(key: _key);
 }
 
+/// Development web builds opened over plain http on a LAN address (phone testing) have no
+/// `crypto.subtle`, so the secure store fails. There, and only when [allowFallback] is true,
+/// the session is kept in memory instead: nothing is written unencrypted, and reloading the
+/// page signs the learner out. Release builds and native apps never fall back.
+class FallbackTokenStore implements TokenStore {
+  FallbackTokenStore(this._secure, {required this.allowFallback, this.onFallback});
+
+  final TokenStore _secure;
+  final bool allowFallback;
+  final void Function(Object error)? onFallback;
+  bool _inMemory = false;
+  AuthSession? _session;
+
+  bool get inMemory => _inMemory;
+
+  Future<T> _try<T>(Future<T> Function() secure, T Function() memory) async {
+    if (_inMemory) return memory();
+    try {
+      return await secure();
+    } on Object catch (error) {
+      if (!allowFallback) rethrow;
+      _inMemory = true;
+      onFallback?.call(error);
+      return memory();
+    }
+  }
+
+  @override
+  Future<AuthSession?> read() => _try(_secure.read, () => _session);
+
+  @override
+  Future<void> write(AuthSession session) => _try(() => _secure.write(session), () {
+    _session = session;
+  });
+
+  @override
+  Future<void> clear() => _try(_secure.clear, () {
+    _session = null;
+  });
+}
+
 /// Account endpoints. Uses its own Dio without the auth interceptor (no refresh loops).
 abstract interface class AuthApi {
   Future<AuthSession> register(String email, String password, {String? displayName});
