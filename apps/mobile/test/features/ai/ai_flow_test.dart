@@ -184,6 +184,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Include AI-generated questions'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start practice').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start practice').last);
     await tester.pumpAndSettle();
 
@@ -202,6 +204,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Start practice'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start practice').last);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start practice').last);
     await tester.pumpAndSettle();

@@ -102,13 +102,13 @@ class _SessionBody extends ConsumerWidget {
         title: Text(l10n.sessionQuestionOf(state.current + 1, session.items.length)),
         actions: [
           if (isMock) _Countdown(sessionId: sessionId, state: state),
-          if (item.questionId != null)
+          if (item.questionId != null && !item.shared)
             IconButton(
               tooltip: item.bookmarked ? l10n.sessionRemoveBookmark : l10n.sessionBookmark,
               icon: Icon(item.bookmarked ? Icons.bookmark : Icons.bookmark_border),
               onPressed: () => _controller(ref).toggleBookmark(),
             ),
-          if (item.questionId != null)
+          if (item.questionId != null && !item.shared)
             IconButton(
               tooltip: l10n.reportTitle,
               icon: const Icon(Icons.flag_outlined),
@@ -148,6 +148,11 @@ class _SessionBody extends ConsumerWidget {
                     Chip(visualDensity: VisualDensity.compact, label: Text(item.section!)),
                 ],
               ),
+              if (item.shared && item.sharedSource != null)
+                Text(
+                  l10n.sharedBankSource(item.sharedSource!),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               if (item.sourceFilename != null && item.sourcePage != null)
                 Text(
                   l10n.questionSource(item.sourceFilename!, item.sourcePage!),

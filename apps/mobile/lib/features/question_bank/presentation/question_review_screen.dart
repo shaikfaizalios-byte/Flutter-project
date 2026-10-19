@@ -25,6 +25,7 @@ class QuestionReviewScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return switch (ref.watch(questionProvider(questionId))) {
+      AsyncData(:final value) when value.readOnly => _SharedQuestionView(question: value),
       AsyncData(:final value) => _Editor(key: ValueKey(value.id), question: value),
       AsyncError() => Scaffold(
         appBar: AppBar(title: Text(l10n.questionTitle)),
@@ -42,6 +43,105 @@ class QuestionReviewScreen extends ConsumerWidget {
         body: const Center(child: CircularProgressIndicator()),
       ),
     };
+  }
+}
+
+/// A shared-bank question (another account's paper): shown as published, nothing to edit.
+class _SharedQuestionView extends StatelessWidget {
+  const _SharedQuestionView({required this.question});
+
+  final BankQuestion question;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final q = question;
+    final stemFigures = q.figures.where((f) => f.kind != FigureKind.option);
+    QuestionOption? correct;
+    for (final o in q.options) {
+      if (o.position == q.correctPosition) correct = o;
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          q.sourceNumber == null ? l10n.questionTitle : l10n.questionNumberLabel(q.sourceNumber!),
+        ),
+      ),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
+          child: ListView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            children: [
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  OriginChip(origin: q.origin),
+                  if (q.topic != null)
+                    Chip(
+                      visualDensity: VisualDensity.compact,
+                      label: Text('${q.topic!.name} · ${q.topic!.subject}'),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Card(
+                color: theme.colorScheme.secondaryContainer,
+                child: ListTile(
+                  leading: const Icon(Icons.public),
+                  title: Text(l10n.sharedBankReadOnly),
+                  subtitle: q.sharedSource == null ? null : Text(q.sharedSource!),
+                ),
+              ),
+              if (q.passage != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                Text(q.passage!.text),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              Text(q.stem, style: theme.textTheme.bodyLarge),
+              for (final f in stemFigures) ...[
+                const SizedBox(height: AppSpacing.sm),
+                QuestionFigureView(questionId: q.id, figure: f),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              for (final o in q.options)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    o.position == q.correctPosition
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: o.position == q.correctPosition ? theme.colorScheme.primary : null,
+                  ),
+                  title: Text('(${o.label}) ${o.text}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final f in q.figures.where(
+                        (f) => f.kind == FigureKind.option && f.optionPosition == o.position,
+                      ))
+                        QuestionFigureView(questionId: q.id, figure: f),
+                    ],
+                  ),
+                ),
+              if (q.isTyped && q.typedAnswer != null)
+                Text('${l10n.fieldTypedAnswer}: ${q.typedAnswer}')
+              else if (correct != null)
+                Text(l10n.sessionCorrectAnswer(correct.label)),
+              if (q.explanation != null && q.explanation!.trim().isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                Text(l10n.questionExplanationTitle, style: theme.textTheme.titleSmall),
+                const SizedBox(height: AppSpacing.xs),
+                Text(q.explanation!),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

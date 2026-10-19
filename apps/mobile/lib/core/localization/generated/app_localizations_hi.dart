@@ -2494,4 +2494,63 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get fieldTypedAnswerHelp =>
       'संख्याएँ मान से मिलाई जाती हैं (2.5 = 2.50, कभी पूर्णांकित नहीं); बाकी उत्तर बिल्कुल वैसे ही होने चाहिए, स्पेस और बड़े-छोटे अक्षर छोड़कर।';
+
+  @override
+  String sharedBankSource(String source) {
+    return 'साझा बैंक · $source';
+  }
+
+  @override
+  String get sharedBankReadOnly =>
+      'साझा बैंक से (केवल पढ़ने के लिए), PrepLoop टीम ने अनुमति के साथ साझा किया';
+
+  @override
+  String get questionExplanationTitle => 'व्याख्या';
+
+  @override
+  String get practiceIncludeShared => 'साझा बैंक शामिल करें';
+
+  @override
+  String get practiceIncludeSharedHint =>
+      'PrepLoop टीम द्वारा साझा किए गए प्रश्न-पत्रों के सत्यापित प्रश्न (लेबल के साथ)';
+
+  @override
+  String get repeatsSharedBank => 'साझा बैंक';
+
+  @override
+  String get repeatsSharedEmptyTitle => 'अभी कोई साझा प्रश्न-पत्र नहीं';
+
+  @override
+  String get repeatsSharedEmptyMessage =>
+      'PrepLoop टीम जिन प्रश्न-पत्रों को साझा करने की अनुमति के साथ साझा करेगी, वे यहाँ दिखेंगे।';
+
+  @override
+  String repeatsSmallSample(int papers, int min) {
+    return 'छोटा नमूना: $papers प्रश्न-पत्र। $min से कम प्रश्न-पत्रों में, 2 या 3 बार दिखा विषय संयोग हो सकता है।';
+  }
+
+  @override
+  String get reviewVerifyClean => 'सभी साफ़ प्रश्न सत्यापित करें';
+
+  @override
+  String get reviewVerifyCleanTitle => 'साफ़ प्रश्न सत्यापित करें?';
+
+  @override
+  String get reviewVerifyCleanBody =>
+      'जिन प्रश्नों का उत्तर है और कोई खुली समस्या नहीं है, वे सत्यापित हो जाएँगे। जिन्हें देखना ज़रूरी है, वे समीक्षा के लिए रहेंगे। आप बाद में भी कोई भी प्रश्न बदल सकते हैं।';
+
+  @override
+  String reviewVerifyCleanDone(int verified, int left) {
+    return '$verified सत्यापित · $left की समीक्षा बाकी';
+  }
+
+  @override
+  String repeatsBasisShared(int count) {
+    return '$count साझा पेपरों के आधार पर';
+  }
+
+  @override
+  String repeatsBasisSharedYears(int count, int first, int last) {
+    return '$count साझा पेपरों के आधार पर ($first–$last)';
+  }
 }

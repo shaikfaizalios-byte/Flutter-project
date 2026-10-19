@@ -4094,6 +4094,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Numbers match by value (2.5 = 2.50, never rounded); other answers must match exactly, ignoring spaces and case.'**
   String get fieldTypedAnswerHelp;
+
+  /// No description provided for @sharedBankSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared bank · {source}'**
+  String sharedBankSource(String source);
+
+  /// No description provided for @sharedBankReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'From the shared bank (read-only), shared by the PrepLoop team with permission'**
+  String get sharedBankReadOnly;
+
+  /// No description provided for @questionExplanationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get questionExplanationTitle;
+
+  /// No description provided for @practiceIncludeShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Include the shared bank'**
+  String get practiceIncludeShared;
+
+  /// No description provided for @practiceIncludeSharedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified questions from papers the PrepLoop team shared (labelled)'**
+  String get practiceIncludeSharedHint;
+
+  /// No description provided for @repeatsSharedBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared bank'**
+  String get repeatsSharedBank;
+
+  /// No description provided for @repeatsSharedEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No shared papers yet'**
+  String get repeatsSharedEmptyTitle;
+
+  /// No description provided for @repeatsSharedEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Papers the PrepLoop team shares, with permission to share them, will appear here.'**
+  String get repeatsSharedEmptyMessage;
+
+  /// No description provided for @repeatsSmallSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Small sample: {papers} papers. Below {min} papers, a topic seen 2 or 3 times can be chance.'**
+  String repeatsSmallSample(int papers, int min);
+
+  /// No description provided for @reviewVerifyClean.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify all clean questions'**
+  String get reviewVerifyClean;
+
+  /// No description provided for @reviewVerifyCleanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify clean questions?'**
+  String get reviewVerifyCleanTitle;
+
+  /// No description provided for @reviewVerifyCleanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions with an answer and no open issues are marked verified. Questions that need a look stay for review. You can still edit any question later.'**
+  String get reviewVerifyCleanBody;
+
+  /// No description provided for @reviewVerifyCleanDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{verified} verified · {left} still need review'**
+  String reviewVerifyCleanDone(int verified, int left);
+
+  /// No description provided for @repeatsBasisShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {count} shared papers'**
+  String repeatsBasisShared(int count);
+
+  /// No description provided for @repeatsBasisSharedYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {count} shared papers ({first}–{last})'**
+  String repeatsBasisSharedYears(int count, int first, int last);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

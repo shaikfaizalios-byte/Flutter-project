@@ -2488,4 +2488,63 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fieldTypedAnswerHelp =>
       'Numbers match by value (2.5 = 2.50, never rounded); other answers must match exactly, ignoring spaces and case.';
+
+  @override
+  String sharedBankSource(String source) {
+    return 'Shared bank · $source';
+  }
+
+  @override
+  String get sharedBankReadOnly =>
+      'From the shared bank (read-only), shared by the PrepLoop team with permission';
+
+  @override
+  String get questionExplanationTitle => 'Explanation';
+
+  @override
+  String get practiceIncludeShared => 'Include the shared bank';
+
+  @override
+  String get practiceIncludeSharedHint =>
+      'Verified questions from papers the PrepLoop team shared (labelled)';
+
+  @override
+  String get repeatsSharedBank => 'Shared bank';
+
+  @override
+  String get repeatsSharedEmptyTitle => 'No shared papers yet';
+
+  @override
+  String get repeatsSharedEmptyMessage =>
+      'Papers the PrepLoop team shares, with permission to share them, will appear here.';
+
+  @override
+  String repeatsSmallSample(int papers, int min) {
+    return 'Small sample: $papers papers. Below $min papers, a topic seen 2 or 3 times can be chance.';
+  }
+
+  @override
+  String get reviewVerifyClean => 'Verify all clean questions';
+
+  @override
+  String get reviewVerifyCleanTitle => 'Verify clean questions?';
+
+  @override
+  String get reviewVerifyCleanBody =>
+      'Questions with an answer and no open issues are marked verified. Questions that need a look stay for review. You can still edit any question later.';
+
+  @override
+  String reviewVerifyCleanDone(int verified, int left) {
+    return '$verified verified · $left still need review';
+  }
+
+  @override
+  String repeatsBasisShared(int count) {
+    return 'Based on $count shared papers';
+  }
+
+  @override
+  String repeatsBasisSharedYears(int count, int first, int last) {
+    return 'Based on $count shared papers ($first–$last)';
+  }
 }

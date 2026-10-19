@@ -249,6 +249,8 @@ class FakePracticeRepository implements PracticeRepository {
             sourcePage: q.sourcePages.firstOrNull,
             sourceNumber: q.sourceNumber,
             bookmarked: s.bookmarked.contains(q.id),
+            shared: q.readOnly,
+            sharedSource: q.sharedSource,
             selectedPosition: s.answers[i + 1],
             feedback: _feedback(s, i + 1, q),
           ),

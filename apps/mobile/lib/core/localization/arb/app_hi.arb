@@ -666,5 +666,20 @@
   "answerTypeChoice": "विकल्प",
   "answerTypeTyped": "टाइप किया उत्तर",
   "fieldTypedAnswer": "सही टाइप किया जाने वाला उत्तर",
-  "fieldTypedAnswerHelp": "संख्याएँ मान से मिलाई जाती हैं (2.5 = 2.50, कभी पूर्णांकित नहीं); बाकी उत्तर बिल्कुल वैसे ही होने चाहिए, स्पेस और बड़े-छोटे अक्षर छोड़कर।"
+  "fieldTypedAnswerHelp": "संख्याएँ मान से मिलाई जाती हैं (2.5 = 2.50, कभी पूर्णांकित नहीं); बाकी उत्तर बिल्कुल वैसे ही होने चाहिए, स्पेस और बड़े-छोटे अक्षर छोड़कर।",
+  "sharedBankSource": "साझा बैंक · {source}",
+  "sharedBankReadOnly": "साझा बैंक से (केवल पढ़ने के लिए), PrepLoop टीम ने अनुमति के साथ साझा किया",
+  "questionExplanationTitle": "व्याख्या",
+  "practiceIncludeShared": "साझा बैंक शामिल करें",
+  "practiceIncludeSharedHint": "PrepLoop टीम द्वारा साझा किए गए प्रश्न-पत्रों के सत्यापित प्रश्न (लेबल के साथ)",
+  "repeatsSharedBank": "साझा बैंक",
+  "repeatsSharedEmptyTitle": "अभी कोई साझा प्रश्न-पत्र नहीं",
+  "repeatsSharedEmptyMessage": "PrepLoop टीम जिन प्रश्न-पत्रों को साझा करने की अनुमति के साथ साझा करेगी, वे यहाँ दिखेंगे।",
+  "repeatsSmallSample": "छोटा नमूना: {papers} प्रश्न-पत्र। {min} से कम प्रश्न-पत्रों में, 2 या 3 बार दिखा विषय संयोग हो सकता है।",
+  "reviewVerifyClean": "सभी साफ़ प्रश्न सत्यापित करें",
+  "reviewVerifyCleanTitle": "साफ़ प्रश्न सत्यापित करें?",
+  "reviewVerifyCleanBody": "जिन प्रश्नों का उत्तर है और कोई खुली समस्या नहीं है, वे सत्यापित हो जाएँगे। जिन्हें देखना ज़रूरी है, वे समीक्षा के लिए रहेंगे। आप बाद में भी कोई भी प्रश्न बदल सकते हैं।",
+  "reviewVerifyCleanDone": "{verified} सत्यापित · {left} की समीक्षा बाकी",
+  "repeatsBasisShared": "{count} साझा पेपरों के आधार पर",
+  "repeatsBasisSharedYears": "{count} साझा पेपरों के आधार पर ({first}–{last})"
 }

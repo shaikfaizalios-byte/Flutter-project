@@ -203,6 +203,12 @@ abstract final class RepeatRules {
   static const minPapers = 3;
   static const share = 0.5;
 
+  /// Below this many papers, counts are a small sample (a topic seen 2-3 times can be
+  /// chance). A product choice, shown in the UI, not a statistical test.
+  static const reliablePapers = 5;
+
+  static bool isSmallSample(PapersBasis basis) => basis.total > 0 && basis.total < reliablePapers;
+
   static bool seenInMostPapers(RepeatCounts counts, PapersBasis basis) =>
       basis.total >= minPapers && counts.papers / basis.total >= share;
 }

@@ -52,7 +52,10 @@ Future<FakePracticeRepository> pumpPractice(
 Future<void> startPractice(WidgetTester tester) async {
   await tester.tap(find.text('Start practice'));
   await tester.pumpAndSettle();
-  await tester.tap(find.widgetWithText(FilledButton, 'Start practice').last);
+  final start = find.widgetWithText(FilledButton, 'Start practice').last;
+  await tester.ensureVisible(start); // the setup sheet scrolls on short screens
+  await tester.pumpAndSettle();
+  await tester.tap(start);
   await tester.pumpAndSettle();
 }
 
@@ -95,6 +98,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('20'));
     await tester.tap(find.text('Include questions not yet reviewed'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start practice').last);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start practice').last);
     await tester.pumpAndSettle();

@@ -25,6 +25,9 @@ abstract interface class QuestionsRepository {
   /// Accepts every suggested topic and pattern of the paper's questions; returns how many.
   Future<({int topics, int patterns})> acceptSuggestedTopics(String documentId);
 
+  /// Verifies every question of the paper that needs no review (answer known, no open issue).
+  Future<({int verified, int left})> verifyClean(String documentId);
+
   /// Confirms when the paper was held (all null = date unknown).
   Future<void> setPaperDate(String documentId, {int? year, CalendarDate? date, int? shift});
 
@@ -107,6 +110,15 @@ class RemoteQuestionsRepository implements QuestionsRepository {
     );
     final data = response.data!;
     return (topics: data['accepted'] as int, patterns: data['patterns_accepted'] as int? ?? 0);
+  });
+
+  @override
+  Future<({int verified, int left})> verifyClean(String documentId) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/documents/$documentId/questions/verify-clean',
+    );
+    final data = response.data!;
+    return (verified: data['verified'] as int, left: data['left_for_review'] as int);
   });
 
   @override

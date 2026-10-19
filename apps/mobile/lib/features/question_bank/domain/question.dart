@@ -257,6 +257,8 @@ class BankQuestion {
     this.figures = const [],
     this.ai,
     this.aiExplanation,
+    this.readOnly = false,
+    this.sharedSource,
   });
 
   factory BankQuestion.fromJson(Map<String, dynamic> json) => BankQuestion(
@@ -283,6 +285,8 @@ class BankQuestion {
     language: ContentLanguage.fromCode(json['language'] as String),
     documentId: json['document_id'] as String?,
     documentFilename: json['document_filename'] as String?,
+    readOnly: json['read_only'] as bool? ?? false,
+    sharedSource: json['shared_source'] as String?,
     sourceNumber: json['source_question_number'] as int?,
     sourcePages: [for (final p in json['source_pages'] as List<dynamic>) p as int],
     passage: json['passage'] == null
@@ -337,6 +341,12 @@ class BankQuestion {
   final ContentLanguage language;
   final String? documentId;
   final String? documentFilename;
+
+  /// From the shared bank (another account's paper): shown read-only.
+  final bool readOnly;
+
+  /// Where the shared paper came from.
+  final String? sharedSource;
   final int? sourceNumber;
   final List<int> sourcePages;
   final Passage? passage;
@@ -386,6 +396,8 @@ class BankQuestion {
     topic: topic != null ? topic() : this.topic,
     documentId: documentId,
     documentFilename: documentFilename,
+    readOnly: readOnly,
+    sharedSource: sharedSource,
     sourceNumber: sourceNumber,
     passage: passage,
     correctPosition: correctPosition,

@@ -29,7 +29,9 @@ class RepeatsScreen extends ConsumerStatefulWidget {
 class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   String? _exam;
   bool _examChosen = false;
-  bool _shared = false; // false: your papers, true: all learners (Radar)
+  String _view = 'mine'; // mine: your papers · shared: the shared bank · radar: all learners
+
+  RepeatsQuery get _query => (examCode: _exam, scope: _view == 'shared' ? 'shared' : 'mine');
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
           constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
           child: RefreshIndicator(
             onRefresh: () async => ref
-              ..invalidate(repeatsProvider(_exam))
+              ..invalidate(repeatsProvider(_query))
               ..invalidate(radarProvider(_exam)),
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -70,17 +72,18 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
                   ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                  child: SegmentedButton<bool>(
+                  child: SegmentedButton<String>(
                     showSelectedIcon: false,
                     segments: [
-                      ButtonSegment(value: false, label: Text(l10n.repeatsYourPapers)),
-                      ButtonSegment(value: true, label: Text(l10n.repeatsAllLearners)),
+                      ButtonSegment(value: 'mine', label: Text(l10n.repeatsYourPapers)),
+                      ButtonSegment(value: 'shared', label: Text(l10n.repeatsSharedBank)),
+                      ButtonSegment(value: 'radar', label: Text(l10n.repeatsAllLearners)),
                     ],
-                    selected: {_shared},
-                    onSelectionChanged: (s) => setState(() => _shared = s.first),
+                    selected: {_view},
+                    onSelectionChanged: (s) => setState(() => _view = s.first),
                   ),
                 ),
-                if (_shared) ..._radar(context) else ..._own(context),
+                if (_view == 'radar') ..._radar(context) else ..._own(context),
               ],
             ),
           ),
@@ -158,14 +161,14 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   List<Widget> _own(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return [
-      ...switch (ref.watch(repeatsProvider(_exam))) {
+      ...switch (ref.watch(repeatsProvider(_query))) {
         AsyncData(:final value) => _content(context, value),
         AsyncError() => [
           EmptyState(
             icon: Icons.cloud_off,
             title: l10n.bankLoadError,
             action: OutlinedButton(
-              onPressed: () => ref.invalidate(repeatsProvider(_exam)),
+              onPressed: () => ref.invalidate(repeatsProvider(_query)),
               child: Text(l10n.retry),
             ),
           ),
@@ -182,6 +185,15 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
 
   List<Widget> _content(BuildContext context, RepeatsReport report) {
     final l10n = AppLocalizations.of(context);
+    if (report.papers.total == 0 && _view == 'shared') {
+      return [
+        EmptyState(
+          icon: Icons.public,
+          title: l10n.repeatsSharedEmptyTitle,
+          message: l10n.repeatsSharedEmptyMessage,
+        ),
+      ];
+    }
     if (report.papers.total == 0) {
       return [
         EmptyState(
@@ -201,7 +213,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
         .where((t) => t.confirmed.questions == 0 && t.unreviewed > 0)
         .toList();
     return [
-      _BasisCard(basis: report.papers),
+      _BasisCard(basis: report.papers, shared: _view == 'shared'),
       const SizedBox(height: AppSpacing.md),
       if (reviewed.isEmpty && unreviewedOnly.isNotEmpty)
         Padding(
@@ -227,9 +239,12 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
 }
 
 class _BasisCard extends StatelessWidget {
-  const _BasisCard({required this.basis});
+  const _BasisCard({required this.basis, this.shared = false});
 
   final PapersBasis basis;
+
+  /// Counting the shared bank rather than the learner's own papers.
+  final bool shared;
 
   @override
   Widget build(BuildContext context) {
@@ -238,13 +253,21 @@ class _BasisCard extends StatelessWidget {
     final years = basis.years;
     return SectionCard(
       icon: Icons.info_outline,
-      title: years.isEmpty
-          ? l10n.repeatsBasis(basis.total)
-          : l10n.repeatsBasisYears(basis.total, years.first, years.last),
+      title: switch ((shared, years.isEmpty)) {
+        (true, true) => l10n.repeatsBasisShared(basis.total),
+        (true, false) => l10n.repeatsBasisSharedYears(basis.total, years.first, years.last),
+        (false, true) => l10n.repeatsBasis(basis.total),
+        (false, false) => l10n.repeatsBasisYears(basis.total, years.first, years.last),
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpacing.xs,
         children: [
+          if (RepeatRules.isSmallSample(basis))
+            Text(
+              l10n.repeatsSmallSample(basis.total, RepeatRules.reliablePapers),
+              style: small?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+            ),
           if (basis.undated > 0) Text(l10n.repeatsUndated(basis.undated), style: small),
           Text(l10n.repeatsReviewedNote, style: small),
           Text(

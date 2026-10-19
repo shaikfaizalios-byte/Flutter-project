@@ -57,6 +57,8 @@ class SessionItemView {
     this.answerType = 'choice',
     this.typedAnswer,
     this.typedAnswerNumeric = false,
+    this.shared = false,
+    this.sharedSource,
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -79,6 +81,8 @@ class SessionItemView {
       sourceFilename: source['document_filename'] as String?,
       sourcePage: source['page'] as int?,
       sourceNumber: source['question_number'] as int?,
+      sharedSource: source['shared_source'] as String?,
+      shared: json['shared'] as bool? ?? false,
       bookmarked: json['bookmarked'] as bool,
       selectedPosition: json['selected_position'] as int?,
       answerType: json['answer_type'] as String? ?? 'choice',
@@ -119,6 +123,12 @@ class SessionItemView {
   /// The expected answer is a number: show a number keyboard.
   final bool typedAnswerNumeric;
 
+  /// From the shared bank (a paper the PrepLoop team shared): read-only, not bookmarkable.
+  final bool shared;
+
+  /// Where the shared paper came from (shown instead of a file name).
+  final String? sharedSource;
+
   bool get isTyped => answerType == 'typed';
   bool get answered => selectedPosition != null || typedAnswer != null;
 
@@ -145,6 +155,8 @@ class SessionItemView {
     typedAnswer: typedAnswer != null ? typedAnswer() : this.typedAnswer,
     answerType: answerType,
     typedAnswerNumeric: typedAnswerNumeric,
+    shared: shared,
+    sharedSource: sharedSource,
     feedback: feedback != null ? feedback() : this.feedback,
   );
 }
@@ -378,6 +390,7 @@ class PracticeRequest {
     this.patternId,
     this.includeUnverified = false,
     this.includeAi = false,
+    this.includeShared = true,
     this.count = 10,
   });
 
@@ -391,6 +404,9 @@ class PracticeRequest {
 
   /// AI-generated questions (labelled) are used only when the learner opts in.
   final bool includeAi;
+
+  /// Verified questions from the shared bank (labelled in the session).
+  final bool includeShared;
   final int count;
 
   Map<String, Object> toJson() => {
@@ -400,6 +416,7 @@ class PracticeRequest {
     'pattern_id': ?patternId,
     'include_unverified': includeUnverified,
     'include_ai': includeAi,
+    'include_shared': includeShared,
     'count': count,
   };
 }

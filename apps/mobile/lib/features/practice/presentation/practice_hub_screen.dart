@@ -164,6 +164,7 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
   int _count = 10;
   bool _includeUnverified = false;
   bool _includeAi = false;
+  bool _includeShared = true;
 
   @override
   Widget build(BuildContext context) {
@@ -238,6 +239,13 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
               value: _includeAi,
               onChanged: (v) => setState(() => _includeAi = v),
             ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.practiceIncludeShared),
+              subtitle: Text(l10n.practiceIncludeSharedHint),
+              value: _includeShared,
+              onChanged: (v) => setState(() => _includeShared = v),
+            ),
             const SizedBox(height: AppSpacing.sm),
             Align(
               alignment: AlignmentDirectional.centerEnd,
@@ -249,6 +257,7 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
                     count: _count,
                     includeUnverified: _includeUnverified,
                     includeAi: _includeAi,
+                    includeShared: _includeShared,
                   ),
                 ),
                 child: Text(l10n.practiceStart),

@@ -34,8 +34,11 @@ BankQuestion bankQuestion({
   List<QuestionFigure> figures = const [],
   String answerType = 'choice',
   String? typedAnswer,
+  String? sharedSource,
 }) => BankQuestion(
   id: id,
+  readOnly: sharedSource != null,
+  sharedSource: sharedSource,
   origin: origin,
   examCode: exam,
   section: section,
@@ -224,6 +227,26 @@ class FakeQuestionsRepository implements QuestionsRepository {
       topicsUnassigned: summary.topicsUnassigned,
       paperDate: PaperDate(year: year, date: date, shift: shift, status: 'confirmed'),
     );
+  }
+
+  final verifyCleanCalls = <String>[];
+
+  @override
+  Future<({int verified, int left})> verifyClean(String documentId) async {
+    verifyCleanCalls.add(documentId);
+    var verified = 0;
+    var left = 0;
+    for (final q in questions.values.toList()) {
+      if (q.documentId != documentId || q.status != VerificationStatus.unverified) continue;
+      final clean = q.issues.every((i) => i.resolved) && q.correctPosition != null;
+      if (clean) {
+        questions[q.id] = q.copyWith(status: VerificationStatus.verified);
+        verified++;
+      } else {
+        left++;
+      }
+    }
+    return (verified: verified, left: left);
   }
 
   @override

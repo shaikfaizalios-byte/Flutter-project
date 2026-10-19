@@ -9,7 +9,8 @@ import '../domain/repeats.dart';
 /// Server-computed repetition reports. Throws `AppFailure`s.
 abstract interface class InsightsRepository {
   /// Over the learner's own papers.
-  Future<RepeatsReport> repeats({String? examCode});
+  /// [scope]: "mine" (your papers), "shared" (the shared bank) or "all".
+  Future<RepeatsReport> repeats({String? examCode, String scope = 'mine'});
 
   /// Pooled over learners who share their counts (the Repeat Radar).
   Future<RadarReport> radar({String? examCode});
@@ -25,10 +26,10 @@ class RemoteInsightsRepository implements InsightsRepository {
   final Dio _dio;
 
   @override
-  Future<RepeatsReport> repeats({String? examCode}) => _guard(() async {
+  Future<RepeatsReport> repeats({String? examCode, String scope = 'mine'}) => _guard(() async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/insights/repeats',
-      queryParameters: {'exam': ?examCode},
+      queryParameters: {'exam': ?examCode, 'scope': scope},
     );
     return RepeatsReport.fromJson(response.data!);
   });
@@ -73,8 +74,11 @@ final insightsRepositoryProvider = Provider<InsightsRepository>(
 Duration? _noRetry(int retryCount, Object error) => null;
 
 /// The report for one exam (null = all exams). Errors are shown, not retried silently.
-final repeatsProvider = FutureProvider.autoDispose.family<RepeatsReport, String?>(
-  (ref, examCode) => ref.watch(insightsRepositoryProvider).repeats(examCode: examCode),
+typedef RepeatsQuery = ({String? examCode, String scope});
+
+final repeatsProvider = FutureProvider.autoDispose.family<RepeatsReport, RepeatsQuery>(
+  (ref, query) =>
+      ref.watch(insightsRepositoryProvider).repeats(examCode: query.examCode, scope: query.scope),
   retry: _noRetry,
 );
 

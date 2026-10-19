@@ -9,7 +9,12 @@ class FakeInsightsRepository implements InsightsRepository {
     this.radarReport = const RadarReport(basis: RadarBasis(shifts: 0, minAccounts: 2)),
     this.share = false,
     this.eligiblePapers = 0,
+    this.sharedReport = const RepeatsReport(papers: PapersBasis(total: 0, dated: 0, undated: 0)),
   });
+
+  /// Returned for scope "shared" (the shared bank).
+  RepeatsReport sharedReport;
+  final scopes = <String>[];
 
   RepeatsReport report;
   RadarReport radarReport;
@@ -19,9 +24,10 @@ class FakeInsightsRepository implements InsightsRepository {
   final shareChanges = <bool>[];
 
   @override
-  Future<RepeatsReport> repeats({String? examCode}) async {
+  Future<RepeatsReport> repeats({String? examCode, String scope = 'mine'}) async {
     requests.add(examCode);
-    return report;
+    scopes.add(scope);
+    return scope == 'shared' ? sharedReport : report;
   }
 
   @override

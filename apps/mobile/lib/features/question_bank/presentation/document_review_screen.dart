@@ -41,6 +41,38 @@ class _DocumentReviewScreenState extends ConsumerState<DocumentReviewScreen> {
     hasIssues: _filter == ReviewFilter.needsAttention ? true : null,
   );
 
+  Future<void> _verifyClean() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.reviewVerifyCleanTitle),
+        content: Text(l10n.reviewVerifyCleanBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: Text(l10n.approve)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      final result = await ref.read(questionsRepositoryProvider).verifyClean(widget.documentId);
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.reviewVerifyCleanDone(result.verified, result.left))),
+      );
+    } on AppFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
+    } on Object catch (error, stack) {
+      logError('Verifying clean questions failed', error, stack);
+    } finally {
+      ref
+        ..invalidate(parseSummaryProvider(widget.documentId))
+        ..invalidate(questionListProvider)
+        ..invalidate(questionProvider);
+    }
+  }
+
   Future<void> _reparse() async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -98,7 +130,14 @@ class _DocumentReviewScreenState extends ConsumerState<DocumentReviewScreen> {
                   child: switch (summary) {
                     AsyncData(:final value) => Column(
                       children: [
-                        _SummaryCard(summary: value),
+                        _SummaryCard(
+                          summary: value,
+                          onVerifyClean:
+                              value.segmentationStatus == 'completed' &&
+                                  value.questionsFound > value.verified + value.rejected
+                              ? _verifyClean
+                              : null,
+                        ),
                         if (value.segmentationStatus == 'completed')
                           _PaperDateCard(documentId: widget.documentId, date: value.paperDate),
                         if (value.segmentationStatus == 'completed' && value.questionsFound > 0)
@@ -154,9 +193,12 @@ class _DocumentReviewScreenState extends ConsumerState<DocumentReviewScreen> {
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.summary});
+  const _SummaryCard({required this.summary, this.onVerifyClean});
 
   final ParseSummary summary;
+
+  /// Verifies every question that needs no review; null when nothing is left to verify.
+  final VoidCallback? onVerifyClean;
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +230,14 @@ class _SummaryCard extends StatelessWidget {
                     Chip(label: Text(l10n.reviewSummaryUnreadable(summary.unreadableText))),
                 ],
               ),
+            if (onVerifyClean != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.verified_outlined),
+                label: Text(l10n.reviewVerifyClean),
+                onPressed: onVerifyClean,
+              ),
+            ],
             const SizedBox(height: AppSpacing.xs),
             Text(
               summary.formatName == null

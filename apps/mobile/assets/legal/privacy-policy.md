@@ -57,6 +57,11 @@ usage analytics.
 
 They process data only to provide these services to us.
 
+## The shared bank
+
+Papers in the shared bank are published by the PrepLoop team. Nothing from your account (your
+papers, answers, notes or progress) is added to it or shown to other learners.
+
 ## No tracking
 
 - No analytics, advertising or session-recording tools are used in the app, the web app or the

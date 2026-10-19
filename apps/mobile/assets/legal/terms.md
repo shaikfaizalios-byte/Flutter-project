@@ -35,6 +35,15 @@ them, practise, revise with flashcards and track your progress.
 - You give us permission to store and process your content only to provide the service to you
   (for example, reading text from your papers and syncing your notes between your devices).
 
+## The shared bank
+
+- PrepLoop may include a shared bank: question papers the PrepLoop team publishes for every
+  learner, only where it has recorded a right to share them (for example papers the exam body
+  published itself, or licensed content). Each shared question is labelled with its source.
+- Shared questions are reviewed, but may still contain mistakes. They are not official answer
+  keys. Report problems to [support contact email].
+- Your own imported papers are never added to the shared bank.
+
 ## Copyright and takedown
 
 - Papers and files you import stay private to your account. They are never shown to other learners;
