@@ -5,6 +5,7 @@ import '../core/localization/generated/app_localizations.dart';
 import '../features/reminders/application/reminder_controller.dart';
 import '../features/settings/application/app_preferences.dart';
 import '../features/sync/application/sync_controller.dart';
+import 'app_shell.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 
@@ -18,6 +19,7 @@ class PrepLoopApp extends ConsumerWidget {
     ref.listen(reminderControllerProvider, (_, _) {});
     // Keeps device data in sync with the account while the app runs.
     ref.listen(syncControllerProvider, (_, _) {});
+    final router = ref.watch(routerProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
@@ -27,7 +29,8 @@ class PrepLoopApp extends ConsumerWidget {
       locale: prefs.language.locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      routerConfig: ref.watch(routerProvider),
+      routerConfig: router,
+      builder: (context, child) => DesktopFrame(router: router, child: child!),
     );
   }
 }

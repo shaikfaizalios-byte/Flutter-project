@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:preploop/app/app_shell.dart';
+
 import '../helpers/pump_app.dart';
 
 void main() {
@@ -33,8 +35,8 @@ void main() {
     }
   });
 
-  testAppWidgets('wide screens use a navigation rail', (tester, db) async {
-    tester.view.physicalSize = const Size(1200, 800);
+  testAppWidgets('tablets use a labelled navigation rail with larger icons', (tester, db) async {
+    tester.view.physicalSize = const Size(900, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
@@ -42,6 +44,54 @@ void main() {
 
     expect(find.byType(NavigationRail), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
+    final icon = tester.widget<Icon>(
+      find.descendant(
+        of: find.byType(NavigationRail),
+        matching: find.byIcon(Icons.menu_book_outlined),
+      ),
+    );
+    expect(icon.size, 28);
+  });
+
+  testAppWidgets('desktop sidebar names every feature and opens it', (tester, db) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await pumpPrepLoopApp(tester, db);
+
+    final sidebar = find.byType(AppSidebar);
+    expect(sidebar, findsOneWidget);
+    expect(find.byType(NavigationRail), findsNothing);
+    for (final label in [
+      'Imported papers',
+      'Question bank',
+      'Repeated models',
+      'Revision',
+      'Bookmarks',
+      'Exams and topics',
+    ]) {
+      expect(find.descendant(of: sidebar, matching: find.text(label)), findsOneWidget);
+    }
+
+    await tester.tap(find.descendant(of: sidebar, matching: find.text('Study')));
+    await tester.pumpAndSettle();
+    expect(find.text('No concepts yet'), findsOneWidget);
+
+    await tester.tap(find.descendant(of: sidebar, matching: find.text('Imported papers')));
+    await tester.pumpAndSettle();
+    // The feature screen opens beside the sidebar, which stays in place.
+    expect(sidebar, findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Imported papers'), findsOneWidget);
+  });
+
+  testAppWidgets('home lists every feature by name', (tester, db) async {
+    await pumpPrepLoopApp(tester, db);
+    await scrollTo(tester, find.text('Go straight to'));
+    await scrollTo(tester, find.text('Exams and topics'));
+    await tester.tap(find.text('Exams and topics'));
+    await tester.pumpAndSettle();
+    expect(find.text('Exams and topics'), findsWidgets);
   });
 
   testAppWidgets('primary screen meets tap-target and labelling guidelines', (tester, db) async {

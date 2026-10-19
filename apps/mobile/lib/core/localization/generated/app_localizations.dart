@@ -129,6 +129,18 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
+  /// No description provided for @navFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get navFeaturesTitle;
+
+  /// No description provided for @homeShortcutsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Go straight to'**
+  String get homeShortcutsTitle;
+
   /// No description provided for @homeHeadline.
   ///
   /// In en, this message translates to:
@@ -2936,6 +2948,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New here? Create an account'**
   String get authNoAccount;
+
+  /// No description provided for @authAgeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I am {age} or older'**
+  String authAgeConfirm(int age);
+
+  /// No description provided for @authAgeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'You must be {age} or older to create an account.'**
+  String authAgeRequired(int age);
 
   /// No description provided for @authHaveAccount.
   ///

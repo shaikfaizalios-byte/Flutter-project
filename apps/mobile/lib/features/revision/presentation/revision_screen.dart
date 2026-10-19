@@ -14,6 +14,7 @@ import '../application/revision_providers.dart';
 import '../domain/revision_card.dart';
 import '../domain/revision_schedule.dart';
 import 'revision_widgets.dart';
+import '../../../core/widgets/adaptive_action.dart';
 
 /// Revision hub: what is due, the next 7 days, the ladder, and every card.
 class RevisionScreen extends ConsumerWidget {
@@ -28,9 +29,9 @@ class RevisionScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.revisionTitle),
         actions: [
-          IconButton(
-            tooltip: l10n.revisionScheduleTitle,
-            icon: const Icon(Icons.tune),
+          AdaptiveAction(
+            label: l10n.revisionScheduleTitle,
+            icon: Icons.tune,
             onPressed: () => showRevisionScheduleSheet(context),
           ),
         ],

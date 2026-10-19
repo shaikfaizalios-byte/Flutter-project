@@ -14,6 +14,7 @@ import '../../../core/widgets/search_field.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 import '../domain/concepts_repository.dart';
+import '../../../core/widgets/adaptive_action.dart';
 
 /// Study tab: the learner's concepts with search and filters.
 class ConceptListScreen extends ConsumerWidget {
@@ -30,14 +31,14 @@ class ConceptListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.studyTitle),
         actions: [
-          IconButton(
-            tooltip: l10n.revisionTitle,
-            icon: const Icon(Icons.style_outlined),
+          AdaptiveAction(
+            label: l10n.revisionTitle,
+            icon: Icons.style_outlined,
             onPressed: () => context.push(AppRoutes.revision),
           ),
-          IconButton(
-            tooltip: l10n.documentsTitle,
-            icon: const Icon(Icons.picture_as_pdf_outlined),
+          AdaptiveAction(
+            label: l10n.documentsTitle,
+            icon: Icons.picture_as_pdf_outlined,
             onPressed: () => context.push(AppRoutes.documents),
           ),
         ],

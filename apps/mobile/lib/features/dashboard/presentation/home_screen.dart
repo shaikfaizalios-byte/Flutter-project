@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_destinations.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../exams/application/exam_catalog_controller.dart';
@@ -75,6 +76,8 @@ class HomeScreen extends ConsumerWidget {
               const _WeakSection(),
               const SizedBox(height: AppSpacing.md),
               _UpcomingSection(profile: profile),
+              const SizedBox(height: AppSpacing.md),
+              const _ShortcutsSection(),
             ],
           ),
         ),
@@ -240,6 +243,56 @@ class _UpcomingSection extends ConsumerWidget {
           ],
         ),
       },
+    );
+  }
+}
+
+/// Every feature screen by name, so none has to be found behind an icon in another tab.
+class _ShortcutsSection extends StatelessWidget {
+  const _ShortcutsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return SectionCard(
+      icon: Icons.near_me_outlined,
+      title: l10n.homeShortcutsTitle,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Two columns on phones, three when the card is wide enough.
+          final columns = constraints.maxWidth >= 520 ? 3 : 2;
+          final width = (constraints.maxWidth - AppSpacing.sm * (columns - 1)) / columns;
+          return Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final d in featureShortcuts(l10n))
+                SizedBox(
+                  width: width,
+                  child: Material(
+                    color: colors.surfaceContainer,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                      onTap: () => context.push(d.route),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.sm + 4),
+                        child: Row(
+                          children: [
+                            Icon(d.icon, color: colors.primary),
+                            const SizedBox(width: AppSpacing.sm + 2),
+                            Expanded(child: Text(d.label, maxLines: 2)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

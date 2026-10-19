@@ -118,6 +118,7 @@ void main() {
     await openRevision(tester);
     expect(find.text('Review on day 1 · 4 · 7 after adding a card'), findsOneWidget);
 
+    await scrollTo(tester, find.text('Change schedule'));
     await tester.tap(find.text('Change schedule'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '9, 0');

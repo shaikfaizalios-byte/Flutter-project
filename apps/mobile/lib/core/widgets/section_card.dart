@@ -15,14 +15,19 @@ class SectionCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md + 4,
+          AppSpacing.md + 2,
+          AppSpacing.md + 4,
+          AppSpacing.md + 4,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                ExcludeSemantics(child: Icon(icon, color: theme.colorScheme.primary)),
-                const SizedBox(width: AppSpacing.sm),
+                ExcludeSemantics(child: Icon(icon, size: 22, color: theme.colorScheme.primary)),
+                const SizedBox(width: AppSpacing.sm + 2),
                 Expanded(
                   child: Semantics(
                     header: true,
@@ -31,7 +36,7 @@ class SectionCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.sm + 4),
             child,
           ],
         ),

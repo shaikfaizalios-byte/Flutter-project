@@ -12,15 +12,7 @@ class AppSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
     textInputAction: TextInputAction.search,
-    decoration: InputDecoration(
-      hintText: hintText,
-      prefixIcon: const Icon(Icons.search),
-      filled: true,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(28),
-        borderSide: BorderSide.none,
-      ),
-    ),
+    decoration: InputDecoration(hintText: hintText, prefixIcon: const Icon(Icons.search)),
     onChanged: onChanged,
   );
 }

@@ -28,6 +28,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get navProfile => 'प्रोफ़ाइल';
 
   @override
+  String get navFeaturesTitle => 'सुविधाएँ';
+
+  @override
+  String get homeShortcutsTitle => 'सीधे यहाँ जाएँ';
+
+  @override
   String get homeHeadline => 'आपका अध्ययन चक्र';
 
   @override
@@ -1775,6 +1781,16 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get authNoAccount => 'नए हैं? खाता बनाएँ';
+
+  @override
+  String authAgeConfirm(int age) {
+    return 'मेरी उम्र $age वर्ष या उससे अधिक है';
+  }
+
+  @override
+  String authAgeRequired(int age) {
+    return 'खाता बनाने के लिए आपकी उम्र कम से कम $age वर्ष होनी चाहिए।';
+  }
 
   @override
   String get authHaveAccount => 'पहले से खाता है? साइन इन करें';

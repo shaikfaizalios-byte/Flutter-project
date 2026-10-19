@@ -13,6 +13,7 @@ import '../../ai/presentation/ai_widgets.dart';
 import '../../revision/presentation/revision_widgets.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
+import '../../../core/widgets/adaptive_action.dart';
 
 class ConceptDetailScreen extends ConsumerWidget {
   const ConceptDetailScreen({super.key, required this.conceptId});
@@ -113,9 +114,9 @@ class _ConceptDetails extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.conceptDetailsTitle),
         actions: [
-          IconButton(
-            tooltip: l10n.conceptEdit,
-            icon: const Icon(Icons.edit_outlined),
+          AdaptiveAction(
+            label: l10n.conceptEdit,
+            icon: Icons.edit_outlined,
             onPressed: () => context.push(AppRoutes.editConcept(concept.id)),
           ),
           PopupMenuButton<_Action>(
