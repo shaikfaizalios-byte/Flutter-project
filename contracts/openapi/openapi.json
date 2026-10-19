@@ -3792,6 +3792,12 @@
       "RegisterRequest": {
         "additionalProperties": false,
         "properties": {
+          "confirms_minimum_age": {
+            "const": true,
+            "description": "Must be true: the learner confirms they are at least 18.",
+            "title": "Confirms Minimum Age",
+            "type": "boolean"
+          },
           "display_name": {
             "anyOf": [
               {
@@ -3820,7 +3826,8 @@
         },
         "required": [
           "email",
-          "password"
+          "password",
+          "confirms_minimum_age"
         ],
         "title": "RegisterRequest",
         "type": "object"

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
@@ -9,6 +9,11 @@ PASSWORD_MIN = 10
 PASSWORD_MAX = 128
 
 Password = Annotated[str, Field(min_length=PASSWORD_MIN, max_length=PASSWORD_MAX)]
+
+# Minimum age to create an account (self-declared at sign-up). 18 because India's DPDP Act treats
+# anyone younger as a child needing verifiable parental consent, which PrepLoop doesn't collect.
+# Mobile `AuthRules.minimumAge` must match.
+MINIMUM_AGE = 18
 
 
 class _EmailInput(BaseModel):
@@ -28,6 +33,10 @@ class _EmailInput(BaseModel):
 
 class RegisterRequest(_EmailInput):
     password: Password
+    # The learner confirms they are at least MINIMUM_AGE; sign-up is refused without it.
+    confirms_minimum_age: Literal[True] = Field(
+        description=f"Must be true: the learner confirms they are at least {MINIMUM_AGE}."
+    )
     display_name: (
         Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
         | None

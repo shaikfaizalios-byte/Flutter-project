@@ -57,6 +57,16 @@ usage analytics.
 
 They process data only to provide these services to us.
 
+## No tracking
+
+- No analytics, advertising or session-recording tools are used in the app, the web app or the
+  website.
+- Fonts and the web app's engine are served from our own servers. Nothing is loaded from Google
+  Fonts or other third-party content servers, so opening PrepLoop does not send your IP address to
+  them.
+- Emails are sent only when your account needs one (sign-in, verification and password-reset
+  codes). We send no marketing emails.
+
 ## How long we keep data
 
 - Account and study data: until you delete your account.
@@ -75,8 +85,10 @@ They process data only to provide these services to us.
 
 ## Children
 
-PrepLoop is meant for people preparing for SSC examinations and is not directed at children.
-[Legal review: confirm the minimum age and any parental-consent requirement for your markets.]
+PrepLoop is for adults: you must be 18 or older to create an account. Sign-up asks you to confirm
+this, and we record when you did. We do not knowingly keep data about anyone younger; if we learn
+that an account belongs to someone under 18, we delete it. [Legal review: India's DPDP Act treats
+everyone under 18 as a child; confirm this minimum age for your markets.]
 
 ## Changes
 

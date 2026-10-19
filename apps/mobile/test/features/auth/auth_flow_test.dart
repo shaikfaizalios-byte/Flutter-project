@@ -126,7 +126,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('At least 10 characters'), findsWidgets);
 
+    expect(find.text('You must be 18 or older to create an account.'), findsOneWidget);
+
     await tester.enterText(find.widgetWithText(TextFormField, 'Password'), password);
+    await tester.tap(find.text('I am 18 or older'));
     await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
     await tester.pumpAndSettle();
 

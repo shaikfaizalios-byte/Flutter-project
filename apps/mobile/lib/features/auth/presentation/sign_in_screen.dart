@@ -13,6 +13,9 @@ import '../application/auth_controller.dart';
 /// Minimum password length (same rule as the server).
 const passwordMinLength = 10;
 
+/// Minimum age to create an account (same rule as the server's `MINIMUM_AGE`).
+const minimumAge = 18;
+
 String authErrorMessage(AppLocalizations l10n, Object error) => switch (error) {
   NetworkFailure() || TimeoutFailure() => l10n.authErrorOffline,
   ServerFailure(code: 'invalid_credentials') => l10n.authErrorCredentials,
@@ -150,6 +153,30 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           return null;
                         },
                       ),
+                      if (_creating)
+                        FormField<bool>(
+                          initialValue: false,
+                          validator: (v) => v == true ? null : l10n.authAgeRequired(minimumAge),
+                          builder: (field) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                value: field.value ?? false,
+                                onChanged: _busy ? null : field.didChange,
+                                contentPadding: EdgeInsets.zero,
+                                controlAffinity: ListTileControlAffinity.leading,
+                                title: Text(l10n.authAgeConfirm(minimumAge)),
+                              ),
+                              if (field.errorText != null)
+                                Text(
+                                  field.errorText!,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.error,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
                       if (_error != null) ...[
                         const SizedBox(height: AppSpacing.sm),
                         Text(_error!, style: TextStyle(color: theme.colorScheme.error)),

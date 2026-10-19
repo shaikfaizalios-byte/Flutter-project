@@ -46,7 +46,8 @@ jobs:
         run: |
           case "$API_BASE_URL" in https://*) ;; *) echo "::error::API_BASE_URL must be https"; exit 1;; esac
           flutter pub get
-          flutter build web --release \
+          # --no-web-resources-cdn: serve CanvasKit from this site, not www.gstatic.com (privacy).
+          flutter build web --release --no-web-resources-cdn \
             --base-href "/${{ github.event.repository.name }}/app/" \
             --dart-define=FLAVOR=production \
             --dart-define=API_BASE_URL="$API_BASE_URL" \

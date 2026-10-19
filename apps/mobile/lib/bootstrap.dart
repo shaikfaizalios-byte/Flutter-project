@@ -86,4 +86,8 @@ void _registerFontLicences() {
     final text = await rootBundle.loadString('assets/fonts/noto_sans_devanagari/OFL.txt');
     yield LicenseEntryWithLineBreaks(const ['Noto Sans Devanagari'], text);
   });
+  LicenseRegistry.addLicense(() async* {
+    final text = await rootBundle.loadString('assets/fonts/roboto/LICENSE.txt');
+    yield LicenseEntryWithLineBreaks(const ['Roboto'], text);
+  });
 }

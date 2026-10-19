@@ -23,6 +23,7 @@ them, practise, revise with flashcards and track your progress.
 
 ## Your account
 
+- You must be 18 or older to create an account. Sign-up asks you to confirm this.
 - Keep your password private. You are responsible for activity under your account.
 - Give a working email address; it is used for sign-in codes.
 
@@ -33,6 +34,24 @@ them, practise, revise with flashcards and track your progress.
   others' rights or that you have no right to share.
 - You give us permission to store and process your content only to provide the service to you
   (for example, reading text from your papers and syncing your notes between your devices).
+
+## Copyright and takedown
+
+- Papers and files you import stay private to your account. They are never shown to other learners;
+  the optional Repeat Radar shares only counts of topics and question types, never question text.
+- If you believe content in PrepLoop infringes your copyright or other rights, write to
+  [copyright / grievance contact email] with: what the content is, where it appears, your contact
+  details, and a statement that you own the rights or act for the owner. We remove infringing
+  content promptly and may close accounts that repeatedly infringe.
+- [Legal review: name a Grievance Officer as India's IT Rules 2021 require. If the service is
+  offered to users in the United States, register a designated DMCA agent with the US Copyright
+  Office (dmca.copyright.gov) and list that agent here.]
+
+## Emails
+
+We send only emails your account needs: sign-in, verification and password-reset codes. We send no
+marketing emails. If we ever do, it will be only with your consent, and every such email will
+carry an unsubscribe link and our postal address.
 
 ## Acceptable use
 

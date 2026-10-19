@@ -105,6 +105,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   Reminders: `ReminderController` keeps ONE daily notification (fixed id) in sync via a plan fingerprint;
   `ReminderScheduler` wraps flutter_local_notifications (inexact alarms). See docs/revision.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.
+- Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
+  in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
+  The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and
+  `web/flutter_bootstrap.js` points `fontFallbackBaseUrl` at the app (missing glyphs show as boxes).
+  No analytics/session replay; emails are transactional only. Keep it that way (privacy policy says so).
 - Errors: backend returns `{"error": {"code","message","request_id","details"}}`; mobile maps Dio errors to
   sealed `AppFailure` types in repositories. Widgets never see Dio types.
 - Config: backend env vars prefixed `PREPLOOP_`; mobile build-time `--dart-define` (`API_BASE_URL`, `FLAVOR`,
@@ -149,7 +154,7 @@ cd apps\mobile; flutter build appbundle --release --dart-define=FLAVOR=productio
 cd services\api; .\.venv\Scripts\python.exe -m app.workers.document_worker  # standalone worker
 python website\build.py --out website\_site   # public website (GitHub Pages: .github/workflows/pages.yml)
 # Production backend: infra/production (VPS + docker compose + Caddy); steps in docs/deployment.md
-powershell -ExecutionPolicy Bypass -File scripts	unnel.ps1   # public test tunnel to the PC API (updates deploy/public-api-url)
+powershell -ExecutionPolicy Bypass -File scripts\tunnel.ps1   # public test tunnel to the PC API (updates deploy/public-api-url)
 ```
 Toolchain locations on the dev machine: Flutter SDK `D:\dev\flutter` (on user PATH), Python 3.12 (winget),
 backend venv `services/api/.venv`, PostgreSQL 17 Windows service `postgresql-x64-17` (port 5432; role

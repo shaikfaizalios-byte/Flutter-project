@@ -173,6 +173,8 @@ class RemoteAuthApi implements AuthApi {
       _session('$_base/register', {
         'email': email,
         'password': password,
+        // The sign-up form can't be sent until the learner ticks the minimum-age box.
+        'confirms_minimum_age': true,
         if (displayName != null && displayName.trim().isNotEmpty) 'display_name': displayName,
       });
 

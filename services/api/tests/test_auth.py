@@ -51,7 +51,8 @@ def anon(make_anon: Callable[..., TestClient]) -> TestClient:
 
 def register(client: TestClient, email: str = "Asha@Example.com", **extra: Any) -> Any:
     return client.post(
-        "/api/v1/auth/register", json={"email": email, "password": PASSWORD, **extra}
+        "/api/v1/auth/register",
+        json={"email": email, "password": PASSWORD, "confirms_minimum_age": True, **extra},
     )
 
 
@@ -88,18 +89,38 @@ def test_registration_rules(anon: TestClient) -> None:
     assert taken.status_code == 409
     assert taken.json()["error"]["code"] == "email_taken"
 
-    short = anon.post("/api/v1/auth/register", json={"email": "b@example.com", "password": "short"})
+    short = anon.post(
+        "/api/v1/auth/register",
+        json={"email": "b@example.com", "password": "short", "confirms_minimum_age": True},
+    )
     assert short.status_code == 422
     bad_email = anon.post(
-        "/api/v1/auth/register", json={"email": "not-an-email", "password": PASSWORD}
+        "/api/v1/auth/register",
+        json={"email": "not-an-email", "password": PASSWORD, "confirms_minimum_age": True},
     )
     assert bad_email.status_code == 422
     same = anon.post(
         "/api/v1/auth/register",
-        json={"email": "longaddress@example.com", "password": "LongAddress@example.com"},
+        json={
+            "email": "longaddress@example.com",
+            "password": "LongAddress@example.com",
+            "confirms_minimum_age": True,
+        },
     )
     assert same.status_code == 401
     assert same.json()["error"]["code"] == "invalid_credentials"
+
+
+def test_registration_requires_the_minimum_age(anon: TestClient, db_session: Session) -> None:
+    for extra in ({}, {"confirms_minimum_age": False}):
+        refused = anon.post(
+            "/api/v1/auth/register",
+            json={"email": "young@example.com", "password": PASSWORD, **extra},
+        )
+        assert refused.status_code == 422
+    assert register(anon, email="adult@example.com").status_code == 201
+    user = db_session.scalars(select(User).where(User.email == "adult@example.com")).one()
+    assert user.age_confirmed_at is not None
 
 
 def test_login_success_and_uniform_failures(anon: TestClient) -> None:

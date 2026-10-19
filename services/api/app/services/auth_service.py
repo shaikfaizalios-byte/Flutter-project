@@ -71,7 +71,13 @@ class AuthService:
         if self._session.scalar(select(User.id).where(User.email == email)) is not None:
             raise EmailTakenError("An account with this email already exists.")
         first_account = (self._session.scalar(select(func.count(User.id))) or 0) == 0
-        user = User(email=email, password_hash=hash_password(password), display_name=display_name)
+        user = User(
+            email=email,
+            password_hash=hash_password(password),
+            display_name=display_name,
+            # Registration requires the age confirmation (RegisterRequest), so record when.
+            age_confirmed_at=self._now(),
+        )
         self._session.add(user)
         self._session.flush()
         if first_account:

@@ -49,7 +49,10 @@ def anon(
 
 
 def register(client: TestClient, email: str = "asha@example.com") -> dict[str, Any]:
-    response = client.post("/api/v1/auth/register", json={"email": email, "password": PASSWORD})
+    response = client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": PASSWORD, "confirms_minimum_age": True},
+    )
     assert response.status_code == 201, response.text
     data: dict[str, Any] = response.json()
     return data

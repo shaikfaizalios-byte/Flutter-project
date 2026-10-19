@@ -41,10 +41,20 @@ flutter:
   assets:
     # Licence text for the bundled font (registered in bootstrap.dart).
     - assets/fonts/noto_sans_devanagari/OFL.txt
+    - assets/fonts/roboto/LICENSE.txt
     # Privacy policy and terms (drafts), shown in the app.
     - assets/legal/
 
   fonts:
+    # Roboto (Apache 2.0), copied from the Flutter SDK's material_fonts. Bundled so the web app
+    # never downloads fonts from Google's servers (that would send every visitor's IP to Google).
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/roboto/roboto-regular.ttf
+        - asset: assets/fonts/roboto/roboto-medium.ttf
+          weight: 500
+        - asset: assets/fonts/roboto/roboto-bold.ttf
+          weight: 700
     # Noto Sans Devanagari v2.007 (SIL OFL 1.1), from github.com/notofonts/devanagari.
     # Used as a fallback so Hindi renders offline everywhere, including web.
     - family: NotoSansDevanagari

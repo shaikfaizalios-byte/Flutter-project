@@ -23,6 +23,8 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # When the learner confirmed the minimum age at sign-up (NULL: accounts made before the check).
+    age_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Opt-in: share confirmed topic / question-type counts of dated papers with the Repeat
     # Radar (counts only; never question text or account details).
     radar_opt_in: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
