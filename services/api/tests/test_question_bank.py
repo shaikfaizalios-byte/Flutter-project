@@ -82,7 +82,16 @@ def test_exam_formats_are_listed_with_their_official_source(db_client: TestClien
     assert chsl["negative_marks_per_wrong"] == 0.5
     assert chsl["source_url"].startswith("https://ssc.gov.in/")
     assert "13.8" in chsl["source_reference"]
-    assert db_client.get("/api/v1/exam-formats", params={"exam": "SSC_CGL"}).json() == []
+    # SSC CGL 2026 Tier-I: verified against its official notice, with the sectional timer
+    # recorded per section.
+    (cgl,) = db_client.get("/api/v1/exam-formats", params={"exam": "SSC_CGL"}).json()
+    assert cgl["code"] == "SSC_CGL_2026_TIER1"
+    assert cgl["total_questions"] == 100
+    assert cgl["duration_minutes"] == 60
+    assert cgl["negative_marks_per_wrong"] == 0.5
+    assert [s["questions"] for s in cgl["sections"]] == [25, 25, 25, 25]
+    assert {s["timer_minutes"] for s in cgl["sections"]} == {15}
+    assert "HQ-C11018/1/2026-C-1" in cgl["source_reference"]
 
 
 def test_paper_is_segmented_after_extraction(db_client: TestClient, paper: uuid.UUID) -> None:

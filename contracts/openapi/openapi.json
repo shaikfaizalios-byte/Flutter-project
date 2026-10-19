@@ -1472,6 +1472,17 @@
           "subject": {
             "title": "Subject",
             "type": "string"
+          },
+          "timer_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timer Minutes"
           }
         },
         "required": [
@@ -1886,6 +1897,17 @@
               }
             ],
             "title": "Question Number"
+          },
+          "shared_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared Source"
           }
         },
         "required": [
@@ -2767,6 +2789,11 @@
             "title": "Include Ai",
             "type": "boolean"
           },
+          "include_shared": {
+            "default": true,
+            "title": "Include Shared",
+            "type": "boolean"
+          },
           "include_unverified": {
             "default": false,
             "title": "Include Unverified",
@@ -3176,6 +3203,11 @@
             ],
             "title": "Pattern Suggestion Reason"
           },
+          "read_only": {
+            "default": false,
+            "title": "Read Only",
+            "type": "boolean"
+          },
           "section": {
             "anyOf": [
               {
@@ -3186,6 +3218,17 @@
               }
             ],
             "title": "Section"
+          },
+          "shared_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared Source"
           },
           "source_pages": {
             "items": {
@@ -3875,6 +3918,16 @@
           "papers": {
             "$ref": "#/components/schemas/PapersBasis"
           },
+          "scope": {
+            "default": "mine",
+            "enum": [
+              "mine",
+              "shared",
+              "all"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
           "similar_groups": {
             "items": {
               "$ref": "#/components/schemas/SimilarGroup"
@@ -4137,6 +4190,11 @@
               }
             ],
             "title": "Selected Position"
+          },
+          "shared": {
+            "default": false,
+            "title": "Shared",
+            "type": "boolean"
           },
           "source": {
             "$ref": "#/components/schemas/ItemSource"
@@ -5171,6 +5229,24 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "VerifyCleanResult": {
+        "properties": {
+          "left_for_review": {
+            "title": "Left For Review",
+            "type": "integer"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "verified",
+          "left_for_review"
+        ],
+        "title": "VerifyCleanResult",
         "type": "object"
       },
       "VerifyEmailConfirm": {
@@ -7756,6 +7832,74 @@
         ]
       }
     },
+    "/api/v1/documents/{document_id}/questions/verify-clean": {
+      "post": {
+        "operationId": "verify_clean_questions_api_v1_documents__document_id__questions_verify_clean_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyCleanResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Verify every question of the paper that needs no review (answer known, no open issues); the rest stay for review",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/v1/documents/{document_id}/segment": {
       "post": {
         "operationId": "resegment_document_api_v1_documents__document_id__segment_post",
@@ -8131,6 +8275,23 @@
               "description": "Exam code, e.g. SSC_CHSL",
               "title": "Exam"
             }
+          },
+          {
+            "description": "mine = your papers; shared = the shared bank; all = both",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "schema": {
+              "default": "mine",
+              "description": "mine = your papers; shared = the shared bank; all = both",
+              "enum": [
+                "mine",
+                "shared",
+                "all"
+              ],
+              "title": "Scope",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -8170,7 +8331,7 @@
             "HTTPBearer": []
           }
         ],
-        "summary": "How often each topic and question pattern appeared in your imported papers",
+        "summary": "How often each topic and question pattern appeared in your papers, the shared bank, or both",
         "tags": [
           "insights"
         ]

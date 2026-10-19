@@ -22,6 +22,8 @@ class PracticeCreate(BaseModel):
     # AI-generated questions are excluded unless the learner opts in (and are labelled).
     # Mock tests never use them.
     include_ai: bool = False
+    # Verified questions from the shared bank (papers the operator shared, labelled as such).
+    include_shared: bool = True
     count: int = Field(default=10, ge=1, le=100)
 
 
@@ -59,6 +61,8 @@ class ItemSource(BaseModel):
     document_filename: str | None
     page: int | None
     question_number: int | None
+    # Shared bank question: where the shared paper came from (the file name is not shown).
+    shared_source: str | None = None
 
 
 class SessionItemRead(BaseModel):
@@ -75,6 +79,8 @@ class SessionItemRead(BaseModel):
     verified: bool
     source: ItemSource
     bookmarked: bool
+    # From the shared bank (another account's paper): read-only, can't be bookmarked.
+    shared: bool = False
     selected_position: int | None
     answer_type: Literal["choice", "typed"] = "choice"
     typed_answer: str | None = None  # what the learner typed

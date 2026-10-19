@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     Text,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -58,7 +59,14 @@ class Document(Base):
             " AND exam_year = EXTRACT(YEAR FROM exam_date))",
             name="exam_date_matches_year",
         ),
+        # A paper in the shared bank must say on what basis it may be shared (and where from).
+        CheckConstraint(
+            "shared_at IS NULL OR (length(trim(shared_rights_basis)) > 0"
+            " AND length(trim(shared_source)) > 0)",
+            name="shared_needs_rights",
+        ),
         Index("ix_documents_status_created", "status", "created_at"),
+        Index("ix_documents_shared", "id", postgresql_where=text("shared_at IS NOT NULL")),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -101,6 +109,12 @@ class Document(Base):
     )
     paper_date_reason: Mapped[str | None] = mapped_column(String(200))
     segmented_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Shared bank: when set, this paper's VERIFIED source questions are visible read-only to
+    # every learner (practice, mocks, repeats). Published by the operator with
+    # `python -m app.cli.shared_bank`, only with a recorded rights basis and source.
+    shared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    shared_rights_basis: Mapped[str | None] = mapped_column(String(500))
+    shared_source: Mapped[str | None] = mapped_column(String(500))
     attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     processing_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

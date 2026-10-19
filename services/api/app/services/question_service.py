@@ -43,6 +43,7 @@ from app.schemas.question import (
     TopicRead,
 )
 from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
+from app.services.shared_bank import visible_question
 from app.services.topic_service import topic_scope
 
 # Issues recomputed from the question's current content after every edit.
@@ -77,6 +78,18 @@ class QuestionFilter:
     has_issues: bool | None = None
     image_dependent: bool | None = None
     origin: str | None = None
+
+
+def _clean(question: Question) -> bool:
+    """Nothing for a reviewer to fix: see QuestionService.verify_clean."""
+    if any(not i.resolved and i.code in CONTENT_ISSUE_CODES for i in question.issues):
+        return False
+    if question.image_dependent and not question.figures:
+        return False
+    if question.answer_type == "typed":
+        return bool(question.typed_answer)
+    position = question.correct_option_position
+    return position is not None and len(question.options) >= 2 and position <= len(question.options)
 
 
 def _escape_like(value: str) -> str:
@@ -114,7 +127,7 @@ class QuestionService:
             return QuestionList(items=[], total=0, limit=len(ids), offset=0)
         rows = self._session.scalars(
             select(Question)
-            .where(Question.id.in_(ids), Question.owner_id == self._owner_id)
+            .where(Question.id.in_(ids), visible_question(self._owner_id))
             .options(*self._load_options())
         ).all()
         by_id = {q.id: q for q in rows}
@@ -127,7 +140,14 @@ class QuestionService:
         )
 
     def get(self, question_id: uuid.UUID) -> QuestionRead:
-        return self._reads([self._get_or_404(question_id)])[0]
+        question = self._session.scalars(
+            select(Question)
+            .where(Question.id == question_id, visible_question(self._owner_id))
+            .options(*self._load_options())
+        ).first()
+        if question is None:
+            raise NotFoundError("Question not found.")
+        return self._reads([question])[0]
 
     def topics(self, subject: str | None, exam_code: str | None = None) -> list[TopicRead]:
         """Shared topics plus the learner's own (for one exam, when given)."""
@@ -386,14 +406,14 @@ class QuestionService:
             )
 
     def figure(self, question_id: uuid.UUID, figure_id: uuid.UUID) -> QuestionFigure:
-        """A figure with its image bytes; 404 unless the question is the caller's."""
+        """A figure with its image bytes; 404 unless the caller may see the question."""
         figure = self._session.scalars(
             select(QuestionFigure)
             .join(Question, Question.id == QuestionFigure.question_id)
             .where(
                 QuestionFigure.id == figure_id,
                 QuestionFigure.question_id == question_id,
-                Question.owner_id == self._owner_id,
+                visible_question(self._owner_id),
             )
             .options(undefer(QuestionFigure.data))
         ).first()
@@ -436,6 +456,33 @@ class QuestionService:
         self._session.commit()
         return topics, patterns
 
+    def verify_clean(self, document_id: uuid.UUID) -> tuple[int, int]:
+        """Verify every unverified question of a paper that needs nothing from a reviewer:
+        answer known, at least two options (or a typed answer), no open content issue, and
+        not image-dependent unless a figure was cropped. Returns (verified, left for review).
+        """
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        questions = self._session.scalars(
+            select(Question)
+            .where(
+                Question.document_id == document_id,
+                Question.owner_id == self._owner_id,
+                Question.origin == QuestionOrigin.SOURCE,
+                Question.verification_status == VerificationStatus.UNVERIFIED,
+            )
+            .options(*self._load_options())
+        ).all()
+        verified = 0
+        for question in questions:
+            if not _clean(question):
+                continue
+            self._verify(question)
+            verified += 1
+        self._session.commit()
+        return verified, len(questions) - verified
+
     # --- helpers ----------------------------------------------------------------------
 
     def _get_or_404(self, question_id: uuid.UUID) -> Question:
@@ -467,6 +514,17 @@ class QuestionService:
             select(Document.id, Document.original_filename).where(Document.id.in_(valid))
         ).all()
         return {row[0]: row[1] for row in rows}
+
+    def _shared_sources(self, ids: set[uuid.UUID | None]) -> dict[uuid.UUID, str]:
+        valid = {i for i in ids if i is not None}
+        if not valid:
+            return {}
+        rows = self._session.execute(
+            select(Document.id, Document.shared_source).where(
+                Document.id.in_(valid), Document.shared_at.is_not(None)
+            )
+        ).all()
+        return {row[0]: row[1] or "" for row in rows}
 
     def _apply[*Ts](self, stmt: Select[*Ts], f: QuestionFilter) -> Select[*Ts]:
         stmt = stmt.where(Question.owner_id == self._owner_id)
@@ -509,7 +567,27 @@ class QuestionService:
                 .order_by(AIExplanation.created_at)
             ):
                 explanations[row.question_id] = row  # latest wins
-        return [self._read(q, filenames, explanations.get(q.id)) for q in questions]
+        sources = self._shared_sources(
+            {q.document_id for q in questions if q.owner_id != self._owner_id}
+        )
+        reads = []
+        for q in questions:
+            read = self._read(q, filenames, explanations.get(q.id))
+            if q.owner_id != self._owner_id:
+                # Someone else's paper from the shared bank: read-only, and the publisher's
+                # file name and review notes are replaced by the recorded source.
+                read = read.model_copy(
+                    update={
+                        "read_only": True,
+                        "shared_source": sources.get(q.document_id) if q.document_id else None,
+                        "document_filename": None,
+                        "issues": [],
+                        "open_issue_count": 0,
+                        "ai_explanation": None,
+                    }
+                )
+            reads.append(read)
+        return reads
 
     @staticmethod
     def _read(

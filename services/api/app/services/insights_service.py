@@ -1,4 +1,5 @@
-"""Which topics and question types (patterns) repeat across the learner's own papers.
+"""Which topics and question types (patterns) repeat across papers: the learner's own,
+the shared bank (papers the operator shared, verified questions only), or both.
 
 Counts come only from source questions in papers this account imported (never AI questions,
 never rejected ones), so every number states its basis: how many papers, which years.
@@ -11,8 +12,9 @@ import uuid
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import Literal
 
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app.domain.similarity import THRESHOLD, StemItem, similar_groups
@@ -35,8 +37,11 @@ from app.schemas.insights import (
     TopicRepeat,
     YearCount,
 )
+from app.services.shared_bank import shared_question
 
 MAX_SIMILAR_GROUPS = 50
+
+RepeatScope = Literal["mine", "shared", "all"]
 EXCERPT_CHARS = 160
 
 
@@ -74,7 +79,7 @@ class InsightsService:
         self._session = session
         self._owner_id = owner_id
 
-    def repeats(self, exam_code: str | None) -> RepeatsReport:
+    def repeats(self, exam_code: str | None, scope: RepeatScope = "mine") -> RepeatsReport:
         stmt = (
             select(
                 Question.id,
@@ -90,12 +95,17 @@ class InsightsService:
             )
             .join(Document, Document.id == Question.document_id)
             .where(
-                Question.owner_id == self._owner_id,
-                Document.owner_id == self._owner_id,
                 Question.origin == QuestionOrigin.SOURCE,
                 Question.verification_status != VerificationStatus.REJECTED,
             )
         )
+        mine = and_(Question.owner_id == self._owner_id, Document.owner_id == self._owner_id)
+        if scope == "mine":
+            stmt = stmt.where(mine)
+        elif scope == "shared":
+            stmt = stmt.where(shared_question())
+        else:
+            stmt = stmt.where(or_(mine, shared_question()))
         if exam_code:
             stmt = stmt.where(Question.exam_code == exam_code)
         rows = [
@@ -125,12 +135,17 @@ class InsightsService:
             for d in documents
             if d.paper_date_status == "confirmed" and d.exam_year is not None
         }
-        filenames = {d.id: d.original_filename for d in documents}
+        # Shared papers are named by their recorded source, never the publisher's file name.
+        filenames = {
+            d.id: d.original_filename if d.owner_id == self._owner_id else (d.shared_source or "")
+            for d in documents
+        }
         topics = {t.id: t for t in self._session.scalars(select(Topic)).all()}
         patterns = {p.id: p for p in self._session.scalars(select(QuestionPattern)).all()}
 
         return RepeatsReport(
             exam_code=exam_code,
+            scope=scope,
             papers=PapersBasis(
                 total=len(paper_ids),
                 dated=len(years),

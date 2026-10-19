@@ -16,7 +16,12 @@ from app.schemas.document import (
     PaperDateUpdate,
 )
 from app.schemas.errors import ErrorResponse
-from app.schemas.question import DocumentFormatUpdate, ParseSummary, TopicAcceptResult
+from app.schemas.question import (
+    DocumentFormatUpdate,
+    ParseSummary,
+    TopicAcceptResult,
+    VerifyCleanResult,
+)
 from app.services.document_service import DocumentService
 from app.services.question_service import QuestionService
 from app.services.segmentation_service import SegmentationService
@@ -193,6 +198,20 @@ def resegment_document(
     service.require_extracted(document_id)  # also checks the document is the user's
     SegmentationService(session, request.app.state.document_storage).segment_document(document_id)
     return QuestionService(session, user.id).parse_summary(document_id)
+
+
+@router.post(
+    "/{document_id}/questions/verify-clean",
+    response_model=VerifyCleanResult,
+    responses=NOT_FOUND,
+    summary="Verify every question of the paper that needs no review (answer known, no open "
+    "issues); the rest stay for review",
+)
+def verify_clean_questions(
+    document_id: uuid.UUID, session: DbSession, user: CurrentUser
+) -> VerifyCleanResult:
+    verified, left = QuestionService(session, user.id).verify_clean(document_id)
+    return VerifyCleanResult(verified=verified, left_for_review=left)
 
 
 @router.post(

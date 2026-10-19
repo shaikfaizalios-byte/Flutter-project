@@ -167,7 +167,9 @@ def test_practice_uses_only_reviewed_answerable_text_questions(
         "document_filename": "sample.pdf",
         "page": 1,
         "question_number": good.source_question_number,
+        "shared_source": None,
     }
+    assert item["shared"] is False
     assert item["feedback"] is None  # nothing answered yet
 
 
@@ -340,7 +342,9 @@ def test_mock_structure_timer_and_marking_come_from_the_verified_format(
     api: TestClient, db_session: Session, document: Document
 ) -> None:
     make_formats_ready(db_session, document)
-    exam_format = db_session.scalars(select(ExamFormat)).one()
+    exam_format = db_session.scalars(
+        select(ExamFormat).where(ExamFormat.code == "SSC_CHSL_2026_TIER1")
+    ).one()
 
     mock = api.post("/api/v1/practice/mock-tests", json={"exam_format_code": exam_format.code})
 

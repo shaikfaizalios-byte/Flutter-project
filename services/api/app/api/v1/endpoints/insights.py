@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query
 
@@ -24,12 +24,17 @@ Service = Annotated[InsightsService, Depends(get_insights_service)]
 @router.get(
     "/insights/repeats",
     response_model=RepeatsReport,
-    summary="How often each topic and question pattern appeared in your imported papers",
+    summary="How often each topic and question pattern appeared in your papers, the shared "
+    "bank, or both",
 )
 def repeats(
     service: Service,
     exam: Annotated[
         str | None, Query(max_length=32, description="Exam code, e.g. SSC_CHSL")
     ] = None,
+    scope: Annotated[
+        Literal["mine", "shared", "all"],
+        Query(description="mine = your papers; shared = the shared bank; all = both"),
+    ] = "mine",
 ) -> RepeatsReport:
-    return service.repeats(exam)
+    return service.repeats(exam, scope)

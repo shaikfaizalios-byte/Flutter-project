@@ -30,6 +30,8 @@ class ExamFormatSection(BaseModel):
     subject: str
     questions: int
     max_marks: int | None = None
+    # Sectional timer from the notice, when it sets one (mocks keep one overall timer).
+    timer_minutes: int | None = None
 
 
 class ExamFormatRead(BaseModel):
@@ -121,6 +123,11 @@ class AIExplanationRead(BaseModel):
     reviewed_at: datetime | None
 
 
+class VerifyCleanResult(BaseModel):
+    verified: int  # questions verified now
+    left_for_review: int  # unverified questions that still need a reviewer
+
+
 class QuestionRead(BaseModel):
     id: uuid.UUID
     origin: Literal["source", "ai"]
@@ -164,6 +171,10 @@ class QuestionRead(BaseModel):
     ai_explanation: AIExplanationRead | None
     created_at: datetime
     updated_at: datetime
+    # Shared bank: a question from a paper the operator shared with every learner. It is
+    # read-only for everyone but its owner; `shared_source` says where the paper came from.
+    read_only: bool = False
+    shared_source: str | None = None
 
 
 class QuestionList(BaseModel):

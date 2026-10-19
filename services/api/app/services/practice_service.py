@@ -65,6 +65,7 @@ from app.schemas.practice import (
     TopicResult,
 )
 from app.schemas.question import FigureRead, OptionRead, PassageRead
+from app.services.shared_bank import visible_question
 
 PRACTICE_MARKING_NOTE = "Practice: 1 point per correct answer, no negative marking."
 
@@ -164,7 +165,7 @@ class PracticeService:
 
     def start_practice(self, request: PracticeCreate) -> SessionRead:
         stmt = _eligible(request.include_unverified, request.include_ai).where(
-            Question.owner_id == self._owner_id
+            visible_question(self._owner_id, include_shared=request.include_shared)
         )
         if request.exam_code:
             stmt = stmt.where(Question.exam_code == request.exam_code)
@@ -260,7 +261,7 @@ class PracticeService:
         candidates = self._session.scalars(
             _eligible(include_unverified=False, include_typed=False).where(
                 Question.exam_code == exam_format.exam_code,
-                Question.owner_id == self._owner_id,
+                visible_question(self._owner_id),
             )
         ).all()
         pools: list[list[Question]] = []
@@ -409,10 +410,19 @@ class PracticeService:
             for s in exam_format.sections
         ]
         negative = exam_format.negative_marks_per_wrong
+        timers = {int(s["timer_minutes"]) for s in exam_format.sections if s.get("timer_minutes")}
+        # The mock has one overall timer; say so when the real exam times each section.
+        sectional = (
+            f" The exam times each section separately ({', '.join(map(str, sorted(timers)))}"
+            " min each); this mock uses one overall timer."
+            if timers
+            else ""
+        )
         return (
             f"{exam_format.name}. "
             + "; ".join(parts)
             + (f". Wrong answer: -{negative:.2f}." if negative else ". No negative marking.")
+            + sectional
             + f" Source: {exam_format.source_reference}."
         )
 
@@ -424,6 +434,13 @@ class PracticeService:
         now = self._now()
         questions = self._questions({i.question_id for i in practice.items if i.question_id})
         filenames = self._filenames({q.document_id for q in questions.values() if q.document_id})
+        sources = self._shared_sources(
+            {
+                q.document_id
+                for q in questions.values()
+                if q.document_id and q.owner_id != self._owner_id
+            }
+        )
         bookmarks = self._bookmarked(set(questions))
         answers = {a.position: a for a in practice.answers}
         exam_format = (
@@ -439,6 +456,7 @@ class PracticeService:
         for item in practice.items:
             question = questions.get(item.question_id) if item.question_id else None
             answer = answers.get(item.position)
+            shared = question is not None and question.owner_id != self._owner_id
             items.append(
                 SessionItemRead(
                     position=item.position,
@@ -459,7 +477,10 @@ class PracticeService:
                     verified=item.question_verified,
                     source=ItemSource(
                         document_filename=filenames.get(question.document_id)
-                        if question and question.document_id
+                        if question and question.document_id and not shared
+                        else None,
+                        shared_source=sources.get(question.document_id)
+                        if question and question.document_id and shared
                         else None,
                         page=question.source_pages[0]
                         if question and question.source_pages
@@ -467,6 +488,7 @@ class PracticeService:
                         question_number=question.source_question_number if question else None,
                     ),
                     bookmarked=bool(item.question_id and item.question_id in bookmarks),
+                    shared=shared,
                     selected_position=answer.selected_position if answer else None,
                     answer_type=item.answer_type,
                     typed_answer=answer.typed_answer if answer else None,
@@ -593,7 +615,11 @@ class PracticeService:
         ]
 
     def history(self, question_id: uuid.UUID) -> QuestionHistory:
-        self._owned_question(question_id)
+        visible = select(Question.id).where(
+            Question.id == question_id, visible_question(self._owner_id)
+        )
+        if self._session.scalar(visible) is None:
+            raise NotFoundError("Question not found.")
         rows = self._session.execute(
             select(SessionAnswer.is_correct, SessionAnswer.answered_at)
             .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
@@ -696,6 +722,16 @@ class PracticeService:
             select(Document.id, Document.original_filename).where(Document.id.in_(ids))
         ).all()
         return {r[0]: r[1] for r in rows}
+
+    def _shared_sources(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, str]:
+        if not ids:
+            return {}
+        rows = self._session.execute(
+            select(Document.id, Document.shared_source).where(
+                Document.id.in_(ids), Document.shared_at.is_not(None)
+            )
+        ).all()
+        return {r[0]: r[1] or "" for r in rows}
 
     def _bookmarked(self, ids: set[uuid.UUID]) -> set[uuid.UUID]:
         if not ids:

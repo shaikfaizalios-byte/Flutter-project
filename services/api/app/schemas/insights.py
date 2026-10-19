@@ -1,4 +1,5 @@
 import uuid
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -65,6 +66,8 @@ class PapersBasis(BaseModel):
 
 class RepeatsReport(BaseModel):
     exam_code: str | None
+    # Which papers were counted: the learner's own, the shared bank, or both.
+    scope: Literal["mine", "shared", "all"] = "mine"
     papers: PapersBasis
     topics: list[TopicRepeat]
     similar_groups: list[SimilarGroup]
