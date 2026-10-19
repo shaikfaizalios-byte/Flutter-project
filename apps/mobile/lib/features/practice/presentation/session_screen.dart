@@ -102,13 +102,13 @@ class _SessionBody extends ConsumerWidget {
         title: Text(l10n.sessionQuestionOf(state.current + 1, session.items.length)),
         actions: [
           if (isMock) _Countdown(sessionId: sessionId, state: state),
-          if (item.questionId != null && !item.shared)
+          if (item.questionId != null && !item.shared && !session.offline)
             IconButton(
               tooltip: item.bookmarked ? l10n.sessionRemoveBookmark : l10n.sessionBookmark,
               icon: Icon(item.bookmarked ? Icons.bookmark : Icons.bookmark_border),
               onPressed: () => _controller(ref).toggleBookmark(),
             ),
-          if (item.questionId != null && !item.shared)
+          if (item.questionId != null && !item.shared && !session.offline)
             IconButton(
               tooltip: l10n.reportTitle,
               icon: const Icon(Icons.flag_outlined),
@@ -133,6 +133,17 @@ class _SessionBody extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.md),
             children: [
+              if (session.offline)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Card(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    child: ListTile(
+                      leading: const Icon(Icons.cloud_off),
+                      title: Text(l10n.offlineSessionNote),
+                    ),
+                  ),
+                ),
               Wrap(
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,

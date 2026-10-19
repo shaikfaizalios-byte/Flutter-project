@@ -241,6 +241,7 @@ class PracticeSessionView {
     this.deadlineAt,
     this.submitReason,
     this.result,
+    this.offline = false,
   });
 
   factory PracticeSessionView.fromJson(Map<String, dynamic> json) => PracticeSessionView(
@@ -274,6 +275,10 @@ class PracticeSessionView {
   final List<SessionItemView> items;
   final SessionResultView? result;
 
+  /// Done on this device without a connection; uploaded (and marked again by the server)
+  /// when back online.
+  final bool offline;
+
   int get answeredCount => items.where((i) => i.answered).length;
 
   PracticeSessionView withItem(SessionItemView item) => PracticeSessionView(
@@ -287,6 +292,7 @@ class PracticeSessionView {
     submitReason: submitReason,
     items: [for (final i in items) i.position == item.position ? item : i],
     result: result,
+    offline: offline,
   );
 }
 

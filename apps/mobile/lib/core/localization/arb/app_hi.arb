@@ -681,5 +681,9 @@
   "reviewVerifyCleanBody": "जिन प्रश्नों का उत्तर है और कोई खुली समस्या नहीं है, वे सत्यापित हो जाएँगे। जिन्हें देखना ज़रूरी है, वे समीक्षा के लिए रहेंगे। आप बाद में भी कोई भी प्रश्न बदल सकते हैं।",
   "reviewVerifyCleanDone": "{verified} सत्यापित · {left} की समीक्षा बाकी",
   "repeatsBasisShared": "{count} साझा पेपरों के आधार पर",
-  "repeatsBasisSharedYears": "{count} साझा पेपरों के आधार पर ({first}–{last})"
+  "repeatsBasisSharedYears": "{count} साझा पेपरों के आधार पर ({first}–{last})",
+  "offlineSessionNote": "ऑफ़लाइन अभ्यास: उत्तर इसी डिवाइस पर जाँचे जाते हैं और ऑनलाइन होने पर अपलोड होते हैं।",
+  "offlineMarkingNote": "इस डिवाइस पर जाँचा गया: हर सही उत्तर पर 1 अंक। अपलोड होने पर सर्वर इसे दोबारा जाँचता है।",
+  "offlineReady": "ऑफ़लाइन अभ्यास के लिए {count} प्रश्न सहेजे गए",
+  "offlineToUpload": "{count} ऑफ़लाइन सत्र अपलोड होने का इंतज़ार कर रहे हैं"
 }

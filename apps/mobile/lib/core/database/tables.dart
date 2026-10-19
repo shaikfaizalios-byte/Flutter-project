@@ -168,3 +168,34 @@ class SyncOutbox extends Table {
   @override
   Set<Column<Object>> get primaryKey => {entity, entityId};
 }
+
+/// Practice questions kept on the device for offline practice (schema v7), refreshed from
+/// the server's offline pack. [data] is the pack's JSON for one question, answer included.
+@DataClassName('OfflineQuestionRow')
+class OfflineQuestions extends Table {
+  TextColumn get id => text()();
+  TextColumn get examCode => text()();
+  TextColumn get subject => text().nullable()();
+  TextColumn get topicId => text().nullable()();
+  TextColumn get patternId => text().nullable()();
+  TextColumn get data => text()();
+  DateTimeColumn get savedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Practice sessions done offline (schema v7), uploaded when back online (the server checks
+/// every answer again). [data] holds the session, its questions and answers as JSON; the id
+/// becomes the server's session id, so an upload is never counted twice.
+@DataClassName('OfflineSessionRow')
+class OfflineSessions extends Table {
+  TextColumn get id => text()();
+  TextColumn get data => text()();
+  BoolColumn get finished => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}

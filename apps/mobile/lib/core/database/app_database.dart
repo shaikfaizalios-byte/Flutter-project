@@ -21,6 +21,8 @@ part 'app_database.g.dart';
     RevisionCards,
     CardReviews,
     SyncOutbox,
+    OfflineQuestions,
+    OfflineSessions,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -40,7 +42,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -71,6 +73,11 @@ class AppDatabase extends _$AppDatabase {
       // v6: typed-in answers in the offline answer queue.
       from5To6: (m, schema) async {
         await m.addColumn(schema.pendingAnswers, schema.pendingAnswers.typedAnswer);
+      },
+      // v7: offline practice (saved questions and sessions done offline).
+      from6To7: (m, schema) async {
+        await m.createTable(schema.offlineQuestions);
+        await m.createTable(schema.offlineSessions);
       },
     ),
     beforeOpen: (details) async {

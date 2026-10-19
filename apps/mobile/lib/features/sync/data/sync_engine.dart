@@ -102,6 +102,8 @@ class SyncEngine {
     await _db.delete(_db.concepts).go();
     await _db.delete(_db.studyProfiles).go();
     await _db.delete(_db.pendingAnswers).go();
+    await _db.delete(_db.offlineQuestions).go();
+    await _db.delete(_db.offlineSessions).go();
     await _db.delete(_db.syncOutbox).go();
     await (_db.delete(_db.appSettings)..where(
           (s) => s.key.isIn([

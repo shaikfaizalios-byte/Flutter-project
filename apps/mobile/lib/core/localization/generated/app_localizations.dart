@@ -4184,6 +4184,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Based on {count} shared papers ({first}–{last})'**
   String repeatsBasisSharedYears(int count, int first, int last);
+
+  /// No description provided for @offlineSessionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline practice: answers are checked on this device and uploaded when you\'re back online.'**
+  String get offlineSessionNote;
+
+  /// No description provided for @offlineMarkingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked on this device: 1 point per correct answer. The server checks it again when it\'s uploaded.'**
+  String get offlineMarkingNote;
+
+  /// No description provided for @offlineReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions saved for offline practice'**
+  String offlineReady(int count);
+
+  /// No description provided for @offlineToUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} offline sessions waiting to upload'**
+  String offlineToUpload(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

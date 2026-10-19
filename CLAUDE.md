@@ -32,7 +32,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v6)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v7)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -72,7 +72,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `client_seq` (highest wins), submit idempotent; Decimal scoring with explanations. Mobile queues every
   answer in Drift `pending_answers` (schema v3; v6 adds typed answers) and replays it. Typed-in (TITA) questions:
   `answer_type`/`typed_answer`, pure `app/domain/typed_answers.py` (numbers by value), practice only (mocks exclude
-  them). See docs/practice.md.
+  them). Offline practice: `GET /practice/offline-pack` (verified, no figures, answers included) saved in Drift
+  `offline_questions` (schema v7); without a connection practice starts from it as a local session
+  (`offline_sessions`, client UUID, device marking = preview) and is uploaded via
+  `POST /practice/offline-sessions` (idempotent by `client_id`, server re-marks, `submit_reason="offline"`).
+  Mocks stay online. See docs/practice.md.
 - Accounts (Phase 10): own email+password — Argon2id, 15-min HS256 access JWT (`PREPLOOP_AUTH_SECRET`,
   required in staging/prod), rotating SHA-256-stored refresh tokens with family reuse detection
   (`app/core/security.py`, `app/services/auth_service.py`). Every learner router requires `CurrentUser`
@@ -198,8 +202,9 @@ Known limitations right now:
 - Legal texts are DRAFTS with [placeholders] (operator, contact, processors, retention, law, minimum age).
 - Launcher icon/splash are provisional (generated); application id `com.preploop.preploop` must be changed
   to the operator's domain before the first Play upload. R8 shrinking is off until verified on a device.
-- Sync is last-writer-wins per record (no field merge, no conflict UI). Documents, the question bank and
-  practice sessions are server-only: starting/opening a session needs a connection; only answers queue offline.
+- Sync is last-writer-wins per record (no field merge, no conflict UI). Documents and the question bank are
+  server-only. Practice works offline from the saved pack (questions with figures excluded; AI explanations,
+  bookmarks and reports need the server); mock tests need a connection. Signing out erases unsent offline sessions.
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
 - Verified exam formats: SSC CHSL 2026 Tier-I (migration 0003) and SSC CGL 2026 Tier-I (migration 0018, F. No.
   HQ-C11018/1/2026-C-1 para 13.8). CGL's 15-minute sectional timers are recorded per section but mocks keep one

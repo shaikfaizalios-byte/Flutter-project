@@ -3588,6 +3588,753 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxRow> {
   }
 }
 
+class $OfflineQuestionsTable extends OfflineQuestions
+    with TableInfo<$OfflineQuestionsTable, OfflineQuestionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OfflineQuestionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _examCodeMeta = const VerificationMeta('examCode');
+  @override
+  late final GeneratedColumn<String> examCode = GeneratedColumn<String>(
+    'exam_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subjectMeta = const VerificationMeta('subject');
+  @override
+  late final GeneratedColumn<String> subject = GeneratedColumn<String>(
+    'subject',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _topicIdMeta = const VerificationMeta('topicId');
+  @override
+  late final GeneratedColumn<String> topicId = GeneratedColumn<String>(
+    'topic_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _patternIdMeta = const VerificationMeta('patternId');
+  @override
+  late final GeneratedColumn<String> patternId = GeneratedColumn<String>(
+    'pattern_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _savedAtMeta = const VerificationMeta('savedAt');
+  @override
+  late final GeneratedColumn<DateTime> savedAt = GeneratedColumn<DateTime>(
+    'saved_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, examCode, subject, topicId, patternId, data, savedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'offline_questions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OfflineQuestionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('exam_code')) {
+      context.handle(
+        _examCodeMeta,
+        examCode.isAcceptableOrUnknown(data['exam_code']!, _examCodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_examCodeMeta);
+    }
+    if (data.containsKey('subject')) {
+      context.handle(_subjectMeta, subject.isAcceptableOrUnknown(data['subject']!, _subjectMeta));
+    }
+    if (data.containsKey('topic_id')) {
+      context.handle(_topicIdMeta, topicId.isAcceptableOrUnknown(data['topic_id']!, _topicIdMeta));
+    }
+    if (data.containsKey('pattern_id')) {
+      context.handle(
+        _patternIdMeta,
+        patternId.isAcceptableOrUnknown(data['pattern_id']!, _patternIdMeta),
+      );
+    }
+    if (data.containsKey('data')) {
+      context.handle(_dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('saved_at')) {
+      context.handle(_savedAtMeta, savedAt.isAcceptableOrUnknown(data['saved_at']!, _savedAtMeta));
+    } else if (isInserting) {
+      context.missing(_savedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OfflineQuestionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OfflineQuestionRow(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      examCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}exam_code'],
+      )!,
+      subject: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subject'],
+      ),
+      topicId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}topic_id'],
+      ),
+      patternId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pattern_id'],
+      ),
+      data: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}data'])!,
+      savedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}saved_at'],
+      )!,
+    );
+  }
+
+  @override
+  $OfflineQuestionsTable createAlias(String alias) {
+    return $OfflineQuestionsTable(attachedDatabase, alias);
+  }
+}
+
+class OfflineQuestionRow extends DataClass implements Insertable<OfflineQuestionRow> {
+  final String id;
+  final String examCode;
+  final String? subject;
+  final String? topicId;
+  final String? patternId;
+  final String data;
+  final DateTime savedAt;
+  const OfflineQuestionRow({
+    required this.id,
+    required this.examCode,
+    this.subject,
+    this.topicId,
+    this.patternId,
+    required this.data,
+    required this.savedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['exam_code'] = Variable<String>(examCode);
+    if (!nullToAbsent || subject != null) {
+      map['subject'] = Variable<String>(subject);
+    }
+    if (!nullToAbsent || topicId != null) {
+      map['topic_id'] = Variable<String>(topicId);
+    }
+    if (!nullToAbsent || patternId != null) {
+      map['pattern_id'] = Variable<String>(patternId);
+    }
+    map['data'] = Variable<String>(data);
+    map['saved_at'] = Variable<DateTime>(savedAt);
+    return map;
+  }
+
+  OfflineQuestionsCompanion toCompanion(bool nullToAbsent) {
+    return OfflineQuestionsCompanion(
+      id: Value(id),
+      examCode: Value(examCode),
+      subject: subject == null && nullToAbsent ? const Value.absent() : Value(subject),
+      topicId: topicId == null && nullToAbsent ? const Value.absent() : Value(topicId),
+      patternId: patternId == null && nullToAbsent ? const Value.absent() : Value(patternId),
+      data: Value(data),
+      savedAt: Value(savedAt),
+    );
+  }
+
+  factory OfflineQuestionRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OfflineQuestionRow(
+      id: serializer.fromJson<String>(json['id']),
+      examCode: serializer.fromJson<String>(json['examCode']),
+      subject: serializer.fromJson<String?>(json['subject']),
+      topicId: serializer.fromJson<String?>(json['topicId']),
+      patternId: serializer.fromJson<String?>(json['patternId']),
+      data: serializer.fromJson<String>(json['data']),
+      savedAt: serializer.fromJson<DateTime>(json['savedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'examCode': serializer.toJson<String>(examCode),
+      'subject': serializer.toJson<String?>(subject),
+      'topicId': serializer.toJson<String?>(topicId),
+      'patternId': serializer.toJson<String?>(patternId),
+      'data': serializer.toJson<String>(data),
+      'savedAt': serializer.toJson<DateTime>(savedAt),
+    };
+  }
+
+  OfflineQuestionRow copyWith({
+    String? id,
+    String? examCode,
+    Value<String?> subject = const Value.absent(),
+    Value<String?> topicId = const Value.absent(),
+    Value<String?> patternId = const Value.absent(),
+    String? data,
+    DateTime? savedAt,
+  }) => OfflineQuestionRow(
+    id: id ?? this.id,
+    examCode: examCode ?? this.examCode,
+    subject: subject.present ? subject.value : this.subject,
+    topicId: topicId.present ? topicId.value : this.topicId,
+    patternId: patternId.present ? patternId.value : this.patternId,
+    data: data ?? this.data,
+    savedAt: savedAt ?? this.savedAt,
+  );
+  OfflineQuestionRow copyWithCompanion(OfflineQuestionsCompanion data) {
+    return OfflineQuestionRow(
+      id: data.id.present ? data.id.value : this.id,
+      examCode: data.examCode.present ? data.examCode.value : this.examCode,
+      subject: data.subject.present ? data.subject.value : this.subject,
+      topicId: data.topicId.present ? data.topicId.value : this.topicId,
+      patternId: data.patternId.present ? data.patternId.value : this.patternId,
+      data: data.data.present ? data.data.value : this.data,
+      savedAt: data.savedAt.present ? data.savedAt.value : this.savedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfflineQuestionRow(')
+          ..write('id: $id, ')
+          ..write('examCode: $examCode, ')
+          ..write('subject: $subject, ')
+          ..write('topicId: $topicId, ')
+          ..write('patternId: $patternId, ')
+          ..write('data: $data, ')
+          ..write('savedAt: $savedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, examCode, subject, topicId, patternId, data, savedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OfflineQuestionRow &&
+          other.id == this.id &&
+          other.examCode == this.examCode &&
+          other.subject == this.subject &&
+          other.topicId == this.topicId &&
+          other.patternId == this.patternId &&
+          other.data == this.data &&
+          other.savedAt == this.savedAt);
+}
+
+class OfflineQuestionsCompanion extends UpdateCompanion<OfflineQuestionRow> {
+  final Value<String> id;
+  final Value<String> examCode;
+  final Value<String?> subject;
+  final Value<String?> topicId;
+  final Value<String?> patternId;
+  final Value<String> data;
+  final Value<DateTime> savedAt;
+  final Value<int> rowid;
+  const OfflineQuestionsCompanion({
+    this.id = const Value.absent(),
+    this.examCode = const Value.absent(),
+    this.subject = const Value.absent(),
+    this.topicId = const Value.absent(),
+    this.patternId = const Value.absent(),
+    this.data = const Value.absent(),
+    this.savedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OfflineQuestionsCompanion.insert({
+    required String id,
+    required String examCode,
+    this.subject = const Value.absent(),
+    this.topicId = const Value.absent(),
+    this.patternId = const Value.absent(),
+    required String data,
+    required DateTime savedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       examCode = Value(examCode),
+       data = Value(data),
+       savedAt = Value(savedAt);
+  static Insertable<OfflineQuestionRow> custom({
+    Expression<String>? id,
+    Expression<String>? examCode,
+    Expression<String>? subject,
+    Expression<String>? topicId,
+    Expression<String>? patternId,
+    Expression<String>? data,
+    Expression<DateTime>? savedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (examCode != null) 'exam_code': examCode,
+      if (subject != null) 'subject': subject,
+      if (topicId != null) 'topic_id': topicId,
+      if (patternId != null) 'pattern_id': patternId,
+      if (data != null) 'data': data,
+      if (savedAt != null) 'saved_at': savedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OfflineQuestionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? examCode,
+    Value<String?>? subject,
+    Value<String?>? topicId,
+    Value<String?>? patternId,
+    Value<String>? data,
+    Value<DateTime>? savedAt,
+    Value<int>? rowid,
+  }) {
+    return OfflineQuestionsCompanion(
+      id: id ?? this.id,
+      examCode: examCode ?? this.examCode,
+      subject: subject ?? this.subject,
+      topicId: topicId ?? this.topicId,
+      patternId: patternId ?? this.patternId,
+      data: data ?? this.data,
+      savedAt: savedAt ?? this.savedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (examCode.present) {
+      map['exam_code'] = Variable<String>(examCode.value);
+    }
+    if (subject.present) {
+      map['subject'] = Variable<String>(subject.value);
+    }
+    if (topicId.present) {
+      map['topic_id'] = Variable<String>(topicId.value);
+    }
+    if (patternId.present) {
+      map['pattern_id'] = Variable<String>(patternId.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (savedAt.present) {
+      map['saved_at'] = Variable<DateTime>(savedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfflineQuestionsCompanion(')
+          ..write('id: $id, ')
+          ..write('examCode: $examCode, ')
+          ..write('subject: $subject, ')
+          ..write('topicId: $topicId, ')
+          ..write('patternId: $patternId, ')
+          ..write('data: $data, ')
+          ..write('savedAt: $savedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $OfflineSessionsTable extends OfflineSessions
+    with TableInfo<$OfflineSessionsTable, OfflineSessionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OfflineSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _finishedMeta = const VerificationMeta('finished');
+  @override
+  late final GeneratedColumn<bool> finished = GeneratedColumn<bool>(
+    'finished',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("finished" IN (0, 1))'),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, data, finished, createdAt, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'offline_sessions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OfflineSessionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(_dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('finished')) {
+      context.handle(
+        _finishedMeta,
+        finished.isAcceptableOrUnknown(data['finished']!, _finishedMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OfflineSessionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OfflineSessionRow(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      data: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}data'])!,
+      finished: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}finished'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $OfflineSessionsTable createAlias(String alias) {
+    return $OfflineSessionsTable(attachedDatabase, alias);
+  }
+}
+
+class OfflineSessionRow extends DataClass implements Insertable<OfflineSessionRow> {
+  final String id;
+  final String data;
+  final bool finished;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const OfflineSessionRow({
+    required this.id,
+    required this.data,
+    required this.finished,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['data'] = Variable<String>(data);
+    map['finished'] = Variable<bool>(finished);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  OfflineSessionsCompanion toCompanion(bool nullToAbsent) {
+    return OfflineSessionsCompanion(
+      id: Value(id),
+      data: Value(data),
+      finished: Value(finished),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory OfflineSessionRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OfflineSessionRow(
+      id: serializer.fromJson<String>(json['id']),
+      data: serializer.fromJson<String>(json['data']),
+      finished: serializer.fromJson<bool>(json['finished']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'data': serializer.toJson<String>(data),
+      'finished': serializer.toJson<bool>(finished),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  OfflineSessionRow copyWith({
+    String? id,
+    String? data,
+    bool? finished,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => OfflineSessionRow(
+    id: id ?? this.id,
+    data: data ?? this.data,
+    finished: finished ?? this.finished,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  OfflineSessionRow copyWithCompanion(OfflineSessionsCompanion data) {
+    return OfflineSessionRow(
+      id: data.id.present ? data.id.value : this.id,
+      data: data.data.present ? data.data.value : this.data,
+      finished: data.finished.present ? data.finished.value : this.finished,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfflineSessionRow(')
+          ..write('id: $id, ')
+          ..write('data: $data, ')
+          ..write('finished: $finished, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, data, finished, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OfflineSessionRow &&
+          other.id == this.id &&
+          other.data == this.data &&
+          other.finished == this.finished &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class OfflineSessionsCompanion extends UpdateCompanion<OfflineSessionRow> {
+  final Value<String> id;
+  final Value<String> data;
+  final Value<bool> finished;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const OfflineSessionsCompanion({
+    this.id = const Value.absent(),
+    this.data = const Value.absent(),
+    this.finished = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OfflineSessionsCompanion.insert({
+    required String id,
+    required String data,
+    this.finished = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       data = Value(data),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<OfflineSessionRow> custom({
+    Expression<String>? id,
+    Expression<String>? data,
+    Expression<bool>? finished,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (data != null) 'data': data,
+      if (finished != null) 'finished': finished,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OfflineSessionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? data,
+    Value<bool>? finished,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return OfflineSessionsCompanion(
+      id: id ?? this.id,
+      data: data ?? this.data,
+      finished: finished ?? this.finished,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (finished.present) {
+      map['finished'] = Variable<bool>(finished.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfflineSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('data: $data, ')
+          ..write('finished: $finished, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3598,6 +4345,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RevisionCardsTable revisionCards = $RevisionCardsTable(this);
   late final $CardReviewsTable cardReviews = $CardReviewsTable(this);
   late final $SyncOutboxTable syncOutbox = $SyncOutboxTable(this);
+  late final $OfflineQuestionsTable offlineQuestions = $OfflineQuestionsTable(this);
+  late final $OfflineSessionsTable offlineSessions = $OfflineSessionsTable(this);
   late final Index cardReviewsSyncId = Index(
     'card_reviews_sync_id',
     'CREATE UNIQUE INDEX card_reviews_sync_id ON card_reviews (sync_id)',
@@ -3614,6 +4363,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     revisionCards,
     cardReviews,
     syncOutbox,
+    offlineQuestions,
+    offlineSessions,
     cardReviewsSyncId,
   ];
   @override
@@ -5591,6 +6342,406 @@ typedef $$SyncOutboxTableProcessedTableManager =
       SyncOutboxRow,
       PrefetchHooks Function()
     >;
+typedef $$OfflineQuestionsTableCreateCompanionBuilder = OfflineQuestionsCompanion Function({
+  required String id,
+  required String examCode,
+  Value<String?> subject,
+  Value<String?> topicId,
+  Value<String?> patternId,
+  required String data,
+  required DateTime savedAt,
+  Value<int> rowid,
+});
+typedef $$OfflineQuestionsTableUpdateCompanionBuilder = OfflineQuestionsCompanion Function({
+  Value<String> id,
+  Value<String> examCode,
+  Value<String?> subject,
+  Value<String?> topicId,
+  Value<String?> patternId,
+  Value<String> data,
+  Value<DateTime> savedAt,
+  Value<int> rowid,
+});
+
+class $$OfflineQuestionsTableFilterComposer
+    extends Composer<_$AppDatabase, $OfflineQuestionsTable> {
+  $$OfflineQuestionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get examCode =>
+      $composableBuilder(column: $table.examCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subject =>
+      $composableBuilder(column: $table.subject, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get topicId =>
+      $composableBuilder(column: $table.topicId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get patternId =>
+      $composableBuilder(column: $table.patternId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get savedAt =>
+      $composableBuilder(column: $table.savedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$OfflineQuestionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OfflineQuestionsTable> {
+  $$OfflineQuestionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get examCode =>
+      $composableBuilder(column: $table.examCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subject =>
+      $composableBuilder(column: $table.subject, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get topicId =>
+      $composableBuilder(column: $table.topicId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get patternId =>
+      $composableBuilder(column: $table.patternId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get savedAt =>
+      $composableBuilder(column: $table.savedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$OfflineQuestionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OfflineQuestionsTable> {
+  $$OfflineQuestionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get examCode =>
+      $composableBuilder(column: $table.examCode, builder: (column) => column);
+
+  GeneratedColumn<String> get subject =>
+      $composableBuilder(column: $table.subject, builder: (column) => column);
+
+  GeneratedColumn<String> get topicId =>
+      $composableBuilder(column: $table.topicId, builder: (column) => column);
+
+  GeneratedColumn<String> get patternId =>
+      $composableBuilder(column: $table.patternId, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get savedAt =>
+      $composableBuilder(column: $table.savedAt, builder: (column) => column);
+}
+
+class $$OfflineQuestionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OfflineQuestionsTable,
+          OfflineQuestionRow,
+          $$OfflineQuestionsTableFilterComposer,
+          $$OfflineQuestionsTableOrderingComposer,
+          $$OfflineQuestionsTableAnnotationComposer,
+          $$OfflineQuestionsTableCreateCompanionBuilder,
+          $$OfflineQuestionsTableUpdateCompanionBuilder,
+          (
+            OfflineQuestionRow,
+            BaseReferences<_$AppDatabase, $OfflineQuestionsTable, OfflineQuestionRow>,
+          ),
+          OfflineQuestionRow,
+          PrefetchHooks Function()
+        > {
+  $$OfflineQuestionsTableTableManager(_$AppDatabase db, $OfflineQuestionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OfflineQuestionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OfflineQuestionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OfflineQuestionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> examCode = const Value.absent(),
+                Value<String?> subject = const Value.absent(),
+                Value<String?> topicId = const Value.absent(),
+                Value<String?> patternId = const Value.absent(),
+                Value<String> data = const Value.absent(),
+                Value<DateTime> savedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OfflineQuestionsCompanion(
+                id: id,
+                examCode: examCode,
+                subject: subject,
+                topicId: topicId,
+                patternId: patternId,
+                data: data,
+                savedAt: savedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String examCode,
+                Value<String?> subject = const Value.absent(),
+                Value<String?> topicId = const Value.absent(),
+                Value<String?> patternId = const Value.absent(),
+                required String data,
+                required DateTime savedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => OfflineQuestionsCompanion.insert(
+                id: id,
+                examCode: examCode,
+                subject: subject,
+                topicId: topicId,
+                patternId: patternId,
+                data: data,
+                savedAt: savedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$OfflineQuestionsTable, OfflineQuestionRow>(table),
+                  BaseReferences<_$AppDatabase, $OfflineQuestionsTable, OfflineQuestionRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OfflineQuestionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OfflineQuestionsTable,
+      OfflineQuestionRow,
+      $$OfflineQuestionsTableFilterComposer,
+      $$OfflineQuestionsTableOrderingComposer,
+      $$OfflineQuestionsTableAnnotationComposer,
+      $$OfflineQuestionsTableCreateCompanionBuilder,
+      $$OfflineQuestionsTableUpdateCompanionBuilder,
+      (
+        OfflineQuestionRow,
+        BaseReferences<_$AppDatabase, $OfflineQuestionsTable, OfflineQuestionRow>,
+      ),
+      OfflineQuestionRow,
+      PrefetchHooks Function()
+    >;
+typedef $$OfflineSessionsTableCreateCompanionBuilder = OfflineSessionsCompanion Function({
+  required String id,
+  required String data,
+  Value<bool> finished,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$OfflineSessionsTableUpdateCompanionBuilder = OfflineSessionsCompanion Function({
+  Value<String> id,
+  Value<String> data,
+  Value<bool> finished,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$OfflineSessionsTableFilterComposer extends Composer<_$AppDatabase, $OfflineSessionsTable> {
+  $$OfflineSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get finished =>
+      $composableBuilder(column: $table.finished, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$OfflineSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OfflineSessionsTable> {
+  $$OfflineSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get finished =>
+      $composableBuilder(column: $table.finished, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$OfflineSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OfflineSessionsTable> {
+  $$OfflineSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<bool> get finished =>
+      $composableBuilder(column: $table.finished, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$OfflineSessionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OfflineSessionsTable,
+          OfflineSessionRow,
+          $$OfflineSessionsTableFilterComposer,
+          $$OfflineSessionsTableOrderingComposer,
+          $$OfflineSessionsTableAnnotationComposer,
+          $$OfflineSessionsTableCreateCompanionBuilder,
+          $$OfflineSessionsTableUpdateCompanionBuilder,
+          (
+            OfflineSessionRow,
+            BaseReferences<_$AppDatabase, $OfflineSessionsTable, OfflineSessionRow>,
+          ),
+          OfflineSessionRow,
+          PrefetchHooks Function()
+        > {
+  $$OfflineSessionsTableTableManager(_$AppDatabase db, $OfflineSessionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OfflineSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OfflineSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OfflineSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> data = const Value.absent(),
+                Value<bool> finished = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OfflineSessionsCompanion(
+                id: id,
+                data: data,
+                finished: finished,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String data,
+                Value<bool> finished = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => OfflineSessionsCompanion.insert(
+                id: id,
+                data: data,
+                finished: finished,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$OfflineSessionsTable, OfflineSessionRow>(table),
+                  BaseReferences<_$AppDatabase, $OfflineSessionsTable, OfflineSessionRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OfflineSessionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OfflineSessionsTable,
+      OfflineSessionRow,
+      $$OfflineSessionsTableFilterComposer,
+      $$OfflineSessionsTableOrderingComposer,
+      $$OfflineSessionsTableAnnotationComposer,
+      $$OfflineSessionsTableCreateCompanionBuilder,
+      $$OfflineSessionsTableUpdateCompanionBuilder,
+      (OfflineSessionRow, BaseReferences<_$AppDatabase, $OfflineSessionsTable, OfflineSessionRow>),
+      OfflineSessionRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5608,4 +6759,8 @@ class $AppDatabaseManager {
       $$CardReviewsTableTableManager(_db, _db.cardReviews);
   $$SyncOutboxTableTableManager get syncOutbox =>
       $$SyncOutboxTableTableManager(_db, _db.syncOutbox);
+  $$OfflineQuestionsTableTableManager get offlineQuestions =>
+      $$OfflineQuestionsTableTableManager(_db, _db.offlineQuestions);
+  $$OfflineSessionsTableTableManager get offlineSessions =>
+      $$OfflineSessionsTableTableManager(_db, _db.offlineSessions);
 }

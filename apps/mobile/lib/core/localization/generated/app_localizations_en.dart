@@ -2547,4 +2547,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String repeatsBasisSharedYears(int count, int first, int last) {
     return 'Based on $count shared papers ($first–$last)';
   }
+
+  @override
+  String get offlineSessionNote =>
+      'Offline practice: answers are checked on this device and uploaded when you\'re back online.';
+
+  @override
+  String get offlineMarkingNote =>
+      'Marked on this device: 1 point per correct answer. The server checks it again when it\'s uploaded.';
+
+  @override
+  String offlineReady(int count) {
+    return '$count questions saved for offline practice';
+  }
+
+  @override
+  String offlineToUpload(int count) {
+    return '$count offline sessions waiting to upload';
+  }
 }

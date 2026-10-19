@@ -48,7 +48,10 @@ class ResultView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(result.markingNote, style: theme.textTheme.bodySmall),
+                  Text(
+                    session.offline ? l10n.offlineMarkingNote : result.markingNote,
+                    style: theme.textTheme.bodySmall,
+                  ),
                   const SizedBox(height: AppSpacing.xs),
                   SelectableText(total.explanation),
                 ],

@@ -20,14 +20,36 @@ final practiceRepositoryProvider = Provider<PracticeRepository>(
 
 Duration? _noRetry(int retryCount, Object error) => null;
 
-/// Replays answers saved offline (e.g. when the Practice tab opens). Never throws.
+/// Replays answers saved offline and uploads offline sessions (e.g. when the Practice tab
+/// opens), then refreshes the questions saved for offline practice. Never throws.
 final pendingAnswersFlushProvider = FutureProvider.autoDispose<int>((ref) async {
+  final repo = ref.read(practiceRepositoryProvider);
+  var sent = 0;
   try {
-    return await ref.read(practiceRepositoryProvider).flush();
+    sent = await repo.flush();
   } on Object catch (error, stack) {
     logError('Replaying saved answers failed', error, stack);
-    return 0;
   }
+  try {
+    await repo.refreshOfflinePack();
+  } on AppFailure {
+    // Offline or server unavailable: keep the questions already saved.
+  } on Object catch (error, stack) {
+    logError('Refreshing the offline pack failed', error, stack);
+  }
+  ref.invalidate(offlineStatusProvider);
+  return sent;
+});
+
+/// Questions saved for offline practice, and offline sessions waiting to upload.
+final offlineStatusProvider = FutureProvider.autoDispose<({int questions, int toUpload})>((
+  ref,
+) async {
+  final repo = ref.watch(practiceRepositoryProvider);
+  return (
+    questions: await repo.offlineQuestionCount(),
+    toUpload: await repo.offlineSessionsToUpload(),
+  );
 });
 
 final mockTestsProvider = FutureProvider.autoDispose<List<MockTestView>>(

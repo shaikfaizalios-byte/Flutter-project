@@ -50,6 +50,28 @@ class PracticeHubScreen extends ConsumerWidget {
                         label: Text(l10n.practiceStart),
                         onPressed: () => _setUpPractice(context, ref),
                       ),
+                      if (ref.watch(offlineStatusProvider).value case final offline?) ...[
+                        if (offline.questions > 0) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Row(
+                            spacing: AppSpacing.xs,
+                            children: [
+                              const Icon(Icons.offline_pin_outlined, size: 18),
+                              Expanded(
+                                child: Text(
+                                  l10n.offlineReady(offline.questions),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        if (offline.toUpload > 0)
+                          Text(
+                            l10n.offlineToUpload(offline.toUpload),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                      ],
                     ],
                   ),
                 ),

@@ -1829,5 +1829,11 @@
   "repeatsBasisShared": "Based on {count} shared papers",
   "@repeatsBasisShared": {"placeholders": {"count": {"type": "int"}}},
   "repeatsBasisSharedYears": "Based on {count} shared papers ({first}–{last})",
-  "@repeatsBasisSharedYears": {"placeholders": {"count": {"type": "int"}, "first": {"type": "int"}, "last": {"type": "int"}}}
+  "@repeatsBasisSharedYears": {"placeholders": {"count": {"type": "int"}, "first": {"type": "int"}, "last": {"type": "int"}}},
+  "offlineSessionNote": "Offline practice: answers are checked on this device and uploaded when you're back online.",
+  "offlineMarkingNote": "Marked on this device: 1 point per correct answer. The server checks it again when it's uploaded.",
+  "offlineReady": "{count} questions saved for offline practice",
+  "@offlineReady": {"placeholders": {"count": {"type": "int"}}},
+  "offlineToUpload": "{count} offline sessions waiting to upload",
+  "@offlineToUpload": {"placeholders": {"count": {"type": "int"}}}
 }

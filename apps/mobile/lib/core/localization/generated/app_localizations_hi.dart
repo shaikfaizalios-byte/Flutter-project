@@ -2553,4 +2553,22 @@ class AppLocalizationsHi extends AppLocalizations {
   String repeatsBasisSharedYears(int count, int first, int last) {
     return '$count साझा पेपरों के आधार पर ($first–$last)';
   }
+
+  @override
+  String get offlineSessionNote =>
+      'ऑफ़लाइन अभ्यास: उत्तर इसी डिवाइस पर जाँचे जाते हैं और ऑनलाइन होने पर अपलोड होते हैं।';
+
+  @override
+  String get offlineMarkingNote =>
+      'इस डिवाइस पर जाँचा गया: हर सही उत्तर पर 1 अंक। अपलोड होने पर सर्वर इसे दोबारा जाँचता है।';
+
+  @override
+  String offlineReady(int count) {
+    return 'ऑफ़लाइन अभ्यास के लिए $count प्रश्न सहेजे गए';
+  }
+
+  @override
+  String offlineToUpload(int count) {
+    return '$count ऑफ़लाइन सत्र अपलोड होने का इंतज़ार कर रहे हैं';
+  }
 }

@@ -68,7 +68,29 @@ review edits to a question therefore never change a session that has already sta
   - when the Practice tab opens,
   - before a session is loaded (queued answers are re-applied on top of the server's state),
   - before submit.
-- A session needs a connection to **start** or **open**. Only answers are offline-tolerant.
+- Online sessions need a connection to **start** or **open**; without one, practice falls back
+  to an offline session (below). Mock tests always need the server (its timer is authoritative).
+
+### Offline practice (mobile, schema v7)
+
+- **Offline pack.** `GET /api/v1/practice/offline-pack?limit=500` returns the questions a learner
+  may practise (verified, answer known, own + shared bank), **without figures** (images aren't
+  stored offline), answers included. The app saves them in Drift `offline_questions`; the
+  Practice tab refreshes them whenever it opens online and shows how many are saved.
+- **Starting offline.** When `POST /practice/sessions` fails for lack of a connection, the
+  repository picks questions from the pack with the same filters (exam, subject, topic, type,
+  shared bank) and creates a local session (Drift `offline_sessions`, a client UUID). With no
+  matching saved question, the connection error is shown as before.
+- **Device marking is a preview.** Answers are marked on the device (typed answers with the same
+  rules as `app/domain/typed_answers.py`) and are final once given, as online. The screen says
+  the session is offline; bookmarks and reports need the server and are hidden.
+- **Upload.** Finishing uploads at once when possible (the server's result is then shown);
+  otherwise `flush` uploads finished sessions oldest first. `POST /api/v1/practice/offline-sessions`
+  is idempotent by `client_id` (the server's session id), **marks every answer again**, drops
+  questions the learner can no longer see, keeps answer times within the session and never in
+  the future, and records the session as submitted with `submit_reason = "offline"`, so history,
+  analytics and "questions to revisit" include it.
+- **Signing out** erases saved questions and offline sessions not yet uploaded (as all device data).
 
 ## Scoring and explanation
 

@@ -45,6 +45,22 @@ class FakePracticeRepository implements PracticeRepository {
   final submits = <String>[];
   final List<PracticeRequest> practiceRequests = [];
 
+  /// Offline practice is covered by the real repository's tests (practice_offline_test.dart).
+  int offlineQuestions = 0;
+  int offlineToUpload = 0;
+
+  @override
+  Future<int> refreshOfflinePack() async => offlineQuestions;
+
+  @override
+  Future<int> offlineQuestionCount() async => offlineQuestions;
+
+  @override
+  Future<int> offlineSessionsToUpload() async => offlineToUpload;
+
+  @override
+  Future<int> uploadOfflineSessions() async => 0;
+
   _FakeSession _get(String id) => sessions[id]!;
 
   @override
