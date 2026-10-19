@@ -11,6 +11,8 @@ from app.schemas.practice import (
     AnswerUpdate,
     MockAvailability,
     MockCreate,
+    OfflinePack,
+    OfflineSessionUpload,
     PracticeCreate,
     QuestionHistory,
     SessionList,
@@ -68,6 +70,27 @@ def mock_tests(
 )
 def start_mock(body: MockCreate, service: Service) -> SessionRead:
     return service.start_mock(body)
+
+
+@router.get(
+    "/practice/offline-pack",
+    response_model=OfflinePack,
+    summary="Verified practice questions (with answers) to keep on the device for offline practice",
+)
+def offline_pack(
+    service: Service, limit: Annotated[int, Query(ge=1, le=1000)] = 500
+) -> OfflinePack:
+    return service.offline_pack(limit)
+
+
+@router.post(
+    "/practice/offline-sessions",
+    response_model=SessionRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Record a practice session done offline (answers re-checked; idempotent by client_id)",
+)
+def import_offline_session(body: OfflineSessionUpload, service: Service) -> SessionRead:
+    return service.import_offline(body)
 
 
 @router.get("/practice/sessions", response_model=SessionList, summary="Session history")

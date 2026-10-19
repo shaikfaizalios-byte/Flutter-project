@@ -63,7 +63,7 @@ class PracticeSession(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deadline_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    submit_reason: Mapped[str | None] = mapped_column(String(16))  # "user" | "time_up"
+    submit_reason: Mapped[str | None] = mapped_column(String(16))  # "user" | "time_up" | "offline"
     # Filled at submission (see app/domain/scoring.py).
     score: Mapped[float | None] = mapped_column(Float)
     max_score: Mapped[float | None] = mapped_column(Float)

@@ -52,6 +52,9 @@ from app.schemas.practice import (
     ItemSource,
     MockAvailability,
     MockCreate,
+    OfflinePack,
+    OfflineQuestion,
+    OfflineSessionUpload,
     PracticeCreate,
     QuestionHistory,
     SectionAvailability,
@@ -137,6 +140,11 @@ def _eligible(
     )
 
 
+def _aware(value: datetime) -> datetime:
+    """Device times without a zone are taken as UTC."""
+    return value if value.tzinfo else value.replace(tzinfo=UTC)
+
+
 def _scored(item: SessionItem) -> ScoredItem:
     return ScoredItem(
         position=item.position,
@@ -197,6 +205,132 @@ class PracticeService:
         ]
         self._session.add(practice)
         self._session.commit()
+        return self.get(practice.id)
+
+    # --- offline practice -------------------------------------------------------------
+
+    def offline_pack(self, limit: int) -> OfflinePack:
+        """Practice questions to keep on the device: verified, answer known, visible to the
+        learner (own + shared bank), without figures (images aren't stored offline)."""
+        stmt = (
+            _eligible(include_unverified=False)
+            .where(
+                visible_question(self._owner_id),
+                ~select(QuestionFigure.id)
+                .where(QuestionFigure.question_id == Question.id)
+                .exists(),
+            )
+            .options(selectinload(Question.options), selectinload(Question.passage))
+            .order_by(Question.updated_at.desc())
+            .limit(limit)
+        )
+        questions = self._session.scalars(stmt).all()
+        documents = {q.document_id for q in questions if q.document_id}
+        filenames = self._filenames(documents)
+        sources = self._shared_sources(
+            {q.document_id for q in questions if q.document_id and q.owner_id != self._owner_id}
+        )
+        items = []
+        for q in questions:
+            shared = q.owner_id != self._owner_id
+            typed = q.answer_type == "typed"
+            items.append(
+                OfflineQuestion(
+                    id=q.id,
+                    exam_code=q.exam_code,
+                    section=q.section,
+                    subject=q.subject,
+                    topic_id=q.topic_id,
+                    pattern_id=q.pattern_id,
+                    stem=q.stem,
+                    passage=PassageRead.model_validate(q.passage) if q.passage else None,
+                    options=[] if typed else [OptionRead.model_validate(o) for o in q.options],
+                    answer_type=q.answer_type,
+                    correct_position=None if typed else q.correct_option_position,
+                    typed_answer=q.typed_answer if typed else None,
+                    typed_answer_numeric=typed and typed_answers.is_numeric(q.typed_answer or ""),
+                    explanation=q.explanation,
+                    shared=shared,
+                    shared_source=sources.get(q.document_id) if shared and q.document_id else None,
+                    document_filename=None
+                    if shared or not q.document_id
+                    else filenames.get(q.document_id),
+                    page=q.source_pages[0] if q.source_pages else None,
+                    question_number=q.source_question_number,
+                )
+            )
+        return OfflinePack(questions=items, limit=limit, generated_at=self._now())
+
+    def import_offline(self, upload: OfflineSessionUpload) -> SessionRead:
+        """Records a practice session done offline. Idempotent by ``client_id``. Every answer
+        is checked again against the current question; questions the learner can no longer
+        see are left out; times are kept within the session and never in the future."""
+        existing = self._session.get(PracticeSession, upload.client_id)
+        if existing is not None:
+            if existing.owner_id != self._owner_id:
+                raise ConflictError("session_exists", "That session id is already used.")
+            return self.get(existing.id)
+        now = self._now()
+        started = min(_aware(upload.started_at), now)
+        finished = min(max(_aware(upload.finished_at), started), now)
+        ids = {a.question_id for a in upload.items}
+        visible = {
+            q.id: q
+            for q in self._session.scalars(
+                _eligible(include_unverified=False)
+                .where(Question.id.in_(ids), visible_question(self._owner_id))
+                .options(selectinload(Question.options))
+            ).all()
+        }
+        practice = PracticeSession(
+            id=upload.client_id,
+            owner_id=self._owner_id,
+            mode=SessionMode.PRACTICE,
+            exam_code=upload.exam_code,
+            selection={"offline": True},
+            status=SessionStatus.ACTIVE,
+            started_at=started,
+        )
+        position = 0
+        for given in upload.items:
+            question = visible.get(given.question_id)
+            if question is None:
+                continue
+            position += 1
+            item = self._item(position, question, marks_correct=1.0, marks_wrong=0.0)
+            practice.items.append(item)
+            typed = item.answer_type == "typed"
+            answer: int | str | None
+            if typed:
+                answer = typed_answers.clean(given.typed_answer) if given.typed_answer else None
+            elif given.selected_position is not None and given.selected_position <= (
+                item.option_count or 0
+            ):
+                answer = given.selected_position
+            else:
+                answer = None
+            if answer is None:
+                continue
+            answered = _aware(given.answered_at) if given.answered_at else finished
+            practice.answers.append(
+                SessionAnswer(
+                    position=position,
+                    question_id=question.id,
+                    selected_position=None if typed else int(answer),
+                    typed_answer=str(answer) if typed else None,
+                    is_correct=is_correct(_scored(item), answer),
+                    client_seq=0,
+                    time_spent_ms=given.time_spent_ms,
+                    answered_at=min(max(answered, started), finished),
+                )
+            )
+        if position == 0:
+            raise NoQuestionsAvailableError(
+                "None of these questions can be practised any more (removed or no longer shared)."
+            )
+        self._session.add(practice)
+        self._session.flush()
+        self._finalize(practice, reason="offline", at=finished)
         return self.get(practice.id)
 
     def mock_availability(self, exam_code: str | None) -> list[MockAvailability]:
@@ -371,8 +505,10 @@ class PracticeService:
         ):
             self._finalize(practice, reason="time_up")
 
-    def _finalize(self, practice: PracticeSession, *, reason: str) -> None:
-        now = self._now()
+    def _finalize(
+        self, practice: PracticeSession, *, reason: str, at: datetime | None = None
+    ) -> None:
+        now = at or self._now()
         if reason == "time_up" and practice.deadline_at is not None:
             now = min(now, practice.deadline_at)
         selections: dict[int, int | str | None] = {

@@ -2106,6 +2106,346 @@
         "title": "MockResult",
         "type": "object"
       },
+      "OfflineAnswer": {
+        "additionalProperties": false,
+        "properties": {
+          "answered_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answered At"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "selected_position": {
+            "anyOf": [
+              {
+                "maximum": 6.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Position"
+          },
+          "time_spent_ms": {
+            "anyOf": [
+              {
+                "maximum": 86400000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Spent Ms"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          }
+        },
+        "required": [
+          "question_id"
+        ],
+        "title": "OfflineAnswer",
+        "type": "object"
+      },
+      "OfflinePack": {
+        "properties": {
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/OfflineQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "questions",
+          "limit",
+          "generated_at"
+        ],
+        "title": "OfflinePack",
+        "type": "object"
+      },
+      "OfflineQuestion": {
+        "description": "A practice question saved on the device, with its answer, for practising offline.",
+        "properties": {
+          "answer_type": {
+            "enum": [
+              "choice",
+              "typed"
+            ],
+            "title": "Answer Type",
+            "type": "string"
+          },
+          "correct_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Position"
+          },
+          "document_filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Filename"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/OptionRead"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "passage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassageRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pattern_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
+          },
+          "question_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Number"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          },
+          "shared": {
+            "title": "Shared",
+            "type": "boolean"
+          },
+          "shared_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared Source"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          },
+          "typed_answer_numeric": {
+            "title": "Typed Answer Numeric",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "exam_code",
+          "section",
+          "subject",
+          "topic_id",
+          "pattern_id",
+          "stem",
+          "passage",
+          "options",
+          "answer_type",
+          "correct_position",
+          "typed_answer",
+          "typed_answer_numeric",
+          "explanation",
+          "shared",
+          "shared_source",
+          "document_filename",
+          "page",
+          "question_number"
+        ],
+        "title": "OfflineQuestion",
+        "type": "object"
+      },
+      "OfflineSessionUpload": {
+        "additionalProperties": false,
+        "description": "A practice session done offline on the device. The server checks every answer again;\nthe device's own marking is never trusted.",
+        "properties": {
+          "client_id": {
+            "format": "uuid",
+            "title": "Client Id",
+            "type": "string"
+          },
+          "exam_code": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "finished_at": {
+            "format": "date-time",
+            "title": "Finished At",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OfflineAnswer"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_id",
+          "started_at",
+          "finished_at",
+          "items"
+        ],
+        "title": "OfflineSessionUpload",
+        "type": "object"
+      },
       "OptionInput": {
         "additionalProperties": false,
         "properties": {
@@ -4389,7 +4729,8 @@
               {
                 "enum": [
                   "user",
-                  "time_up"
+                  "time_up",
+                  "offline"
                 ],
                 "type": "string"
               },
@@ -8971,6 +9312,122 @@
           }
         ],
         "summary": "Start a timed mock test (structure and marking from the verified format)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/offline-pack": {
+      "get": {
+        "operationId": "offline_pack_api_v1_practice_offline_pack_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfflinePack"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Verified practice questions (with answers) to keep on the device for offline practice",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/offline-sessions": {
+      "post": {
+        "operationId": "import_offline_session_api_v1_practice_offline_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfflineSessionUpload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Record a practice session done offline (answers re-checked; idempotent by client_id)",
         "tags": [
           "practice"
         ]

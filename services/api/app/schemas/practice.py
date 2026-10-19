@@ -27,6 +27,62 @@ class PracticeCreate(BaseModel):
     count: int = Field(default=10, ge=1, le=100)
 
 
+class OfflineQuestion(BaseModel):
+    """A practice question saved on the device, with its answer, for practising offline."""
+
+    id: uuid.UUID
+    exam_code: str
+    section: str | None
+    subject: str | None
+    topic_id: uuid.UUID | None
+    pattern_id: uuid.UUID | None
+    stem: str
+    passage: PassageRead | None
+    options: list[OptionRead]
+    answer_type: Literal["choice", "typed"]
+    correct_position: int | None
+    typed_answer: str | None
+    typed_answer_numeric: bool
+    explanation: str | None  # from the paper (AI explanations stay online)
+    shared: bool
+    shared_source: str | None
+    document_filename: str | None
+    page: int | None
+    question_number: int | None
+
+
+class OfflinePack(BaseModel):
+    questions: list[OfflineQuestion]
+    limit: int
+    generated_at: datetime
+
+
+class OfflineAnswer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    question_id: uuid.UUID
+    selected_position: int | None = Field(default=None, ge=1, le=6)
+    typed_answer: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+        | None
+    ) = None
+    answered_at: datetime | None = None
+    time_spent_ms: int | None = Field(default=None, ge=0, le=24 * 3600 * 1000)
+
+
+class OfflineSessionUpload(BaseModel):
+    """A practice session done offline on the device. The server checks every answer again;
+    the device's own marking is never trusted."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    client_id: uuid.UUID  # made on the device; re-uploads of the same session are ignored
+    exam_code: Annotated[str, StringConstraints(max_length=32)] | None = None
+    started_at: datetime
+    finished_at: datetime
+    items: list[OfflineAnswer] = Field(min_length=1, max_length=100)
+
+
 class MockCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -130,7 +186,7 @@ class SessionRead(BaseModel):
     started_at: datetime
     deadline_at: datetime | None
     submitted_at: datetime | None
-    submit_reason: Literal["user", "time_up"] | None
+    submit_reason: Literal["user", "time_up", "offline"] | None
     server_now: datetime
     remaining_seconds: int | None
     item_count: int
