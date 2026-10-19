@@ -105,6 +105,14 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   Reminders: `ReminderController` keeps ONE daily notification (fixed id) in sync via a plan fingerprint;
   `ReminderScheduler` wraps flutter_local_notifications (inexact alarms). See docs/revision.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.
+- Shared bank (`app/services/shared_bank.py`, migration 0017): the operator publishes a reviewed paper with
+  `python -m app.cli.shared_bank publish <id> --rights ... --source ...` (rights basis + source required by a
+  CHECK; refused while verified questions use private topics). ONE rule `visible_question()` = own questions OR
+  verified source questions of shared papers; used by practice (`include_shared`, default on), mocks, question
+  read (`read_only`, `shared_source`; publisher file name hidden), figures, history, repeats (`scope=mine|shared|all`).
+  Edits/reports/bookmarks stay owner-only. Mobile: "Shared bank" labels, read-only question view, Repeats
+  "Shared bank" view. `POST /documents/{id}/questions/verify-clean` verifies questions needing no review.
+  See docs/shared-bank.md.
 - Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
   in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and
@@ -193,9 +201,11 @@ Known limitations right now:
 - Sync is last-writer-wins per record (no field merge, no conflict UI). Documents, the question bank and
   practice sessions are server-only: starting/opening a session needs a connection; only answers queue offline.
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
-- Only one verified exam format exists (SSC CHSL 2026 Tier-I, from the official notice). **SSC CGL and every
-  other catalog exam have none** — add only after verifying the current official notice (record source in a
-  migration). Without a format: practice, repeats and Radar work; timed mocks and count checks don't.
+- Verified exam formats: SSC CHSL 2026 Tier-I (migration 0003) and SSC CGL 2026 Tier-I (migration 0018, F. No.
+  HQ-C11018/1/2026-C-1 para 13.8). CGL's 15-minute sectional timers are recorded per section but mocks keep one
+  overall timer (the marking note says so). **Every other catalog exam has none** — add only after verifying the
+  current official notice (record source in a migration). Without a format: practice, repeats and Radar work;
+  timed mocks and count checks don't.
 - Question types: multiple-choice and typed-in (TITA). Multi-select and descriptive answers are not supported;
   timed mocks use multiple-choice only.
   Catalog exams other than SSC/banking/railways start with no shared topics (learners add their own or use
@@ -203,8 +213,10 @@ Known limitations right now:
 - Figures are found only from PDF vector/image objects: scanned papers (one image per page), multi-column
   and rotated pages give no crops (flagged `figures_not_extracted`; reviewer uses the source page).
   Topic rules suggested 83/100 on one sample CHSL paper (coverage, not validated accuracy).
-- Repeats are counted only from the learner's own imported + reviewed papers (no bundled papers); pattern
-  list is a starter set (41/100 sample questions got a pattern); similarity is wording-only.
+- Repeats count the learner's own papers, or the shared bank (empty until the operator publishes papers it has
+  the right to share); the app flags samples under 5 papers (`RepeatRules.reliablePapers`). Pattern list is a
+  starter set (41/100 sample questions got a pattern); similarity is wording-only. Shared questions can't be
+  bookmarked; deleting the operator account would empty the shared bank (use a dedicated account).
   Radar shows nothing until 2 opted-in learners review the same shift (confirmed date + shift).
 - Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
   aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
@@ -213,7 +225,7 @@ Known limitations right now:
   metrics are per process; PDFs live on a shared volume (no S3 adapter yet); no malware scanning.
 - Hindi OCR quality depends on scan quality; low-confidence pages are flagged, never corrected.
 - Mock tests need enough *verified* questions per section (CHSL: 25 × 4); with only a few reviewed papers
-  the hub shows the shortfall. No mock for SSC CGL (no verified format). Mocks never use AI questions (by design).
+  the hub shows the shortfall (the shared bank counts toward it). Mocks never use AI questions (by design).
 - AI: no real provider call made yet (needs a key); answer/Hindi quality, latency and cost unmeasured.
   AI rate limit is per process. Review Anthropic's data-retention terms before production use.
 - Practice has no analytics UI beyond the session summary (Phase 8); no resume-list of unfinished sessions
