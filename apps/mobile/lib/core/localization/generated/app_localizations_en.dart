@@ -2565,4 +2565,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String offlineToUpload(int count) {
     return '$count offline sessions waiting to upload';
   }
+
+  @override
+  String get issueOptionLabelUnclear => 'Option number unclear in the scan (check the order)';
 }

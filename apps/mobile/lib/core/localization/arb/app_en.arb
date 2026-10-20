@@ -1835,5 +1835,6 @@
   "offlineReady": "{count} questions saved for offline practice",
   "@offlineReady": {"placeholders": {"count": {"type": "int"}}},
   "offlineToUpload": "{count} offline sessions waiting to upload",
-  "@offlineToUpload": {"placeholders": {"count": {"type": "int"}}}
+  "@offlineToUpload": {"placeholders": {"count": {"type": "int"}}},
+  "issueOptionLabelUnclear": "Option number unclear in the scan (check the order)"
 }

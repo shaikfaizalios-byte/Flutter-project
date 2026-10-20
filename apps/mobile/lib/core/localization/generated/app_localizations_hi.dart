@@ -2571,4 +2571,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String offlineToUpload(int count) {
     return '$count ऑफ़लाइन सत्र अपलोड होने का इंतज़ार कर रहे हैं';
   }
+
+  @override
+  String get issueOptionLabelUnclear => 'स्कैन में विकल्प संख्या साफ़ नहीं है (क्रम जाँचें)';
 }

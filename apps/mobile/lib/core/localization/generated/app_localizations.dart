@@ -4208,6 +4208,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} offline sessions waiting to upload'**
   String offlineToUpload(int count);
+
+  /// No description provided for @issueOptionLabelUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'Option number unclear in the scan (check the order)'**
+  String get issueOptionLabelUnclear;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
