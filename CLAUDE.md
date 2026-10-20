@@ -223,8 +223,11 @@ Known limitations right now:
   starter set (41/100 sample questions got a pattern); similarity is wording-only. Shared questions can't be
   bookmarked; deleting the operator account would empty the shared bank (use a dedicated account).
   Radar shows nothing until 2 opted-in learners review the same shift (confirmed date + shift).
-- Segmenter limits: passages without a stated question range aren't detected; table-style answer keys
-  aren't parsed; bilingual papers keep only the first language's options (rest in issue detail).
+- Segmenter limits: passages without a stated question range aren't detected (unless a "Question" line
+  follows them, as in solutions papers); answer keys are read as
+  `1-(3)` pairs or tables (number rows + answer rows, one cell per line, "1 | b"); a table row whose counts
+  differ is reported (`answer_key_unmatched`), never shifted; keys numbered per section stay ambiguous;
+  bilingual papers keep only the first language's options (rest in issue detail).
   Issue details are English (labels are localised).
 - Rate limits are shared via Postgres only when `PREPLOOP_RATE_LIMIT_BACKEND=postgres` (required in staging/prod);
   metrics are per process; PDFs live on a shared volume (no S3 adapter yet); no malware scanning.

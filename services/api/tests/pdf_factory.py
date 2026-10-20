@@ -152,3 +152,26 @@ def figure_paper_pdf() -> bytes:
     pdf.showPage()
     pdf.save()
     return buffer.getvalue()
+
+
+def answer_key_table_pdf() -> bytes:
+    """Five questions, then an answer key drawn as a grid: a row of question numbers over a
+    row of answers, each in its own cell (as coaching and exam PDFs print it)."""
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer)
+    y = 760
+    for n in range(1, 6):
+        pdf.drawString(72, y, f"Q.{n} Question number {n}?")
+        pdf.drawString(72, y - 18, "(a) one   (b) two   (c) three   (d) four")
+        y -= 44
+    pdf.drawString(72, y, "Answer Key")
+    rows = [["Q. No.", "1", "2", "3", "4", "5"], ["Ans.", "b", "c", "a", "d", "b"]]
+    top = y - 16
+    for r, row in enumerate(rows):
+        for c, cell in enumerate(row):
+            x = 72 + c * 60
+            pdf.rect(x, top - (r + 1) * 22, 60, 22)
+            pdf.drawString(x + 8, top - (r + 1) * 22 + 7, cell)
+    pdf.showPage()
+    pdf.save()
+    return buffer.getvalue()

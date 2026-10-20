@@ -18,6 +18,8 @@ Paper layouts vary, so the rules are conservative:
   position; numbers that do not exist are reported, not attached elsewhere.
 """
 
+import difflib
+import itertools
 import re
 from collections import Counter, defaultdict
 from collections.abc import Collection, Iterable, Sequence
@@ -49,6 +51,8 @@ class IssueCode:
     # An answer line that names no option ("Correct Answer: Sentence 5", a typed-in number):
     # kept as found for the reviewer, never mapped to an option.
     UNRECOGNISED_ANSWER = "unrecognised_answer"
+    # "Option 7:" where option 1 was due (an OCR misreading): used in order, flagged.
+    OPTION_LABEL_UNCLEAR = "option_label_unclear"
     # Document level
     NO_QUESTIONS_FOUND = "no_questions_found"
     NUMBERING_GAPS = "numbering_gaps"
@@ -184,13 +188,14 @@ PASSAGE_START = re.compile(r"^(?:directions?|read|निर्देश|पढ�
 OPTION_INLINE = re.compile(r"(?:(?<=\s)|^)\(\s*([1-9]|[a-eA-E])\s*\)\s*")
 OPTION_LINE_START = re.compile(r"^([a-eA-E])\s*[.)]\s+(.*)$")
 INLINE_ANSWER = re.compile(
-    rf"^(?:ans(?:wer)?|correct\s+answer|उत्तर)\s*(?:[.:]|{_DASH})?\s*"
+    rf"^(?:ans(?:wer)?|correct\s+answer|उत्तर)\s*(?:[.:;]|{_DASH})?\s*"
     r"(?:option\s*)?\(?\s*([1-9]|[a-eA-E])\s*\)?(?:\s|$|[.,;])",
     re.IGNORECASE,
 )
 # Any answer line, recognised or not.
+# (OCR often reads the colon as ";".)
 ANSWER_LABEL = re.compile(
-    rf"^(?:ans(?:wer)?|correct\s+answer|उत्तर)\s*(?:[.:]|{_DASH})\s*(.*)$", re.IGNORECASE
+    rf"^(?:ans(?:wer)?|correct\s+answer|उत्तर)\s*(?:[.:;]|{_DASH})\s*(.*)$", re.IGNORECASE
 )
 INLINE_EXPLANATION = re.compile(
     rf"^(?:sol(?:ution)?|explanation|exp|हल|व्याख्या)\s*(?:[.:]|{_DASH})\s*(.*)$",
@@ -200,6 +205,34 @@ KEY_PAIR = re.compile(
     rf"(?:Q\.?\s*)?(\d{{1,3}})\s*(?:[.):]|{_DASH})\s*\(?\s*([1-9]|[a-eA-E])\s*\)?(?![\w])"
     r"|(?:Q\.?\s*)?(\d{1,3})\s*\(\s*([1-9]|[a-eA-E])\s*\)",
 )
+# Answer-key tables. Their text comes out as a row of question numbers and a row of answers
+# ("Q. No. 1 2 3 4 5" / "Ans. b c a d b"), possibly over several lines, or one cell per line
+# when a PDF lists columns ("1", "b", "2", "c"), or as "1 | b" rows.
+KEY_NUMBERS_LABEL = re.compile(
+    r"^(?:q(?:uestions?)?\.?\s*(?:nos?|numbers?)\.?|q\.?\s*n\.?|प्रश्न\s*(?:संख्या|सं\.?)?)\s*[:.]?\s*",
+    re.IGNORECASE,
+)
+KEY_ANSWERS_LABEL = re.compile(r"^(?:ans(?:wers?)?|keys?|उत्तर)\s*[:.]?\s*", re.IGNORECASE)
+_KEY_CELL_SPLIT = re.compile(r"[\s|,;]+")
+_KEY_ANSWER_CELL = re.compile(r"^\(?([1-9]|[a-eA-E])\)?\.?$")
+_KEY_NUMBER_CELL = re.compile(r"^(?:Q\.?)?(\d{1,3})\.?$", re.IGNORECASE)
+# "Option 1:" / "Option (b)" with the option's text after it or on the next lines.
+# The colon (or "." / ")") is required: a bare "Option 4" line is an option's text (in "where
+# does the sentence fit" questions the options are "Option 1" ... "Option 4").
+OPTION_WORD = re.compile(r"^option\s*\(?\s*([1-9]|[a-eA-E])\s*\)?\s*[:.)]\s*(.*)$", re.IGNORECASE)
+# "Question" / "Question: ..." after a passage: the passage ends, the question begins.
+QUESTION_LABEL = re.compile(r"^(?:question|प्रश्न)\s*:?\s*(.*)$", re.IGNORECASE)
+_COMPREHENSION_PREFIX = re.compile(r"^(?:comprehension|passage)\s*:\s*", re.IGNORECASE)
+# "Key in the number ...": a typed-in (TITA) question even when its sentences are numbered.
+KEY_IN = re.compile(r"\bkey\s*in\b|\btype\s+in\b", re.IGNORECASE)
+# "The correct answer is 3)" / "Correct option is (b)" inside a solution.
+SOLUTION_ANSWER = re.compile(
+    r"correct\s+(?:answer|option)\s+is\s*(?:option\s*)?\(?\s*([1-9]|[a-eA-E])\s*\)",
+    re.IGNORECASE,
+)
+# How alike an OCR'd answer line and an option's text must be to count as that option.
+FUZZY_OPTION_MATCH = 0.9
+_BARE_LABEL = re.compile(r"^(?:option\s*)?\(?\s*([1-9]|[a-eA-E])\s*\)?\.?$", re.IGNORECASE)
 IMAGE_HINTS = (
     "figure",
     "diagram",
@@ -291,6 +324,10 @@ class _State:
     passages: list[ParsedPassage] = field(default_factory=list)
     sections: list[str] = field(default_factory=list)
     key_entries: list[tuple[int, str]] = field(default_factory=list)
+    # An answer-key table being read: numbers waiting for their answers (in order).
+    key_numbers: list[int] = field(default_factory=list)
+    key_answers: list[str] = field(default_factory=list)
+    key_issues: list[str] = field(default_factory=list)
     explanations: dict[int, list[str]] = field(default_factory=lambda: defaultdict(list))
     mode: str = "questions"  # "questions" | "answer_key" | "explanations"
     section: str | None = None
@@ -299,6 +336,8 @@ class _State:
     explanation_target: int | None = None
     inline_explanation: list[str] | None = None
     answer_line_seen: bool = False  # the current question had an answer line
+    # Text after an empty "Correct Answer:" line (the answer is on the next lines).
+    answer_text: list[str] | None = None
     # Earlier questions each had their own answer line: the paper answers inline.
     inline_answers: bool = False
     restarted_numbering: bool = False
@@ -307,8 +346,10 @@ class _State:
 
     def finish_question(self) -> None:
         if self.current is not None:
+            _settle_answer_text(self)
             if self.inline_explanation:
                 self.current.explanation = "\n".join(self.inline_explanation).strip() or None
+            _answer_from_solution(self.current)
             _resolve_typed(self.current)
             self.questions.append(self.current)
         self.current = None
@@ -327,8 +368,10 @@ def _resolve_typed(question: ParsedQuestion) -> None:
     if issue is None:
         return
     typed = typed_answers.from_paper(issue.detail)
-    lists_items = typed_answers.names_an_item(issue.detail) or typed_answers.orders_items(
-        issue.detail, len(question.options)
+    lists_items = (
+        typed_answers.names_an_item(issue.detail)
+        or typed_answers.orders_items(issue.detail, len(question.options))
+        or bool(KEY_IN.search(question.stem))  # "key in the number of that sentence"
     )
     if typed is None or (question.options and not lists_items):
         return
@@ -362,8 +405,11 @@ def segment(
     for line in lines:
         _handle_line(state, line)
     state.finish_question()
+    _flush_key_table(state)
 
-    document_issues: list[Issue] = []
+    document_issues: list[Issue] = [
+        Issue(IssueCode.ANSWER_KEY_UNMATCHED, detail[:500]) for detail in state.key_issues
+    ]
     _attach_answer_key(
         state.questions, state.key_entries, state.restarted_numbering, document_issues
     )
@@ -382,9 +428,23 @@ def _handle_line(state: _State, line: _Line) -> None:
         state.finish_question()
         state.passage = None
         state.mode = "answer_key"
-        state.key_entries.extend(_key_pairs(ANSWER_KEY_HEADING.sub("", text)))
+        rest = ANSWER_KEY_HEADING.sub("", text).strip(" :.-")
+        pairs = _key_pairs(rest)
+        if pairs:
+            state.key_entries.extend(pairs)
+        elif rest:
+            _key_table_line(state, rest)
         return
-    if EXPLANATION_HEADING.match(text) and not _explains_current(state):
+    # Inside a question's solution, another heading ("Solution:" then "Explanation:") is part
+    # of that solution, not the start of a solutions section.
+    # In a paper whose questions carry their own answers, "Solution:" also belongs to the current
+    # question when its answer line couldn't be read.
+    in_solution = state.current is not None and (
+        state.inline_explanation is not None or state.inline_answers
+    )
+    if EXPLANATION_HEADING.match(text) and not _explains_current(state) and not in_solution:
+        if not state.questions and state.current is None:
+            return  # a title ("... Question Paper with / Solutions"), not a solutions section
         state.finish_question()
         state.passage = None
         state.mode = "explanations"
@@ -395,9 +455,12 @@ def _handle_line(state: _State, line: _Line) -> None:
         if pairs:
             state.key_entries.extend(pairs)
             return
+        if _key_table_line(state, text):
+            return
         # A heading or a question after the key means the paper continues.
         if not (section_heading(text, state.extra_headings) or strong_start(text)):
             return
+        _flush_key_table(state)
         state.mode = "questions"
 
     if state.mode == "explanations":
@@ -445,9 +508,27 @@ def _handle_line(state: _State, line: _Line) -> None:
 
     if line.page not in current.pages:
         current.pages.append(line.page)
+    if state.answer_text is not None:
+        if not (INLINE_EXPLANATION.match(text) or EXPLANATION_HEADING.match(text)):
+            state.answer_text.append(text)
+            return
+        _settle_answer_text(state)
+    label = ANSWER_LABEL.match(text)
+    if label and state.inline_explanation is None:
+        rest = label.group(1).strip()
+        if not rest:
+            state.answer_line_seen = True
+            state.answer_text = []  # "Correct Answer:" with the answer on the next lines
+            return
+        position = _option_by_text(current, rest)
+        if position is not None:
+            current.answer_position, current.answer_source = position, "inline"
+            state.answer_line_seen = True
+            return
     answer = INLINE_ANSWER.match(text)
-    # Without options, "Correct Answer: 4" is a typed-in answer, not option 4.
-    if answer and current.options:
+    # Without options, "Correct Answer: 4" is a typed-in answer, not option 4 (and so it is
+    # when the question asks to key the number in).
+    if answer and current.options and not KEY_IN.search(current.stem):
         current.answer_position = option_position(answer.group(1))
         current.answer_source = "inline"
         state.answer_line_seen = True
@@ -464,7 +545,120 @@ def _handle_line(state: _State, line: _Line) -> None:
     if state.inline_explanation is not None:
         state.inline_explanation.append(text)
         return
+    question_label = QUESTION_LABEL.match(text)
+    if question_label and (current.stem or current.options):
+        _split_passage(state, current)
+        if question_label.group(1).strip():
+            _consume(current, question_label.group(1).strip(), state.expected_options)
+        return
     _consume(current, text, state.expected_options)
+
+
+def _norm_option_text(text: str) -> str:
+    """Letters and digits only, lower case: OCR spacing ("Inthe") and punctuation don't count."""
+    return re.sub(r"[^0-9a-z\u0900-\u097f]", "", text.casefold())
+
+
+def _option_by_text(question: ParsedQuestion, text: str) -> int | None:
+    """The one option whose text is the given answer text (exactly, ignoring spacing and
+    punctuation). None when no option, or more than one, matches."""
+    wanted = _norm_option_text(text)
+    if not wanted or not question.options:
+        return None
+    matches = [i + 1 for i, o in enumerate(question.options) if _norm_option_text(o.text) == wanted]
+    if matches:
+        return matches[0] if len(matches) == 1 else None
+    # OCR reads the answer line and the options separately ("advamces" / "advances"): accept
+    # a near-identical option only when it clearly stands out from all the others.
+    scores = sorted(
+        (
+            (difflib.SequenceMatcher(None, wanted, _norm_option_text(o.text)).ratio(), i + 1)
+            for i, o in enumerate(question.options)
+        ),
+        reverse=True,
+    )
+    best, second = scores[0], scores[1] if len(scores) > 1 else (0.0, 0)
+    if len(wanted) >= 12 and best[0] >= FUZZY_OPTION_MATCH and best[0] - second[0] >= 0.2:
+        return best[1]
+    return None
+
+
+def _settle_answer_text(state: _State) -> None:
+    """Resolves the answer written on the lines after "Correct Answer:": an option's text, an
+    option label ("3", "(c)"), or else (a typed-in answer, or text matching no option) it is
+    kept as found for the reviewer."""
+    question, lines = state.current, state.answer_text
+    state.answer_text = None
+    if question is None or lines is None:
+        return
+    text = " ".join(line.strip() for line in lines).strip()
+    position = _option_by_text(question, text) if question.options else None
+    bare = _BARE_LABEL.match(text)
+    if position is None and bare and question.options and not KEY_IN.search(question.stem):
+        position = option_position(bare.group(1))
+    if position is not None:
+        question.answer_position, question.answer_source = position, "inline"
+        return
+    question.issues.append(Issue(IssueCode.UNRECOGNISED_ANSWER, text[:500]))
+
+
+def _answer_from_solution(question: ParsedQuestion) -> None:
+    """No answer found but the solution says "The correct answer is 3)": use that."""
+    if question.answer_position is not None or not question.options or not question.explanation:
+        return
+    if any(i.code == IssueCode.CONFLICTING_ANSWERS for i in question.issues):
+        return
+    found = {option_position(m.group(1)) for m in SOLUTION_ANSWER.finditer(question.explanation)}
+    if len(found) != 1:
+        return
+    position = found.pop()
+    unrecognised = [i for i in question.issues if i.code == IssueCode.UNRECOGNISED_ANSWER]
+    # The answer line gave text: it must be that option's text (else it stays for review).
+    if unrecognised and unrecognised[0].detail:
+        option = question.options[position - 1] if position <= len(question.options) else None
+        if option is None or _norm_option_text(option.text) != _norm_option_text(
+            unrecognised[0].detail
+        ):
+            return
+    question.issues = [i for i in question.issues if i.code != IssueCode.UNRECOGNISED_ANSWER]
+    question.answer_position, question.answer_source = position, "inline"
+
+
+def _split_passage(state: _State, question: ParsedQuestion) -> None:
+    """Text before a "Question" line is the question's passage. Papers that print the same
+    passage again for each of its questions share one passage. "Options" read from the passage
+    (e.g. "(1) ... (4)" in a data set) are passage text: they go back into it."""
+    listed = "\n".join(f"({o.label}) {o.text}".strip() for o in question.options)
+    text = _COMPREHENSION_PREFIX.sub("", f"{question.stem}\n{listed}".strip()).strip()
+    question.stem = ""
+    question.options = []
+    question.issues = [
+        i
+        for i in question.issues
+        if i.code not in (IssueCode.REPEATED_OPTION_LABELS, IssueCode.OPTION_LABEL_UNCLEAR)
+    ]
+    if not text:
+        return
+    key = _norm_option_text(text)[:400]
+    previous = state.passages[-1] if state.passages else None
+    if (
+        previous is not None
+        and previous.last_question is not None
+        and previous.last_question == question.number - 1
+        and _norm_option_text(previous.text)[:400] == key
+    ):
+        previous.last_question = question.number
+        question.passage_index = len(state.passages) - 1
+        return
+    state.passages.append(
+        ParsedPassage(
+            text=text,
+            first_question=question.number,
+            last_question=question.number,
+            pages=list(question.pages),
+        )
+    )
+    question.passage_index = len(state.passages) - 1
 
 
 def _explains_current(state: _State) -> bool:
@@ -549,6 +743,20 @@ def _question_start(
 def _consume(question: ParsedQuestion, text: str, expected_options: int) -> None:
     """Add a line to the question: text before the first option marker extends the stem
     (or the last option); each option marker starts a new option."""
+    word = OPTION_WORD.match(text)
+    if word:
+        label = word.group(1)
+        expected = len(question.options) + 1
+        if label.isdigit() and int(label) > expected_options and expected <= expected_options:
+            # "Option 7:" in a four-option question: OCR misread the digit. Kept in order,
+            # flagged. (A possible label that skips, e.g. "Option 2" first because the line
+            # for option 1 was unreadable, is not renumbered.)
+            question.issues.append(
+                Issue(IssueCode.OPTION_LABEL_UNCLEAR, f"read as {label}, used as {expected}")
+            )
+            label = str(expected)
+        _add_option(question, label, (word.group(2) or "").strip())
+        return
     if not OPTION_INLINE.search(text):
         line_start = OPTION_LINE_START.match(text)
         if line_start:
@@ -627,6 +835,76 @@ def _key_pairs(text: str) -> list[tuple[int, str]]:
         label = match.group(2) or match.group(4)
         pairs.append((int(number), label))
     return pairs
+
+
+def _key_table_line(state: _State, text: str) -> bool:
+    """Reads one line of an answer-key table into the state. False when the line isn't one
+    (it is then handled like any other line in the answer key)."""
+    numbers_label = KEY_NUMBERS_LABEL.match(text)
+    answers_label = None if numbers_label else KEY_ANSWERS_LABEL.match(text)
+    label = numbers_label or answers_label
+    cells = [c for c in _KEY_CELL_SPLIT.split(text[label.end() :] if label else text) if c]
+    numbers = [_KEY_NUMBER_CELL.match(c) for c in cells]
+    answers = [_KEY_ANSWER_CELL.match(c) for c in cells]
+    # "3 | a": a number and a letter on one line (digits alone also look like answers).
+    if not label and not state.key_numbers and _spaced_pairs(state, cells):
+        return True
+    if not cells or not (all(numbers) or all(answers)):
+        return label is not None  # a header cell such as "Q. No. | Answer"
+    values = [int(m.group(1)) for m in numbers if m] if all(numbers) else []
+    if numbers_label or not state.key_numbers:
+        is_answers = bool(answers_label) and all(answers)
+    elif answers_label or not values:
+        is_answers = all(answers)  # letters, or labelled as answers
+    else:
+        # Digits after a numbers row: more numbers if they carry on the sequence (a long row
+        # split over lines), otherwise the answers.
+        continues = not state.key_answers and values[0] == state.key_numbers[-1] + 1
+        is_answers = not (continues and _consecutive(values))
+    if not is_answers:
+        if not values:
+            return label is not None
+        if state.key_answers:
+            _flush_key_table(state)
+        state.key_numbers.extend(values)
+        return True
+    state.key_answers.extend(m.group(1) for m in answers if m)
+    if len(state.key_answers) >= len(state.key_numbers):
+        _flush_key_table(state)
+    return True
+
+
+def _spaced_pairs(state: _State, cells: list[str]) -> bool:
+    """ "1 b 2 c" or "1 | b": number-letter pairs without other separators. Letters only, as
+    digit pairs ("1 2") are a row of numbers."""
+    if len(cells) < 2 or len(cells) % 2:
+        return False
+    pairs = []
+    for number, answer in zip(cells[::2], cells[1::2], strict=True):
+        n, a = _KEY_NUMBER_CELL.match(number), _KEY_ANSWER_CELL.match(answer)
+        if not (n and a and a.group(1).isalpha()):
+            return False
+        pairs.append((int(n.group(1)), a.group(1)))
+    state.key_entries.extend(pairs)
+    return True
+
+
+def _consecutive(values: list[int]) -> bool:
+    return all(b == a + 1 for a, b in itertools.pairwise(values))
+
+
+def _flush_key_table(state: _State) -> None:
+    """Pairs the table's numbers with its answers. A row whose counts differ is reported and
+    left out (answers are never shifted onto the wrong questions)."""
+    numbers, answers = state.key_numbers, state.key_answers
+    if numbers and len(numbers) == len(answers):
+        state.key_entries.extend(zip(numbers, answers, strict=True))
+    elif numbers:
+        state.key_issues.append(
+            f"Answer-key table: {len(numbers)} question numbers ({numbers[0]}-{numbers[-1]}) "
+            f"but {len(answers)} answers; these answers were not used."
+        )
+    state.key_numbers, state.key_answers = [], []
 
 
 def _attach_answer_key(

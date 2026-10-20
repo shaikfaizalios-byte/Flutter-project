@@ -1,6 +1,7 @@
 """Segmenter unit tests on synthetic paper text (no database, no PDFs)."""
 
 from collections.abc import Sequence
+from pathlib import Path
 from textwrap import dedent
 
 from app.domain.segmentation import (
@@ -481,3 +482,192 @@ def test_typed_answers_from_paper_and_what_stays_flagged() -> None:
     # Words are never turned into a typed answer by the parser.
     assert by_number[4].answer_type == "choice"
     assert "unrecognised_answer" in codes(by_number[4].issues)
+
+
+def _paper(count: int) -> str:
+    """A plain paper with ``count`` questions of four options each."""
+    return "\n".join(
+        f"Q.{n} Question {n}?\n(a) one (b) two (c) three (d) four" for n in range(1, count + 1)
+    )
+
+
+def _answers(result: SegmentationResult) -> list[int | None]:
+    return [q.answer_position for q in result.questions]
+
+
+def test_answer_key_table_rows_of_numbers_then_answers() -> None:
+    key = dedent(
+        """
+        Answer Key
+        Q. No. | Answer
+        Q.No. 1 2 3 4 5
+        Ans. b c a d b
+        6 7 8 9 10
+        (a) (d) (c) (b) (a)
+        """
+    )
+    result = run(_paper(10) + key)
+    assert _answers(result) == [2, 3, 1, 4, 2, 1, 4, 3, 2, 1]
+    assert {q.answer_source for q in result.questions} == {"answer_key"}
+    assert result.document_issues == []
+
+
+def test_answer_key_table_with_digit_answers_and_split_rows() -> None:
+    # Digit answers: a row after the numbers is answers unless it carries on the sequence.
+    key = dedent(
+        """
+        Answer Key
+        1 2 3
+        4 5 6
+        2 3 1
+        4 2 1
+        """
+    )
+    result = run(_paper(6) + key)
+    assert _answers(result) == [2, 3, 1, 4, 2, 1]
+
+
+def test_answer_key_table_read_one_cell_per_line_and_spaced_pairs() -> None:
+    columns = "\nAnswer Key\n1\nb\n2\nc\n3 | a\n4 d\n"
+    result = run(_paper(4) + columns)
+    assert _answers(result) == [2, 3, 1, 4]
+
+
+def test_answer_key_table_with_counts_that_differ_is_reported_not_shifted() -> None:
+    key = dedent(
+        """
+        Answer Key
+        1 2 3 4
+        b c a
+        """
+    )
+    result = run(_paper(4) + key)
+    assert _answers(result) == [None, None, None, None]
+    (issue,) = result.document_issues
+    assert issue.code == IssueCode.ANSWER_KEY_UNMATCHED
+    assert "4 question numbers (1-4) but 3 answers" in issue.detail
+
+
+def test_answer_key_table_drawn_as_a_grid_in_a_real_pdf(tmp_path: Path) -> None:
+    import pypdfium2 as pdfium
+
+    from app.domain.text_quality import normalize_text
+    from tests.pdf_factory import answer_key_table_pdf
+
+    path = tmp_path / "key.pdf"
+    path.write_bytes(answer_key_table_pdf())
+    document = pdfium.PdfDocument(path)
+    text = normalize_text(document[0].get_textpage().get_text_bounded())
+    document.close()
+    result = segment([PageText(1, text, needs_review=False)])
+    assert _answers(result) == [2, 3, 1, 4, 2]
+    assert result.document_issues == []
+
+
+SOLUTIONS_LAYOUT = """
+SAMPLE TEST PAPER WITH
+SOLUTIONS
+Reading Section
+Q.1 Comprehension:
+The passage below is accompanied by questions.
+Rivers carry sand to the sea, and the sea slowly returns it to the shore.
+Question
+What does the sea return to the shore?
+Option 1:
+salt from the deep ocean
+Option 2:
+sand carried by rivers
+Option 3:
+rocks from distant hills
+Option 4:
+water from the clouds
+Correct Answer:
+sand carried by rlvers
+Solution:
+The correct answer is 2) sand carried by rivers.
+Explanation: The passage says so directly.
+Q.2 Comprehension:
+The passage below is accompanied by questions.
+Rivers carry sand to the sea, and the sea slowly returns it to the shore.
+Question
+Where does the sand finally go?
+Option 7:
+to the shore
+Option 2:
+to the clouds
+Option 3:
+to the hills
+Option 4:
+to the deep ocean
+Correct Answer;
+to the shore
+Solution:
+Explanation: Read the last line.
+Q.3 Four sentences (labelled 1, 2, 3 and 4) are given. Key in the number of the odd sentence.
+1. Sand moves.
+2. Rivers flow.
+3. The sea is blue.
+4. Shores change.
+Correct Answer:
+3
+Solution:
+Sentence 3 is the odd one out.
+Q.4 In a "where does it fit" question the options are positions.
+Option 1:
+Option 1
+Option 2:
+Option 2
+Option 3:
+Option 3
+Option 4:
+Option 4
+Correct Answer:
+Option 2
+Solution:
+It fits at position 2.
+"""
+
+
+def test_solutions_paper_with_option_words_and_answers_as_text() -> None:
+    result = run(SOLUTIONS_LAYOUT)
+
+    # A "Solutions" title line before any question doesn't swallow the paper.
+    assert [q.number for q in result.questions] == [1, 2, 3, 4]
+    q1, q2, q3, q4 = result.questions
+    # "Option 1:" lines; the answer given as the option's text (OCR slip tolerated).
+    assert [o.text for o in q1.options][1] == "sand carried by rivers"
+    assert (q1.answer_position, q1.answer_source) == (2, "inline")
+    # The text before "Question" is the passage, shared by both questions that repeat it.
+    assert q1.stem == "What does the sea return to the shore?"
+    assert q1.passage_index == q2.passage_index == 0
+    assert len(result.passages) == 1
+    assert result.passages[0].first_question == 1 and result.passages[0].last_question == 2
+    # "Option 7:" in a four-option question is flagged and used in order; "Correct Answer;".
+    assert q2.answer_position == 1
+    assert [i.code for i in q2.issues] == [IssueCode.OPTION_LABEL_UNCLEAR]
+    # "Key in the number": a typed-in answer even though the sentences are numbered.
+    assert (q3.answer_type, q3.typed_answer) == ("typed", "3")
+    # Options whose text is "Option N" are text, not labels.
+    assert [o.text for o in q4.options] == ["Option 1", "Option 2", "Option 3", "Option 4"]
+    assert q4.answer_position == 2
+
+
+def test_answer_text_matching_no_option_is_kept_for_review() -> None:
+    result = run(
+        """
+        Q.1 Pick one.
+        Option 1:
+        red
+        Option 2:
+        blue
+        Option 3:
+        green
+        Option 4:
+        yellow
+        Correct Answer:
+        purple
+        """
+    )
+    (q1,) = result.questions
+    assert q1.answer_position is None
+    assert next((i.code, i.detail) for i in q1.issues) == (IssueCode.UNRECOGNISED_ANSWER, "purple")
