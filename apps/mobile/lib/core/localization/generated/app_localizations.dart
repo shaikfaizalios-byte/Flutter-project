@@ -4214,6 +4214,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Option number unclear in the scan (check the order)'**
   String get issueOptionLabelUnclear;
+
+  /// No description provided for @examSwitcherChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose exam'**
+  String get examSwitcherChoose;
+
+  /// No description provided for @examSwitcherTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch exam'**
+  String get examSwitcherTooltip;
+
+  /// No description provided for @examSwitcherCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current exam: {exam}'**
+  String examSwitcherCurrent(String exam);
+
+  /// No description provided for @examSwitcherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which exam?'**
+  String get examSwitcherTitle;
+
+  /// No description provided for @examSwitcherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Papers, questions, practice and repeated models show only the exam you choose.'**
+  String get examSwitcherHint;
+
+  /// No description provided for @examSwitcherManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add or change exams'**
+  String get examSwitcherManage;
+
+  /// No description provided for @examSwitcherShowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {exam}'**
+  String examSwitcherShowing(String exam);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

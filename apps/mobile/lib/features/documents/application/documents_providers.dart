@@ -8,6 +8,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/app_log.dart';
 import '../../concepts/domain/concept.dart';
+import '../../exams/application/active_exam.dart';
 import '../data/remote_documents_repository.dart';
 import '../domain/documents_repository.dart';
 import '../domain/imported_document.dart';
@@ -30,14 +31,19 @@ Future<UploadSource?> _pickPdf() async {
 /// How often the list refreshes while any document is still being processed.
 const documentPollInterval = Duration(seconds: 3);
 
-/// The imported documents, refreshed automatically while any is queued or processing.
+/// The current exam's imported documents, refreshed automatically while any is queued or
+/// processing.
 class DocumentList extends AsyncNotifier<List<ImportedDocument>> {
   Timer? _poll;
 
   @override
   Future<List<ImportedDocument>> build() async {
     ref.onDispose(() => _poll?.cancel());
-    final documents = await ref.watch(documentsRepositoryProvider).list();
+    final exam = ref.watch(activeExamProvider);
+    final documents = [
+      for (final d in await ref.watch(documentsRepositoryProvider).list())
+        if (exam == null || d.examCode == exam) d,
+    ];
     _poll?.cancel();
     if (documents.any((d) => d.status.isActive)) {
       _poll = Timer(documentPollInterval, ref.invalidateSelf);

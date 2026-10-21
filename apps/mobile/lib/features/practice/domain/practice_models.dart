@@ -307,6 +307,7 @@ class SessionSummaryView {
     this.formatName,
     this.score,
     this.maxScore,
+    this.examCode,
   });
 
   factory SessionSummaryView.fromJson(Map<String, dynamic> json) => SessionSummaryView(
@@ -318,6 +319,7 @@ class SessionSummaryView {
     itemCount: json['item_count'] as int,
     score: (json['score'] as num?)?.toDouble(),
     maxScore: (json['max_score'] as num?)?.toDouble(),
+    examCode: json['exam_code'] as String?,
   );
 
   final String id;
@@ -326,6 +328,9 @@ class SessionSummaryView {
   final String? formatName;
   final DateTime startedAt;
   final int itemCount;
+
+  /// The exam practised (null for older mixed sessions).
+  final String? examCode;
   final double? score;
   final double? maxScore;
 }

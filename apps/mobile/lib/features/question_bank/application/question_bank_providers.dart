@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../exams/application/active_exam.dart';
 import '../data/questions_repository.dart';
 import '../domain/question.dart';
 
@@ -49,7 +50,8 @@ final sourcePageTextProvider = FutureProvider.autoDispose.family<String, (String
 /// Search text and filters on the question bank screen.
 class BankQueryController extends Notifier<QuestionQuery> {
   @override
-  QuestionQuery build() => const QuestionQuery();
+  // The bank shows the current exam's questions (switching exams starts a fresh search).
+  QuestionQuery build() => QuestionQuery(examCode: ref.watch(activeExamProvider));
 
   void setText(String text) => state = QuestionQuery(
     examCode: state.examCode,

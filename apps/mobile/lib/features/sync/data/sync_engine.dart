@@ -6,6 +6,7 @@ import '../../exams/application/exam_catalog_controller.dart' show examCatalogCa
 import '../../../core/database/sync_outbox.dart';
 import '../../../core/utils/app_log.dart';
 import 'sync_api.dart';
+import '../../exams/application/active_exam.dart';
 
 /// Result of one sync run.
 @immutable
@@ -111,6 +112,7 @@ class SyncEngine {
             cursorKey,
             lastSyncedKey,
             examCatalogCacheKey,
+            activeExamKey,
           ]),
         ))
         .go();

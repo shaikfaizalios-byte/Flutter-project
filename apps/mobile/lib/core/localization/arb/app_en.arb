@@ -1836,5 +1836,14 @@
   "@offlineReady": {"placeholders": {"count": {"type": "int"}}},
   "offlineToUpload": "{count} offline sessions waiting to upload",
   "@offlineToUpload": {"placeholders": {"count": {"type": "int"}}},
-  "issueOptionLabelUnclear": "Option number unclear in the scan (check the order)"
+  "issueOptionLabelUnclear": "Option number unclear in the scan (check the order)",
+  "examSwitcherChoose": "Choose exam",
+  "examSwitcherTooltip": "Switch exam",
+  "examSwitcherCurrent": "Current exam: {exam}",
+  "@examSwitcherCurrent": {"placeholders": {"exam": {"type": "String"}}},
+  "examSwitcherTitle": "Which exam?",
+  "examSwitcherHint": "Papers, questions, practice and repeated models show only the exam you choose.",
+  "examSwitcherManage": "Add or change exams",
+  "examSwitcherShowing": "Showing {exam}",
+  "@examSwitcherShowing": {"placeholders": {"exam": {"type": "String"}}}
 }

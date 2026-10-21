@@ -2568,4 +2568,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issueOptionLabelUnclear => 'Option number unclear in the scan (check the order)';
+
+  @override
+  String get examSwitcherChoose => 'Choose exam';
+
+  @override
+  String get examSwitcherTooltip => 'Switch exam';
+
+  @override
+  String examSwitcherCurrent(String exam) {
+    return 'Current exam: $exam';
+  }
+
+  @override
+  String get examSwitcherTitle => 'Which exam?';
+
+  @override
+  String get examSwitcherHint =>
+      'Papers, questions, practice and repeated models show only the exam you choose.';
+
+  @override
+  String get examSwitcherManage => 'Add or change exams';
+
+  @override
+  String examSwitcherShowing(String exam) {
+    return 'Showing $exam';
+  }
 }

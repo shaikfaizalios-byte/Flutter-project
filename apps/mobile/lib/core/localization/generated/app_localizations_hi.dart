@@ -2574,4 +2574,30 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get issueOptionLabelUnclear => 'स्कैन में विकल्प संख्या साफ़ नहीं है (क्रम जाँचें)';
+
+  @override
+  String get examSwitcherChoose => 'परीक्षा चुनें';
+
+  @override
+  String get examSwitcherTooltip => 'परीक्षा बदलें';
+
+  @override
+  String examSwitcherCurrent(String exam) {
+    return 'वर्तमान परीक्षा: $exam';
+  }
+
+  @override
+  String get examSwitcherTitle => 'कौन-सी परीक्षा?';
+
+  @override
+  String get examSwitcherHint =>
+      'प्रश्न-पत्र, प्रश्न, अभ्यास और बार-बार आने वाले मॉडल केवल चुनी गई परीक्षा के दिखते हैं।';
+
+  @override
+  String get examSwitcherManage => 'परीक्षा जोड़ें या बदलें';
+
+  @override
+  String examSwitcherShowing(String exam) {
+    return '$exam दिखाया जा रहा है';
+  }
 }

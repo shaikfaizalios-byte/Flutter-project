@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/localization/generated/app_localizations.dart';
+import '../features/exams/presentation/exam_switcher.dart';
 import 'app_destinations.dart';
 import 'routes.dart';
 import 'theme/app_spacing.dart';
@@ -117,7 +118,11 @@ class AppSidebar extends StatelessWidget {
     required this.location,
     required this.onSelectTab,
     required this.onSelectFeature,
+    this.header,
   });
+
+  /// Shown under the product name (the exam switcher).
+  final Widget? header;
 
   final List<AppDestination> tabs;
   final List<AppDestination> features;
@@ -166,6 +171,16 @@ class AppSidebar extends StatelessWidget {
                   ],
                 ),
               ),
+              if (header != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.xs,
+                    0,
+                    AppSpacing.xs,
+                    AppSpacing.md,
+                  ),
+                  child: header,
+                ),
               for (final (i, d) in tabs.indexed)
                 _SidebarItem(
                   destination: d,
@@ -352,6 +367,10 @@ class _DesktopFrameState extends State<DesktopFrame> {
             onSelectFeature: (d) {
               if (location != d.route) widget.router.push(d.route);
             },
+            header: ExamSwitcher(
+              expanded: true,
+              sheetContext: () => widget.router.routerDelegate.navigatorKey.currentContext,
+            ),
           ),
           const VerticalDivider(width: 1),
         ],

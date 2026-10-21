@@ -20,6 +20,8 @@ import '../../revision/presentation/revision_widgets.dart';
 import '../../study_plan/application/study_profile_controller.dart';
 import '../../study_plan/domain/study_profile.dart';
 import '../../study_plan/presentation/study_profile_widgets.dart';
+import '../../exams/presentation/exam_switcher.dart';
+import '../../exams/application/active_exam.dart';
 
 /// Dashboard. Answers the three core questions from real local data only;
 /// where no data exists yet, each section says so honestly (no sample stats).
@@ -33,7 +35,10 @@ class HomeScreen extends ConsumerWidget {
     final profile = ref.watch(studyProfileProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.appTitle)),
+      appBar: AppBar(
+        title: Text(l10n.appTitle),
+        actions: [if (profile.examCodes.isNotEmpty) const ExamSwitcher()],
+      ),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -60,15 +65,13 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 )
               else
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  children: [
-                    for (final code in profile.examCodes)
-                      Chip(
-                        avatar: const Icon(Icons.flag_outlined, size: 18),
-                        label: Text(ref.watch(examNameProvider(code))),
-                      ),
-                  ],
+                Text(
+                  l10n.examSwitcherShowing(
+                    ref.watch(examNameProvider(ref.watch(activeExamProvider)!)),
+                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               const SizedBox(height: AppSpacing.md),
               _TodaySection(profile: profile),

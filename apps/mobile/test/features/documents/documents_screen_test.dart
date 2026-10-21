@@ -19,10 +19,11 @@ ImportedDocument doc({
   int processed = 4,
   int review = 0,
   String? errorCode,
+  String exam = 'SSC_CGL',
 }) => ImportedDocument(
   id: id,
   filename: filename,
-  examCode: 'SSC_CGL',
+  examCode: exam,
   language: ContentLanguage.english,
   status: status,
   pageCount: pages,
@@ -169,8 +170,16 @@ void main() {
     );
     await openDocuments(tester, repo);
     repo.listResponses = [
-      [doc(id: 'new', filename: 'CHSL 2022.pdf', status: DocumentStatus.queued, processed: 0)],
-      [doc(id: 'new', filename: 'CHSL 2022.pdf')],
+      [
+        doc(
+          id: 'new',
+          filename: 'CHSL 2022.pdf',
+          status: DocumentStatus.queued,
+          processed: 0,
+          exam: 'SSC_CHSL',
+        ),
+      ],
+      [doc(id: 'new', filename: 'CHSL 2022.pdf', exam: 'SSC_CHSL')],
     ];
     repo.listCalls = 0;
 

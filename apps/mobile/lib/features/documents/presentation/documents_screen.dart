@@ -14,6 +14,8 @@ import '../../concepts/domain/concept.dart';
 import '../../study_plan/application/study_profile_controller.dart';
 import '../application/documents_providers.dart';
 import '../domain/imported_document.dart';
+import '../../exams/presentation/exam_switcher.dart';
+import '../../exams/application/active_exam.dart';
 
 /// Lists imported PDFs with live processing status, and imports new ones.
 class DocumentsScreen extends ConsumerWidget {
@@ -40,7 +42,7 @@ class DocumentsScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.documentsTitle)),
+      appBar: AppBar(title: Text(l10n.documentsTitle), actions: const [ExamSwitcher()]),
       floatingActionButton: upload is UploadInProgress
           ? null
           : FloatingActionButton.extended(
@@ -185,13 +187,20 @@ class _ImportSheet extends ConsumerStatefulWidget {
 
 class _ImportSheetState extends ConsumerState<_ImportSheet> {
   late String _exam;
+
+  /// Exams a paper can be filed under: the learner's exams (and the one already chosen).
+  Set<String> _uploadExams(WidgetRef ref) {
+    final mine = ref.watch(studyProfileProvider.select((p) => p.examCodes));
+    return {...mine, _exam};
+  }
+
   ContentLanguage? _language;
 
   @override
   void initState() {
     super.initState();
-    final chosen = ref.read(studyProfileProvider).examCodes;
-    _exam = chosen.isNotEmpty ? chosen.first : ref.read(examCatalogProvider).first.code;
+    // New papers go to the current exam (the learner can pick another of their exams).
+    _exam = ref.read(activeExamProvider) ?? ref.read(examCatalogProvider).first.code;
   }
 
   @override
@@ -221,7 +230,8 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
             SegmentedButton<String>(
               segments: [
                 for (final exam in ref.watch(examCatalogProvider))
-                  ButtonSegment(value: exam.code, label: Text(exam.shortName)),
+                  if (_uploadExams(ref).contains(exam.code))
+                    ButtonSegment(value: exam.code, label: Text(exam.shortName)),
               ],
               selected: {_exam},
               onSelectionChanged: (s) => setState(() => _exam = s.first),

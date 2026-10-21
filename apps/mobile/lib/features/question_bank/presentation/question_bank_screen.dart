@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/search_field.dart';
-import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../application/question_bank_providers.dart';
-import '../domain/question.dart';
 import 'question_widgets.dart';
+import '../../exams/presentation/exam_switcher.dart';
 
 /// Browse and review the question bank (opened from the Practice tab).
 class QuestionBankScreen extends ConsumerWidget {
@@ -22,7 +21,7 @@ class QuestionBankScreen extends ConsumerWidget {
     final questions = ref.watch(questionListProvider(query));
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.bankTitle)),
+      appBar: AppBar(title: Text(l10n.bankTitle), actions: const [ExamSwitcher()]),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -33,21 +32,6 @@ class QuestionBankScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
                 child: AppSearchField(hintText: l10n.bankSearchHint, onChanged: controller.setText),
               ),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
-                child: Row(
-                  spacing: AppSpacing.sm,
-                  children: [
-                    for (final exam in ref.watch(examCatalogProvider))
-                      FilterChip(
-                        label: Text(exam.shortName),
-                        selected: query.examCode == exam.code,
-                        onSelected: (on) => controller.setExam(on ? exam.code : null),
-                      ),
-                  ],
-                ),
-              ),
               ReviewFilterBar(
                 selected: reviewFilterOf(query).index,
                 onSelected: (i) => controller.setReviewFilter(ReviewFilter.values[i]),
@@ -55,7 +39,10 @@ class QuestionBankScreen extends ConsumerWidget {
               Expanded(
                 child: switch (questions) {
                   AsyncData(value: (final items, _))
-                      when items.isEmpty && query == const QuestionQuery() =>
+                      when items.isEmpty &&
+                          query.text.isEmpty &&
+                          query.status == null &&
+                          query.hasIssues == null =>
                     EmptyState(
                       icon: Icons.quiz_outlined,
                       title: l10n.bankEmptyTitle,

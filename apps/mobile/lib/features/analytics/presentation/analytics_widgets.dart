@@ -14,6 +14,7 @@ import '../../practice/domain/practice_models.dart';
 import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
 import '../domain/study_plan.dart';
 import '../domain/weak_topics.dart';
+import '../../exams/application/active_exam.dart';
 
 String formatPercent(BuildContext context, double value) =>
     NumberFormat.percentPattern(Localizations.localeOf(context).toLanguageTag()).format(value);
@@ -108,13 +109,22 @@ class PlanItemTile extends ConsumerWidget {
         await startAndOpen(
           context,
           () => practice.startPractice(
-            PracticeRequest(topicId: item.topicId, count: PlanRules.practiceQuestions),
+            PracticeRequest(
+              examCode: ref.read(activeExamProvider),
+              topicId: item.topicId,
+              count: PlanRules.practiceQuestions,
+            ),
           ),
         );
       case PlanItemKind.practiceMixed:
         await startAndOpen(
           context,
-          () => practice.startPractice(const PracticeRequest(count: PlanRules.practiceQuestions)),
+          () => practice.startPractice(
+            PracticeRequest(
+              examCode: ref.read(activeExamProvider),
+              count: PlanRules.practiceQuestions,
+            ),
+          ),
         );
       case PlanItemKind.mockTest:
         // The hub shows the mock with its rules and asks for confirmation.

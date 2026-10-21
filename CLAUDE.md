@@ -44,6 +44,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   review, AI, uploads, notes. `/me/exams`, `/exams/{code}/topics`, `/topics` (+bulk), `/patterns`; optional
   `POST /ai/exams/{code}/topic-draft` (never saved). Mobile: `examCatalogProvider` (server list cached in
   `app_settings`, built-in SSC fallback), `features/exams` (selector + "More exams" search, My exams, topics).
+- Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
+  choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
+  `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry
+  `exam_code`), mock tests, history (plus older exam-less sessions), bookmarks, questions to revisit and repeats
+  show only that exam; uploads default to it. `ExamSwitcher` sits in those app bars and the desktop sidebar.
+  Concepts keep their own exam filter; analytics are not split by exam yet.
 - Documents: upload → validate (magic bytes, PDFium) → `DocumentStorage` → DB-backed queue → worker
   (`app/workers/document_worker.py`, lease + SKIP LOCKED) → per-page text layer or Tesseract OCR
   (`OcrEngine`), uncertain pages flagged. pypdfium2, not PyMuPDF (AGPL). See docs/document-ingestion.md.

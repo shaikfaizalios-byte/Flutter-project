@@ -6,6 +6,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/utils/clock.dart';
+import '../../exams/application/active_exam.dart';
 import '../../question_bank/domain/question.dart';
 import '../data/practice_repository.dart';
 import '../domain/practice_models.dart';
@@ -52,25 +53,43 @@ final offlineStatusProvider = FutureProvider.autoDispose<({int questions, int to
   );
 });
 
-final mockTestsProvider = FutureProvider.autoDispose<List<MockTestView>>(
-  (ref) => ref.watch(practiceRepositoryProvider).mockTests(),
-  retry: _noRetry,
-);
+// Mock tests, history, bookmarks and questions to revisit show the current exam only.
+final mockTestsProvider = FutureProvider.autoDispose<List<MockTestView>>((ref) async {
+  final exam = ref.watch(activeExamProvider);
+  final mocks = await ref.watch(practiceRepositoryProvider).mockTests();
+  return [
+    for (final m in mocks)
+      if (exam == null || m.examCode == exam) m,
+  ];
+}, retry: _noRetry);
 
-final sessionHistoryProvider = FutureProvider.autoDispose<List<SessionSummaryView>>(
-  (ref) => ref.watch(practiceRepositoryProvider).history(),
-  retry: _noRetry,
-);
+final sessionHistoryProvider = FutureProvider.autoDispose<List<SessionSummaryView>>((ref) async {
+  final exam = ref.watch(activeExamProvider);
+  final sessions = await ref.watch(practiceRepositoryProvider).history();
+  // Sessions from before exams were separated (no exam) stay visible everywhere.
+  return [
+    for (final s in sessions)
+      if (exam == null || s.examCode == null || s.examCode == exam) s,
+  ];
+}, retry: _noRetry);
 
-final bookmarkedQuestionsProvider = FutureProvider.autoDispose<List<BankQuestion>>(
-  (ref) => ref.watch(practiceRepositoryProvider).bookmarks(),
-  retry: _noRetry,
-);
+final bookmarkedQuestionsProvider = FutureProvider.autoDispose<List<BankQuestion>>((ref) async {
+  final exam = ref.watch(activeExamProvider);
+  final questions = await ref.watch(practiceRepositoryProvider).bookmarks();
+  return [
+    for (final q in questions)
+      if (exam == null || q.examCode == exam) q,
+  ];
+}, retry: _noRetry);
 
-final incorrectQuestionsProvider = FutureProvider.autoDispose<List<BankQuestion>>(
-  (ref) => ref.watch(practiceRepositoryProvider).incorrect(),
-  retry: _noRetry,
-);
+final incorrectQuestionsProvider = FutureProvider.autoDispose<List<BankQuestion>>((ref) async {
+  final exam = ref.watch(activeExamProvider);
+  final questions = await ref.watch(practiceRepositoryProvider).incorrect();
+  return [
+    for (final q in questions)
+      if (exam == null || q.examCode == exam) q,
+  ];
+}, retry: _noRetry);
 
 @immutable
 class SessionState {

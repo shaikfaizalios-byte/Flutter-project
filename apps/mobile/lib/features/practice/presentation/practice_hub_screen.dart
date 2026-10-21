@@ -13,6 +13,8 @@ import '../../documents/presentation/documents_screen.dart' show uploadErrorMess
 import '../../question_bank/application/question_bank_providers.dart';
 import '../application/practice_providers.dart';
 import '../domain/practice_models.dart';
+import '../../exams/presentation/exam_switcher.dart';
+import '../../exams/application/active_exam.dart';
 
 /// Practice tab: start practice or a mock test, review tools and recent sessions.
 class PracticeHubScreen extends ConsumerWidget {
@@ -23,7 +25,7 @@ class PracticeHubScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     ref.watch(pendingAnswersFlushProvider); // send answers saved while offline
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.practiceHubTitle)),
+      appBar: AppBar(title: Text(l10n.practiceHubTitle), actions: const [ExamSwitcher()]),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -191,7 +193,8 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final topics = ref.watch(topicsProvider(null)).value ?? const [];
+    final exam = ref.watch(activeExamProvider);
+    final topics = ref.watch(topicsProvider(exam)).value ?? const [];
     final subjects = {for (final t in topics) t.subject}.toList()..sort();
     final subjectTopics = topics.where((t) => t.subject == _subject).toList();
 
@@ -274,6 +277,7 @@ class _PracticeSetupSheetState extends ConsumerState<_PracticeSetupSheet> {
               child: FilledButton(
                 onPressed: () => Navigator.of(context).pop(
                   PracticeRequest(
+                    examCode: exam,
                     subject: _subject,
                     topicId: _topicId,
                     count: _count,

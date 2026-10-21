@@ -686,5 +686,12 @@
   "offlineMarkingNote": "इस डिवाइस पर जाँचा गया: हर सही उत्तर पर 1 अंक। अपलोड होने पर सर्वर इसे दोबारा जाँचता है।",
   "offlineReady": "ऑफ़लाइन अभ्यास के लिए {count} प्रश्न सहेजे गए",
   "offlineToUpload": "{count} ऑफ़लाइन सत्र अपलोड होने का इंतज़ार कर रहे हैं",
-  "issueOptionLabelUnclear": "स्कैन में विकल्प संख्या साफ़ नहीं है (क्रम जाँचें)"
+  "issueOptionLabelUnclear": "स्कैन में विकल्प संख्या साफ़ नहीं है (क्रम जाँचें)",
+  "examSwitcherChoose": "परीक्षा चुनें",
+  "examSwitcherTooltip": "परीक्षा बदलें",
+  "examSwitcherCurrent": "वर्तमान परीक्षा: {exam}",
+  "examSwitcherTitle": "कौन-सी परीक्षा?",
+  "examSwitcherHint": "प्रश्न-पत्र, प्रश्न, अभ्यास और बार-बार आने वाले मॉडल केवल चुनी गई परीक्षा के दिखते हैं।",
+  "examSwitcherManage": "परीक्षा जोड़ें या बदलें",
+  "examSwitcherShowing": "{exam} दिखाया जा रहा है"
 }

@@ -71,8 +71,15 @@ void main() {
 
   testAppWidgets('filters and search are passed to the server query', (tester, db) async {
     final repo = sampleBank();
-    await pumpPrepLoopApp(tester, db, questions: repo);
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      questions: repo,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL', 'SSC_CGL']),
+    );
     await openPractice(tester);
+    // The bank shows the current exam (the first of the learner's exams).
+    expect(repo.queries.last.examCode, 'SSC_CHSL');
 
     await tester.tap(find.text('Needs attention'));
     await tester.pumpAndSettle();
@@ -81,8 +88,10 @@ void main() {
     expect(find.textContaining('Select the figure'), findsOneWidget);
     expect(find.textContaining('20% of 150'), findsNothing);
 
-    await tester.tap(find.text('All'));
-    await tester.tap(find.widgetWithText(FilterChip, 'SSC CGL'));
+    // Switching the exam shows that exam's questions.
+    await tester.tap(find.byTooltip('Switch exam'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'SSC CGL'));
     await tester.pumpAndSettle();
     expect(repo.queries.last.examCode, 'SSC_CGL');
     expect(find.textContaining('synonym of RAPID'), findsOneWidget);

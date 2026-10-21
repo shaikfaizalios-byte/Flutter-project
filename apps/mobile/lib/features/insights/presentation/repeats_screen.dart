@@ -4,18 +4,18 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
 import '../../practice/application/practice_providers.dart';
 import '../../practice/domain/practice_models.dart';
 import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
-import '../../study_plan/application/study_profile_controller.dart';
 import '../data/insights_repository.dart';
 import '../domain/radar.dart';
 import '../domain/repeats.dart';
 import 'radar_sharing_card.dart';
+import '../../exams/presentation/exam_switcher.dart';
+import '../../exams/application/active_exam.dart';
 
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
 /// Every number states its basis; reviewed counts are kept apart from suggestions.
@@ -28,7 +28,6 @@ class RepeatsScreen extends ConsumerStatefulWidget {
 
 class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   String? _exam;
-  bool _examChosen = false;
   String _view = 'mine'; // mine: your papers · shared: the shared bank · radar: all learners
 
   RepeatsQuery get _query => (examCode: _exam, scope: _view == 'shared' ? 'shared' : 'mine');
@@ -36,11 +35,11 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final exams = ref.watch(studyProfileProvider).examCodes;
-    if (!_examChosen) _exam = exams.isEmpty ? null : exams.first;
+    // Repeats of the current exam (switched with the exam switcher).
+    _exam = ref.watch(activeExamProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.repeatsTitle)),
+      appBar: AppBar(title: Text(l10n.repeatsTitle), actions: const [ExamSwitcher()]),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -52,24 +51,6 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
-                if (exams.length > 1)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: Wrap(
-                      spacing: AppSpacing.sm,
-                      children: [
-                        for (final code in exams)
-                          ChoiceChip(
-                            label: Text(ref.watch(examNameProvider(code))),
-                            selected: _exam == code,
-                            onSelected: (_) => setState(() {
-                              _exam = code;
-                              _examChosen = true;
-                            }),
-                          ),
-                      ],
-                    ),
-                  ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.md),
                   child: SegmentedButton<String>(
