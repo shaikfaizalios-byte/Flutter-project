@@ -23,7 +23,7 @@ from app.models.practice import (
     SessionMode,
     SessionStatus,
 )
-from app.models.question import ExamFormat, Topic
+from app.models.question import ExamFormat, Question, Topic
 from app.schemas.analytics import (
     AnalyticsOverview,
     DailyStats,
@@ -60,7 +60,11 @@ class AnalyticsService:
         self._session = session
         self._now = now or (lambda: datetime.now(UTC))
 
-    def overview(self, *, timezone: str, days: int, recent_days: int) -> AnalyticsOverview:
+    def overview(
+        self, *, timezone: str, days: int, recent_days: int, exam: str | None = None
+    ) -> AnalyticsOverview:
+        """Counts for one exam when ``exam`` is given (by each question's exam, so older
+        sessions that mixed exams are split correctly), else for all exams."""
         zone = _zone(timezone)
         today = self._now().astimezone(zone).date()
         recent_from = today - timedelta(days=recent_days - 1)
@@ -75,7 +79,7 @@ class AnalyticsService:
         )
 
         def counted(*columns: Any) -> Any:
-            return (
+            query = (
                 select(*columns)
                 .select_from(SessionAnswer)
                 .join(
@@ -95,6 +99,11 @@ class AnalyticsService:
                     PracticeSession.owner_id == self._owner_id,
                 )
             )
+            if exam is not None:
+                query = query.join(Question, Question.id == SessionAnswer.question_id).where(
+                    Question.exam_code == exam
+                )
+            return query
 
         total = self._session.execute(
             counted(
@@ -168,11 +177,11 @@ class AnalyticsService:
             subjects=subjects,
             topics=topics,
             daily=daily,
-            mocks=self._mocks(zone),
+            mocks=self._mocks(zone, exam),
         )
 
-    def _mocks(self, zone: zoneinfo.ZoneInfo) -> list[MockResult]:
-        rows = self._session.execute(
+    def _mocks(self, zone: zoneinfo.ZoneInfo, exam: str | None) -> list[MockResult]:
+        query = (
             select(PracticeSession, ExamFormat.code, ExamFormat.name)
             .outerjoin(ExamFormat, ExamFormat.id == PracticeSession.exam_format_id)
             .where(
@@ -182,7 +191,10 @@ class AnalyticsService:
             )
             .order_by(PracticeSession.submitted_at.desc())
             .limit(MAX_MOCKS)
-        ).all()
+        )
+        if exam is not None:
+            query = query.where(PracticeSession.exam_code == exam)
+        rows = self._session.execute(query).all()
         results: list[MockResult] = []
         for mock, code, name in rows:
             if mock.submitted_at is None or mock.score is None or mock.max_score is None:

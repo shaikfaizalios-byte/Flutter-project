@@ -20,10 +20,12 @@ class FakeAnalyticsRepository implements AnalyticsRepository {
   PracticeAnalytics data;
   bool offline = false;
   final requestedTimezones = <String>[];
+  final requestedExams = <String?>[];
 
   @override
-  Future<PracticeAnalytics> overview({required String timezone}) async {
+  Future<PracticeAnalytics> overview({required String timezone, String? examCode}) async {
     requestedTimezones.add(timezone);
+    requestedExams.add(examCode);
     if (offline) throw const NetworkFailure();
     return data;
   }

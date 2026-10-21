@@ -12,6 +12,7 @@ import '../data/analytics_repository.dart';
 import '../domain/analytics_models.dart';
 import '../domain/study_plan.dart';
 import '../domain/weak_topics.dart';
+import '../../exams/application/active_exam.dart';
 
 /// The device's IANA timezone (server statistics are bucketed by the learner's local days).
 final localTimezoneProvider = FutureProvider<String>(
@@ -24,11 +25,14 @@ final analyticsRepositoryProvider = Provider<AnalyticsRepository>(
 
 Duration? _noRetry(int retryCount, Object error) => null;
 
-/// Server practice statistics (needs a connection).
+/// Server practice statistics of the current exam (needs a connection).
 final practiceAnalyticsProvider = FutureProvider.autoDispose<PracticeAnalytics>((ref) async {
+  final exam = ref.watch(activeExamProvider);
   final timezone = await ref.watch(localTimezoneProvider.future);
   try {
-    return await ref.watch(analyticsRepositoryProvider).overview(timezone: timezone);
+    return await ref
+        .watch(analyticsRepositoryProvider)
+        .overview(timezone: timezone, examCode: exam);
   } on Object catch (error, stack) {
     logError('Loading practice statistics failed', error, stack);
     rethrow;
@@ -93,7 +97,7 @@ final studyPlanProvider = Provider.autoDispose<AsyncValue<StudyPlan>>((ref) {
         (m) =>
             m.available &&
             m.durationMinutes != null &&
-            (profile.examCodes.isEmpty || profile.examCodes.contains(m.examCode)),
+            (profile.examCodes.isEmpty || m.examCode == ref.watch(activeExamProvider)),
       )
       .firstOrNull;
   return AsyncData(

@@ -39,5 +39,9 @@ def overview(
     recent_days: Annotated[
         int, Query(ge=1, le=90, description="Window for the recent counts (trend)")
     ] = 14,
+    exam: Annotated[
+        str | None,
+        Query(max_length=32, description="Only this exam (e.g. SSC_CHSL); all if omitted"),
+    ] = None,
 ) -> AnalyticsOverview:
-    return service.overview(timezone=timezone, days=days, recent_days=recent_days)
+    return service.overview(timezone=timezone, days=days, recent_days=recent_days, exam=exam)

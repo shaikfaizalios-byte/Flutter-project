@@ -11,6 +11,7 @@ import '../application/analytics_providers.dart';
 import '../domain/analytics_models.dart';
 import '../domain/weak_topics.dart';
 import 'analytics_widgets.dart';
+import '../../exams/presentation/exam_switcher.dart';
 
 /// Progress tab: only recorded data — practice answers (server) and flashcard reviews
 /// (device). Every judgement states the data it is based on.
@@ -80,7 +81,7 @@ class ProgressScreen extends ConsumerWidget {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.progressTitle)),
+      appBar: AppBar(title: Text(l10n.progressTitle), actions: const [ExamSwitcher()]),
       body: body,
     );
   }

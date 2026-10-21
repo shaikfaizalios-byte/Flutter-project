@@ -204,3 +204,27 @@ def test_timezone_is_required_and_validated(api: TestClient) -> None:
 
     too_many = api.get("/api/v1/analytics/overview", params={"timezone": "UTC", "days": 400})
     assert too_many.status_code == 422
+
+
+def test_counts_can_be_split_by_exam(
+    api: TestClient, db_session: Session, document: Document, clock: Clock
+) -> None:
+    chsl = topic(db_session, "Quantitative Aptitude", "Split Percentage")
+    cgl = topic(db_session, "English Language", "Split Synonyms")
+    for _ in range(3):
+        make_question(db_session, document, topic=chsl)
+    for _ in range(2):
+        question = make_question(db_session, document, subject="English Language", topic=cgl)
+        question.exam_code = "SSC_CGL"
+    db_session.flush()
+
+    practise(db_session, clock, chsl, [1, 2, 1])
+    practise(db_session, clock, cgl, [1, 1])
+
+    assert overview(api)["answered"] == 5
+    only_chsl = overview(api, exam="SSC_CHSL")
+    assert (only_chsl["answered"], only_chsl["correct"]) == (3, 2)
+    assert [t["name"] for t in only_chsl["topics"]] == ["Split Percentage"]
+    only_cgl = overview(api, exam="SSC_CGL")
+    assert (only_cgl["answered"], only_cgl["correct"]) == (2, 2)
+    assert [s["name"] for s in only_cgl["subjects"]] == ["English Language"]

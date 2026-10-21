@@ -11,8 +11,8 @@ class AnalyticsRepository {
   final Dio _dio;
 
   /// Counts per subject, topic and local day in [timezone] (an IANA name), plus mock
-  /// results. Throws [AppFailure].
-  Future<PracticeAnalytics> overview({required String timezone}) async {
+  /// results, for [examCode] only when given. Throws [AppFailure].
+  Future<PracticeAnalytics> overview({required String timezone, String? examCode}) async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '/api/v1/analytics/overview',
@@ -20,6 +20,7 @@ class AnalyticsRepository {
           'timezone': timezone,
           'days': AnalyticsRules.windowDays,
           'recent_days': AnalyticsRules.recentDays,
+          'exam': ?examCode,
         },
       );
       return PracticeAnalytics.fromJson(response.data!);

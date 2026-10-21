@@ -42,6 +42,8 @@ void main() {
     // A new paper is filed under the current exam.
     await tester.tap(find.text('Import PDF'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Skip for now'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Upload'));
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
@@ -53,5 +55,26 @@ void main() {
       db.appSettings,
     )..where((s) => s.key.equals(activeExamKey))).getSingle();
     expect(saved.value, 'SSC_CGL');
+  });
+
+  testAppWidgets('progress counts the current exam only', (tester, db) async {
+    final analytics = FakeAnalyticsRepository();
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      analytics: analytics,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL', 'SSC_CGL']),
+    );
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text('Progress')),
+    );
+    await tester.pumpAndSettle();
+    expect(analytics.requestedExams.last, 'SSC_CHSL');
+
+    await tester.tap(find.byTooltip('Switch exam'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'SSC CGL'));
+    await tester.pumpAndSettle();
+    expect(analytics.requestedExams.last, 'SSC_CGL');
   });
 }
