@@ -5,6 +5,8 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/exams/exam_catalog.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/exam_topics.dart';
+import '../../concepts/domain/concept.dart';
+import '../../documents/domain/imported_document.dart';
 
 /// Exams (catalog + the learner's own) and their topics. Throws `AppFailure`s.
 abstract interface class ExamsRepository {
@@ -29,6 +31,16 @@ abstract interface class ExamsRepository {
 
   /// AI-proposed topics from the learner's imported questions (only when AI is on).
   Future<TopicDraft> draftTopics(String examCode);
+
+  /// Marks a topic as revised (or not) for the learner.
+  Future<ExamTopic> setCompleted(String topicId, {required bool completed});
+
+  /// Reads subjects and topics from a syllabus PDF (nothing is saved).
+  Future<SyllabusDraft> readSyllabus(
+    String examCode,
+    UploadSource source, {
+    required ContentLanguage language,
+  });
 }
 
 class RemoteExamsRepository implements ExamsRepository {
@@ -106,6 +118,42 @@ class RemoteExamsRepository implements ExamsRepository {
   Future<TopicDraft> draftTopics(String examCode) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>('$_base/ai/exams/$examCode/topic-draft');
     return TopicDraft.fromJson(response.data!);
+  });
+
+  @override
+  Future<ExamTopic> setCompleted(String topicId, {required bool completed}) => _guard(() async {
+    final response = await _dio.put<Map<String, dynamic>>(
+      '$_base/topics/$topicId/completion',
+      data: {'completed': completed},
+    );
+    return ExamTopic.fromJson(response.data!);
+  });
+
+  @override
+  Future<SyllabusDraft> readSyllabus(
+    String examCode,
+    UploadSource source, {
+    required ContentLanguage language,
+  }) => _guard(() async {
+    final form = FormData.fromMap({
+      'language': language.code,
+      'file': MultipartFile.fromStream(
+        source.open,
+        source.length,
+        filename: source.name,
+        contentType: DioMediaType('application', 'pdf'),
+      ),
+    });
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_base/exams/$examCode/syllabus',
+      data: form,
+      // A scanned syllabus is read page by page (OCR) while the request waits.
+      options: Options(
+        sendTimeout: const Duration(minutes: 2),
+        receiveTimeout: const Duration(minutes: 3),
+      ),
+    );
+    return SyllabusDraft.fromJson(response.data!);
   });
 
   static Future<T> _guard<T>(Future<T> Function() call) async {

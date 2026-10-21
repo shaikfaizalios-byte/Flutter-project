@@ -20,11 +20,13 @@ abstract final class AppRoutes {
   static const progress = '/progress';
   static const profile = '/profile';
   static const myExams = '/profile/exams';
+  static const suggestions = '/profile/suggestions';
 
   static String concept(String id) => '/study/concepts/$id';
   static String editConcept(String id) => '/study/concepts/$id/edit';
   static String documentReview(String id) => '/study/documents/$id';
   static String question(String id) => '/questions/$id';
   static String practiceSession(String id) => '/practice/sessions/$id';
-  static String examTopics(String code) => '/profile/exams/$code';
+  static String examTopics(String code, {bool importSyllabus = false}) =>
+      '/profile/exams/$code${importSyllabus ? '?syllabus=1' : ''}';
 }

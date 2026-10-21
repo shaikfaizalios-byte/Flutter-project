@@ -21,6 +21,7 @@ from app.core.security import TokenSigner
 from app.database.session import build_engine, build_sessionmaker
 from app.integrations.ai import AIProvider, provider_from_settings
 from app.integrations.email import EmailSender, email_sender_from_settings
+from app.integrations.ocr import OcrEngine, TesseractOcrEngine
 from app.integrations.storage import DocumentStorage, LocalDocumentStorage
 from app.schemas.health import HealthResponse
 from app.workers.document_worker import start_background_worker
@@ -43,6 +44,7 @@ def create_app(
     storage: DocumentStorage | None = None,
     ai_provider: AIProvider | None = None,
     email_sender: EmailSender | None = None,
+    ocr_engine: OcrEngine | None = None,
 ) -> FastAPI:
     """Build the app. ``engine`` and ``storage`` let tests inject dependencies; by default
     they are created from settings (no engine if ``database_url`` is unset)."""
@@ -77,6 +79,10 @@ def create_app(
     app.state.sessionmaker = session_factory
     app.state.document_storage = storage or LocalDocumentStorage(settings.upload_dir)
     app.state.metrics = RequestMetrics()
+    # Reading syllabus PDFs in the request (scanned pages need OCR).
+    app.state.ocr_engine = ocr_engine or TesseractOcrEngine(
+        settings.tesseract_cmd, settings.tessdata_dir
+    )
     app.state.email_sender = (
         email_sender if email_sender is not None else email_sender_from_settings(settings)
     )

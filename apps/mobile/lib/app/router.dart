@@ -30,6 +30,7 @@ import '../features/settings/presentation/settings_screen.dart';
 import '../features/study_plan/application/study_profile_controller.dart';
 import 'app_shell.dart';
 import 'routes.dart';
+import '../features/feedback/presentation/suggestions_screen.dart';
 
 export 'routes.dart';
 
@@ -96,9 +97,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: AppRoutes.onboarding, builder: (context, state) => const OnboardingScreen()),
       GoRoute(path: AppRoutes.myExams, builder: (context, state) => const MyExamsScreen()),
+      GoRoute(path: AppRoutes.suggestions, builder: (context, state) => const SuggestionsScreen()),
       GoRoute(
         path: '/profile/exams/:code',
-        builder: (context, state) => ExamTopicsScreen(examCode: state.pathParameters['code']!),
+        builder: (context, state) => ExamTopicsScreen(
+          examCode: state.pathParameters['code']!,
+          importSyllabus: state.uri.queryParameters['syllabus'] == '1',
+        ),
       ),
       GoRoute(
         path: '/questions/:id',

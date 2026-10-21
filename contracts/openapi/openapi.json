@@ -414,6 +414,31 @@
         "title": "AnswerUpdate",
         "type": "object"
       },
+      "Body_read_syllabus_api_v1_exams__code__syllabus_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "Syllabus PDF",
+            "title": "File",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "description": "Language of the syllabus",
+            "enum": [
+              "en",
+              "hi"
+            ],
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_read_syllabus_api_v1_exams__code__syllabus_post",
+        "type": "object"
+      },
       "Body_upload_document_api_v1_documents_post": {
         "properties": {
           "exam_code": {
@@ -2493,6 +2518,11 @@
       },
       "OwnTopicRead": {
         "properties": {
+          "completed": {
+            "default": false,
+            "title": "Completed",
+            "type": "boolean"
+          },
           "exam_codes": {
             "anyOf": [
               {
@@ -5099,6 +5129,155 @@
         "title": "SubjectStats",
         "type": "object"
       },
+      "SuggestionCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "add",
+              "remove",
+              "change",
+              "other"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text"
+        ],
+        "title": "SuggestionCreate",
+        "type": "object"
+      },
+      "SuggestionRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "add",
+              "remove",
+              "change",
+              "other"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "new",
+              "read",
+              "planned",
+              "done",
+              "declined"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "text",
+          "status",
+          "created_at"
+        ],
+        "title": "SuggestionRead",
+        "type": "object"
+      },
+      "SyllabusDraftRead": {
+        "description": "Subjects and topics read from a syllabus PDF. Nothing is saved: the learner keeps what\nthey want with POST /topics/bulk.",
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "read_by": {
+            "enum": [
+              "text",
+              "ocr",
+              "mixed",
+              "none"
+            ],
+            "title": "Read By",
+            "type": "string"
+          },
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/SyllabusSubjectRead"
+            },
+            "title": "Subjects",
+            "type": "array"
+          },
+          "topic_count": {
+            "title": "Topic Count",
+            "type": "integer"
+          },
+          "truncated": {
+            "title": "Truncated",
+            "type": "boolean"
+          },
+          "unreadable_pages": {
+            "title": "Unreadable Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "exam_code",
+          "pages",
+          "read_by",
+          "unreadable_pages",
+          "subjects",
+          "topic_count",
+          "truncated"
+        ],
+        "title": "SyllabusDraftRead",
+        "type": "object"
+      },
+      "SyllabusSubjectRead": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "topics"
+        ],
+        "title": "SyllabusSubjectRead",
+        "type": "object"
+      },
       "TokenPair": {
         "properties": {
           "access_token": {
@@ -5147,6 +5326,20 @@
           "accepted"
         ],
         "title": "TopicAcceptResult",
+        "type": "object"
+      },
+      "TopicCompletionUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "completed": {
+            "title": "Completed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "completed"
+        ],
+        "title": "TopicCompletionUpdate",
         "type": "object"
       },
       "TopicCreate": {
@@ -5477,7 +5670,7 @@
             "items": {
               "$ref": "#/components/schemas/TopicCreate"
             },
-            "maxItems": 120,
+            "maxItems": 300,
             "minItems": 1,
             "title": "Topics",
             "type": "array"
@@ -6312,6 +6505,25 @@
               "minimum": 1,
               "title": "Recent Days",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Only this exam (e.g. SSC_CHSL); all if omitted",
+            "in": "query",
+            "name": "exam",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 32,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this exam (e.g. SSC_CHSL); all if omitted",
+              "title": "Exam"
             }
           }
         ],
@@ -8476,6 +8688,103 @@
           }
         },
         "summary": "The exam catalog (public)",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/exams/{code}/syllabus": {
+      "post": {
+        "operationId": "read_syllabus_api_v1_exams__code__syllabus_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_read_syllabus_api_v1_exams__code__syllabus_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyllabusDraftRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "file_too_large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "unsupported_file_type (not a PDF)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "validation_error, invalid_reference, empty_file, invalid_pdf, encrypted_pdf, too_many_pages"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited (see Retry-After)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read subjects and topics from a syllabus PDF (nothing is saved)",
         "tags": [
           "exams"
         ]
@@ -10719,6 +11028,110 @@
         ]
       }
     },
+    "/api/v1/suggestions": {
+      "get": {
+        "operationId": "my_suggestions_api_v1_suggestions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SuggestionRead"
+                  },
+                  "title": "Response My Suggestions Api V1 Suggestions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your suggestions",
+        "tags": [
+          "feedback"
+        ]
+      },
+      "post": {
+        "operationId": "suggest_api_v1_suggestions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many suggestions today"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Suggest a feature to add, remove or change",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
     "/api/v1/sync/pull": {
       "get": {
         "operationId": "pull_api_v1_sync_pull_get",
@@ -11200,6 +11613,84 @@
           }
         ],
         "summary": "Update Topic",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/completion": {
+      "put": {
+        "operationId": "set_topic_completion_api_v1_topics__topic_id__completion_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Topic Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicCompletionUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnTopicRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mark a topic as revised (or not) for you",
         "tags": [
           "exams"
         ]

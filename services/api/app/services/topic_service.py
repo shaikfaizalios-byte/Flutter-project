@@ -21,6 +21,7 @@ from app.domain.errors import ConflictError, InvalidReferenceError, NotFoundErro
 from app.models.concept import Concept
 from app.models.document import Document
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
+from app.models.progress import TopicCompletion
 from app.models.question import Question, QuestionPattern, Topic, TopicStatus
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.exam import (
@@ -69,7 +70,7 @@ def exam_read(exam: Exam) -> ExamRead:
     )
 
 
-def _own_topic_read(topic: Topic) -> OwnTopicRead:
+def _own_topic_read(topic: Topic, completed: bool = False) -> OwnTopicRead:
     return OwnTopicRead(
         id=topic.id,
         subject=topic.subject,
@@ -77,6 +78,7 @@ def _own_topic_read(topic: Topic) -> OwnTopicRead:
         keywords=list(topic.keywords),
         own=topic.owner_id is not None,
         exam_codes=topic.exam_codes,
+        completed=completed,
     )
 
 
@@ -149,9 +151,30 @@ class TopicService:
 
     def topics(self, exam_code: str) -> list[OwnTopicRead]:
         self._visible_exam(exam_code)
+        done = set(
+            self._session.scalars(
+                select(TopicCompletion.topic_id).where(TopicCompletion.owner_id == self._owner_id)
+            )
+        )
         return [
-            _own_topic_read(t) for t in visible_topics(self._session, self._owner_id, exam_code)
+            _own_topic_read(t, completed=t.id in done)
+            for t in visible_topics(self._session, self._owner_id, exam_code)
         ]
+
+    def set_completed(self, topic_id: uuid.UUID, completed: bool) -> OwnTopicRead:
+        """Marks a visible topic (shared or own) as revised, or not, for this learner."""
+        topic = self._session.scalars(
+            select(Topic).where(Topic.id == topic_id, *topic_scope(self._owner_id, None))
+        ).first()
+        if topic is None:
+            raise NotFoundError("Topic not found.")
+        existing = self._session.get(TopicCompletion, (self._owner_id, topic_id))
+        if completed and existing is None:
+            self._session.add(TopicCompletion(owner_id=self._owner_id, topic_id=topic_id))
+        elif not completed and existing is not None:
+            self._session.delete(existing)
+        self._session.commit()
+        return _own_topic_read(topic, completed=completed)
 
     def create_topic(self, data: TopicCreate) -> OwnTopicRead:
         topic = self._new_topic(data)

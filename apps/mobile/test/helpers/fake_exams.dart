@@ -1,6 +1,8 @@
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/core/exams/exam_catalog.dart';
 import 'package:preploop/features/exams/data/exams_repository.dart';
+import 'package:preploop/features/concepts/domain/concept.dart';
+import 'package:preploop/features/documents/domain/imported_document.dart';
 import 'package:preploop/features/exams/domain/exam_topics.dart';
 
 /// A small catalog for app tests: the two SSC exams (featured) plus a few others.
@@ -117,5 +119,38 @@ class FakeExamsRepository implements ExamsRepository {
     calls.add('draft:$examCode');
     if (draftFailure != null) throw draftFailure!;
     return draft ?? const TopicDraft(model: 'fake-model', questionsConsidered: 0, topics: []);
+  }
+
+  /// Returned by [readSyllabus]; [syllabusFailure] makes it fail.
+  SyllabusDraft syllabus = const SyllabusDraft(
+    pages: 1,
+    readBy: 'text',
+    unreadablePages: 0,
+    topics: [],
+  );
+  AppFailure? syllabusFailure;
+
+  @override
+  Future<ExamTopic> setCompleted(String topicId, {required bool completed}) async {
+    calls.add('completed:$topicId:$completed');
+    for (final entry in topicsByExam.entries) {
+      final i = entry.value.indexWhere((t) => t.id == topicId);
+      if (i >= 0) {
+        entry.value[i] = entry.value[i].copyWith(completed: completed);
+        return entry.value[i];
+      }
+    }
+    throw const ServerFailure(statusCode: 404, code: 'not_found');
+  }
+
+  @override
+  Future<SyllabusDraft> readSyllabus(
+    String examCode,
+    UploadSource source, {
+    required ContentLanguage language,
+  }) async {
+    calls.add('syllabus:$examCode:${source.name}');
+    if (syllabusFailure != null) throw syllabusFailure!;
+    return syllabus;
   }
 }

@@ -2600,4 +2600,150 @@ class AppLocalizationsHi extends AppLocalizations {
   String examSwitcherShowing(String exam) {
     return '$exam दिखाया जा रहा है';
   }
+
+  @override
+  String get suggestionsTitle => 'सुविधा सुझाएँ';
+
+  @override
+  String get suggestionsIntro =>
+      'बताएँ कि PrepLoop को और उपयोगी क्या बनाएगा, या आप क्या हटाना चाहेंगे। PrepLoop टीम हर सुझाव पढ़ती है।';
+
+  @override
+  String get suggestionsCardMessage => 'कुछ कमी है, या कोई सुविधा परेशान करती है? हमें बताएँ।';
+
+  @override
+  String get suggestionsOpen => 'सुझाव लिखें';
+
+  @override
+  String get suggestionKindAdd => 'जोड़ें';
+
+  @override
+  String get suggestionKindRemove => 'हटाएँ';
+
+  @override
+  String get suggestionKindChange => 'बदलें';
+
+  @override
+  String get suggestionKindOther => 'अन्य';
+
+  @override
+  String get suggestionField => 'आपका सुझाव';
+
+  @override
+  String get suggestionHintAdd =>
+      'PrepLoop में कौन-सी सुविधा जुड़नी चाहिए, और वह आपकी कैसे मदद करेगी?';
+
+  @override
+  String get suggestionHintRemove => 'कौन-सी सुविधा हटनी चाहिए, और क्यों?';
+
+  @override
+  String get suggestionHintChange => 'क्या अलग तरह से काम करना चाहिए?';
+
+  @override
+  String get suggestionHintOther => 'और कुछ जो आप बताना चाहें';
+
+  @override
+  String suggestionTooShort(int count) {
+    return 'कम से कम $count अक्षर लिखें।';
+  }
+
+  @override
+  String get suggestionSend => 'सुझाव भेजें';
+
+  @override
+  String get suggestionPrivacy =>
+      'आपका सुझाव आपके खाते के साथ सहेजा जाता है, ताकि आप यहाँ उसकी स्थिति देख सकें।';
+
+  @override
+  String get suggestionSent => 'धन्यवाद! आपका सुझाव भेज दिया गया।';
+
+  @override
+  String get suggestionTooMany => 'आज आपने कई सुझाव भेजे हैं। कृपया कल फिर कोशिश करें।';
+
+  @override
+  String get suggestionOffline =>
+      'PrepLoop सर्वर तक नहीं पहुँच पा रहे। ऑनलाइन होने पर फिर कोशिश करें।';
+
+  @override
+  String get suggestionFailed => 'सुझाव नहीं भेजा जा सका। कृपया फिर कोशिश करें।';
+
+  @override
+  String get suggestionsMine => 'आपके सुझाव';
+
+  @override
+  String get suggestionsNone => 'आपने अभी तक कोई सुझाव नहीं भेजा है।';
+
+  @override
+  String get suggestionStatusNew => 'भेजा गया';
+
+  @override
+  String get suggestionStatusRead => 'टीम ने पढ़ा';
+
+  @override
+  String get suggestionStatusPlanned => 'योजना में';
+
+  @override
+  String get suggestionStatusDone => 'हो गया';
+
+  @override
+  String get suggestionStatusDeclined => 'योजना में नहीं';
+
+  @override
+  String get syllabusTitle => 'पाठ्यक्रम';
+
+  @override
+  String get syllabusMessage => 'यहाँ छूटे विषय जोड़ने के लिए पाठ्यक्रम PDF फिर से आयात करें।';
+
+  @override
+  String get syllabusMissingTitle => 'अपना पाठ्यक्रम जोड़ें';
+
+  @override
+  String get syllabusMissingMessage =>
+      'परीक्षा का पाठ्यक्रम PDF आयात करें: उसके विषय और टॉपिक यहाँ जुड़ जाएँगे, हर एक के साथ दोहराने के बाद टिक करने का बॉक्स।';
+
+  @override
+  String get syllabusImport => 'पाठ्यक्रम PDF आयात करें';
+
+  @override
+  String get syllabusNothingFound =>
+      'इस PDF से कोई टॉपिक नहीं पढ़ा जा सका। उन्हें खुद जोड़ें, या साफ़ प्रति आज़माएँ।';
+
+  @override
+  String syllabusDraftLabel(int count, int pages) {
+    return 'पाठ्यक्रम से $count टॉपिक पढ़े गए ($pages पृष्ठ)। जो टॉपिक नहीं है, उसका टिक हटाएँ।';
+  }
+
+  @override
+  String syllabusUnreadable(int count) {
+    return '$count पृष्ठ पढ़ने में कठिन थे, इसलिए कुछ टॉपिक छूट सकते हैं।';
+  }
+
+  @override
+  String get syllabusTruncated =>
+      'पाठ्यक्रम में एक बार में जितने आ सकते हैं उससे ज़्यादा टॉपिक हैं; बाकी अलग से आयात करें।';
+
+  @override
+  String syllabusPromptTitle(String exam) {
+    return 'पहले $exam का पाठ्यक्रम जोड़ें?';
+  }
+
+  @override
+  String get syllabusPromptMessage =>
+      'पाठ्यक्रम आयात करने पर PrepLoop परीक्षा के सभी टॉपिक दिखाता है, आपके प्रश्न उनमें बाँटता है और हर टॉपिक दोहराने के बाद टिक करने देता है। आप इसे बाद में \'परीक्षा और टॉपिक\' में भी जोड़ सकते हैं।';
+
+  @override
+  String get syllabusPromptSkip => 'अभी छोड़ें';
+
+  @override
+  String topicsRevisedCount(int done, int total) {
+    return '$total में से $done टॉपिक दोहराए गए';
+  }
+
+  @override
+  String get topicRevised => 'दोहराया गया';
+
+  @override
+  String topicRevisedCheckbox(String topic) {
+    return '$topic दोहराया गया';
+  }
 }

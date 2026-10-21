@@ -49,7 +49,18 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry
   `exam_code`), mock tests, history (plus older exam-less sessions), bookmarks, questions to revisit and repeats
   show only that exam; uploads default to it. `ExamSwitcher` sits in those app bars and the desktop sidebar.
-  Concepts keep their own exam filter; analytics are not split by exam yet.
+  Concepts keep their own exam filter. Analytics follow it too (`/analytics/overview?exam=`, counted by each
+  question's exam; mocks by session exam).
+- Syllabus + revision marks: `POST /exams/{code}/syllabus` (PDF read in the request: text layer or OCR via
+  `app.state.ocr_engine`, ≤ 40 pages, temp file deleted, NOTHING saved) → pure `app/domain/syllabus.py` draft
+  (headings by ":"/CAPS/Part-Section label/known subject words; bullets, numbers, comma runs, one per line) →
+  learner unticks and saves via `/topics/bulk` (≤ 300). `topic_completions` (migration 0020) + `PUT
+  /topics/{id}/completion`; `OwnTopicRead.completed`. Mobile: topics screen syllabus card (highlighted while
+  the learner has no own topics), "x of y revised" + a checkbox per topic; Imported papers asks "Add the
+  syllabus first?" before the first paper of an exam (skip remembered per exam: `syllabus_skipped:<code>`).
+- Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
+  chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
+  "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.
 - Documents: upload → validate (magic bytes, PDFium) → `DocumentStorage` → DB-backed queue → worker
   (`app/workers/document_worker.py`, lease + SKIP LOCKED) → per-page text layer or Tesseract OCR
   (`OcrEngine`), uncertain pages flagged. pypdfium2, not PyMuPDF (AGPL). See docs/document-ingestion.md.

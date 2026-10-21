@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
@@ -61,6 +61,8 @@ class OwnTopicRead(BaseModel):
     # False for shared taxonomy topics (read-only for learners).
     own: bool
     exam_codes: list[str] | None
+    # The learner marked the topic as revised (their own progress, any topic).
+    completed: bool = False
 
 
 class TopicsBulkCreate(BaseModel):
@@ -69,7 +71,31 @@ class TopicsBulkCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     exam_code: Annotated[str, StringConstraints(min_length=1, max_length=32)]
-    topics: list[TopicCreate] = Field(min_length=1, max_length=120)
+    topics: list[TopicCreate] = Field(min_length=1, max_length=300)
+
+
+class TopicCompletionUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    completed: bool
+
+
+class SyllabusSubjectRead(BaseModel):
+    name: str
+    topics: list[str]
+
+
+class SyllabusDraftRead(BaseModel):
+    """Subjects and topics read from a syllabus PDF. Nothing is saved: the learner keeps what
+    they want with POST /topics/bulk."""
+
+    exam_code: str
+    pages: int
+    read_by: Literal["text", "ocr", "mixed", "none"]
+    unreadable_pages: int  # pages the reader couldn't read reliably (scan quality)
+    subjects: list[SyllabusSubjectRead]
+    topic_count: int
+    truncated: bool  # the PDF listed more topics than one draft holds
 
 
 class PatternCreate(BaseModel):

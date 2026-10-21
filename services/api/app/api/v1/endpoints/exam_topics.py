@@ -3,10 +3,13 @@
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, File, Form, Request, Response, UploadFile
 
 from app.api.deps import CurrentUser
+from app.api.v1.endpoints.documents import UPLOAD_ERRORS, guard_upload
+from app.core.config import Settings, get_settings
 from app.database.session import DbSession
+from app.schemas.concept import Language
 from app.schemas.errors import ErrorResponse
 from app.schemas.exam import (
     CustomExamCreate,
@@ -14,11 +17,14 @@ from app.schemas.exam import (
     ExamRead,
     OwnTopicRead,
     PatternCreate,
+    SyllabusDraftRead,
+    TopicCompletionUpdate,
     TopicCreate,
     TopicsBulkCreate,
     TopicUpdate,
 )
 from app.schemas.question import PatternRead
+from app.services.syllabus_service import SyllabusService
 from app.services.topic_service import TopicService
 
 router = APIRouter(
@@ -75,6 +81,44 @@ def delete_exam(code: str, service: Service) -> Response:
 )
 def exam_topics(code: str, service: Service) -> list[OwnTopicRead]:
     return service.topics(code)
+
+
+@router.post(
+    "/exams/{code}/syllabus",
+    response_model=SyllabusDraftRead,
+    responses=UPLOAD_ERRORS,
+    dependencies=[Depends(guard_upload)],
+    summary="Read subjects and topics from a syllabus PDF (nothing is saved)",
+)
+def read_syllabus(
+    code: str,
+    request: Request,
+    session: DbSession,
+    user: CurrentUser,
+    settings: Annotated[Settings, Depends(get_settings)],
+    file: Annotated[UploadFile, File(description="Syllabus PDF")],
+    language: Annotated[Language, Form(description="Language of the syllabus")] = "en",
+) -> SyllabusDraftRead:
+    service = SyllabusService(
+        session,
+        owner_id=user.id,
+        settings=settings,
+        ocr=request.app.state.ocr_engine,
+        temp_dir=request.app.state.document_storage.temp_dir(),
+    )
+    return service.read(code, file.file, language)
+
+
+@router.put(
+    "/topics/{topic_id}/completion",
+    response_model=OwnTopicRead,
+    responses=NOT_FOUND,
+    summary="Mark a topic as revised (or not) for you",
+)
+def set_topic_completion(
+    topic_id: uuid.UUID, body: TopicCompletionUpdate, service: Service
+) -> OwnTopicRead:
+    return service.set_completed(topic_id, body.completed)
 
 
 @router.post("/topics", response_model=OwnTopicRead, status_code=201, responses=CONFLICT)

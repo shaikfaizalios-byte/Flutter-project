@@ -8,6 +8,9 @@ import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
 import '../../ai/application/ai_providers.dart';
+import '../../concepts/domain/concept.dart';
+import '../../documents/application/documents_providers.dart';
+import '../../documents/domain/imported_document.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../../question_bank/application/question_bank_providers.dart';
 import '../application/exam_catalog_controller.dart';
@@ -15,11 +18,15 @@ import '../data/exams_repository.dart';
 import '../domain/exam_topics.dart';
 
 /// Subjects and topics of one exam: shared ones (read-only) and the learner's own, which
-/// they add, rename and delete. With AI on, a topic list can be drafted from their papers.
+/// they add, rename and delete, or import from the exam's syllabus PDF. Each topic can be
+/// ticked once revised. With AI on, a topic list can also be drafted from their papers.
 class ExamTopicsScreen extends ConsumerStatefulWidget {
-  const ExamTopicsScreen({super.key, required this.examCode});
+  const ExamTopicsScreen({super.key, required this.examCode, this.importSyllabus = false});
 
   final String examCode;
+
+  /// Opened from "add the syllabus first": start picking the syllabus PDF at once.
+  final bool importSyllabus;
 
   @override
   ConsumerState<ExamTopicsScreen> createState() => _ExamTopicsScreenState();
@@ -27,6 +34,65 @@ class ExamTopicsScreen extends ConsumerStatefulWidget {
 
 class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.importSyllabus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _importSyllabus();
+      });
+    }
+  }
+
+  Future<void> _importSyllabus() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final UploadSource? source;
+    try {
+      source = await ref.read(pdfPickerProvider)();
+    } on Object catch (error, stack) {
+      logError('Picking a syllabus PDF failed', error, stack);
+      return;
+    }
+    if (source == null || !mounted) return;
+    final language = Localizations.localeOf(context).languageCode == 'hi'
+        ? ContentLanguage.hindi
+        : ContentLanguage.english;
+    SyllabusDraft? draft;
+    await _run(() async {
+      draft = await ref
+          .read(examsRepositoryProvider)
+          .readSyllabus(widget.examCode, source!, language: language);
+    });
+    final result = draft;
+    if (result == null || !mounted) return;
+    if (result.topics.isEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.syllabusNothingFound)));
+      return;
+    }
+    final kept = await showModalBottomSheet<List<NewTopic>>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => _DraftSheet(
+        label: [
+          l10n.syllabusDraftLabel(result.topics.length, result.pages),
+          if (result.unreadablePages > 0) l10n.syllabusUnreadable(result.unreadablePages),
+          if (result.truncated) l10n.syllabusTruncated,
+        ].join('\n'),
+        topics: result.topics,
+      ),
+    );
+    if (kept == null || kept.isEmpty) return;
+    await _run(
+      () => ref.read(examsRepositoryProvider).createTopics(widget.examCode, kept),
+      done: l10n.topicsDraftSaved(kept.length),
+    );
+  }
+
+  Future<void> _toggle(ExamTopic topic, bool completed) =>
+      _run(() => ref.read(examsRepositoryProvider).setCompleted(topic.id, completed: completed));
 
   void _changed() => ref
     ..invalidate(examTopicsProvider(widget.examCode))
@@ -129,7 +195,10 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (context) => _DraftSheet(draft: result),
+      builder: (context) => _DraftSheet(
+        label: l10n.topicsDraftLabel(result.questionsConsidered, result.model),
+        topics: result.topics,
+      ),
     );
     if (kept == null || kept.isEmpty) return;
     await _run(
@@ -161,6 +230,18 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
               padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 96),
               children: [
                 Text(l10n.topicsScreenIntro, style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: AppSpacing.md),
+                _SyllabusCard(
+                  missing: !value.any((t) => t.own),
+                  onImport: _busy ? null : _importSyllabus,
+                ),
+                if (value.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _RevisedProgress(
+                    done: value.where((t) => t.completed).length,
+                    total: value.length,
+                  ),
+                ],
                 if (aiEnabled) ...[
                   const SizedBox(height: AppSpacing.sm),
                   OutlinedButton.icon(
@@ -187,9 +268,22 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
                         for (final topic in entry.value)
                           ListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: Text(topic.name),
+                            leading: Checkbox(
+                              value: topic.completed,
+                              semanticLabel: l10n.topicRevisedCheckbox(topic.name),
+                              onChanged: _busy ? null : (on) => _toggle(topic, on ?? false),
+                            ),
+                            title: Text(
+                              topic.name,
+                              style: topic.completed
+                                  ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
+                                  : null,
+                            ),
                             subtitle: Text(
-                              topic.own ? l10n.topicsOwnLabel : l10n.topicsSharedLabel,
+                              [
+                                topic.own ? l10n.topicsOwnLabel : l10n.topicsSharedLabel,
+                                if (topic.completed) l10n.topicRevised,
+                              ].join(' · '),
                             ),
                             trailing: topic.own
                                 ? PopupMenuButton<String>(
@@ -226,6 +320,64 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
           },
         ),
       ),
+    );
+  }
+}
+
+/// The exam's syllabus: import its PDF to fill in subjects and topics. Highlighted while the
+/// learner has added no topics of their own (e.g. they skipped it before importing papers).
+class _SyllabusCard extends StatelessWidget {
+  const _SyllabusCard({required this.missing, required this.onImport});
+
+  final bool missing;
+  final VoidCallback? onImport;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      color: missing ? colors.secondaryContainer : null,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpacing.sm,
+          children: [
+            Text(
+              missing ? l10n.syllabusMissingTitle : l10n.syllabusTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text(missing ? l10n.syllabusMissingMessage : l10n.syllabusMessage),
+            FilledButton.tonalIcon(
+              icon: const Icon(Icons.upload_file),
+              label: Text(l10n.syllabusImport),
+              onPressed: onImport,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// How many of the exam's topics the learner has ticked as revised.
+class _RevisedProgress extends StatelessWidget {
+  const _RevisedProgress({required this.done, required this.total});
+
+  final int done;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.xs,
+      children: [
+        Text(l10n.topicsRevisedCount(done, total), style: Theme.of(context).textTheme.labelLarge),
+        LinearProgressIndicator(value: total == 0 ? 0 : done / total),
+      ],
     );
   }
 }
@@ -320,23 +472,25 @@ class _TopicDialogState extends State<_TopicDialog> {
   }
 }
 
-/// The AI draft: every topic labelled as a suggestion; the learner keeps what fits.
+/// A draft (from the syllabus PDF or the AI): every topic listed with where it came from; the
+/// learner unticks what doesn't fit and keeps the rest.
 class _DraftSheet extends StatefulWidget {
-  const _DraftSheet({required this.draft});
+  const _DraftSheet({required this.label, required this.topics});
 
-  final TopicDraft draft;
+  final String label;
+  final List<NewTopic> topics;
 
   @override
   State<_DraftSheet> createState() => _DraftSheetState();
 }
 
 class _DraftSheetState extends State<_DraftSheet> {
-  late final Set<int> _kept = {for (var i = 0; i < widget.draft.topics.length; i++) i};
+  late final Set<int> _kept = {for (var i = 0; i < widget.topics.length; i++) i};
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final topics = widget.draft.topics;
+    final topics = widget.topics;
     return SafeArea(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.85),
@@ -346,10 +500,7 @@ class _DraftSheetState extends State<_DraftSheet> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: Text(
-                l10n.topicsDraftLabel(widget.draft.questionsConsidered, widget.draft.model),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              child: Text(widget.label, style: Theme.of(context).textTheme.bodySmall),
             ),
             Flexible(
               child: ListView(

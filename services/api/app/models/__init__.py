@@ -4,8 +4,10 @@ from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
+from app.models.feedback import Suggestion
 from app.models.ops import RateLimitCounter
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
+from app.models.progress import TopicCompletion
 from app.models.question import (
     ExamFormat,
     Passage,
@@ -40,7 +42,9 @@ __all__ = [
     "RefreshToken",
     "SessionAnswer",
     "SessionItem",
+    "Suggestion",
     "SyncItem",
     "Topic",
+    "TopicCompletion",
     "User",
 ]

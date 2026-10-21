@@ -4256,6 +4256,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Showing {exam}'**
   String examSwitcherShowing(String exam);
+
+  /// No description provided for @suggestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest a feature'**
+  String get suggestionsTitle;
+
+  /// No description provided for @suggestionsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what would make PrepLoop more useful, or what you\'d rather remove. The PrepLoop team reads every suggestion.'**
+  String get suggestionsIntro;
+
+  /// No description provided for @suggestionsCardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing something, or is a feature in your way? Tell us.'**
+  String get suggestionsCardMessage;
+
+  /// No description provided for @suggestionsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a suggestion'**
+  String get suggestionsOpen;
+
+  /// No description provided for @suggestionKindAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get suggestionKindAdd;
+
+  /// No description provided for @suggestionKindRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get suggestionKindRemove;
+
+  /// No description provided for @suggestionKindChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get suggestionKindChange;
+
+  /// No description provided for @suggestionKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get suggestionKindOther;
+
+  /// No description provided for @suggestionField.
+  ///
+  /// In en, this message translates to:
+  /// **'Your suggestion'**
+  String get suggestionField;
+
+  /// No description provided for @suggestionHintAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Which feature should PrepLoop add, and how would it help you?'**
+  String get suggestionHintAdd;
+
+  /// No description provided for @suggestionHintRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Which feature should be removed, and why?'**
+  String get suggestionHintRemove;
+
+  /// No description provided for @suggestionHintChange.
+  ///
+  /// In en, this message translates to:
+  /// **'What should work differently?'**
+  String get suggestionHintChange;
+
+  /// No description provided for @suggestionHintOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything else you\'d like to tell us'**
+  String get suggestionHintOther;
+
+  /// No description provided for @suggestionTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least {count} characters.'**
+  String suggestionTooShort(int count);
+
+  /// No description provided for @suggestionSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send suggestion'**
+  String get suggestionSend;
+
+  /// No description provided for @suggestionPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your suggestion is stored with your account so you can see its status here.'**
+  String get suggestionPrivacy;
+
+  /// No description provided for @suggestionSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks! Your suggestion was sent.'**
+  String get suggestionSent;
+
+  /// No description provided for @suggestionTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve sent many suggestions today. Please try again tomorrow.'**
+  String get suggestionTooMany;
+
+  /// No description provided for @suggestionOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the PrepLoop server. Try again when you\'re online.'**
+  String get suggestionOffline;
+
+  /// No description provided for @suggestionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The suggestion couldn\'t be sent. Please try again.'**
+  String get suggestionFailed;
+
+  /// No description provided for @suggestionsMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Your suggestions'**
+  String get suggestionsMine;
+
+  /// No description provided for @suggestionsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t sent any suggestions yet.'**
+  String get suggestionsNone;
+
+  /// No description provided for @suggestionStatusNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get suggestionStatusNew;
+
+  /// No description provided for @suggestionStatusRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by the team'**
+  String get suggestionStatusRead;
+
+  /// No description provided for @suggestionStatusPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get suggestionStatusPlanned;
+
+  /// No description provided for @suggestionStatusDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get suggestionStatusDone;
+
+  /// No description provided for @suggestionStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Not planned'**
+  String get suggestionStatusDeclined;
+
+  /// No description provided for @syllabusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllabus'**
+  String get syllabusTitle;
+
+  /// No description provided for @syllabusMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Import the syllabus PDF again to add topics it lists that are missing here.'**
+  String get syllabusMessage;
+
+  /// No description provided for @syllabusMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your syllabus'**
+  String get syllabusMissingTitle;
+
+  /// No description provided for @syllabusMissingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Import the exam\'s syllabus PDF: its subjects and topics are added here, each with a box to tick once you\'ve revised it.'**
+  String get syllabusMissingMessage;
+
+  /// No description provided for @syllabusImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import syllabus PDF'**
+  String get syllabusImport;
+
+  /// No description provided for @syllabusNothingFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No topics could be read from this PDF. Add them by hand, or try a clearer copy.'**
+  String get syllabusNothingFound;
+
+  /// No description provided for @syllabusDraftLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} topics read from the syllabus ({pages} pages). Untick anything that isn\'t a topic.'**
+  String syllabusDraftLabel(int count, int pages);
+
+  /// No description provided for @syllabusUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pages were hard to read, so some topics may be missing.'**
+  String syllabusUnreadable(int count);
+
+  /// No description provided for @syllabusTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'The syllabus lists more topics than one import holds; import the rest separately.'**
+  String get syllabusTruncated;
+
+  /// No description provided for @syllabusPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the {exam} syllabus first?'**
+  String syllabusPromptTitle(String exam);
+
+  /// No description provided for @syllabusPromptMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'With the syllabus imported, PrepLoop lists every topic of the exam, sorts your questions into them and lets you tick each topic once revised. You can also add it later in Exams and topics.'**
+  String get syllabusPromptMessage;
+
+  /// No description provided for @syllabusPromptSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get syllabusPromptSkip;
+
+  /// No description provided for @topicsRevisedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} topics revised'**
+  String topicsRevisedCount(int done, int total);
+
+  /// No description provided for @topicRevised.
+  ///
+  /// In en, this message translates to:
+  /// **'Revised'**
+  String get topicRevised;
+
+  /// No description provided for @topicRevisedCheckbox.
+  ///
+  /// In en, this message translates to:
+  /// **'{topic} revised'**
+  String topicRevisedCheckbox(String topic);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

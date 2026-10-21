@@ -7,6 +7,7 @@ import '../../../core/database/sync_outbox.dart';
 import '../../../core/utils/app_log.dart';
 import 'sync_api.dart';
 import '../../exams/application/active_exam.dart';
+import '../../exams/application/syllabus_prompt.dart';
 
 /// Result of one sync run.
 @immutable
@@ -116,6 +117,7 @@ class SyncEngine {
           ]),
         ))
         .go();
+    await (_db.delete(_db.appSettings)..where((s) => s.key.like('$syllabusSkippedPrefix%'))).go();
   });
 
   // --- push ---------------------------------------------------------------------------

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +18,8 @@ import '../application/documents_providers.dart';
 import '../domain/imported_document.dart';
 import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
+import '../../../core/database/app_database.dart';
+import '../../exams/application/syllabus_prompt.dart';
 
 /// Lists imported PDFs with live processing status, and imports new ones.
 class DocumentsScreen extends ConsumerWidget {
@@ -100,7 +104,51 @@ class DocumentsScreen extends ConsumerWidget {
       error is TimeoutFailure ||
       (error is ServerFailure && error.statusCode == 503);
 
+  /// Before the first paper of an exam: offer to import its syllabus, so topics are in place
+  /// to sort questions and track revision. Returns false when the learner went to do that.
+  Future<bool> _syllabusFirst(BuildContext context, WidgetRef ref) async {
+    final exam = ref.read(activeExamProvider);
+    if (exam == null) return true;
+    final db = ref.read(appDatabaseProvider);
+    try {
+      if (await syllabusSkipped(db, exam)) return true;
+      final topics = await ref.read(examTopicsProvider(exam).future);
+      if (topics.any((t) => t.own)) return true;
+    } on Object catch (error, stack) {
+      logError('Checking the syllabus failed', error, stack);
+      return true; // offline or similar: don't block importing
+    }
+    if (!context.mounted) return false;
+    final l10n = AppLocalizations.of(context);
+    final name = ref.read(examNameProvider(exam));
+    final choice = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.syllabusPromptTitle(name)),
+        content: Text(l10n.syllabusPromptMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.syllabusPromptSkip),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.syllabusImport),
+          ),
+        ],
+      ),
+    );
+    if (choice == null || !context.mounted) return false;
+    if (choice) {
+      unawaited(context.push(AppRoutes.examTopics(exam, importSyllabus: true)));
+      return false;
+    }
+    await skipSyllabus(db, exam);
+    return true;
+  }
+
   Future<void> _startImport(BuildContext context, WidgetRef ref) async {
+    if (!await _syllabusFirst(context, ref) || !context.mounted) return;
     final UploadSource? source;
     try {
       source = await ref.read(pdfPickerProvider)();

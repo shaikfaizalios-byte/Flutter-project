@@ -185,6 +185,10 @@ void main() {
 
     await tester.tap(find.text('Import PDF'));
     await tester.pumpAndSettle();
+    // No syllabus yet for this exam: the learner is asked first and skips it.
+    expect(find.text('Add the SSC CHSL syllabus first?'), findsOneWidget);
+    await tester.tap(find.text('Skip for now'));
+    await tester.pumpAndSettle();
     expect(find.text('Import "CHSL 2022.pdf"'), findsOneWidget);
     await tester.tap(find.text('हिन्दी'));
     await tester.tap(find.text('Upload'));

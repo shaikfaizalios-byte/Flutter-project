@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../auth/presentation/account_section.dart';
 import '../../insights/presentation/radar_sharing_card.dart';
@@ -10,6 +11,7 @@ import '../../../core/widgets/section_card.dart';
 import '../../study_plan/presentation/study_plan_section.dart';
 import '../application/app_preferences.dart';
 import '../data/server_status_repository.dart';
+import '../../../app/routes.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -63,6 +65,23 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                   selected: {prefs.themeMode},
                   onSelectionChanged: (selection) => controller.setThemeMode(selection.first),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              SectionCard(
+                icon: Icons.lightbulb_outline,
+                title: l10n.suggestionsTitle,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.suggestionsCardMessage),
+                    const SizedBox(height: AppSpacing.sm),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.edit_outlined),
+                      label: Text(l10n.suggestionsOpen),
+                      onPressed: () => context.push(AppRoutes.suggestions),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: AppSpacing.md),

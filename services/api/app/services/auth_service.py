@@ -32,6 +32,7 @@ from app.integrations.storage import DocumentStorage
 from app.models.ai import AIGeneration
 from app.models.concept import Concept
 from app.models.document import Document
+from app.models.feedback import Suggestion
 from app.models.practice import PracticeSession
 from app.models.question import Question
 from app.models.sync import SyncItem
@@ -42,7 +43,14 @@ logger = logging.getLogger(__name__)
 
 # Tables whose rows belong to an account (owner_id). Rows created before accounts existed
 # (owner_id NULL) are claimed by the first account (single-tenant → multi-user migration).
-OWNED_MODELS: tuple[type[Any], ...] = (Concept, Document, Question, PracticeSession, AIGeneration)
+OWNED_MODELS: tuple[type[Any], ...] = (
+    Concept,
+    Document,
+    Question,
+    PracticeSession,
+    AIGeneration,
+    Suggestion,
+)
 
 # Serialises "first account" claims (arbitrary constant for pg_advisory_xact_lock).
 _CLAIM_LOCK = 724_310_010

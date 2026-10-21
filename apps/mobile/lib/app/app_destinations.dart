@@ -91,4 +91,10 @@ List<AppDestination> featureShortcuts(AppLocalizations l10n) => [
     label: l10n.examsTitle,
     route: AppRoutes.myExams,
   ),
+  AppDestination(
+    icon: Icons.lightbulb_outline,
+    selectedIcon: Icons.lightbulb,
+    label: l10n.suggestionsTitle,
+    route: AppRoutes.suggestions,
+  ),
 ];

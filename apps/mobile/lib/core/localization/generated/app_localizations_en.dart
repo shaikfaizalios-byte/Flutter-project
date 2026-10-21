@@ -2594,4 +2594,150 @@ class AppLocalizationsEn extends AppLocalizations {
   String examSwitcherShowing(String exam) {
     return 'Showing $exam';
   }
+
+  @override
+  String get suggestionsTitle => 'Suggest a feature';
+
+  @override
+  String get suggestionsIntro =>
+      'Tell us what would make PrepLoop more useful, or what you\'d rather remove. The PrepLoop team reads every suggestion.';
+
+  @override
+  String get suggestionsCardMessage => 'Missing something, or is a feature in your way? Tell us.';
+
+  @override
+  String get suggestionsOpen => 'Write a suggestion';
+
+  @override
+  String get suggestionKindAdd => 'Add';
+
+  @override
+  String get suggestionKindRemove => 'Remove';
+
+  @override
+  String get suggestionKindChange => 'Change';
+
+  @override
+  String get suggestionKindOther => 'Other';
+
+  @override
+  String get suggestionField => 'Your suggestion';
+
+  @override
+  String get suggestionHintAdd => 'Which feature should PrepLoop add, and how would it help you?';
+
+  @override
+  String get suggestionHintRemove => 'Which feature should be removed, and why?';
+
+  @override
+  String get suggestionHintChange => 'What should work differently?';
+
+  @override
+  String get suggestionHintOther => 'Anything else you\'d like to tell us';
+
+  @override
+  String suggestionTooShort(int count) {
+    return 'Write at least $count characters.';
+  }
+
+  @override
+  String get suggestionSend => 'Send suggestion';
+
+  @override
+  String get suggestionPrivacy =>
+      'Your suggestion is stored with your account so you can see its status here.';
+
+  @override
+  String get suggestionSent => 'Thanks! Your suggestion was sent.';
+
+  @override
+  String get suggestionTooMany => 'You\'ve sent many suggestions today. Please try again tomorrow.';
+
+  @override
+  String get suggestionOffline =>
+      'Can\'t reach the PrepLoop server. Try again when you\'re online.';
+
+  @override
+  String get suggestionFailed => 'The suggestion couldn\'t be sent. Please try again.';
+
+  @override
+  String get suggestionsMine => 'Your suggestions';
+
+  @override
+  String get suggestionsNone => 'You haven\'t sent any suggestions yet.';
+
+  @override
+  String get suggestionStatusNew => 'Sent';
+
+  @override
+  String get suggestionStatusRead => 'Read by the team';
+
+  @override
+  String get suggestionStatusPlanned => 'Planned';
+
+  @override
+  String get suggestionStatusDone => 'Done';
+
+  @override
+  String get suggestionStatusDeclined => 'Not planned';
+
+  @override
+  String get syllabusTitle => 'Syllabus';
+
+  @override
+  String get syllabusMessage =>
+      'Import the syllabus PDF again to add topics it lists that are missing here.';
+
+  @override
+  String get syllabusMissingTitle => 'Add your syllabus';
+
+  @override
+  String get syllabusMissingMessage =>
+      'Import the exam\'s syllabus PDF: its subjects and topics are added here, each with a box to tick once you\'ve revised it.';
+
+  @override
+  String get syllabusImport => 'Import syllabus PDF';
+
+  @override
+  String get syllabusNothingFound =>
+      'No topics could be read from this PDF. Add them by hand, or try a clearer copy.';
+
+  @override
+  String syllabusDraftLabel(int count, int pages) {
+    return '$count topics read from the syllabus ($pages pages). Untick anything that isn\'t a topic.';
+  }
+
+  @override
+  String syllabusUnreadable(int count) {
+    return '$count pages were hard to read, so some topics may be missing.';
+  }
+
+  @override
+  String get syllabusTruncated =>
+      'The syllabus lists more topics than one import holds; import the rest separately.';
+
+  @override
+  String syllabusPromptTitle(String exam) {
+    return 'Add the $exam syllabus first?';
+  }
+
+  @override
+  String get syllabusPromptMessage =>
+      'With the syllabus imported, PrepLoop lists every topic of the exam, sorts your questions into them and lets you tick each topic once revised. You can also add it later in Exams and topics.';
+
+  @override
+  String get syllabusPromptSkip => 'Skip for now';
+
+  @override
+  String topicsRevisedCount(int done, int total) {
+    return '$done of $total topics revised';
+  }
+
+  @override
+  String get topicRevised => 'Revised';
+
+  @override
+  String topicRevisedCheckbox(String topic) {
+    return '$topic revised';
+  }
 }

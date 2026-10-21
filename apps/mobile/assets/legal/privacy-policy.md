@@ -18,6 +18,12 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
 - Question papers you import (the PDF files), the text read from them and the questions found in them.
   These are processed on our server for your account only.
 - Your practice and mock-test answers, scores and bookmarks.
+- The topics you mark as revised, and topics you add (typed, or read from a syllabus PDF you
+  import; the syllabus PDF itself is read and deleted at once, not kept).
+
+**Suggestions** (only when you send one)
+- The text and type of each suggestion, stored with your account so you can see its status. The
+  PrepLoop team reads suggestions to decide what to build; they are not shared outside the team.
 
 **Optional AI assistance** (only when you use it, and only if it is switched on)
 - When you ask for an AI explanation or AI practice questions, the question text (or the concept
