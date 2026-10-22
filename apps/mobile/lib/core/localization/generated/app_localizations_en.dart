@@ -2849,4 +2849,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paperQuestionsOffline =>
       'Questions can\'t be searched without a connection to the PrepLoop server.';
+
+  @override
+  String get webSearchGoogle => 'Search on Google';
+
+  @override
+  String get webSearchLearnMore => 'Learn more on Google';
+
+  @override
+  String get webSearchOpenFailed => 'Couldn\'t open the browser.';
 }

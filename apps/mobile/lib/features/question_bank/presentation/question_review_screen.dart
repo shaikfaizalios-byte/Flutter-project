@@ -8,6 +8,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../../core/widgets/web_search_button.dart';
 import '../../ai/presentation/ai_widgets.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../application/question_bank_providers.dart';
@@ -67,6 +68,7 @@ class _SharedQuestionView extends StatelessWidget {
         title: Text(
           q.sourceNumber == null ? l10n.questionTitle : l10n.questionNumberLabel(q.sourceNumber!),
         ),
+        actions: [WebSearchAction(query: q.stem)],
       ),
       body: Align(
         alignment: Alignment.topCenter,
@@ -482,7 +484,10 @@ class _EditorState extends ConsumerState<_Editor> {
         title: Text(
           q.sourceNumber == null ? l10n.questionTitle : l10n.questionNumberLabel(q.sourceNumber!),
         ),
-        actions: [TextButton(onPressed: _busy ? null : () => _submit(), child: Text(l10n.save))],
+        actions: [
+          WebSearchAction(query: q.stem),
+          TextButton(onPressed: _busy ? null : () => _submit(), child: Text(l10n.save)),
+        ],
       ),
       body: wide && source != null
           ? Row(

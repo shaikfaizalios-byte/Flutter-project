@@ -1932,5 +1932,8 @@
   "@paperQuestionsNone": {"placeholders": {"text": {"type": "String"}}},
   "paperQuestionsSeeAll": "See all {count}",
   "@paperQuestionsSeeAll": {"placeholders": {"count": {"type": "int"}}},
-  "paperQuestionsOffline": "Questions can't be searched without a connection to the PrepLoop server."
+  "paperQuestionsOffline": "Questions can't be searched without a connection to the PrepLoop server.",
+  "webSearchGoogle": "Search on Google",
+  "webSearchLearnMore": "Learn more on Google",
+  "webSearchOpenFailed": "Couldn't open the browser."
 }

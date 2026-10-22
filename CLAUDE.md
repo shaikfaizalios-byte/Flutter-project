@@ -68,7 +68,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   stem) must appear somewhere in the stem, an option, the passage, the topic or the pattern name. Mobile
   `PaperQuestionsCard` (`features/question_bank/presentation/paper_questions_card.dart`) shows the current
   exam's matching paper questions under the Study search (≥ 2 chars, 350 ms debounce) and on each concept
-  page (searched by its title); "See all" opens the question bank with that text.
+  page (searched by its title); "See all" opens the question bank with that text. "Search on Google" (no
+  match) / "Learn more on Google" (matches; question screen app bar, searched by the stem) open
+  `googleSearchUri` in the browser via `linkOpenerProvider` (`core/utils/external_links.dart`,
+  url_launcher; overridden in tests). Only on tap; the privacy policy says the text goes to Google.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
   chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
   "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.

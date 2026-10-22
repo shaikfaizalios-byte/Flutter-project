@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:preploop/core/utils/external_links.dart';
 import 'package:preploop/core/widgets/search_field.dart';
 
 import '../../helpers/pump_app.dart';
@@ -76,5 +77,70 @@ void main() {
 
     await scrollTo(tester, find.textContaining('optional binding'));
     expect(find.textContaining('optional binding'), findsOneWidget);
+  });
+
+  testAppWidgets('Google is offered when nothing matches and to learn more about matches', (
+    tester,
+    db,
+  ) async {
+    final opened = <Uri>[];
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      questions: paperQuestions,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+      extraOverrides: [
+        linkOpenerProvider.overrideWithValue((uri) async {
+          opened.add(uri);
+          return true;
+        }),
+      ],
+    );
+    await openStudy(tester);
+
+    await tester.enterText(find.byType(AppSearchField), 'kotlin coroutines');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Search on Google'));
+    await tester.pumpAndSettle();
+    expect(opened.single.toString(), 'https://www.google.com/search?q=kotlin+coroutines');
+
+    await tester.enterText(find.byType(AppSearchField), 'swift');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Learn more on Google'));
+    await tester.pumpAndSettle();
+    expect(opened.last.queryParameters['q'], 'swift');
+
+    // A question itself can be looked up too.
+    await tester.tap(find.textContaining('optional binding'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Learn more on Google'));
+    await tester.pumpAndSettle();
+    expect(opened.last.queryParameters['q'], 'What does the Swift optional binding do?');
+  });
+
+  testAppWidgets('a link that cannot open says so', (tester, db) async {
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      questions: paperQuestions,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+      extraOverrides: [linkOpenerProvider.overrideWithValue((uri) async => false)],
+    );
+    await openStudy(tester);
+    await tester.enterText(find.byType(AppSearchField), 'kotlin');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Search on Google'));
+    await tester.pumpAndSettle();
+    expect(find.text("Couldn't open the browser."), findsOneWidget);
+  });
+
+  test('the Google address collapses whitespace and caps the length', () {
+    expect(googleSearchUri('  swift \n  optionals ').queryParameters['q'], 'swift optionals');
+    final long = googleSearchUri('a' * 500).queryParameters['q']!;
+    expect(long.length, webSearchMaxLength);
+    expect(googleSearchUri('C++ & Swift?').host, 'www.google.com');
   });
 }

@@ -2854,4 +2854,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get paperQuestionsOffline => 'PrepLoop सर्वर से जुड़े बिना प्रश्न नहीं खोजे जा सकते।';
+
+  @override
+  String get webSearchGoogle => 'Google पर खोजें';
+
+  @override
+  String get webSearchLearnMore => 'Google पर और जानें';
+
+  @override
+  String get webSearchOpenFailed => 'ब्राउज़र नहीं खुल सका।';
 }

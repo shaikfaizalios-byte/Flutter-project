@@ -75,6 +75,9 @@ papers, answers, notes or progress) is added to it or shown to other learners.
 - Fonts and the web app's engine are served from our own servers. Nothing is loaded from Google
   Fonts or other third-party content servers, so opening PrepLoop does not send your IP address to
   them.
+- "Search on Google" / "Learn more on Google" open a Google search in your browser only when you
+  tap them. The search text (what you typed, or the question's wording) then goes to Google under
+  Google's own privacy policy; PrepLoop sends Google nothing else.
 - Emails are sent only when your account needs one (sign-in, verification and password-reset
   codes). We send no marketing emails.
 

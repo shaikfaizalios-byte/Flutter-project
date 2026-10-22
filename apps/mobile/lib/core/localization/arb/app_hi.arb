@@ -761,5 +761,8 @@
   "paperQuestionsCount": "{count} प्रश्न मिलते हैं",
   "paperQuestionsNone": "आपके आयात किए प्रश्न-पत्रों में \"{text}\" से कोई प्रश्न नहीं मिला।",
   "paperQuestionsSeeAll": "सभी {count} देखें",
-  "paperQuestionsOffline": "PrepLoop सर्वर से जुड़े बिना प्रश्न नहीं खोजे जा सकते।"
+  "paperQuestionsOffline": "PrepLoop सर्वर से जुड़े बिना प्रश्न नहीं खोजे जा सकते।",
+  "webSearchGoogle": "Google पर खोजें",
+  "webSearchLearnMore": "Google पर और जानें",
+  "webSearchOpenFailed": "ब्राउज़र नहीं खुल सका।"
 }

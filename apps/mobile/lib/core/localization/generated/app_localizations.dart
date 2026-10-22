@@ -4664,6 +4664,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Questions can\'t be searched without a connection to the PrepLoop server.'**
   String get paperQuestionsOffline;
+
+  /// No description provided for @webSearchGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search on Google'**
+  String get webSearchGoogle;
+
+  /// No description provided for @webSearchLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more on Google'**
+  String get webSearchLearnMore;
+
+  /// No description provided for @webSearchOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the browser.'**
+  String get webSearchOpenFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

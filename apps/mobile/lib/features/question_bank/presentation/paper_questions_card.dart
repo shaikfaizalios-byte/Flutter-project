@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/widgets/web_search_button.dart';
 import '../../exams/application/active_exam.dart';
 import '../../exams/application/exam_catalog_controller.dart';
 import '../application/question_bank_providers.dart';
@@ -73,25 +74,35 @@ class PaperQuestionsCard extends ConsumerWidget {
               ],
             ),
             switch (result) {
-              AsyncData(value: (_, 0)) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                child: Text(l10n.paperQuestionsNone(query), style: theme.textTheme.bodySmall),
+              AsyncData(value: (_, 0)) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Text(l10n.paperQuestionsNone(query), style: theme.textTheme.bodySmall),
+                  ),
+                  WebSearchButton(query: query, label: l10n.webSearchGoogle),
+                ],
               ),
               AsyncData(value: (final items, final total)) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(l10n.paperQuestionsCount(total), style: theme.textTheme.bodySmall),
                   for (final q in items.take(paperSearchPreview)) QuestionTile(question: q),
-                  Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: TextButton.icon(
-                      icon: const Icon(Icons.arrow_forward),
-                      label: Text(l10n.paperQuestionsSeeAll(total)),
-                      onPressed: () {
-                        ref.read(bankQueryProvider.notifier).setText(query);
-                        context.push(AppRoutes.questionBank);
-                      },
-                    ),
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    children: [
+                      // For more understanding than the papers give.
+                      WebSearchButton(query: query, label: l10n.webSearchLearnMore),
+                      TextButton.icon(
+                        icon: const Icon(Icons.arrow_forward),
+                        label: Text(l10n.paperQuestionsSeeAll(total)),
+                        onPressed: () {
+                          ref.read(bankQueryProvider.notifier).setText(query);
+                          context.push(AppRoutes.questionBank);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
