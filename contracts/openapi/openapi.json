@@ -2560,6 +2560,18 @@
           "subject": {
             "title": "Subject",
             "type": "string"
+          },
+          "syllabus_import_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Syllabus Import Id"
           }
         },
         "required": [
@@ -5220,7 +5232,8 @@
               "text",
               "ocr",
               "mixed",
-              "none"
+              "none",
+              "typed"
             ],
             "title": "Read By",
             "type": "string"
@@ -5257,6 +5270,71 @@
         "title": "SyllabusDraftRead",
         "type": "object"
       },
+      "SyllabusImportRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "pdf",
+              "typed"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topic_count": {
+            "title": "Topic Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "created_at",
+          "topic_count"
+        ],
+        "title": "SyllabusImportRead",
+        "type": "object"
+      },
+      "SyllabusSource": {
+        "additionalProperties": false,
+        "description": "Where a saved draft came from: its topics form one section that can be removed.",
+        "properties": {
+          "kind": {
+            "enum": [
+              "pdf",
+              "typed"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "kind"
+        ],
+        "title": "SyllabusSource",
+        "type": "object"
+      },
       "SyllabusSubjectRead": {
         "properties": {
           "name": {
@@ -5276,6 +5354,22 @@
           "topics"
         ],
         "title": "SyllabusSubjectRead",
+        "type": "object"
+      },
+      "SyllabusText": {
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "maxLength": 20000,
+            "minLength": 2,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "SyllabusText",
         "type": "object"
       },
       "TokenPair": {
@@ -5666,6 +5760,16 @@
             "title": "Exam Code",
             "type": "string"
           },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SyllabusSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "topics": {
             "items": {
               "$ref": "#/components/schemas/TopicCreate"
@@ -5681,6 +5785,39 @@
           "topics"
         ],
         "title": "TopicsBulkCreate",
+        "type": "object"
+      },
+      "TopicsBulkDelete": {
+        "additionalProperties": false,
+        "properties": {
+          "topic_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 300,
+            "minItems": 1,
+            "title": "Topic Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "topic_ids"
+        ],
+        "title": "TopicsBulkDelete",
+        "type": "object"
+      },
+      "TopicsDeleted": {
+        "properties": {
+          "deleted": {
+            "title": "Deleted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "deleted"
+        ],
+        "title": "TopicsDeleted",
         "type": "object"
       },
       "UserRead": {
@@ -8790,6 +8927,134 @@
         ]
       }
     },
+    "/api/v1/exams/{code}/syllabus-imports": {
+      "get": {
+        "operationId": "syllabus_imports_api_v1_exams__code__syllabus_imports_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SyllabusImportRead"
+                  },
+                  "title": "Response Syllabus Imports Api V1 Exams  Code  Syllabus Imports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your syllabus imports for an exam (each groups the topics it added)",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/exams/{code}/syllabus/text": {
+      "post": {
+        "operationId": "read_syllabus_text_api_v1_exams__code__syllabus_text_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyllabusText"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyllabusDraftRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read subjects and topics from a typed or pasted syllabus (nothing is saved)",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/api/v1/exams/{code}/topics": {
       "get": {
         "operationId": "exam_topics_api_v1_exams__code__topics_get",
@@ -11132,6 +11397,74 @@
         ]
       }
     },
+    "/api/v1/syllabus-imports/{import_id}": {
+      "delete": {
+        "operationId": "delete_syllabus_import_api_v1_syllabus_imports__import_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "import_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Import Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicsDeleted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Remove a syllabus import and all its topics",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/api/v1/sync/pull": {
       "get": {
         "operationId": "pull_api_v1_sync_pull_get",
@@ -11466,6 +11799,62 @@
           }
         ],
         "summary": "Save several topics at once (e.g. an accepted draft); duplicates are skipped",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/topics/bulk-delete": {
+      "post": {
+        "operationId": "delete_topics_api_v1_topics_bulk_delete_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicsBulkDelete"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicsDeleted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Remove several of your own topics (their questions go back to no topic)",
         "tags": [
           "exams"
         ]

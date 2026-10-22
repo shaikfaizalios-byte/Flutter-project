@@ -14,6 +14,7 @@ import '../../revision/presentation/revision_widgets.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 import '../../../core/widgets/adaptive_action.dart';
+import '../../question_bank/presentation/paper_questions_card.dart';
 
 class ConceptDetailScreen extends ConsumerWidget {
   const ConceptDetailScreen({super.key, required this.conceptId});
@@ -206,6 +207,9 @@ class _ConceptDetails extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xs),
                 SelectableText(concept.notes, style: theme.textTheme.bodyLarge),
               ],
+              const SizedBox(height: AppSpacing.lg),
+              // Questions about this concept in the imported papers.
+              PaperQuestionsCard(text: concept.title),
               const SizedBox(height: AppSpacing.lg),
               Text(
                 '${l10n.conceptCreatedOn(date(concept.createdAt))}\n'

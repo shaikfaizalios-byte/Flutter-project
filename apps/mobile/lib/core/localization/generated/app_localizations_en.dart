@@ -2740,4 +2740,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String topicRevisedCheckbox(String topic) {
     return '$topic revised';
   }
+
+  @override
+  String get syllabusType => 'Type or paste syllabus';
+
+  @override
+  String get syllabusTypeHelp =>
+      'No PDF? Write the syllabus here: subjects as headings, topics one per line or separated by commas. PrepLoop picks out the topics for you to check.';
+
+  @override
+  String get syllabusTypeField => 'Syllabus';
+
+  @override
+  String get syllabusTypeExample =>
+      'Quantitative Aptitude:\nPercentage, Ratio, Time and Work\nReasoning:\n- Analogy\n- Coding-Decoding';
+
+  @override
+  String get syllabusTypeRead => 'Find topics';
+
+  @override
+  String get syllabusTypedNothingFound =>
+      'No topics found. Put each topic on its own line, or write \"Subject: topic, topic\".';
+
+  @override
+  String syllabusTypedDraftLabel(int count) {
+    return '$count topics found in what you wrote. Untick anything that isn\'t a topic.';
+  }
+
+  @override
+  String get topicsSelect => 'Select';
+
+  @override
+  String get topicsSelectAll => 'All';
+
+  @override
+  String topicsSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String topicSelectCheckbox(String topic) {
+    return 'Select $topic';
+  }
+
+  @override
+  String topicsRemoveSelected(int count) {
+    return 'Remove $count';
+  }
+
+  @override
+  String topicsRemoveTitle(int count) {
+    return 'Remove $count topics?';
+  }
+
+  @override
+  String get topicsRemoveBody =>
+      'Questions in these topics stay in your bank, without a topic. Revision ticks for them are removed.';
+
+  @override
+  String topicsRemoved(int count) {
+    return '$count topics removed.';
+  }
+
+  @override
+  String get syllabusTypedName => 'Typed syllabus';
+
+  @override
+  String syllabusSectionInfo(int count, String date) {
+    return '$count topics · imported $date';
+  }
+
+  @override
+  String get syllabusRemove => 'Remove this syllabus and its topics';
+
+  @override
+  String syllabusRemoveTitle(String name) {
+    return 'Remove \"$name\"?';
+  }
+
+  @override
+  String syllabusRemoveBody(int count) {
+    return 'Its $count topics are removed too. Questions in them stay in your bank, without a topic.';
+  }
+
+  @override
+  String get paperQuestionsTitle => 'Questions from your papers';
+
+  @override
+  String paperQuestionsTitleExam(String exam) {
+    return 'Questions from your $exam papers';
+  }
+
+  @override
+  String paperQuestionsCount(int count) {
+    return '$count questions match';
+  }
+
+  @override
+  String paperQuestionsNone(String text) {
+    return 'No questions in your imported papers match \"$text\".';
+  }
+
+  @override
+  String paperQuestionsSeeAll(int count) {
+    return 'See all $count';
+  }
+
+  @override
+  String get paperQuestionsOffline =>
+      'Questions can\'t be searched without a connection to the PrepLoop server.';
 }

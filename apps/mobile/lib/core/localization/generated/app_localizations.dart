@@ -4508,6 +4508,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{topic} revised'**
   String topicRevisedCheckbox(String topic);
+
+  /// No description provided for @syllabusType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or paste syllabus'**
+  String get syllabusType;
+
+  /// No description provided for @syllabusTypeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'No PDF? Write the syllabus here: subjects as headings, topics one per line or separated by commas. PrepLoop picks out the topics for you to check.'**
+  String get syllabusTypeHelp;
+
+  /// No description provided for @syllabusTypeField.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllabus'**
+  String get syllabusTypeField;
+
+  /// No description provided for @syllabusTypeExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantitative Aptitude:\nPercentage, Ratio, Time and Work\nReasoning:\n- Analogy\n- Coding-Decoding'**
+  String get syllabusTypeExample;
+
+  /// No description provided for @syllabusTypeRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Find topics'**
+  String get syllabusTypeRead;
+
+  /// No description provided for @syllabusTypedNothingFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No topics found. Put each topic on its own line, or write \"Subject: topic, topic\".'**
+  String get syllabusTypedNothingFound;
+
+  /// No description provided for @syllabusTypedDraftLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} topics found in what you wrote. Untick anything that isn\'t a topic.'**
+  String syllabusTypedDraftLabel(int count);
+
+  /// No description provided for @topicsSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get topicsSelect;
+
+  /// No description provided for @topicsSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get topicsSelectAll;
+
+  /// No description provided for @topicsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String topicsSelected(int count);
+
+  /// No description provided for @topicSelectCheckbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {topic}'**
+  String topicSelectCheckbox(String topic);
+
+  /// No description provided for @topicsRemoveSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {count}'**
+  String topicsRemoveSelected(int count);
+
+  /// No description provided for @topicsRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {count} topics?'**
+  String topicsRemoveTitle(int count);
+
+  /// No description provided for @topicsRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions in these topics stay in your bank, without a topic. Revision ticks for them are removed.'**
+  String get topicsRemoveBody;
+
+  /// No description provided for @topicsRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} topics removed.'**
+  String topicsRemoved(int count);
+
+  /// No description provided for @syllabusTypedName.
+  ///
+  /// In en, this message translates to:
+  /// **'Typed syllabus'**
+  String get syllabusTypedName;
+
+  /// No description provided for @syllabusSectionInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} topics · imported {date}'**
+  String syllabusSectionInfo(int count, String date);
+
+  /// No description provided for @syllabusRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this syllabus and its topics'**
+  String get syllabusRemove;
+
+  /// No description provided for @syllabusRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\"?'**
+  String syllabusRemoveTitle(String name);
+
+  /// No description provided for @syllabusRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its {count} topics are removed too. Questions in them stay in your bank, without a topic.'**
+  String syllabusRemoveBody(int count);
+
+  /// No description provided for @paperQuestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions from your papers'**
+  String get paperQuestionsTitle;
+
+  /// No description provided for @paperQuestionsTitleExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions from your {exam} papers'**
+  String paperQuestionsTitleExam(String exam);
+
+  /// No description provided for @paperQuestionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions match'**
+  String paperQuestionsCount(int count);
+
+  /// No description provided for @paperQuestionsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions in your imported papers match \"{text}\".'**
+  String paperQuestionsNone(String text);
+
+  /// No description provided for @paperQuestionsSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all {count}'**
+  String paperQuestionsSeeAll(int count);
+
+  /// No description provided for @paperQuestionsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions can\'t be searched without a connection to the PrepLoop server.'**
+  String get paperQuestionsOffline;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

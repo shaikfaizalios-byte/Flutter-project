@@ -58,6 +58,17 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   /topics/{id}/completion`; `OwnTopicRead.completed`. Mobile: topics screen syllabus card (highlighted while
   the learner has no own topics), "x of y revised" + a checkbox per topic; Imported papers asks "Add the
   syllabus first?" before the first paper of an exam (skip remembered per exam: `syllabus_skipped:<code>`).
+  No PDF: `POST /exams/{code}/syllabus/text` (typed/pasted, ≤ 20 000 chars, same parser, `read_by="typed"`).
+  Each saved syllabus is a `syllabus_imports` row (migration 0021; name = PDF file name or "Typed syllabus",
+  kind pdf|typed; `/topics/bulk` with `source`; `topics.syllabus_import_id`): the topics screen shows one
+  section per import; `GET /exams/{code}/syllabus-imports`, `DELETE /syllabus-imports/{id}` removes it and its
+  topics. Removing single topics: `POST /topics/bulk-delete` (own only; questions go back to no topic) and the
+  "Select" mode.
+- Question search (`question_service._text_conditions`): every word (stop words dropped, simple plural
+  stem) must appear somewhere in the stem, an option, the passage, the topic or the pattern name. Mobile
+  `PaperQuestionsCard` (`features/question_bank/presentation/paper_questions_card.dart`) shows the current
+  exam's matching paper questions under the Study search (≥ 2 chars, 350 ms debounce) and on each concept
+  page (searched by its title); "See all" opens the question bank with that text.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
   chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
   "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.

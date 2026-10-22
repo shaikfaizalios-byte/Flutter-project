@@ -2746,4 +2746,112 @@ class AppLocalizationsHi extends AppLocalizations {
   String topicRevisedCheckbox(String topic) {
     return '$topic दोहराया गया';
   }
+
+  @override
+  String get syllabusType => 'पाठ्यक्रम टाइप या पेस्ट करें';
+
+  @override
+  String get syllabusTypeHelp =>
+      'PDF नहीं है? पाठ्यक्रम यहाँ लिखें: विषय शीर्षक के रूप में, टॉपिक हर पंक्ति में एक या कॉमा से अलग। PrepLoop टॉपिक अलग करके आपको जाँचने के लिए दिखाता है।';
+
+  @override
+  String get syllabusTypeField => 'पाठ्यक्रम';
+
+  @override
+  String get syllabusTypeExample =>
+      'मात्रात्मक योग्यता:\nप्रतिशत, अनुपात, समय और कार्य\nतर्कशक्ति:\n- सादृश्यता\n- कोडिंग-डिकोडिंग';
+
+  @override
+  String get syllabusTypeRead => 'टॉपिक खोजें';
+
+  @override
+  String get syllabusTypedNothingFound =>
+      'कोई टॉपिक नहीं मिला। हर टॉपिक अलग पंक्ति में लिखें, या \"विषय: टॉपिक, टॉपिक\" लिखें।';
+
+  @override
+  String syllabusTypedDraftLabel(int count) {
+    return 'आपके लिखे में $count टॉपिक मिले। जो टॉपिक नहीं है, उसका टिक हटाएँ।';
+  }
+
+  @override
+  String get topicsSelect => 'चुनें';
+
+  @override
+  String get topicsSelectAll => 'सभी';
+
+  @override
+  String topicsSelected(int count) {
+    return '$count चुने गए';
+  }
+
+  @override
+  String topicSelectCheckbox(String topic) {
+    return '$topic चुनें';
+  }
+
+  @override
+  String topicsRemoveSelected(int count) {
+    return '$count हटाएँ';
+  }
+
+  @override
+  String topicsRemoveTitle(int count) {
+    return '$count टॉपिक हटाएँ?';
+  }
+
+  @override
+  String get topicsRemoveBody =>
+      'इन टॉपिक के प्रश्न आपके बैंक में बिना टॉपिक के रहेंगे। इनके दोहराने के टिक हट जाएँगे।';
+
+  @override
+  String topicsRemoved(int count) {
+    return '$count टॉपिक हटाए गए।';
+  }
+
+  @override
+  String get syllabusTypedName => 'टाइप किया पाठ्यक्रम';
+
+  @override
+  String syllabusSectionInfo(int count, String date) {
+    return '$count टॉपिक · $date को आयात';
+  }
+
+  @override
+  String get syllabusRemove => 'यह पाठ्यक्रम और इसके टॉपिक हटाएँ';
+
+  @override
+  String syllabusRemoveTitle(String name) {
+    return '\"$name\" हटाएँ?';
+  }
+
+  @override
+  String syllabusRemoveBody(int count) {
+    return 'इसके $count टॉपिक भी हट जाएँगे। उनके प्रश्न आपके बैंक में बिना टॉपिक के रहेंगे।';
+  }
+
+  @override
+  String get paperQuestionsTitle => 'आपके प्रश्न-पत्रों से प्रश्न';
+
+  @override
+  String paperQuestionsTitleExam(String exam) {
+    return 'आपके $exam प्रश्न-पत्रों से प्रश्न';
+  }
+
+  @override
+  String paperQuestionsCount(int count) {
+    return '$count प्रश्न मिलते हैं';
+  }
+
+  @override
+  String paperQuestionsNone(String text) {
+    return 'आपके आयात किए प्रश्न-पत्रों में \"$text\" से कोई प्रश्न नहीं मिला।';
+  }
+
+  @override
+  String paperQuestionsSeeAll(int count) {
+    return 'सभी $count देखें';
+  }
+
+  @override
+  String get paperQuestionsOffline => 'PrepLoop सर्वर से जुड़े बिना प्रश्न नहीं खोजे जा सकते।';
 }

@@ -4,8 +4,9 @@ import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Any
 
-from sqlalchemy import Select, and_, exists, func, select
+from sqlalchemy import Select, and_, exists, func, or_, select
 from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
@@ -16,6 +17,7 @@ from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
 from app.models.question import (
     ExamFormat,
+    Passage,
     Question,
     QuestionFigure,
     QuestionIssue,
@@ -90,6 +92,47 @@ def _clean(question: Question) -> bool:
         return bool(question.typed_answer)
     position = question.correct_option_position
     return position is not None and len(question.options) >= 2 and position <= len(question.options)
+
+
+_STOP_WORDS = frozenset(
+    {"a", "an", "and", "the", "in", "of", "on", "to", "for", "with", "is", "or"}
+)
+
+
+def _text_conditions(query: str) -> list[Any]:
+    """Every word of the search appears in the question: its stem, an option, its passage, or
+    its topic / question-type name ("swift closures" finds a closures question in Swift)."""
+    words = [w for w in query.casefold().split() if w not in _STOP_WORDS] or query.split()
+    conditions: list[Any] = []
+    for word in words[:8]:
+        # A simple plural: "closures" also finds "closure" (the singular is inside both).
+        if len(word) > 4 and word.endswith("s") and not word.endswith("ss"):
+            word = word[:-1]
+        like = f"%{_escape_like(word)}%"
+        conditions.append(
+            or_(
+                Question.stem.ilike(like, escape="\\"),
+                select(QuestionOption.position)
+                .where(
+                    QuestionOption.question_id == Question.id,
+                    QuestionOption.text.ilike(like, escape="\\"),
+                )
+                .exists(),
+                select(Passage.id)
+                .where(Passage.id == Question.passage_id, Passage.text.ilike(like, escape="\\"))
+                .exists(),
+                select(Topic.id)
+                .where(Topic.id == Question.topic_id, Topic.name.ilike(like, escape="\\"))
+                .exists(),
+                select(QuestionPattern.id)
+                .where(
+                    QuestionPattern.id == Question.pattern_id,
+                    QuestionPattern.name.ilike(like, escape="\\"),
+                )
+                .exists(),
+            )
+        )
+    return conditions
 
 
 def _escape_like(value: str) -> str:
@@ -551,7 +594,7 @@ class QuestionService:
         if f.has_issues is not None:
             stmt = stmt.where(_OPEN_ISSUE if f.has_issues else ~_OPEN_ISSUE)
         if f.query:
-            stmt = stmt.where(Question.stem.ilike(f"%{_escape_like(f.query)}%", escape="\\"))
+            stmt = stmt.where(*_text_conditions(f.query))
         return stmt
 
     def _reads(self, questions: Sequence[Question]) -> list[QuestionRead]:

@@ -154,6 +154,11 @@ def test_filters_and_search(db_client: TestClient, paper: uuid.UUID) -> None:
     assert 2 not in with_issues
     assert questions(db_client, status="verified") == []
     assert questions(db_client, q="%") == []  # LIKE wildcards are literal
+    # Every word must match somewhere: here the topic name and the passage, which aren't in
+    # the question's own text; small words are ignored and plurals match the singular.
+    found = {q["source_question_number"] for q in questions(db_client, q="the Percentage pens")}
+    assert 3 in found and 1 not in found
+    assert questions(db_client, q="percentage zebra") == []
 
 
 def test_fixing_and_verifying_a_question(db_client: TestClient, paper: uuid.UUID) -> None:

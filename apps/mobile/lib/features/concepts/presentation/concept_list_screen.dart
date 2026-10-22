@@ -15,6 +15,7 @@ import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 import '../domain/concepts_repository.dart';
 import '../../../core/widgets/adaptive_action.dart';
+import '../../question_bank/presentation/paper_questions_card.dart';
 
 /// Study tab: the learner's concepts with search and filters.
 class ConceptListScreen extends ConsumerWidget {
@@ -67,6 +68,17 @@ class ConceptListScreen extends ConsumerWidget {
                 ),
               ),
               const _FilterBar(),
+              // Typing also searches the questions of the imported papers.
+              if (text.length >= paperSearchMinLength)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    0,
+                    AppSpacing.md,
+                    AppSpacing.xs,
+                  ),
+                  child: PaperQuestionsCard(text: text),
+                ),
               Expanded(
                 child: switch (concepts) {
                   AsyncData(:final value) when value.isEmpty => EmptyState(
