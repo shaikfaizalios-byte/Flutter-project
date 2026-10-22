@@ -4730,6 +4730,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The AI isn\'t sure about this answer.'**
   String get quickAnswerUnsure;
+
+  /// No description provided for @plusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PrepLoop Plus'**
+  String get plusTitle;
+
+  /// No description provided for @plusCardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'AI help on top of free studying: quick answers, explanations and practice questions.'**
+  String get plusCardMessage;
+
+  /// No description provided for @plusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'See PrepLoop Plus'**
+  String get plusOpen;
+
+  /// No description provided for @plusStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get plusStatusTitle;
+
+  /// No description provided for @plusActiveUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus is active until {date}'**
+  String plusActiveUntil(String date);
+
+  /// No description provided for @plusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan'**
+  String get plusInactive;
+
+  /// No description provided for @plusTestLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Test subscription: nothing was paid.'**
+  String get plusTestLabel;
+
+  /// No description provided for @plusOperatorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Given to you by the PrepLoop team.'**
+  String get plusOperatorLabel;
+
+  /// No description provided for @plusStartTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a {days}-day test'**
+  String plusStartTest(int days);
+
+  /// No description provided for @plusTestExplained.
+  ///
+  /// In en, this message translates to:
+  /// **'This server is for testing, so you can try Plus for free. Nothing is charged.'**
+  String get plusTestExplained;
+
+  /// No description provided for @plusEndTest.
+  ///
+  /// In en, this message translates to:
+  /// **'End test subscription'**
+  String get plusEndTest;
+
+  /// No description provided for @plusNotForSaleYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus can\'t be bought yet. It will be offered here soon.'**
+  String get plusNotForSaleYet;
+
+  /// No description provided for @plusIncludesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What Plus includes'**
+  String get plusIncludesTitle;
+
+  /// No description provided for @plusFeatureQuickAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick AI answers when nothing in your papers matches a search'**
+  String get plusFeatureQuickAnswers;
+
+  /// No description provided for @plusFeatureExplanations.
+  ///
+  /// In en, this message translates to:
+  /// **'AI explanations for questions from your papers'**
+  String get plusFeatureExplanations;
+
+  /// No description provided for @plusFeatureQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'AI practice questions on a question or a concept'**
+  String get plusFeatureQuestions;
+
+  /// No description provided for @plusFeaturePaperTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'AI topic suggestions for a whole paper'**
+  String get plusFeaturePaperTopics;
+
+  /// No description provided for @plusFeatureTopicDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'AI topic list for an exam from your papers'**
+  String get plusFeatureTopicDraft;
+
+  /// No description provided for @plusAllowance.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} AI requests a month.'**
+  String plusAllowance(int count);
+
+  /// No description provided for @plusAiLabelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything AI writes is labelled as AI and can be wrong.'**
+  String get plusAiLabelled;
+
+  /// No description provided for @plusAiOffOnServer.
+  ///
+  /// In en, this message translates to:
+  /// **'AI isn\'t switched on on this server yet.'**
+  String get plusAiOffOnServer;
+
+  /// No description provided for @plusUsageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI use this month'**
+  String get plusUsageTitle;
+
+  /// No description provided for @plusUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {allowance} AI requests used'**
+  String plusUsage(int used, int allowance);
+
+  /// No description provided for @plusResets.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts again on {date}'**
+  String plusResets(String date);
+
+  /// No description provided for @plusFreeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free for everyone'**
+  String get plusFreeTitle;
+
+  /// No description provided for @plusFreeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing papers, the question bank, practice, mock tests, revision, reminders and progress stay free.'**
+  String get plusFreeMessage;
+
+  /// No description provided for @plusLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus details couldn\'t be loaded. Check your connection.'**
+  String get plusLoadFailed;
+
+  /// No description provided for @plusChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That didn\'t work. Please try again.'**
+  String get plusChangeFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

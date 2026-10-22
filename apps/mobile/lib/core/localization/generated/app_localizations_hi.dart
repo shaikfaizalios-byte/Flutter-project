@@ -2890,4 +2890,101 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get quickAnswerUnsure => 'AI को इस उत्तर पर पक्का भरोसा नहीं है।';
+
+  @override
+  String get plusTitle => 'PrepLoop Plus';
+
+  @override
+  String get plusCardMessage =>
+      'मुफ़्त पढ़ाई के साथ AI की मदद: झटपट उत्तर, व्याख्याएँ और अभ्यास प्रश्न।';
+
+  @override
+  String get plusOpen => 'PrepLoop Plus देखें';
+
+  @override
+  String get plusStatusTitle => 'आपका प्लान';
+
+  @override
+  String plusActiveUntil(String date) {
+    return 'Plus $date तक सक्रिय है';
+  }
+
+  @override
+  String get plusInactive => 'मुफ़्त प्लान';
+
+  @override
+  String get plusTestLabel => 'टेस्ट सदस्यता: कोई भुगतान नहीं हुआ।';
+
+  @override
+  String get plusOperatorLabel => 'PrepLoop टीम ने आपको दिया है।';
+
+  @override
+  String plusStartTest(int days) {
+    return '$days दिन का टेस्ट शुरू करें';
+  }
+
+  @override
+  String get plusTestExplained =>
+      'यह सर्वर टेस्टिंग के लिए है, इसलिए आप Plus मुफ़्त में आज़मा सकते हैं। कोई शुल्क नहीं लगता।';
+
+  @override
+  String get plusEndTest => 'टेस्ट सदस्यता खत्म करें';
+
+  @override
+  String get plusNotForSaleYet => 'Plus अभी खरीदा नहीं जा सकता। यह जल्द ही यहाँ मिलेगा।';
+
+  @override
+  String get plusIncludesTitle => 'Plus में क्या शामिल है';
+
+  @override
+  String get plusFeatureQuickAnswers => 'जब आपके पेपरों में खोज से कुछ न मिले तो झटपट AI उत्तर';
+
+  @override
+  String get plusFeatureExplanations => 'आपके पेपरों के प्रश्नों की AI व्याख्याएँ';
+
+  @override
+  String get plusFeatureQuestions => 'किसी प्रश्न या कॉन्सेप्ट पर AI अभ्यास प्रश्न';
+
+  @override
+  String get plusFeaturePaperTopics => 'पूरे पेपर के लिए AI विषय सुझाव';
+
+  @override
+  String get plusFeatureTopicDraft => 'आपके पेपरों से परीक्षा की AI विषय सूची';
+
+  @override
+  String plusAllowance(int count) {
+    return 'हर महीने $count तक AI अनुरोध।';
+  }
+
+  @override
+  String get plusAiLabelled => 'AI जो भी लिखता है उस पर AI का लेबल होता है और वह गलत हो सकता है।';
+
+  @override
+  String get plusAiOffOnServer => 'इस सर्वर पर AI अभी चालू नहीं है।';
+
+  @override
+  String get plusUsageTitle => 'इस महीने AI का उपयोग';
+
+  @override
+  String plusUsage(int used, int allowance) {
+    return '$allowance में से $used AI अनुरोध उपयोग हुए';
+  }
+
+  @override
+  String plusResets(String date) {
+    return '$date को फिर से शुरू होगा';
+  }
+
+  @override
+  String get plusFreeTitle => 'सभी के लिए मुफ़्त';
+
+  @override
+  String get plusFreeMessage =>
+      'पेपर इम्पोर्ट करना, प्रश्न बैंक, अभ्यास, मॉक टेस्ट, रिवीज़न, रिमाइंडर और प्रगति मुफ़्त रहेंगे।';
+
+  @override
+  String get plusLoadFailed => 'Plus की जानकारी लोड नहीं हो सकी। अपना कनेक्शन जाँचें।';
+
+  @override
+  String get plusChangeFailed => 'यह नहीं हो सका। कृपया फिर से कोशिश करें।';
 }

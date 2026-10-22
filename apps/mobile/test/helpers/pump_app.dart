@@ -9,6 +9,7 @@ import 'package:preploop/core/config/app_config.dart';
 import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/features/feedback/data/feedback_repository.dart';
+import 'package:preploop/features/plus/data/plus_repository.dart';
 import 'package:preploop/features/settings/application/app_preferences.dart';
 import 'package:preploop/features/settings/data/server_status_repository.dart';
 import 'package:preploop/features/settings/domain/server_health.dart';
@@ -45,9 +46,11 @@ export 'fake_insights.dart';
 export 'fake_sync.dart';
 export 'fake_analytics.dart';
 export 'fake_practice.dart';
+export 'fake_plus.dart';
 export 'fake_questions.dart';
 export 'fake_reminders.dart';
 import 'fake_feedback.dart';
+import 'fake_plus.dart';
 
 const testConfig = AppConfig(
   appName: 'PrepLoop',
@@ -132,6 +135,7 @@ Future<void> pumpPrepLoopApp(
   FakeInsightsRepository? insights,
   FakeExamsRepository? exams,
   FakeFeedbackRepository? feedback,
+  FakePlusRepository? plus,
   List<ExamOption> examCatalog = testCatalog,
   AuthSession? session = testSession,
   FakeAuthApi? authApi,
@@ -161,6 +165,7 @@ Future<void> pumpPrepLoopApp(
     insightsRepositoryProvider.overrideWithValue(insights ?? FakeInsightsRepository()),
     examsRepositoryProvider.overrideWithValue(exams ?? FakeExamsRepository()),
     feedbackRepositoryProvider.overrideWithValue(feedback ?? FakeFeedbackRepository()),
+    plusRepositoryProvider.overrideWithValue(plus ?? FakePlusRepository()),
     initialExamCatalogProvider.overrideWithValue(examCatalog),
     initialAuthSessionProvider.overrideWithValue(session),
     authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),

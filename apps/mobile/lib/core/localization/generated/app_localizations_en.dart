@@ -2885,4 +2885,102 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickAnswerUnsure => 'The AI isn\'t sure about this answer.';
+
+  @override
+  String get plusTitle => 'PrepLoop Plus';
+
+  @override
+  String get plusCardMessage =>
+      'AI help on top of free studying: quick answers, explanations and practice questions.';
+
+  @override
+  String get plusOpen => 'See PrepLoop Plus';
+
+  @override
+  String get plusStatusTitle => 'Your plan';
+
+  @override
+  String plusActiveUntil(String date) {
+    return 'Plus is active until $date';
+  }
+
+  @override
+  String get plusInactive => 'Free plan';
+
+  @override
+  String get plusTestLabel => 'Test subscription: nothing was paid.';
+
+  @override
+  String get plusOperatorLabel => 'Given to you by the PrepLoop team.';
+
+  @override
+  String plusStartTest(int days) {
+    return 'Start a $days-day test';
+  }
+
+  @override
+  String get plusTestExplained =>
+      'This server is for testing, so you can try Plus for free. Nothing is charged.';
+
+  @override
+  String get plusEndTest => 'End test subscription';
+
+  @override
+  String get plusNotForSaleYet => 'Plus can\'t be bought yet. It will be offered here soon.';
+
+  @override
+  String get plusIncludesTitle => 'What Plus includes';
+
+  @override
+  String get plusFeatureQuickAnswers =>
+      'Quick AI answers when nothing in your papers matches a search';
+
+  @override
+  String get plusFeatureExplanations => 'AI explanations for questions from your papers';
+
+  @override
+  String get plusFeatureQuestions => 'AI practice questions on a question or a concept';
+
+  @override
+  String get plusFeaturePaperTopics => 'AI topic suggestions for a whole paper';
+
+  @override
+  String get plusFeatureTopicDraft => 'AI topic list for an exam from your papers';
+
+  @override
+  String plusAllowance(int count) {
+    return 'Up to $count AI requests a month.';
+  }
+
+  @override
+  String get plusAiLabelled => 'Everything AI writes is labelled as AI and can be wrong.';
+
+  @override
+  String get plusAiOffOnServer => 'AI isn\'t switched on on this server yet.';
+
+  @override
+  String get plusUsageTitle => 'AI use this month';
+
+  @override
+  String plusUsage(int used, int allowance) {
+    return '$used of $allowance AI requests used';
+  }
+
+  @override
+  String plusResets(String date) {
+    return 'Starts again on $date';
+  }
+
+  @override
+  String get plusFreeTitle => 'Free for everyone';
+
+  @override
+  String get plusFreeMessage =>
+      'Importing papers, the question bank, practice, mock tests, revision, reminders and progress stay free.';
+
+  @override
+  String get plusLoadFailed => 'Plus details couldn\'t be loaded. Check your connection.';
+
+  @override
+  String get plusChangeFailed => 'That didn\'t work. Please try again.';
 }

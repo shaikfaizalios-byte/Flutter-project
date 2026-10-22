@@ -79,6 +79,11 @@ class Settings(BaseSettings):
     ai_max_output_tokens: int = Field(default=4000, ge=256, le=32000)
     ai_rate_limit: int = Field(default=30, ge=1)
     ai_rate_window_seconds: int = Field(default=3600, ge=1)
+    # PrepLoop Plus. Successful AI requests allowed per account per calendar month (UTC), and a
+    # development-only test mode that lets a learner start a free test subscription from the
+    # app (refused in staging/production).
+    plus_ai_monthly_allowance: int = Field(default=300, ge=1)
+    plus_test_mode: bool = False
     # Accounts. The signing secret is required outside development/test; locally a random
     # one is generated per process (tokens then stop working after a restart).
     auth_secret: SecretStr | None = None
@@ -131,6 +136,8 @@ class Settings(BaseSettings):
                 raise ValueError("SMTP email (PREPLOOP_SMTP_HOST, _FROM) is required here.")
             if self.smtp_security == "none":
                 raise ValueError("Unencrypted SMTP is not allowed here.")
+            if self.plus_test_mode:
+                raise ValueError("PREPLOOP_PLUS_TEST_MODE is for development only.")
         if self.email_backend == "smtp" and (not self.smtp_host or not self.smtp_from):
             raise ValueError("PREPLOOP_SMTP_HOST and PREPLOOP_SMTP_FROM are required for SMTP.")
         return self

@@ -3144,6 +3144,91 @@
         "title": "PatternRepeat",
         "type": "object"
       },
+      "PlusStatus": {
+        "description": "The account's PrepLoop Plus state, as the server sees it.",
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "active_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Until"
+          },
+          "ai_monthly_allowance": {
+            "title": "Ai Monthly Allowance",
+            "type": "integer"
+          },
+          "ai_used_this_month": {
+            "title": "Ai Used This Month",
+            "type": "integer"
+          },
+          "period_resets_at": {
+            "format": "date-time",
+            "title": "Period Resets At",
+            "type": "string"
+          },
+          "purchases_available": {
+            "title": "Purchases Available",
+            "type": "boolean"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "test",
+                  "operator",
+                  "play",
+                  "web"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "test_mode": {
+            "title": "Test Mode",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "active",
+          "source",
+          "active_until",
+          "ai_used_this_month",
+          "ai_monthly_allowance",
+          "period_resets_at",
+          "test_mode",
+          "purchases_available"
+        ],
+        "title": "PlusStatus",
+        "type": "object"
+      },
+      "PlusTestStart": {
+        "additionalProperties": false,
+        "properties": {
+          "days": {
+            "default": 7,
+            "maximum": 31.0,
+            "minimum": 1.0,
+            "title": "Days",
+            "type": "integer"
+          }
+        },
+        "title": "PlusTestStart",
+        "type": "object"
+      },
       "PracticeCreate": {
         "additionalProperties": false,
         "description": "Untimed practice. Without filters it is a mixed session.",
@@ -9651,6 +9736,142 @@
         "summary": "Rename Exam",
         "tags": [
           "exams"
+        ]
+      }
+    },
+    "/api/v1/me/plus": {
+      "get": {
+        "operationId": "plus_status_api_v1_me_plus_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlusStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your PrepLoop Plus status",
+        "tags": [
+          "plus"
+        ]
+      }
+    },
+    "/api/v1/me/plus/test": {
+      "delete": {
+        "operationId": "end_test_api_v1_me_plus_test_delete",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlusStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "End your test subscription",
+        "tags": [
+          "plus"
+        ]
+      },
+      "post": {
+        "operationId": "start_test_api_v1_me_plus_test_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlusTestStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlusStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Test mode off, or already subscribed"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start a free test subscription (development servers only)",
+        "tags": [
+          "plus"
         ]
       }
     },

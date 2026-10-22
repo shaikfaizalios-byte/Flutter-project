@@ -33,6 +33,7 @@ from app.models.ai import AIGeneration
 from app.models.concept import Concept
 from app.models.document import Document
 from app.models.feedback import Suggestion
+from app.models.plus import Subscription
 from app.models.practice import PracticeSession
 from app.models.question import Question
 from app.models.sync import SyncItem
@@ -164,6 +165,8 @@ class AuthService:
                 select(QuestionOption).where(QuestionOption.question_id.in_(question_ids))
             ).all()
             data["question_options"] = [_row_dict(o) for o in options]
+        subscription = self._session.get(Subscription, user.id)
+        data["subscriptions"] = [_row_dict(subscription)] if subscription else []
         synced = self._session.scalars(select(SyncItem).where(SyncItem.owner_id == user.id)).all()
         data["sync_items"] = [_row_dict(s) for s in synced]
         session_ids = [s["id"] for s in data.get("practice_sessions", [])]

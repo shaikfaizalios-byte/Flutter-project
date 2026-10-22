@@ -21,6 +21,7 @@ abstract final class AppRoutes {
   static const profile = '/profile';
   static const myExams = '/profile/exams';
   static const suggestions = '/profile/suggestions';
+  static const plus = '/profile/plus';
 
   static String concept(String id) => '/study/concepts/$id';
   static String editConcept(String id) => '/study/concepts/$id/edit';

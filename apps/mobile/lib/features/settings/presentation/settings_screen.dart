@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../auth/presentation/account_section.dart';
 import '../../insights/presentation/radar_sharing_card.dart';
+import '../../plus/presentation/plus_card.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -33,6 +34,8 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.md),
             children: [
               const AccountSection(),
+              const SizedBox(height: AppSpacing.md),
+              const PlusCard(),
               const SizedBox(height: AppSpacing.md),
               const StudyPlanSection(),
               const SizedBox(height: AppSpacing.md),
