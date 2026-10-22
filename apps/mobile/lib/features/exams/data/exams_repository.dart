@@ -23,7 +23,20 @@ abstract interface class ExamsRepository {
   Future<ExamTopic> createTopic(String examCode, NewTopic topic);
 
   /// Saves several topics at once (duplicates are skipped by the server).
-  Future<List<ExamTopic>> createTopics(String examCode, List<NewTopic> topics);
+  /// Saves several topics; with [syllabusName] (a PDF's file name or "typed"), they are
+  /// grouped under one syllabus import that can be removed as a whole.
+  Future<List<ExamTopic>> createTopics(
+    String examCode,
+    List<NewTopic> topics, {
+    String? syllabusName,
+    SyllabusKind? syllabusKind,
+  });
+
+  /// The learner's syllabus imports for an exam, newest first.
+  Future<List<SyllabusImport>> syllabusImports(String examCode);
+
+  /// Removes a syllabus import and all its topics; returns how many topics were removed.
+  Future<int> deleteSyllabusImport(String importId);
 
   Future<ExamTopic> updateTopic(String topicId, {String? subject, String? name});
 
@@ -34,6 +47,12 @@ abstract interface class ExamsRepository {
 
   /// Marks a topic as revised (or not) for the learner.
   Future<ExamTopic> setCompleted(String topicId, {required bool completed});
+
+  /// Removes several of the learner's own topics; returns how many were removed.
+  Future<int> deleteTopics(List<String> topicIds);
+
+  /// Reads subjects and topics from a typed or pasted syllabus (nothing is saved).
+  Future<SyllabusDraft> readSyllabusText(String examCode, String text);
 
   /// Reads subjects and topics from a syllabus PDF (nothing is saved).
   Future<SyllabusDraft> readSyllabus(
@@ -89,15 +108,34 @@ class RemoteExamsRepository implements ExamsRepository {
   });
 
   @override
-  Future<List<ExamTopic>> createTopics(String examCode, List<NewTopic> topics) => _guard(() async {
+  Future<List<ExamTopic>> createTopics(
+    String examCode,
+    List<NewTopic> topics, {
+    String? syllabusName,
+    SyllabusKind? syllabusKind,
+  }) => _guard(() async {
     final response = await _dio.post<List<dynamic>>(
       '$_base/topics/bulk',
       data: {
         'exam_code': examCode,
         'topics': [for (final t in topics) t.toJson(examCode)],
+        if (syllabusName != null && syllabusKind != null)
+          'source': {'name': syllabusName, 'kind': syllabusKind.name},
       },
     );
     return [for (final t in response.data!) ExamTopic.fromJson(t as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<List<SyllabusImport>> syllabusImports(String examCode) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>('$_base/exams/$examCode/syllabus-imports');
+    return [for (final s in response.data!) SyllabusImport.fromJson(s as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<int> deleteSyllabusImport(String importId) => _guard(() async {
+    final response = await _dio.delete<Map<String, dynamic>>('$_base/syllabus-imports/$importId');
+    return response.data!['deleted'] as int;
   });
 
   @override
@@ -118,6 +156,24 @@ class RemoteExamsRepository implements ExamsRepository {
   Future<TopicDraft> draftTopics(String examCode) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>('$_base/ai/exams/$examCode/topic-draft');
     return TopicDraft.fromJson(response.data!);
+  });
+
+  @override
+  Future<int> deleteTopics(List<String> topicIds) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_base/topics/bulk-delete',
+      data: {'topic_ids': topicIds},
+    );
+    return response.data!['deleted'] as int;
+  });
+
+  @override
+  Future<SyllabusDraft> readSyllabusText(String examCode, String text) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_base/exams/$examCode/syllabus/text',
+      data: {'text': text},
+    );
+    return SyllabusDraft.fromJson(response.data!);
   });
 
   @override

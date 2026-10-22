@@ -75,8 +75,16 @@ class FakeExamsRepository implements ExamsRepository {
     return created;
   }
 
+  /// Syllabus imports per exam (newest first), as the server keeps them.
+  final importsByExam = <String, List<SyllabusImport>>{};
+
   @override
-  Future<List<ExamTopic>> createTopics(String examCode, List<NewTopic> topics) async {
+  Future<List<ExamTopic>> createTopics(
+    String examCode,
+    List<NewTopic> topics, {
+    String? syllabusName,
+    SyllabusKind? syllabusKind,
+  }) async {
     final created = <ExamTopic>[];
     for (final t in topics) {
       try {
@@ -85,7 +93,64 @@ class FakeExamsRepository implements ExamsRepository {
         // duplicates are skipped, as on the server
       }
     }
-    return created;
+    if (syllabusName == null || syllabusKind == null || created.isEmpty) return created;
+    final importId = 'imp${importsByExam.values.fold(0, (n, l) => n + l.length) + 1}';
+    final list = topicsByExam[examCode]!;
+    final tagged = <ExamTopic>[];
+    for (final t in created) {
+      final tagged1 = ExamTopic(
+        id: t.id,
+        subject: t.subject,
+        name: t.name,
+        own: t.own,
+        keywords: t.keywords,
+        syllabusImportId: importId,
+      );
+      list[list.indexWhere((x) => x.id == t.id)] = tagged1;
+      tagged.add(tagged1);
+    }
+    importsByExam
+        .putIfAbsent(examCode, () => [])
+        .insert(
+          0,
+          SyllabusImport(
+            id: importId,
+            name: syllabusName,
+            kind: syllabusKind,
+            createdAt: DateTime.utc(2026, 10, 21),
+            topicCount: tagged.length,
+          ),
+        );
+    return tagged;
+  }
+
+  @override
+  Future<List<SyllabusImport>> syllabusImports(String examCode) async => [
+    for (final i in importsByExam[examCode] ?? const <SyllabusImport>[])
+      SyllabusImport(
+        id: i.id,
+        name: i.name,
+        kind: i.kind,
+        createdAt: i.createdAt,
+        topicCount: (topicsByExam[examCode] ?? const <ExamTopic>[])
+            .where((t) => t.syllabusImportId == i.id)
+            .length,
+      ),
+  ];
+
+  @override
+  Future<int> deleteSyllabusImport(String importId) async {
+    calls.add('delete-import:$importId');
+    var removed = 0;
+    for (final list in topicsByExam.values) {
+      final before = list.length;
+      list.removeWhere((t) => t.syllabusImportId == importId);
+      removed += before - list.length;
+    }
+    for (final imports in importsByExam.values) {
+      imports.removeWhere((i) => i.id == importId);
+    }
+    return removed;
   }
 
   @override
@@ -129,6 +194,25 @@ class FakeExamsRepository implements ExamsRepository {
     topics: [],
   );
   AppFailure? syllabusFailure;
+
+  @override
+  Future<int> deleteTopics(List<String> topicIds) async {
+    calls.add('delete-many:${topicIds.join(',')}');
+    var removed = 0;
+    for (final list in topicsByExam.values) {
+      final before = list.length;
+      list.removeWhere((t) => t.own && topicIds.contains(t.id));
+      removed += before - list.length;
+    }
+    return removed;
+  }
+
+  @override
+  Future<SyllabusDraft> readSyllabusText(String examCode, String text) async {
+    calls.add('syllabus-text:$examCode');
+    if (syllabusFailure != null) throw syllabusFailure!;
+    return syllabus;
+  }
 
   @override
   Future<ExamTopic> setCompleted(String topicId, {required bool completed}) async {

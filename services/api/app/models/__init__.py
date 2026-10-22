@@ -16,6 +16,7 @@ from app.models.question import (
     QuestionIssue,
     QuestionOption,
     QuestionPattern,
+    SyllabusImport,
     Topic,
 )
 from app.models.sync import SyncItem
@@ -43,6 +44,7 @@ __all__ = [
     "SessionAnswer",
     "SessionItem",
     "Suggestion",
+    "SyllabusImport",
     "SyncItem",
     "Topic",
     "TopicCompletion",

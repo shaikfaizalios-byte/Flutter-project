@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
@@ -34,6 +35,10 @@ class ExamTopicsScreen extends ConsumerStatefulWidget {
 
 class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
   bool _busy = false;
+
+  /// Choosing topics to remove (own topics only).
+  bool _selecting = false;
+  final Set<String> _selected = {};
 
   @override
   void initState() {
@@ -71,13 +76,56 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
       messenger.showSnackBar(SnackBar(content: Text(l10n.syllabusNothingFound)));
       return;
     }
+    await _keepFromSyllabus(
+      result,
+      l10n.syllabusDraftLabel(result.topics.length, result.pages),
+      name: source.name,
+      kind: SyllabusKind.pdf,
+    );
+  }
+
+  /// No PDF: the learner types or pastes the syllabus; the same reader picks out the topics.
+  Future<void> _typeSyllabus() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final text = await showDialog<String>(
+      context: context,
+      builder: (context) => const _SyllabusTextDialog(),
+    );
+    if (text == null || text.trim().isEmpty || !mounted) return;
+    SyllabusDraft? draft;
+    await _run(() async {
+      draft = await ref.read(examsRepositoryProvider).readSyllabusText(widget.examCode, text);
+    });
+    final result = draft;
+    if (result == null || !mounted) return;
+    if (result.topics.isEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.syllabusTypedNothingFound)));
+      return;
+    }
+    await _keepFromSyllabus(
+      result,
+      l10n.syllabusTypedDraftLabel(result.topics.length),
+      name: l10n.syllabusTypedName,
+      kind: SyllabusKind.typed,
+    );
+  }
+
+  /// Review a syllabus draft and save the kept topics as one syllabus import (its section).
+  Future<void> _keepFromSyllabus(
+    SyllabusDraft result,
+    String label, {
+    required String name,
+    required SyllabusKind kind,
+  }) async {
+    final l10n = AppLocalizations.of(context);
     final kept = await showModalBottomSheet<List<NewTopic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => _DraftSheet(
         label: [
-          l10n.syllabusDraftLabel(result.topics.length, result.pages),
+          label,
           if (result.unreadablePages > 0) l10n.syllabusUnreadable(result.unreadablePages),
           if (result.truncated) l10n.syllabusTruncated,
         ].join('\n'),
@@ -86,9 +134,69 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
     );
     if (kept == null || kept.isEmpty) return;
     await _run(
-      () => ref.read(examsRepositoryProvider).createTopics(widget.examCode, kept),
+      () => ref
+          .read(examsRepositoryProvider)
+          .createTopics(widget.examCode, kept, syllabusName: name, syllabusKind: kind),
       done: l10n.topicsDraftSaved(kept.length),
     );
+  }
+
+  Future<bool> _confirmRemoval(int count) async {
+    final l10n = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.topicsRemoveTitle(count)),
+        content: Text(l10n.topicsRemoveBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: Text(l10n.delete)),
+        ],
+      ),
+    );
+    return ok ?? false;
+  }
+
+  /// Removes a syllabus import's section: the import and all its topics.
+  Future<void> _removeImport(SyllabusImport import) async {
+    final l10n = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.syllabusRemoveTitle(import.name)),
+        content: Text(l10n.syllabusRemoveBody(import.topicCount)),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: Text(l10n.delete)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    var removed = 0;
+    await _run(() async {
+      removed = await ref.read(examsRepositoryProvider).deleteSyllabusImport(import.id);
+    });
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.topicsRemoved(removed))));
+    }
+  }
+
+  Future<void> _removeSelected() async {
+    final l10n = AppLocalizations.of(context);
+    final ids = _selected.toList();
+    if (ids.isEmpty || !await _confirmRemoval(ids.length)) return;
+    var removed = 0;
+    await _run(() async {
+      removed = await ref.read(examsRepositoryProvider).deleteTopics(ids);
+    });
+    if (!mounted) return;
+    setState(() {
+      _selecting = false;
+      _selected.clear();
+    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(l10n.topicsRemoved(removed))));
   }
 
   Future<void> _toggle(ExamTopic topic, bool completed) =>
@@ -96,6 +204,7 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
 
   void _changed() => ref
     ..invalidate(examTopicsProvider(widget.examCode))
+    ..invalidate(syllabusImportsProvider(widget.examCode))
     ..invalidate(topicsProvider)
     ..invalidate(patternsProvider);
 
@@ -207,20 +316,102 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
     );
   }
 
+  Widget _topicTile(ExamTopic topic) {
+    final l10n = AppLocalizations.of(context);
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: _selecting
+          ? Checkbox(
+              value: _selected.contains(topic.id),
+              semanticLabel: l10n.topicSelectCheckbox(topic.name),
+              onChanged: topic.own
+                  ? (on) => setState(
+                      () => on == true ? _selected.add(topic.id) : _selected.remove(topic.id),
+                    )
+                  : null,
+            )
+          : Checkbox(
+              value: topic.completed,
+              semanticLabel: l10n.topicRevisedCheckbox(topic.name),
+              onChanged: _busy ? null : (on) => _toggle(topic, on ?? false),
+            ),
+      title: Text(
+        topic.name,
+        style: topic.completed
+            ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
+            : null,
+      ),
+      subtitle: Text(
+        [
+          topic.own ? l10n.topicsOwnLabel : l10n.topicsSharedLabel,
+          if (topic.completed) l10n.topicRevised,
+        ].join(' · '),
+      ),
+      trailing: topic.own
+          ? PopupMenuButton<String>(
+              tooltip: l10n.examsActions,
+              onSelected: (v) => v == 'edit' ? _edit(topic) : _delete(topic),
+              itemBuilder: (context) => [
+                PopupMenuItem(value: 'edit', child: Text(l10n.topicsEdit)),
+                PopupMenuItem(value: 'delete', child: Text(l10n.delete)),
+              ],
+            )
+          : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final name = ref.watch(examNameProvider(widget.examCode));
     final aiEnabled = ref.watch(aiStatusProvider).value?.enabled ?? false;
     final topics = ref.watch(examTopicsProvider(widget.examCode));
+    final imports = ref.watch(syllabusImportsProvider(widget.examCode)).value ?? const [];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.topicsScreenTitle(name))),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add),
-        label: Text(l10n.topicsAdd),
-        onPressed: _busy ? null : _add,
+      appBar: AppBar(
+        title: Text(
+          _selecting ? l10n.topicsSelected(_selected.length) : l10n.topicsScreenTitle(name),
+        ),
+        actions: [
+          if (_selecting) ...[
+            TextButton(
+              onPressed: () => setState(() {
+                final own = [
+                  for (final t in topics.value ?? const <ExamTopic>[])
+                    if (t.own) t.id,
+                ];
+                _selected.length == own.length ? _selected.clear() : _selected.addAll(own);
+              }),
+              child: Text(l10n.topicsSelectAll),
+            ),
+            IconButton(
+              tooltip: l10n.cancel,
+              icon: const Icon(Icons.close),
+              onPressed: () => setState(() {
+                _selecting = false;
+                _selected.clear();
+              }),
+            ),
+          ] else if ((topics.value ?? const <ExamTopic>[]).any((t) => t.own))
+            TextButton.icon(
+              icon: const Icon(Icons.checklist),
+              label: Text(l10n.topicsSelect),
+              onPressed: () => setState(() => _selecting = true),
+            ),
+        ],
       ),
+      floatingActionButton: _selecting
+          ? FloatingActionButton.extended(
+              icon: const Icon(Icons.delete_outline),
+              label: Text(l10n.topicsRemoveSelected(_selected.length)),
+              onPressed: _busy || _selected.isEmpty ? null : _removeSelected,
+            )
+          : FloatingActionButton.extended(
+              icon: const Icon(Icons.add),
+              label: Text(l10n.topicsAdd),
+              onPressed: _busy ? null : _add,
+            ),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -234,6 +425,7 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
                 _SyllabusCard(
                   missing: !value.any((t) => t.own),
                   onImport: _busy ? null : _importSyllabus,
+                  onType: _busy ? null : _typeSyllabus,
                 ),
                 if (value.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.md),
@@ -258,44 +450,41 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
                     title: l10n.topicsEmptyTitle,
                     message: l10n.topicsEmptyMessage,
                   ),
-                for (final entry in _bySubject(value).entries) ...[
+                for (final import in imports)
+                  if (value.any((t) => t.syllabusImportId == import.id)) ...[
+                    _ImportSection(
+                      import: import,
+                      onRemove: _busy ? null : () => _removeImport(import),
+                      children: [
+                        for (final entry in _bySubject(
+                          value.where((t) => t.syllabusImportId == import.id).toList(),
+                        ).entries) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(top: AppSpacing.sm),
+                            child: Text(entry.key, style: Theme.of(context).textTheme.titleSmall),
+                          ),
+                          for (final topic in entry.value) _topicTile(topic),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                for (final entry in _bySubject(
+                  value
+                      .where(
+                        (t) =>
+                            t.syllabusImportId == null ||
+                            !imports.any((i) => i.id == t.syllabusImportId),
+                      )
+                      .toList(),
+                ).entries) ...[
                   SectionCard(
                     icon: Icons.menu_book_outlined,
                     title: entry.key,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (final topic in entry.value)
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: Checkbox(
-                              value: topic.completed,
-                              semanticLabel: l10n.topicRevisedCheckbox(topic.name),
-                              onChanged: _busy ? null : (on) => _toggle(topic, on ?? false),
-                            ),
-                            title: Text(
-                              topic.name,
-                              style: topic.completed
-                                  ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
-                                  : null,
-                            ),
-                            subtitle: Text(
-                              [
-                                topic.own ? l10n.topicsOwnLabel : l10n.topicsSharedLabel,
-                                if (topic.completed) l10n.topicRevised,
-                              ].join(' · '),
-                            ),
-                            trailing: topic.own
-                                ? PopupMenuButton<String>(
-                                    tooltip: l10n.examsActions,
-                                    onSelected: (v) => v == 'edit' ? _edit(topic) : _delete(topic),
-                                    itemBuilder: (context) => [
-                                      PopupMenuItem(value: 'edit', child: Text(l10n.topicsEdit)),
-                                      PopupMenuItem(value: 'delete', child: Text(l10n.delete)),
-                                    ],
-                                  )
-                                : null,
-                          ),
+                        for (final topic in entry.value) _topicTile(topic),
                         TextButton.icon(
                           icon: const Icon(Icons.add),
                           label: Text(l10n.topicsAddTo(entry.key)),
@@ -327,10 +516,13 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
 /// The exam's syllabus: import its PDF to fill in subjects and topics. Highlighted while the
 /// learner has added no topics of their own (e.g. they skipped it before importing papers).
 class _SyllabusCard extends StatelessWidget {
-  const _SyllabusCard({required this.missing, required this.onImport});
+  const _SyllabusCard({required this.missing, required this.onImport, required this.onType});
 
   final bool missing;
   final VoidCallback? onImport;
+
+  /// No PDF: type or paste the syllabus.
+  final VoidCallback? onType;
 
   @override
   Widget build(BuildContext context) {
@@ -349,11 +541,145 @@ class _SyllabusCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Text(missing ? l10n.syllabusMissingMessage : l10n.syllabusMessage),
-            FilledButton.tonalIcon(
-              icon: const Icon(Icons.upload_file),
-              label: Text(l10n.syllabusImport),
-              onPressed: onImport,
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                FilledButton.tonalIcon(
+                  icon: const Icon(Icons.upload_file),
+                  label: Text(l10n.syllabusImport),
+                  onPressed: onImport,
+                ),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.edit_note),
+                  label: Text(l10n.syllabusType),
+                  onPressed: onType,
+                ),
+              ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Type or paste the syllabus: one topic per line, or "Subject: topic, topic".
+class _SyllabusTextDialog extends StatefulWidget {
+  const _SyllabusTextDialog();
+
+  @override
+  State<_SyllabusTextDialog> createState() => _SyllabusTextDialogState();
+}
+
+class _SyllabusTextDialogState extends State<_SyllabusTextDialog> {
+  final _text = TextEditingController();
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l10n.syllabusType),
+      content: SizedBox(
+        width: 520,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.syllabusTypeHelp, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: AppSpacing.sm),
+            TextField(
+              controller: _text,
+              minLines: 8,
+              maxLines: 14,
+              maxLength: 20000,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: l10n.syllabusTypeField,
+                hintText: l10n.syllabusTypeExample,
+                alignLabelWithHint: true,
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.cancel)),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_text.text),
+          child: Text(l10n.syllabusTypeRead),
+        ),
+      ],
+    );
+  }
+}
+
+/// One imported syllabus (a PDF or typed text) with the topics it added. Removing the section
+/// removes all of them.
+class _ImportSection extends StatelessWidget {
+  const _ImportSection({required this.import, required this.onRemove, required this.children});
+
+  final SyllabusImport import;
+  final VoidCallback? onRemove;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final date = DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag())
+        .format(import.createdAt.toLocal());
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.sm,
+          AppSpacing.xs,
+          AppSpacing.md,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  import.kind == SyllabusKind.pdf ? Icons.picture_as_pdf_outlined : Icons.edit_note,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          import.name,
+                          style: theme.textTheme.titleMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        l10n.syllabusSectionInfo(import.topicCount, date),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: l10n.syllabusRemove,
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: onRemove,
+                ),
+              ],
+            ),
+            ...children,
           ],
         ),
       ),

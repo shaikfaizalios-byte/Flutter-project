@@ -96,6 +96,27 @@ class Topic(Base):
     )
     # Exams the topic applies to; NULL means every exam.
     exam_codes: Mapped[list[str] | None] = mapped_column(ARRAY(String(32)))
+    # The syllabus import that added this own topic (its section on the topics screen).
+    syllabus_import_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("syllabus_imports.id", ondelete="SET NULL"), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class SyllabusImport(Base):
+    """One syllabus a learner imported for an exam (a PDF, or text they typed). Its topics
+    are shown together and can be removed together."""
+
+    __tablename__ = "syllabus_imports"
+    __table_args__ = (CheckConstraint("kind IN ('pdf', 'typed')", name="kind_valid"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    exam_code: Mapped[str] = mapped_column(String(32), ForeignKey("exams.code", ondelete="CASCADE"))
+    name: Mapped[str] = mapped_column(String(255))  # the PDF's file name, or "Typed syllabus"
+    kind: Mapped[str] = mapped_column(String(8))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

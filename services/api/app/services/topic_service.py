@@ -12,6 +12,7 @@ types for any exam they can see. Shared taxonomy and catalog exams are read-only
 import secrets
 import uuid
 from collections.abc import Sequence
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import exists, func, or_, select, update
@@ -22,7 +23,7 @@ from app.models.concept import Concept
 from app.models.document import Document
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
 from app.models.progress import TopicCompletion
-from app.models.question import Question, QuestionPattern, Topic, TopicStatus
+from app.models.question import Question, QuestionPattern, SyllabusImport, Topic, TopicStatus
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.exam import (
     CustomExamCreate,
@@ -30,6 +31,8 @@ from app.schemas.exam import (
     ExamRead,
     OwnTopicRead,
     PatternCreate,
+    SyllabusImportRead,
+    SyllabusSource,
     TopicCreate,
     TopicUpdate,
 )
@@ -79,6 +82,7 @@ def _own_topic_read(topic: Topic, completed: bool = False) -> OwnTopicRead:
         own=topic.owner_id is not None,
         exam_codes=topic.exam_codes,
         completed=completed,
+        syllabus_import_id=topic.syllabus_import_id,
     )
 
 
@@ -181,8 +185,14 @@ class TopicService:
         self._session.commit()
         return _own_topic_read(topic)
 
-    def create_topics(self, exam_code: str, items: Sequence[TopicCreate]) -> list[OwnTopicRead]:
-        """Saves several topics at once (an accepted draft); duplicates are skipped."""
+    def create_topics(
+        self,
+        exam_code: str,
+        items: Sequence[TopicCreate],
+        source: SyllabusSource | None = None,
+    ) -> list[OwnTopicRead]:
+        """Saves several topics at once (an accepted draft); duplicates are skipped. With a
+        ``source`` (a syllabus), the new topics are grouped under one syllabus import."""
         created = []
         seen: set[tuple[str, str]] = set()
         for item in items:
@@ -193,8 +203,60 @@ class TopicService:
                 continue
             seen.add(key)
             created.append(self._new_topic(item))
+        if source is not None and created:
+            record = SyllabusImport(
+                owner_id=self._owner_id,
+                exam_code=exam_code,
+                name=source.name,
+                kind=source.kind,
+                # The moment of this import (now() is fixed for a whole transaction).
+                created_at=datetime.now(UTC),
+            )
+            self._session.add(record)
+            self._session.flush()
+            for topic in created:
+                topic.syllabus_import_id = record.id
         self._session.commit()
         return [_own_topic_read(t) for t in created]
+
+    def syllabus_imports(self, exam_code: str) -> list[SyllabusImportRead]:
+        self._visible_exam(exam_code)
+        rows = self._session.execute(
+            select(SyllabusImport, func.count(Topic.id))
+            .outerjoin(Topic, Topic.syllabus_import_id == SyllabusImport.id)
+            .where(
+                SyllabusImport.owner_id == self._owner_id,
+                SyllabusImport.exam_code == exam_code,
+            )
+            .group_by(SyllabusImport.id)
+            .order_by(SyllabusImport.created_at.desc())
+        ).all()
+        return [
+            SyllabusImportRead(
+                id=r.id, name=r.name, kind=r.kind, created_at=r.created_at, topic_count=count
+            )
+            for r, count in rows
+        ]
+
+    def delete_syllabus_import(self, import_id: uuid.UUID) -> int:
+        """Removes a syllabus import and all its topics (questions go back to no topic).
+        Returns how many topics were removed."""
+        record = self._session.get(SyllabusImport, import_id)
+        if record is None or record.owner_id != self._owner_id:
+            raise NotFoundError("Syllabus import not found.")
+        topics = list(
+            self._session.scalars(
+                select(Topic).where(
+                    Topic.syllabus_import_id == import_id, Topic.owner_id == self._owner_id
+                )
+            )
+        )
+        if topics:
+            self._delete(topics, commit=False)
+        self._session.delete(record)
+        self._session.commit()
+        self._session.expire_all()
+        return len(topics)
 
     def update_topic(self, topic_id: uuid.UUID, data: TopicUpdate) -> OwnTopicRead:
         topic = self._own_topic(topic_id)
@@ -220,10 +282,23 @@ class TopicService:
 
     def delete_topic(self, topic_id: uuid.UUID) -> None:
         """Questions of the topic go back to "no topic" (their patterns too)."""
-        topic = self._own_topic(topic_id)
+        self._delete([self._own_topic(topic_id)])
+
+    def delete_topics(self, topic_ids: Sequence[uuid.UUID]) -> int:
+        """Removes the learner's own topics among ``topic_ids`` (e.g. a syllabus import they
+        don't want); shared topics and other learners' topics are left alone."""
+        topics = self._session.scalars(
+            select(Topic).where(Topic.id.in_(topic_ids), Topic.owner_id == self._owner_id)
+        ).all()
+        if topics:
+            self._delete(list(topics))
+        return len(topics)
+
+    def _delete(self, topics: list[Topic], *, commit: bool = True) -> None:
+        ids = [t.id for t in topics]
         self._session.execute(
             update(Question)
-            .where(Question.topic_id == topic.id)
+            .where(Question.topic_id.in_(ids))
             .values(
                 topic_id=None,
                 topic_status=TopicStatus.UNASSIGNED,
@@ -234,9 +309,11 @@ class TopicService:
                 pattern_suggestion_reason=None,
             )
         )
-        self._session.delete(topic)
-        self._session.commit()
-        self._session.expire_all()  # questions changed in bulk above
+        for topic in topics:
+            self._session.delete(topic)
+        if commit:
+            self._session.commit()
+            self._session.expire_all()  # questions changed in bulk above
 
     def _new_topic(self, data: TopicCreate) -> Topic:
         self._visible_exam(data.exam_code)

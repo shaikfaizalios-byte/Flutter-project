@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
@@ -63,6 +64,17 @@ class OwnTopicRead(BaseModel):
     exam_codes: list[str] | None
     # The learner marked the topic as revised (their own progress, any topic).
     completed: bool = False
+    # The syllabus import that added it (null for typed, AI-drafted and shared topics).
+    syllabus_import_id: uuid.UUID | None = None
+
+
+class SyllabusSource(BaseModel):
+    """Where a saved draft came from: its topics form one section that can be removed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)]
+    kind: Literal["pdf", "typed"]
 
 
 class TopicsBulkCreate(BaseModel):
@@ -72,12 +84,44 @@ class TopicsBulkCreate(BaseModel):
 
     exam_code: Annotated[str, StringConstraints(min_length=1, max_length=32)]
     topics: list[TopicCreate] = Field(min_length=1, max_length=300)
+    # Set when the draft was a syllabus: the topics are grouped under this import.
+    source: SyllabusSource | None = None
+
+
+class SyllabusImportRead(BaseModel):
+    id: uuid.UUID
+    name: str
+    kind: Literal["pdf", "typed"]
+    created_at: datetime
+    topic_count: int  # its topics still present
 
 
 class TopicCompletionUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     completed: bool
+
+
+# A typed or pasted syllabus (a long one fits; the topic draft caps at 300 topics).
+SYLLABUS_TEXT_MAX = 20_000
+
+
+class SyllabusText(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=2, max_length=SYLLABUS_TEXT_MAX)
+    ]
+
+
+class TopicsBulkDelete(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    topic_ids: list[uuid.UUID] = Field(min_length=1, max_length=300)
+
+
+class TopicsDeleted(BaseModel):
+    deleted: int  # own topics removed (ids of shared or other learners' topics are skipped)
 
 
 class SyllabusSubjectRead(BaseModel):
@@ -91,7 +135,8 @@ class SyllabusDraftRead(BaseModel):
 
     exam_code: str
     pages: int
-    read_by: Literal["text", "ocr", "mixed", "none"]
+    # "typed" = the learner wrote or pasted the syllabus (pages is then 0).
+    read_by: Literal["text", "ocr", "mixed", "none", "typed"]
     unreadable_pages: int  # pages the reader couldn't read reliably (scan quality)
     subjects: list[SyllabusSubjectRead]
     topic_count: int

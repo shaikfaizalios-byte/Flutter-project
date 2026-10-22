@@ -52,6 +52,11 @@ void main() {
 
     expect(exams.topicsByExam['SSC_CGL']!.map((t) => t.name), ['Number System', 'Profit and Loss']);
     expect(find.text('0 of 2 topics revised'), findsOneWidget);
+    // The PDF import is a section named after the file.
+    final import = exams.importsByExam['SSC_CGL']!.single;
+    expect((import.name, import.kind), (samplePdf.name, SyllabusKind.pdf));
+    await scrollTo(tester, find.text(samplePdf.name));
+    expect(find.text(samplePdf.name), findsOneWidget);
   });
 
   testAppWidgets('skipping the syllabus is remembered for that exam', (tester, db) async {
@@ -104,5 +109,85 @@ void main() {
     expect(exams.calls, contains('completed:t1:true'));
     expect(find.text('1 of 2 topics revised'), findsOneWidget);
     expect(find.textContaining('Your topic · Revised'), findsOneWidget);
+  });
+
+  testAppWidgets('a typed syllabus is read; the last import can be removed in one step', (
+    tester,
+    db,
+  ) async {
+    final exams = FakeExamsRepository()..syllabus = syllabus;
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      exams: exams,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['NEET_UG']),
+    );
+    await openMyExams(tester);
+    await tester.tap(find.text('NEET UG'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Type or paste syllabus'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Maths: Number System, Profit and Loss');
+    await tester.tap(find.text('Find topics'));
+    await tester.pumpAndSettle();
+    expect(exams.calls, contains('syllabus-text:NEET_UG'));
+    expect(find.textContaining('3 topics found in what you wrote'), findsOneWidget);
+    await tester.tap(find.text('Add 3 topics'));
+    await tester.pumpAndSettle();
+    expect(exams.topicsByExam['NEET_UG'], hasLength(3));
+
+    // The import is its own section, named and dated, holding its topics.
+    expect(exams.importsByExam['NEET_UG']!.single.name, 'Typed syllabus');
+    await scrollTo(tester, find.text('Typed syllabus'));
+    expect(find.textContaining('3 topics · imported'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5)); // let the "added" message go
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Remove this syllabus and its topics'));
+    await tester.pumpAndSettle();
+    expect(find.text('Remove "Typed syllabus"?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(exams.topicsByExam['NEET_UG'], isEmpty);
+    expect(exams.importsByExam['NEET_UG'], isEmpty);
+    expect(find.text('3 topics removed.'), findsOneWidget);
+    expect(find.text('Typed syllabus'), findsNothing);
+  });
+
+  testAppWidgets('several own topics are selected and removed together', (tester, db) async {
+    final exams = FakeExamsRepository()
+      ..topicsByExam['NEET_UG'] = [
+        const ExamTopic(id: 't1', subject: 'Biology', name: 'Genetics', own: true),
+        const ExamTopic(id: 't2', subject: 'Biology', name: 'Ecology', own: true),
+        const ExamTopic(id: 't3', subject: 'Biology', name: 'Botany', own: true),
+      ];
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      exams: exams,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['NEET_UG']),
+    );
+    await openMyExams(tester);
+    await tester.tap(find.text('NEET UG'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Select'));
+    await tester.pumpAndSettle();
+    Finder boxOf(String name) =>
+        find.descendant(of: find.widgetWithText(ListTile, name), matching: find.byType(Checkbox));
+    for (final name in ['Genetics', 'Botany']) {
+      await tester.ensureVisible(boxOf(name));
+      await tester.pumpAndSettle();
+      await tester.tap(boxOf(name));
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('2 selected'), findsOneWidget);
+    await tester.tap(find.text('Remove 2'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(exams.topicsByExam['NEET_UG']!.map((t) => t.name), ['Ecology']);
+    expect(find.text('2 topics removed.'), findsOneWidget);
   });
 }

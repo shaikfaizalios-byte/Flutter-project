@@ -18,9 +18,13 @@ from app.schemas.exam import (
     OwnTopicRead,
     PatternCreate,
     SyllabusDraftRead,
+    SyllabusImportRead,
+    SyllabusText,
     TopicCompletionUpdate,
     TopicCreate,
     TopicsBulkCreate,
+    TopicsBulkDelete,
+    TopicsDeleted,
     TopicUpdate,
 )
 from app.schemas.question import PatternRead
@@ -109,6 +113,57 @@ def read_syllabus(
     return service.read(code, file.file, language)
 
 
+@router.post(
+    "/exams/{code}/syllabus/text",
+    response_model=SyllabusDraftRead,
+    summary="Read subjects and topics from a typed or pasted syllabus (nothing is saved)",
+)
+def read_syllabus_text(
+    code: str,
+    body: SyllabusText,
+    request: Request,
+    session: DbSession,
+    user: CurrentUser,
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> SyllabusDraftRead:
+    service = SyllabusService(
+        session,
+        owner_id=user.id,
+        settings=settings,
+        ocr=request.app.state.ocr_engine,
+        temp_dir=request.app.state.document_storage.temp_dir(),
+    )
+    return service.read_text(code, body.text)
+
+
+@router.get(
+    "/exams/{code}/syllabus-imports",
+    response_model=list[SyllabusImportRead],
+    summary="Your syllabus imports for an exam (each groups the topics it added)",
+)
+def syllabus_imports(code: str, service: Service) -> list[SyllabusImportRead]:
+    return service.syllabus_imports(code)
+
+
+@router.delete(
+    "/syllabus-imports/{import_id}",
+    response_model=TopicsDeleted,
+    responses=NOT_FOUND,
+    summary="Remove a syllabus import and all its topics",
+)
+def delete_syllabus_import(import_id: uuid.UUID, service: Service) -> TopicsDeleted:
+    return TopicsDeleted(deleted=service.delete_syllabus_import(import_id))
+
+
+@router.post(
+    "/topics/bulk-delete",
+    response_model=TopicsDeleted,
+    summary="Remove several of your own topics (their questions go back to no topic)",
+)
+def delete_topics(body: TopicsBulkDelete, service: Service) -> TopicsDeleted:
+    return TopicsDeleted(deleted=service.delete_topics(body.topic_ids))
+
+
 @router.put(
     "/topics/{topic_id}/completion",
     response_model=OwnTopicRead,
@@ -133,7 +188,7 @@ def create_topic(body: TopicCreate, service: Service) -> OwnTopicRead:
     summary="Save several topics at once (e.g. an accepted draft); duplicates are skipped",
 )
 def create_topics(body: TopicsBulkCreate, service: Service) -> list[OwnTopicRead]:
-    return service.create_topics(body.exam_code, body.topics)
+    return service.create_topics(body.exam_code, body.topics, body.source)
 
 
 @router.patch(

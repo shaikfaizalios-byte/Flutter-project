@@ -86,6 +86,12 @@ final examNameProvider = Provider.family<String, String>(
   (ref, code) => examShortNameIn(ref.watch(examCatalogProvider), code),
 );
 
+/// The learner's syllabus imports for an exam (sections on the topics screen).
+final syllabusImportsProvider = FutureProvider.autoDispose.family<List<SyllabusImport>, String>(
+  (ref, code) => ref.watch(examsRepositoryProvider).syllabusImports(code),
+  retry: (_, _) => null,
+);
+
 /// Topics that apply to an exam (shared + own). Errors are shown, not retried silently.
 final examTopicsProvider = FutureProvider.autoDispose.family<List<ExamTopic>, String>(
   (ref, code) => ref.watch(examsRepositoryProvider).topics(code),

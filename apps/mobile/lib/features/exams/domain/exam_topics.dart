@@ -10,6 +10,7 @@ class ExamTopic {
     required this.own,
     this.keywords = const [],
     this.completed = false,
+    this.syllabusImportId,
   });
 
   factory ExamTopic.fromJson(Map<String, dynamic> json) => ExamTopic(
@@ -19,6 +20,7 @@ class ExamTopic {
     own: json['own'] as bool,
     keywords: [for (final k in json['keywords'] as List<dynamic>) k as String],
     completed: json['completed'] as bool? ?? false,
+    syllabusImportId: json['syllabus_import_id'] as String?,
   );
 
   final String id;
@@ -30,6 +32,9 @@ class ExamTopic {
   /// The learner marked this topic as revised.
   final bool completed;
 
+  /// The syllabus import that added it (shown in that import's section).
+  final String? syllabusImportId;
+
   ExamTopic copyWith({bool? completed}) => ExamTopic(
     id: id,
     subject: subject,
@@ -37,7 +42,37 @@ class ExamTopic {
     own: own,
     keywords: keywords,
     completed: completed ?? this.completed,
+    syllabusImportId: syllabusImportId,
   );
+}
+
+/// Where saved syllabus topics came from: a PDF (its file name) or typed text.
+enum SyllabusKind { pdf, typed }
+
+/// One imported syllabus: its topics are shown together and removed together.
+@immutable
+class SyllabusImport {
+  const SyllabusImport({
+    required this.id,
+    required this.name,
+    required this.kind,
+    required this.createdAt,
+    required this.topicCount,
+  });
+
+  factory SyllabusImport.fromJson(Map<String, dynamic> json) => SyllabusImport(
+    id: json['id'] as String,
+    name: json['name'] as String,
+    kind: json['kind'] == 'typed' ? SyllabusKind.typed : SyllabusKind.pdf,
+    createdAt: DateTime.parse(json['created_at'] as String),
+    topicCount: json['topic_count'] as int,
+  );
+
+  final String id;
+  final String name;
+  final SyllabusKind kind;
+  final DateTime createdAt;
+  final int topicCount;
 }
 
 /// Subjects and topics read from a syllabus PDF. Nothing is saved until the learner keeps

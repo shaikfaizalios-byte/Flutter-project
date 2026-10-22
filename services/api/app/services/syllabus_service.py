@@ -69,6 +69,22 @@ class SyllabusService:
             truncated=draft.truncated,
         )
 
+    def read_text(self, exam_code: str, text: str) -> SyllabusDraftRead:
+        """A syllabus the learner typed or pasted (no PDF available)."""
+        if ExamRepository(self._session).get_visible(exam_code, self._owner_id) is None:
+            raise InvalidReferenceError(f"Unknown exam '{exam_code}'.")
+        known = {t.subject for t in visible_topics(self._session, self._owner_id, exam_code)}
+        draft = parse_syllabus([text], known_subjects=known)
+        return SyllabusDraftRead(
+            exam_code=exam_code,
+            pages=0,
+            read_by="typed",
+            unreadable_pages=0,
+            subjects=[SyllabusSubjectRead(name=s.name, topics=s.topics) for s in draft.subjects],
+            topic_count=draft.topic_count,
+            truncated=draft.truncated,
+        )
+
     def _save_limited(self, stream: BinaryIO, destination: Path) -> None:
         limit = self._settings.max_upload_bytes
         size = 0
