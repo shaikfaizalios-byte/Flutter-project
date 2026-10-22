@@ -57,6 +57,25 @@ class PaperTopicsResult {
   final int remaining;
 }
 
+/// A short AI answer to a search that matched no imported question. Not stored and not
+/// checked by anyone: always shown labelled as AI-generated.
+@immutable
+class QuickAnswer {
+  const QuickAnswer({required this.answer, required this.confident, required this.model});
+
+  factory QuickAnswer.fromJson(Map<String, dynamic> json) => QuickAnswer(
+    answer: json['answer'] as String,
+    confident: json['confident'] as bool,
+    model: json['model'] as String,
+  );
+
+  final String answer;
+
+  /// False when the AI said it isn't sure.
+  final bool confident;
+  final String model;
+}
+
 enum ReportReason {
   wrongAnswer('wrong_answer'),
   unclear('unclear'),
@@ -96,6 +115,9 @@ abstract interface class AiRepository {
   Future<PaperTopicsResult> suggestPaperTopics(String documentId);
 
   Future<BankQuestion> report(String questionId, ReportReason reason, {String note = ''});
+
+  /// Sends the search text to the AI provider (only after the learner switched this on).
+  Future<QuickAnswer> quickAnswer(String text, {String? examCode});
 }
 
 class RemoteAiRepository implements AiRepository {
@@ -197,6 +219,16 @@ class RemoteAiRepository implements AiRepository {
       (await _dio.post<Map<String, dynamic>>(
         '$_base/questions/$questionId/report',
         data: {'reason': reason.code, 'note': note},
+      )).data!,
+    ),
+  );
+
+  @override
+  Future<QuickAnswer> quickAnswer(String text, {String? examCode}) => _guard(
+    () async => QuickAnswer.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/ai/quick-answer',
+        data: {'text': text, 'exam_code': ?examCode},
       )).data!,
     ),
   );

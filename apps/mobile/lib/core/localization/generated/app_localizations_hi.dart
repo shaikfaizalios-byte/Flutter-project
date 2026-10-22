@@ -2863,4 +2863,31 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get webSearchOpenFailed => 'ब्राउज़र नहीं खुल सका।';
+
+  @override
+  String get quickAnswerTitle => 'झटपट AI उत्तर';
+
+  @override
+  String get quickAnswerOffer =>
+      'जब आपके पेपरों में कुछ न मिले, तो AI से छोटा उत्तर पाएँ। आपका खोज-पाठ AI सेवा को भेजा जाता है।';
+
+  @override
+  String get quickAnswerAsk => 'AI से पूछें';
+
+  @override
+  String get quickAnswerLoading => 'AI से पूछा जा रहा है…';
+
+  @override
+  String get quickAnswerLabel => 'AI द्वारा लिखा · जाँचा नहीं गया';
+
+  @override
+  String quickAnswerCaution(String model) {
+    return 'AI ($model) द्वारा लिखा। यह गलत हो सकता है: भरोसा करने से पहले जाँचें, और गहराई से पढ़ने के लिए Google देखें।';
+  }
+
+  @override
+  String get quickAnswerTurnOff => 'अपने-आप AI उत्तर बंद करें';
+
+  @override
+  String get quickAnswerUnsure => 'AI को इस उत्तर पर पक्का भरोसा नहीं है।';
 }

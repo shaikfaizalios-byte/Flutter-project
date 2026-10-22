@@ -3,7 +3,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
-from app.domain.ai_content import MAX_EXPLANATION, MAX_GENERATED
+from app.domain.ai_content import MAX_EXPLANATION, MAX_GENERATED, QUICK_ANSWER_MAX_QUERY
 from app.schemas.question import AIExplanationRead, QuestionRead
 
 
@@ -12,7 +12,7 @@ class AIStatus(BaseModel):
     provider: str | None
     model: str | None
     # Features available while enabled.
-    features: list[Literal["explanations", "questions", "topics"]]
+    features: list[Literal["explanations", "questions", "topics", "quick_answers"]]
 
 
 class ConceptInput(BaseModel):
@@ -122,3 +122,22 @@ __all__ = [
     "QuestionReport",
     "TopicSuggestionResult",
 ]
+
+
+class QuickAnswerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, min_length=2, max_length=QUICK_ANSWER_MAX_QUERY),
+    ]
+    exam_code: str | None = None
+
+
+class QuickAnswer(BaseModel):
+    """A short AI answer to a search. Not stored and not checked by anyone."""
+
+    answer: str
+    confident: bool
+    model: str
+    prompt_version: str

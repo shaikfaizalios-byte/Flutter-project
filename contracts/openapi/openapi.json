@@ -149,7 +149,8 @@
               "enum": [
                 "explanations",
                 "questions",
-                "topics"
+                "topics",
+                "quick_answers"
               ],
               "type": "string"
             },
@@ -3965,6 +3966,62 @@
         "title": "QuestionUpdate",
         "type": "object"
       },
+      "QuickAnswer": {
+        "description": "A short AI answer to a search. Not stored and not checked by anyone.",
+        "properties": {
+          "answer": {
+            "title": "Answer",
+            "type": "string"
+          },
+          "confident": {
+            "title": "Confident",
+            "type": "boolean"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "answer",
+          "confident",
+          "model",
+          "prompt_version"
+        ],
+        "title": "QuickAnswer",
+        "type": "object"
+      },
+      "QuickAnswerRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "text": {
+            "maxLength": 300,
+            "minLength": 2,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "QuickAnswerRequest",
+        "type": "object"
+      },
       "RadarBasis": {
         "properties": {
           "min_accounts": {
@@ -6558,6 +6615,102 @@
           }
         ],
         "summary": "Suggest a topic from the taxonomy for a question without one",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/quick-answer": {
+      "post": {
+        "operationId": "quick_answer_api_v1_ai_quick_answer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickAnswer"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A short AI answer to a search no imported question matched (nothing is saved)",
         "tags": [
           "ai"
         ]

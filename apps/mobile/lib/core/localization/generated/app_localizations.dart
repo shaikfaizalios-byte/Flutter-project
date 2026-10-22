@@ -4682,6 +4682,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the browser.'**
   String get webSearchOpenFailed;
+
+  /// No description provided for @quickAnswerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick AI answer'**
+  String get quickAnswerTitle;
+
+  /// No description provided for @quickAnswerOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a short AI answer when nothing in your papers matches. Your search text is sent to the AI service.'**
+  String get quickAnswerOffer;
+
+  /// No description provided for @quickAnswerAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask AI'**
+  String get quickAnswerAsk;
+
+  /// No description provided for @quickAnswerLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking the AI…'**
+  String get quickAnswerLoading;
+
+  /// No description provided for @quickAnswerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated · not checked'**
+  String get quickAnswerLabel;
+
+  /// No description provided for @quickAnswerCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI ({model}). It can be wrong: check it before relying on it, and use Google for deeper reading.'**
+  String quickAnswerCaution(String model);
+
+  /// No description provided for @quickAnswerTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop automatic AI answers'**
+  String get quickAnswerTurnOff;
+
+  /// No description provided for @quickAnswerUnsure.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI isn\'t sure about this answer.'**
+  String get quickAnswerUnsure;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

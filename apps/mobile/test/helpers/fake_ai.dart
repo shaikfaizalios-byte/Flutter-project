@@ -20,6 +20,7 @@ class FakeAiRepository implements AiRepository {
   TopicRef? topicToSuggest = sampleTopics.first;
   int generatedCount = 2;
   int rejectedCount = 0;
+  String quickAnswerText = 'Optional binding unwraps a value with if let.';
 
   final calls = <String>[];
   final generatedFor = <(String basis, ContentLanguage language, int count)>[];
@@ -146,5 +147,12 @@ class FakeAiRepository implements AiRepository {
     reports.add((questionId, reason, note));
     _maybeFail();
     return bankQuestion(id: questionId, issues: const ['learner_report']);
+  }
+
+  @override
+  Future<QuickAnswer> quickAnswer(String text, {String? examCode}) async {
+    calls.add('quick:$text:$examCode');
+    _maybeFail();
+    return QuickAnswer(answer: quickAnswerText, confident: confident, model: 'fake-model');
   }
 }

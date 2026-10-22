@@ -49,6 +49,8 @@ from app.schemas.ai import (
     GenerateQuestionsRequest,
     GenerateQuestionsResult,
     PaperTopicsResult,
+    QuickAnswer,
+    QuickAnswerRequest,
     TopicDraft,
     TopicSuggestionResult,
 )
@@ -84,7 +86,7 @@ class AIService:
             enabled=True,
             provider=self._provider.name,
             model=self._provider.model,
-            features=["explanations", "questions", "topics"],
+            features=["explanations", "questions", "topics", "quick_answers"],
         )
 
     # --- explanations -------------------------------------------------------------------
@@ -484,6 +486,46 @@ class AIService:
             remaining=len(pending) - considered,
         )
 
+    # --- quick answers ----------------------------------------------------------------------
+
+    def quick_answer(self, request: QuickAnswerRequest) -> QuickAnswer:
+        """A short answer to a search no imported question matched. Nothing is stored (the
+        call is logged without its text); the app labels it as unchecked AI."""
+        provider = self._require_provider()
+        exam_name: str | None = None
+        if request.exam_code is not None:
+            exam = ExamRepository(self._session).get_visible(request.exam_code, self._owner_id)
+            if exam is None:
+                raise InvalidReferenceError(f"Unknown exam '{request.exam_code}'.")
+            exam_name = exam.name
+        result = self._call(
+            provider,
+            task="quick_answer",
+            question_id=None,
+            prompt=ai_content.quick_answer_prompt(query=request.text, exam_name=exam_name),
+            schema=ai_content.QUICK_ANSWER_SCHEMA,
+            system=ai_content.QUICK_ANSWER_SYSTEM,
+        )
+        answer, confident = ai_content.validate_quick_answer(result.data)
+        self._record(
+            provider,
+            "quick_answer",
+            "ok" if answer else "invalid",
+            result,
+            None,
+            created=1 if answer else 0,
+            rejected=0 if answer else 1,
+        )
+        self._session.commit()
+        if answer is None:
+            raise AIUnavailableError("The AI gave no usable answer. Please try again.")
+        return QuickAnswer(
+            answer=answer,
+            confident=confident,
+            model=provider.model,
+            prompt_version=ai_content.PROMPT_VERSION,
+        )
+
     # --- helpers --------------------------------------------------------------------------
 
     def _require_provider(self) -> AIProvider:
@@ -529,10 +571,11 @@ class AIService:
         question_id: uuid.UUID | None,
         prompt: str,
         schema: dict[str, object],
+        system: str = ai_content.SYSTEM,
     ) -> AIResult:
         try:
             return provider.complete_json(
-                system=ai_content.SYSTEM,
+                system=system,
                 prompt=prompt,
                 schema=dict(schema),
                 max_tokens=self._settings.ai_max_output_tokens,

@@ -2858,4 +2858,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webSearchOpenFailed => 'Couldn\'t open the browser.';
+
+  @override
+  String get quickAnswerTitle => 'Quick AI answer';
+
+  @override
+  String get quickAnswerOffer =>
+      'Get a short AI answer when nothing in your papers matches. Your search text is sent to the AI service.';
+
+  @override
+  String get quickAnswerAsk => 'Ask AI';
+
+  @override
+  String get quickAnswerLoading => 'Asking the AI…';
+
+  @override
+  String get quickAnswerLabel => 'AI-generated · not checked';
+
+  @override
+  String quickAnswerCaution(String model) {
+    return 'Written by AI ($model). It can be wrong: check it before relying on it, and use Google for deeper reading.';
+  }
+
+  @override
+  String get quickAnswerTurnOff => 'Stop automatic AI answers';
+
+  @override
+  String get quickAnswerUnsure => 'The AI isn\'t sure about this answer.';
 }

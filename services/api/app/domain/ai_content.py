@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-PROMPT_VERSION = "p9.3"
+PROMPT_VERSION = "p9.4"
 OPTIONS_PER_QUESTION = 4  # SSC CGL/CHSL objective questions have four options
 MAX_GENERATED = 5
 
@@ -397,3 +397,53 @@ def pick_topic(data: dict[str, Any], topics: list[str]) -> str | None:
         return None
     by_key = {_norm(t): t for t in topics}
     return by_key.get(_norm(choice))
+
+
+# --- quick answers to a search (nothing is stored; shown labelled as unchecked AI) --------
+
+QUICK_ANSWER_SYSTEM = (
+    "You help learners prepare for exams and job interviews. You answer briefly and "
+    "plainly so a learner can check their understanding. Never claim or imply that your "
+    "answer comes from an official or previous-year paper, and never invent exam "
+    "patterns, cut-offs, marks or statistics. If you are not sure, say so instead of "
+    "guessing."
+)
+
+QUICK_ANSWER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "answer": {"type": "string"},
+        "confident": {"type": "boolean"},
+    },
+    "required": ["answer", "confident"],
+    "additionalProperties": False,
+}
+QUICK_ANSWER_MAX_QUERY = 300
+MAX_QUICK_ANSWER = 2000
+
+
+def query_language(text: str) -> str:
+    """'hi' when the search is written in Devanagari, else 'en'."""
+    return "hi" if any("ऀ" <= ch <= "ॿ" for ch in text) else "en"
+
+
+def quick_answer_prompt(*, query: str, exam_name: str | None) -> str:
+    preparing = f"preparing for {exam_name}" if exam_name else "preparing for an exam"
+    return (
+        f"A learner {preparing} searched their notes for:\n{query}\n\n"
+        "None of their imported papers has a matching question. Answer in at most 120 "
+        f"words, in {LANGUAGE_NAMES[query_language(query)]}. If the search is a question, "
+        "give the answer first and then the key reason in a sentence or two. If it is a "
+        "topic, explain the core idea and one thing that is commonly asked about it. "
+        "Set confident to false if you are not sure the answer is correct or the search "
+        "is unclear."
+    )
+
+
+def validate_quick_answer(data: dict[str, Any]) -> tuple[str | None, bool]:
+    """Returns (answer or None if unusable, whether the model was confident)."""
+    text = data.get("answer")
+    confident = data.get("confident") is True
+    if not isinstance(text, str) or not (0 < len(text.strip()) <= MAX_QUICK_ANSWER):
+        return None, confident
+    return unicodedata.normalize("NFC", text.strip()), confident

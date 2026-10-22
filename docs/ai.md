@@ -34,6 +34,7 @@ provenance, and reviewed before learners rely on it. AI never produces previous-
 | Practice questions | `POST /ai/questions/generate` | The basis is either a **verified** source question or the learner's concept (`concept: {title, notes ≤ 4000, subject, topic}`). The language (`en`/`hi`) is requested in the prompt. At most 5 per request. See below for validation and storage. |
 | Topic suggestion | `POST /ai/questions/{id}/topic-suggestion` | Only for questions without a topic that have a subject. The model must choose **from the existing taxonomy** for that subject; any other answer is ignored (`suggested: false`). Sets `topic_status = suggested`, `topic_suggested_by = ai`, which the app shows as "Suggested by AI". The reviewer confirms it. |
 | Paper topics | `POST /ai/documents/{id}/topic-suggestions` | For a paper's questions the keyword rules left without a topic (rejected ones excluded): batches of 20 (stem ≤ 600, options ≤ 120 characters each), a few batches per request; the app repeats while `remaining > 0`. Choices outside the taxonomy, or of another subject than the question's section, are ignored. Suggestions are `topic_suggested_by = ai` with the model as reason; questions with no match are not sent again. The app warns that question text goes to the AI service first. |
+| Quick answer | `POST /ai/quick-answer` | `{text: 2-300, exam_code?}`. A short answer (≤ 120 words, in Hindi when the search is in Devanagari) to a Study search that no imported question matched. Own system prompt (exams **and** interviews; no claims of official papers, no invented patterns or statistics). **Nothing is stored**: only the `ai_generations` row (task `quick_answer`, migration 0022), without text. The app sends nothing until the learner taps *Ask AI* once (device setting `quick_answers_on`, told the search text goes to the AI service); after that it asks by itself once the search has stood still for ~1 s, until they choose *Stop automatic AI answers*. Shown as "AI-generated · not checked" with the model, a warning when `confident` is false, and the Google button after it. |
 | Status | `GET /ai/status` | `enabled`, provider, model, features. No secrets. |
 | Report | `POST /questions/{id}/report` | Any question, any origin. Adds an open `learner_report` issue (reason + note) and moves a verified question back to **unverified**, so it leaves practice until re-approved. |
 
@@ -62,6 +63,8 @@ provenance, and reviewed before learners rely on it. AI never produces previous-
 - **Practice:** only when the learner turns on *Include AI-generated questions* (`include_ai`). Unverified ones also need
   *Include questions not yet reviewed*. Each item keeps `origin = ai` and is labelled.
 - **Mock tests:** never. They use verified source questions only.
+- **Study search (quick answers):** only when nothing in the papers matches; labelled "AI-generated · not checked",
+  never stored, never shown as a question.
 - **Review screens:** always labelled. Provenance shows the model, the prompt version and the basis.
 
 ## Errors

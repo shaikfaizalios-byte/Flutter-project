@@ -1935,5 +1935,14 @@
   "paperQuestionsOffline": "Questions can't be searched without a connection to the PrepLoop server.",
   "webSearchGoogle": "Search on Google",
   "webSearchLearnMore": "Learn more on Google",
-  "webSearchOpenFailed": "Couldn't open the browser."
+  "webSearchOpenFailed": "Couldn't open the browser.",
+  "quickAnswerTitle": "Quick AI answer",
+  "quickAnswerOffer": "Get a short AI answer when nothing in your papers matches. Your search text is sent to the AI service.",
+  "quickAnswerAsk": "Ask AI",
+  "quickAnswerLoading": "Asking the AI…",
+  "quickAnswerLabel": "AI-generated · not checked",
+  "quickAnswerCaution": "Written by AI ({model}). It can be wrong: check it before relying on it, and use Google for deeper reading.",
+  "@quickAnswerCaution": {"placeholders": {"model": {"type": "String"}}},
+  "quickAnswerTurnOff": "Stop automatic AI answers",
+  "quickAnswerUnsure": "The AI isn't sure about this answer."
 }

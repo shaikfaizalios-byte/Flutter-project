@@ -6,6 +6,7 @@ import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/web_search_button.dart';
+import '../../ai/presentation/quick_answer_panel.dart';
 import '../../exams/application/active_exam.dart';
 import '../../exams/application/exam_catalog_controller.dart';
 import '../application/question_bank_providers.dart';
@@ -81,6 +82,8 @@ class PaperQuestionsCard extends ConsumerWidget {
                     padding: const EdgeInsets.only(top: AppSpacing.sm),
                     child: Text(l10n.paperQuestionsNone(query), style: theme.textTheme.bodySmall),
                   ),
+                  // A quick AI answer first; Google for deeper reading.
+                  QuickAnswerPanel(query: query),
                   WebSearchButton(query: query, label: l10n.webSearchGoogle),
                 ],
               ),

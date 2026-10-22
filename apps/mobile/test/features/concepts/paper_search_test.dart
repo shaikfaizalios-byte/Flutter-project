@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/core/utils/external_links.dart';
 import 'package:preploop/core/widgets/search_field.dart';
 
@@ -142,5 +143,105 @@ void main() {
     final long = googleSearchUri('a' * 500).queryParameters['q']!;
     expect(long.length, webSearchMaxLength);
     expect(googleSearchUri('C++ & Swift?').host, 'www.google.com');
+  });
+
+  Future<void> search(WidgetTester tester, String text) async {
+    await tester.enterText(find.byType(AppSearchField), text);
+    await tester.pump(const Duration(milliseconds: 400)); // paper search wait
+    await tester.pump(const Duration(seconds: 1)); // AI settle wait
+    await tester.pumpAndSettle();
+  }
+
+  testAppWidgets('no match: a quick AI answer (after asking once) comes before Google', (
+    tester,
+    db,
+  ) async {
+    final ai = FakeAiRepository(enabled: true);
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      ai: ai,
+      questions: paperQuestions,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+    );
+    await openStudy(tester);
+
+    // Nothing is sent to the AI until the learner asks once.
+    await search(tester, 'kotlin coroutines');
+    expect(find.text('Quick AI answer'), findsOneWidget);
+    expect(find.textContaining('Your search text is sent to the AI service'), findsOneWidget);
+    expect(ai.calls.where((c) => c.startsWith('quick:')), isEmpty);
+    await tester.tap(find.text('Ask AI'));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(ai.calls, contains('quick:kotlin coroutines:SSC_CHSL'));
+    expect(find.text('AI-generated · not checked'), findsOneWidget);
+    expect(find.text(ai.quickAnswerText), findsOneWidget);
+    expect(find.textContaining('Written by AI (fake-model)'), findsOneWidget);
+    // The answer comes first, then Google for deeper reading.
+    final answerY = tester.getTopLeft(find.text(ai.quickAnswerText)).dy;
+    expect(tester.getTopLeft(find.text('Search on Google')).dy, greaterThan(answerY));
+
+    // From now on it answers by itself (remembered on the device).
+    await search(tester, 'kotlin flows');
+    expect(ai.calls, contains('quick:kotlin flows:SSC_CHSL'));
+    expect(
+      await (db.select(
+        db.appSettings,
+      )..where((s) => s.key.equals('quick_answers_on'))).getSingle().then((r) => r.value),
+      'true',
+    );
+
+    await tester.tap(find.text('Stop automatic AI answers'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ask AI'), findsOneWidget);
+  });
+
+  testAppWidgets(
+    'quick answers: an unsure AI is flagged, errors can be retried, none with matches',
+    (tester, db) async {
+      final ai = FakeAiRepository(enabled: true)..confident = false;
+      await pumpPrepLoopApp(
+        tester,
+        db,
+        ai: ai,
+        questions: paperQuestions,
+        studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+      );
+      await openStudy(tester);
+      await search(tester, 'kotlin');
+      await tester.tap(find.text('Ask AI'));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.textContaining("isn't sure"), findsOneWidget);
+
+      ai.failure = const NetworkFailure();
+      await search(tester, 'kotlin channels');
+      expect(find.text('Try again'), findsOneWidget);
+      await tester.tap(find.text('Try again'));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.text(ai.quickAnswerText), findsOneWidget);
+
+      // Matching paper questions: no AI answer, the papers come first.
+      final before = ai.calls.length;
+      await search(tester, 'swift');
+      expect(find.text('Quick AI answer'), findsNothing);
+      expect(ai.calls.length, before);
+    },
+  );
+
+  testAppWidgets('without AI on the server only Google is offered', (tester, db) async {
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      questions: paperQuestions,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+    );
+    await openStudy(tester);
+    await search(tester, 'kotlin');
+    expect(find.text('Quick AI answer'), findsNothing);
+    expect(find.text('Search on Google'), findsOneWidget);
   });
 }

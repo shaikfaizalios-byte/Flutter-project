@@ -77,7 +77,13 @@ class ConceptListScreen extends ConsumerWidget {
                     AppSpacing.md,
                     AppSpacing.xs,
                   ),
-                  child: PaperQuestionsCard(text: text),
+                  // Capped so the concepts below stay visible; the card scrolls inside.
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.sizeOf(context).height * 0.45,
+                    ),
+                    child: SingleChildScrollView(child: PaperQuestionsCard(text: text)),
+                  ),
                 ),
               Expanded(
                 child: switch (concepts) {

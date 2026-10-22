@@ -72,6 +72,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   match) / "Learn more on Google" (matches; question screen app bar, searched by the stem) open
   `googleSearchUri` in the browser via `linkOpenerProvider` (`core/utils/external_links.dart`,
   url_launcher; overridden in tests). Only on tap; the privacy policy says the text goes to Google.
+  No match + AI on: `QuickAnswerPanel` (before the Google button) → `POST /ai/quick-answer` (pure
+  `quick_answer_prompt`/`validate_quick_answer`, own system prompt, NOTHING stored, `ai_generations` task
+  `quick_answer`, migration 0022). Off until the learner taps "Ask AI" once (`quick_answers_on` device
+  setting); then asked after the search stays still ~1 s (`quickAnswerSettle`); labelled "AI-generated · not
+  checked"; the Study card is capped at 45 % of the screen height and scrolls.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
   chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
   "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.

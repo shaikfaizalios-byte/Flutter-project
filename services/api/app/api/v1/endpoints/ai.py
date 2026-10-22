@@ -14,6 +14,8 @@ from app.schemas.ai import (
     GenerateQuestionsResult,
     PaperTopicsResult,
     QuestionReport,
+    QuickAnswer,
+    QuickAnswerRequest,
     TopicDraft,
     TopicSuggestionResult,
 )
@@ -132,6 +134,17 @@ def suggest_paper_topics(document_id: uuid.UUID, service: Service) -> PaperTopic
 )
 def suggest_topic(question_id: uuid.UUID, service: Service) -> TopicSuggestionResult:
     return service.suggest_topic(question_id)
+
+
+@router.post(
+    "/ai/quick-answer",
+    response_model=QuickAnswer,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="A short AI answer to a search no imported question matched (nothing is saved)",
+)
+def quick_answer(body: QuickAnswerRequest, service: Service) -> QuickAnswer:
+    return service.quick_answer(body)
 
 
 @router.post(
