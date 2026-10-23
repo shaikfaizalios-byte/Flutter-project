@@ -1937,7 +1937,7 @@
   "webSearchLearnMore": "Learn more on Google",
   "webSearchOpenFailed": "Couldn't open the browser.",
   "quickAnswerTitle": "Quick AI answer",
-  "quickAnswerOffer": "Get a short AI answer when nothing in your papers matches. Your search text is sent to the AI service.",
+  "quickAnswerOffer": "Get a short AI answer from your own papers and notes. Your search and the matching parts of your material are sent to the AI service.",
   "quickAnswerAsk": "Ask AI",
   "quickAnswerLoading": "Asking the AI…",
   "quickAnswerLabel": "AI-generated · not checked",
@@ -1977,5 +1977,14 @@
   "plusFreeTitle": "Free for everyone",
   "plusFreeMessage": "Importing papers, the question bank, practice, mock tests, revision, reminders and progress stay free.",
   "plusLoadFailed": "Plus details couldn't be loaded. Check your connection.",
-  "plusChangeFailed": "That didn't work. Please try again."
+  "plusChangeFailed": "That didn't work. Please try again.",
+  "searchAnswerTitle": "AI answer from your material",
+  "searchAnswerLabel": "Written by AI from your material · check the sources",
+  "searchAnswerLoading": "Searching your material…",
+  "searchAnswerSources": "Sources",
+  "searchAnswerUnchecked": "Not checked by a reviewer",
+  "searchAnswerUnsure": "The AI isn't sure your material answers this well.",
+  "searchAnswerNotCovered": "Your material doesn't cover this. A general AI answer instead:",
+  "searchAnswerCaution": "Written by AI ({model}) only from the sources above. It can still be wrong: open a source to check it.",
+  "@searchAnswerCaution": {"placeholders": {"model": {"type": "String"}}}
 }

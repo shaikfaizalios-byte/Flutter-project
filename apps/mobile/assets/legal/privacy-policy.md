@@ -28,9 +28,12 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
 **Optional AI assistance** (only when you use it, and only if it is switched on)
 - When you ask for an AI explanation or AI practice questions, the question text (or the concept
   title and notes you chose) is sent to our AI provider, [Anthropic PBC], to write the answer.
-- If you switch on quick AI answers in the Study search, a search that matches nothing in your
-  papers is sent to the same provider for a short answer. It is off until you tap "Ask AI", and
-  you can stop it at any time. The answer is not stored.
+- If you switch on AI answers in the Study search, your search and the parts of your own
+  material that match it (excerpts of your imported pages and questions, and your concept notes)
+  are sent to the same provider to write an answer from them; when your material doesn't cover
+  the search, the search alone is sent for a general answer. It is off until you tap "Ask AI",
+  and you can stop it at any time. Answers are not stored, and other learners' material is never
+  sent with yours.
 - We keep a record that an AI request happened (type, model, outcome, size) but not its text.
 
 **Repeat Radar** (only if you turn on "Share my counts with the Repeat Radar"; off by default)

@@ -76,6 +76,94 @@ class QuickAnswer {
   final String model;
 }
 
+/// Where a source of a [SearchAnswer] comes from.
+enum SearchSourceKind { page, question, concept }
+
+/// One piece of the learner's material a [SearchAnswer] may cite.
+@immutable
+class SearchAnswerSource {
+  const SearchAnswerSource({
+    required this.key,
+    required this.kind,
+    required this.label,
+    required this.snippet,
+    required this.verified,
+    required this.cited,
+    this.documentId,
+    this.pageNumber,
+    this.questionId,
+    this.conceptId,
+  });
+
+  factory SearchAnswerSource.fromJson(Map<String, dynamic> json) => SearchAnswerSource(
+    key: json['key'] as String,
+    kind: SearchSourceKind.values.byName(json['kind'] as String),
+    label: json['label'] as String,
+    snippet: json['snippet'] as String,
+    verified: json['verified'] as bool,
+    cited: json['cited'] as bool,
+    documentId: json['document_id'] as String?,
+    pageNumber: json['page_number'] as int?,
+    questionId: json['question_id'] as String?,
+    conceptId: json['concept_id'] as String?,
+  );
+
+  /// "S1", "S2", ... as used in the answer's [S#] markers.
+  final String key;
+  final SearchSourceKind kind;
+  final String label;
+  final String snippet;
+
+  /// Checked by a reviewer (questions) or the learner's own notes; page text is not.
+  final bool verified;
+
+  /// The answer uses this source.
+  final bool cited;
+  final String? documentId;
+  final int? pageNumber;
+  final String? questionId;
+  final String? conceptId;
+}
+
+/// An AI answer written only from the learner's own material (RAG), with its sources.
+/// [found] is false when the material doesn't answer the search ([answer] is then null).
+@immutable
+class SearchAnswer {
+  const SearchAnswer({
+    required this.found,
+    required this.confident,
+    required this.sources,
+    this.answer,
+    this.model,
+  });
+
+  factory SearchAnswer.fromJson(Map<String, dynamic> json) => SearchAnswer(
+    found: json['found'] as bool,
+    answer: json['answer'] as String?,
+    confident: json['confident'] as bool,
+    sources: [
+      for (final s in json['sources'] as List<dynamic>)
+        SearchAnswerSource.fromJson(s as Map<String, dynamic>),
+    ],
+    model: json['model'] as String?,
+  );
+
+  static const notFound = SearchAnswer(found: false, confident: true, sources: []);
+
+  final bool found;
+  final String? answer;
+  final bool confident;
+  final List<SearchAnswerSource> sources;
+
+  /// Null when no AI call was needed (nothing in the material matched).
+  final String? model;
+
+  List<SearchAnswerSource> get cited => [
+    for (final s in sources)
+      if (s.cited) s,
+  ];
+}
+
 enum ReportReason {
   wrongAnswer('wrong_answer'),
   unclear('unclear'),
@@ -118,6 +206,10 @@ abstract interface class AiRepository {
 
   /// Sends the search text to the AI provider (only after the learner switched this on).
   Future<QuickAnswer> quickAnswer(String text, {String? examCode});
+
+  /// Answers from the learner's own material (RAG): the search and the matching excerpts go
+  /// to the AI provider (only after the learner switched AI answers on).
+  Future<SearchAnswer> searchAnswer(String text, {required String examCode});
 }
 
 class RemoteAiRepository implements AiRepository {
@@ -229,6 +321,16 @@ class RemoteAiRepository implements AiRepository {
       (await _dio.post<Map<String, dynamic>>(
         '$_base/ai/quick-answer',
         data: {'text': text, 'exam_code': ?examCode},
+      )).data!,
+    ),
+  );
+
+  @override
+  Future<SearchAnswer> searchAnswer(String text, {required String examCode}) => _guard(
+    () async => SearchAnswer.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/ai/search-answer',
+        data: {'text': text, 'exam_code': examCode},
       )).data!,
     ),
   );

@@ -77,6 +77,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `quick_answer`, migration 0022). Off until the learner taps "Ask AI" once (`quick_answers_on` device
   setting); then asked after the search stays still ~1 s (`quickAnswerSettle`); labelled "AI-generated · not
   checked"; the Study card is capped at 45 % of the screen height and scrolls.
+  RAG (docs/rag-guide.md): `SearchAnswerPanel` at the top of the card → `POST /ai/search-answer`: `RagRetriever`
+  (`app/services/rag_service.py`, PostgreSQL `to_tsvector('simple')`/`ts_rank_cd`, OR-prefix tsquery) over
+  own pages + visible source questions + synced concepts of one exam, scoped by owner BEFORE ranking; pure
+  `app/domain/rag.py` (terms, snippets, S1..Sn prompt, `validate_rag`: unknown [S#] → reject). No sources →
+  found=false, no AI call. Not found → general `QuickAnswerPanel`. Task `rag_answer` (migration 0024).
 - PrepLoop Plus (docs/plus.md): `subscriptions` (migration 0023, one row per account, source
   test|operator|play|web, `active_until`); `GET /me/plus` (status + AI requests used this UTC month from
   `ai_generations` ok/partial vs `PREPLOOP_PLUS_AI_MONTHLY_ALLOWANCE`, default 300); free test subscriptions

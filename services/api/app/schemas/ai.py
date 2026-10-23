@@ -12,7 +12,9 @@ class AIStatus(BaseModel):
     provider: str | None
     model: str | None
     # Features available while enabled.
-    features: list[Literal["explanations", "questions", "topics", "quick_answers"]]
+    features: list[
+        Literal["explanations", "questions", "topics", "quick_answers", "search_answers"]
+    ]
 
 
 class ConceptInput(BaseModel):
@@ -140,4 +142,41 @@ class QuickAnswer(BaseModel):
     answer: str
     confident: bool
     model: str
+    prompt_version: str
+
+
+class SearchAnswerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, min_length=2, max_length=QUICK_ANSWER_MAX_QUERY),
+    ]
+    exam_code: str
+
+
+class SearchAnswerSource(BaseModel):
+    """One piece of the learner's material the answer may cite."""
+
+    key: str  # "S1", ... as used in the answer's markers
+    kind: Literal["page", "question", "concept"]
+    label: str
+    snippet: str
+    verified: bool
+    cited: bool
+    document_id: uuid.UUID | None = None
+    page_number: int | None = None
+    question_id: uuid.UUID | None = None
+    concept_id: str | None = None
+
+
+class SearchAnswer(BaseModel):
+    """An answer written only from the learner's material (RAG), with its sources.
+    found=false: nothing in the material answers the search (answer is null)."""
+
+    found: bool
+    answer: str | None
+    confident: bool
+    sources: list[SearchAnswerSource]
+    model: str | None  # null when no AI call was needed (no matching material)
     prompt_version: str

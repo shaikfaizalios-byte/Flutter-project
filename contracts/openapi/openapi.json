@@ -150,7 +150,8 @@
                 "explanations",
                 "questions",
                 "topics",
-                "quick_answers"
+                "quick_answers",
+                "search_answers"
               ],
               "type": "string"
             },
@@ -4481,6 +4482,173 @@
         "title": "RepeatsReport",
         "type": "object"
       },
+      "SearchAnswer": {
+        "description": "An answer written only from the learner's material (RAG), with its sources.\nfound=false: nothing in the material answers the search (answer is null).",
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "confident": {
+            "title": "Confident",
+            "type": "boolean"
+          },
+          "found": {
+            "title": "Found",
+            "type": "boolean"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SearchAnswerSource"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "found",
+          "answer",
+          "confident",
+          "sources",
+          "model",
+          "prompt_version"
+        ],
+        "title": "SearchAnswer",
+        "type": "object"
+      },
+      "SearchAnswerRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 300,
+            "minLength": 2,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "exam_code"
+        ],
+        "title": "SearchAnswerRequest",
+        "type": "object"
+      },
+      "SearchAnswerSource": {
+        "description": "One piece of the learner's material the answer may cite.",
+        "properties": {
+          "cited": {
+            "title": "Cited",
+            "type": "boolean"
+          },
+          "concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Concept Id"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "page",
+              "question",
+              "concept"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "page_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "snippet": {
+            "title": "Snippet",
+            "type": "string"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "kind",
+          "label",
+          "snippet",
+          "verified",
+          "cited"
+        ],
+        "title": "SearchAnswerSource",
+        "type": "object"
+      },
       "SectionAvailability": {
         "properties": {
           "available": {
@@ -6796,6 +6964,102 @@
           }
         ],
         "summary": "A short AI answer to a search no imported question matched (nothing is saved)",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/search-answer": {
+      "post": {
+        "operationId": "search_answer_api_v1_ai_search_answer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchAnswer"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Answer a search only from your own material, with the sources it cites",
         "tags": [
           "ai"
         ]

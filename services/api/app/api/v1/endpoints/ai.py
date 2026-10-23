@@ -16,6 +16,8 @@ from app.schemas.ai import (
     QuestionReport,
     QuickAnswer,
     QuickAnswerRequest,
+    SearchAnswer,
+    SearchAnswerRequest,
     TopicDraft,
     TopicSuggestionResult,
 )
@@ -145,6 +147,17 @@ def suggest_topic(question_id: uuid.UUID, service: Service) -> TopicSuggestionRe
 )
 def quick_answer(body: QuickAnswerRequest, service: Service) -> QuickAnswer:
     return service.quick_answer(body)
+
+
+@router.post(
+    "/ai/search-answer",
+    response_model=SearchAnswer,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="Answer a search only from your own material, with the sources it cites",
+)
+def search_answer(body: SearchAnswerRequest, service: Service) -> SearchAnswer:
+    return service.search_answer(body)
 
 
 @router.post(

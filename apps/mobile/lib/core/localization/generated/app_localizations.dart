@@ -4692,7 +4692,7 @@ abstract class AppLocalizations {
   /// No description provided for @quickAnswerOffer.
   ///
   /// In en, this message translates to:
-  /// **'Get a short AI answer when nothing in your papers matches. Your search text is sent to the AI service.'**
+  /// **'Get a short AI answer from your own papers and notes. Your search and the matching parts of your material are sent to the AI service.'**
   String get quickAnswerOffer;
 
   /// No description provided for @quickAnswerAsk.
@@ -4898,6 +4898,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That didn\'t work. Please try again.'**
   String get plusChangeFailed;
+
+  /// No description provided for @searchAnswerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI answer from your material'**
+  String get searchAnswerTitle;
+
+  /// No description provided for @searchAnswerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI from your material · check the sources'**
+  String get searchAnswerLabel;
+
+  /// No description provided for @searchAnswerLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching your material…'**
+  String get searchAnswerLoading;
+
+  /// No description provided for @searchAnswerSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get searchAnswerSources;
+
+  /// No description provided for @searchAnswerUnchecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked by a reviewer'**
+  String get searchAnswerUnchecked;
+
+  /// No description provided for @searchAnswerUnsure.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI isn\'t sure your material answers this well.'**
+  String get searchAnswerUnsure;
+
+  /// No description provided for @searchAnswerNotCovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Your material doesn\'t cover this. A general AI answer instead:'**
+  String get searchAnswerNotCovered;
+
+  /// No description provided for @searchAnswerCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI ({model}) only from the sources above. It can still be wrong: open a source to check it.'**
+  String searchAnswerCaution(String model);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

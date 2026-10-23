@@ -61,3 +61,16 @@ final quickAnswerProvider = FutureProvider.autoDispose.family<QuickAnswer?, Stri
   if (!ref.mounted) return null;
   return ref.read(aiRepositoryProvider).quickAnswer(text, examCode: exam);
 }, retry: (_, _) => null);
+
+/// The AI's answer to [text] from the learner's own material for the current exam (RAG).
+/// Null while there is no exam or the search changed during the wait.
+final searchAnswerProvider = FutureProvider.autoDispose.family<SearchAnswer?, String>((
+  ref,
+  text,
+) async {
+  final exam = ref.watch(activeExamProvider);
+  if (exam == null) return null;
+  await Future<void>.delayed(quickAnswerSettle);
+  if (!ref.mounted) return null;
+  return ref.read(aiRepositoryProvider).searchAnswer(text, examCode: exam);
+}, retry: (_, _) => null);

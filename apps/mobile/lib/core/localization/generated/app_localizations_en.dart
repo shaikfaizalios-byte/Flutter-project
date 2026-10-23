@@ -2864,7 +2864,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickAnswerOffer =>
-      'Get a short AI answer when nothing in your papers matches. Your search text is sent to the AI service.';
+      'Get a short AI answer from your own papers and notes. Your search and the matching parts of your material are sent to the AI service.';
 
   @override
   String get quickAnswerAsk => 'Ask AI';
@@ -2983,4 +2983,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plusChangeFailed => 'That didn\'t work. Please try again.';
+
+  @override
+  String get searchAnswerTitle => 'AI answer from your material';
+
+  @override
+  String get searchAnswerLabel => 'Written by AI from your material · check the sources';
+
+  @override
+  String get searchAnswerLoading => 'Searching your material…';
+
+  @override
+  String get searchAnswerSources => 'Sources';
+
+  @override
+  String get searchAnswerUnchecked => 'Not checked by a reviewer';
+
+  @override
+  String get searchAnswerUnsure => 'The AI isn\'t sure your material answers this well.';
+
+  @override
+  String get searchAnswerNotCovered =>
+      'Your material doesn\'t cover this. A general AI answer instead:';
+
+  @override
+  String searchAnswerCaution(String model) {
+    return 'Written by AI ($model) only from the sources above. It can still be wrong: open a source to check it.';
+  }
 }

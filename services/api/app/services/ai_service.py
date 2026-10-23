@@ -17,7 +17,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
-from app.domain import ai_content
+from app.domain import ai_content, rag
 from app.domain.errors import (
     AIDisabledError,
     AIUnavailableError,
@@ -51,12 +51,16 @@ from app.schemas.ai import (
     PaperTopicsResult,
     QuickAnswer,
     QuickAnswerRequest,
+    SearchAnswer,
+    SearchAnswerRequest,
+    SearchAnswerSource,
     TopicDraft,
     TopicSuggestionResult,
 )
 from app.schemas.question import AIExplanationRead
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.question_service import QuestionService
+from app.services.rag_service import RagRetriever
 from app.services.topic_service import topic_scope, visible_topics
 
 MIN_TAXONOMY_QUESTIONS = 5
@@ -86,7 +90,7 @@ class AIService:
             enabled=True,
             provider=self._provider.name,
             model=self._provider.model,
-            features=["explanations", "questions", "topics", "quick_answers"],
+            features=["explanations", "questions", "topics", "quick_answers", "search_answers"],
         )
 
     # --- explanations -------------------------------------------------------------------
@@ -522,6 +526,79 @@ class AIService:
         return QuickAnswer(
             answer=answer,
             confident=confident,
+            model=provider.model,
+            prompt_version=ai_content.PROMPT_VERSION,
+        )
+
+    # --- answers from the learner's material (RAG) ------------------------------------------
+
+    def search_answer(self, request: SearchAnswerRequest) -> SearchAnswer:
+        """Retrieve the best-matching material, let the AI answer only from it, and check every
+        citation. No matching material: "not found" without an AI call (nothing is spent)."""
+        provider = self._require_provider()
+        exam = ExamRepository(self._session).get_visible(request.exam_code, self._owner_id)
+        if exam is None:
+            raise InvalidReferenceError(f"Unknown exam '{request.exam_code}'.")
+        # 1. RETRIEVE
+        sources = RagRetriever(self._session, self._owner_id).retrieve(
+            rag.query_terms(request.text), request.exam_code
+        )
+        if not sources:
+            return SearchAnswer(
+                found=False,
+                answer=None,
+                confident=True,
+                sources=[],
+                model=None,
+                prompt_version=ai_content.PROMPT_VERSION,
+            )
+        # 2. AUGMENT + 3. GENERATE
+        result = self._call(
+            provider,
+            task="rag_answer",
+            question_id=None,
+            prompt=rag.rag_prompt(query=request.text, exam_name=exam.name, sources=sources),
+            schema=rag.RAG_SCHEMA,
+            system=rag.RAG_SYSTEM,
+        )
+        # 4. CHECK
+        answer = rag.validate_rag(result.data, [s.key for s in sources])
+        detail = f"{len(sources)} sources"
+        if answer is not None:
+            detail += f", {len(answer.cited)} cited"
+        self._record(
+            provider,
+            "rag_answer",
+            "invalid" if answer is None else "ok",
+            result,
+            None,
+            detail,
+            created=0 if answer is None else 1,
+            rejected=1 if answer is None else 0,
+        )
+        self._session.commit()
+        if answer is None:
+            raise AIUnavailableError("The AI answer did not cite your material correctly.")
+        cited = set(answer.cited)
+        return SearchAnswer(
+            found=answer.found,
+            answer=answer.answer,
+            confident=answer.confident,
+            sources=[
+                SearchAnswerSource(
+                    key=s.key,
+                    kind=s.kind,
+                    label=s.label,
+                    snippet=s.text,
+                    verified=s.verified,
+                    cited=s.key in cited,
+                    document_id=uuid.UUID(s.document_id) if s.document_id else None,
+                    page_number=s.page_number,
+                    question_id=uuid.UUID(s.question_id) if s.question_id else None,
+                    concept_id=s.concept_id,
+                )
+                for s in sources
+            ],
             model=provider.model,
             prompt_version=ai_content.PROMPT_VERSION,
         )

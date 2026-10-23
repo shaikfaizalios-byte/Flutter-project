@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/core/utils/external_links.dart';
+import 'package:preploop/features/ai/data/ai_repository.dart';
 import 'package:preploop/core/widgets/search_field.dart';
 
 import '../../helpers/pump_app.dart';
@@ -168,14 +169,16 @@ void main() {
 
     // Nothing is sent to the AI until the learner asks once.
     await search(tester, 'kotlin coroutines');
-    expect(find.text('Quick AI answer'), findsOneWidget);
-    expect(find.textContaining('Your search text is sent to the AI service'), findsOneWidget);
-    expect(ai.calls.where((c) => c.startsWith('quick:')), isEmpty);
+    expect(find.text('AI answer from your material'), findsOneWidget);
+    expect(find.textContaining('matching parts of your material are sent'), findsOneWidget);
+    expect(ai.calls, isEmpty); // nothing is sent before Ask AI
     await tester.tap(find.text('Ask AI'));
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
 
-    expect(ai.calls, contains('quick:kotlin coroutines:SSC_CHSL'));
+    // Your material first (RAG); it doesn't cover this, so a general answer follows.
+    expect(ai.calls, ['search:kotlin coroutines:SSC_CHSL', 'quick:kotlin coroutines:SSC_CHSL']);
+    expect(find.textContaining("Your material doesn't cover this"), findsOneWidget);
     expect(find.text('AI-generated · not checked'), findsOneWidget);
     expect(find.text(ai.quickAnswerText), findsOneWidget);
     expect(find.textContaining('Written by AI (fake-model)'), findsOneWidget);
@@ -193,6 +196,8 @@ void main() {
       'true',
     );
 
+    await tester.ensureVisible(find.text('Stop automatic AI answers'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Stop automatic AI answers'));
     await tester.pumpAndSettle();
     expect(find.text('Ask AI'), findsOneWidget);
@@ -224,11 +229,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(ai.quickAnswerText), findsOneWidget);
 
-      // Matching paper questions: no AI answer, the papers come first.
-      final before = ai.calls.length;
+      // Matching paper questions: the answer is asked from the material too.
       await search(tester, 'swift');
-      expect(find.text('Quick AI answer'), findsNothing);
-      expect(ai.calls.length, before);
+      expect(ai.calls, contains('search:swift:SSC_CHSL'));
     },
   );
 
@@ -241,7 +244,78 @@ void main() {
     );
     await openStudy(tester);
     await search(tester, 'kotlin');
-    expect(find.text('Quick AI answer'), findsNothing);
+    expect(find.text('AI answer from your material'), findsNothing);
     expect(find.text('Search on Google'), findsOneWidget);
+  });
+
+  testAppWidgets('an answer from the material shows its sources, and a source opens', (
+    tester,
+    db,
+  ) async {
+    final ai = FakeAiRepository(enabled: true)
+      ..searchAnswerResult = const SearchAnswer(
+        found: true,
+        answer: 'Optional binding unwraps a value safely [S1]. It uses if let [S2].',
+        confident: true,
+        model: 'fake-model',
+        sources: [
+          SearchAnswerSource(
+            key: 'S1',
+            kind: SearchSourceKind.question,
+            label: 'Q.1 · chsl-2024.pdf',
+            snippet: '...',
+            verified: true,
+            cited: true,
+            questionId: 'q1',
+          ),
+          SearchAnswerSource(
+            key: 'S2',
+            kind: SearchSourceKind.page,
+            label: 'swift-notes.pdf, page 7',
+            snippet: '...',
+            verified: false,
+            cited: true,
+            documentId: 'doc1',
+            pageNumber: 7,
+          ),
+          SearchAnswerSource(
+            key: 'S3',
+            kind: SearchSourceKind.page,
+            label: 'unused.pdf, page 1',
+            snippet: '...',
+            verified: false,
+            cited: false,
+            documentId: 'doc1',
+            pageNumber: 1,
+          ),
+        ],
+      );
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      ai: ai,
+      questions: paperQuestions,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+    );
+    await openStudy(tester);
+    await search(tester, 'swift optional');
+    await tester.tap(find.text('Ask AI'));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Written by AI from your material · check the sources'), findsOneWidget);
+    expect(find.textContaining('unwraps a value safely [S1]'), findsOneWidget);
+    expect(find.text('Q.1 · chsl-2024.pdf'), findsOneWidget);
+    expect(find.text('swift-notes.pdf, page 7'), findsOneWidget);
+    expect(find.text('Not checked by a reviewer'), findsOneWidget); // the page, not the question
+    expect(find.text('unused.pdf, page 1'), findsNothing); // only cited sources are listed
+    expect(find.textContaining("doesn't cover this"), findsNothing);
+    expect(ai.calls.where((c) => c.startsWith('quick:')), isEmpty); // no general answer needed
+
+    await tester.ensureVisible(find.text('Q.1 · chsl-2024.pdf'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Q.1 · chsl-2024.pdf'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('optional binding do?'), findsWidgets); // the question opened
   });
 }

@@ -2869,7 +2869,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get quickAnswerOffer =>
-      'जब आपके पेपरों में कुछ न मिले, तो AI से छोटा उत्तर पाएँ। आपका खोज-पाठ AI सेवा को भेजा जाता है।';
+      'अपने पेपरों और नोट्स से AI का छोटा उत्तर पाएँ। आपकी खोज और आपकी सामग्री के मिलते हुए हिस्से AI सेवा को भेजे जाते हैं।';
 
   @override
   String get quickAnswerAsk => 'AI से पूछें';
@@ -2987,4 +2987,31 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get plusChangeFailed => 'यह नहीं हो सका। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get searchAnswerTitle => 'आपकी सामग्री से AI उत्तर';
+
+  @override
+  String get searchAnswerLabel => 'आपकी सामग्री से AI द्वारा लिखा · स्रोत जाँचें';
+
+  @override
+  String get searchAnswerLoading => 'आपकी सामग्री में खोजा जा रहा है…';
+
+  @override
+  String get searchAnswerSources => 'स्रोत';
+
+  @override
+  String get searchAnswerUnchecked => 'समीक्षक द्वारा जाँचा नहीं गया';
+
+  @override
+  String get searchAnswerUnsure => 'AI को पक्का नहीं है कि आपकी सामग्री इसका ठीक उत्तर देती है।';
+
+  @override
+  String get searchAnswerNotCovered =>
+      'आपकी सामग्री में यह नहीं है। इसके बजाय एक सामान्य AI उत्तर:';
+
+  @override
+  String searchAnswerCaution(String model) {
+    return 'AI ($model) द्वारा केवल ऊपर के स्रोतों से लिखा। फिर भी यह गलत हो सकता है: जाँचने के लिए स्रोत खोलें।';
+  }
 }

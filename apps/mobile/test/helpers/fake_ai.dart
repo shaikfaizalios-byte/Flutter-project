@@ -22,6 +22,9 @@ class FakeAiRepository implements AiRepository {
   int rejectedCount = 0;
   String quickAnswerText = 'Optional binding unwraps a value with if let.';
 
+  /// What the next searches answer from the learner's material (default: not covered).
+  SearchAnswer searchAnswerResult = SearchAnswer.notFound;
+
   final calls = <String>[];
   final generatedFor = <(String basis, ContentLanguage language, int count)>[];
   final reports = <(String questionId, ReportReason reason, String note)>[];
@@ -154,5 +157,12 @@ class FakeAiRepository implements AiRepository {
     calls.add('quick:$text:$examCode');
     _maybeFail();
     return QuickAnswer(answer: quickAnswerText, confident: confident, model: 'fake-model');
+  }
+
+  @override
+  Future<SearchAnswer> searchAnswer(String text, {required String examCode}) async {
+    calls.add('search:$text:$examCode');
+    _maybeFail();
+    return searchAnswerResult;
   }
 }
