@@ -94,6 +94,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Documents: upload → validate (magic bytes, PDFium) → `DocumentStorage` → DB-backed queue → worker
   (`app/workers/document_worker.py`, lease + SKIP LOCKED) → per-page text layer or Tesseract OCR
   (`OcrEngine`), uncertain pages flagged. pypdfium2, not PyMuPDF (AGPL). See docs/document-ingestion.md.
+- Reading any paper with AI (docs/ai.md "Read a paper"): learner taps "Read with AI" on the review screen (`AiReadCard`,
+  polls the parse summary) → `POST /ai/documents/{id}/read` queues `documents.ai_read_status`; the worker
+  (`AiPaperReader`, also in `run_once`) sends 3 page images + text per request (`AIProvider.complete_json(images=)`),
+  pure `app/domain/ai_reading.py` validates and compares each question with its page text (mismatch / scan →
+  review issues `ai_text_mismatch`/`ai_read_unchecked`); `questions.extracted_by` rules|ai (migration 0025).
 - Question bank: worker runs the pure segmenter (`app/domain/segmentation.py`) after extraction →
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a

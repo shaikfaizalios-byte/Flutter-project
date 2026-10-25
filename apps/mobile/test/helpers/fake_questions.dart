@@ -35,8 +35,10 @@ BankQuestion bankQuestion({
   String answerType = 'choice',
   String? typedAnswer,
   String? sharedSource,
+  bool readByAi = false,
 }) => BankQuestion(
   id: id,
+  readByAi: readByAi,
   readOnly: sharedSource != null,
   sharedSource: sharedSource,
   origin: origin,

@@ -248,6 +248,7 @@ class BankQuestion {
     this.typedAnswer,
     this.typedAnswerNumeric = false,
     this.answerSource,
+    this.readByAi = false,
     this.explanation,
     this.topicSuggestedBy,
     this.topicSuggestionReason,
@@ -301,6 +302,7 @@ class BankQuestion {
     typedAnswer: json['typed_answer'] as String?,
     typedAnswerNumeric: json['typed_answer_numeric'] as bool? ?? false,
     answerSource: json['answer_source'] as String?,
+    readByAi: json['extracted_by'] == 'ai',
     explanation: json['explanation'] as String?,
     imageDependent: json['image_dependent'] as bool,
     status: VerificationStatus.fromCode(json['verification_status'] as String),
@@ -359,6 +361,9 @@ class BankQuestion {
   final bool typedAnswerNumeric;
   bool get isTyped => answerType == 'typed';
   final String? answerSource;
+
+  /// Read out of the paper by AI (compare with the source page before verifying).
+  final bool readByAi;
   final String? explanation;
   final bool imageDependent;
   final VerificationStatus status;
@@ -405,6 +410,7 @@ class BankQuestion {
     typedAnswer: typedAnswer,
     typedAnswerNumeric: typedAnswerNumeric,
     answerSource: answerSource,
+    readByAi: readByAi,
     explanation: explanation,
     topicSuggestedBy: topicSuggestedBy != null ? topicSuggestedBy() : this.topicSuggestedBy,
     topicSuggestionReason: topicSuggestionReason != null
@@ -462,6 +468,11 @@ class ParseSummary {
     this.paperDate = const PaperDate(),
     required this.documentIssues,
     this.formatName,
+    this.pageCount = 0,
+    this.aiReadStatus = AiReadStatus.none,
+    this.aiReadPagesDone = 0,
+    this.aiReadError,
+    this.readByAi = 0,
   });
 
   factory ParseSummary.fromJson(Map<String, dynamic> json) => ParseSummary(
@@ -483,6 +494,11 @@ class ParseSummary {
         : PaperDate.fromJson(json['paper_date'] as Map<String, dynamic>),
     sections: [for (final s in json['sections'] as List<dynamic>) s as String],
     formatName: (json['exam_format'] as Map<String, dynamic>?)?['name'] as String?,
+    pageCount: json['page_count'] as int? ?? 0,
+    aiReadStatus: AiReadStatus.fromCode(json['ai_read_status'] as String? ?? 'none'),
+    aiReadPagesDone: json['ai_read_pages_done'] as int? ?? 0,
+    aiReadError: json['ai_read_error'] as String?,
+    readByAi: json['read_by_ai'] as int? ?? 0,
     documentIssues: [
       for (final i in json['document_issues'] as List<dynamic>)
         QuestionIssue.fromJson(i as Map<String, dynamic>),
@@ -512,6 +528,29 @@ class ParseSummary {
   final List<String> sections;
   final String? formatName;
   final List<QuestionIssue> documentIssues;
+
+  final int pageCount;
+
+  /// Reading the paper with AI (asked by the learner when the rules found too little).
+  final AiReadStatus aiReadStatus;
+  final int aiReadPagesDone;
+  final String? aiReadError;
+
+  /// Questions read out of the paper by AI.
+  final int readByAi;
+}
+
+enum AiReadStatus {
+  none,
+  queued,
+  running,
+  completed,
+  failed;
+
+  bool get inProgress => this == queued || this == running;
+
+  static AiReadStatus fromCode(String code) =>
+      values.firstWhere((s) => s.name == code, orElse: () => none);
 }
 
 /// Which questions to list.

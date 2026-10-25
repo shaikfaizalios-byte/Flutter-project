@@ -79,6 +79,9 @@ class Settings(BaseSettings):
     ai_max_output_tokens: int = Field(default=4000, ge=256, le=32000)
     ai_rate_limit: int = Field(default=30, ge=1)
     ai_rate_window_seconds: int = Field(default=3600, ge=1)
+    # Reading a paper with AI: the most pages sent (cost), and the page image size.
+    ai_read_max_pages: int = Field(default=60, ge=1, le=300)
+    ai_read_image_edge: int = Field(default=1500, ge=600, le=2400)
     # PrepLoop Plus. Successful AI requests allowed per account per calendar month (UTC), and a
     # development-only test mode that lets a learner start a free test subscription from the
     # app (refused in staging/production).

@@ -27,6 +27,10 @@ class DocumentRead(BaseModel):
     exam_format_id: uuid.UUID | None
     segmentation_status: Literal["pending", "completed", "failed"]
     questions_found: int
+    # Reading with AI (asked by the learner when the rules found too little).
+    ai_read_status: Literal["none", "queued", "running", "completed", "failed"]
+    ai_read_pages_done: int
+    ai_read_error: str | None
     # When the paper was held: suggested from the file name / first page, then confirmed.
     exam_year: int | None
     exam_date: date | None

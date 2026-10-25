@@ -245,6 +245,11 @@ class QuestionService:
         )
         return ParseSummary(
             document_id=document_id,
+            page_count=document.page_count,
+            ai_read_status=document.ai_read_status,
+            ai_read_pages_done=document.ai_read_pages_done,
+            ai_read_error=document.ai_read_error,
+            read_by_ai=sum(q.extracted_by == "ai" for q in questions),
             segmentation_status=document.segmentation_status,
             questions_found=len(questions),
             verified=sum(q.verification_status == VerificationStatus.VERIFIED for q in questions),
@@ -671,6 +676,7 @@ class QuestionService:
             typed_answer_numeric=bool(question.typed_answer)
             and typed_answers.is_numeric(question.typed_answer or ""),
             answer_source=question.answer_source,
+            extracted_by=question.extracted_by,
             explanation=question.explanation,
             image_dependent=question.image_dependent,
             figures=[FigureRead.model_validate(f) for f in question.figures],

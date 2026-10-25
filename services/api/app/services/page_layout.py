@@ -129,6 +129,25 @@ class PdfRenderer:
         finally:
             page.close()
 
+    def page_png(self, page_number: int, max_edge: int) -> bytes:
+        """The whole page as PNG, scaled so its longer side is at most [max_edge] pixels."""
+        page = self._document[page_number - 1]
+        try:
+            width, height = page.get_size()
+            bitmap = page.render(scale=max_edge / max(width, height, 1.0))
+            try:
+                image = bitmap.to_pil()
+                try:
+                    buffer = io.BytesIO()
+                    image.convert("RGB").save(buffer, format="PNG", optimize=True)
+                    return buffer.getvalue()
+                finally:
+                    image.close()
+            finally:
+                bitmap.close()
+        finally:
+            page.close()
+
 
 def _png(image: Image.Image) -> tuple[bytes, int, int]:
     current = image.convert("RGB")

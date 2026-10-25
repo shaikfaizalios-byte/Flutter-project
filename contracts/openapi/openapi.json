@@ -1047,6 +1047,32 @@
       "DocumentRead": {
         "description": "Public view of an uploaded document. Internal storage details are never exposed.",
         "properties": {
+          "ai_read_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Read Error"
+          },
+          "ai_read_pages_done": {
+            "title": "Ai Read Pages Done",
+            "type": "integer"
+          },
+          "ai_read_status": {
+            "enum": [
+              "none",
+              "queued",
+              "running",
+              "completed",
+              "failed"
+            ],
+            "title": "Ai Read Status",
+            "type": "string"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -1256,6 +1282,9 @@
           "exam_format_id",
           "segmentation_status",
           "questions_found",
+          "ai_read_status",
+          "ai_read_pages_done",
+          "ai_read_error",
           "exam_year",
           "exam_date",
           "exam_shift",
@@ -2850,6 +2879,34 @@
       },
       "ParseSummary": {
         "properties": {
+          "ai_read_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Read Error"
+          },
+          "ai_read_pages_done": {
+            "default": 0,
+            "title": "Ai Read Pages Done",
+            "type": "integer"
+          },
+          "ai_read_status": {
+            "default": "none",
+            "enum": [
+              "none",
+              "queued",
+              "running",
+              "completed",
+              "failed"
+            ],
+            "title": "Ai Read Status",
+            "type": "string"
+          },
           "document_id": {
             "format": "uuid",
             "title": "Document Id",
@@ -2880,6 +2937,11 @@
             "title": "Missing Answers",
             "type": "integer"
           },
+          "page_count": {
+            "default": 0,
+            "title": "Page Count",
+            "type": "integer"
+          },
           "paper_date": {
             "$ref": "#/components/schemas/PaperDateRead"
           },
@@ -2889,6 +2951,11 @@
           },
           "questions_found": {
             "title": "Questions Found",
+            "type": "integer"
+          },
+          "read_by_ai": {
+            "default": 0,
+            "title": "Read By Ai",
             "type": "integer"
           },
           "rejected": {
@@ -3582,6 +3649,14 @@
             ],
             "title": "Explanation"
           },
+          "extracted_by": {
+            "enum": [
+              "rules",
+              "ai"
+            ],
+            "title": "Extracted By",
+            "type": "string"
+          },
           "figures": {
             "items": {
               "$ref": "#/components/schemas/FigureRead"
@@ -3845,6 +3920,7 @@
           "typed_answer",
           "typed_answer_numeric",
           "answer_source",
+          "extracted_by",
           "explanation",
           "image_dependent",
           "figures",
@@ -6278,6 +6354,104 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/ai/documents/{document_id}/read": {
+      "post": {
+        "operationId": "read_paper_api_v1_ai_documents__document_id__read_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests (Retry-After)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read this paper's questions with AI (queued; pages are sent to the AI provider)",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
     "/api/v1/ai/documents/{document_id}/topic-suggestions": {
       "post": {
         "operationId": "suggest_paper_topics_api_v1_ai_documents__document_id__topic_suggestions_post",

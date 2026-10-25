@@ -50,7 +50,7 @@ class AIGeneration(Base):
     __table_args__ = (
         CheckConstraint(
             "task IN ('explanation', 'questions', 'topic', 'taxonomy', 'quick_answer', "
-            "'rag_answer')",
+            "'rag_answer', 'paper_read')",
             name="task_valid",
         ),
         CheckConstraint("outcome IN ('ok', 'partial', 'invalid', 'error')", name="outcome_valid"),

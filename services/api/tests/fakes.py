@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -34,6 +35,7 @@ class AICall:
     prompt: str
     schema: dict[str, Any]
     max_tokens: int
+    images: int = 0  # how many images (rendered pages) were sent
 
 
 @dataclass
@@ -47,9 +49,15 @@ class FakeAIProvider:
     model: str = "fake-model-1"
 
     def complete_json(
-        self, *, system: str, prompt: str, schema: dict[str, Any], max_tokens: int
+        self,
+        *,
+        system: str,
+        prompt: str,
+        schema: dict[str, Any],
+        max_tokens: int,
+        images: Sequence[bytes] = (),
     ) -> AIResult:
-        self.calls.append(AICall(system, prompt, schema, max_tokens))
+        self.calls.append(AICall(system, prompt, schema, max_tokens, len(images)))
         if not self.responses:
             raise AssertionError("FakeAIProvider: no scripted response left")
         response = self.responses.pop(0)

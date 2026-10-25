@@ -5,12 +5,17 @@ dict back. ``AnthropicProvider`` calls Claude with structured outputs; tests use
 deterministic fake in ``tests/fakes.py``. Prompts and document text are never logged.
 """
 
+import base64
 import json
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from app.core.config import Settings
+
+if TYPE_CHECKING:
+    from anthropic.types import ContentBlockParam, MessageParam
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +45,16 @@ class AIProvider(Protocol):
     def model(self) -> str: ...
 
     def complete_json(
-        self, *, system: str, prompt: str, schema: dict[str, Any], max_tokens: int
+        self,
+        *,
+        system: str,
+        prompt: str,
+        schema: dict[str, Any],
+        max_tokens: int,
+        images: Sequence[bytes] = (),
     ) -> AIResult:
-        """Returns output that matches ``schema`` or raises ``AIProviderError``."""
+        """Returns output that matches ``schema`` or raises ``AIProviderError``. ``images``
+        (PNG bytes, e.g. rendered PDF pages) are sent before the prompt."""
         ...
 
 
@@ -63,15 +75,34 @@ class AnthropicProvider:
         return self._model
 
     def complete_json(
-        self, *, system: str, prompt: str, schema: dict[str, Any], max_tokens: int
+        self,
+        *,
+        system: str,
+        prompt: str,
+        schema: dict[str, Any],
+        max_tokens: int,
+        images: Sequence[bytes] = (),
     ) -> AIResult:
         errors = self._anthropic
+        content: list[ContentBlockParam] = [
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": base64.standard_b64encode(image).decode("ascii"),
+                },
+            }
+            for image in images
+        ]
+        content.append({"type": "text", "text": prompt})
+        messages: list[MessageParam] = [{"role": "user", "content": content}]
         try:
             message = self._client.messages.create(
                 model=self._model,
                 max_tokens=max_tokens,
                 system=system,
-                messages=[{"role": "user", "content": prompt}],
+                messages=messages,
                 output_config={"format": {"type": "json_schema", "schema": schema}},
             )
         except errors.APITimeoutError as exc:

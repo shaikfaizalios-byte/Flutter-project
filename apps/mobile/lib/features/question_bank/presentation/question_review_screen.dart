@@ -296,6 +296,12 @@ class _EditorState extends ConsumerState<_Editor> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             OriginChip(origin: q.origin),
+            if (q.readByAi)
+              Chip(
+                visualDensity: VisualDensity.compact,
+                avatar: const Icon(Icons.document_scanner_outlined, size: 16),
+                label: Text(l10n.questionReadByAi),
+              ),
             Chip(
               visualDensity: VisualDensity.compact,
               avatar: StatusIcon(question: q),

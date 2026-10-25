@@ -48,6 +48,10 @@ class Document(Base):
         ),
         CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
         CheckConstraint(
+            "ai_read_status IN ('none', 'queued', 'running', 'completed', 'failed')",
+            name="ai_read_status_valid",
+        ),
+        CheckConstraint(
             "paper_date_status IN ('unknown', 'suggested', 'confirmed')",
             name="paper_date_status_valid",
         ),
@@ -99,6 +103,12 @@ class Document(Base):
         String(16), default="pending", server_default="pending"
     )
     questions_found: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # Reading the questions with AI when the rules can't (asked by the learner; run by the
+    # worker): none | queued | running | completed | failed.
+    ai_read_status: Mapped[str] = mapped_column(String(10), default="none", server_default="none")
+    ai_read_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    ai_read_pages_done: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    ai_read_error: Mapped[str | None] = mapped_column(String(40))
     # When the paper was held. Suggested from the file name / first page, confirmed by the
     # reviewer; year trends use confirmed values only.
     exam_year: Mapped[int | None] = mapped_column(Integer)

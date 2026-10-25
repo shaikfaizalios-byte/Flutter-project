@@ -185,6 +185,7 @@ class Question(Base):
             name="pattern_status_valid",
         ),
         CheckConstraint("answer_type IN ('choice', 'typed')", name="answer_type_valid"),
+        CheckConstraint("extracted_by IN ('rules', 'ai')", name="extracted_by_valid"),
         # A typed question has no option answer, and only typed questions have a typed answer.
         CheckConstraint(
             "answer_type = 'choice' OR correct_option_position IS NULL",
@@ -232,6 +233,8 @@ class Question(Base):
     typed_answer: Mapped[str | None] = mapped_column(String(100))
     # "answer_key" | "inline" | "manual" — where the answer came from.
     answer_source: Mapped[str | None] = mapped_column(String(16))
+    # Who read the question out of its paper: PrepLoop's rules, or AI (see ai_reading.py).
+    extracted_by: Mapped[str] = mapped_column(String(8), default="rules", server_default="rules")
     explanation: Mapped[str | None] = mapped_column(Text)
     image_dependent: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     verification_status: Mapped[str] = mapped_column(

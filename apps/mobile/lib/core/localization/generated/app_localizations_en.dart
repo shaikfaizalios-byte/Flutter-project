@@ -3010,4 +3010,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String searchAnswerCaution(String model) {
     return 'Written by AI ($model) only from the sources above. It can still be wrong: open a source to check it.';
   }
+
+  @override
+  String get aiReadTitle => 'Read with AI';
+
+  @override
+  String get aiReadNothingFound =>
+      'PrepLoop couldn\'t find questions in this paper. Its layout may be new to PrepLoop. AI can read the pages like a person would.';
+
+  @override
+  String get aiReadOffer =>
+      'Questions missing or split wrongly? AI can read the pages like a person would.';
+
+  @override
+  String get aiReadButton => 'Read with AI';
+
+  @override
+  String get aiReadAgain => 'Read again with AI';
+
+  @override
+  String get aiReadPrivacy =>
+      'The pages of this paper are sent to the AI service. Reviewed questions are kept.';
+
+  @override
+  String get aiReadConfirmTitle => 'Read this paper with AI?';
+
+  @override
+  String aiReadConfirmBody(int pages) {
+    return 'AI will read the $pages pages of this paper (images and text are sent to the AI service). The questions PrepLoop found and you haven\'t reviewed are replaced; questions you verified or rejected are kept. Check every question against the source page before verifying it.';
+  }
+
+  @override
+  String get aiReadStart => 'Read with AI';
+
+  @override
+  String get aiReadQueued => 'Waiting to start…';
+
+  @override
+  String aiReadProgress(int done, int total) {
+    return 'AI is reading the paper: page $done of $total';
+  }
+
+  @override
+  String get aiReadFailed => 'AI couldn\'t read this paper. Please try again later.';
+
+  @override
+  String aiReadDoneLabel(int count) {
+    return '$count questions read by AI';
+  }
+
+  @override
+  String get aiReadDoneMessage =>
+      'AI can misread. Questions whose wording isn\'t on the page, and questions from scanned pages, are flagged: compare them with the source page before verifying.';
+
+  @override
+  String get questionReadByAi => 'Read by AI';
+
+  @override
+  String get issueAiTextMismatch => 'Wording differs from the page';
+
+  @override
+  String get issueAiReadUnchecked => 'Read by AI from a scan';
 }

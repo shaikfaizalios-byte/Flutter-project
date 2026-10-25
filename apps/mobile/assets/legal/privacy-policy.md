@@ -28,6 +28,10 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
 **Optional AI assistance** (only when you use it, and only if it is switched on)
 - When you ask for an AI explanation or AI practice questions, the question text (or the concept
   title and notes you chose) is sent to our AI provider, [Anthropic PBC], to write the answer.
+- If you ask AI to read a paper (when PrepLoop can't find its questions), its pages are sent to
+  the same provider as images together with their extracted text, so the questions can be read
+  out of them. This happens only when you tap "Read with AI" and confirm. The questions found are
+  saved to your account like any other; the page images are not stored by PrepLoop.
 - If you switch on AI answers in the Study search, your search and the parts of your own
   material that match it (excerpts of your imported pages and questions, and your concept notes)
   are sent to the same provider to write an answer from them; when your material doesn't cover

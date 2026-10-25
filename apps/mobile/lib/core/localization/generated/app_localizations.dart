@@ -4946,6 +4946,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Written by AI ({model}) only from the sources above. It can still be wrong: open a source to check it.'**
   String searchAnswerCaution(String model);
+
+  /// No description provided for @aiReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read with AI'**
+  String get aiReadTitle;
+
+  /// No description provided for @aiReadNothingFound.
+  ///
+  /// In en, this message translates to:
+  /// **'PrepLoop couldn\'t find questions in this paper. Its layout may be new to PrepLoop. AI can read the pages like a person would.'**
+  String get aiReadNothingFound;
+
+  /// No description provided for @aiReadOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions missing or split wrongly? AI can read the pages like a person would.'**
+  String get aiReadOffer;
+
+  /// No description provided for @aiReadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Read with AI'**
+  String get aiReadButton;
+
+  /// No description provided for @aiReadAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Read again with AI'**
+  String get aiReadAgain;
+
+  /// No description provided for @aiReadPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'The pages of this paper are sent to the AI service. Reviewed questions are kept.'**
+  String get aiReadPrivacy;
+
+  /// No description provided for @aiReadConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read this paper with AI?'**
+  String get aiReadConfirmTitle;
+
+  /// No description provided for @aiReadConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'AI will read the {pages} pages of this paper (images and text are sent to the AI service). The questions PrepLoop found and you haven\'t reviewed are replaced; questions you verified or rejected are kept. Check every question against the source page before verifying it.'**
+  String aiReadConfirmBody(int pages);
+
+  /// No description provided for @aiReadStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Read with AI'**
+  String get aiReadStart;
+
+  /// No description provided for @aiReadQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to start…'**
+  String get aiReadQueued;
+
+  /// No description provided for @aiReadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'AI is reading the paper: page {done} of {total}'**
+  String aiReadProgress(int done, int total);
+
+  /// No description provided for @aiReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'AI couldn\'t read this paper. Please try again later.'**
+  String get aiReadFailed;
+
+  /// No description provided for @aiReadDoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions read by AI'**
+  String aiReadDoneLabel(int count);
+
+  /// No description provided for @aiReadDoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'AI can misread. Questions whose wording isn\'t on the page, and questions from scanned pages, are flagged: compare them with the source page before verifying.'**
+  String get aiReadDoneMessage;
+
+  /// No description provided for @questionReadByAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by AI'**
+  String get questionReadByAi;
+
+  /// No description provided for @issueAiTextMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Wording differs from the page'**
+  String get issueAiTextMismatch;
+
+  /// No description provided for @issueAiReadUnchecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by AI from a scan'**
+  String get issueAiReadUnchecked;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

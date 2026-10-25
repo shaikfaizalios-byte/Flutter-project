@@ -3014,4 +3014,65 @@ class AppLocalizationsHi extends AppLocalizations {
   String searchAnswerCaution(String model) {
     return 'AI ($model) द्वारा केवल ऊपर के स्रोतों से लिखा। फिर भी यह गलत हो सकता है: जाँचने के लिए स्रोत खोलें।';
   }
+
+  @override
+  String get aiReadTitle => 'AI से पढ़ें';
+
+  @override
+  String get aiReadNothingFound =>
+      'PrepLoop को इस पेपर में प्रश्न नहीं मिले। हो सकता है इसका लेआउट PrepLoop के लिए नया हो। AI पन्नों को किसी व्यक्ति की तरह पढ़ सकता है।';
+
+  @override
+  String get aiReadOffer =>
+      'प्रश्न छूट गए या गलत बँट गए? AI पन्नों को किसी व्यक्ति की तरह पढ़ सकता है।';
+
+  @override
+  String get aiReadButton => 'AI से पढ़ें';
+
+  @override
+  String get aiReadAgain => 'AI से फिर पढ़ें';
+
+  @override
+  String get aiReadPrivacy =>
+      'इस पेपर के पन्ने AI सेवा को भेजे जाते हैं। समीक्षा किए गए प्रश्न बने रहते हैं।';
+
+  @override
+  String get aiReadConfirmTitle => 'यह पेपर AI से पढ़ें?';
+
+  @override
+  String aiReadConfirmBody(int pages) {
+    return 'AI इस पेपर के $pages पन्ने पढ़ेगा (चित्र और पाठ AI सेवा को भेजे जाते हैं)। PrepLoop को मिले जिन प्रश्नों की आपने समीक्षा नहीं की है वे बदल दिए जाएँगे; आपके सत्यापित या अस्वीकृत प्रश्न बने रहेंगे। सत्यापित करने से पहले हर प्रश्न को स्रोत पन्ने से मिलाएँ।';
+  }
+
+  @override
+  String get aiReadStart => 'AI से पढ़ें';
+
+  @override
+  String get aiReadQueued => 'शुरू होने की प्रतीक्षा…';
+
+  @override
+  String aiReadProgress(int done, int total) {
+    return 'AI पेपर पढ़ रहा है: $total में से पन्ना $done';
+  }
+
+  @override
+  String get aiReadFailed => 'AI यह पेपर नहीं पढ़ सका। कृपया बाद में फिर कोशिश करें।';
+
+  @override
+  String aiReadDoneLabel(int count) {
+    return 'AI द्वारा पढ़े गए $count प्रश्न';
+  }
+
+  @override
+  String get aiReadDoneMessage =>
+      'AI गलत पढ़ सकता है। जिन प्रश्नों के शब्द पन्ने पर नहीं हैं, और स्कैन किए पन्नों के प्रश्न, चिह्नित हैं: सत्यापित करने से पहले उन्हें स्रोत पन्ने से मिलाएँ।';
+
+  @override
+  String get questionReadByAi => 'AI द्वारा पढ़ा गया';
+
+  @override
+  String get issueAiTextMismatch => 'शब्द पन्ने से अलग हैं';
+
+  @override
+  String get issueAiReadUnchecked => 'स्कैन से AI द्वारा पढ़ा गया';
 }

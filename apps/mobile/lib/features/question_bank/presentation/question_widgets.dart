@@ -30,6 +30,8 @@ String issueLabel(AppLocalizations l10n, String code) => switch (code) {
   'section_count_mismatch' => l10n.issueSectionCountMismatch,
   'learner_report' => l10n.issueLearnerReport,
   'ai_language_review' => l10n.issueAiLanguageReview,
+  'ai_text_mismatch' => l10n.issueAiTextMismatch,
+  'ai_read_unchecked' => l10n.issueAiReadUnchecked,
   _ => l10n.issueOther,
 };
 
@@ -91,6 +93,7 @@ class QuestionTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final open = question.openIssues;
     final subtitle = [
+      if (question.readByAi) l10n.questionReadByAi,
       ?question.section,
       if (open.isNotEmpty) open.map((i) => issueLabel(l10n, i.code)).toSet().join(' · '),
     ].join('\n');

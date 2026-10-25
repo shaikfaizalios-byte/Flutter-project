@@ -57,6 +57,7 @@ from app.schemas.ai import (
     TopicDraft,
     TopicSuggestionResult,
 )
+from app.schemas.document import DocumentRead
 from app.schemas.question import AIExplanationRead
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.question_service import QuestionService
@@ -529,6 +530,25 @@ class AIService:
             model=provider.model,
             prompt_version=ai_content.PROMPT_VERSION,
         )
+
+    # --- reading a paper with AI --------------------------------------------------------------
+
+    def queue_paper_read(self, document_id: uuid.UUID) -> DocumentRead:
+        """Ask the worker to read this paper's questions with AI (pages go to the provider).
+        Reviewed questions are kept; the rules' unreviewed ones are replaced."""
+        self._require_provider()
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        if document.status != "completed":
+            raise ConflictError("not_processed", "Wait until the paper has been processed.")
+        if document.ai_read_status in ("queued", "running"):
+            raise ConflictError("ai_read_in_progress", "AI is already reading this paper.")
+        document.ai_read_status = "queued"
+        document.ai_read_pages_done = 0
+        document.ai_read_error = None
+        self._session.commit()
+        return DocumentRead.model_validate(document)
 
     # --- answers from the learner's material (RAG) ------------------------------------------
 

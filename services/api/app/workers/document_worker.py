@@ -17,8 +17,10 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.database.session import build_engine, build_sessionmaker
+from app.integrations.ai import provider_from_settings
 from app.integrations.ocr import TesseractOcrEngine
 from app.integrations.storage import LocalDocumentStorage
+from app.services.ai_paper_reader import AiPaperReader
 from app.services.processing_service import DocumentProcessor
 
 logger = logging.getLogger("app.worker")
@@ -32,13 +34,30 @@ def build_processor(settings: Settings) -> DocumentProcessor:
     )
 
 
-def run_once(factory: sessionmaker[Session], processor: DocumentProcessor) -> bool:
-    """Process at most one document. Returns True if one was processed."""
+def build_reader(settings: Settings) -> AiPaperReader:
+    return AiPaperReader(
+        provider_from_settings(settings), LocalDocumentStorage(settings.upload_dir), settings
+    )
+
+
+def run_once(
+    factory: sessionmaker[Session],
+    processor: DocumentProcessor,
+    reader: AiPaperReader | None = None,
+) -> bool:
+    """Process at most one job: extracting a new document first, else reading one with AI
+    (when asked by its learner). Returns True if a job was done."""
     with factory() as session:
         document_id = processor.claim_next(session)
+        if document_id is not None:
+            processor.process(session, document_id)
+            return True
+        if reader is None:
+            return False
+        document_id = reader.claim_next(session)
         if document_id is None:
             return False
-        processor.process(session, document_id)
+        reader.read(session, document_id)
         return True
 
 
@@ -47,11 +66,12 @@ def run_forever(
     processor: DocumentProcessor,
     stop: threading.Event,
     poll_seconds: float,
+    reader: AiPaperReader | None = None,
 ) -> None:
     logger.info("document worker started")
     while not stop.is_set():
         try:
-            if run_once(factory, processor):
+            if run_once(factory, processor, reader):
                 continue  # more work may be waiting
         except Exception:
             # Keep the worker alive (e.g. the database restarted); retry after a pause.
@@ -66,7 +86,13 @@ def start_background_worker(
     stop = threading.Event()
     thread = threading.Thread(
         target=run_forever,
-        args=(factory, build_processor(settings), stop, settings.document_worker_poll_seconds),
+        args=(
+            factory,
+            build_processor(settings),
+            stop,
+            settings.document_worker_poll_seconds,
+            build_reader(settings),
+        ),
         name="document-worker",
         daemon=True,
     )
@@ -94,6 +120,7 @@ def main() -> None:
             build_processor(settings),
             stop,
             settings.document_worker_poll_seconds,
+            build_reader(settings),
         )
     finally:
         engine.dispose()

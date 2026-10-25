@@ -137,6 +137,12 @@ class FakeAiRepository implements AiRepository {
   ];
 
   @override
+  Future<void> readPaper(String documentId) async {
+    calls.add('read-paper:$documentId');
+    _maybeFail();
+  }
+
+  @override
   Future<PaperTopicsResult> suggestPaperTopics(String documentId) async {
     calls.add('paper-topics:$documentId');
     _maybeFail();

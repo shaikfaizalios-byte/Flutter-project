@@ -158,6 +158,8 @@ class QuestionRead(BaseModel):
     # Whether typed_answer is a number (the app shows a number keyboard).
     typed_answer_numeric: bool
     answer_source: str | None
+    # "ai": read out of the paper by AI (compare with the source page before verifying).
+    extracted_by: Literal["rules", "ai"]
     explanation: str | None
     image_dependent: bool
     figures: list[FigureRead]
@@ -250,6 +252,12 @@ class ParseSummary(BaseModel):
     paper_date: PaperDateRead
     exam_format: ExamFormatRead | None
     document_issues: list[IssueRead]
+    # Reading with AI: none | queued | running | completed | failed, pages read so far.
+    page_count: int = 0
+    ai_read_status: Literal["none", "queued", "running", "completed", "failed"] = "none"
+    ai_read_pages_done: int = 0
+    ai_read_error: str | None = None
+    read_by_ai: int = 0  # questions read out of the paper by AI
 
 
 class TopicAcceptResult(BaseModel):

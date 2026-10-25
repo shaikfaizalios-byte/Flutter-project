@@ -21,6 +21,7 @@ from app.schemas.ai import (
     TopicDraft,
     TopicSuggestionResult,
 )
+from app.schemas.document import DocumentRead
 from app.schemas.errors import ErrorResponse
 from app.schemas.question import AIExplanationRead, QuestionRead
 from app.services.ai_service import AIService
@@ -147,6 +148,18 @@ def suggest_topic(question_id: uuid.UUID, service: Service) -> TopicSuggestionRe
 )
 def quick_answer(body: QuickAnswerRequest, service: Service) -> QuickAnswer:
     return service.quick_answer(body)
+
+
+@router.post(
+    "/ai/documents/{document_id}/read",
+    response_model=DocumentRead,
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="Read this paper's questions with AI (queued; pages are sent to the AI provider)",
+)
+def read_paper(document_id: uuid.UUID, service: Service) -> DocumentRead:
+    return service.queue_paper_read(document_id)
 
 
 @router.post(

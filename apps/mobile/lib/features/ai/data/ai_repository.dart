@@ -199,6 +199,10 @@ abstract interface class AiRepository {
   /// Returns the updated question and whether a topic was suggested.
   Future<(BankQuestion, bool)> suggestTopic(String questionId);
 
+  /// Queues reading the paper's questions with AI (its pages go to the AI provider). The
+  /// worker reads it; the paper's parse summary shows the progress.
+  Future<void> readPaper(String documentId);
+
   /// Asks the AI for topics of the paper's questions that have none (one step).
   Future<PaperTopicsResult> suggestPaperTopics(String documentId);
 
@@ -295,6 +299,11 @@ class RemoteAiRepository implements AiRepository {
       BankQuestion.fromJson(data['question'] as Map<String, dynamic>),
       data['suggested'] as bool,
     );
+  });
+
+  @override
+  Future<void> readPaper(String documentId) => _guard(() async {
+    await _dio.post<Map<String, dynamic>>('$_base/ai/documents/$documentId/read');
   });
 
   @override
