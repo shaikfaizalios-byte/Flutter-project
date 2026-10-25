@@ -15,6 +15,10 @@ import '../../documents/domain/imported_document.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../../question_bank/application/question_bank_providers.dart';
 import '../application/exam_catalog_controller.dart';
+import '../application/active_exam.dart';
+import '../../mastery/application/mastery_providers.dart';
+import '../../mastery/domain/mastery.dart';
+import '../../mastery/presentation/mastery_widgets.dart';
 import '../data/exams_repository.dart';
 import '../domain/exam_topics.dart';
 
@@ -316,6 +320,19 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
     );
   }
 
+  /// Mastery levels by subject and topic name (only for the current exam, whose practice
+  /// statistics the app loads).
+  Map<String, MasteryLevel> get _levels {
+    if (ref.watch(activeExamProvider) != widget.examCode) return const {};
+    return {
+      for (final s in ref.watch(examMasteryProvider).value ?? const <SubjectMastery>[])
+        for (final t in s.topics) _topicKey(t.subject, t.name): t.level,
+    };
+  }
+
+  static String _topicKey(String subject, String name) =>
+      '${subject.trim().toLowerCase()}${name.trim().toLowerCase()}';
+
   Widget _topicTile(ExamTopic topic) {
     final l10n = AppLocalizations.of(context);
     return ListTile(
@@ -341,11 +358,19 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
             ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
             : null,
       ),
-      subtitle: Text(
-        [
-          topic.own ? l10n.topicsOwnLabel : l10n.topicsSharedLabel,
-          if (topic.completed) l10n.topicRevised,
-        ].join(' · '),
+      subtitle: Wrap(
+        spacing: AppSpacing.sm,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            [
+              topic.own ? l10n.topicsOwnLabel : l10n.topicsSharedLabel,
+              if (topic.completed) l10n.topicRevised,
+            ].join(' · '),
+          ),
+          if (_levels[_topicKey(topic.subject, topic.name)] case final level?)
+            MasteryChip(level: level),
+        ],
       ),
       trailing: topic.own
           ? PopupMenuButton<String>(

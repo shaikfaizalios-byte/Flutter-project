@@ -45,9 +45,10 @@ class LocalConceptsRepository implements ConceptsRepository {
   }
 
   @override
-  Stream<ConceptFacets> watchFacets() {
+  Stream<ConceptFacets> watchFacets({String? examCode}) {
     final c = _db.concepts;
     final query = _db.selectOnly(c, distinct: true)..addColumns([c.examCode, c.subject, c.topic]);
+    if (examCode != null) query.where(c.examCode.equals(examCode));
     return query.watch().map((rows) {
       final exams = <String>{};
       final subjects = <String, String>{};

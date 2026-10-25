@@ -14,7 +14,6 @@ import '../data/insights_repository.dart';
 import '../domain/radar.dart';
 import '../domain/repeats.dart';
 import 'radar_sharing_card.dart';
-import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
 
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
@@ -39,7 +38,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
     _exam = ref.watch(activeExamProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.repeatsTitle), actions: const [ExamSwitcher()]),
+      appBar: AppBar(title: Text(l10n.repeatsTitle)),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(

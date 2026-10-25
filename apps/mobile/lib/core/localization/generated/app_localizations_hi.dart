@@ -2351,7 +2351,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get examsEmptyTitle => 'कोई परीक्षा नहीं चुनी गई';
 
   @override
-  String get examsEmptyMessage => 'स्टडी प्लान में अपनी परीक्षाएँ चुनें, या अपनी परीक्षा बनाएँ।';
+  String get examsEmptyMessage => 'नीचे अपनी परीक्षाएँ चुनें, या अपनी परीक्षा बनाएँ।';
 
   @override
   String get examsIntro =>
@@ -3224,4 +3224,108 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get quoteAnother => 'और एक';
+
+  @override
+  String conceptExamNote(String exam) {
+    return '$exam में सहेजा जाएगा। परीक्षा होम से बदलें।';
+  }
+
+  @override
+  String importExamNote(String exam) {
+    return '$exam में जुड़ेगा। किसी दूसरी परीक्षा में जोड़ने के लिए होम से परीक्षा बदलें।';
+  }
+
+  @override
+  String get examsPreparingFor => 'जिन परीक्षाओं की आप तैयारी कर रहे हैं';
+
+  @override
+  String get conceptsNoneInTopic => 'यहाँ अभी कोई कॉन्सेप्ट नहीं। ऊपर के बटन से जोड़ें।';
+
+  @override
+  String get masteryNotStarted => 'शुरू नहीं';
+
+  @override
+  String get masteryLearning => 'सीख रहे हैं';
+
+  @override
+  String get masteryPractising => 'अभ्यास में';
+
+  @override
+  String get masteryStrong => 'मज़बूत';
+
+  @override
+  String get masteryMastered => 'महारत';
+
+  @override
+  String masteryLevelLabel(String level) {
+    return 'स्तर: $level';
+  }
+
+  @override
+  String get masterySyllabusTitle => 'आपका सिलेबस';
+
+  @override
+  String get masteryEditSyllabus => 'सिलेबस बदलें';
+
+  @override
+  String get masteryAddSyllabus => 'सिलेबस जोड़ें';
+
+  @override
+  String get masteryNoSyllabus =>
+      'अपना सिलेबस जोड़ें, ताकि उसके विषय और टॉपिक आपके स्तर के साथ यहाँ दिखें।';
+
+  @override
+  String masterySubjectProgress(int strong, int total) {
+    return '$total में से $strong मज़बूत';
+  }
+
+  @override
+  String masteryRules(int days, int answers, String strong, int mastered, String masteredPercent) {
+    return 'स्तर पिछले $days दिनों से तय होते हैं। सीख रहे हैं: $answers से कम उत्तर। मज़बूत: $strong या अधिक सही। महारत: $mastered+ उत्तर, $masteredPercent या अधिक सही, और दोहराया गया चिह्नित।';
+  }
+
+  @override
+  String get masteryOffline =>
+      'अभ्यास के नतीजों के लिए इंटरनेट चाहिए, इसलिए स्तर सिर्फ़ आपके फ़्लैशकार्ड और दोहराए गए चिह्नों से तय हैं।';
+
+  @override
+  String masteryNoAnswers(int days) {
+    return 'पिछले $days दिनों में अभ्यास का कोई उत्तर नहीं';
+  }
+
+  @override
+  String get masteryNextNotStarted => 'कुछ अभ्यास प्रश्नों या एक कॉन्सेप्ट से शुरू करें।';
+
+  @override
+  String masteryNextLearning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'अपना स्तर देखने के लिए $count और प्रश्नों के उत्तर दें।',
+      one: 'अपना स्तर देखने के लिए 1 और प्रश्न का उत्तर दें।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String masteryNextPractising(String percent) {
+    return '$percent सही का लक्ष्य रखें, और इसके फ़्लैशकार्ड याद रखें।';
+  }
+
+  @override
+  String masteryNextStrong(int answers, String percent) {
+    return 'महारत के लिए: $answers+ उत्तर, $percent सही, फिर इसे दोहराया गया चिह्नित करें।';
+  }
+
+  @override
+  String get masteryNextMastered => 'महारत हासिल। इसे बनाए रखने के लिए बीच-बीच में दोहराएँ।';
+
+  @override
+  String get masteryPractise => 'अभ्यास करें';
+
+  @override
+  String get masteryAddConcept => 'कॉन्सेप्ट जोड़ें';
+
+  @override
+  String get masteryUpdateFailed => 'यह सहेजा नहीं जा सका। कनेक्शन जाँचें और फिर कोशिश करें।';
 }

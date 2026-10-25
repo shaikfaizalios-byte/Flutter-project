@@ -7,15 +7,19 @@ import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
-import '../../study_plan/application/study_profile_controller.dart';
+import '../../exams/application/active_exam.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 
 /// Creates a concept, or edits one when [conceptId] is given.
 class ConceptFormScreen extends ConsumerStatefulWidget {
-  const ConceptFormScreen({super.key, this.conceptId});
+  const ConceptFormScreen({super.key, this.conceptId, this.subject, this.topic});
 
   final String? conceptId;
+
+  /// Prefilled subject and topic for a new concept (from a syllabus topic).
+  final String? subject;
+  final String? topic;
 
   @override
   ConsumerState<ConceptFormScreen> createState() => _ConceptFormScreenState();
@@ -43,9 +47,10 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
   @override
   void initState() {
     super.initState();
-    // New concepts default to the learner's first chosen exam.
-    final chosen = ref.read(studyProfileProvider).examCodes;
-    _examCode = chosen.isNotEmpty ? chosen.first : ref.read(examCatalogProvider).first.code;
+    // New concepts go to the current exam (switched from Home only); edits keep theirs.
+    _examCode = ref.read(activeExamProvider) ?? ref.read(examCatalogProvider).first.code;
+    _subject.text = widget.subject ?? '';
+    _topic.text = widget.topic ?? '';
     _loadState = _isEditing ? _LoadState.loading : _LoadState.ready;
     if (_isEditing) _load(widget.conceptId!);
   }
@@ -175,15 +180,22 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
-                Text(l10n.fieldExam, style: Theme.of(context).textTheme.labelLarge),
-                const SizedBox(height: AppSpacing.sm),
-                SegmentedButton<String>(
-                  segments: [
-                    for (final exam in ref.watch(examCatalogProvider))
-                      ButtonSegment(value: exam.code, label: Text(exam.shortName)),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.flag_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.conceptExamNote(ref.watch(examNameProvider(_examCode))),
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                    ),
                   ],
-                  selected: {_examCode},
-                  onSelectionChanged: (s) => setState(() => _examCode = s.first),
                 ),
                 gap,
                 TextFormField(

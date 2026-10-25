@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/core/utils/external_links.dart';
@@ -71,9 +72,9 @@ void main() {
       questions: paperQuestions,
       studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
     );
-    await seedConcept(tester, db, 'Swift');
+    await seedConcept(tester, db, 'Swift', exam: 'SSC_CHSL');
     await openStudy(tester);
-    await tester.tap(find.text('Swift').first);
+    await tester.tap(find.widgetWithText(ListTile, 'Swift'));
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
 

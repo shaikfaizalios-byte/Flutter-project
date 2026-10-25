@@ -150,7 +150,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'concepts/new',
                     parentNavigatorKey: _rootNavigatorKey,
-                    builder: (context, state) => const ConceptFormScreen(),
+                    builder: (context, state) => ConceptFormScreen(
+                      subject: state.uri.queryParameters['subject'],
+                      topic: state.uri.queryParameters['topic'],
+                    ),
                   ),
                   GoRoute(
                     path: 'concepts/:id',

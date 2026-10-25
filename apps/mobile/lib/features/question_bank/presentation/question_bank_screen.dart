@@ -7,7 +7,6 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../application/question_bank_providers.dart';
 import 'question_widgets.dart';
-import '../../exams/presentation/exam_switcher.dart';
 
 /// Browse and review the question bank (opened from the Practice tab).
 class QuestionBankScreen extends ConsumerWidget {
@@ -21,7 +20,7 @@ class QuestionBankScreen extends ConsumerWidget {
     final questions = ref.watch(questionListProvider(query));
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.bankTitle), actions: const [ExamSwitcher()]),
+      appBar: AppBar(title: Text(l10n.bankTitle)),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(

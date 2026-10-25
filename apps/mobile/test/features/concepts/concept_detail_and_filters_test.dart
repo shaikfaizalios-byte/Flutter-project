@@ -165,14 +165,18 @@ void main() {
       );
     }
 
-    testAppWidgets('filter by exam', (tester, db) async {
+    testAppWidgets('the list shows the current exam only; no exam filter', (tester, db) async {
       await seedMixed(tester, db);
-      await pumpPrepLoopApp(tester, db);
+      await pumpPrepLoopApp(
+        tester,
+        db,
+        studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL', 'SSC_CGL']),
+      );
       await openStudy(tester);
 
-      await chooseFilter(tester, 'Exam', 'SSC CHSL');
-
       expect(visibleTitles(tester), ['Synonyms']);
+      // Exams are switched from Home only.
+      expect(find.byTooltip('Filter by Exam'), findsNothing);
     });
 
     testAppWidgets('subject and topic choices come from the data', (tester, db) async {
@@ -197,13 +201,17 @@ void main() {
       await seedMixed(tester, db);
       await pumpPrepLoopApp(tester, db);
       await openStudy(tester);
-      await chooseFilter(tester, 'Exam', 'SSC CHSL');
+      await chooseFilter(tester, 'Subject', 'English');
+      expect(visibleTitles(tester), ['Synonyms']);
 
       await tester.tap(find.text('Clear filters'));
       await tester.pumpAndSettle();
 
-      expect(visibleTitles(tester), hasLength(3));
       expect(find.text('Clear filters'), findsNothing);
+      // The syllabus card is back above the list; every concept is listed below it.
+      for (final title in ['Ratios', 'Averages', 'Synonyms']) {
+        await scrollTo(tester, find.widgetWithText(ListTile, title));
+      }
     });
 
     testAppWidgets('no matches shows a filter-specific empty state', (tester, db) async {
@@ -211,7 +219,9 @@ void main() {
       await pumpPrepLoopApp(tester, db);
       await openStudy(tester);
 
-      await chooseFilter(tester, 'Exam', 'SSC CHSL');
+      await tester.tap(find.text('Archived'));
+      await tester.pumpAndSettle();
+      await chooseFilter(tester, 'Subject', 'Maths');
 
       expect(find.text('No concepts match these filters.'), findsOneWidget);
     });

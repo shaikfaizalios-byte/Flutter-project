@@ -49,6 +49,23 @@ No sample data, ratios or charts are shown without recorded data. A topic with n
 - Topics that don't have enough data yet are counted ("2 more topics need more data before they are judged"), not judged.
 - Weakest first: lowest accuracy, then highest forget rate.
 
+## Mastery levels (`MasteryRules`, shown in the app)
+
+Each syllabus topic of the current exam (and each topic of the learner's concepts) gets one level, from the
+same data as the weak-topic rules (30-day window) plus the topic's "revised" mark:
+
+| Level | When |
+|---|---|
+| Not started | No answers, no flashcard reviews, not marked revised |
+| Learning | Fewer than 10 practice answers |
+| Practising | 10+ answers but under 60 % correct, or the topic's flashcards are often forgotten |
+| Strong | 10+ answers at 60 % or more |
+| Mastered | 25+ answers at 85 % or more, not often forgotten, and marked revised |
+
+The Study tab shows the levels per subject (a bar of topics per level, "x of y strong") and per topic, with the
+evidence and the next step ("Answer 4 more questions to see your level."). Offline, practice answers are missing,
+so levels use flashcards and revised marks only, and the card says so. Product choices, not validated research.
+
 ## Daily plan (`buildStudyPlan`, deterministic, no AI)
 
 Candidates, in priority order. Each one says why it is in the plan and roughly how long it takes:

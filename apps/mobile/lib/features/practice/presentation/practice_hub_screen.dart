@@ -13,7 +13,6 @@ import '../../documents/presentation/documents_screen.dart' show uploadErrorMess
 import '../../question_bank/application/question_bank_providers.dart';
 import '../application/practice_providers.dart';
 import '../domain/practice_models.dart';
-import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
 
 /// Practice tab: start practice or a mock test, review tools and recent sessions.
@@ -25,7 +24,7 @@ class PracticeHubScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     ref.watch(pendingAnswersFlushProvider); // send answers saved while offline
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.practiceHubTitle), actions: const [ExamSwitcher()]),
+      appBar: AppBar(title: Text(l10n.practiceHubTitle)),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(

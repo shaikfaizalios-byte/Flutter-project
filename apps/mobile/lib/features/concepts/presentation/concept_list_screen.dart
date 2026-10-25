@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../exams/application/exam_catalog_controller.dart';
+import '../../mastery/application/mastery_providers.dart';
+import '../../mastery/presentation/mastery_widgets.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -56,41 +58,60 @@ class ConceptListScreen extends ConsumerWidget {
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.sm,
-                  AppSpacing.md,
-                  AppSpacing.xs,
-                ),
-                child: AppSearchField(
-                  hintText: l10n.conceptsSearchHint,
-                  onChanged: ref.read(conceptQueryProvider.notifier).setText,
-                ),
-              ),
-              const _FilterBar(),
-              // Typing also searches the questions of the imported papers.
-              if (text.length >= paperSearchMinLength)
-                Padding(
+          // One scroll: search, filters, the syllabus (subjects, then topics, then one topic)
+          // and the concepts below it.
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.md,
-                    0,
+                    AppSpacing.sm,
                     AppSpacing.md,
                     AppSpacing.xs,
                   ),
-                  // Capped so the concepts below stay visible; the card scrolls inside.
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.sizeOf(context).height * 0.45,
-                    ),
-                    child: SingleChildScrollView(child: PaperQuestionsCard(text: text)),
+                  child: AppSearchField(
+                    hintText: l10n.conceptsSearchHint,
+                    onChanged: ref.read(conceptQueryProvider.notifier).setText,
                   ),
                 ),
-              Expanded(
-                child: switch (concepts) {
-                  AsyncData(:final value) when value.isEmpty => EmptyState(
+              ),
+              const SliverToBoxAdapter(child: _FilterBar()),
+              // Typing also searches the questions of the imported papers.
+              if (text.length >= paperSearchMinLength)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      0,
+                      AppSpacing.md,
+                      AppSpacing.xs,
+                    ),
+                    // Capped so the concepts below stay visible; the card scrolls inside.
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.sizeOf(context).height * 0.45,
+                      ),
+                      child: SingleChildScrollView(child: PaperQuestionsCard(text: text)),
+                    ),
+                  ),
+                ),
+              if (text.isEmpty && !query.archived)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      0,
+                      AppSpacing.md,
+                      AppSpacing.xs,
+                    ),
+                    child: _SyllabusPanel(query: query),
+                  ),
+                ),
+              switch (concepts) {
+                AsyncData(:final value) when value.isEmpty => SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: EmptyState(
                     icon: text.isNotEmpty || query.hasFilters
                         ? Icons.search_off
                         : Icons.menu_book_outlined,
@@ -103,13 +124,27 @@ class ConceptListScreen extends ConsumerWidget {
                       _ when text.isNotEmpty => l10n.conceptsNoResults(text),
                       ConceptQuery(archived: true, examCode: null, subject: null, topic: null) =>
                         l10n.conceptsArchivedEmpty,
+                      // A subject or topic is open above: its concepts would be listed here.
+                      _ when !query.archived && (query.topic != null || query.subject != null) =>
+                        l10n.conceptsNoneInTopic,
                       _ when query.hasFilters => l10n.conceptsNoFilterResults,
                       _ => l10n.conceptsEmptyTitle,
                     },
                     message: text.isEmpty && !query.hasFilters ? l10n.conceptsEmptyMessage : null,
                   ),
-                  AsyncData(:final value) => _ConceptList(concepts: value),
-                  AsyncError() => EmptyState(
+                ),
+                AsyncData(:final value) => SliverPadding(
+                  // Leave room so the FAB never covers the last item.
+                  padding: const EdgeInsets.only(bottom: 88),
+                  sliver: SliverList.separated(
+                    itemCount: value.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) => _ConceptTile(concept: value[index]),
+                  ),
+                ),
+                AsyncError() => SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: EmptyState(
                     icon: Icons.error_outline,
                     title: l10n.conceptsLoadError,
                     action: OutlinedButton(
@@ -117,14 +152,37 @@ class ConceptListScreen extends ConsumerWidget {
                       child: Text(l10n.retry),
                     ),
                   ),
-                  _ => const Center(child: CircularProgressIndicator()),
-                },
-              ),
+                ),
+                _ => const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              },
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+/// Above the concepts: the exam's subjects, one subject's topics, or one topic, following
+/// the Subject and Topic filters (each level opens the next).
+class _SyllabusPanel extends ConsumerWidget {
+  const _SyllabusPanel({required this.query});
+
+  final ConceptQuery query;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(conceptQueryProvider.notifier);
+    if (query.topic != null) {
+      return TopicMasteryCard(topic: query.topic!, subject: query.subject);
+    }
+    if (query.subject != null) {
+      return SubjectMasteryCard(subject: query.subject!, onTopic: controller.setTopic);
+    }
+    return SyllabusOverviewCard(onSubject: controller.setSubject);
   }
 }
 
@@ -136,8 +194,18 @@ class _FilterBar extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(conceptQueryProvider);
     final controller = ref.read(conceptQueryProvider.notifier);
-    // Filters still work while facets load; menus just have fewer choices.
+    // The exam's syllabus subjects and topics plus those of the learner's concepts. Filters
+    // still work while they load; menus just have fewer choices.
+    final mastery = ref.watch(examMasteryProvider).value;
     final facets = ref.watch(conceptFacetsProvider).value ?? const ConceptFacets();
+    final subjects = mastery == null ? facets.subjects : [for (final s in mastery) s.name];
+    List<String> topicsFor(String? subject) => mastery == null
+        ? facets.topicsFor(subject)
+        : [
+            for (final s in mastery)
+              if (subject == null || s.name.toLowerCase() == subject.toLowerCase())
+                for (final t in s.topics) t.name,
+          ];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -153,21 +221,15 @@ class _FilterBar extends ConsumerWidget {
               onPressed: controller.clearFilters,
             ),
           _MenuFilterChip(
-            label: l10n.filterExam,
-            value: query.examCode,
-            options: [for (final e in ref.watch(examCatalogProvider)) (e.code, e.shortName)],
-            onSelected: controller.setExam,
-          ),
-          _MenuFilterChip(
             label: l10n.filterSubject,
             value: query.subject,
-            options: [for (final s in facets.subjects) (s, s)],
+            options: [for (final s in subjects) (s, s)],
             onSelected: controller.setSubject,
           ),
           _MenuFilterChip(
             label: l10n.filterTopic,
             value: query.topic,
-            options: [for (final t in facets.topicsFor(query.subject)) (t, t)],
+            options: [for (final t in topicsFor(query.subject)) (t, t)],
             onSelected: controller.setTopic,
           ),
           FilterChip(
@@ -232,23 +294,6 @@ class _Choice {
   const _Choice(this.value);
 
   final String? value;
-}
-
-class _ConceptList extends StatelessWidget {
-  const _ConceptList({required this.concepts});
-
-  final List<Concept> concepts;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      // Leave room so the FAB never covers the last item.
-      padding: const EdgeInsets.only(bottom: 88),
-      itemCount: concepts.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) => _ConceptTile(concept: concepts[index]),
-    );
-  }
 }
 
 enum _ConceptAction { archive, unarchive }

@@ -9,7 +9,7 @@ Future<void> openProfile(WidgetTester tester) async {
   await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Profile')));
   await tester.pumpAndSettle();
   // The account section comes first; bring the study plan into view.
-  await scrollTo(tester, find.text('Exams'));
+  await scrollTo(tester, find.text('Exam date'));
 }
 
 void main() {
@@ -27,7 +27,6 @@ void main() {
     await openProfile(tester);
 
     expect(find.text('Study plan'), findsOneWidget);
-    expect(find.text('SSC CGL · SSC CHSL'), findsOneWidget);
     expect(find.text('Mar 9, 2027'), findsOneWidget);
     expect(find.text('45 min'), findsOneWidget);
     expect(find.text('7:30 PM'), findsOneWidget);
@@ -37,24 +36,7 @@ void main() {
     await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
 
-    expect(find.text('Not chosen'), findsOneWidget);
     expect(find.text('Not set'), findsNWidgets(3));
-  });
-
-  testAppWidgets('editing exams in the sheet updates and persists', (tester, db) async {
-    await pumpPrepLoopApp(tester, db);
-    await openProfile(tester);
-
-    await tester.tap(find.text('Exams'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilterChip, 'SSC CGL'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('SSC CGL'), findsOneWidget);
-    final stored = await seed(tester, () => StudyProfileRepository(db).load());
-    expect(stored.examCodes, ['SSC_CGL']);
   });
 
   testAppWidgets('clearing the exam date', (tester, db) async {

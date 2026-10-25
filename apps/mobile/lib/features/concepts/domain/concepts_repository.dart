@@ -102,8 +102,8 @@ abstract interface class ConceptsRepository {
   /// Number of active (non-archived) concepts.
   Stream<int> watchActiveCount();
 
-  /// Filter choices across all concepts (active and archived).
-  Stream<ConceptFacets> watchFacets();
+  /// Filter choices across all concepts (active and archived), or one exam's.
+  Stream<ConceptFacets> watchFacets({String? examCode});
 
   /// Validates, normalises and stores a new concept. Throws [InvalidConceptException].
   Future<Concept> create(ConceptDraft draft);

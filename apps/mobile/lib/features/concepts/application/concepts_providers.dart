@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/utils/app_log.dart';
+import '../../exams/application/active_exam.dart';
 import '../data/local_concepts_repository.dart';
 import '../domain/concept.dart';
 import '../domain/concepts_repository.dart';
@@ -16,8 +17,6 @@ class ConceptQueryController extends Notifier<ConceptQuery> {
   ConceptQuery build() => const ConceptQuery();
 
   void setText(String text) => state = state.copyWith(text: text);
-
-  void setExam(String? examCode) => state = state.copyWith(examCode: () => examCode);
 
   /// Changing the subject clears the topic (topics belong to a subject).
   void setSubject(String? subject) =>
@@ -44,16 +43,24 @@ Stream<T> _logged<T>(Stream<T> stream, String what) =>
 // Local database errors are not transient: show them instead of retrying silently.
 Duration? _noRetry(int retryCount, Object error) => null;
 
-final conceptListProvider = StreamProvider.autoDispose<List<Concept>>(
-  (ref) => _logged(
-    ref.watch(conceptsRepositoryProvider).watch(ref.watch(conceptQueryProvider)),
+/// The concept list shows the current exam's concepts (every exam's before one is chosen).
+final conceptListProvider = StreamProvider.autoDispose<List<Concept>>((ref) {
+  final exam = ref.watch(activeExamProvider);
+  final query = ref.watch(conceptQueryProvider);
+  return _logged(
+    ref
+        .watch(conceptsRepositoryProvider)
+        .watch(exam == null ? query : query.copyWith(examCode: () => exam)),
     'concepts',
-  ),
-  retry: _noRetry,
-);
+  );
+}, retry: _noRetry);
 
+/// Subjects and topics of the current exam's concepts.
 final conceptFacetsProvider = StreamProvider.autoDispose<ConceptFacets>(
-  (ref) => _logged(ref.watch(conceptsRepositoryProvider).watchFacets(), 'concept filters'),
+  (ref) => _logged(
+    ref.watch(conceptsRepositoryProvider).watchFacets(examCode: ref.watch(activeExamProvider)),
+    'concept filters',
+  ),
   retry: _noRetry,
 );
 

@@ -123,6 +123,10 @@ class _MyExamsScreenState extends ConsumerState<MyExamsScreen> {
                   icon: Icons.school_outlined,
                   title: l10n.examsEmptyTitle,
                   message: l10n.examsEmptyMessage,
+                  action: ExamSelector(
+                    selected: chosen,
+                    onChanged: ref.read(studyProfileProvider.notifier).setExamCodes,
+                  ),
                 )
               : ListView(
                   padding: const EdgeInsets.only(bottom: 96),
@@ -130,6 +134,29 @@ class _MyExamsScreenState extends ConsumerState<MyExamsScreen> {
                     Padding(
                       padding: const EdgeInsets.all(AppSpacing.md),
                       child: Text(l10n.examsIntro),
+                    ),
+                    // Which exams the learner prepares for (the exam switcher lists these).
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        0,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.examsPreparingFor,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          ExamSelector(
+                            selected: chosen,
+                            onChanged: ref.read(studyProfileProvider.notifier).setExamCodes,
+                          ),
+                        ],
+                      ),
                     ),
                     for (final exam in exams)
                       ListTile(

@@ -89,7 +89,7 @@ void main() {
       studyProfile: onboardedProfile.copyWith(examCodes: ['NEET_UG']),
     );
     await openMyExams(tester);
-    await tester.tap(find.text('NEET UG'));
+    await tester.tap(find.widgetWithText(ListTile, 'NEET UG'));
     await tester.pumpAndSettle();
     expect(find.text('Add your syllabus'), findsOneWidget);
 
@@ -99,7 +99,7 @@ void main() {
     ];
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('NEET UG'));
+    await tester.tap(find.widgetWithText(ListTile, 'NEET UG'));
     await tester.pumpAndSettle();
     expect(find.text('Syllabus'), findsOneWidget);
     expect(find.text('0 of 2 topics revised'), findsOneWidget);
@@ -123,7 +123,7 @@ void main() {
       studyProfile: onboardedProfile.copyWith(examCodes: ['NEET_UG']),
     );
     await openMyExams(tester);
-    await tester.tap(find.text('NEET UG'));
+    await tester.tap(find.widgetWithText(ListTile, 'NEET UG'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Type or paste syllabus'));
@@ -169,7 +169,7 @@ void main() {
       studyProfile: onboardedProfile.copyWith(examCodes: ['NEET_UG']),
     );
     await openMyExams(tester);
-    await tester.tap(find.text('NEET UG'));
+    await tester.tap(find.widgetWithText(ListTile, 'NEET UG'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Select'));

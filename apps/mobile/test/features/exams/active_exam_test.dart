@@ -7,6 +7,22 @@ import '../../helpers/pump_app.dart';
 import '../documents/documents_screen_test.dart'
     show FakeDocumentsRepository, doc, openDocuments, overridesFor, samplePdf;
 
+/// Exams are switched only from Home.
+Future<void> switchExam(WidgetTester tester, String name) async {
+  await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Home')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byTooltip('Switch exam'));
+  await tester.pumpAndSettle();
+  expect(find.text('Which exam?'), findsOneWidget);
+  await tester.tap(find.widgetWithText(ListTile, name));
+  await tester.pumpAndSettle();
+}
+
+Future<void> openTab(WidgetTester tester, String tab) async {
+  await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text(tab)));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testAppWidgets('each exam shows only its own papers; uploads go to the current exam', (
     tester,
@@ -31,11 +47,12 @@ void main() {
     expect(find.text('CHSL 2022.pdf'), findsOneWidget);
     expect(find.text('CGL 2023.pdf'), findsNothing);
 
-    await tester.tap(find.byTooltip('Switch exam'));
+    // No switcher here: exams are switched from Home only.
+    expect(find.byTooltip('Switch exam'), findsNothing);
+    await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    expect(find.text('Which exam?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(ListTile, 'SSC CGL'));
-    await tester.pumpAndSettle();
+    await switchExam(tester, 'SSC CGL');
+    await openDocuments(tester, repo);
     expect(find.text('CGL 2023.pdf'), findsOneWidget);
     expect(find.text('CHSL 2022.pdf'), findsNothing);
 
@@ -71,10 +88,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(analytics.requestedExams.last, 'SSC_CHSL');
 
-    await tester.tap(find.byTooltip('Switch exam'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ListTile, 'SSC CGL'));
-    await tester.pumpAndSettle();
+    await switchExam(tester, 'SSC CGL');
+    await openTab(tester, 'Progress');
     expect(analytics.requestedExams.last, 'SSC_CGL');
   });
 }

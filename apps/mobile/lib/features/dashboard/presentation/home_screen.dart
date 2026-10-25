@@ -38,7 +38,12 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.appTitle),
-        actions: [if (profile.examCodes.isNotEmpty) const ExamSwitcher()],
+        // The one place to switch exams (beside the sidebar, the sidebar's button is).
+        actions: [
+          if (profile.examCodes.isNotEmpty &&
+              FormFactor.ofWidth(MediaQuery.sizeOf(context).width) != FormFactor.desktop)
+            const ExamSwitcher(),
+        ],
       ),
       body: Align(
         alignment: Alignment.topCenter,
@@ -60,7 +65,7 @@ class HomeScreen extends ConsumerWidget {
                     title: Text(l10n.homeChooseExamTitle),
                     subtitle: Text(l10n.homeChooseExamMessage),
                     trailing: TextButton(
-                      onPressed: () => context.go(AppRoutes.profile),
+                      onPressed: () => context.push(AppRoutes.myExams),
                       child: Text(l10n.homeChooseExamAction),
                     ),
                   ),

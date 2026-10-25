@@ -13,10 +13,8 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../concepts/domain/concept.dart';
-import '../../study_plan/application/study_profile_controller.dart';
 import '../application/documents_providers.dart';
 import '../domain/imported_document.dart';
-import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
 import '../../../core/database/app_database.dart';
 import '../../exams/application/syllabus_prompt.dart';
@@ -46,7 +44,7 @@ class DocumentsScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.documentsTitle), actions: const [ExamSwitcher()]),
+      appBar: AppBar(title: Text(l10n.documentsTitle)),
       floatingActionButton: upload is UploadInProgress
           ? null
           : FloatingActionButton.extended(
@@ -236,18 +234,12 @@ class _ImportSheet extends ConsumerStatefulWidget {
 class _ImportSheetState extends ConsumerState<_ImportSheet> {
   late String _exam;
 
-  /// Exams a paper can be filed under: the learner's exams (and the one already chosen).
-  Set<String> _uploadExams(WidgetRef ref) {
-    final mine = ref.watch(studyProfileProvider.select((p) => p.examCodes));
-    return {...mine, _exam};
-  }
-
   ContentLanguage? _language;
 
   @override
   void initState() {
     super.initState();
-    // New papers go to the current exam (the learner can pick another of their exams).
+    // New papers go to the current exam (switched from Home only).
     _exam = ref.read(activeExamProvider) ?? ref.read(examCatalogProvider).first.code;
   }
 
@@ -273,16 +265,19 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: AppSpacing.md),
-            Text(l10n.fieldExam, style: theme.textTheme.labelLarge),
-            const SizedBox(height: AppSpacing.sm),
-            SegmentedButton<String>(
-              segments: [
-                for (final exam in ref.watch(examCatalogProvider))
-                  if (_uploadExams(ref).contains(exam.code))
-                    ButtonSegment(value: exam.code, label: Text(exam.shortName)),
+            Row(
+              children: [
+                Icon(Icons.flag_outlined, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.importExamNote(ref.watch(examNameProvider(_exam))),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
               ],
-              selected: {_exam},
-              onSelectionChanged: (s) => setState(() => _exam = s.first),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(l10n.fieldContentLanguage, style: theme.textTheme.labelLarge),

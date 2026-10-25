@@ -9,6 +9,10 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const study = '/study';
   static const newConcept = '/study/concepts/new';
+
+  /// A new concept with its subject and topic filled in.
+  static String newConceptIn(String subject, String topic) =>
+      Uri(path: newConcept, queryParameters: {'subject': subject, 'topic': topic}).toString();
   static const documents = '/study/documents';
   static const revision = '/study/revision';
   static const revisionReview = '/study/revision/review';

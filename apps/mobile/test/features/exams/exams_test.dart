@@ -5,20 +5,24 @@ import 'package:preploop/features/exams/domain/exam_topics.dart';
 
 import '../../helpers/pump_app.dart';
 import '../question_bank/question_bank_test.dart' show openPractice, openQuestion;
-import '../settings/study_plan_section_test.dart' show openProfile;
 
-Future<void> openExamChooser(WidgetTester tester) async {
-  await openProfile(tester);
-  await tester.tap(find.text('Exams'));
-  await tester.pumpAndSettle();
-}
-
+/// Exams are chosen and switched only from Home: its exam switcher ("Add or change exams"),
+/// or the "Choose exam" card before any exam is chosen.
 Future<void> openMyExams(WidgetTester tester) async {
-  await openProfile(tester);
-  await scrollTo(tester, find.text('Exams and topics'));
-  await tester.tap(find.text('Exams and topics'));
+  await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Home')));
+  await tester.pumpAndSettle();
+  final switcher = find.byTooltip('Switch exam');
+  if (switcher.evaluate().isNotEmpty) {
+    await tester.tap(switcher);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add or change exams'));
+  } else {
+    await tester.tap(find.text('Choose exam'));
+  }
   await tester.pumpAndSettle();
 }
+
+Future<void> openExamChooser(WidgetTester tester) => openMyExams(tester);
 
 void main() {
   testAppWidgets('more exams: search the catalog and choose any exam', (tester, db) async {
@@ -52,8 +56,13 @@ void main() {
     await tester.tap(find.text('More exams'));
     await tester.pumpAndSettle();
 
-    await scrollTo(tester, find.text('Create my own exam'));
-    await tester.tap(find.text('Create my own exam'));
+    await scrollTo(
+      tester,
+      find.descendant(of: find.byType(BottomSheet), matching: find.text('Create my own exam')),
+    );
+    await tester.tap(
+      find.descendant(of: find.byType(BottomSheet), matching: find.text('Create my own exam')),
+    );
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).last, 'Rajasthan Patwari');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
@@ -85,8 +94,8 @@ void main() {
       studyProfile: onboardedProfile.copyWith(examCodes: ['NEET_UG']),
     );
     await openMyExams(tester);
-    expect(find.text('NEET UG'), findsOneWidget);
-    await tester.tap(find.text('NEET UG'));
+    expect(find.widgetWithText(ListTile, 'NEET UG'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ListTile, 'NEET UG'));
     await tester.pumpAndSettle();
     expect(find.text('NEET UG: topics'), findsOneWidget);
     expect(find.text('No topics yet'), findsOneWidget);
@@ -180,7 +189,7 @@ void main() {
       studyProfile: onboardedProfile.copyWith(examCodes: ['NEET_UG']),
     );
     await openMyExams(tester);
-    await tester.tap(find.text('NEET UG'));
+    await tester.tap(find.widgetWithText(ListTile, 'NEET UG'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Draft topics from my papers (AI)'));
     await tester.pumpAndSettle();

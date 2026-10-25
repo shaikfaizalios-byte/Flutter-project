@@ -48,9 +48,17 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry
   `exam_code`), mock tests, history (plus older exam-less sessions), bookmarks, questions to revisit and repeats
-  show only that exam; uploads default to it. `ExamSwitcher` sits in those app bars and the desktop sidebar.
-  Concepts keep their own exam filter. Analytics follow it too (`/analytics/overview?exam=`, counted by each
-  question's exam; mocks by session exam).
+  show only that exam, and so do concepts (Study list, filters) and revision cards (cards without an exam show
+  everywhere); uploads and new concepts go to it (a note says so, no picker). ONE place to switch: `ExamSwitcher`
+  in the desktop sidebar, or the Home app bar where there is no sidebar; its "Add or change exams" opens My exams
+  (which holds the `ExamSelector` chips; Profile has no exam settings). Analytics follow it too
+  (`/analytics/overview?exam=`, counted by each question's exam; mocks by session exam).
+- Mastery per topic (`features/mastery`, mobile-only, no schema change): pure `masteryLevel`/`examMastery` with
+  named `MasteryRules` (shown in UI): not started → learning (< 10 answers) → practising (< 60 % or flashcards
+  often forgotten) → strong → mastered (25+ answers at 85 %+, marked revised); 30-day analytics window.
+  `examMasteryProvider` = the current exam's syllabus topics + concept topics. Study tab: syllabus card (subjects)
+  → subject card (topics with levels; also the Subject/Topic filter options) → topic card (evidence, next step,
+  Practise, Add a concept prefilled via `AppRoutes.newConceptIn`, Revised chip). Topics screen shows the level.
 - Syllabus + revision marks: `POST /exams/{code}/syllabus` (PDF read in the request: text layer or OCR via
   `app.state.ocr_engine`, ≤ 40 pages, temp file deleted, NOTHING saved) → pure `app/domain/syllabus.py` draft
   (headings by ":"/CAPS/Part-Section label/known subject words; bullets, numbers, comma runs, one per line) →

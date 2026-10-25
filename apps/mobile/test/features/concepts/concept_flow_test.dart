@@ -14,19 +14,24 @@ Future<void> openStudy(WidgetTester tester) async {
 
 Finder field(String label) => find.widgetWithText(TextFormField, label);
 
-Future<void> seedConcept(WidgetTester tester, AppDatabase db, String title, {String? topic}) =>
-    seed(
-      tester,
-      () => LocalConceptsRepository(db).create(
-        ConceptDraft(
-          examCode: 'SSC_CGL',
-          title: title,
-          subject: 'Maths',
-          topic: topic ?? title.split(' ').first,
-          language: ContentLanguage.english,
-        ),
-      ),
-    );
+Future<void> seedConcept(
+  WidgetTester tester,
+  AppDatabase db,
+  String title, {
+  String? topic,
+  String exam = 'SSC_CGL',
+}) => seed(
+  tester,
+  () => LocalConceptsRepository(db).create(
+    ConceptDraft(
+      examCode: exam,
+      title: title,
+      subject: 'Maths',
+      topic: topic ?? title.split(' ').first,
+      language: ContentLanguage.english,
+    ),
+  ),
+);
 
 void main() {
   testAppWidgets('shows an empty state when there are no concepts', (tester, db) async {
@@ -37,16 +42,21 @@ void main() {
     expect(find.text('Add concept'), findsOneWidget);
   });
 
-  testAppWidgets('creates a concept and lists it', (tester, db) async {
-    await pumpPrepLoopApp(tester, db);
+  testAppWidgets('creates a concept in the current exam and lists it', (tester, db) async {
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL', 'SSC_CGL']),
+    );
     await openStudy(tester);
 
     await tester.tap(find.text('Add concept'));
     await tester.pumpAndSettle();
     expect(find.text('New concept'), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing, reason: 'form is full screen');
+    // No exam picker: the concept goes to the current exam (switched from Home only).
+    expect(find.text('Saved under SSC CHSL. Switch exams from Home.'), findsOneWidget);
 
-    await tester.tap(find.text('SSC CHSL'));
     await tester.enterText(field('Title'), 'Synonyms set 1');
     await tester.enterText(field('Subject'), 'English');
     await tester.enterText(field('Topic'), 'Vocabulary');

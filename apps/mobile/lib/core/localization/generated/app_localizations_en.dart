@@ -2345,7 +2345,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get examsEmptyTitle => 'No exams chosen';
 
   @override
-  String get examsEmptyMessage => 'Choose your exams in the study plan, or create your own.';
+  String get examsEmptyMessage => 'Choose your exams below, or create your own.';
 
   @override
   String get examsIntro =>
@@ -3220,4 +3220,108 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quoteAnother => 'Another';
+
+  @override
+  String conceptExamNote(String exam) {
+    return 'Saved under $exam. Switch exams from Home.';
+  }
+
+  @override
+  String importExamNote(String exam) {
+    return 'Adds to $exam. To add to another exam, switch exams from Home.';
+  }
+
+  @override
+  String get examsPreparingFor => 'Exams you\'re preparing for';
+
+  @override
+  String get conceptsNoneInTopic => 'No concepts here yet. Add one with the button above.';
+
+  @override
+  String get masteryNotStarted => 'Not started';
+
+  @override
+  String get masteryLearning => 'Learning';
+
+  @override
+  String get masteryPractising => 'Practising';
+
+  @override
+  String get masteryStrong => 'Strong';
+
+  @override
+  String get masteryMastered => 'Mastered';
+
+  @override
+  String masteryLevelLabel(String level) {
+    return 'Level: $level';
+  }
+
+  @override
+  String get masterySyllabusTitle => 'Your syllabus';
+
+  @override
+  String get masteryEditSyllabus => 'Edit syllabus';
+
+  @override
+  String get masteryAddSyllabus => 'Add syllabus';
+
+  @override
+  String get masteryNoSyllabus =>
+      'Add your syllabus to see its subjects and topics here, each with your level.';
+
+  @override
+  String masterySubjectProgress(int strong, int total) {
+    return '$strong of $total strong';
+  }
+
+  @override
+  String masteryRules(int days, int answers, String strong, int mastered, String masteredPercent) {
+    return 'Levels use the last $days days. Learning: under $answers answers. Strong: $strong correct or more. Mastered: $mastered+ answers at $masteredPercent or more, and marked revised.';
+  }
+
+  @override
+  String get masteryOffline =>
+      'Practice results need a connection, so levels use your flashcards and revised marks only.';
+
+  @override
+  String masteryNoAnswers(int days) {
+    return 'No practice answers in the last $days days';
+  }
+
+  @override
+  String get masteryNextNotStarted => 'Start with a few practice questions or a concept.';
+
+  @override
+  String masteryNextLearning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Answer $count more questions to see your level.',
+      one: 'Answer 1 more question to see your level.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String masteryNextPractising(String percent) {
+    return 'Aim for $percent correct, and keep its flashcards remembered.';
+  }
+
+  @override
+  String masteryNextStrong(int answers, String percent) {
+    return 'To master it: $answers+ answers at $percent correct, then mark it revised.';
+  }
+
+  @override
+  String get masteryNextMastered => 'Mastered. Revise it now and then to keep it.';
+
+  @override
+  String get masteryPractise => 'Practise';
+
+  @override
+  String get masteryAddConcept => 'Add a concept';
+
+  @override
+  String get masteryUpdateFailed => 'Couldn\'t save that. Check your connection and try again.';
 }

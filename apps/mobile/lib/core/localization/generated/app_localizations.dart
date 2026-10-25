@@ -3852,7 +3852,7 @@ abstract class AppLocalizations {
   /// No description provided for @examsEmptyMessage.
   ///
   /// In en, this message translates to:
-  /// **'Choose your exams in the study plan, or create your own.'**
+  /// **'Choose your exams below, or create your own.'**
   String get examsEmptyMessage;
 
   /// No description provided for @examsIntro.
@@ -5264,6 +5264,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Another'**
   String get quoteAnother;
+
+  /// No description provided for @conceptExamNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved under {exam}. Switch exams from Home.'**
+  String conceptExamNote(String exam);
+
+  /// No description provided for @importExamNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds to {exam}. To add to another exam, switch exams from Home.'**
+  String importExamNote(String exam);
+
+  /// No description provided for @examsPreparingFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams you\'re preparing for'**
+  String get examsPreparingFor;
+
+  /// No description provided for @conceptsNoneInTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'No concepts here yet. Add one with the button above.'**
+  String get conceptsNoneInTopic;
+
+  /// No description provided for @masteryNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get masteryNotStarted;
+
+  /// No description provided for @masteryLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get masteryLearning;
+
+  /// No description provided for @masteryPractising.
+  ///
+  /// In en, this message translates to:
+  /// **'Practising'**
+  String get masteryPractising;
+
+  /// No description provided for @masteryStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get masteryStrong;
+
+  /// No description provided for @masteryMastered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mastered'**
+  String get masteryMastered;
+
+  /// No description provided for @masteryLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level: {level}'**
+  String masteryLevelLabel(String level);
+
+  /// No description provided for @masterySyllabusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your syllabus'**
+  String get masterySyllabusTitle;
+
+  /// No description provided for @masteryEditSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit syllabus'**
+  String get masteryEditSyllabus;
+
+  /// No description provided for @masteryAddSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Add syllabus'**
+  String get masteryAddSyllabus;
+
+  /// No description provided for @masteryNoSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your syllabus to see its subjects and topics here, each with your level.'**
+  String get masteryNoSyllabus;
+
+  /// No description provided for @masterySubjectProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{strong} of {total} strong'**
+  String masterySubjectProgress(int strong, int total);
+
+  /// No description provided for @masteryRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Levels use the last {days} days. Learning: under {answers} answers. Strong: {strong} correct or more. Mastered: {mastered}+ answers at {masteredPercent} or more, and marked revised.'**
+  String masteryRules(int days, int answers, String strong, int mastered, String masteredPercent);
+
+  /// No description provided for @masteryOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice results need a connection, so levels use your flashcards and revised marks only.'**
+  String get masteryOffline;
+
+  /// No description provided for @masteryNoAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'No practice answers in the last {days} days'**
+  String masteryNoAnswers(int days);
+
+  /// No description provided for @masteryNextNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with a few practice questions or a concept.'**
+  String get masteryNextNotStarted;
+
+  /// No description provided for @masteryNextLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Answer 1 more question to see your level.} other{Answer {count} more questions to see your level.}}'**
+  String masteryNextLearning(int count);
+
+  /// No description provided for @masteryNextPractising.
+  ///
+  /// In en, this message translates to:
+  /// **'Aim for {percent} correct, and keep its flashcards remembered.'**
+  String masteryNextPractising(String percent);
+
+  /// No description provided for @masteryNextStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'To master it: {answers}+ answers at {percent} correct, then mark it revised.'**
+  String masteryNextStrong(int answers, String percent);
+
+  /// No description provided for @masteryNextMastered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mastered. Revise it now and then to keep it.'**
+  String get masteryNextMastered;
+
+  /// No description provided for @masteryPractise.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise'**
+  String get masteryPractise;
+
+  /// No description provided for @masteryAddConcept.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a concept'**
+  String get masteryAddConcept;
+
+  /// No description provided for @masteryUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save that. Check your connection and try again.'**
+  String get masteryUpdateFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

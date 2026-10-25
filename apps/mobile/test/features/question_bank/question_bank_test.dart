@@ -7,6 +7,7 @@ import 'package:preploop/features/documents/domain/imported_document.dart';
 import 'package:preploop/features/question_bank/domain/question.dart';
 
 import '../../helpers/pump_app.dart';
+import '../exams/active_exam_test.dart' show switchExam;
 import '../documents/documents_screen_test.dart' show FakeDocumentsRepository, doc;
 
 /// Opens the question bank (Practice tab, then Question bank).
@@ -88,11 +89,11 @@ void main() {
     expect(find.textContaining('Select the figure'), findsOneWidget);
     expect(find.textContaining('20% of 150'), findsNothing);
 
-    // Switching the exam shows that exam's questions.
-    await tester.tap(find.byTooltip('Switch exam'));
+    // Switching the exam (from Home) shows that exam's questions.
+    await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ListTile, 'SSC CGL'));
-    await tester.pumpAndSettle();
+    await switchExam(tester, 'SSC CGL');
+    await openPractice(tester);
     expect(repo.queries.last.examCode, 'SSC_CGL');
     expect(find.textContaining('synonym of RAPID'), findsOneWidget);
 
