@@ -98,7 +98,9 @@ class RagRetriever:
             .where(QuestionOption.question_id == Question.id)
             .scalar_subquery()
         )
-        searchable = func.concat_ws(" ", Question.stem, options, Question.explanation)
+        searchable = func.concat_ws(
+            " ", Question.stem, options, Question.model_answer, Question.explanation
+        )
         matches, rank = _match(searchable, terms)
         rows = self._session.execute(
             select(Question, Document.original_filename, rank.label("rank"))
@@ -182,7 +184,9 @@ def _question_text(question: Question) -> str:
         lines.append(f"Passage: {question.passage.text}")
     lines.append(question.stem)
     lines += [f"({o.label}) {o.text}" for o in question.options]
-    if question.answer_type == "typed" and question.typed_answer:
+    if question.answer_type == "written" and question.model_answer:
+        lines.append(f"Answer: {question.model_answer}")
+    elif question.answer_type == "typed" and question.typed_answer:
         lines.append(f"Answer: {question.typed_answer}")
     else:
         correct = next(

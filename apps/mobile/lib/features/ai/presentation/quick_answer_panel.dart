@@ -42,10 +42,6 @@ class QuickAnswerPanel extends ConsumerWidget {
         AsyncData(value: final a?) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AiLabel(l10n.quickAnswerLabel),
-            if (!a.confident)
-              Text(l10n.quickAnswerUnsure, style: TextStyle(color: theme.colorScheme.error)),
-            const SizedBox(height: AppSpacing.xs),
             SelectableText(a.answer),
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.quickAnswerCaution(a.model), style: theme.textTheme.bodySmall),

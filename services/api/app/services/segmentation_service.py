@@ -27,6 +27,7 @@ from app.domain.figures import (
     locate_figures,
 )
 from app.domain.paper_date import suggest_paper_date
+from app.domain.qa_notes import WrittenQuestion, read_qa_notes
 from app.domain.segmentation import (
     EXPECTED_OPTIONS,
     Issue,
@@ -49,6 +50,7 @@ from app.models.question import (
     QuestionIssue,
     QuestionOption,
     QuestionOrigin,
+    Topic,
     TopicStatus,
     VerificationStatus,
 )
@@ -112,6 +114,16 @@ class SegmentationService:
             # The exam's own subjects are recognised as section headings too.
             extra_headings=sorted({t.subject for t in exam_topics}),
         )
+        # Q&A notes (questions with written answers, no options): read them as such instead
+        # of as broken multiple-choice questions.
+        with_options = sum(1 for q in result.questions if len(q.options) >= 2)
+        if with_options <= 0.3 * len(result.questions):
+            written = read_qa_notes(
+                [PageText(p.page_number, p.text, p.needs_review) for p in pages]
+            )
+            if len(written) > with_options:
+                self._save_written(document, written, exam_topics, pages)
+                return
         if layout_issue is not None:
             result.document_issues.append(layout_issue)
         unreadable = [_unreadable_count(q) for q in result.questions]
@@ -225,6 +237,92 @@ class SegmentationService:
                     "document_issues": len(result.document_issues),
                 }
             },
+        )
+
+    def _save_written(
+        self,
+        document: Document,
+        written: Sequence[WrittenQuestion],
+        exam_topics: Sequence[Topic],
+        pages: Sequence[DocumentPage],
+    ) -> None:
+        """Store Q&A notes as written questions, replacing the previous run's unreviewed
+        questions exactly as a normal run does (reviewed ones are kept)."""
+        kept = self._session.scalars(
+            select(Question).where(
+                Question.document_id == document.id,
+                Question.verification_status != VerificationStatus.UNVERIFIED,
+            )
+        ).all()
+        kept_keys = {q.source_question_number for q in kept}
+        self._session.execute(
+            delete(Question).where(
+                Question.document_id == document.id,
+                Question.verification_status == VerificationStatus.UNVERIFIED,
+            )
+        )
+        self._session.execute(
+            delete(QuestionIssue).where(
+                QuestionIssue.document_id == document.id, QuestionIssue.question_id.is_(None)
+            )
+        )
+        kept_passages = {q.passage_id for q in kept if q.passage_id}
+        stale = delete(Passage).where(Passage.document_id == document.id)
+        if kept_passages:
+            stale = stale.where(Passage.id.not_in(kept_passages))
+        self._session.execute(stale)
+
+        topics = [TopicCandidate(t.id, t.subject, t.name, t.keywords) for t in exam_topics]
+        patterns = pattern_candidates(self._session)
+        _suggest_paper_date(document, pages)
+        created = 0
+        for item in written:
+            if item.number in kept_keys:
+                continue  # a reviewer already decided on this question
+            suggestion = suggest_topic(item.stem, subject=None, topics=topics)
+            issues = [
+                *item.issues,
+                *content_issues(
+                    option_texts=[],
+                    answer_position=None,
+                    expected_options=EXPECTED_OPTIONS,
+                    answer_type="written",
+                    model_answer=item.answer,
+                ),
+            ]
+            question = Question(
+                origin=QuestionOrigin.SOURCE,
+                owner_id=document.owner_id,
+                exam_code=document.exam_code,
+                exam_format_id=None,  # Q&A notes are not a timed exam paper
+                subject=suggestion.subject if suggestion else None,
+                topic_id=suggestion.topic_id if suggestion else None,
+                topic_status=TopicStatus.SUGGESTED if suggestion else TopicStatus.UNASSIGNED,
+                topic_suggested_by="keywords" if suggestion else None,
+                topic_suggestion_reason=suggestion.reason[:200] if suggestion else None,
+                stem=item.stem,
+                language=document.language,
+                document_id=document.id,
+                source_question_number=item.number,
+                source_pages=item.pages,
+                answer_type="written",
+                model_answer=item.answer or None,
+                answer_source="inline" if item.answer else None,
+                verification_status=VerificationStatus.UNVERIFIED,
+            )
+            question.issues = [
+                QuestionIssue(document_id=document.id, code=i.code, detail=i.detail) for i in issues
+            ]
+            refresh_pattern(question, patterns)
+            self._session.add(question)
+            created += 1
+        document.segmentation_status = "completed"
+        document.questions_found = created + len(kept)
+        document.segmented_at = datetime.now(UTC)
+        self._session.commit()
+        logger.info(
+            "document segmented as Q&A notes",
+            extra={"fields": {"document_id": str(document.id), "questions": created}},
         )
 
     @staticmethod

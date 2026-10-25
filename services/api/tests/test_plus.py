@@ -75,7 +75,7 @@ def log_ai(db: Session, user: User, outcome: str, at: datetime) -> None:
             task="quick_answer",
             provider="fake",
             model="fake-model-1",
-            prompt_version="p9.4",
+            prompt_version="p9.5",
             outcome=outcome,
             detail="",
             input_tokens=1,

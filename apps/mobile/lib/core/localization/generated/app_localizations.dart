@@ -4707,12 +4707,6 @@ abstract class AppLocalizations {
   /// **'Asking the AI…'**
   String get quickAnswerLoading;
 
-  /// No description provided for @quickAnswerLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'AI-generated · not checked'**
-  String get quickAnswerLabel;
-
   /// No description provided for @quickAnswerCaution.
   ///
   /// In en, this message translates to:
@@ -4724,12 +4718,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop automatic AI answers'**
   String get quickAnswerTurnOff;
-
-  /// No description provided for @quickAnswerUnsure.
-  ///
-  /// In en, this message translates to:
-  /// **'The AI isn\'t sure about this answer.'**
-  String get quickAnswerUnsure;
 
   /// No description provided for @plusTitle.
   ///
@@ -4905,12 +4893,6 @@ abstract class AppLocalizations {
   /// **'AI answer from your material'**
   String get searchAnswerTitle;
 
-  /// No description provided for @searchAnswerLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Written by AI from your material · check the sources'**
-  String get searchAnswerLabel;
-
   /// No description provided for @searchAnswerLoading.
   ///
   /// In en, this message translates to:
@@ -4928,12 +4910,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not checked by a reviewer'**
   String get searchAnswerUnchecked;
-
-  /// No description provided for @searchAnswerUnsure.
-  ///
-  /// In en, this message translates to:
-  /// **'The AI isn\'t sure your material answers this well.'**
-  String get searchAnswerUnsure;
 
   /// No description provided for @searchAnswerNotCovered.
   ///
@@ -5048,6 +5024,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Read by AI from a scan'**
   String get issueAiReadUnchecked;
+
+  /// No description provided for @searchAnswerFromPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'From your papers'**
+  String get searchAnswerFromPapers;
+
+  /// No description provided for @searchAnswerSimple.
+  ///
+  /// In en, this message translates to:
+  /// **'In simple words (AI)'**
+  String get searchAnswerSimple;
+
+  /// No description provided for @conceptsNoResultsPapersAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'None of your own concepts match \"{text}\". Matches from your papers are shown above.'**
+  String conceptsNoResultsPapersAbove(String text);
+
+  /// No description provided for @answerTypeWritten.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answer'**
+  String get answerTypeWritten;
+
+  /// No description provided for @fieldModelAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer (as written in the notes)'**
+  String get fieldModelAnswer;
+
+  /// No description provided for @fieldModelAnswerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For Q&A notes and interview questions. These are revised as flashcards, not practised as multiple choice.'**
+  String get fieldModelAnswerHelp;
+
+  /// No description provided for @writtenFlashcardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcards from these notes'**
+  String get writtenFlashcardsTitle;
+
+  /// No description provided for @writtenFlashcardsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verified questions have written answers. Revise them as flashcards: question in front, answer behind.'**
+  String writtenFlashcardsMessage(int count);
+
+  /// No description provided for @writtenFlashcardsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Make flashcards'**
+  String get writtenFlashcardsButton;
+
+  /// No description provided for @writtenFlashcardsNeedVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'This paper has questions with written answers. Verify them to revise them as flashcards.'**
+  String get writtenFlashcardsNeedVerify;
+
+  /// No description provided for @questionWrittenAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answer'**
+  String get questionWrittenAnswer;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

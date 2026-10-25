@@ -184,7 +184,11 @@ class Question(Base):
             "pattern_status IN ('unassigned', 'suggested', 'confirmed')",
             name="pattern_status_valid",
         ),
-        CheckConstraint("answer_type IN ('choice', 'typed')", name="answer_type_valid"),
+        CheckConstraint("answer_type IN ('choice', 'typed', 'written')", name="answer_type_valid"),
+        # Only written questions (Q&A notes, interview questions) have a written model answer.
+        CheckConstraint(
+            "answer_type = 'written' OR model_answer IS NULL", name="model_answer_only_written"
+        ),
         CheckConstraint("extracted_by IN ('rules', 'ai')", name="extracted_by_valid"),
         # A typed question has no option answer, and only typed questions have a typed answer.
         CheckConstraint(
@@ -231,6 +235,8 @@ class Question(Base):
     # "choice": pick an option; "typed": type the answer in (TITA), compared by typed_answers.
     answer_type: Mapped[str] = mapped_column(String(8), default="choice", server_default="choice")
     typed_answer: Mapped[str | None] = mapped_column(String(100))
+    # "written": the answer as written in the notes (no options; revised as a flashcard).
+    model_answer: Mapped[str | None] = mapped_column(Text)
     # "answer_key" | "inline" | "manual" — where the answer came from.
     answer_source: Mapped[str | None] = mapped_column(String(16))
     # Who read the question out of its paper: PrepLoop's rules, or AI (see ai_reading.py).

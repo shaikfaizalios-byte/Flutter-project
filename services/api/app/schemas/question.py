@@ -153,11 +153,13 @@ class QuestionRead(BaseModel):
     options: list[OptionRead]
     correct_option_position: int | None
     # "choice": pick an option; "typed": type the answer in (TITA), see typed_answer.
-    answer_type: Literal["choice", "typed"]
+    answer_type: Literal["choice", "typed", "written"]
     typed_answer: str | None
     # Whether typed_answer is a number (the app shows a number keyboard).
     typed_answer_numeric: bool
     answer_source: str | None
+    # "written" questions: the answer as written in the notes (no options).
+    model_answer: str | None = None
     # "ai": read out of the paper by AI (compare with the source page before verifying).
     extracted_by: Literal["rules", "ai"]
     explanation: str | None
@@ -208,9 +210,13 @@ class QuestionUpdate(BaseModel):
     ) = None
     options: list[OptionInput] | None = Field(default=None, min_length=2, max_length=6)
     correct_option_position: int | None = Field(default=None, ge=1, le=6)
-    answer_type: Literal["choice", "typed"] | None = None
+    answer_type: Literal["choice", "typed", "written"] | None = None
     typed_answer: (
         Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+        | None
+    ) = None
+    model_answer: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=20_000)]
         | None
     ) = None
     explanation: Annotated[str, StringConstraints(max_length=10_000)] | None = None

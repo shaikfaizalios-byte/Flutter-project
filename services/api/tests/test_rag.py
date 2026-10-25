@@ -67,6 +67,12 @@ def test_citations_must_name_sources_that_were_sent() -> None:
          "confident": True}, keys,
     )  # fmt: skip
     assert ok is not None and ok.cited == ("S1", "S2")
+    simple = validate_rag(
+        {"found": True, "answer": "Copied [S1].", "simple": " Like a photocopy. ", "cited": [],
+         "confident": True}, keys,
+    )  # fmt: skip
+    assert simple is not None and simple.simple == "Like a photocopy."
+    assert ok.simple is None  # no simple part: the answer from the material still counts
     not_found = validate_rag({"found": False, "answer": "", "cited": [], "confident": True}, keys)
     assert not_found is not None and not_found.found is False
     invented = {"found": True, "answer": "Yes [S9].", "cited": ["S9"], "confident": True}
@@ -177,7 +183,7 @@ def test_search_answer_cites_the_learners_own_pages(
     assert body["sources"][0]["document_id"] == str(document.id)
     prompt = ai.calls[0].prompt
     assert "copied on assignment" in prompt and "SECRET" not in prompt  # never other accounts
-    assert "ONLY the numbered sources" in ai.calls[0].system
+    assert "using ONLY the sources" in ai.calls[0].system
     log = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "rag_answer")).one()
     assert (log.outcome, log.detail) == ("ok", "1 sources, 1 cited")  # no text stored
 
@@ -189,8 +195,9 @@ def test_no_matching_material_is_answered_without_an_ai_call(
         "/api/v1/ai/search-answer", json={"text": "kotlin coroutines", "exam_code": "SSC_CHSL"}
     )
     assert response.json() == {
-        "found": False, "answer": None, "confident": True, "sources": [], "model": None,
-        "prompt_version": "p9.4",
+        "found": False, "answer": None, "simple": None, "confident": True, "sources": [],
+        "model": None,
+        "prompt_version": "p9.5",
     }  # fmt: skip
     assert ai.calls == []  # nothing spent
 

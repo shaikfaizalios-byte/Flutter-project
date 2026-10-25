@@ -20,6 +20,7 @@ PAGES_PER_CALL = 3  # main pages per request; the next page is added as context
 MAX_STEM = 4000
 MAX_OPTION = 1000
 MAX_OPTIONS = 6
+MAX_WRITTEN_ANSWER = 20_000
 # Share of the AI's words that must appear on the page for the text to count as copied.
 MIN_TEXT_MATCH = 0.85
 
@@ -34,7 +35,9 @@ READ_SYSTEM = (
     "belongs to which question) and the extracted text for exact characters. Give an answer "
     "only when the paper itself shows it (an answer key, a marked option or an 'Ans' line). "
     "When a question needs a picture, diagram, chart or table that can't be written as text, "
-    "set has_figure to true. Skip instructions, headers and anything that is not a question."
+    "set has_figure to true. Q&A notes and interview questions have no options: give their "
+    "written answer, copied exactly, in written_answer (null for multiple-choice questions). "
+    "Skip instructions, headers and anything that is not a question."
 )
 
 READ_SCHEMA: dict[str, Any] = {
@@ -63,11 +66,12 @@ READ_SCHEMA: dict[str, Any] = {
                         },
                     },
                     "answer_label": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "written_answer": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "has_figure": {"type": "boolean"},
                 },
                 "required": [
                     "number", "page", "section", "passage", "stem", "options",
-                    "answer_label", "has_figure",
+                    "answer_label", "written_answer", "has_figure",
                 ],
                 "additionalProperties": False,
             },
@@ -121,6 +125,8 @@ class ReadQuestion:
     answer_position: int | None
     has_figure: bool
     issues: list[Issue] = field(default_factory=list)
+    # Q&A notes: the answer as written (then there are no options).
+    written_answer: str | None = None
 
 
 def _clean(value: object, longest: int) -> str | None:
@@ -191,8 +197,12 @@ def validate_read(
             answer_position=None,
             has_figure=item.get("has_figure") is True,
         )
+        written = None if options else _clean(item.get("written_answer"), MAX_WRITTEN_ANSWER)
+        question.written_answer = written
         answer = _clean(item.get("answer_label"), 20)
-        if answer is not None:
+        if written is not None:
+            pass  # a written question needs no option answer
+        elif answer is not None:
             by_label = {_label_key(o.label): i + 1 for i, o in enumerate(options)}
             position = by_label.get(_label_key(answer))
             if position is None:
@@ -216,10 +226,8 @@ _WORDS = re.compile(r"[\wऀ-ॿ]+")
 
 def text_match(question: ReadQuestion, page_text: str) -> float:
     """Share of the question's words (stem + options) that appear in the page's own text."""
-    words = [
-        w.casefold()
-        for w in _WORDS.findall(" ".join([question.stem, *(o.text for o in question.options)]))
-    ]
+    parts = [question.stem, *(o.text for o in question.options), question.written_answer or ""]
+    words = [w.casefold() for w in _WORDS.findall(" ".join(parts))]
     if not words:
         return 0.0
     on_page = {w.casefold() for w in _WORDS.findall(page_text)}

@@ -162,8 +162,6 @@ class RevisionRepository {
     await _db.transaction(() async {
       await _db.batch((batch) {
         for (final q in fresh) {
-          final answer = q.options.firstWhere((o) => o.position == q.correctPosition);
-          final explanation = q.explanation?.trim() ?? '';
           batch.insert(
             _db.revisionCards,
             RevisionCardsCompanion.insert(
@@ -171,11 +169,7 @@ class RevisionRepository {
               kind: CardKind.question.name,
               questionId: Value(q.id),
               front: Value(questionFront(q)),
-              back: Value(
-                explanation.isEmpty
-                    ? '(${answer.label}) ${answer.text}'
-                    : '(${answer.label}) ${answer.text}\n\n$explanation',
-              ),
+              back: Value(questionBack(q)),
               sourceFilename: Value(q.documentFilename),
               sourcePage: Value(q.sourcePages.firstOrNull),
               examCode: Value(q.examCode),
@@ -207,8 +201,21 @@ class RevisionRepository {
       q.origin == QuestionOrigin.source &&
       q.status == VerificationStatus.verified &&
       !q.imageDependent &&
-      q.correctPosition != null &&
-      q.options.any((o) => o.position == q.correctPosition);
+      (q.isWritten
+          ? (q.modelAnswer?.trim().isNotEmpty ?? false)
+          : q.correctPosition != null && q.options.any((o) => o.position == q.correctPosition));
+
+  /// The back of a question card: the written answer, or the right option (and explanation).
+  static String questionBack(BankQuestion q) {
+    final explanation = q.explanation?.trim() ?? '';
+    final answer = q.isWritten
+        ? q.modelAnswer!.trim()
+        : () {
+            final option = q.options.firstWhere((o) => o.position == q.correctPosition);
+            return '(${option.label}) ${option.text}';
+          }();
+    return explanation.isEmpty ? answer : '$answer\n\n$explanation';
+  }
 
   static String questionFront(BankQuestion q) {
     final buffer = StringBuffer();

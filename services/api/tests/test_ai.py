@@ -119,7 +119,7 @@ def test_explanation_draft_review_and_labelled_use_in_practice(
     assert response.status_code == 201, response.text
     draft = response.json()
     assert (draft["status"], draft["provider"], draft["model"]) == ("draft", "fake", "fake-model-1")
-    assert draft["prompt_version"] == "p9.4"
+    assert draft["prompt_version"] == "p9.5"
 
     # The prompt carries the question and its known answer; the system prompt forbids
     # presenting output as official.
@@ -243,7 +243,7 @@ def test_generated_questions_are_validated_stored_unverified_and_labelled(
     assert first["ai"] == {
         "provider": "fake",
         "model": "fake-model-1",
-        "prompt_version": "p9.4",
+        "prompt_version": "p9.5",
         "source_question_id": str(source.id),
         "source_note": None,
     }
@@ -582,7 +582,7 @@ def test_quick_answer_for_a_search_is_returned_and_logged_without_text(
     body = response.json()
     assert body["answer"] == "Optional binding unwraps a value with if let."
     assert body["confident"] is True
-    assert (body["model"], body["prompt_version"]) == ("fake-model-1", "p9.4")
+    assert (body["model"], body["prompt_version"]) == ("fake-model-1", "p9.5")
     call = ai.calls[0]
     assert "swift optional binding" in call.prompt
     assert "Combined Higher Secondary" in call.prompt and "English" in call.prompt

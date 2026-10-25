@@ -99,6 +99,14 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`AiPaperReader`, also in `run_once`) sends 3 page images + text per request (`AIProvider.complete_json(images=)`),
   pure `app/domain/ai_reading.py` validates and compares each question with its page text (mismatch / scan →
   review issues `ai_text_mismatch`/`ai_read_unchecked`); `questions.extracted_by` rules|ai (migration 0025).
+- Q&A notes (written questions, migration 0026): `answer_type` choice|typed|written, `questions.model_answer`
+  (only written; CHECK). When the MCQ segmenter finds mostly option-less questions, the pure
+  `app/domain/qa_notes.py` reads "Answer:"-labelled or numbered Q&A (page furniture dropped, two-sentence
+  questions kept whole, unclear starts → `ambiguous_boundary`) and `SegmentationService._save_written` stores
+  them; the AI reader returns `written_answer` too. Written questions never enter practice/mocks (eligibility
+  needs options or a typed answer); the review screen's `WrittenFlashcardsCard` turns verified ones into revision
+  cards (back = written answer). Bulk "verify clean" skips open `REVIEW_FIRST_CODES` (AI mismatch/scan,
+  unreadable text). RAG answers have two parts: `answer` (cited, from the material) + `simple` (AI, plain words).
 - Question bank: worker runs the pure segmenter (`app/domain/segmentation.py`) after extraction →
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a
@@ -263,8 +271,9 @@ Known limitations right now:
   overall timer (the marking note says so). **Every other catalog exam has none** — add only after verifying the
   current official notice (record source in a migration). Without a format: practice, repeats and Radar work;
   timed mocks and count checks don't.
-- Question types: multiple-choice and typed-in (TITA). Multi-select and descriptive answers are not supported;
-  timed mocks use multiple-choice only.
+- Question types: multiple-choice, typed-in (TITA) and written (Q&A notes, revised as flashcards; not practised
+  or marked). Multi-select is not supported; timed mocks use multiple-choice only. Unnumbered Q&A questions are
+  numbered in order by PrepLoop.
   Catalog exams other than SSC/banking/railways start with no shared topics (learners add their own or use
   the AI draft). Own exams/topics never join the Radar.
 - Figures are found only from PDF vector/image objects: scanned papers (one image per page), multi-column

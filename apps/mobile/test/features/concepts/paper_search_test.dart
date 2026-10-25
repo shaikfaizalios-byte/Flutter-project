@@ -179,7 +179,7 @@ void main() {
     // Your material first (RAG); it doesn't cover this, so a general answer follows.
     expect(ai.calls, ['search:kotlin coroutines:SSC_CHSL', 'quick:kotlin coroutines:SSC_CHSL']);
     expect(find.textContaining("Your material doesn't cover this"), findsOneWidget);
-    expect(find.text('AI-generated · not checked'), findsOneWidget);
+    expect(find.text('AI-generated · not checked'), findsNothing); // no badge; the note says it
     expect(find.text(ai.quickAnswerText), findsOneWidget);
     expect(find.textContaining('Written by AI (fake-model)'), findsOneWidget);
     // The answer comes first, then Google for deeper reading.
@@ -219,7 +219,9 @@ void main() {
       await tester.tap(find.text('Ask AI'));
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
-      expect(find.textContaining("isn't sure"), findsOneWidget);
+      // An unsure AI is not shouted in red while the learner studies: the answer just shows.
+      expect(find.text(ai.quickAnswerText), findsOneWidget);
+      expect(find.textContaining("isn't sure"), findsNothing);
 
       ai.failure = const NetworkFailure();
       await search(tester, 'kotlin channels');
@@ -256,6 +258,7 @@ void main() {
       ..searchAnswerResult = const SearchAnswer(
         found: true,
         answer: 'Optional binding unwraps a value safely [S1]. It uses if let [S2].',
+        simple: 'It opens a box only if something is inside.',
         confident: true,
         model: 'fake-model',
         sources: [
@@ -303,7 +306,11 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
 
-    expect(find.text('Written by AI from your material · check the sources'), findsOneWidget);
+    // Two parts: what the papers say (cited), and the same in simple words (AI).
+    expect(find.text('From your papers'), findsOneWidget);
+    expect(find.text('In simple words (AI)'), findsOneWidget);
+    expect(find.text('It opens a box only if something is inside.'), findsOneWidget);
+    expect(find.textContaining('Written by AI'), findsOneWidget); // the quiet note at the bottom
     expect(find.textContaining('unwraps a value safely [S1]'), findsOneWidget);
     expect(find.text('Q.1 · chsl-2024.pdf'), findsOneWidget);
     expect(find.text('swift-notes.pdf, page 7'), findsOneWidget);
@@ -317,5 +324,27 @@ void main() {
     await tester.tap(find.text('Q.1 · chsl-2024.pdf'));
     await tester.pumpAndSettle();
     expect(find.textContaining('optional binding do?'), findsWidgets); // the question opened
+  });
+
+  testAppWidgets('no own concept matches, but papers do: the message says where to look', (
+    tester,
+    db,
+  ) async {
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      questions: paperQuestions,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+    );
+    await openStudy(tester);
+    await search(tester, 'swift');
+    expect(
+      find.text(
+        'None of your own concepts match "swift". Matches from your papers are shown above.',
+      ),
+      findsOneWidget,
+    );
+    await search(tester, 'kotlin'); // nothing anywhere: the plain message
+    expect(find.textContaining('Matches from your papers are shown above'), findsNothing);
   });
 }

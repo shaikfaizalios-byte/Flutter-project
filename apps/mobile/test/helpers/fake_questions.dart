@@ -33,6 +33,7 @@ BankQuestion bankQuestion({
   String? patternSuggestionReason,
   List<QuestionFigure> figures = const [],
   String answerType = 'choice',
+  String? modelAnswer,
   String? typedAnswer,
   String? sharedSource,
   bool readByAi = false,
@@ -74,6 +75,7 @@ BankQuestion bankQuestion({
   figures: figures,
   answerType: answerType,
   typedAnswer: typedAnswer,
+  modelAnswer: modelAnswer,
 );
 
 const samplePatterns = [

@@ -247,6 +247,7 @@ class BankQuestion {
     this.answerType = 'choice',
     this.typedAnswer,
     this.typedAnswerNumeric = false,
+    this.modelAnswer,
     this.answerSource,
     this.readByAi = false,
     this.explanation,
@@ -301,6 +302,7 @@ class BankQuestion {
     answerType: json['answer_type'] as String? ?? 'choice',
     typedAnswer: json['typed_answer'] as String?,
     typedAnswerNumeric: json['typed_answer_numeric'] as bool? ?? false,
+    modelAnswer: json['model_answer'] as String?,
     answerSource: json['answer_source'] as String?,
     readByAi: json['extracted_by'] == 'ai',
     explanation: json['explanation'] as String?,
@@ -360,6 +362,10 @@ class BankQuestion {
   final String? typedAnswer;
   final bool typedAnswerNumeric;
   bool get isTyped => answerType == 'typed';
+
+  /// Q&A notes: no options; the answer as written in the notes ([modelAnswer]).
+  bool get isWritten => answerType == 'written';
+  final String? modelAnswer;
   final String? answerSource;
 
   /// Read out of the paper by AI (compare with the source page before verifying).
@@ -409,6 +415,7 @@ class BankQuestion {
     answerType: answerType,
     typedAnswer: typedAnswer,
     typedAnswerNumeric: typedAnswerNumeric,
+    modelAnswer: modelAnswer,
     answerSource: answerSource,
     readByAi: readByAi,
     explanation: explanation,
@@ -602,6 +609,7 @@ class QuestionEdit {
     this.correctPosition,
     this.answerType,
     this.typedAnswer,
+    this.modelAnswer,
     this.explanation,
     this.topicId,
     this.patternId,
@@ -615,6 +623,7 @@ class QuestionEdit {
   final int? correctPosition;
   final String? answerType;
   final String? typedAnswer;
+  final String? modelAnswer;
   final String? explanation;
   final String? topicId;
   final String? patternId;
@@ -633,6 +642,7 @@ class QuestionEdit {
     'correct_option_position': ?correctPosition,
     'answer_type': ?answerType,
     'typed_answer': ?typedAnswer,
+    'model_answer': ?modelAnswer,
     'explanation': ?explanation,
     'topic_id': ?topicId,
     'pattern_id': ?patternId,

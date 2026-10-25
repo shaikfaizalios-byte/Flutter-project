@@ -245,7 +245,9 @@ class AiPaperReader:
                 source_pages=[read.page],
                 passage_id=passage.id if passage else None,
                 correct_option_position=read.answer_position,
-                answer_source="inline" if read.answer_position else None,
+                answer_type="written" if read.written_answer else "choice",
+                model_answer=read.written_answer,
+                answer_source="inline" if read.answer_position or read.written_answer else None,
                 image_dependent=read.has_figure,
                 verification_status=VerificationStatus.UNVERIFIED,
             )

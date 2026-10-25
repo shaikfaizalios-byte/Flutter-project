@@ -129,7 +129,11 @@ class _SharedQuestionView extends StatelessWidget {
                     ],
                   ),
                 ),
-              if (q.isTyped && q.typedAnswer != null)
+              if (q.isWritten && q.modelAnswer != null) ...[
+                Text(l10n.fieldModelAnswer, style: theme.textTheme.titleSmall),
+                const SizedBox(height: AppSpacing.xs),
+                SelectableText(q.modelAnswer!),
+              ] else if (q.isTyped && q.typedAnswer != null)
                 Text('${l10n.fieldTypedAnswer}: ${q.typedAnswer}')
               else if (correct != null)
                 Text(l10n.sessionCorrectAnswer(correct.label)),
@@ -164,6 +168,7 @@ class _EditorState extends ConsumerState<_Editor> {
   int? _answer;
   String _answerType = 'choice';
   late final TextEditingController _typed;
+  late final TextEditingController _written;
   String? _topicId;
   String? _patternId;
   late bool _imageDependent;
@@ -175,6 +180,7 @@ class _EditorState extends ConsumerState<_Editor> {
     _stem = TextEditingController();
     _explanation = TextEditingController();
     _typed = TextEditingController();
+    _written = TextEditingController();
     _options = [];
     _load(widget.question);
   }
@@ -190,6 +196,7 @@ class _EditorState extends ConsumerState<_Editor> {
     _answer = q.correctPosition;
     _answerType = q.answerType;
     _typed.text = q.typedAnswer ?? '';
+    _written.text = q.modelAnswer ?? '';
     _topicId = q.topic?.id;
     _patternId = q.pattern?.id;
     _imageDependent = q.imageDependent;
@@ -200,32 +207,51 @@ class _EditorState extends ConsumerState<_Editor> {
     _stem.dispose();
     _explanation.dispose();
     _typed.dispose();
+    _written.dispose();
     for (final (_, c) in _options) {
       c.dispose();
     }
     super.dispose();
   }
 
-  QuestionEdit _edit({VerificationStatus? status}) => _answerType == 'typed'
-      ? QuestionEdit(
-          stem: _stem.text,
-          answerType: 'typed',
-          typedAnswer: _typed.text.trim().isEmpty ? null : _typed.text.trim(),
-          explanation: _explanation.text,
-          topicId: _topicId,
-          patternId: _patternId,
-          imageDependent: _imageDependent,
-          status: status,
-          clear: {
-            if (_typed.text.trim().isEmpty && _question.typedAnswer != null) 'typed_answer',
-            if (_topicId == null) 'topic_id',
-            if (_patternId == null && _question.pattern != null) 'pattern_id',
-          },
-        )
-      : _choiceEdit(status: status);
+  QuestionEdit _edit({VerificationStatus? status}) => switch (_answerType) {
+    'written' => _writtenEdit(status: status),
+    'typed' => QuestionEdit(
+      stem: _stem.text,
+      answerType: 'typed',
+      typedAnswer: _typed.text.trim().isEmpty ? null : _typed.text.trim(),
+      explanation: _explanation.text,
+      topicId: _topicId,
+      patternId: _patternId,
+      imageDependent: _imageDependent,
+      status: status,
+      clear: {
+        if (_typed.text.trim().isEmpty && _question.typedAnswer != null) 'typed_answer',
+        if (_topicId == null) 'topic_id',
+        if (_patternId == null && _question.pattern != null) 'pattern_id',
+      },
+    ),
+    _ => _choiceEdit(status: status),
+  };
+
+  QuestionEdit _writtenEdit({VerificationStatus? status}) => QuestionEdit(
+    stem: _stem.text,
+    answerType: 'written',
+    modelAnswer: _written.text.trim().isEmpty ? null : _written.text.trim(),
+    explanation: _explanation.text,
+    topicId: _topicId,
+    patternId: _patternId,
+    imageDependent: _imageDependent,
+    status: status,
+    clear: {
+      if (_written.text.trim().isEmpty && _question.modelAnswer != null) 'model_answer',
+      if (_topicId == null) 'topic_id',
+      if (_patternId == null && _question.pattern != null) 'pattern_id',
+    },
+  );
 
   QuestionEdit _choiceEdit({VerificationStatus? status}) => QuestionEdit(
-    answerType: _question.isTyped ? 'choice' : null,
+    answerType: _question.isTyped || _question.isWritten ? 'choice' : null,
     stem: _stem.text,
     options: [for (final (label, c) in _options) (label, c.text)],
     correctPosition: _answer,
@@ -379,10 +405,26 @@ class _EditorState extends ConsumerState<_Editor> {
           segments: [
             ButtonSegment(value: 'choice', label: Text(l10n.answerTypeChoice)),
             ButtonSegment(value: 'typed', label: Text(l10n.answerTypeTyped)),
+            ButtonSegment(value: 'written', label: Text(l10n.answerTypeWritten)),
           ],
           selected: {_answerType},
           onSelectionChanged: (s) => setState(() => _answerType = s.first),
         ),
+        if (_answerType == 'written') ...[
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: _written,
+            minLines: 4,
+            maxLines: 16,
+            maxLength: 20000,
+            decoration: InputDecoration(
+              labelText: l10n.fieldModelAnswer,
+              helperText: l10n.fieldModelAnswerHelp,
+              helperMaxLines: 3,
+              alignLabelWithHint: true,
+            ),
+          ),
+        ],
         if (_answerType == 'typed') ...[
           const SizedBox(height: AppSpacing.md),
           TextField(

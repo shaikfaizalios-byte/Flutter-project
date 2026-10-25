@@ -36,6 +36,24 @@ Document level: `no_questions_found`, `numbering_gaps`, `answer_key_unmatched`,
 `answer_key_ambiguous_numbering`, `count_mismatch`, `section_count_mismatch`,
 `figures_not_extracted` (pages whose layout could not be analysed for figures).
 
+## Q&A notes (`app/domain/qa_notes.py`)
+
+Interview questions and revision notes have a written answer instead of options. When the
+segmenter finds mostly option-less questions (at most 30 % with two or more options), the paper is
+read as Q&A notes instead, and stored as `answer_type = "written"` with `model_answer`:
+
+- **"Answer:" layout:** each `Answer:` / `Ans:` line closes the question written just above it
+  (up to 5 lines, stopping at a line that ends a sentence; title-like lines above the first
+  question are dropped). Unnumbered questions are numbered in order.
+- **Numbered layout:** `Q.3 What is …?` / `3. Why …?` starts a question; the answer follows. A
+  numbered line only starts a question when it has a "?" or a "Q" prefix, so numbered lists in
+  answers stay in the answer. A question asked in two short sentences stays whole.
+- Lines printed on many pages (author, title) are page furniture and dropped.
+- Where the split is a guess, the question gets `ambiguous_boundary`; text is kept as found.
+- Written questions are never practised or used in mocks; verified ones become flashcards from the
+  paper's review screen (front: question, back: the written answer). The AI reader returns
+  `written_answer` for such papers too.
+
 ## Figures (`app/domain/figures.py`, `app/services/page_layout.py`)
 
 A PDF's text layer has no pictures, so Venn diagrams, figure series, charts and formulas drawn as

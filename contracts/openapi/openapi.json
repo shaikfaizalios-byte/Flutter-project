@@ -3590,7 +3590,8 @@
           "answer_type": {
             "enum": [
               "choice",
-              "typed"
+              "typed",
+              "written"
             ],
             "title": "Answer Type",
             "type": "string"
@@ -3687,6 +3688,17 @@
             ],
             "title": "Language",
             "type": "string"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
           },
           "open_issue_count": {
             "title": "Open Issue Count",
@@ -3972,7 +3984,8 @@
               {
                 "enum": [
                   "choice",
-                  "typed"
+                  "typed",
+                  "written"
                 ],
                 "type": "string"
               },
@@ -4017,6 +4030,19 @@
               }
             ],
             "title": "Image Dependent"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "maxLength": 20000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
           },
           "options": {
             "anyOf": [
@@ -4594,6 +4620,17 @@
           "prompt_version": {
             "title": "Prompt Version",
             "type": "string"
+          },
+          "simple": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simple"
           },
           "sources": {
             "items": {

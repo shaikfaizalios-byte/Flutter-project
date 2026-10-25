@@ -603,6 +603,7 @@ class AIService:
         return SearchAnswer(
             found=answer.found,
             answer=answer.answer,
+            simple=answer.simple,
             confident=answer.confident,
             sources=[
                 SearchAnswerSource(

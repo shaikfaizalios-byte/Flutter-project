@@ -25,6 +25,7 @@ MAX_TERMS = 10  # more words add noise, not precision
 SOURCES_PER_ANSWER = 6  # enough context to combine sources, small enough to stay cheap
 SNIPPET_CHARS = 1200  # per source; a whole PDF page would bury the relevant lines
 MAX_RAG_ANSWER = 2500
+MAX_SIMPLE = 1500
 
 # Words that appear in almost every query and so say nothing about what is wanted.
 STOP_WORDS = frozenset(
@@ -101,12 +102,15 @@ class RagSource:
 
 
 RAG_SYSTEM = (
-    "You answer a learner's search using ONLY the numbered sources from their own study "
-    "material. Every statement must end with the marker of the source it comes from, like "
-    "[S2]. If the sources do not answer the search, set found to false and leave the answer "
-    "empty: do not use outside knowledge. Sources may contain OCR mistakes; if a source looks "
-    "garbled or sources disagree, say so. Never invent exam patterns, cut-offs, marks or "
-    "statistics, and never call something official unless a source says so."
+    "You answer a learner's search from the numbered sources of their own study material, in "
+    "two parts. ANSWER: what the material says, using ONLY the sources and keeping their own "
+    "wording where you can; every statement ends with the marker of its source, like [S2]. "
+    "SIMPLE: the same answer explained in simple everyday words for a beginner, with a short "
+    "example if it helps; here you may use general knowledge to explain, but never contradict "
+    "the sources, and use no [S#] markers. If the sources do not answer the search, set found "
+    "to false and leave both parts empty. Sources may contain OCR mistakes; if a source looks "
+    "garbled or sources disagree, say so in ANSWER. Never invent exam patterns, cut-offs, marks "
+    "or statistics, and never call something official unless a source says so."
 )
 
 # Structured output: the API guarantees JSON of this shape, so we never parse free text.
@@ -115,10 +119,11 @@ RAG_SCHEMA: dict[str, Any] = {
     "properties": {
         "found": {"type": "boolean"},
         "answer": {"type": "string"},
+        "simple": {"type": "string"},
         "cited": {"type": "array", "items": {"type": "string"}},
         "confident": {"type": "boolean"},
     },
-    "required": ["found", "answer", "cited", "confident"],
+    "required": ["found", "answer", "simple", "cited", "confident"],
     "additionalProperties": False,
 }
 
@@ -133,9 +138,11 @@ def rag_prompt(*, query: str, exam_name: str | None, sources: Sequence[RagSource
     return (
         f"Sources from the learner's material{material}:\n\n{blocks}\n\n"
         f"Search: {query}\n\n"
-        f"Answer in at most 150 words, in {LANGUAGE_NAMES[query_language(query)]}, using only "
-        "the sources above, with a [S#] marker after each statement. List the markers you "
-        "used in cited. Set confident to false if the sources are unclear or disagree."
+        f"Write in {LANGUAGE_NAMES[query_language(query)]}. answer: at most 150 words, only "
+        "from the sources above in their own wording, with a [S#] marker after each statement. "
+        "simple: at most 120 words explaining the same thing in simple terms, no markers. List "
+        "the markers you used in cited. Set confident to false if the sources are unclear or "
+        "disagree."
     )
 
 
@@ -150,6 +157,9 @@ class RagAnswer:
     answer: str | None
     cited: tuple[str, ...]  # source keys in order of first use
     confident: bool
+    # The same answer in simple words (may use general knowledge; never cites). Optional: an
+    # unusable one is dropped, the answer from the material is still shown.
+    simple: str | None = None
 
 
 def validate_rag(data: dict[str, Any], source_keys: Sequence[str]) -> RagAnswer | None:
@@ -172,9 +182,15 @@ def validate_rag(data: dict[str, Any], source_keys: Sequence[str]) -> RagAnswer 
     allowed = set(source_keys)
     if not in_text or any(key not in allowed for key in [*in_text, *in_list]):
         return None
+    simple = data.get("simple")
+    if isinstance(simple, str):
+        simple = unicodedata.normalize("NFC", simple.strip())
+    if not isinstance(simple, str) or not 0 < len(simple) <= MAX_SIMPLE:
+        simple = None
     return RagAnswer(
         found=True,
         answer=text,
         cited=tuple(dict.fromkeys([*in_text, *in_list])),
         confident=confident,
+        simple=simple,
     )

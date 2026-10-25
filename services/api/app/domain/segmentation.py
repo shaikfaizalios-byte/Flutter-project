@@ -1031,11 +1031,15 @@ def content_issues(
     option_figures: Collection[int] = (),
     answer_type: str = "choice",
     typed_answer: str | None = None,
+    model_answer: str | None = None,
 ) -> list[Issue]:
     """``option_figures``: 1-based positions of options that are figures (their text may be
-    empty). Typed-in questions have no options; they only need their typed answer."""
+    empty). Typed-in questions have no options; they only need their typed answer, and
+    written questions (Q&A notes) only their written answer."""
     if answer_type == "typed":
         return [] if typed_answer else [Issue(IssueCode.MISSING_ANSWER)]
+    if answer_type == "written":
+        return [] if model_answer and model_answer.strip() else [Issue(IssueCode.MISSING_ANSWER)]
     issues: list[Issue] = []
     if len(option_texts) != expected_options:
         issues.append(

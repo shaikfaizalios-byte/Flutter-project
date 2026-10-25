@@ -108,22 +108,74 @@ class _Found extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    // Calm on purpose: no badges or warning colours while the learner reads. The panel title
+    // and the note at the bottom say it was written by AI.
+    final fromPapers = _Column(
+      title: l10n.searchAnswerFromPapers,
       children: [
-        AiLabel(l10n.searchAnswerLabel),
-        if (!answer.confident)
-          Text(l10n.searchAnswerUnsure, style: TextStyle(color: theme.colorScheme.error)),
-        const SizedBox(height: AppSpacing.xs),
         SelectableText(answer.answer!),
         const SizedBox(height: AppSpacing.sm),
         Text(l10n.searchAnswerSources, style: theme.textTheme.labelLarge),
         for (final source in answer.cited) _SourceTile(source: source),
+      ],
+    );
+    final simple = answer.simple == null
+        ? null
+        : _Column(title: l10n.searchAnswerSimple, children: [SelectableText(answer.simple!)]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) => simple == null
+              ? fromPapers
+              : constraints.maxWidth >= twoColumnWidth
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: fromPapers),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(child: simple),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    fromPapers,
+                    const SizedBox(height: AppSpacing.md),
+                    simple,
+                  ],
+                ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
         Text(l10n.searchAnswerCaution(answer.model ?? ''), style: theme.textTheme.bodySmall),
         TextButton(
           onPressed: () => ref.read(quickAnswersOnProvider.notifier).set(on: false),
           child: Text(l10n.quickAnswerTurnOff),
         ),
+      ],
+    );
+  }
+}
+
+/// Side by side from this width; one under the other on phones.
+const twoColumnWidth = 560.0;
+
+/// One part of the answer: a small heading over its content.
+class _Column extends StatelessWidget {
+  const _Column({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+        const SizedBox(height: AppSpacing.xs),
+        ...children,
       ],
     );
   }

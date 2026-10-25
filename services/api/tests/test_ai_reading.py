@@ -236,3 +236,13 @@ def test_the_review_summary_shows_the_reading_and_ai_read_questions(
     assert (summary["ai_read_status"], summary["read_by_ai"]) == ("completed", 1)
     question = api.get(f"/api/v1/questions?document_id={doc.id}").json()["items"][0]
     assert question["extracted_by"] == "ai"
+
+
+def test_q_and_a_notes_read_by_ai_keep_the_written_answer() -> None:
+    item = q(1, 1, "What is ARC?", options=[], answer_label=None)
+    item["written_answer"] = " Automatic Reference Counting frees unused objects. "
+    (written,), dropped = validate_read({"questions": [item]}, [1])
+    assert dropped == [] and written.issues == []  # no "answer missing": it is written out
+    assert written.written_answer == "Automatic Reference Counting frees unused objects."
+    check_against_page(written, "What is ARC? Automatic Reference Counting frees unused objects.")
+    assert written.issues == []  # the answer is on the page too

@@ -134,12 +134,14 @@ class SearchAnswer {
     required this.confident,
     required this.sources,
     this.answer,
+    this.simple,
     this.model,
   });
 
   factory SearchAnswer.fromJson(Map<String, dynamic> json) => SearchAnswer(
     found: json['found'] as bool,
     answer: json['answer'] as String?,
+    simple: json['simple'] as String?,
     confident: json['confident'] as bool,
     sources: [
       for (final s in json['sources'] as List<dynamic>)
@@ -151,7 +153,12 @@ class SearchAnswer {
   static const notFound = SearchAnswer(found: false, confident: true, sources: []);
 
   final bool found;
+
+  /// What the material says, with [S#] markers.
   final String? answer;
+
+  /// The same answer in simple words (AI; may use general knowledge, never cites).
+  final String? simple;
   final bool confident;
   final List<SearchAnswerSource> sources;
 

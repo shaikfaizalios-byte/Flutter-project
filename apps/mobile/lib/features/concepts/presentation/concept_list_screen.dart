@@ -27,6 +27,9 @@ class ConceptListScreen extends ConsumerWidget {
     final query = ref.watch(conceptQueryProvider);
     final concepts = ref.watch(conceptListProvider);
     final text = query.text.trim();
+    final papersMatched =
+        text.length >= paperSearchMinLength &&
+        (ref.watch(paperQuestionSearchProvider(text)).value?.$2 ?? 0) > 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -92,6 +95,11 @@ class ConceptListScreen extends ConsumerWidget {
                         ? Icons.search_off
                         : Icons.menu_book_outlined,
                     title: switch (query) {
+                      // The card above found paper questions: say these are only the
+                      // learner's own concepts, so "no match" doesn't look like a contradiction.
+                      _ when text.isNotEmpty && papersMatched => l10n.conceptsNoResultsPapersAbove(
+                        text,
+                      ),
                       _ when text.isNotEmpty => l10n.conceptsNoResults(text),
                       ConceptQuery(archived: true, examCode: null, subject: null, topic: null) =>
                         l10n.conceptsArchivedEmpty,

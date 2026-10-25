@@ -2878,18 +2878,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get quickAnswerLoading => 'AI से पूछा जा रहा है…';
 
   @override
-  String get quickAnswerLabel => 'AI द्वारा लिखा · जाँचा नहीं गया';
-
-  @override
   String quickAnswerCaution(String model) {
     return 'AI ($model) द्वारा लिखा। यह गलत हो सकता है: भरोसा करने से पहले जाँचें, और गहराई से पढ़ने के लिए Google देखें।';
   }
 
   @override
   String get quickAnswerTurnOff => 'अपने-आप AI उत्तर बंद करें';
-
-  @override
-  String get quickAnswerUnsure => 'AI को इस उत्तर पर पक्का भरोसा नहीं है।';
 
   @override
   String get plusTitle => 'PrepLoop Plus';
@@ -2992,9 +2986,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get searchAnswerTitle => 'आपकी सामग्री से AI उत्तर';
 
   @override
-  String get searchAnswerLabel => 'आपकी सामग्री से AI द्वारा लिखा · स्रोत जाँचें';
-
-  @override
   String get searchAnswerLoading => 'आपकी सामग्री में खोजा जा रहा है…';
 
   @override
@@ -3002,9 +2993,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get searchAnswerUnchecked => 'समीक्षक द्वारा जाँचा नहीं गया';
-
-  @override
-  String get searchAnswerUnsure => 'AI को पक्का नहीं है कि आपकी सामग्री इसका ठीक उत्तर देती है।';
 
   @override
   String get searchAnswerNotCovered =>
@@ -3075,4 +3063,43 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get issueAiReadUnchecked => 'स्कैन से AI द्वारा पढ़ा गया';
+
+  @override
+  String get searchAnswerFromPapers => 'आपके पेपरों से';
+
+  @override
+  String get searchAnswerSimple => 'आसान शब्दों में (AI)';
+
+  @override
+  String conceptsNoResultsPapersAbove(String text) {
+    return 'आपके अपने कॉन्सेप्ट में \"$text\" से कुछ नहीं मिला। आपके पेपरों से मिले नतीजे ऊपर दिखाए गए हैं।';
+  }
+
+  @override
+  String get answerTypeWritten => 'लिखित उत्तर';
+
+  @override
+  String get fieldModelAnswer => 'उत्तर (जैसा नोट्स में लिखा है)';
+
+  @override
+  String get fieldModelAnswerHelp =>
+      'प्रश्न-उत्तर नोट्स और इंटरव्यू प्रश्नों के लिए। इन्हें फ़्लैशकार्ड की तरह दोहराया जाता है, बहुविकल्पी अभ्यास में नहीं।';
+
+  @override
+  String get writtenFlashcardsTitle => 'इन नोट्स से फ़्लैशकार्ड';
+
+  @override
+  String writtenFlashcardsMessage(int count) {
+    return '$count सत्यापित प्रश्नों के लिखित उत्तर हैं। इन्हें फ़्लैशकार्ड की तरह दोहराएँ: आगे प्रश्न, पीछे उत्तर।';
+  }
+
+  @override
+  String get writtenFlashcardsButton => 'फ़्लैशकार्ड बनाएँ';
+
+  @override
+  String get writtenFlashcardsNeedVerify =>
+      'इस पेपर में लिखित उत्तर वाले प्रश्न हैं। उन्हें फ़्लैशकार्ड की तरह दोहराने के लिए सत्यापित करें।';
+
+  @override
+  String get questionWrittenAnswer => 'लिखित उत्तर';
 }

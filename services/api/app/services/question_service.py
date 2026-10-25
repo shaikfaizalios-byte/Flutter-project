@@ -10,7 +10,7 @@ from sqlalchemy import Select, and_, exists, func, or_, select
 from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
-from app.domain import typed_answers
+from app.domain import ai_reading, typed_answers
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.segmentation import EXPECTED_OPTIONS, Issue, IssueCode, content_issues
 from app.models.ai import AIExplanation, DraftStatus
@@ -57,6 +57,14 @@ CONTENT_ISSUE_CODES = {
 }
 
 
+# Issues a reviewer resolves by verifying one question after looking at it; "verify clean"
+# (bulk) never verifies a question that has them open.
+REVIEW_FIRST_CODES = {
+    ai_reading.AI_TEXT_MISMATCH,
+    ai_reading.AI_READ_UNCHECKED,
+    IssueCode.UNREADABLE_TEXT,
+}
+
 # A learner reported the question as wrong or unclear (resolved when it is re-verified).
 LEARNER_REPORT = "learner_report"
 
@@ -88,8 +96,12 @@ def _clean(question: Question) -> bool:
         return False
     if question.image_dependent and not question.figures:
         return False
+    if any(not i.resolved and i.code in REVIEW_FIRST_CODES for i in question.issues):
+        return False  # read by AI and not confirmed by the page text: a person must look
     if question.answer_type == "typed":
         return bool(question.typed_answer)
+    if question.answer_type == "written":
+        return bool(question.model_answer and question.model_answer.strip())
     position = question.correct_option_position
     return position is not None and len(question.options) >= 2 and position <= len(question.options)
 
@@ -323,7 +335,10 @@ class QuestionService:
                 # option answer, and vice versa).
                 question.correct_option_position = None
                 question.typed_answer = None
+                question.model_answer = None
                 question.answer_source = None
+                if answer_type == "written":
+                    question.options = []  # written questions have no options
         if "typed_answer" in changes:
             typed = changes.pop("typed_answer")
             if question.answer_type != "typed" and typed is not None:
@@ -331,6 +346,12 @@ class QuestionService:
             if typed != question.typed_answer:
                 question.typed_answer = typed_answers.clean(typed) if typed else None
                 question.answer_source = "manual" if typed else None
+        if "model_answer" in changes:
+            written = changes.pop("model_answer")
+            if question.answer_type != "written" and written is not None:
+                raise InvalidReferenceError("Only written questions have a written answer.")
+            question.model_answer = written
+            question.answer_source = "manual" if written else None
         if "correct_option_position" in changes:
             position = changes.pop("correct_option_position")
             if position is not None and question.answer_type == "typed":
@@ -442,6 +463,7 @@ class QuestionService:
             option_figures={f.option_position for f in question.figures if f.option_position},
             answer_type=question.answer_type,
             typed_answer=question.typed_answer,
+            model_answer=question.model_answer,
         )
         position = question.correct_option_position
         if position is not None and position > len(question.options):
@@ -673,6 +695,7 @@ class QuestionService:
             correct_option_position=question.correct_option_position,
             answer_type=question.answer_type,
             typed_answer=question.typed_answer,
+            model_answer=question.model_answer,
             typed_answer_numeric=bool(question.typed_answer)
             and typed_answers.is_numeric(question.typed_answer or ""),
             answer_source=question.answer_source,

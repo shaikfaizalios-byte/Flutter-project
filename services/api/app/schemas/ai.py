@@ -175,7 +175,8 @@ class SearchAnswer(BaseModel):
     found=false: nothing in the material answers the search (answer is null)."""
 
     found: bool
-    answer: str | None
+    answer: str | None  # what the material says, with [S#] markers
+    simple: str | None = None  # the same in simple words (AI; may use general knowledge)
     confident: bool
     sources: list[SearchAnswerSource]
     model: str | None  # null when no AI call was needed (no matching material)

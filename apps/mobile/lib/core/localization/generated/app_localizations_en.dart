@@ -2873,18 +2873,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAnswerLoading => 'Asking the AI…';
 
   @override
-  String get quickAnswerLabel => 'AI-generated · not checked';
-
-  @override
   String quickAnswerCaution(String model) {
     return 'Written by AI ($model). It can be wrong: check it before relying on it, and use Google for deeper reading.';
   }
 
   @override
   String get quickAnswerTurnOff => 'Stop automatic AI answers';
-
-  @override
-  String get quickAnswerUnsure => 'The AI isn\'t sure about this answer.';
 
   @override
   String get plusTitle => 'PrepLoop Plus';
@@ -2988,9 +2982,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchAnswerTitle => 'AI answer from your material';
 
   @override
-  String get searchAnswerLabel => 'Written by AI from your material · check the sources';
-
-  @override
   String get searchAnswerLoading => 'Searching your material…';
 
   @override
@@ -2998,9 +2989,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchAnswerUnchecked => 'Not checked by a reviewer';
-
-  @override
-  String get searchAnswerUnsure => 'The AI isn\'t sure your material answers this well.';
 
   @override
   String get searchAnswerNotCovered =>
@@ -3071,4 +3059,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issueAiReadUnchecked => 'Read by AI from a scan';
+
+  @override
+  String get searchAnswerFromPapers => 'From your papers';
+
+  @override
+  String get searchAnswerSimple => 'In simple words (AI)';
+
+  @override
+  String conceptsNoResultsPapersAbove(String text) {
+    return 'None of your own concepts match \"$text\". Matches from your papers are shown above.';
+  }
+
+  @override
+  String get answerTypeWritten => 'Written answer';
+
+  @override
+  String get fieldModelAnswer => 'Answer (as written in the notes)';
+
+  @override
+  String get fieldModelAnswerHelp =>
+      'For Q&A notes and interview questions. These are revised as flashcards, not practised as multiple choice.';
+
+  @override
+  String get writtenFlashcardsTitle => 'Flashcards from these notes';
+
+  @override
+  String writtenFlashcardsMessage(int count) {
+    return '$count verified questions have written answers. Revise them as flashcards: question in front, answer behind.';
+  }
+
+  @override
+  String get writtenFlashcardsButton => 'Make flashcards';
+
+  @override
+  String get writtenFlashcardsNeedVerify =>
+      'This paper has questions with written answers. Verify them to revise them as flashcards.';
+
+  @override
+  String get questionWrittenAnswer => 'Written answer';
 }

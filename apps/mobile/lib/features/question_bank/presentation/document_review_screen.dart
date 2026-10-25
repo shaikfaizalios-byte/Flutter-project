@@ -15,6 +15,7 @@ import '../application/question_bank_providers.dart';
 import '../data/questions_repository.dart';
 import '../domain/question.dart';
 import 'ai_read_card.dart';
+import 'written_flashcards_card.dart';
 import 'question_widgets.dart';
 
 /// Parse summary and question list for one imported document.
@@ -141,6 +142,8 @@ class _DocumentReviewScreenState extends ConsumerState<DocumentReviewScreen> {
                         ),
                         // Read the questions with AI when the rules found none / got them wrong.
                         AiReadCard(documentId: widget.documentId, summary: value),
+                        // Q&A notes: revise the written answers as flashcards.
+                        WrittenFlashcardsCard(documentId: widget.documentId),
                         if (value.segmentationStatus == 'completed')
                           _PaperDateCard(documentId: widget.documentId, date: value.paperDate),
                         if (value.segmentationStatus == 'completed' && value.questionsFound > 0)
