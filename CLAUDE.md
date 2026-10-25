@@ -163,6 +163,14 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   PostgreSQL with `timezone(zone, answered_at)`; mock answers count only once submitted). Mobile decides
   accuracy/"weak" with named `AnalyticsRules` (shown in UI) and builds the daily plan with the pure
   `buildStudyPlan` (no AI; every item has a reason). Charts are plain widgets. See docs/analytics.md.
+- Motivation + focus (`features/focus`, device-only, no schema change): Home `MomentumCard` (streak, today's focus
+  minutes vs `dailyStudyMinutes` ring, today's answered/reviewed counts, "Start a focus session") + `QuoteCard`
+  (curated, well-attributed quotes, EN+HI, one per day, "Another"). Pure `focus.dart`: `currentStreak` over real
+  activity days (practice answers from analytics, card reviews, focus log; today stays open; one rest day per 7
+  days), `FocusSession`. `focusProvider` (session in `app_settings` `focus_session`, survives reloads) and
+  `focusLogProvider` (minutes per day, `focus_log`, 120 days). `FocusBar` sits above every screen in `DesktopFrame`
+  (dialogs via the router's navigator key); time up → minutes logged + `FocusDoneDialog`. Healthy-habit design:
+  no guilt messages, no punishing streaks; every number is real.
 - Revision (device-only, Drift v4 `revision_cards`/`card_reviews`): pure `RevisionScheduler` with a stored
   ladder (`revision_day_offsets`, default 1/4/7 days after adding) and Good/Easy/Hard/Forgot adaptation;
   concept cards read the live concept, question cards snapshot verified source questions only.

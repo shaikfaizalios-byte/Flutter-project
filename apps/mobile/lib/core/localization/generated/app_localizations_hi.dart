@@ -3102,4 +3102,126 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get questionWrittenAnswer => 'लिखित उत्तर';
+
+  @override
+  String get focusStartTitle => 'फ़ोकस सत्र शुरू करें';
+
+  @override
+  String get focusMinutesLabel => 'कितनी देर?';
+
+  @override
+  String focusMinutes(int minutes) {
+    return '$minutes मिनट';
+  }
+
+  @override
+  String get focusWhatLabel => 'आप किस पर काम करेंगे?';
+
+  @override
+  String get focusDoRevision => 'फ़्लैशकार्ड दोहराएँ';
+
+  @override
+  String get focusDoPractice => 'प्रश्नों का अभ्यास करें';
+
+  @override
+  String get focusDoStudy => 'अपने नोट्स और पेपर पढ़ें';
+
+  @override
+  String get focusTip =>
+      'सिर्फ़ एक काम। सूचनाएँ बंद करें और फ़ोन दूर रखें। सत्र के बाद 5 मिनट का ब्रेक लें: छोटे ब्रेक याद रखने में मदद करते हैं।';
+
+  @override
+  String focusBarLeft(String time) {
+    return 'फ़ोकस · $time बाकी';
+  }
+
+  @override
+  String get focusEnd => 'समाप्त करें';
+
+  @override
+  String get focusEndTitle => 'यह फ़ोकस सत्र समाप्त करें?';
+
+  @override
+  String focusEndBody(int minutes) {
+    return 'आपने $minutes मिनट फ़ोकस किया। वह समय फिर भी गिना जाता है।';
+  }
+
+  @override
+  String get focusKeepGoing => 'जारी रखें';
+
+  @override
+  String get focusDoneTitle => 'फ़ोकस सत्र पूरा हुआ';
+
+  @override
+  String focusDoneBody(int minutes) {
+    return 'आपने $minutes मिनट फ़ोकस किया। छोटा ब्रेक लें, फिर लौटें।';
+  }
+
+  @override
+  String focusDoneGoal(int done, int goal) {
+    return 'आज का लक्ष्य पूरा: $goal में से $done मिनट।';
+  }
+
+  @override
+  String focusDoneToday(int done, int goal) {
+    return 'आज: $goal में से $done मिनट।';
+  }
+
+  @override
+  String focusDoneTodayNoGoal(int done) {
+    return 'आज: $done मिनट फ़ोकस।';
+  }
+
+  @override
+  String get focusDoneOk => 'पढ़ाई पर लौटें';
+
+  @override
+  String momentumStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'लगातार $count दिन',
+      one: 'लगातार 1 दिन',
+      zero: 'आज अपनी लय शुरू करें',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get momentumStreakRule =>
+      'कोई भी अभ्यास, रिवीज़न या फ़ोकस समय गिना जाता है। हफ़्ते में एक आराम का दिन लय नहीं तोड़ता।';
+
+  @override
+  String momentumGoal(int done, int goal) {
+    return 'आज $goal में से $done मिनट फ़ोकस';
+  }
+
+  @override
+  String momentumNoGoal(int done) {
+    return 'आज $done मिनट फ़ोकस';
+  }
+
+  @override
+  String get momentumSetGoal => 'रोज़ का लक्ष्य तय करें';
+
+  @override
+  String momentumAnswered(int count) {
+    return '$count प्रश्नों के उत्तर दिए';
+  }
+
+  @override
+  String momentumReviewed(int count) {
+    return '$count कार्ड दोहराए';
+  }
+
+  @override
+  String get momentumStart => 'फ़ोकस सत्र शुरू करें';
+
+  @override
+  String momentumRunning(String time) {
+    return 'फ़ोकस जारी · $time बाकी';
+  }
+
+  @override
+  String get quoteAnother => 'और एक';
 }

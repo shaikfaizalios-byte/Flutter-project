@@ -10,6 +10,7 @@ void main() {
     await pumpPrepLoopApp(tester, db);
 
     expect(find.text('Your study loop'), findsOneWidget);
+    await scrollTo(tester, find.text('What should I study today?')); // below the momentum card
     expect(find.text('What should I study today?'), findsOneWidget);
     await scrollTo(tester, find.text('Which topics am I weak in?'));
     expect(find.text('Which topics am I weak in?'), findsOneWidget);

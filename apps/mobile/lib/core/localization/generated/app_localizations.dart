@@ -5090,6 +5090,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Written answer'**
   String get questionWrittenAnswer;
+
+  /// No description provided for @focusStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a focus session'**
+  String get focusStartTitle;
+
+  /// No description provided for @focusMinutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How long?'**
+  String get focusMinutesLabel;
+
+  /// No description provided for @focusMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String focusMinutes(int minutes);
+
+  /// No description provided for @focusWhatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What will you work on?'**
+  String get focusWhatLabel;
+
+  /// No description provided for @focusDoRevision.
+  ///
+  /// In en, this message translates to:
+  /// **'Revise flashcards'**
+  String get focusDoRevision;
+
+  /// No description provided for @focusDoPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise questions'**
+  String get focusDoPractice;
+
+  /// No description provided for @focusDoStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read your notes and papers'**
+  String get focusDoStudy;
+
+  /// No description provided for @focusTip.
+  ///
+  /// In en, this message translates to:
+  /// **'One task only. Silence notifications and keep your phone away. After the session, take a 5-minute break: short breaks help you remember.'**
+  String get focusTip;
+
+  /// No description provided for @focusBarLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus · {time} left'**
+  String focusBarLeft(String time);
+
+  /// No description provided for @focusEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get focusEnd;
+
+  /// No description provided for @focusEndTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End this focus session?'**
+  String get focusEndTitle;
+
+  /// No description provided for @focusEndBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve focused for {minutes} min. That time still counts.'**
+  String focusEndBody(int minutes);
+
+  /// No description provided for @focusKeepGoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep going'**
+  String get focusKeepGoing;
+
+  /// No description provided for @focusDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus session complete'**
+  String get focusDoneTitle;
+
+  /// No description provided for @focusDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You focused for {minutes} minutes. Take a short break, then come back.'**
+  String focusDoneBody(int minutes);
+
+  /// No description provided for @focusDoneGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s goal reached: {done} of {goal} min.'**
+  String focusDoneGoal(int done, int goal);
+
+  /// No description provided for @focusDoneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {done} of {goal} min.'**
+  String focusDoneToday(int done, int goal);
+
+  /// No description provided for @focusDoneTodayNoGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {done} min focused.'**
+  String focusDoneTodayNoGoal(int done);
+
+  /// No description provided for @focusDoneOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to studying'**
+  String get focusDoneOk;
+
+  /// No description provided for @momentumStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Start your streak today} =1{1-day streak} other{{count}-day streak}}'**
+  String momentumStreak(int count);
+
+  /// No description provided for @momentumStreakRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Any practice, revision or focus time counts. One rest day a week keeps a streak going.'**
+  String get momentumStreakRule;
+
+  /// No description provided for @momentumGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {goal} min focused today'**
+  String momentumGoal(int done, int goal);
+
+  /// No description provided for @momentumNoGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} min focused today'**
+  String momentumNoGoal(int done);
+
+  /// No description provided for @momentumSetGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a daily goal'**
+  String get momentumSetGoal;
+
+  /// No description provided for @momentumAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions answered'**
+  String momentumAnswered(int count);
+
+  /// No description provided for @momentumReviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cards reviewed'**
+  String momentumReviewed(int count);
+
+  /// No description provided for @momentumStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a focus session'**
+  String get momentumStart;
+
+  /// No description provided for @momentumRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus running · {time} left'**
+  String momentumRunning(String time);
+
+  /// No description provided for @quoteAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Another'**
+  String get quoteAnother;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

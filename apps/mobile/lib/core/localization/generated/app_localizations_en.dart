@@ -3098,4 +3098,126 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get questionWrittenAnswer => 'Written answer';
+
+  @override
+  String get focusStartTitle => 'Start a focus session';
+
+  @override
+  String get focusMinutesLabel => 'How long?';
+
+  @override
+  String focusMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get focusWhatLabel => 'What will you work on?';
+
+  @override
+  String get focusDoRevision => 'Revise flashcards';
+
+  @override
+  String get focusDoPractice => 'Practise questions';
+
+  @override
+  String get focusDoStudy => 'Read your notes and papers';
+
+  @override
+  String get focusTip =>
+      'One task only. Silence notifications and keep your phone away. After the session, take a 5-minute break: short breaks help you remember.';
+
+  @override
+  String focusBarLeft(String time) {
+    return 'Focus · $time left';
+  }
+
+  @override
+  String get focusEnd => 'End';
+
+  @override
+  String get focusEndTitle => 'End this focus session?';
+
+  @override
+  String focusEndBody(int minutes) {
+    return 'You\'ve focused for $minutes min. That time still counts.';
+  }
+
+  @override
+  String get focusKeepGoing => 'Keep going';
+
+  @override
+  String get focusDoneTitle => 'Focus session complete';
+
+  @override
+  String focusDoneBody(int minutes) {
+    return 'You focused for $minutes minutes. Take a short break, then come back.';
+  }
+
+  @override
+  String focusDoneGoal(int done, int goal) {
+    return 'Today\'s goal reached: $done of $goal min.';
+  }
+
+  @override
+  String focusDoneToday(int done, int goal) {
+    return 'Today: $done of $goal min.';
+  }
+
+  @override
+  String focusDoneTodayNoGoal(int done) {
+    return 'Today: $done min focused.';
+  }
+
+  @override
+  String get focusDoneOk => 'Back to studying';
+
+  @override
+  String momentumStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count-day streak',
+      one: '1-day streak',
+      zero: 'Start your streak today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get momentumStreakRule =>
+      'Any practice, revision or focus time counts. One rest day a week keeps a streak going.';
+
+  @override
+  String momentumGoal(int done, int goal) {
+    return '$done of $goal min focused today';
+  }
+
+  @override
+  String momentumNoGoal(int done) {
+    return '$done min focused today';
+  }
+
+  @override
+  String get momentumSetGoal => 'Set a daily goal';
+
+  @override
+  String momentumAnswered(int count) {
+    return '$count questions answered';
+  }
+
+  @override
+  String momentumReviewed(int count) {
+    return '$count cards reviewed';
+  }
+
+  @override
+  String get momentumStart => 'Start a focus session';
+
+  @override
+  String momentumRunning(String time) {
+    return 'Focus running · $time left';
+  }
+
+  @override
+  String get quoteAnother => 'Another';
 }

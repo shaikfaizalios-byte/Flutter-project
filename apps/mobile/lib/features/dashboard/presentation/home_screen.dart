@@ -22,6 +22,7 @@ import '../../study_plan/domain/study_profile.dart';
 import '../../study_plan/presentation/study_profile_widgets.dart';
 import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
+import '../../focus/presentation/focus_widgets.dart';
 
 /// Dashboard. Answers the three core questions from real local data only;
 /// where no data exists yet, each section says so honestly (no sample stats).
@@ -73,6 +74,11 @@ class HomeScreen extends ConsumerWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+              const SizedBox(height: AppSpacing.md),
+              // Momentum first: streak, today's focus against the goal, one clear next step.
+              const MomentumCard(),
+              const SizedBox(height: AppSpacing.sm),
+              const QuoteCard(),
               const SizedBox(height: AppSpacing.md),
               _TodaySection(profile: profile),
               const SizedBox(height: AppSpacing.md),

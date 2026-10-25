@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/localization/generated/app_localizations.dart';
 import '../features/exams/presentation/exam_switcher.dart';
+import '../features/focus/presentation/focus_widgets.dart';
 import 'app_destinations.dart';
 import 'routes.dart';
 import 'theme/app_spacing.dart';
@@ -386,7 +387,15 @@ class _DesktopFrameState extends State<DesktopFrame> {
                 constraints: BoxConstraints(
                   maxWidth: show ? AppSpacing.maxContentWidth : double.infinity,
                 ),
-                child: widget.child,
+                // A running focus session shows its time left above every screen.
+                child: Column(
+                  children: [
+                    FocusBar(
+                      dialogContext: () => widget.router.routerDelegate.navigatorKey.currentContext,
+                    ),
+                    Expanded(child: widget.child),
+                  ],
+                ),
               ),
             ),
           ),

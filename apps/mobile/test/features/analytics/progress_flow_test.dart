@@ -211,6 +211,7 @@ void main() {
       analytics: FakeAnalyticsRepository(data: sampleStats()),
     );
 
+    await scrollTo(tester, find.text('Practise Percentage')); // below the momentum card
     expect(find.text('Practise Percentage'), findsOneWidget);
     expect(find.textContaining('40% correct over 20 answers · below 60%'), findsOneWidget);
     await tester.tap(
@@ -264,6 +265,10 @@ void main() {
       ),
     );
 
+    await scrollTo(
+      tester,
+      find.text('Take a mock test: SSC CHSL 2026 Tier-I'),
+    ); // below the momentum card
     expect(find.text('Take a mock test: SSC CHSL 2026 Tier-I'), findsOneWidget);
     expect(
       find.textContaining('You have not taken a mock test yet. Exam in 30 days.'),
@@ -277,6 +282,10 @@ void main() {
     final analytics = FakeAnalyticsRepository()..offline = true;
     await pumpPrepLoopApp(tester, db, analytics: analytics);
 
+    await scrollTo(
+      tester,
+      find.textContaining('Practice suggestions need a connection'),
+    ); // below the momentum card
     expect(find.textContaining('Practice suggestions need a connection'), findsOneWidget);
     expect(find.text('Practise mixed questions'), findsNothing);
     expect(find.text('Nothing planned for today: no flashcards are due.'), findsOneWidget);
@@ -289,6 +298,7 @@ void main() {
       deviceLocale: const Locale('hi'),
       analytics: FakeAnalyticsRepository(data: sampleStats()),
     );
+    await scrollTo(tester, find.text('Percentage का अभ्यास करें')); // below the momentum card
     expect(find.text('Percentage का अभ्यास करें'), findsOneWidget);
     await tester.tap(
       find.descendant(of: find.byType(NavigationBar), matching: find.text('प्रगति')),
