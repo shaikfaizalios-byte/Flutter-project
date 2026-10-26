@@ -30,6 +30,7 @@ class ImportedDocument {
     this.errorCode,
     this.segmentationStatus = 'pending',
     this.questionsFound = 0,
+    this.questionsToCheck = 0,
   });
 
   factory ImportedDocument.fromJson(Map<String, dynamic> json) => ImportedDocument(
@@ -45,6 +46,7 @@ class ImportedDocument {
     createdAt: DateTime.parse(json['created_at'] as String),
     segmentationStatus: json['segmentation_status'] as String? ?? 'pending',
     questionsFound: json['questions_found'] as int? ?? 0,
+    questionsToCheck: json['questions_to_check'] as int? ?? 0,
   );
 
   final String id;
@@ -61,6 +63,9 @@ class ImportedDocument {
   /// Question segmentation: pending | completed | failed.
   final String segmentationStatus;
   final int questionsFound;
+
+  /// Questions with an open review issue ("9 need a look").
+  final int questionsToCheck;
 
   bool get canReview => status == DocumentStatus.completed;
 

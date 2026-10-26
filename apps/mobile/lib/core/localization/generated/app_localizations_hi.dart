@@ -3547,4 +3547,40 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get todayImportPaper => 'पेपर जोड़ें';
+
+  @override
+  String get importFindingQuestions => 'पेज पढ़ लिए · प्रश्न खोजे जा रहे हैं…';
+
+  @override
+  String importNeedALook(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count को देखना है',
+      one: '1 को देखना है',
+      zero: 'सब ठीक लगते हैं',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importReadyNotice(String file, String result) {
+    return '$file तैयार है: $result';
+  }
+
+  @override
+  String importFailedNotice(String file) {
+    return '$file पढ़ा नहीं जा सका। कारण देखने के लिए अपने पेपर खोलें।';
+  }
+
+  @override
+  String get importReview => 'देखें';
+
+  @override
+  String get importOpenPapers => 'खोलें';
+
+  @override
+  String importOnHome(String file, String status) {
+    return '$file जोड़ा जा रहा है: $status';
+  }
 }

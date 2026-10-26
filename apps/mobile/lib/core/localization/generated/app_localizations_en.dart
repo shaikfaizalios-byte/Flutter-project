@@ -3546,4 +3546,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayImportPaper => 'Import a paper';
+
+  @override
+  String get importFindingQuestions => 'Pages read · finding the questions…';
+
+  @override
+  String importNeedALook(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count need a look',
+      one: '1 needs a look',
+      zero: 'all look fine',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importReadyNotice(String file, String result) {
+    return '$file is ready: $result';
+  }
+
+  @override
+  String importFailedNotice(String file) {
+    return '$file couldn\'t be read. Open your papers to see why.';
+  }
+
+  @override
+  String get importReview => 'Review';
+
+  @override
+  String get importOpenPapers => 'Open';
+
+  @override
+  String importOnHome(String file, String status) {
+    return 'Importing $file: $status';
+  }
 }

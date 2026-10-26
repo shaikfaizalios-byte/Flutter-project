@@ -27,6 +27,8 @@ class DocumentRead(BaseModel):
     exam_format_id: uuid.UUID | None
     segmentation_status: Literal["pending", "completed", "failed"]
     questions_found: int
+    # Questions that still have an open review issue (not rejected): "9 need a look".
+    questions_to_check: int = 0
     # Reading with AI (asked by the learner when the rules found too little).
     ai_read_status: Literal["none", "queued", "running", "completed", "failed"]
     ai_read_pages_done: int

@@ -10,11 +10,12 @@ import logging
 import re
 import unicodedata
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
 from typing import BinaryIO
 
 import pypdfium2 as pdfium
-from sqlalchemy import select
+from sqlalchemy import distinct, func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
@@ -28,7 +29,7 @@ from app.domain.errors import (
 )
 from app.integrations.storage import DocumentStorage
 from app.models.document import Document, DocumentStatus
-from app.models.question import ExamFormat
+from app.models.question import ExamFormat, Question, QuestionIssue, VerificationStatus
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.document import (
@@ -58,6 +59,30 @@ def sanitize_filename(raw: str | None) -> str:
         stem, dot, ext = name.rpartition(".")
         name = (stem[: 250 - len(ext)] + dot + ext) if dot and len(ext) <= 10 else name[:255]
     return name
+
+
+def read_documents(session: Session, documents: Sequence[Document]) -> list[DocumentRead]:
+    """Public views, with how many questions of each still need a look (one query)."""
+    ids = [d.id for d in documents]
+    counts: dict[uuid.UUID, int] = {}
+    if ids:
+        rows = session.execute(
+            select(Question.document_id, func.count(distinct(Question.id)))
+            .join(QuestionIssue, QuestionIssue.question_id == Question.id)
+            .where(
+                Question.document_id.in_(ids),
+                QuestionIssue.resolved.is_(False),
+                Question.verification_status != VerificationStatus.REJECTED,
+            )
+            .group_by(Question.document_id)
+        ).all()
+        counts = {doc_id: count for doc_id, count in rows if doc_id is not None}
+    return [
+        DocumentRead.model_validate(d).model_copy(
+            update={"questions_to_check": counts.get(d.id, 0)}
+        )
+        for d in documents
+    ]
 
 
 class DocumentService:
@@ -129,14 +154,14 @@ class DocumentService:
         return DocumentRead.model_validate(document)
 
     def get(self, document_id: uuid.UUID) -> DocumentRead:
-        return DocumentRead.model_validate(self._get_or_404(document_id))
+        return read_documents(self._session, [self._get_or_404(document_id)])[0]
 
     def list(self, *, status: str | None, limit: int, offset: int) -> DocumentPageList:
         items, total = self._documents.list(
             owner_id=self._owner_id, status=status, limit=limit, offset=offset
         )
         return DocumentPageList(
-            items=[DocumentRead.model_validate(d) for d in items],
+            items=read_documents(self._session, items),
             total=total,
             limit=limit,
             offset=offset,

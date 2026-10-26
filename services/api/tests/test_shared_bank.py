@@ -183,3 +183,22 @@ def test_verify_clean_questions_leaves_the_rest_for_review(
 
     other = make_document(db_session, make_user(db_session, "other@example.com"))
     assert api.post(f"/api/v1/documents/{other.id}/questions/verify-clean").status_code == 404
+
+
+def test_papers_say_how_many_questions_still_need_a_look(
+    api: TestClient, db_session: Session, user: User
+) -> None:
+    doc = make_document(db_session, user, "mine.pdf")
+    make_question(db_session, doc, status=VerificationStatus.UNVERIFIED)
+    flagged = make_question(db_session, doc, status=VerificationStatus.UNVERIFIED)
+    db_session.add(QuestionIssue(question_id=flagged.id, code=IssueCode.EMPTY_OPTION))
+    db_session.add(QuestionIssue(question_id=flagged.id, code=IssueCode.MISSING_ANSWER))
+    fixed = make_question(db_session, doc, status=VerificationStatus.UNVERIFIED)
+    db_session.add(QuestionIssue(question_id=fixed.id, code=IssueCode.EMPTY_OPTION, resolved=True))
+    rejected = make_question(db_session, doc, status=VerificationStatus.REJECTED)
+    db_session.add(QuestionIssue(question_id=rejected.id, code=IssueCode.EMPTY_OPTION))
+    db_session.flush()
+
+    listed = api.get("/api/v1/documents").json()["items"]
+    assert [d["questions_to_check"] for d in listed] == [1]  # one question, counted once
+    assert api.get(f"/api/v1/documents/{doc.id}").json()["questions_to_check"] == 1

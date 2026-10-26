@@ -2158,5 +2158,16 @@
   "todayTasks": "{count, plural, =1{1 thing to do} other{{count} things to do}}",
   "@todayTasks": {"placeholders": {"count": {"type": "int"}}},
   "todayNothingPlanned": "Nothing planned yet. Start with some practice questions, or import a paper to practise from.",
-  "todayImportPaper": "Import a paper"
+  "todayImportPaper": "Import a paper",
+  "importFindingQuestions": "Pages read · finding the questions…",
+  "importNeedALook": "{count, plural, =0{all look fine} =1{1 needs a look} other{{count} need a look}}",
+  "@importNeedALook": {"placeholders": {"count": {"type": "int"}}},
+  "importReadyNotice": "{file} is ready: {result}",
+  "@importReadyNotice": {"placeholders": {"file": {"type": "String"}, "result": {"type": "String"}}},
+  "importFailedNotice": "{file} couldn't be read. Open your papers to see why.",
+  "@importFailedNotice": {"placeholders": {"file": {"type": "String"}}},
+  "importReview": "Review",
+  "importOpenPapers": "Open",
+  "importOnHome": "Importing {file}: {status}",
+  "@importOnHome": {"placeholders": {"file": {"type": "String"}, "status": {"type": "String"}}}
 }

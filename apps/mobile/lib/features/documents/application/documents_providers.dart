@@ -12,6 +12,7 @@ import '../../exams/application/active_exam.dart';
 import '../data/remote_documents_repository.dart';
 import '../domain/documents_repository.dart';
 import '../domain/imported_document.dart';
+import 'import_watcher.dart';
 
 final documentsRepositoryProvider = Provider<DocumentsRepository>(
   (ref) => RemoteDocumentsRepository(ref.watch(dioProvider)),
@@ -124,6 +125,8 @@ class UploadController extends Notifier<UploadState> {
           );
       state = UploadSucceeded(document);
       ref.invalidate(documentListProvider);
+      // Followed on every screen until it is ready.
+      ref.read(importWatcherProvider.notifier).follow(document);
     } on CancelledFailure {
       state = const UploadIdle();
     } on AppFailure catch (failure) {

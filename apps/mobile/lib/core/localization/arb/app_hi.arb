@@ -946,5 +946,12 @@
   "todayTitle": "आज",
   "todayTasks": "{count, plural, =1{करने के लिए 1 काम} other{करने के लिए {count} काम}}",
   "todayNothingPlanned": "अभी कुछ तय नहीं है। कुछ अभ्यास प्रश्नों से शुरू करें, या अभ्यास के लिए एक पेपर जोड़ें।",
-  "todayImportPaper": "पेपर जोड़ें"
+  "todayImportPaper": "पेपर जोड़ें",
+  "importFindingQuestions": "पेज पढ़ लिए · प्रश्न खोजे जा रहे हैं…",
+  "importNeedALook": "{count, plural, =0{सब ठीक लगते हैं} =1{1 को देखना है} other{{count} को देखना है}}",
+  "importReadyNotice": "{file} तैयार है: {result}",
+  "importFailedNotice": "{file} पढ़ा नहीं जा सका। कारण देखने के लिए अपने पेपर खोलें।",
+  "importReview": "देखें",
+  "importOpenPapers": "खोलें",
+  "importOnHome": "{file} जोड़ा जा रहा है: {status}"
 }

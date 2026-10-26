@@ -105,6 +105,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Documents: upload → validate (magic bytes, PDFium) → `DocumentStorage` → DB-backed queue → worker
   (`app/workers/document_worker.py`, lease + SKIP LOCKED) → per-page text layer or Tesseract OCR
   (`OcrEngine`), uncertain pages flagged. pypdfium2, not PyMuPDF (AGPL). See docs/document-ingestion.md.
+  Import feedback: `DocumentRead.questions_to_check` (questions with an open issue, not rejected; one grouped
+  query in `read_documents`). Mobile `import_progress.dart`: `importStatusText` (waiting → reading page x of y →
+  finding the questions → "Ready · 87 questions found · 9 need a look" / failed) on each paper; uploads are
+  followed by `importWatcherProvider` (polls the list only while one is in progress) → `ImportNotices` in
+  `DesktopFrame` shows "… is ready" with Review on any screen; `ImportsInProgress` on the Home Today card.
 - Reading any paper with AI (docs/ai.md "Read a paper"): learner taps "Read with AI" on the review screen (`AiReadCard`,
   polls the parse summary) → `POST /ai/documents/{id}/read` queues `documents.ai_read_status`; the worker
   (`AiPaperReader`, also in `run_once`) sends 3 page images + text per request (`AIProvider.complete_json(images=)`),

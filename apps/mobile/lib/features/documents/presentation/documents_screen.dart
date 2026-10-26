@@ -15,6 +15,7 @@ import '../../../core/widgets/empty_state.dart';
 import '../../concepts/domain/concept.dart';
 import '../application/documents_providers.dart';
 import '../domain/imported_document.dart';
+import 'import_progress.dart';
 import '../../exams/application/active_exam.dart';
 import '../../../core/database/app_database.dart';
 import '../../exams/application/syllabus_prompt.dart';
@@ -322,15 +323,14 @@ class _DocumentTile extends ConsumerWidget {
         ? l10n.languageHindi
         : l10n.languageEnglish;
 
-    final (statusText, statusColor) = switch (document.status) {
-      DocumentStatus.queued => (l10n.documentStatusQueued, theme.colorScheme.onSurfaceVariant),
-      DocumentStatus.processing => (
-        l10n.documentStatusProcessing(document.pagesProcessed + 1, document.pageCount),
-        theme.colorScheme.primary,
-      ),
-      DocumentStatus.completed => (l10n.documentStatusCompleted, theme.colorScheme.primary),
-      DocumentStatus.failed => (l10n.documentStatusFailed, theme.colorScheme.error),
+    final statusText = importStatusText(l10n, document);
+    final statusColor = switch (document.status) {
+      DocumentStatus.queued => theme.colorScheme.onSurfaceVariant,
+      DocumentStatus.failed => theme.colorScheme.error,
+      _ => theme.colorScheme.primary,
     };
+    final finding =
+        document.status == DocumentStatus.completed && document.segmentationStatus == 'pending';
 
     return ListTile(
       onTap: document.canReview ? () => context.push(AppRoutes.documentReview(document.id)) : null,
@@ -347,15 +347,11 @@ class _DocumentTile extends ConsumerWidget {
             '${l10n.documentPages(document.pageCount)}',
           ),
           Text(statusText, style: TextStyle(color: statusColor)),
-          if (document.status.isActive)
+          if (document.status.isActive || finding)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
-              child: LinearProgressIndicator(
-                value: document.status == DocumentStatus.queued ? null : document.progress,
-              ),
+              child: LinearProgressIndicator(value: importProgressValue(document)),
             ),
-          if (document.canReview && document.segmentationStatus == 'completed')
-            Text(l10n.documentQuestionsFound(document.questionsFound)),
           if (document.needsReviewCount > 0)
             Row(
               children: [

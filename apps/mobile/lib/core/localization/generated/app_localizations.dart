@@ -5774,6 +5774,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import a paper'**
   String get todayImportPaper;
+
+  /// No description provided for @importFindingQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages read · finding the questions…'**
+  String get importFindingQuestions;
+
+  /// No description provided for @importNeedALook.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{all look fine} =1{1 needs a look} other{{count} need a look}}'**
+  String importNeedALook(int count);
+
+  /// No description provided for @importReadyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} is ready: {result}'**
+  String importReadyNotice(String file, String result);
+
+  /// No description provided for @importFailedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} couldn\'t be read. Open your papers to see why.'**
+  String importFailedNotice(String file);
+
+  /// No description provided for @importReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get importReview;
+
+  /// No description provided for @importOpenPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get importOpenPapers;
+
+  /// No description provided for @importOnHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing {file}: {status}'**
+  String importOnHome(String file, String status);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

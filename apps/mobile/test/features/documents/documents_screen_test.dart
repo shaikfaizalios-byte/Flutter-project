@@ -20,6 +20,9 @@ ImportedDocument doc({
   int review = 0,
   String? errorCode,
   String exam = 'SSC_CGL',
+  String? segmentation,
+  int questions = 0,
+  int toCheck = 0,
 }) => ImportedDocument(
   id: id,
   filename: filename,
@@ -31,6 +34,11 @@ ImportedDocument doc({
   needsReviewCount: review,
   errorCode: errorCode,
   createdAt: DateTime.utc(2026, 10, 13),
+  // A read paper has had its questions looked for (as the server reports it).
+  segmentationStatus:
+      segmentation ?? (status == DocumentStatus.completed ? 'completed' : 'pending'),
+  questionsFound: questions,
+  questionsToCheck: toCheck,
 );
 
 class FakeDocumentsRepository implements DocumentsRepository {
@@ -119,7 +127,7 @@ void main() {
     await openDocuments(tester, repo);
 
     expect(find.text('Done.pdf'), findsOneWidget);
-    expect(find.text('Ready'), findsOneWidget);
+    expect(find.textContaining('Ready'), findsOneWidget);
     expect(find.text('2 pages need review'), findsOneWidget);
     expect(find.text('Processing failed'), findsOneWidget);
     expect(find.text('This document took too long to process.'), findsOneWidget);
@@ -139,7 +147,7 @@ void main() {
     await tester.pump(documentPollInterval);
     await tester.pumpAndSettle();
 
-    expect(find.text('Ready'), findsOneWidget);
+    expect(find.textContaining('Ready'), findsOneWidget);
     expect(repo.listCalls, 2);
     // Nothing active any more: no further polling.
     await tester.pump(documentPollInterval * 2);
@@ -203,7 +211,7 @@ void main() {
 
     await tester.pump(documentPollInterval);
     await tester.pumpAndSettle();
-    expect(find.text('Ready'), findsOneWidget);
+    expect(find.textContaining('Ready'), findsOneWidget);
   });
 
   testAppWidgets('cancelling the picker does nothing', (tester, db) async {

@@ -1254,6 +1254,11 @@
             "title": "Questions Found",
             "type": "integer"
           },
+          "questions_to_check": {
+            "default": 0,
+            "title": "Questions To Check",
+            "type": "integer"
+          },
           "segmentation_status": {
             "enum": [
               "pending",

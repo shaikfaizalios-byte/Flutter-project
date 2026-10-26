@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/localization/generated/app_localizations.dart';
 import '../features/exams/presentation/exam_switcher.dart';
 import '../features/focus/presentation/focus_widgets.dart';
+import '../features/documents/presentation/import_progress.dart';
 import 'app_destinations.dart';
 import 'routes.dart';
 import 'theme/app_spacing.dart';
@@ -392,6 +393,10 @@ class _DesktopFrameState extends State<DesktopFrame> {
                   children: [
                     FocusBar(
                       dialogContext: () => widget.router.routerDelegate.navigatorKey.currentContext,
+                    ),
+                    // "Your paper is ready" on whatever screen is open.
+                    ImportNotices(
+                      routerContext: () => widget.router.routerDelegate.navigatorKey.currentContext,
                     ),
                     Expanded(child: widget.child),
                   ],

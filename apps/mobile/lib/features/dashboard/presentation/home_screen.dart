@@ -19,6 +19,7 @@ import '../../study_plan/domain/study_profile.dart';
 import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
 import '../../focus/presentation/focus_widgets.dart';
+import '../../documents/presentation/import_progress.dart';
 import '../../../app/app_features.dart';
 import '../../weekly_review/application/weekly_review_providers.dart';
 
@@ -156,6 +157,8 @@ class _TodayCard extends ConsumerWidget {
           style: muted,
         ),
         const SizedBox(height: AppSpacing.sm),
+        // Papers still being imported: their step and progress.
+        ImportsInProgress(color: onCard),
         switch (plan) {
           AsyncData(:final value) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
