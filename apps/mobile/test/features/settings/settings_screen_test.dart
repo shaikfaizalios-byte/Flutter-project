@@ -50,8 +50,7 @@ void main() {
   testAppWidgets('follows a Hindi device locale by default', (tester, db) async {
     await pumpPrepLoopApp(tester, db, deviceLocale: const Locale('hi', 'IN'));
 
-    await scrollTo(tester, find.text('आज मुझे क्या पढ़ना चाहिए?')); // below the momentum card
-    expect(find.text('आज मुझे क्या पढ़ना चाहिए?'), findsOneWidget);
+    expect(find.text('आज'), findsOneWidget); // the Today card's title
   });
 
   testAppWidgets('switching theme to dark applies the dark theme', (tester, db) async {

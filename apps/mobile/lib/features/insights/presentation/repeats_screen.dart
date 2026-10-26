@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../app/app_features.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
@@ -36,6 +39,8 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
     final l10n = AppLocalizations.of(context);
     // Repeats of the current exam (switched with the exam switcher).
     _exam = ref.watch(activeExamProvider);
+    final radar = ref.watch(appFeaturesProvider).repeatRadar;
+    final view = !radar && _view == 'radar' ? 'mine' : _view;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.repeatsTitle)),
@@ -57,13 +62,14 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
                     segments: [
                       ButtonSegment(value: 'mine', label: Text(l10n.repeatsYourPapers)),
                       ButtonSegment(value: 'shared', label: Text(l10n.repeatsSharedBank)),
-                      ButtonSegment(value: 'radar', label: Text(l10n.repeatsAllLearners)),
+                      if (radar)
+                        ButtonSegment(value: 'radar', label: Text(l10n.repeatsAllLearners)),
                     ],
-                    selected: {_view},
+                    selected: {view},
                     onSelectionChanged: (s) => setState(() => _view = s.first),
                   ),
                 ),
-                if (_view == 'radar') ..._radar(context) else ..._own(context),
+                if (view == 'radar') ..._radar(context) else ..._own(context),
               ],
             ),
           ),

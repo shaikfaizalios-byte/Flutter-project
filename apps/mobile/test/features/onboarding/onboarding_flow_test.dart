@@ -40,7 +40,7 @@ void main() {
 
     expect(find.text('Your study loop'), findsOneWidget);
     expect(find.text('SSC CHSL'), findsOneWidget);
-    expect(find.text('Daily study goal: 1 h 30 min'), findsOneWidget);
+    expect(find.text('0 of 90 min focused today'), findsOneWidget); // the daily goal on Today
 
     final stored = await seed(tester, () => StudyProfileRepository(db).load());
     expect(stored.examCodes, ['SSC_CHSL']);

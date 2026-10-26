@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../app/app_features.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../auth/presentation/account_section.dart';
@@ -39,8 +42,10 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               const StudyPlanSection(),
               const SizedBox(height: AppSpacing.md),
-              const RadarSharingCard(),
-              const SizedBox(height: AppSpacing.md),
+              if (ref.watch(appFeaturesProvider).repeatRadar) ...[
+                const RadarSharingCard(),
+                const SizedBox(height: AppSpacing.md),
+              ],
               SectionCard(
                 icon: Icons.translate,
                 title: l10n.settingsLanguage,

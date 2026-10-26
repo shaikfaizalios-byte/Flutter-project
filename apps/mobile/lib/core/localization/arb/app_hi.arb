@@ -942,5 +942,9 @@
   "aiErrorAllowanceUsed": "आपने इस महीने के AI अनुरोध इस्तेमाल कर लिए हैं। वे अगले महीने की शुरुआत में फिर मिलेंगे।",
   "plusSee": "Plus देखें",
   "plusPromptSearch": "आपके पेपरों से AI उत्तर, आसान शब्दों में, PrepLoop Plus का हिस्सा हैं।",
-  "plusPromptRead": "AI से पेपर पढ़वाना PrepLoop Plus का हिस्सा है।"
+  "plusPromptRead": "AI से पेपर पढ़वाना PrepLoop Plus का हिस्सा है।",
+  "todayTitle": "आज",
+  "todayTasks": "{count, plural, =1{करने के लिए 1 काम} other{करने के लिए {count} काम}}",
+  "todayNothingPlanned": "अभी कुछ तय नहीं है। कुछ अभ्यास प्रश्नों से शुरू करें, या अभ्यास के लिए एक पेपर जोड़ें।",
+  "todayImportPaper": "पेपर जोड़ें"
 }

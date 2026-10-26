@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
+
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -274,12 +276,14 @@ class FocusDoneDialog extends ConsumerWidget {
             final g when done >= g => l10n.focusDoneGoal(done, g),
             final g => l10n.focusDoneToday(done, g),
           }, style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            '"${hindi ? quote.hi : quote.en}"',
-            style: const TextStyle(fontStyle: FontStyle.italic),
-          ),
-          Text('— ${quote.author}', style: Theme.of(context).textTheme.bodySmall),
+          if (ref.watch(appFeaturesProvider).quotes) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              '"${hindi ? quote.hi : quote.en}"',
+              style: const TextStyle(fontStyle: FontStyle.italic),
+            ),
+            Text('— ${quote.author}', style: Theme.of(context).textTheme.bodySmall),
+          ],
         ],
       ),
       actions: [
@@ -299,7 +303,10 @@ class FocusDoneDialog extends ConsumerWidget {
 
 /// Home: streak, today's focus against the goal, today's real counts, and one big button.
 class MomentumCard extends ConsumerWidget {
-  const MomentumCard({super.key});
+  const MomentumCard({super.key, this.top = const []});
+
+  /// Shown above the momentum numbers in the same card (Home puts today's plan here).
+  final List<Widget> top;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -318,6 +325,7 @@ class MomentumCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ...top,
             Row(
               children: [
                 SizedBox.square(

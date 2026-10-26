@@ -2153,5 +2153,10 @@
   "aiErrorAllowanceUsed": "You've used this month's AI requests. They reset at the start of next month.",
   "plusSee": "See Plus",
   "plusPromptSearch": "AI answers from your papers, explained simply, are part of PrepLoop Plus.",
-  "plusPromptRead": "Reading papers with AI is part of PrepLoop Plus."
+  "plusPromptRead": "Reading papers with AI is part of PrepLoop Plus.",
+  "todayTitle": "Today",
+  "todayTasks": "{count, plural, =1{1 thing to do} other{{count} things to do}}",
+  "@todayTasks": {"placeholders": {"count": {"type": "int"}}},
+  "todayNothingPlanned": "Nothing planned yet. Start with some practice questions, or import a paper to practise from.",
+  "todayImportPaper": "Import a paper"
 }

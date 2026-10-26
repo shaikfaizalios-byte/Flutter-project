@@ -3526,4 +3526,25 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get plusPromptRead => 'AI से पेपर पढ़वाना PrepLoop Plus का हिस्सा है।';
+
+  @override
+  String get todayTitle => 'आज';
+
+  @override
+  String todayTasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'करने के लिए $count काम',
+      one: 'करने के लिए 1 काम',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayNothingPlanned =>
+      'अभी कुछ तय नहीं है। कुछ अभ्यास प्रश्नों से शुरू करें, या अभ्यास के लिए एक पेपर जोड़ें।';
+
+  @override
+  String get todayImportPaper => 'पेपर जोड़ें';
 }

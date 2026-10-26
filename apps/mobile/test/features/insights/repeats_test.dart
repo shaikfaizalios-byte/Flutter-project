@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:preploop/app/app_features.dart';
 import 'package:preploop/core/utils/calendar_date.dart';
 import 'package:preploop/features/documents/application/documents_providers.dart';
 import 'package:preploop/features/insights/domain/radar.dart';
@@ -63,6 +64,9 @@ const group = SimilarGroup(
 Future<void> openRepeats(WidgetTester tester) async {
   await openPractice(tester, bank: 'See repeated models');
 }
+
+/// Repeat Radar is hidden by default; these tests turn it on.
+final radarOn = appFeaturesProvider.overrideWithValue(const AppFeatures(repeatRadar: true));
 
 void main() {
   testAppWidgets('no papers: explains and links to importing', (tester, db) async {
@@ -233,7 +237,7 @@ void main() {
     db,
   ) async {
     final insights = FakeInsightsRepository(eligiblePapers: 1);
-    await pumpPrepLoopApp(tester, db, insights: insights);
+    await pumpPrepLoopApp(tester, db, insights: insights, extraOverrides: [radarOn]);
     await openRepeats(tester);
     await tester.tap(find.text('All learners'));
     await tester.pumpAndSettle();
@@ -281,7 +285,13 @@ void main() {
       ),
     );
     final practice = FakePracticeRepository(serverNow: () => DateTime(2026, 10, 18, 9));
-    await pumpPrepLoopApp(tester, db, insights: insights, practice: practice);
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      insights: insights,
+      practice: practice,
+      extraOverrides: [radarOn],
+    );
     await openRepeats(tester);
     await tester.tap(find.text('All learners'));
     await tester.pumpAndSettle();

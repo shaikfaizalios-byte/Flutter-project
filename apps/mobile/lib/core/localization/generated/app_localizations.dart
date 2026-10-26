@@ -5750,6 +5750,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reading papers with AI is part of PrepLoop Plus.'**
   String get plusPromptRead;
+
+  /// No description provided for @todayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayTitle;
+
+  /// No description provided for @todayTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 thing to do} other{{count} things to do}}'**
+  String todayTasks(int count);
+
+  /// No description provided for @todayNothingPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing planned yet. Start with some practice questions, or import a paper to practise from.'**
+  String get todayNothingPlanned;
+
+  /// No description provided for @todayImportPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a paper'**
+  String get todayImportPaper;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

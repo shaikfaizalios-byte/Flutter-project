@@ -7,22 +7,19 @@ import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
-import '../../../core/utils/calendar_date.dart';
-import '../../../core/utils/clock.dart';
 import '../../../core/widgets/section_card.dart';
 import '../../analytics/application/analytics_providers.dart';
 import '../../analytics/domain/weak_topics.dart';
 import '../../analytics/presentation/analytics_widgets.dart';
-import '../../concepts/application/concepts_providers.dart';
 import '../../revision/application/revision_providers.dart';
 import '../../revision/domain/revision_card.dart';
 import '../../revision/presentation/revision_widgets.dart';
 import '../../study_plan/application/study_profile_controller.dart';
 import '../../study_plan/domain/study_profile.dart';
-import '../../study_plan/presentation/study_profile_widgets.dart';
 import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
 import '../../focus/presentation/focus_widgets.dart';
+import '../../../app/app_features.dart';
 import '../../weekly_review/application/weekly_review_providers.dart';
 
 /// Dashboard. Answers the three core questions from real local data only;
@@ -81,10 +78,12 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               const SizedBox(height: AppSpacing.md),
-              // Momentum first: streak, today's focus against the goal, one clear next step.
-              const MomentumCard(),
-              const SizedBox(height: AppSpacing.sm),
-              const QuoteCard(),
+              // One card answers "what do I do today": the plan, then focus time and streak.
+              _TodayCard(profile: profile),
+              if (ref.watch(appFeaturesProvider).quotes) ...[
+                const SizedBox(height: AppSpacing.sm),
+                const QuoteCard(),
+              ],
               const SizedBox(height: AppSpacing.md),
               if (ref.watch(weeklyReviewDueProvider)) ...[
                 Card(
@@ -101,11 +100,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
               ],
-              _TodaySection(profile: profile),
-              const SizedBox(height: AppSpacing.md),
               const _WeakSection(),
-              const SizedBox(height: AppSpacing.md),
-              _UpcomingSection(profile: profile),
               const SizedBox(height: AppSpacing.md),
               const _ShortcutsSection(),
             ],
@@ -116,76 +111,112 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _TodaySection extends ConsumerWidget {
-  const _TodaySection({required this.profile});
+/// Today in one card: what to do (the plan, each item with its reason and a start button),
+/// how long, how far the exam is, then focus time and the streak. With nothing planned it
+/// points to the two ways to start.
+class _TodayCard extends ConsumerWidget {
+  const _TodayCard({required this.profile});
 
   final StudyProfile profile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final count = ref.watch(activeConceptCountProvider);
+    final theme = Theme.of(context);
+    final onCard = theme.colorScheme.onPrimaryContainer;
+    final muted = theme.textTheme.bodyMedium?.copyWith(color: onCard.withValues(alpha: 0.8));
     final revision = ref.watch(revisionOverviewProvider);
     final plan = ref.watch(studyPlanProvider);
     final today = ref.watch(todayProvider);
-    final minutes = profile.dailyStudyMinutes;
+    final days = daysUntilExam(profile, today);
+    final items = plan.value?.items ?? const [];
 
-    return SectionCard(
-      icon: Icons.today_outlined,
-      title: l10n.homeTodayTitle,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (minutes != null) ...[
-            Text(l10n.homeDailyGoal(formatStudyDuration(l10n, minutes))),
-            const SizedBox(height: AppSpacing.xs),
-          ],
-          switch (count) {
-            AsyncData(value: final n) when n > 0 => Text(l10n.homeConceptCount(n)),
-            AsyncData() => _Muted(l10n.homeTodayEmpty),
-            AsyncError() => _Muted(l10n.conceptsLoadError),
-            _ => const LinearProgressIndicator(),
-          },
-          const SizedBox(height: AppSpacing.xs),
-          switch (plan) {
-            AsyncData(:final value) => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!value.practiceDataAvailable) _Muted(l10n.planOffline),
-                if (value.items.isEmpty)
-                  _Muted(l10n.planEmpty)
-                else
-                  for (final item in value.items) PlanItemTile(item: item),
-                if (value.items.isNotEmpty)
-                  _Muted(
-                    value.budgetMinutes == null
-                        ? l10n.planNoGoal
-                        : l10n.planGoal(value.plannedMinutes, value.budgetMinutes!),
-                  ),
-              ],
-            ),
-            AsyncError() => _Muted(l10n.revisionLoadError),
-            _ => const LinearProgressIndicator(),
-          },
-          if (revision case AsyncData(:final value) when value.dueToday == 0) ...[
-            const SizedBox(height: AppSpacing.xs),
-            switch (value) {
-              RevisionOverview(nextDue: final next?) => _Muted(
-                l10n.homeRevisionNoneToday(formatDue(context, today, next)),
+    return MomentumCard(
+      top: [
+        Row(
+          children: [
+            Icon(Icons.today_outlined, color: onCard),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  l10n.todayTitle,
+                  style: theme.textTheme.titleLarge?.copyWith(color: onCard),
+                ),
               ),
-              _ => _Muted(l10n.homeRevisionEmpty),
-            },
-          ],
-          const SizedBox(height: AppSpacing.sm),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: TextButton(
-              onPressed: () => context.go(AppRoutes.study),
-              child: Text(l10n.homeOpenConcepts),
             ),
+          ],
+        ),
+        Text(
+          [
+            if (items.isNotEmpty) l10n.todayTasks(items.length),
+            if (days != null) days >= 0 ? l10n.homeExamCountdown(days) : l10n.homeExamPassed,
+          ].join(' · '),
+          style: muted,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        switch (plan) {
+          AsyncData(:final value) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!value.practiceDataAvailable) Text(l10n.planOffline, style: muted),
+              // The tasks sit on a plain surface so their text and buttons read clearly.
+              if (value.items.isNotEmpty)
+                Material(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                    child: Column(
+                      children: [for (final item in value.items) PlanItemTile(item: item)],
+                    ),
+                  ),
+                ),
+              if (value.items.isNotEmpty) const SizedBox(height: AppSpacing.xs),
+              if (value.items.isNotEmpty)
+                Text(
+                  value.budgetMinutes == null
+                      ? l10n.planNoGoal
+                      : l10n.planGoal(value.plannedMinutes, value.budgetMinutes!),
+                  style: muted,
+                )
+              else ...[
+                Text(l10n.todayNothingPlanned, style: muted),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    FilledButton.tonalIcon(
+                      icon: const Icon(Icons.quiz_outlined),
+                      label: Text(l10n.focusDoPractice),
+                      onPressed: () => context.go(AppRoutes.practice),
+                    ),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
+                      label: Text(l10n.todayImportPaper),
+                      onPressed: () => context.push(AppRoutes.documents),
+                    ),
+                  ],
+                ),
+              ],
+            ],
           ),
+          AsyncError() => Text(l10n.revisionLoadError, style: muted),
+          _ => const LinearProgressIndicator(),
+        },
+        if (revision case AsyncData(:final value) when value.dueToday == 0) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(switch (value) {
+            RevisionOverview(nextDue: final next?) => l10n.homeRevisionNoneToday(
+              formatDue(context, today, next),
+            ),
+            _ => l10n.homeRevisionEmpty,
+          }, style: muted),
         ],
-      ),
+        Divider(height: AppSpacing.lg, color: onCard.withValues(alpha: 0.2)),
+      ],
     );
   }
 }
@@ -236,43 +267,6 @@ class _WeakSection extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _UpcomingSection extends ConsumerWidget {
-  const _UpcomingSection({required this.profile});
-
-  final StudyProfile profile;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final today = CalendarDate.fromDateTime(ref.watch(clockProvider)());
-    final days = daysUntilExam(profile, today);
-    final date = profile.targetExamDate;
-
-    return SectionCard(
-      icon: Icons.event_outlined,
-      title: l10n.homeUpcomingTitle,
-      child: switch (days) {
-        null => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_Muted(l10n.homeUpcomingEmpty), _Muted(l10n.homeSetExamDate)],
-        ),
-        < 0 => Text(l10n.homeExamPassed),
-        _ => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.homeExamCountdown(days),
-              style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.primary),
-            ),
-            Text(l10n.homeExamOn(formatCalendarDate(context, date!))),
-          ],
-        ),
-      },
     );
   }
 }

@@ -289,7 +289,7 @@ void main() {
     ); // below the momentum card
     expect(find.textContaining('Practice suggestions need a connection'), findsOneWidget);
     expect(find.text('Practise mixed questions'), findsNothing);
-    expect(find.text('Nothing planned for today: no flashcards are due.'), findsOneWidget);
+    expect(find.textContaining('Nothing planned yet'), findsOneWidget);
   });
 
   testAppWidgets('progress is localised in Hindi', (tester, db) async {

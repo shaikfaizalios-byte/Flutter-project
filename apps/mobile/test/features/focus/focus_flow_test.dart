@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:preploop/app/app_features.dart';
 import 'package:preploop/features/focus/domain/quotes.dart';
 import 'package:preploop/core/utils/calendar_date.dart';
 
@@ -24,15 +25,16 @@ void main() {
       db,
       clockOverride: clock.call,
       studyProfile: onboardedProfile.copyWith(dailyStudyMinutes: () => 50),
+      // Quotes are hidden by default; this test covers them.
+      extraOverrides: [appFeaturesProvider.overrideWithValue(const AppFeatures(quotes: true))],
     );
 
     expect(find.text('Start your streak today'), findsOneWidget);
     expect(find.text('0 of 50 min focused today'), findsOneWidget);
-    final quote = quoteFor(CalendarDate(2026, 10, 25));
-    expect(find.text(quote.en), findsOneWidget);
-    expect(find.text('— ${quote.author}'), findsOneWidget);
 
     // Start 25 minutes of revision: the bar shows the time left on every screen.
+    await tester.ensureVisible(find.text('Start a focus session'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Start a focus session'));
     await tester.pumpAndSettle();
     expect(find.textContaining('5-minute break'), findsOneWidget); // the learning tip
@@ -66,7 +68,10 @@ void main() {
     expect(find.text('25 of 50 min focused today'), findsOneWidget);
     expect(find.text('1-day streak'), findsOneWidget); // focus time counts as activity
 
-    // Another quote on request.
+    // Today's quote sits below the Today card; another on request.
+    final quote = quoteFor(CalendarDate(2026, 10, 25));
+    await scrollTo(tester, find.text(quote.en));
+    expect(find.text('— ${quote.author}'), findsOneWidget);
     await tester.ensureVisible(find.text('Another'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Another'));
@@ -77,6 +82,8 @@ void main() {
   testAppWidgets('ending a session early still counts the minutes focused', (tester, db) async {
     final clock = TestClock(DateTime(2026, 10, 25, 9));
     await pumpPrepLoopApp(tester, db, clockOverride: clock.call);
+    await tester.ensureVisible(find.text('Start a focus session'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Start a focus session'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('45 min'));
@@ -106,6 +113,8 @@ void main() {
   testAppWidgets('ending very early offers no recall check', (tester, db) async {
     final clock = TestClock(DateTime(2026, 10, 25, 9));
     await pumpPrepLoopApp(tester, db, clockOverride: clock.call);
+    await tester.ensureVisible(find.text('Start a focus session'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Start a focus session'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Practise questions'));
@@ -127,6 +136,8 @@ void main() {
   ) async {
     final clock = TestClock(DateTime(2026, 10, 25, 9));
     await pumpPrepLoopApp(tester, db, clockOverride: clock.call);
+    await tester.ensureVisible(find.text('Start a focus session'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Start a focus session'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('15 min'));

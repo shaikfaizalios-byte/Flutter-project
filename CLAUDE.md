@@ -174,6 +174,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   PostgreSQL with `timezone(zone, answered_at)`; mock answers count only once submitted). Mobile decides
   accuracy/"weak" with named `AnalyticsRules` (shown in UI) and builds the daily plan with the pure
   `buildStudyPlan` (no AI; every item has a reason). Charts are plain widgets. See docs/analytics.md.
+- Home = one "Today" card (`_TodayCard` in `home_screen.dart`, built on `MomentumCard(top:)`): task count + exam
+  countdown, the `buildStudyPlan` items (on a surface panel), the time budget, "Practise questions" / "Import a
+  paper" when nothing is planned, then focus minutes, streak and "Start a focus session"; then weak topics and
+  shortcuts. Hidden features: `AppFeatures` (`app/app_features.dart`, `appFeaturesProvider`) — `repeatRadar`
+  (Repeated models "All learners" + Profile sharing card) and `quotes` (Home + focus-done dialog) are off until
+  there are enough learners; tests turn them on with an override.
 - Motivation + focus (`features/focus`, device-only, no schema change): Home `MomentumCard` (streak, today's focus
   minutes vs `dailyStudyMinutes` ring, today's answered/reviewed counts, "Start a focus session") + `QuoteCard`
   (curated, well-attributed quotes, EN+HI, one per day, "Another"). Pure `focus.dart`: `currentStreak` over real
