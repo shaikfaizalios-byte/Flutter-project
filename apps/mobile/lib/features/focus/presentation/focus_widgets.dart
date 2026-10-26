@@ -13,6 +13,9 @@ import '../../study_plan/application/study_profile_controller.dart';
 import '../application/focus_controller.dart';
 import '../domain/focus.dart';
 import '../domain/quotes.dart';
+import '../domain/recall.dart';
+import 'recall_check.dart';
+import '../../concepts/presentation/concept_form_screen.dart' show ConceptPrefill;
 
 String _clockText(Duration left) {
   final minutes = left.inMinutes;
@@ -144,12 +147,25 @@ class _FocusBarState extends ConsumerState<FocusBar> {
     _finishing = true;
     final minutes = await ref.read(focusProvider.notifier).end();
     _finishing = false;
+    await _congratulate(minutes);
+  }
+
+  /// The done dialog, then (if the learner wants) a recall check of what they studied.
+  Future<void> _congratulate(int minutes) async {
     final context = widget.dialogContext();
     if (context == null || !context.mounted) return;
-    await showDialog<void>(
+    final recall = await showDialog<bool>(
       context: context,
       builder: (context) => FocusDoneDialog(minutes: minutes),
     );
+    if (recall != true || !context.mounted) return;
+    final router = GoRouter.of(context);
+    final result = await showRecallCheck(context);
+    if (result == null) return;
+    await ref.read(recallLogProvider.notifier).add(ref.read(todayProvider), 1);
+    if (result.saveAsConcept) {
+      await router.push(AppRoutes.newConcept, extra: ConceptPrefill(notes: result.notes));
+    }
   }
 
   Future<void> _endEarly() async {
@@ -175,7 +191,10 @@ class _FocusBarState extends ConsumerState<FocusBar> {
         ],
       ),
     );
-    if (end == true) await ref.read(focusProvider.notifier).end();
+    if (end != true) return;
+    final minutes = await ref.read(focusProvider.notifier).end();
+    // Long enough to have learned something: offer the recall check too.
+    if (minutes >= RecallRules.minMinutes) await _congratulate(minutes);
   }
 
   @override
@@ -247,6 +266,8 @@ class FocusDoneDialog extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l10n.focusDoneBody(minutes)),
+          const SizedBox(height: AppSpacing.xs),
+          Text(l10n.recallOffer),
           const SizedBox(height: AppSpacing.sm),
           Text(switch (goal) {
             null => l10n.focusDoneTodayNoGoal(done),
@@ -262,7 +283,15 @@ class FocusDoneDialog extends ConsumerWidget {
         ],
       ),
       actions: [
-        FilledButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.focusDoneOk)),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l10n.focusDoneOk),
+        ),
+        FilledButton.icon(
+          icon: const Icon(Icons.psychology_outlined),
+          onPressed: () => Navigator.of(context).pop(true),
+          label: Text(l10n.recallStart),
+        ),
       ],
     );
   }
@@ -339,6 +368,8 @@ class MomentumCard extends ConsumerWidget {
                         [
                           if (progress.answered != null) l10n.momentumAnswered(progress.answered!),
                           l10n.momentumReviewed(progress.reviewed),
+                          if (progress.recallChecks > 0)
+                            l10n.momentumRecallChecks(progress.recallChecks),
                         ].join(' · '),
                         style: theme.textTheme.bodySmall,
                       ),

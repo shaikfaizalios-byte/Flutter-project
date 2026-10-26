@@ -92,10 +92,85 @@ void main() {
     expect(find.text("You've focused for 12 min. That time still counts."), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'End'));
     await tester.pumpAndSettle();
+    // 12 minutes is enough to offer a recall check; this learner skips it.
+    expect(find.text('Focus session complete'), findsOneWidget);
+    await tester.tap(find.text('Back to studying'));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Home')));
     await tester.pumpAndSettle();
     expect(find.text('12 min focused today'), findsOneWidget); // no goal set
     expect(find.text('Set a daily goal'), findsOneWidget);
+  });
+
+  testAppWidgets('ending very early offers no recall check', (tester, db) async {
+    final clock = TestClock(DateTime(2026, 10, 25, 9));
+    await pumpPrepLoopApp(tester, db, clockOverride: clock.call);
+    await tester.tap(find.text('Start a focus session'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Practise questions'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    clock.now = clock.now.add(const Duration(minutes: 3));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.widgetWithText(TextButton, 'End'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'End'));
+    await tester.pumpAndSettle();
+    expect(find.text('Focus session complete'), findsNothing);
+  });
+
+  testAppWidgets('a recall check after a session: write, compare, rate, save as a concept', (
+    tester,
+    db,
+  ) async {
+    final clock = TestClock(DateTime(2026, 10, 25, 9));
+    await pumpPrepLoopApp(tester, db, clockOverride: clock.call);
+    await tester.tap(find.text('Start a focus session'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('15 min'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Read your notes and papers'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    clock.now = clock.now.add(const Duration(minutes: 15));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('recall check helps it stick'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Recall check'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Without looking at your notes, write down the key points you just studied.'),
+      findsOneWidget,
+    );
+    // Without notes the learner can still recall in their head.
+    expect(find.text('I recalled it in my head'), findsOneWidget);
+    await tester.enterText(
+      find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)),
+      'Boyle: PV constant at fixed T',
+    );
+    await tester.pump();
+    await tester.tap(find.text('Compare with my notes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('About half'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Re-read only the parts you missed'), findsOneWidget);
+
+    await tester.tap(find.text('Save as a concept'));
+    await tester.pumpAndSettle();
+    expect(find.text('New concept'), findsOneWidget);
+    // The notes field sits at the end of the form.
+    await scrollTo(tester, find.widgetWithText(TextFormField, 'Boyle: PV constant at fixed T'));
+
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Home')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('1 recall check'), findsOneWidget);
+    // Only the count is kept on the device, never what was written.
+    final rows = await db.select(db.appSettings).get();
+    expect(rows.where((r) => r.value.contains('Boyle')), isEmpty);
   });
 }

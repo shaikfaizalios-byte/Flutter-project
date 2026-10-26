@@ -177,7 +177,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   activity days (practice answers from analytics, card reviews, focus log; today stays open; one rest day per 7
   days), `FocusSession`. `focusProvider` (session in `app_settings` `focus_session`, survives reloads) and
   `focusLogProvider` (minutes per day, `focus_log`, 120 days). `FocusBar` sits above every screen in `DesktopFrame`
-  (dialogs via the router's navigator key); time up → minutes logged + `FocusDoneDialog`. Healthy-habit design:
+  (dialogs via the router's navigator key); time up (or ended early after ≥ 5 min, `RecallRules`) → minutes logged +
+  `FocusDoneDialog`, which offers a recall check (`recall_check.dart`: write key points from memory, compare with
+  the material, rate almost all/most/half/little → advice; "Save as a concept" opens the form with the notes via
+  `ConceptPrefill` route extra). Only the count is kept (`recall_log`, shown on the Home card). Healthy-habit design:
   no guilt messages, no punishing streaks; every number is real.
 - Revision (device-only, Drift v4 `revision_cards`/`card_reviews`): pure `RevisionScheduler` with a stored
   ladder (`revision_day_offsets`, default 1/4/7 days after adding) and Good/Easy/Hard/Forgot adaptation;

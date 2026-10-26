@@ -5420,6 +5420,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save that. Check your connection and try again.'**
   String get masteryUpdateFailed;
+
+  /// No description provided for @recallOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Before your break: a 2-minute recall check helps it stick.'**
+  String get recallOffer;
+
+  /// No description provided for @recallStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall check'**
+  String get recallStart;
+
+  /// No description provided for @recallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall check'**
+  String get recallTitle;
+
+  /// No description provided for @recallWritePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Without looking at your notes, write down the key points you just studied.'**
+  String get recallWritePrompt;
+
+  /// No description provided for @recallWriteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Facts, formulas, steps, examples…'**
+  String get recallWriteHint;
+
+  /// No description provided for @recallWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulling it from memory strengthens it more than reading it again.'**
+  String get recallWhy;
+
+  /// No description provided for @recallInMyHead.
+  ///
+  /// In en, this message translates to:
+  /// **'I recalled it in my head'**
+  String get recallInMyHead;
+
+  /// No description provided for @recallCheckNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with my notes'**
+  String get recallCheckNow;
+
+  /// No description provided for @recallComparePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Now open your notes or papers and compare. How much did you remember?'**
+  String get recallComparePrompt;
+
+  /// No description provided for @recallBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get recallBack;
+
+  /// No description provided for @recallAlmostAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost all'**
+  String get recallAlmostAll;
+
+  /// No description provided for @recallMost.
+  ///
+  /// In en, this message translates to:
+  /// **'Most of it'**
+  String get recallMost;
+
+  /// No description provided for @recallHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'About half'**
+  String get recallHalf;
+
+  /// No description provided for @recallLittle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a little'**
+  String get recallLittle;
+
+  /// No description provided for @recallAdviceAlmostAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong recall. Revising it again in a few days will keep it.'**
+  String get recallAdviceAlmostAll;
+
+  /// No description provided for @recallAdviceMost.
+  ///
+  /// In en, this message translates to:
+  /// **'Good. Add what you missed to your notes; those gaps are what to revise first.'**
+  String get recallAdviceMost;
+
+  /// No description provided for @recallAdviceHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal after a first pass. Re-read only the parts you missed, then recall again tomorrow.'**
+  String get recallAdviceHalf;
+
+  /// No description provided for @recallAdviceLittle.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s useful to know, not a failure: the effort of recalling is what makes it stick. Re-read the material, then try a short recall again.'**
+  String get recallAdviceLittle;
+
+  /// No description provided for @recallSaveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your notes as a concept to get them back on the revision schedule.'**
+  String get recallSaveHint;
+
+  /// No description provided for @recallSaveConcept.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a concept'**
+  String get recallSaveConcept;
+
+  /// No description provided for @recallDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get recallDone;
+
+  /// No description provided for @momentumRecallChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 recall check} other{{count} recall checks}}'**
+  String momentumRecallChecks(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

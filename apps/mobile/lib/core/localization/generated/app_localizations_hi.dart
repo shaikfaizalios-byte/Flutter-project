@@ -3328,4 +3328,81 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get masteryUpdateFailed => 'यह सहेजा नहीं जा सका। कनेक्शन जाँचें और फिर कोशिश करें।';
+
+  @override
+  String get recallOffer => 'ब्रेक से पहले: 2 मिनट की याद-जाँच इसे पक्का करने में मदद करती है।';
+
+  @override
+  String get recallStart => 'याद-जाँच';
+
+  @override
+  String get recallTitle => 'याद-जाँच';
+
+  @override
+  String get recallWritePrompt => 'अपने नोट्स देखे बिना, अभी पढ़े गए मुख्य बिंदु लिखें।';
+
+  @override
+  String get recallWriteHint => 'तथ्य, सूत्र, चरण, उदाहरण…';
+
+  @override
+  String get recallWhy => 'याद से निकालना, दोबारा पढ़ने से ज़्यादा पक्का करता है।';
+
+  @override
+  String get recallInMyHead => 'मैंने मन में याद किया';
+
+  @override
+  String get recallCheckNow => 'अपने नोट्स से मिलाएँ';
+
+  @override
+  String get recallComparePrompt => 'अब अपने नोट्स या पेपर खोलकर मिलाएँ। आपको कितना याद था?';
+
+  @override
+  String get recallBack => 'पीछे';
+
+  @override
+  String get recallAlmostAll => 'लगभग सब';
+
+  @override
+  String get recallMost => 'ज़्यादातर';
+
+  @override
+  String get recallHalf => 'लगभग आधा';
+
+  @override
+  String get recallLittle => 'थोड़ा ही';
+
+  @override
+  String get recallAdviceAlmostAll => 'बहुत अच्छी याद। कुछ दिनों में फिर दोहराने से यह बनी रहेगी।';
+
+  @override
+  String get recallAdviceMost => 'अच्छा। जो छूट गया उसे नोट्स में जोड़ें; पहले उन्हीं को दोहराएँ।';
+
+  @override
+  String get recallAdviceHalf =>
+      'पहली बार के बाद यह सामान्य है। सिर्फ़ छूटे हिस्से फिर पढ़ें, और कल फिर याद करके देखें।';
+
+  @override
+  String get recallAdviceLittle =>
+      'यह जानना उपयोगी है, असफलता नहीं: याद करने की कोशिश ही इसे पक्का करती है। सामग्री फिर पढ़ें, फिर छोटी याद-जाँच करें।';
+
+  @override
+  String get recallSaveHint =>
+      'अपने नोट्स को कॉन्सेप्ट के रूप में सहेजें, ताकि वे रिवीज़न में फिर आएँ।';
+
+  @override
+  String get recallSaveConcept => 'कॉन्सेप्ट के रूप में सहेजें';
+
+  @override
+  String get recallDone => 'हो गया';
+
+  @override
+  String momentumRecallChecks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count याद-जाँच',
+      one: '1 याद-जाँच',
+    );
+    return '$_temp0';
+  }
 }

@@ -15,6 +15,7 @@ import '../domain/focus.dart';
 /// `app_settings` keys (device settings; erased on sign-out like the others).
 const focusSessionKey = 'focus_session';
 const focusLogKey = 'focus_log';
+const recallLogKey = 'recall_log';
 
 Future<String?> _read(AppDatabase db, String key) async =>
     (await (db.select(db.appSettings)..where((s) => s.key.equals(key))).getSingleOrNull())?.value;
@@ -29,8 +30,13 @@ Future<void> _write(AppDatabase db, String key, String? value) async {
   }
 }
 
-/// Focus minutes per day on this device.
-class FocusLog extends Notifier<Map<CalendarDate, int>> {
+/// A number per day on this device (focus minutes, recall checks), kept for
+/// [FocusRules.logDays] days.
+class DayLog extends Notifier<Map<CalendarDate, int>> {
+  DayLog(this._key);
+
+  final String _key;
+
   @override
   Map<CalendarDate, int> build() {
     _load();
@@ -39,33 +45,41 @@ class FocusLog extends Notifier<Map<CalendarDate, int>> {
 
   Future<void> _load() async {
     try {
-      final raw = await _read(ref.read(appDatabaseProvider), focusLogKey);
+      final raw = await _read(ref.read(appDatabaseProvider), _key);
       if (raw == null || !ref.mounted) return;
       final json = jsonDecode(raw) as Map<String, dynamic>;
       state = {
         for (final entry in json.entries) ?CalendarDate.tryParse(entry.key): entry.value as int,
       };
     } on Object catch (error, stack) {
-      logError('Loading the focus log failed', error, stack);
+      logError('Loading a day log failed', error, stack);
     }
   }
 
-  Future<void> add(CalendarDate day, int minutes) async {
-    if (minutes <= 0) return;
-    state = addFocusMinutes(state, day, minutes, ref.read(todayProvider));
+  Future<void> add(CalendarDate day, int amount) async {
+    if (amount <= 0) return;
+    state = addFocusMinutes(state, day, amount, ref.read(todayProvider));
     try {
       await _write(
         ref.read(appDatabaseProvider),
-        focusLogKey,
+        _key,
         jsonEncode({for (final e in state.entries) e.key.toIsoString(): e.value}),
       );
     } on Object catch (error, stack) {
-      logError('Saving the focus log failed', error, stack);
+      logError('Saving a day log failed', error, stack);
     }
   }
 }
 
-final focusLogProvider = NotifierProvider<FocusLog, Map<CalendarDate, int>>(FocusLog.new);
+/// Focus minutes per day.
+final focusLogProvider = NotifierProvider<DayLog, Map<CalendarDate, int>>(
+  () => DayLog(focusLogKey),
+);
+
+/// Recall checks done per day (only the count; what the learner wrote is not kept).
+final recallLogProvider = NotifierProvider<DayLog, Map<CalendarDate, int>>(
+  () => DayLog(recallLogKey),
+);
 
 /// The running focus session (null when none). Survives a reload of the app.
 class FocusController extends Notifier<FocusSession?> {
@@ -158,12 +172,14 @@ class TodayProgress {
     required this.answered,
     required this.reviewed,
     required this.streak,
+    this.recallChecks = 0,
   });
 
   final int focusMinutes;
   final int? answered; // null when practice data couldn't be loaded (offline)
   final int reviewed;
   final int streak;
+  final int recallChecks;
 }
 
 final reviewedTodayProvider = StreamProvider.autoDispose<int>((ref) {
@@ -192,5 +208,6 @@ final todayProgressProvider = Provider.autoDispose<TodayProgress>((ref) {
     answered: answered,
     reviewed: ref.watch(reviewedTodayProvider).value ?? 0,
     streak: currentStreak(ref.watch(activityDaysProvider), today),
+    recallChecks: ref.watch(recallLogProvider)[today] ?? 0,
   );
 });

@@ -3324,4 +3324,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get masteryUpdateFailed => 'Couldn\'t save that. Check your connection and try again.';
+
+  @override
+  String get recallOffer => 'Before your break: a 2-minute recall check helps it stick.';
+
+  @override
+  String get recallStart => 'Recall check';
+
+  @override
+  String get recallTitle => 'Recall check';
+
+  @override
+  String get recallWritePrompt =>
+      'Without looking at your notes, write down the key points you just studied.';
+
+  @override
+  String get recallWriteHint => 'Facts, formulas, steps, examples…';
+
+  @override
+  String get recallWhy => 'Pulling it from memory strengthens it more than reading it again.';
+
+  @override
+  String get recallInMyHead => 'I recalled it in my head';
+
+  @override
+  String get recallCheckNow => 'Compare with my notes';
+
+  @override
+  String get recallComparePrompt =>
+      'Now open your notes or papers and compare. How much did you remember?';
+
+  @override
+  String get recallBack => 'Back';
+
+  @override
+  String get recallAlmostAll => 'Almost all';
+
+  @override
+  String get recallMost => 'Most of it';
+
+  @override
+  String get recallHalf => 'About half';
+
+  @override
+  String get recallLittle => 'Only a little';
+
+  @override
+  String get recallAdviceAlmostAll =>
+      'Strong recall. Revising it again in a few days will keep it.';
+
+  @override
+  String get recallAdviceMost =>
+      'Good. Add what you missed to your notes; those gaps are what to revise first.';
+
+  @override
+  String get recallAdviceHalf =>
+      'Normal after a first pass. Re-read only the parts you missed, then recall again tomorrow.';
+
+  @override
+  String get recallAdviceLittle =>
+      'That\'s useful to know, not a failure: the effort of recalling is what makes it stick. Re-read the material, then try a short recall again.';
+
+  @override
+  String get recallSaveHint =>
+      'Save your notes as a concept to get them back on the revision schedule.';
+
+  @override
+  String get recallSaveConcept => 'Save as a concept';
+
+  @override
+  String get recallDone => 'Done';
+
+  @override
+  String momentumRecallChecks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recall checks',
+      one: '1 recall check',
+    );
+    return '$_temp0';
+  }
 }

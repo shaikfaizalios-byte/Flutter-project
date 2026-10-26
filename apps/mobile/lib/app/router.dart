@@ -153,6 +153,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => ConceptFormScreen(
                       subject: state.uri.queryParameters['subject'],
                       topic: state.uri.queryParameters['topic'],
+                      notes: switch (state.extra) {
+                        ConceptPrefill(:final notes) => notes,
+                        _ => null,
+                      },
                     ),
                   ),
                   GoRoute(

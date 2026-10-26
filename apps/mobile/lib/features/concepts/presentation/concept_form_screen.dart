@@ -11,15 +11,26 @@ import '../../exams/application/active_exam.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
 
+/// Text to start a new concept with (e.g. notes written in a recall check), passed as the
+/// route's `extra`.
+class ConceptPrefill {
+  const ConceptPrefill({this.notes = ''});
+
+  final String notes;
+}
+
 /// Creates a concept, or edits one when [conceptId] is given.
 class ConceptFormScreen extends ConsumerStatefulWidget {
-  const ConceptFormScreen({super.key, this.conceptId, this.subject, this.topic});
+  const ConceptFormScreen({super.key, this.conceptId, this.subject, this.topic, this.notes});
 
   final String? conceptId;
 
   /// Prefilled subject and topic for a new concept (from a syllabus topic).
   final String? subject;
   final String? topic;
+
+  /// Prefilled notes for a new concept.
+  final String? notes;
 
   @override
   ConsumerState<ConceptFormScreen> createState() => _ConceptFormScreenState();
@@ -51,6 +62,7 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
     _examCode = ref.read(activeExamProvider) ?? ref.read(examCatalogProvider).first.code;
     _subject.text = widget.subject ?? '';
     _topic.text = widget.topic ?? '';
+    _notes.text = widget.notes ?? '';
     _loadState = _isEditing ? _LoadState.loading : _LoadState.ready;
     if (_isEditing) _load(widget.conceptId!);
   }
