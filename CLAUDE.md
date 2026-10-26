@@ -182,6 +182,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   the material, rate almost all/most/half/little → advice; "Save as a concept" opens the form with the notes via
   `ConceptPrefill` route extra). Only the count is kept (`recall_log`, shown on the Home card). Healthy-habit design:
   no guilt messages, no punishing streaks; every number is real.
+- Weekly review (`features/weekly_review`, device-only, no schema change; `/progress/week`, Progress app bar,
+  sidebar, Home prompt when `reviewDue`: activity this week and no review saved in 7 days): pure
+  `buildWeeklyReview` = last 7 days (today included) vs the 7 before, from focus log, recall log, card reviews,
+  activity days and analytics `daily` (answers null offline, never 0); next week = top 3 weak topics (Practise) +
+  cards due in 7 days; reflection ("went well" / "do differently") in `app_settings` `weekly_reflections` (12
+  kept), last plan shown next time. Sign-out erases focus/recall/reflection keys with the other learner data.
 - Revision (device-only, Drift v4 `revision_cards`/`card_reviews`): pure `RevisionScheduler` with a stored
   ladder (`revision_day_offsets`, default 1/4/7 days after adding) and Good/Easy/Hard/Forgot adaptation;
   concept cards read the live concept, question cards snapshot verified source questions only.

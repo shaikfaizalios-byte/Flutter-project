@@ -80,6 +80,12 @@ List<AppDestination> featureShortcuts(AppLocalizations l10n) => [
     route: AppRoutes.revision,
   ),
   AppDestination(
+    icon: Icons.event_note_outlined,
+    selectedIcon: Icons.event_note,
+    label: l10n.weeklyTitle,
+    route: AppRoutes.weeklyReview,
+  ),
+  AppDestination(
     icon: Icons.bookmark_outline,
     selectedIcon: Icons.bookmark,
     label: l10n.bookmarksTitle,

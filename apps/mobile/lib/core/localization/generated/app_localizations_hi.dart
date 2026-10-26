@@ -3405,4 +3405,108 @@ class AppLocalizationsHi extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get weeklyTitle => 'साप्ताहिक समीक्षा';
+
+  @override
+  String weeklyRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get weeklyLastPlan => 'पिछली बार आपकी योजना थी';
+
+  @override
+  String get weeklyNumbersTitle => 'आपके पिछले 7 दिन';
+
+  @override
+  String get weeklyActiveDays => 'जिन दिनों आपने पढ़ाई की';
+
+  @override
+  String weeklyOfDays(int count, int total) {
+    return '$total में से $count';
+  }
+
+  @override
+  String get weeklyFocus => 'फ़ोकस समय';
+
+  @override
+  String get weeklyAnswered => 'उत्तर दिए गए प्रश्न';
+
+  @override
+  String weeklyAnsweredAccuracy(int answered, String percent) {
+    return '$answered · $percent सही';
+  }
+
+  @override
+  String get weeklyReviews => 'फ़्लैशकार्ड रिवीज़न';
+
+  @override
+  String get weeklyRecall => 'याद-जाँच';
+
+  @override
+  String weeklyBefore(String value) {
+    return 'पिछला हफ़्ता: $value';
+  }
+
+  @override
+  String get weeklyNoData => 'उपलब्ध नहीं';
+
+  @override
+  String get weeklyRules =>
+      'पिछले 7 दिन (आज सहित) की तुलना उससे पहले के 7 दिनों से। सिर्फ़ वही गिना जाता है जो आपने सच में किया।';
+
+  @override
+  String get weeklyOffline => 'अभ्यास के उत्तरों के लिए इंटरनेट चाहिए, इसलिए वे अभी नहीं दिख रहे।';
+
+  @override
+  String get weeklyNextTitle => 'अगला हफ़्ता';
+
+  @override
+  String get weeklyWeakIntro => 'अपने सबसे कमज़ोर टॉपिक से शुरू करें:';
+
+  @override
+  String get weeklyNoWeak =>
+      'अभी कोई कमज़ोर टॉपिक नहीं। अभ्यास जारी रखें: 10 उत्तरों के बाद टॉपिक आँके जाते हैं।';
+
+  @override
+  String weeklyDueCards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'अगले 7 दिनों में $count फ़्लैशकार्ड बाकी।',
+      one: 'अगले 7 दिनों में 1 फ़्लैशकार्ड बाकी।',
+      zero: 'अगले 7 दिनों में कोई फ़्लैशकार्ड बाकी नहीं।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weeklyReflectTitle => 'सोचें';
+
+  @override
+  String get weeklyWentWell => 'इस हफ़्ते क्या अच्छा रहा?';
+
+  @override
+  String get weeklyNextWeek => 'अगले हफ़्ते आप क्या अलग करेंगे?';
+
+  @override
+  String get weeklyPrivate =>
+      'सिर्फ़ इसी डिवाइस पर सहेजा गया। अगले हफ़्ते की समीक्षा में आपकी योजना दिखेगी।';
+
+  @override
+  String get weeklySave => 'सहेजें';
+
+  @override
+  String get weeklySaved => 'सहेजा गया। अगले हफ़्ते मिलते हैं।';
+
+  @override
+  String get weeklyHomeTitle => 'आपकी साप्ताहिक समीक्षा तैयार है';
+
+  @override
+  String get weeklyHomeMessage => 'दो मिनट: अपना हफ़्ता देखें, आगे क्या करना है चुनें।';
+
+  @override
+  String get weeklyHomeOpen => 'खोलें';
 }

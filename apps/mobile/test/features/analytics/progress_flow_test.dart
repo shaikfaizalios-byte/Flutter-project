@@ -247,9 +247,10 @@ void main() {
 
     // Weak topic (15) + mock (60) fit in 120 minutes; the last mock was 3 days ago, so the
     // weekly mock is not due yet.
-    expect(find.text('Practise Percentage'), findsOneWidget);
+    // The weekly review prompt (real activity this week) sits above the plan.
+    await scrollTo(tester, find.text('Practise Percentage'));
     expect(find.textContaining('Take a mock test'), findsNothing);
-    expect(find.text('About 15 min planned for your 120-minute daily goal.'), findsOneWidget);
+    await scrollTo(tester, find.text('About 15 min planned for your 120-minute daily goal.'));
   });
 
   testAppWidgets('plan: suggests the first mock test with its reason', (tester, db) async {

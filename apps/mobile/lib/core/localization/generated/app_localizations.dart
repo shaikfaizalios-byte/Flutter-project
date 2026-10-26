@@ -5552,6 +5552,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 recall check} other{{count} recall checks}}'**
   String momentumRecallChecks(int count);
+
+  /// No description provided for @weeklyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly review'**
+  String get weeklyTitle;
+
+  /// No description provided for @weeklyRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String weeklyRange(String start, String end);
+
+  /// No description provided for @weeklyLastPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Last time you planned'**
+  String get weeklyLastPlan;
+
+  /// No description provided for @weeklyNumbersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last 7 days'**
+  String get weeklyNumbersTitle;
+
+  /// No description provided for @weeklyActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days you studied'**
+  String get weeklyActiveDays;
+
+  /// No description provided for @weeklyOfDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total}'**
+  String weeklyOfDays(int count, int total);
+
+  /// No description provided for @weeklyFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus time'**
+  String get weeklyFocus;
+
+  /// No description provided for @weeklyAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions answered'**
+  String get weeklyAnswered;
+
+  /// No description provided for @weeklyAnsweredAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'{answered} · {percent} correct'**
+  String weeklyAnsweredAccuracy(int answered, String percent);
+
+  /// No description provided for @weeklyReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcard reviews'**
+  String get weeklyReviews;
+
+  /// No description provided for @weeklyRecall.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall checks'**
+  String get weeklyRecall;
+
+  /// No description provided for @weeklyBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'week before: {value}'**
+  String weeklyBefore(String value);
+
+  /// No description provided for @weeklyNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'not available'**
+  String get weeklyNoData;
+
+  /// No description provided for @weeklyRules.
+  ///
+  /// In en, this message translates to:
+  /// **'The last 7 days (today included) compared with the 7 days before. Only what you actually did is counted.'**
+  String get weeklyRules;
+
+  /// No description provided for @weeklyOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice answers need a connection, so they\'re not shown now.'**
+  String get weeklyOffline;
+
+  /// No description provided for @weeklyNextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get weeklyNextTitle;
+
+  /// No description provided for @weeklyWeakIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with your weakest topics:'**
+  String get weeklyWeakIntro;
+
+  /// No description provided for @weeklyNoWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'No weak topics so far. Keep practising: topics are judged after 10 answers.'**
+  String get weeklyNoWeak;
+
+  /// No description provided for @weeklyDueCards.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No flashcards due in the next 7 days.} =1{1 flashcard due in the next 7 days.} other{{count} flashcards due in the next 7 days.}}'**
+  String weeklyDueCards(int count);
+
+  /// No description provided for @weeklyReflectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reflect'**
+  String get weeklyReflectTitle;
+
+  /// No description provided for @weeklyWentWell.
+  ///
+  /// In en, this message translates to:
+  /// **'What went well this week?'**
+  String get weeklyWentWell;
+
+  /// No description provided for @weeklyNextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'What will you do differently next week?'**
+  String get weeklyNextWeek;
+
+  /// No description provided for @weeklyPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved only on this device. Next week\'s review shows your plan.'**
+  String get weeklyPrivate;
+
+  /// No description provided for @weeklySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get weeklySave;
+
+  /// No description provided for @weeklySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. See you next week.'**
+  String get weeklySaved;
+
+  /// No description provided for @weeklyHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your weekly review is ready'**
+  String get weeklyHomeTitle;
+
+  /// No description provided for @weeklyHomeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Two minutes: see your week, choose what\'s next.'**
+  String get weeklyHomeMessage;
+
+  /// No description provided for @weeklyHomeOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get weeklyHomeOpen;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

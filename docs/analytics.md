@@ -66,6 +66,14 @@ The Study tab shows the levels per subject (a bar of topics per level, "x of y s
 evidence and the next step ("Answer 4 more questions to see your level."). Offline, practice answers are missing,
 so levels use flashcards and revised marks only, and the card says so. Product choices, not validated research.
 
+## Weekly review (`WeeklyReviewRules`)
+
+The last 7 days (today included) against the 7 days before: days studied, focus minutes, questions answered
+with accuracy (server `daily`; shown as "not available" offline), flashcard reviews and recall checks. Next week:
+the 3 weakest topics (same `AnalyticsRules`) and the flashcards due in the next 7 days. The learner writes what
+went well and what to change; it is kept on the device only (12 reviews) and the plan is shown in the next
+review. Home suggests a review when something was done this week and none was saved in the last 7 days.
+
 ## Daily plan (`buildStudyPlan`, deterministic, no AI)
 
 Candidates, in priority order. Each one says why it is in the plan and roughly how long it takes:

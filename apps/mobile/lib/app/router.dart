@@ -10,6 +10,7 @@ import '../features/auth/presentation/forgot_password_screen.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/concepts/presentation/concept_detail_screen.dart';
 import '../features/concepts/presentation/concept_form_screen.dart';
+import '../features/weekly_review/presentation/weekly_review_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
@@ -215,7 +216,21 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          _branch(AppRoutes.progress, const ProgressScreen()),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.progress,
+                builder: (context, state) => const ProgressScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'week',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const WeeklyReviewScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
           _branch(AppRoutes.profile, const SettingsScreen()),
         ],
       ),

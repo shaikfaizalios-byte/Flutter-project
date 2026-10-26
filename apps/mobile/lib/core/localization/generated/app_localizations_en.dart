@@ -3405,4 +3405,107 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get weeklyTitle => 'Weekly review';
+
+  @override
+  String weeklyRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get weeklyLastPlan => 'Last time you planned';
+
+  @override
+  String get weeklyNumbersTitle => 'Your last 7 days';
+
+  @override
+  String get weeklyActiveDays => 'Days you studied';
+
+  @override
+  String weeklyOfDays(int count, int total) {
+    return '$count of $total';
+  }
+
+  @override
+  String get weeklyFocus => 'Focus time';
+
+  @override
+  String get weeklyAnswered => 'Questions answered';
+
+  @override
+  String weeklyAnsweredAccuracy(int answered, String percent) {
+    return '$answered · $percent correct';
+  }
+
+  @override
+  String get weeklyReviews => 'Flashcard reviews';
+
+  @override
+  String get weeklyRecall => 'Recall checks';
+
+  @override
+  String weeklyBefore(String value) {
+    return 'week before: $value';
+  }
+
+  @override
+  String get weeklyNoData => 'not available';
+
+  @override
+  String get weeklyRules =>
+      'The last 7 days (today included) compared with the 7 days before. Only what you actually did is counted.';
+
+  @override
+  String get weeklyOffline => 'Practice answers need a connection, so they\'re not shown now.';
+
+  @override
+  String get weeklyNextTitle => 'Next week';
+
+  @override
+  String get weeklyWeakIntro => 'Start with your weakest topics:';
+
+  @override
+  String get weeklyNoWeak =>
+      'No weak topics so far. Keep practising: topics are judged after 10 answers.';
+
+  @override
+  String weeklyDueCards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count flashcards due in the next 7 days.',
+      one: '1 flashcard due in the next 7 days.',
+      zero: 'No flashcards due in the next 7 days.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weeklyReflectTitle => 'Reflect';
+
+  @override
+  String get weeklyWentWell => 'What went well this week?';
+
+  @override
+  String get weeklyNextWeek => 'What will you do differently next week?';
+
+  @override
+  String get weeklyPrivate => 'Saved only on this device. Next week\'s review shows your plan.';
+
+  @override
+  String get weeklySave => 'Save';
+
+  @override
+  String get weeklySaved => 'Saved. See you next week.';
+
+  @override
+  String get weeklyHomeTitle => 'Your weekly review is ready';
+
+  @override
+  String get weeklyHomeMessage => 'Two minutes: see your week, choose what\'s next.';
+
+  @override
+  String get weeklyHomeOpen => 'Open';
 }

@@ -22,6 +22,7 @@ abstract final class AppRoutes {
   static const incorrect = '/practice/incorrect';
   static const repeats = '/practice/repeats';
   static const progress = '/progress';
+  static const weeklyReview = '/progress/week';
   static const profile = '/profile';
   static const myExams = '/profile/exams';
   static const suggestions = '/profile/suggestions';

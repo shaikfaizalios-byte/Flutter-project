@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/routes.dart';
+import '../../../core/widgets/adaptive_action.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -80,7 +84,16 @@ class ProgressScreen extends ConsumerWidget {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.progressTitle)),
+      appBar: AppBar(
+        title: Text(l10n.progressTitle),
+        actions: [
+          AdaptiveAction(
+            label: l10n.weeklyTitle,
+            icon: Icons.event_note_outlined,
+            onPressed: () => context.push(AppRoutes.weeklyReview),
+          ),
+        ],
+      ),
       body: body,
     );
   }

@@ -23,6 +23,7 @@ import '../../study_plan/presentation/study_profile_widgets.dart';
 import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
 import '../../focus/presentation/focus_widgets.dart';
+import '../../weekly_review/application/weekly_review_providers.dart';
 
 /// Dashboard. Answers the three core questions from real local data only;
 /// where no data exists yet, each section says so honestly (no sample stats).
@@ -85,6 +86,21 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.sm),
               const QuoteCard(),
               const SizedBox(height: AppSpacing.md),
+              if (ref.watch(weeklyReviewDueProvider)) ...[
+                Card(
+                  color: theme.colorScheme.secondaryContainer,
+                  child: ListTile(
+                    leading: const Icon(Icons.event_note_outlined),
+                    title: Text(l10n.weeklyHomeTitle),
+                    subtitle: Text(l10n.weeklyHomeMessage),
+                    trailing: TextButton(
+                      onPressed: () => context.push(AppRoutes.weeklyReview),
+                      child: Text(l10n.weeklyHomeOpen),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
               _TodaySection(profile: profile),
               const SizedBox(height: AppSpacing.md),
               const _WeakSection(),
