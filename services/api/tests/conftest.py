@@ -43,6 +43,9 @@ def settings(tmp_path: Path) -> Settings:
         # Tests drive processing explicitly; no background thread.
         document_worker_in_process=False,
         auth_secret=SecretStr(TEST_AUTH_SECRET),
+        # AI tests exercise the features themselves; Plus gating has its own tests
+        # (tests/test_plus.py) that switch it back on.
+        plus_required_for_ai=False,
     )
 
 

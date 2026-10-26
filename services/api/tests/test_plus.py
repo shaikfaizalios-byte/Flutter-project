@@ -19,6 +19,7 @@ from app.models.plus import Subscription
 from app.models.user import User
 from app.services.plus_service import PlusService, month_bounds
 from tests.conftest import auth_headers, make_user
+from tests.fakes import FakeAIProvider
 
 NOW = datetime(2026, 10, 21, 9, 0, tzinfo=UTC)
 
@@ -193,4 +194,94 @@ def test_month_bounds_and_the_staging_guard() -> None:
             smtp_host="smtp.example.com",
             smtp_from="PrepLoop <no-reply@example.com>",
             plus_test_mode=True,
+        )
+
+
+@pytest.fixture
+def gated(
+    settings: Settings,
+    db_engine: Any,
+    db_session: Session,
+    storage: LocalDocumentStorage,
+    user: User,
+) -> Iterator[tuple[TestClient, FakeAIProvider]]:
+    """An app whose AI requests need PrepLoop Plus (the real default)."""
+    from app.database.session import get_session
+
+    ai = FakeAIProvider()
+    app = create_app(
+        settings.model_copy(update={"plus_required_for_ai": True, "plus_ai_monthly_allowance": 3}),
+        engine=db_engine,
+        storage=storage,
+        ai_provider=ai,
+    )
+    app.dependency_overrides[get_session] = lambda: db_session
+    with TestClient(app, raise_server_exceptions=False, headers=auth_headers(user)) as client:
+        yield client, ai
+
+
+def ask(client: TestClient) -> Any:
+    return client.post("/api/v1/ai/quick-answer", json={"text": "what is a percentage"})
+
+
+def test_ai_requests_need_plus_and_stop_at_the_allowance(
+    gated: tuple[TestClient, FakeAIProvider], db_session: Session, user: User
+) -> None:
+    client, ai = gated
+    status = client.get("/api/v1/ai/status").json()
+    assert (status["requires_plus"], status["plus_active"]) == (True, False)
+
+    refused = ask(client)
+    assert refused.status_code == 403
+    assert refused.json()["error"]["code"] == "plus_required"
+    assert ai.calls == []  # nothing reaches the provider
+
+    now = datetime.now(UTC)
+    db_session.add(
+        Subscription(
+            owner_id=user.id, plan="plus", source="operator", active_until=now + timedelta(days=30)
+        )
+    )
+    db_session.flush()
+    ai.responses = [{"answer": "A share of 100.", "confident": True}] * 3
+    for _ in range(3):
+        assert ask(client).status_code == 200
+    status = client.get("/api/v1/ai/status").json()
+    assert (status["plus_active"], status["ai_left_this_month"]) == (True, 0)
+
+    used_up = ask(client)
+    assert used_up.status_code == 429
+    assert used_up.json()["error"]["code"] == "ai_allowance_used"
+    reset = month_bounds(datetime.now(UTC))[1]
+    assert 0 < int(used_up.headers["Retry-After"]) <= (reset - now).total_seconds() + 5
+    assert len(ai.calls) == 3
+
+
+def test_an_expired_subscription_is_refused(
+    gated: tuple[TestClient, FakeAIProvider], db_session: Session, user: User
+) -> None:
+    client, _ = gated
+    db_session.add(
+        Subscription(
+            owner_id=user.id,
+            plan="plus",
+            source="operator",
+            active_until=datetime.now(UTC) - timedelta(minutes=1),
+        )
+    )
+    db_session.flush()
+    assert ask(client).json()["error"]["code"] == "plus_required"
+
+
+def test_plus_cannot_be_switched_off_outside_development() -> None:
+    with pytest.raises(ValueError, match="PLUS_REQUIRED_FOR_AI"):
+        Settings(
+            _env_file=None,
+            environment="staging",
+            auth_secret="s" * 40,
+            rate_limit_backend="postgres",
+            email_backend="smtp",
+            smtp_host="smtp.example.com",
+            smtp_from="PrepLoop <no-reply@example.com>",
+            plus_required_for_ai=False,
         )

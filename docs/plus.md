@@ -19,6 +19,17 @@ practice, mock tests, revision, reminders and progress never need Plus.
 - Operator grants (e.g. beta testers):
   `python -m app.cli.plus grant EMAIL --days 30 --note "beta"`, `revoke EMAIL`, `show EMAIL`.
   Store purchases are never changed by the CLI.
+- **Gating** (`PREPLOOP_PLUS_REQUIRED_FOR_AI`, default true; false only in development):
+  every endpoint that calls the AI provider (`guard_ai` in `app/api/v1/endpoints/ai.py`: search
+  answers, quick answers, explanations, generated questions, topic drafts/suggestions, reading a
+  paper) first checks `PlusService.check_ai_allowed()`: no active subscription → 403
+  `plus_required`; allowance used this month → 429 `ai_allowance_used` with `Retry-After` until the
+  month resets. Nothing reaches the provider then. Without a provider the endpoints still answer 503
+  `ai_disabled`. Reading a paper is checked when it is queued; the worker's page calls then count
+  against the allowance. `GET /ai/status` adds `requires_plus`, `plus_active`,
+  `ai_left_this_month`. App: `AiStatus.needsPlus` → `PlusPrompt` ("See Plus") in place of the
+  search's AI panel and the "Read with AI" button; other AI actions explain the error with a
+  "See Plus" snackbar action. Starting/ending a test refreshes the AI status.
 - App: `features/plus` — Profile `PlusCard`, `PlusScreen` (`/profile/plus`, also in the
   sidebar/Home shortcuts): plan, what Plus includes, "x of y AI requests used", the free list,
   a "Start a 7-day test" button only when the server is in test mode, otherwise "can't be bought
@@ -26,12 +37,9 @@ practice, mock tests, revision, reminders and progress never need Plus.
 
 ## Not built yet
 
-1. **Gating.** AI endpoints don't check Plus yet; next step: quick answers and explanations
-   require an active subscription and stop at the monthly allowance (429-style error the app
-   explains), with an "Upgrade to Plus" prompt where they appear.
-2. **Payments.** Google Play Billing on Android (required for digital subscriptions sold in the
+1. **Payments.** Google Play Billing on Android (required for digital subscriptions sold in the
    app), a payment provider for the web app, Apple in-app purchase for iOS. Each needs server-side
    receipt/webhook verification that sets `source` play/web and `active_until`. The operator
    needs the store/payment accounts first.
-3. **Legal.** Terms: price, renewal, cancellation, refunds; GST invoicing in India; privacy
+2. **Legal.** Terms: price, renewal, cancellation, refunds; GST invoicing in India; privacy
    policy: payment processor as a recipient.

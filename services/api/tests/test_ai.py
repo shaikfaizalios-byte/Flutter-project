@@ -88,12 +88,28 @@ def generations(db: Session) -> list[AIGeneration]:
 
 def test_status_reports_availability_without_secrets(make_api: AppFactory) -> None:
     off = make_api(None).get("/api/v1/ai/status").json()
-    assert off == {"enabled": False, "provider": None, "model": None, "features": []}
+    assert off == {
+        "enabled": False,
+        "provider": None,
+        "model": None,
+        "features": [],
+        "requires_plus": False,
+        "plus_active": False,
+        "ai_left_this_month": None,
+    }
 
     on = make_api(FakeAIProvider()).get("/api/v1/ai/status").json()
     assert on["enabled"] is True
     assert (on["provider"], on["model"]) == ("fake", "fake-model-1")
-    assert set(on) == {"enabled", "provider", "model", "features"}
+    assert set(on) == {
+        "enabled",
+        "provider",
+        "model",
+        "features",
+        "requires_plus",
+        "plus_active",
+        "ai_left_this_month",
+    }
 
 
 def test_without_a_provider_ai_actions_are_refused(

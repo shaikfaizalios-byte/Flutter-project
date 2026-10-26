@@ -87,6 +87,9 @@ class Settings(BaseSettings):
     # app (refused in staging/production).
     plus_ai_monthly_allowance: int = Field(default=300, ge=1)
     plus_test_mode: bool = False
+    # AI features need an active subscription and stop at the allowance. Off only for
+    # development setups that want AI without Plus (refused in staging/production).
+    plus_required_for_ai: bool = True
     # Accounts. The signing secret is required outside development/test; locally a random
     # one is generated per process (tokens then stop working after a restart).
     auth_secret: SecretStr | None = None
@@ -141,6 +144,8 @@ class Settings(BaseSettings):
                 raise ValueError("Unencrypted SMTP is not allowed here.")
             if self.plus_test_mode:
                 raise ValueError("PREPLOOP_PLUS_TEST_MODE is for development only.")
+            if not self.plus_required_for_ai:
+                raise ValueError("PREPLOOP_PLUS_REQUIRED_FOR_AI=false is for development only.")
         if self.email_backend == "smtp" and (not self.smtp_host or not self.smtp_from):
             raise ValueError("PREPLOOP_SMTP_HOST and PREPLOOP_SMTP_FROM are required for SMTP.")
         return self

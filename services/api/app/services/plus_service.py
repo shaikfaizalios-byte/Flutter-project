@@ -10,7 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.domain.errors import ConflictError
+from app.domain.errors import AIAllowanceUsedError, ConflictError, PlusRequiredError
 from app.models.ai import AIGeneration
 from app.models.plus import Subscription
 from app.schemas.plus import PlusStatus
@@ -67,6 +67,21 @@ class PlusService:
             test_mode=self._settings.plus_test_mode,
             purchases_available=False,
         )
+
+    def check_ai_allowed(self) -> None:
+        """Raises unless the account may make another AI request: an active subscription with
+        allowance left this month. Does nothing when the server doesn't require Plus."""
+        if not self._settings.plus_required_for_ai:
+            return
+        status = self.status()
+        if not status.active:
+            raise PlusRequiredError("AI features are part of PrepLoop Plus.")
+        if status.ai_used_this_month >= status.ai_monthly_allowance:
+            wait = int((status.period_resets_at - self._now()).total_seconds())
+            raise AIAllowanceUsedError(
+                "This month's AI requests are used up. They reset at the start of next month.",
+                retry_after_seconds=max(wait, 1),
+            )
 
     def start_test(self, days: int) -> PlusStatus:
         if not self._settings.plus_test_mode:

@@ -5720,6 +5720,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get weeklyHomeOpen;
+
+  /// No description provided for @aiErrorPlusRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'AI features are part of PrepLoop Plus.'**
+  String get aiErrorPlusRequired;
+
+  /// No description provided for @aiErrorAllowanceUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used this month\'s AI requests. They reset at the start of next month.'**
+  String get aiErrorAllowanceUsed;
+
+  /// No description provided for @plusSee.
+  ///
+  /// In en, this message translates to:
+  /// **'See Plus'**
+  String get plusSee;
+
+  /// No description provided for @plusPromptSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'AI answers from your papers, explained simply, are part of PrepLoop Plus.'**
+  String get plusPromptSearch;
+
+  /// No description provided for @plusPromptRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading papers with AI is part of PrepLoop Plus.'**
+  String get plusPromptRead;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

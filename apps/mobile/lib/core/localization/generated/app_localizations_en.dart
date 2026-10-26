@@ -3508,4 +3508,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weeklyHomeOpen => 'Open';
+
+  @override
+  String get aiErrorPlusRequired => 'AI features are part of PrepLoop Plus.';
+
+  @override
+  String get aiErrorAllowanceUsed =>
+      'You\'ve used this month\'s AI requests. They reset at the start of next month.';
+
+  @override
+  String get plusSee => 'See Plus';
+
+  @override
+  String get plusPromptSearch =>
+      'AI answers from your papers, explained simply, are part of PrepLoop Plus.';
+
+  @override
+  String get plusPromptRead => 'Reading papers with AI is part of PrepLoop Plus.';
 }

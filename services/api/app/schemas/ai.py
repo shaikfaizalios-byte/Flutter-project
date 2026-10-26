@@ -15,6 +15,11 @@ class AIStatus(BaseModel):
     features: list[
         Literal["explanations", "questions", "topics", "quick_answers", "search_answers"]
     ]
+    # PrepLoop Plus: whether AI requests need a subscription, whether this account may make
+    # one now, and how many are left this month (null when Plus isn't required).
+    requires_plus: bool = False
+    plus_active: bool = False
+    ai_left_this_month: int | None = None
 
 
 class ConceptInput(BaseModel):

@@ -95,7 +95,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `ai_generations` ok/partial vs `PREPLOOP_PLUS_AI_MONTHLY_ALLOWANCE`, default 300); free test subscriptions
   only with `PREPLOOP_PLUS_TEST_MODE` (refused in staging/prod): `POST/DELETE /me/plus/test`; operator grants
   `python -m app.cli.plus grant|revoke|show EMAIL`. Mobile `features/plus` (Profile card, `/profile/plus`,
-  sidebar shortcut). NOT built yet: AI gating by Plus, payments (Play Billing / web / Apple), legal texts.
+  sidebar shortcut). AI gating: `guard_ai` → `PlusService.check_ai_allowed()` (403 `plus_required`, 429
+  `ai_allowance_used`; `PREPLOOP_PLUS_REQUIRED_FOR_AI`, default true, dev-only false; tests' fixture sets it
+  false, `tests/test_plus.py` turns it on); `/ai/status` `requires_plus`/`plus_active`/`ai_left_this_month`;
+  app `AiStatus.needsPlus` → `PlusPrompt`. NOT built yet: payments (Play Billing / web / Apple), legal texts.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
   chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
   "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.

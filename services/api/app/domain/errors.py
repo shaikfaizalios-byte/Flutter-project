@@ -61,6 +61,19 @@ class RateLimitedError(DomainError):
         self.retry_after_seconds = retry_after_seconds
 
 
+class PlusRequiredError(DomainError):
+    """The AI features need an active PrepLoop Plus subscription."""
+
+    status_code = 403
+    code = "plus_required"
+
+
+class AIAllowanceUsedError(RateLimitedError):
+    """This month's AI allowance is used up; it resets at the start of next month (UTC)."""
+
+    code = "ai_allowance_used"
+
+
 class AIDisabledError(DomainError):
     """AI assistance is not configured on this server (no provider key)."""
 

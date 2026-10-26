@@ -8,12 +8,28 @@ import '../../question_bank/domain/question.dart';
 /// Whether the server has AI assistance configured (keys never reach the app).
 @immutable
 class AiStatus {
-  const AiStatus({required this.enabled, this.model});
+  const AiStatus({
+    required this.enabled,
+    this.model,
+    this.requiresPlus = false,
+    this.plusActive = false,
+    this.aiLeft,
+  });
 
   static const off = AiStatus(enabled: false);
 
   final bool enabled;
   final String? model;
+
+  /// The server needs PrepLoop Plus for AI requests (it decides; the app only shows it).
+  final bool requiresPlus;
+  final bool plusActive;
+
+  /// AI requests left this month (null when Plus isn't required).
+  final int? aiLeft;
+
+  /// AI is on but this account needs Plus first: show the Plus prompt instead of AI actions.
+  bool get needsPlus => enabled && requiresPlus && !plusActive;
 }
 
 @immutable
@@ -232,7 +248,13 @@ class RemoteAiRepository implements AiRepository {
   @override
   Future<AiStatus> status() => _guard(() async {
     final data = (await _dio.get<Map<String, dynamic>>('$_base/ai/status')).data!;
-    return AiStatus(enabled: data['enabled'] as bool, model: data['model'] as String?);
+    return AiStatus(
+      enabled: data['enabled'] as bool,
+      model: data['model'] as String?,
+      requiresPlus: data['requires_plus'] as bool? ?? false,
+      plusActive: data['plus_active'] as bool? ?? false,
+      aiLeft: data['ai_left_this_month'] as int?,
+    );
   });
 
   @override

@@ -25,6 +25,7 @@ from app.schemas.document import DocumentRead
 from app.schemas.errors import ErrorResponse
 from app.schemas.question import AIExplanationRead, QuestionRead
 from app.services.ai_service import AIService
+from app.services.plus_service import PlusService
 from app.services.question_service import QuestionService
 
 router = APIRouter(
@@ -33,10 +34,14 @@ router = APIRouter(
 )
 
 AI_ERRORS: dict[int | str, dict[str, Any]] = {
+    403: {"model": ErrorResponse, "description": "PrepLoop Plus required (plus_required)"},
     404: {"model": ErrorResponse, "description": "Not found"},
     409: {"model": ErrorResponse, "description": "Not in a state that allows this"},
     422: {"model": ErrorResponse, "description": "Not eligible for AI assistance"},
-    429: {"model": ErrorResponse, "description": "Too many AI requests (Retry-After)"},
+    429: {
+        "model": ErrorResponse,
+        "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)",
+    },
     502: {"model": ErrorResponse, "description": "AI provider failed; retry later"},
 }
 
@@ -55,9 +60,19 @@ def get_ai_service(
     return AIService(session, user.id, provider, settings)
 
 
-def guard_ai(request: Request, user: CurrentUser) -> None:
-    """Rate limit per account for calls that reach the AI provider (cost and abuse)."""
+def guard_ai(
+    request: Request,
+    user: CurrentUser,
+    session: DbSession,
+    settings: Annotated[Settings, Depends(get_settings)],
+    provider: Annotated[AIProvider | None, Depends(get_ai_provider)],
+) -> None:
+    """Calls that reach the AI provider: rate limit per account (cost and abuse), then PrepLoop
+    Plus (active subscription, allowance left). Without a provider the endpoint itself answers
+    that AI is off."""
     request.app.state.ai_rate_limiter.check(client_key(request, user))
+    if provider is not None:
+        PlusService(session, user.id, settings).check_ai_allowed()
 
 
 Service = Annotated[AIService, Depends(get_ai_service)]

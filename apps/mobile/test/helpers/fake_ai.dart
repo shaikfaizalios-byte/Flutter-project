@@ -8,9 +8,18 @@ import 'fake_questions.dart';
 /// Stand-in for the AI API. Disabled by default (as on a server without a key). When a
 /// [questions] fake is given, AI actions update it so screens refresh like the real API.
 class FakeAiRepository implements AiRepository {
-  FakeAiRepository({this.enabled = false, this.questions});
+  FakeAiRepository({
+    this.enabled = false,
+    this.questions,
+    this.requiresPlus = false,
+    this.plusActive = false,
+  });
 
   bool enabled;
+
+  /// The server's PrepLoop Plus answer (off by default, as in development).
+  bool requiresPlus;
+  bool plusActive;
   FakeQuestionsRepository? questions;
 
   /// Thrown by the next AI action (then cleared).
@@ -43,8 +52,14 @@ class FakeAiRepository implements AiRepository {
   }
 
   @override
-  Future<AiStatus> status() async =>
-      enabled ? const AiStatus(enabled: true, model: 'fake-model') : AiStatus.off;
+  Future<AiStatus> status() async => enabled
+      ? AiStatus(
+          enabled: true,
+          model: 'fake-model',
+          requiresPlus: requiresPlus,
+          plusActive: plusActive,
+        )
+      : AiStatus.off;
 
   @override
   Future<AiExplanation> draftExplanation(String questionId) async {

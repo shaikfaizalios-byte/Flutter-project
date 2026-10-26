@@ -140,6 +140,17 @@
       },
       "AIStatus": {
         "properties": {
+          "ai_left_this_month": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Left This Month"
+          },
           "enabled": {
             "title": "Enabled",
             "type": "boolean"
@@ -169,6 +180,11 @@
             ],
             "title": "Model"
           },
+          "plus_active": {
+            "default": false,
+            "title": "Plus Active",
+            "type": "boolean"
+          },
           "provider": {
             "anyOf": [
               {
@@ -179,6 +195,11 @@
               }
             ],
             "title": "Provider"
+          },
+          "requires_plus": {
+            "default": false,
+            "title": "Requires Plus",
+            "type": "boolean"
           }
         },
         "required": [
@@ -6417,6 +6438,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -6455,7 +6486,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -6515,6 +6546,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -6553,7 +6594,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -6612,6 +6653,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -6650,7 +6701,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -6720,6 +6771,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -6758,7 +6819,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -6816,6 +6877,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -6854,7 +6925,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -6914,6 +6985,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -6952,7 +7033,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -7012,6 +7093,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -7050,7 +7141,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -7108,6 +7199,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -7146,7 +7247,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {
@@ -7204,6 +7305,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -7242,7 +7353,7 @@
                 }
               }
             },
-            "description": "Too many AI requests (Retry-After)"
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
           },
           "502": {
             "content": {

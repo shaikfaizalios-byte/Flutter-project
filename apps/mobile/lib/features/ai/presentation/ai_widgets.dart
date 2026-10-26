@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -18,6 +21,8 @@ String aiErrorMessage(AppLocalizations l10n, Object error) => switch (error) {
   ServerFailure(code: 'ai_disabled') => l10n.aiErrorDisabled,
   ServerFailure(code: 'ai_unavailable') => l10n.aiErrorUnavailable,
   ServerFailure(code: 'rate_limited') => l10n.aiErrorRateLimited,
+  ServerFailure(code: 'plus_required') => l10n.aiErrorPlusRequired,
+  ServerFailure(code: 'ai_allowance_used') => l10n.aiErrorAllowanceUsed,
   ServerFailure(code: 'not_eligible') => l10n.aiErrorNotEligible,
   ServerFailure(code: 'explanation_exists') => l10n.aiErrorExplanationExists,
   ServerFailure(code: 'topic_already_set') => l10n.aiErrorTopicSet,
@@ -31,10 +36,21 @@ Future<T?> _run<T>(BuildContext context, Future<T> Function() action) async {
     return await action();
   } on Object catch (error, stack) {
     if (error is! AppFailure) logError('AI action failed', error, stack);
-    messenger.showSnackBar(SnackBar(content: Text(aiErrorMessage(l10n, error))));
+    messenger.showSnackBar(
+      SnackBar(content: Text(aiErrorMessage(l10n, error)), action: needsPlusAction(context, error)),
+    );
     return null;
   }
 }
+
+/// "See Plus" on an error that a subscription (or next month) would solve.
+SnackBarAction? needsPlusAction(BuildContext context, Object error) => switch (error) {
+  ServerFailure(code: 'plus_required' || 'ai_allowance_used') => SnackBarAction(
+    label: AppLocalizations.of(context).plusSee,
+    onPressed: () => GoRouter.of(context).push(AppRoutes.plus),
+  ),
+  _ => null,
+};
 
 /// "AI-generated" badge used wherever AI text appears.
 class AiLabel extends StatelessWidget {

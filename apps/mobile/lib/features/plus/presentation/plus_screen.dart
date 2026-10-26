@@ -29,7 +29,10 @@ class _PlusScreenState extends ConsumerState<PlusScreen> {
     setState(() => _busy = true);
     try {
       await action(ref.read(plusRepositoryProvider));
-      ref.invalidate(plusStatusProvider);
+      ref
+        ..invalidate(plusStatusProvider)
+        // AI panels unlock (or lock) with the subscription.
+        ..invalidate(aiStatusProvider);
     } on Object catch (error, stack) {
       if (error is! AppFailure) {
         logError('Changing the Plus test subscription failed', error, stack);

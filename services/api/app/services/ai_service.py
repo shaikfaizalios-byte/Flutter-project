@@ -60,6 +60,7 @@ from app.schemas.ai import (
 from app.schemas.document import DocumentRead
 from app.schemas.question import AIExplanationRead
 from app.services.patterns import pattern_candidates, refresh_pattern
+from app.services.plus_service import PlusService
 from app.services.question_service import QuestionService
 from app.services.rag_service import RagRetriever
 from app.services.topic_service import topic_scope, visible_topics
@@ -87,11 +88,18 @@ class AIService:
     def status(self) -> AIStatus:
         if self._provider is None:
             return AIStatus(enabled=False, provider=None, model=None, features=[])
+        required = self._settings.plus_required_for_ai
+        plus = PlusService(self._session, self._owner_id, self._settings).status()
         return AIStatus(
             enabled=True,
             provider=self._provider.name,
             model=self._provider.model,
             features=["explanations", "questions", "topics", "quick_answers", "search_answers"],
+            requires_plus=required,
+            plus_active=plus.active,
+            ai_left_this_month=(
+                max(plus.ai_monthly_allowance - plus.ai_used_this_month, 0) if required else None
+            ),
         )
 
     # --- explanations -------------------------------------------------------------------

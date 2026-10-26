@@ -9,6 +9,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../ai/application/ai_providers.dart';
 import '../../ai/presentation/ai_widgets.dart';
+import '../../plus/presentation/plus_prompt.dart';
 import '../application/question_bank_providers.dart';
 import '../domain/question.dart';
 
@@ -92,7 +93,12 @@ class _AiReadCardState extends ConsumerState<AiReadCard> {
       ref.invalidate(parseSummaryProvider(widget.documentId));
     } on Object catch (error, stack) {
       if (error is! AppFailure) logError('Queuing an AI reading failed', error, stack);
-      messenger.showSnackBar(SnackBar(content: Text(aiErrorMessage(l10n, error))));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(aiErrorMessage(l10n, error)),
+          action: mounted ? needsPlusAction(context, error) : null,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -107,11 +113,13 @@ class _AiReadCardState extends ConsumerState<AiReadCard> {
     if (!enabled && s.readByAi == 0 && !s.aiReadStatus.inProgress) return const SizedBox.shrink();
     final nothingFound = s.questionsFound == 0;
 
-    final readButton = FilledButton.tonalIcon(
-      icon: const Icon(Icons.auto_awesome),
-      label: Text(s.readByAi > 0 ? l10n.aiReadAgain : l10n.aiReadButton),
-      onPressed: _busy || !enabled ? null : _read,
-    );
+    final Widget readButton = ref.watch(aiStatusProvider).value?.needsPlus ?? false
+        ? PlusPrompt(message: l10n.plusPromptRead)
+        : FilledButton.tonalIcon(
+            icon: const Icon(Icons.auto_awesome),
+            label: Text(s.readByAi > 0 ? l10n.aiReadAgain : l10n.aiReadButton),
+            onPressed: _busy || !enabled ? null : _read,
+          );
     final List<Widget> children = switch (s.aiReadStatus) {
       AiReadStatus.queued || AiReadStatus.running => [
         Text(

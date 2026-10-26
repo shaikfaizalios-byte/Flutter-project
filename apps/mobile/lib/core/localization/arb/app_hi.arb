@@ -937,5 +937,10 @@
   "weeklySaved": "सहेजा गया। अगले हफ़्ते मिलते हैं।",
   "weeklyHomeTitle": "आपकी साप्ताहिक समीक्षा तैयार है",
   "weeklyHomeMessage": "दो मिनट: अपना हफ़्ता देखें, आगे क्या करना है चुनें।",
-  "weeklyHomeOpen": "खोलें"
+  "weeklyHomeOpen": "खोलें",
+  "aiErrorPlusRequired": "AI सुविधाएँ PrepLoop Plus का हिस्सा हैं।",
+  "aiErrorAllowanceUsed": "आपने इस महीने के AI अनुरोध इस्तेमाल कर लिए हैं। वे अगले महीने की शुरुआत में फिर मिलेंगे।",
+  "plusSee": "Plus देखें",
+  "plusPromptSearch": "आपके पेपरों से AI उत्तर, आसान शब्दों में, PrepLoop Plus का हिस्सा हैं।",
+  "plusPromptRead": "AI से पेपर पढ़वाना PrepLoop Plus का हिस्सा है।"
 }

@@ -19,8 +19,9 @@ class QuickAnswerPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final enabled = ref.watch(aiStatusProvider).value?.enabled ?? false;
-    if (!enabled) return const SizedBox.shrink();
+    final status = ref.watch(aiStatusProvider).value;
+    // Without Plus the search panel above already shows the Plus prompt.
+    if (!(status?.enabled ?? false) || status!.needsPlus) return const SizedBox.shrink();
     final on = ref.watch(quickAnswersOnProvider);
 
     final Widget body;

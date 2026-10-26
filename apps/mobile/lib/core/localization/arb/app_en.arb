@@ -2148,5 +2148,10 @@
   "weeklySaved": "Saved. See you next week.",
   "weeklyHomeTitle": "Your weekly review is ready",
   "weeklyHomeMessage": "Two minutes: see your week, choose what's next.",
-  "weeklyHomeOpen": "Open"
+  "weeklyHomeOpen": "Open",
+  "aiErrorPlusRequired": "AI features are part of PrepLoop Plus.",
+  "aiErrorAllowanceUsed": "You've used this month's AI requests. They reset at the start of next month.",
+  "plusSee": "See Plus",
+  "plusPromptSearch": "AI answers from your papers, explained simply, are part of PrepLoop Plus.",
+  "plusPromptRead": "Reading papers with AI is part of PrepLoop Plus."
 }

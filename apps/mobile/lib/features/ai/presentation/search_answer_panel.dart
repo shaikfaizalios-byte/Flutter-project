@@ -10,6 +10,7 @@ import '../application/quick_answers.dart';
 import '../data/ai_repository.dart';
 import 'ai_widgets.dart';
 import 'quick_answer_panel.dart';
+import '../../plus/presentation/plus_prompt.dart';
 
 /// The Study search's AI answer from the learner's own material (RAG): the answer, then the
 /// sources it cites, each opening the page, question or concept so the learner can check it.
@@ -24,12 +25,14 @@ class SearchAnswerPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final enabled = ref.watch(aiStatusProvider).value?.enabled ?? false;
-    if (!enabled) return const SizedBox.shrink();
+    final status = ref.watch(aiStatusProvider).value;
+    if (!(status?.enabled ?? false)) return const SizedBox.shrink();
     final on = ref.watch(quickAnswersOnProvider);
 
     final Widget body;
-    if (!on) {
+    if (status!.needsPlus) {
+      body = PlusPrompt(message: l10n.plusPromptSearch);
+    } else if (!on) {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
