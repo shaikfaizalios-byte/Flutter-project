@@ -2188,6 +2188,34 @@
         "title": "MockResult",
         "type": "object"
       },
+      "NotRepeated": {
+        "description": "The other side of repeats, for one exam: what these papers did not ask. Not a\nprediction: a topic missing from a few papers can still be asked.",
+        "properties": {
+          "not_seen": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TopicRef"
+            },
+            "title": "Not Seen",
+            "type": "array"
+          },
+          "patterns_not_seen": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PatternGap"
+            },
+            "title": "Patterns Not Seen",
+            "type": "array"
+          },
+          "questions_without_topic": {
+            "default": 0,
+            "title": "Questions Without Topic",
+            "type": "integer"
+          }
+        },
+        "title": "NotRepeated",
+        "type": "object"
+      },
       "OfflineAnswer": {
         "additionalProperties": false,
         "properties": {
@@ -3182,6 +3210,36 @@
           "name"
         ],
         "title": "PatternCreate",
+        "type": "object"
+      },
+      "PatternGap": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "pattern_id": {
+            "format": "uuid",
+            "title": "Pattern Id",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pattern_id",
+          "topic_id",
+          "topic_name",
+          "name"
+        ],
+        "title": "PatternGap",
         "type": "object"
       },
       "PatternRead": {
@@ -4567,6 +4625,14 @@
               }
             ],
             "title": "Exam Code"
+          },
+          "not_repeated": {
+            "$ref": "#/components/schemas/NotRepeated",
+            "default": {
+              "not_seen": [],
+              "patterns_not_seen": [],
+              "questions_without_topic": 0
+            }
           },
           "papers": {
             "$ref": "#/components/schemas/PapersBasis"
@@ -5980,6 +6046,30 @@
           "name"
         ],
         "title": "TopicRead",
+        "type": "object"
+      },
+      "TopicRef": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "subject",
+          "name"
+        ],
+        "title": "TopicRef",
         "type": "object"
       },
       "TopicRepeat": {

@@ -28,16 +28,20 @@ from app.models.question import (
     VerificationStatus,
 )
 from app.schemas.insights import (
+    NotRepeated,
     PapersBasis,
+    PatternGap,
     PatternRepeat,
     RepeatCounts,
     RepeatsReport,
     SimilarGroup,
     SimilarQuestion,
+    TopicRef,
     TopicRepeat,
     YearCount,
 )
 from app.services.shared_bank import shared_question
+from app.services.topic_service import visible_topics
 
 MAX_SIMILAR_GROUPS = 50
 
@@ -155,6 +159,57 @@ class InsightsService:
             topics=self._topics(rows, years, topics, patterns),
             similar_groups=self._similar(rows, years, filenames, topics),
             similarity_threshold=THRESHOLD,
+            not_repeated=self._not_repeated(rows, exam_code, patterns)
+            if exam_code
+            else NotRepeated(),
+        )
+
+    def _not_repeated(
+        self,
+        rows: list[_Row],
+        exam_code: str,
+        patterns: dict[uuid.UUID, QuestionPattern],
+    ) -> NotRepeated:
+        """Topics of the exam that no question in these papers has (confirmed or suggested),
+        and question types of the topics that did appear which none has."""
+        if not rows:
+            return NotRepeated()
+        seen_topics = {
+            r.topic_id
+            for r in rows
+            if r.topic_id is not None and r.topic_status != TopicStatus.UNASSIGNED
+        }
+        seen_patterns = {
+            r.pattern_id
+            for r in rows
+            if r.pattern_id is not None and r.pattern_status != TopicStatus.UNASSIGNED
+        }
+        exam_topics = visible_topics(self._session, self._owner_id, exam_code)
+        names = {t.id: t.name for t in exam_topics}
+        return NotRepeated(
+            not_seen=[
+                TopicRef(topic_id=t.id, subject=t.subject, name=t.name)
+                for t in exam_topics
+                if t.id not in seen_topics
+            ],
+            patterns_not_seen=sorted(
+                (
+                    PatternGap(
+                        pattern_id=p.id,
+                        topic_id=p.topic_id,
+                        topic_name=names[p.topic_id],
+                        name=p.name,
+                    )
+                    for p in patterns.values()
+                    if p.topic_id in seen_topics
+                    and p.topic_id in names
+                    and p.id not in seen_patterns
+                ),
+                key=lambda g: (g.topic_name, g.name),
+            ),
+            questions_without_topic=sum(
+                r.topic_id is None or r.topic_status == TopicStatus.UNASSIGNED for r in rows
+            ),
         )
 
     @staticmethod

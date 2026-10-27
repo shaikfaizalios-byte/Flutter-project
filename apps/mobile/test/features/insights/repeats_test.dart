@@ -106,6 +106,8 @@ void main() {
     expect(find.text('In 3 of 4 papers · 4 questions\n+1 not yet reviewed'), findsOneWidget);
     expect(find.text('1 other questions in this topic (no named type)'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Practise'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Practise'));
     await tester.pumpAndSettle();
     expect(practice.practiceRequests.single.patternId, 'p-classes');
@@ -127,6 +129,8 @@ void main() {
     expect(find.text('In 2 of 4 papers · 2019, 2021'), findsOneWidget);
     expect(find.text('chsl-2019.pdf · Q.51 · 2019'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Anu spends 90% of her income…'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Anu spends 90% of her income…'));
     await tester.pumpAndSettle();
     expect(find.text('Q.1'), findsOneWidget); // the question review screen
@@ -308,6 +312,8 @@ void main() {
     await tester.tap(find.text('Venn Diagrams  ·  General Intelligence'));
     await tester.pumpAndSettle();
     expect(find.text('Shifts by year: 2019: 2 · 2024: 3'), findsOneWidget);
+    await tester.ensureVisible(find.text('Practise'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Practise'));
     await tester.pumpAndSettle();
     expect(practice.practiceRequests.single.patternId, 'p-classes');

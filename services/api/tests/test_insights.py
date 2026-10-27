@@ -291,3 +291,40 @@ def test_practice_by_pattern(db_client: TestClient, db_session: Session, user: U
     )
     assert response.status_code == 201, response.text
     assert [i["question_id"] for i in response.json()["items"]] == [str(wanted.id)]
+
+
+def test_not_repeated_lists_the_exams_topics_and_types_these_papers_never_asked(
+    db_client: TestClient, db_session: Session, user: User
+) -> None:
+    venn = _topic(db_session, "Venn Diagrams")
+    classes = _pattern(db_session, venn, "Relationship between classes")
+    mine = Topic(
+        owner_id=user.id, exam_codes=["SSC_CHSL"], subject="General Awareness", name="My Polity"
+    )
+    other = make_user(db_session, "other@example.com")
+    theirs = Topic(owner_id=other.id, exam_codes=["SSC_CHSL"], subject="GA", name="Their Topic")
+    db_session.add_all([mine, theirs])
+    db_session.flush()
+    paper = _paper(db_session, user, "chsl-2019.pdf", 2019, confirmed=True)
+    _question(db_session, paper, topic=venn, pattern=classes)
+    _question(db_session, paper)  # no topic yet
+
+    gaps = _report(db_client)["not_repeated"]
+    not_seen = {t["name"] for t in gaps["not_seen"]}
+    assert "My Polity" in not_seen  # the learner's own syllabus topic
+    assert "Venn Diagrams" not in not_seen
+    assert "Their Topic" not in not_seen  # another account's topic is never shown
+    venn_types = {
+        g["name"] for g in gaps["patterns_not_seen"] if g["topic_name"] == "Venn Diagrams"
+    }
+    assert "Relationship between classes" not in venn_types
+    assert "Reading a given diagram" in venn_types
+    assert gaps["questions_without_topic"] == 1
+
+
+def test_not_repeated_is_empty_without_papers(db_client: TestClient) -> None:
+    assert _report(db_client)["not_repeated"] == {
+        "not_seen": [],
+        "patterns_not_seen": [],
+        "questions_without_topic": 0,
+    }

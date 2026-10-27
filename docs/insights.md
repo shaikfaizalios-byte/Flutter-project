@@ -87,3 +87,18 @@ sample to build and test the importer against; it will also feed the Radar.
 - Similarity is wording-only and per topic; it is not a semantic match.
 - The Radar needs at least two opted-in learners per shift with confirmed dates and shifts; until then it
   shows nothing. Agreement is on exact counts, so partial reviews withhold numbers rather than guess.
+
+## Not repeated
+
+The same screen has a **Repeated / Not repeated** switch. "Not repeated" shows, for the current exam and
+the same papers (yours or the shared bank):
+
+- **Syllabus topics not seen**: topics of the exam (shared and your own) that no question in these papers
+  has, confirmed or suggested. "Study" opens the topic in the Study tab.
+- **Topics that came in only one paper** (reviewed questions only).
+- **Question types not seen yet** for the topics that did come.
+
+It always says what it is based on and that it is **not a prediction**: a topic missing from a few papers
+can still be asked. Questions without a topic are counted, because some of them may belong to a topic
+listed as not seen.
+

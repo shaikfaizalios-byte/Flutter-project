@@ -953,5 +953,18 @@
   "importFailedNotice": "{file} पढ़ा नहीं जा सका। कारण देखने के लिए अपने पेपर खोलें।",
   "importReview": "देखें",
   "importOpenPapers": "खोलें",
-  "importOnHome": "{file} जोड़ा जा रहा है: {status}"
+  "importOnHome": "{file} जोड़ा जा रहा है: {status}",
+  "repeatsKindRepeated": "दोहराए गए",
+  "repeatsKindNotRepeated": "न दोहराए गए",
+  "notRepeatedWhatTitle": "इन पेपरों में क्या नहीं पूछा गया",
+  "notRepeatedNotAPrediction": "यह सिर्फ़ ऊपर गिने गए पेपरों के बारे में है। यह कोई भविष्यवाणी नहीं: जो टॉपिक इन पेपरों में नहीं आया, वह फिर भी पूछा जा सकता है। कम पेपरों पर यहाँ कई टॉपिक दिखेंगे।",
+  "notRepeatedWithoutTopic": "{count, plural, =1{1 प्रश्न का अभी कोई टॉपिक नहीं, इसलिए वह नीचे के किसी टॉपिक का हो सकता है। उसके पेपर की समीक्षा स्क्रीन पर टॉपिक दें।} other{{count} प्रश्नों का अभी कोई टॉपिक नहीं, इसलिए कुछ नीचे के टॉपिक के हो सकते हैं। हर पेपर की समीक्षा स्क्रीन पर टॉपिक दें।}}",
+  "notRepeatedNotSeenTitle": "{count, plural, =0{सिलेबस के टॉपिक जो नहीं आए} =1{सिलेबस का 1 टॉपिक नहीं आया} other{सिलेबस के {count} टॉपिक नहीं आए}}",
+  "notRepeatedNoSyllabus": "अपना सिलेबस जोड़ें, ताकि दिखे कि उसके कौन से टॉपिक आपके पेपरों में नहीं आए।",
+  "notRepeatedAllSeen": "सिलेबस का हर टॉपिक इन पेपरों में कम से कम एक बार आया है।",
+  "notRepeatedStudy": "पढ़ें",
+  "notRepeatedOnceTitle": "{count, plural, =1{1 टॉपिक सिर्फ़ एक पेपर में आया} other{{count} टॉपिक सिर्फ़ एक पेपर में आए}}",
+  "notRepeatedOnceNote": "एक बार पूछा गया, बाकी पेपरों में नहीं दोहराया गया (सिर्फ़ समीक्षा किए गए प्रश्न)।",
+  "notRepeatedTypesTitle": "{count, plural, =1{1 प्रश्न-प्रकार अभी नहीं आया} other{{count} प्रश्न-प्रकार अभी नहीं आए}}",
+  "notRepeatedTypesNote": "जो टॉपिक आए, उनके ज्ञात प्रश्न-प्रकार जिनका इन पेपरों में इस्तेमाल नहीं हुआ।"
 }

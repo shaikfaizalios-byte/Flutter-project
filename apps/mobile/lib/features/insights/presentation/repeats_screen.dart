@@ -18,6 +18,7 @@ import '../domain/radar.dart';
 import '../domain/repeats.dart';
 import 'radar_sharing_card.dart';
 import '../../exams/application/active_exam.dart';
+import '../../concepts/application/concepts_providers.dart';
 
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
 /// Every number states its basis; reviewed counts are kept apart from suggestions.
@@ -31,6 +32,9 @@ class RepeatsScreen extends ConsumerStatefulWidget {
 class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   String? _exam;
   String _view = 'mine'; // mine: your papers · shared: the shared bank · radar: all learners
+
+  /// The other side: what these papers did not ask.
+  bool _notRepeated = false;
 
   RepeatsQuery get _query => (examCode: _exam, scope: _view == 'shared' ? 'shared' : 'mine');
 
@@ -69,6 +73,19 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
                     onSelectionChanged: (s) => setState(() => _view = s.first),
                   ),
                 ),
+                if (view != 'radar')
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: SegmentedButton<bool>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(value: false, label: Text(l10n.repeatsKindRepeated)),
+                        ButtonSegment(value: true, label: Text(l10n.repeatsKindNotRepeated)),
+                      ],
+                      selected: {_notRepeated},
+                      onSelectionChanged: (s) => setState(() => _notRepeated = s.first),
+                    ),
+                  ),
                 if (view == 'radar') ..._radar(context) else ..._own(context),
               ],
             ),
@@ -194,6 +211,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
         ),
       ];
     }
+    if (_notRepeated) return _notRepeatedContent(context, report);
     final reviewed = report.topics.where((t) => t.confirmed.questions > 0).toList();
     final unreviewedOnly = report.topics
         .where((t) => t.confirmed.questions == 0 && t.unreviewed > 0)
@@ -219,6 +237,138 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
         Text(l10n.repeatsSimilarNote, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: AppSpacing.sm),
         for (final group in report.similarGroups) _SimilarCard(group: group, basis: report.papers),
+      ],
+    ];
+  }
+}
+
+extension on _RepeatsScreenState {
+  /// Syllabus topics these papers never asked, topics asked in only one paper, and question
+  /// types not seen yet. Always with its basis and the warning that it is not a prediction.
+  List<Widget> _notRepeatedContent(BuildContext context, RepeatsReport report) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final gaps = report.notRepeated;
+    final small = theme.textTheme.bodySmall;
+    final bySubject = <String, List<TopicRef>>{};
+    for (final t in gaps.notSeen) {
+      bySubject.putIfAbsent(t.subject, () => []).add(t);
+    }
+    final byTopic = <String, List<String>>{};
+    for (final g in gaps.patternsNotSeen) {
+      byTopic.putIfAbsent(g.topicName, () => []).add(g.name);
+    }
+    final once = report.seenOnce;
+
+    void study(TopicRef topic) {
+      ref.read(conceptQueryProvider.notifier)
+        ..setSubject(topic.subject)
+        ..setTopic(topic.name);
+      context.go(AppRoutes.study);
+    }
+
+    return [
+      _BasisCard(basis: report.papers, shared: _view == 'shared'),
+      const SizedBox(height: AppSpacing.md),
+      SectionCard(
+        icon: Icons.info_outline,
+        title: l10n.notRepeatedWhatTitle,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpacing.xs,
+          children: [
+            Text(l10n.notRepeatedNotAPrediction, style: small),
+            if (gaps.questionsWithoutTopic > 0)
+              Text(l10n.notRepeatedWithoutTopic(gaps.questionsWithoutTopic), style: small),
+          ],
+        ),
+      ),
+      const SizedBox(height: AppSpacing.md),
+      SectionCard(
+        icon: Icons.visibility_off_outlined,
+        title: l10n.notRepeatedNotSeenTitle(gaps.notSeen.length),
+        child: gaps.notSeen.isEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    report.topics.isEmpty ? l10n.notRepeatedNoSyllabus : l10n.notRepeatedAllSeen,
+                  ),
+                  if (report.topics.isEmpty && _exam != null)
+                    TextButton(
+                      onPressed: () => context.push(AppRoutes.examTopics(_exam!)),
+                      child: Text(l10n.masteryAddSyllabus),
+                    ),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final entry in bySubject.entries) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.sm),
+                      child: Text(entry.key, style: theme.textTheme.titleSmall),
+                    ),
+                    for (final topic in entry.value)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        title: Text(topic.name),
+                        trailing: TextButton(
+                          onPressed: () => study(topic),
+                          child: Text(l10n.notRepeatedStudy),
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+      ),
+      if (once.isNotEmpty) ...[
+        const SizedBox(height: AppSpacing.md),
+        SectionCard(
+          icon: Icons.looks_one_outlined,
+          title: l10n.notRepeatedOnceTitle(once.length),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.notRepeatedOnceNote, style: small),
+              for (final topic in once)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text('${topic.name}  ·  ${topic.subject}'),
+                  subtitle: topic.confirmed.years.isEmpty
+                      ? null
+                      : Text(l10n.repeatsByYear(_years(topic.confirmed.years))),
+                ),
+            ],
+          ),
+        ),
+      ],
+      if (byTopic.isNotEmpty) ...[
+        const SizedBox(height: AppSpacing.md),
+        SectionCard(
+          icon: Icons.category_outlined,
+          title: l10n.notRepeatedTypesTitle(gaps.patternsNotSeen.length),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.notRepeatedTypesNote, style: small),
+              for (final entry in byTopic.entries)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: '${entry.key}: ', style: theme.textTheme.titleSmall),
+                        TextSpan(text: entry.value.join(' · ')),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     ];
   }

@@ -139,6 +139,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `PUT /documents/{id}/paper-date`; `GET /insights/repeats` counts reviewed topics/patterns per paper and
   confirmed year (unreviewed apart) + wording-similarity groups (`app/domain/similarity.py`, numbers masked).
   Mobile `features/insights` (Practice tab → Repeated models; `RepeatRules` shown in UI). See docs/insights.md.
+  "Not repeated" (same screen, Repeated / Not repeated switch): `RepeatsReport.not_repeated` (exam only) =
+  `not_seen` (visible syllabus topics with no confirmed/suggested question in the counted papers),
+  `patterns_not_seen` (types of topics that did appear) and `questions_without_topic` (some may belong to unseen
+  topics); the app adds topics in exactly one paper (`seenOnce`). Always labelled "not a prediction".
 - Repeat Radar: opt-in (`users.radar_opt_in`) pooling of confirmed topic/pattern counts per confirmed exam
   shift across accounts, read live; pure `app/domain/radar.py` publishes a shift only with >= 2 accounts and a
   count only when >= 2 accounts agree. `GET /radar`, `GET/PUT /radar/settings`; mobile "All learners" view +

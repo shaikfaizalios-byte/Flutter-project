@@ -3582,4 +3582,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String importOnHome(String file, String status) {
     return 'Importing $file: $status';
   }
+
+  @override
+  String get repeatsKindRepeated => 'Repeated';
+
+  @override
+  String get repeatsKindNotRepeated => 'Not repeated';
+
+  @override
+  String get notRepeatedWhatTitle => 'What these papers didn\'t ask';
+
+  @override
+  String get notRepeatedNotAPrediction =>
+      'This only describes the papers counted above. It is not a prediction: a topic that hasn\'t come in these papers can still be asked. With few papers, many topics show up here.';
+
+  @override
+  String notRepeatedWithoutTopic(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count questions have no topic yet, so some may belong to topics below. Give them topics on each paper\'s review screen.',
+      one: '1 question has no topic yet, so it may belong to a topic below. Give it a topic on its paper\'s review screen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notRepeatedNotSeenTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count syllabus topics not seen',
+      one: '1 syllabus topic not seen',
+      zero: 'Syllabus topics not seen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notRepeatedNoSyllabus =>
+      'Add your syllabus to see which of its topics haven\'t come in your papers.';
+
+  @override
+  String get notRepeatedAllSeen => 'Every syllabus topic has come at least once in these papers.';
+
+  @override
+  String get notRepeatedStudy => 'Study';
+
+  @override
+  String notRepeatedOnceTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count topics came in only one paper',
+      one: '1 topic came in only one paper',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notRepeatedOnceNote =>
+      'Asked once and not repeated in the others (reviewed questions only).';
+
+  @override
+  String notRepeatedTypesTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count question types not seen yet',
+      one: '1 question type not seen yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notRepeatedTypesNote =>
+      'Known question types of the topics that did come, which none of these papers used.';
 }

@@ -168,6 +168,65 @@ class PapersBasis {
   final List<int> years;
 }
 
+/// A topic of the exam (name only).
+@immutable
+class TopicRef {
+  const TopicRef({required this.topicId, required this.subject, required this.name});
+
+  factory TopicRef.fromJson(Map<String, dynamic> json) => TopicRef(
+    topicId: json['topic_id'] as String,
+    subject: json['subject'] as String,
+    name: json['name'] as String,
+  );
+
+  final String topicId;
+  final String subject;
+  final String name;
+}
+
+/// A question type of a topic that appeared, never seen in these papers.
+@immutable
+class PatternGap {
+  const PatternGap({required this.topicName, required this.name});
+
+  factory PatternGap.fromJson(Map<String, dynamic> json) =>
+      PatternGap(topicName: json['topic_name'] as String, name: json['name'] as String);
+
+  final String topicName;
+  final String name;
+}
+
+/// What these papers did not ask (for one exam). Not a prediction.
+@immutable
+class NotRepeated {
+  const NotRepeated({
+    this.notSeen = const [],
+    this.patternsNotSeen = const [],
+    this.questionsWithoutTopic = 0,
+  });
+
+  factory NotRepeated.fromJson(Map<String, dynamic>? json) => json == null
+      ? const NotRepeated()
+      : NotRepeated(
+          notSeen: [
+            for (final t in json['not_seen'] as List<dynamic>)
+              TopicRef.fromJson(t as Map<String, dynamic>),
+          ],
+          patternsNotSeen: [
+            for (final g in json['patterns_not_seen'] as List<dynamic>)
+              PatternGap.fromJson(g as Map<String, dynamic>),
+          ],
+          questionsWithoutTopic: json['questions_without_topic'] as int,
+        );
+
+  /// Syllabus topics with no question in these papers.
+  final List<TopicRef> notSeen;
+  final List<PatternGap> patternsNotSeen;
+
+  /// Questions without a topic yet: some may belong to [notSeen] topics.
+  final int questionsWithoutTopic;
+}
+
 @immutable
 class RepeatsReport {
   const RepeatsReport({
@@ -175,6 +234,7 @@ class RepeatsReport {
     this.topics = const [],
     this.similarGroups = const [],
     this.examCode,
+    this.notRepeated = const NotRepeated(),
   });
 
   factory RepeatsReport.fromJson(Map<String, dynamic> json) => RepeatsReport(
@@ -188,12 +248,20 @@ class RepeatsReport {
       for (final g in json['similar_groups'] as List<dynamic>)
         SimilarGroup.fromJson(g as Map<String, dynamic>),
     ],
+    notRepeated: NotRepeated.fromJson(json['not_repeated'] as Map<String, dynamic>?),
   );
 
   final String? examCode;
   final PapersBasis papers;
   final List<TopicRepeat> topics;
   final List<SimilarGroup> similarGroups;
+  final NotRepeated notRepeated;
+
+  /// Topics that came in exactly one of these papers (reviewed questions only).
+  List<TopicRepeat> get seenOnce => [
+    for (final t in topics)
+      if (t.confirmed.papers == 1) t,
+  ];
 }
 
 /// Named, shown-in-the-app rule for calling something "seen in most papers". A product

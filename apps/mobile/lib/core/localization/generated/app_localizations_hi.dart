@@ -3583,4 +3583,81 @@ class AppLocalizationsHi extends AppLocalizations {
   String importOnHome(String file, String status) {
     return '$file जोड़ा जा रहा है: $status';
   }
+
+  @override
+  String get repeatsKindRepeated => 'दोहराए गए';
+
+  @override
+  String get repeatsKindNotRepeated => 'न दोहराए गए';
+
+  @override
+  String get notRepeatedWhatTitle => 'इन पेपरों में क्या नहीं पूछा गया';
+
+  @override
+  String get notRepeatedNotAPrediction =>
+      'यह सिर्फ़ ऊपर गिने गए पेपरों के बारे में है। यह कोई भविष्यवाणी नहीं: जो टॉपिक इन पेपरों में नहीं आया, वह फिर भी पूछा जा सकता है। कम पेपरों पर यहाँ कई टॉपिक दिखेंगे।';
+
+  @override
+  String notRepeatedWithoutTopic(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count प्रश्नों का अभी कोई टॉपिक नहीं, इसलिए कुछ नीचे के टॉपिक के हो सकते हैं। हर पेपर की समीक्षा स्क्रीन पर टॉपिक दें।',
+      one: '1 प्रश्न का अभी कोई टॉपिक नहीं, इसलिए वह नीचे के किसी टॉपिक का हो सकता है। उसके पेपर की समीक्षा स्क्रीन पर टॉपिक दें।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notRepeatedNotSeenTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'सिलेबस के $count टॉपिक नहीं आए',
+      one: 'सिलेबस का 1 टॉपिक नहीं आया',
+      zero: 'सिलेबस के टॉपिक जो नहीं आए',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notRepeatedNoSyllabus =>
+      'अपना सिलेबस जोड़ें, ताकि दिखे कि उसके कौन से टॉपिक आपके पेपरों में नहीं आए।';
+
+  @override
+  String get notRepeatedAllSeen => 'सिलेबस का हर टॉपिक इन पेपरों में कम से कम एक बार आया है।';
+
+  @override
+  String get notRepeatedStudy => 'पढ़ें';
+
+  @override
+  String notRepeatedOnceTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count टॉपिक सिर्फ़ एक पेपर में आए',
+      one: '1 टॉपिक सिर्फ़ एक पेपर में आया',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notRepeatedOnceNote =>
+      'एक बार पूछा गया, बाकी पेपरों में नहीं दोहराया गया (सिर्फ़ समीक्षा किए गए प्रश्न)।';
+
+  @override
+  String notRepeatedTypesTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count प्रश्न-प्रकार अभी नहीं आए',
+      one: '1 प्रश्न-प्रकार अभी नहीं आया',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notRepeatedTypesNote =>
+      'जो टॉपिक आए, उनके ज्ञात प्रश्न-प्रकार जिनका इन पेपरों में इस्तेमाल नहीं हुआ।';
 }

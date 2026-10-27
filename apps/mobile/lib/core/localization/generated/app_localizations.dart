@@ -5816,6 +5816,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Importing {file}: {status}'**
   String importOnHome(String file, String status);
+
+  /// No description provided for @repeatsKindRepeated.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeated'**
+  String get repeatsKindRepeated;
+
+  /// No description provided for @repeatsKindNotRepeated.
+  ///
+  /// In en, this message translates to:
+  /// **'Not repeated'**
+  String get repeatsKindNotRepeated;
+
+  /// No description provided for @notRepeatedWhatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What these papers didn\'t ask'**
+  String get notRepeatedWhatTitle;
+
+  /// No description provided for @notRepeatedNotAPrediction.
+  ///
+  /// In en, this message translates to:
+  /// **'This only describes the papers counted above. It is not a prediction: a topic that hasn\'t come in these papers can still be asked. With few papers, many topics show up here.'**
+  String get notRepeatedNotAPrediction;
+
+  /// No description provided for @notRepeatedWithoutTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 question has no topic yet, so it may belong to a topic below. Give it a topic on its paper\'s review screen.} other{{count} questions have no topic yet, so some may belong to topics below. Give them topics on each paper\'s review screen.}}'**
+  String notRepeatedWithoutTopic(int count);
+
+  /// No description provided for @notRepeatedNotSeenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Syllabus topics not seen} =1{1 syllabus topic not seen} other{{count} syllabus topics not seen}}'**
+  String notRepeatedNotSeenTitle(int count);
+
+  /// No description provided for @notRepeatedNoSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your syllabus to see which of its topics haven\'t come in your papers.'**
+  String get notRepeatedNoSyllabus;
+
+  /// No description provided for @notRepeatedAllSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Every syllabus topic has come at least once in these papers.'**
+  String get notRepeatedAllSeen;
+
+  /// No description provided for @notRepeatedStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Study'**
+  String get notRepeatedStudy;
+
+  /// No description provided for @notRepeatedOnceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 topic came in only one paper} other{{count} topics came in only one paper}}'**
+  String notRepeatedOnceTitle(int count);
+
+  /// No description provided for @notRepeatedOnceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked once and not repeated in the others (reviewed questions only).'**
+  String get notRepeatedOnceNote;
+
+  /// No description provided for @notRepeatedTypesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 question type not seen yet} other{{count} question types not seen yet}}'**
+  String notRepeatedTypesTitle(int count);
+
+  /// No description provided for @notRepeatedTypesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Known question types of the topics that did come, which none of these papers used.'**
+  String get notRepeatedTypesNote;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

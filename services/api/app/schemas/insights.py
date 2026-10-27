@@ -64,6 +64,31 @@ class PapersBasis(BaseModel):
     years: list[int]  # confirmed years present
 
 
+class TopicRef(BaseModel):
+    topic_id: uuid.UUID
+    subject: str
+    name: str
+
+
+class PatternGap(BaseModel):
+    pattern_id: uuid.UUID
+    topic_id: uuid.UUID
+    topic_name: str
+    name: str
+
+
+class NotRepeated(BaseModel):
+    """The other side of repeats, for one exam: what these papers did not ask. Not a
+    prediction: a topic missing from a few papers can still be asked."""
+
+    # Topics of the exam (shared + the learner's own) with no question in these papers.
+    not_seen: list[TopicRef] = []
+    # Question types of topics that did appear, never seen in these papers.
+    patterns_not_seen: list[PatternGap] = []
+    # Questions without a topic yet: some may belong to topics listed as not seen.
+    questions_without_topic: int = 0
+
+
 class RepeatsReport(BaseModel):
     exam_code: str | None
     # Which papers were counted: the learner's own, the shared bank, or both.
@@ -72,3 +97,4 @@ class RepeatsReport(BaseModel):
     topics: list[TopicRepeat]
     similar_groups: list[SimilarGroup]
     similarity_threshold: float
+    not_repeated: NotRepeated = NotRepeated()
