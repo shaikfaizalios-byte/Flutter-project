@@ -23,6 +23,7 @@ from app.models.question import (
     Topic,
     VerificationStatus,
 )
+from app.schemas.insights import SharedBankExam
 
 RIGHTS_MAX = 500
 
@@ -124,3 +125,22 @@ def shared_documents(session: Session) -> list[Document]:
             select(Document).where(Document.shared_at.is_not(None)).order_by(Document.shared_at)
         )
     )
+
+
+def exams_summary(session: Session) -> list[SharedBankExam]:
+    """Per exam: shared papers and their verified questions (what other learners can see)."""
+    rows = session.execute(
+        select(
+            Document.exam_code,
+            func.count(func.distinct(Document.id)),
+            func.count(Question.id),
+        )
+        .join(Question, and_(Question.document_id == Document.id, shared_question()), isouter=True)
+        .where(Document.shared_at.is_not(None))
+        .group_by(Document.exam_code)
+        .order_by(Document.exam_code)
+    ).all()
+    return [
+        SharedBankExam(exam_code=code, papers=papers, questions=questions)
+        for code, papers, questions in rows
+    ]

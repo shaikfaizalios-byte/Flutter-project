@@ -3660,4 +3660,46 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get notRepeatedTypesNote =>
       'जो टॉपिक आए, उनके ज्ञात प्रश्न-प्रकार जिनका इन पेपरों में इस्तेमाल नहीं हुआ।';
+
+  @override
+  String get starterTitle => 'शुरुआती पेपर';
+
+  @override
+  String starterReady(int papers, String exam, int questions) {
+    String _temp0 = intl.Intl.pluralLogic(
+      papers,
+      locale: localeName,
+      other: '$exam के $papers पिछले पेपर अभ्यास के लिए तैयार हैं: $questions जाँचे गए प्रश्न।',
+      one: '$exam का 1 पिछला पेपर अभ्यास के लिए तैयार है: $questions जाँचे गए प्रश्न।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get starterPractise => 'अभ्यास करें';
+
+  @override
+  String get starterRepeats => 'दोहराए जाने वाले टॉपिक';
+
+  @override
+  String starterSeeShared(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count शुरुआती पेपर देखें',
+      one: '1 शुरुआती पेपर देखें',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starterPapersShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पेपर',
+      one: '1 पेपर',
+    );
+    return '$_temp0';
+  }
 }

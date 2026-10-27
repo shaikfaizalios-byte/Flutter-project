@@ -168,6 +168,22 @@ class PapersBasis {
   final List<int> years;
 }
 
+/// Starter papers: what the shared bank holds for one exam (verified questions only).
+@immutable
+class SharedBankExam {
+  const SharedBankExam({required this.examCode, required this.papers, required this.questions});
+
+  factory SharedBankExam.fromJson(Map<String, dynamic> json) => SharedBankExam(
+    examCode: json['exam_code'] as String,
+    papers: json['papers'] as int,
+    questions: json['questions'] as int,
+  );
+
+  final String examCode;
+  final int papers;
+  final int questions;
+}
+
 /// A topic of the exam (name only).
 @immutable
 class TopicRef {

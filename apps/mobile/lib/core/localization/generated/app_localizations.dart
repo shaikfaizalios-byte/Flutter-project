@@ -5894,6 +5894,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Known question types of the topics that did come, which none of these papers used.'**
   String get notRepeatedTypesNote;
+
+  /// No description provided for @starterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter papers'**
+  String get starterTitle;
+
+  /// No description provided for @starterReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{papers, plural, =1{1 previous {exam} paper is ready to practise: {questions} checked questions.} other{{papers} previous {exam} papers are ready to practise: {questions} checked questions.}}'**
+  String starterReady(int papers, String exam, int questions);
+
+  /// No description provided for @starterPractise.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise'**
+  String get starterPractise;
+
+  /// No description provided for @starterRepeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics that repeat'**
+  String get starterRepeats;
+
+  /// No description provided for @starterSeeShared.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{See 1 starter paper} other{See {count} starter papers}}'**
+  String starterSeeShared(int count);
+
+  /// No description provided for @starterPapersShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 paper} other{{count} papers}}'**
+  String starterPapersShort(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -21,6 +21,9 @@ abstract final class AppRoutes {
   static const bookmarks = '/practice/bookmarks';
   static const incorrect = '/practice/incorrect';
   static const repeats = '/practice/repeats';
+
+  /// Repeated models of the shared bank (the starter papers).
+  static const repeatsShared = '/practice/repeats?view=shared';
   static const progress = '/progress';
   static const weeklyReview = '/progress/week';
   static const profile = '/profile';

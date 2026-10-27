@@ -3659,4 +3659,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notRepeatedTypesNote =>
       'Known question types of the topics that did come, which none of these papers used.';
+
+  @override
+  String get starterTitle => 'Starter papers';
+
+  @override
+  String starterReady(int papers, String exam, int questions) {
+    String _temp0 = intl.Intl.pluralLogic(
+      papers,
+      locale: localeName,
+      other: '$papers previous $exam papers are ready to practise: $questions checked questions.',
+      one: '1 previous $exam paper is ready to practise: $questions checked questions.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get starterPractise => 'Practise';
+
+  @override
+  String get starterRepeats => 'Topics that repeat';
+
+  @override
+  String starterSeeShared(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'See $count starter papers',
+      one: 'See 1 starter paper',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starterPapersShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count papers',
+      one: '1 paper',
+    );
+    return '$_temp0';
+  }
 }

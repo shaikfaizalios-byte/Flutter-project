@@ -5510,6 +5510,30 @@
         "title": "SessionSummary",
         "type": "object"
       },
+      "SharedBankExam": {
+        "description": "Starter papers: what the shared bank holds for one exam (verified questions only).",
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "papers": {
+            "title": "Papers",
+            "type": "integer"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "exam_code",
+          "papers",
+          "questions"
+        ],
+        "title": "SharedBankExam",
+        "type": "object"
+      },
       "SimilarGroup": {
         "description": "Questions worded alike (numbers ignored) in different papers. A suggestion based on\nwording only, not a reviewed classification.",
         "properties": {
@@ -10166,6 +10190,46 @@
           }
         ],
         "summary": "How often each topic and question pattern appeared in your papers, the shared bank, or both",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/insights/shared-bank": {
+      "get": {
+        "operationId": "shared_bank_exams_api_v1_insights_shared_bank_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SharedBankExam"
+                  },
+                  "title": "Response Shared Bank Exams Api V1 Insights Shared Bank Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Starter papers: shared papers and verified questions per exam",
         "tags": [
           "insights"
         ]

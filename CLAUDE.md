@@ -219,7 +219,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   read (`read_only`, `shared_source`; publisher file name hidden), figures, history, repeats (`scope=mine|shared|all`).
   Edits/reports/bookmarks stay owner-only. Mobile: "Shared bank" labels, read-only question view, Repeats
   "Shared bank" view. `POST /documents/{id}/questions/verify-clean` verifies questions needing no review.
-  See docs/shared-bank.md.
+  See docs/shared-bank.md. Starter papers (docs/starter-papers.md): `python -m app.cli.starter_papers
+  import|status|publish FOLDER` (folder of official PDFs + `manifest.json` with operator, exam, source, rights,
+  optional date/shift; imports into the operator account, skips same-content files, publishes only reviewed
+  papers). `GET /insights/shared-bank` = papers + verified questions per exam → mobile `sharedBankProvider`:
+  Home "Starter papers" card (while the learner has no own papers; Practise / Topics that repeat →
+  `AppRoutes.repeatsShared`), Repeated models empty state button, paper counts on the exam chips.
 - Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
   in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and

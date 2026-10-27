@@ -966,5 +966,11 @@
   "notRepeatedOnceTitle": "{count, plural, =1{1 टॉपिक सिर्फ़ एक पेपर में आया} other{{count} टॉपिक सिर्फ़ एक पेपर में आए}}",
   "notRepeatedOnceNote": "एक बार पूछा गया, बाकी पेपरों में नहीं दोहराया गया (सिर्फ़ समीक्षा किए गए प्रश्न)।",
   "notRepeatedTypesTitle": "{count, plural, =1{1 प्रश्न-प्रकार अभी नहीं आया} other{{count} प्रश्न-प्रकार अभी नहीं आए}}",
-  "notRepeatedTypesNote": "जो टॉपिक आए, उनके ज्ञात प्रश्न-प्रकार जिनका इन पेपरों में इस्तेमाल नहीं हुआ।"
+  "notRepeatedTypesNote": "जो टॉपिक आए, उनके ज्ञात प्रश्न-प्रकार जिनका इन पेपरों में इस्तेमाल नहीं हुआ।",
+  "starterTitle": "शुरुआती पेपर",
+  "starterReady": "{papers, plural, =1{{exam} का 1 पिछला पेपर अभ्यास के लिए तैयार है: {questions} जाँचे गए प्रश्न।} other{{exam} के {papers} पिछले पेपर अभ्यास के लिए तैयार हैं: {questions} जाँचे गए प्रश्न।}}",
+  "starterPractise": "अभ्यास करें",
+  "starterRepeats": "दोहराए जाने वाले टॉपिक",
+  "starterSeeShared": "{count, plural, =1{1 शुरुआती पेपर देखें} other{{count} शुरुआती पेपर देखें}}",
+  "starterPapersShort": "{count, plural, =1{1 पेपर} other{{count} पेपर}}"
 }

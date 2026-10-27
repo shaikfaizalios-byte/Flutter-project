@@ -10,6 +10,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../application/exam_catalog_controller.dart';
+import '../../insights/data/insights_repository.dart';
 
 /// Multi-select exams: featured and chosen ones as chips, every other exam (and creating
 /// one's own) behind "More exams".
@@ -23,6 +24,7 @@ class ExamSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final catalog = ref.watch(examCatalogProvider);
+    final starter = ref.watch(sharedBankProvider).value ?? const {};
     final shown = [
       for (final e in catalog)
         if (e.featured || selected.contains(e.code)) e,
@@ -36,7 +38,18 @@ class ExamSelector extends ConsumerWidget {
       children: [
         for (final exam in shown)
           FilterChip(
-            label: Text(exam.shortName),
+            label: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(exam.shortName),
+                // Exams with starter papers: something to practise right away.
+                if ((starter[exam.code]?.papers ?? 0) > 0)
+                  Text(
+                    ' · ${l10n.starterPapersShort(starter[exam.code]!.papers)}',
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+              ],
+            ),
             selected: selected.contains(exam.code),
             onSelected: (on) => onChanged(_ordered(catalog, selected, exam.code, on)),
           ),

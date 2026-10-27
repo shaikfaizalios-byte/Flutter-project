@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, Query
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
 from app.schemas.errors import ErrorResponse
-from app.schemas.insights import RepeatsReport
+from app.schemas.insights import RepeatsReport, SharedBankExam
+from app.services import shared_bank
 from app.services.insights_service import InsightsService
 
 router = APIRouter(
@@ -38,3 +39,12 @@ def repeats(
     ] = "mine",
 ) -> RepeatsReport:
     return service.repeats(exam, scope)
+
+
+@router.get(
+    "/insights/shared-bank",
+    response_model=list[SharedBankExam],
+    summary="Starter papers: shared papers and verified questions per exam",
+)
+def shared_bank_exams(session: DbSession) -> list[SharedBankExam]:
+    return shared_bank.exams_summary(session)

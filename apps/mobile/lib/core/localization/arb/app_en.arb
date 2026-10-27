@@ -2186,5 +2186,14 @@
   "notRepeatedOnceNote": "Asked once and not repeated in the others (reviewed questions only).",
   "notRepeatedTypesTitle": "{count, plural, =1{1 question type not seen yet} other{{count} question types not seen yet}}",
   "@notRepeatedTypesTitle": {"placeholders": {"count": {"type": "int"}}},
-  "notRepeatedTypesNote": "Known question types of the topics that did come, which none of these papers used."
+  "notRepeatedTypesNote": "Known question types of the topics that did come, which none of these papers used.",
+  "starterTitle": "Starter papers",
+  "starterReady": "{papers, plural, =1{1 previous {exam} paper is ready to practise: {questions} checked questions.} other{{papers} previous {exam} papers are ready to practise: {questions} checked questions.}}",
+  "@starterReady": {"placeholders": {"papers": {"type": "int"}, "exam": {"type": "String"}, "questions": {"type": "int"}}},
+  "starterPractise": "Practise",
+  "starterRepeats": "Topics that repeat",
+  "starterSeeShared": "{count, plural, =1{See 1 starter paper} other{See {count} starter papers}}",
+  "@starterSeeShared": {"placeholders": {"count": {"type": "int"}}},
+  "starterPapersShort": "{count, plural, =1{1 paper} other{{count} papers}}",
+  "@starterPapersShort": {"placeholders": {"count": {"type": "int"}}}
 }

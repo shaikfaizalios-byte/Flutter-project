@@ -98,3 +98,11 @@ class RepeatsReport(BaseModel):
     similar_groups: list[SimilarGroup]
     similarity_threshold: float
     not_repeated: NotRepeated = NotRepeated()
+
+
+class SharedBankExam(BaseModel):
+    """Starter papers: what the shared bank holds for one exam (verified questions only)."""
+
+    exam_code: str
+    papers: int
+    questions: int

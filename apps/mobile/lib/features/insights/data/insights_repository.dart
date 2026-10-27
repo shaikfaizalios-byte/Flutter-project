@@ -15,6 +15,9 @@ abstract interface class InsightsRepository {
   /// Pooled over learners who share their counts (the Repeat Radar).
   Future<RadarReport> radar({String? examCode});
 
+  /// Starter papers per exam (the shared bank's papers and verified questions).
+  Future<List<SharedBankExam>> sharedBank();
+
   Future<RadarSettings> radarSettings();
 
   Future<RadarSettings> setRadarShare({required bool share});
@@ -32,6 +35,12 @@ class RemoteInsightsRepository implements InsightsRepository {
       queryParameters: {'exam': ?examCode, 'scope': scope},
     );
     return RepeatsReport.fromJson(response.data!);
+  });
+
+  @override
+  Future<List<SharedBankExam>> sharedBank() => _guard(() async {
+    final response = await _dio.get<List<dynamic>>('/api/v1/insights/shared-bank');
+    return [for (final e in response.data!) SharedBankExam.fromJson(e as Map<String, dynamic>)];
   });
 
   @override
@@ -91,3 +100,14 @@ final radarSettingsProvider = FutureProvider.autoDispose<RadarSettings>(
   (ref) => ref.watch(insightsRepositoryProvider).radarSettings(),
   retry: _noRetry,
 );
+
+/// Starter papers by exam code (empty offline or when nothing is shared).
+final sharedBankProvider = FutureProvider.autoDispose<Map<String, SharedBankExam>>((ref) async {
+  try {
+    return {
+      for (final e in await ref.watch(insightsRepositoryProvider).sharedBank()) e.examCode: e,
+    };
+  } on AppFailure {
+    return const {};
+  }
+}, retry: _noRetry);

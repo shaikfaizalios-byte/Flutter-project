@@ -204,7 +204,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'repeats',
                     parentNavigatorKey: _rootNavigatorKey,
-                    builder: (context, state) => const RepeatsScreen(),
+                    builder: (context, state) => RepeatsScreen(
+                      initialView: state.uri.queryParameters['view'] == 'shared'
+                          ? 'shared'
+                          : 'mine',
+                    ),
                   ),
                   GoRoute(
                     path: 'sessions/:id',

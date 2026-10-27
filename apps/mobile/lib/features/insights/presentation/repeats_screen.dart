@@ -23,7 +23,10 @@ import '../../concepts/application/concepts_providers.dart';
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
 /// Every number states its basis; reviewed counts are kept apart from suggestions.
 class RepeatsScreen extends ConsumerStatefulWidget {
-  const RepeatsScreen({super.key});
+  const RepeatsScreen({super.key, this.initialView = 'mine'});
+
+  /// 'mine' (your papers) or 'shared' (the shared bank's starter papers).
+  final String initialView;
 
   @override
   ConsumerState<RepeatsScreen> createState() => _RepeatsScreenState();
@@ -31,7 +34,7 @@ class RepeatsScreen extends ConsumerStatefulWidget {
 
 class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   String? _exam;
-  String _view = 'mine'; // mine: your papers · shared: the shared bank · radar: all learners
+  late String _view = widget.initialView; // mine · shared: the shared bank · radar: all learners
 
   /// The other side: what these papers did not ask.
   bool _notRepeated = false;
@@ -198,15 +201,30 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
       ];
     }
     if (report.papers.total == 0) {
+      final starter = ref.watch(sharedBankProvider).value?[_exam];
       return [
         EmptyState(
           icon: Icons.insights_outlined,
           title: l10n.repeatsEmptyTitle,
           message: l10n.repeatsEmptyMessage,
-          action: FilledButton.icon(
-            icon: const Icon(Icons.upload_file),
-            label: Text(l10n.repeatsImportPapers),
-            onPressed: () => context.push(AppRoutes.documents),
+          action: Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            alignment: WrapAlignment.center,
+            children: [
+              // No papers of your own yet: the starter papers already show what repeats.
+              if (starter != null && starter.papers > 0)
+                FilledButton.icon(
+                  icon: const Icon(Icons.public),
+                  label: Text(l10n.starterSeeShared(starter.papers)),
+                  onPressed: () => setState(() => _view = 'shared'),
+                ),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.upload_file),
+                label: Text(l10n.repeatsImportPapers),
+                onPressed: () => context.push(AppRoutes.documents),
+              ),
+            ],
           ),
         ),
       ];

@@ -30,6 +30,12 @@ class FakeInsightsRepository implements InsightsRepository {
     return scope == 'shared' ? sharedReport : report;
   }
 
+  /// Starter papers per exam (the shared bank's summary); none by default.
+  List<SharedBankExam> sharedSummary = const [];
+
+  @override
+  Future<List<SharedBankExam>> sharedBank() async => sharedSummary;
+
   @override
   Future<RadarReport> radar({String? examCode}) async => radarReport;
 

@@ -19,6 +19,12 @@ import '../../study_plan/domain/study_profile.dart';
 import '../../exams/presentation/exam_switcher.dart';
 import '../../exams/application/active_exam.dart';
 import '../../focus/presentation/focus_widgets.dart';
+import '../../documents/application/documents_providers.dart';
+import '../../insights/data/insights_repository.dart';
+import '../../practice/application/practice_providers.dart';
+import '../../practice/domain/practice_models.dart';
+import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
+import '../../analytics/domain/study_plan.dart';
 import '../../documents/presentation/import_progress.dart';
 import '../../../app/app_features.dart';
 import '../../weekly_review/application/weekly_review_providers.dart';
@@ -159,6 +165,8 @@ class _TodayCard extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sm),
         // Papers still being imported: their step and progress.
         ImportsInProgress(color: onCard),
+        // No papers of your own yet: start from the starter papers.
+        const _StarterPapers(),
         switch (plan) {
           AsyncData(:final value) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -220,6 +228,78 @@ class _TodayCard extends ConsumerWidget {
         ],
         Divider(height: AppSpacing.lg, color: onCard.withValues(alpha: 0.2)),
       ],
+    );
+  }
+}
+
+/// The shared bank's starter papers for the current exam, offered while the learner has no
+/// papers of their own: practise them now, or see which topics repeat in them.
+class _StarterPapers extends ConsumerWidget {
+  const _StarterPapers();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final exam = ref.watch(activeExamProvider);
+    final starter = exam == null ? null : ref.watch(sharedBankProvider).value?[exam];
+    if (starter == null || starter.papers == 0) return const SizedBox.shrink();
+    // Only asked when there are starter papers to offer.
+    final own = ref.watch(documentListProvider).value;
+    if (own == null || own.isNotEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Material(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm + 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.public, color: theme.colorScheme.primary),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: Text(l10n.starterTitle, style: theme.textTheme.titleSmall)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                l10n.starterReady(
+                  starter.papers,
+                  ref.watch(examNameProvider(exam!)),
+                  starter.questions,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  FilledButton.icon(
+                    icon: const Icon(Icons.quiz_outlined),
+                    label: Text(l10n.starterPractise),
+                    onPressed: () => startAndOpen(
+                      context,
+                      () => ref
+                          .read(practiceRepositoryProvider)
+                          .startPractice(
+                            PracticeRequest(examCode: exam, count: PlanRules.practiceQuestions),
+                          ),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.repeat),
+                    label: Text(l10n.starterRepeats),
+                    onPressed: () => context.push(AppRoutes.repeatsShared),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
