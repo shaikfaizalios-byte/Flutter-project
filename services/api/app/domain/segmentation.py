@@ -176,9 +176,22 @@ KNOWN_SECTION_HEADINGS = {
     "मात्रात्मक योग्यता",
     "अंग्रेजी भाषा",
 }
+# The first line of a solved paper's explanation: "1. Option (3) is correct." After an
+# answer key it starts the explanations even without their heading.
+EXPLANATION_START = re.compile(
+    r"^\d{1,3}\s*[.)]\s*(?:option|ans(?:wer)?)\s*\(?\s*(?:[1-9]|[a-eA-E])\s*\)?\s+is\s+"
+    r"(?:the\s+)?correct\b",
+    re.IGNORECASE,
+)
+# Key entries on one line that make it an answer-key row, wherever it appears.
+KEY_ROW_MIN_ENTRIES = 3
 ANSWER_KEY_HEADING = re.compile(r"^(?:answer\s*key|answers|उत्तर\s*कुंजी)\b", re.IGNORECASE)
 # A heading-only line ("Solutions", "Explanations:"); "Sol: x = 5" is an inline explanation.
-EXPLANATION_HEADING = re.compile(r"^(?:explanations?|solutions?|हल|व्याख्या)\s*:?\s*$", re.IGNORECASE)
+# "Answers with Explanations" (solved papers) starts the explanations too, not another key.
+EXPLANATION_HEADING = re.compile(
+    r"^(?:(?:answers?\s+(?:with|and|&)\s+)?(?:explanations?|solutions?)|हल|व्याख्या)\s*:?\s*$",
+    re.IGNORECASE,
+)
 PASSAGE_RANGE = re.compile(
     r"(?:questions?|q\.?\s*nos?\.?|प्रश्न(?:ों)?\s*(?:संख्या)?)\s*\(?(\d{1,3})\)?\s*"
     rf"(?:{_DASH}|to|से|and|तक)\s*\(?(\d{{1,3}})\)?",
@@ -308,6 +321,9 @@ def section_heading(line: str, extra: frozenset[str] = frozenset()) -> str | Non
         label, rest = match.group(1), match.group(2).strip(f" :.{_DASHES}")
         if len(rest) > 60:
             return None  # a sentence that happens to start with "Part", not a heading
+        # "Part II, "Citizenship" (Articles 5-11) ..." or "Part of the ..." continue a sentence.
+        if match.group(2).startswith(",") or (label is None and rest[:1].islower()):
+            return None
         return rest or f"Section {label}"
     return None
 
@@ -424,7 +440,7 @@ def _handle_line(state: _State, line: _Line) -> None:
     text = line.text
 
     # Mode switches: answer key / explanation sections.
-    if len(text) <= 60 and ANSWER_KEY_HEADING.match(text):
+    if len(text) <= 60 and ANSWER_KEY_HEADING.match(text) and not EXPLANATION_HEADING.match(text):
         state.finish_question()
         state.passage = None
         state.mode = "answer_key"
@@ -445,11 +461,16 @@ def _handle_line(state: _State, line: _Line) -> None:
     if EXPLANATION_HEADING.match(text) and not _explains_current(state) and not in_solution:
         if not state.questions and state.current is None:
             return  # a title ("... Question Paper with / Solutions"), not a solutions section
+        if state.mode == "answer_key":
+            _flush_key_table(state)
         state.finish_question()
         state.passage = None
         state.mode = "explanations"
         return
 
+    if state.mode == "answer_key" and EXPLANATION_START.match(text):
+        _flush_key_table(state)
+        state.mode = "explanations"
     if state.mode == "answer_key":
         pairs = _key_pairs(text)
         if pairs:
@@ -464,6 +485,12 @@ def _handle_line(state: _State, line: _Line) -> None:
         state.mode = "questions"
 
     if state.mode == "explanations":
+        # Two-column solved papers continue the answer key between the explanations
+        # ("51. (3) 52. (2) 53. (1) ..."): a row of several key entries is key, not explanation.
+        pairs = _key_pairs(text)
+        if len(pairs) >= KEY_ROW_MIN_ENTRIES and not re.search(r"\w", KEY_PAIR.sub("", text)):
+            state.key_entries.extend(pairs)
+            return
         start = strong_start(text) or WEAK_QUESTION.match(text)
         if start:
             state.explanation_target = int(start.group(1))

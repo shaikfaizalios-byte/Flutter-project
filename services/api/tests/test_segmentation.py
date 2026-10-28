@@ -671,3 +671,72 @@ def test_answer_text_matching_no_option_is_kept_for_review() -> None:
     (q1,) = result.questions
     assert q1.answer_position is None
     assert next((i.code, i.detail) for i in q1.issues) == (IssueCode.UNRECOGNISED_ANSWER, "purple")
+
+
+# A solved-paper layout (numbered questions and options, an answer key split across columns,
+# then "Answers with Explanations"); synthetic text, not a real paper.
+SOLVED_PAPER = """
+    General Awareness
+    1. Which article of the Constitution deals with citizenship law?
+    1. Article 5 2. Article 9 3. Article 11 4. Article 14
+    2. Which planet is known as the red planet?
+    1. Venus 2. Mars 3. Jupiter 4. Saturn
+    3. What is the chemical symbol of gold?
+    1. Ag 2. Au 3. Gd 4. Go
+    4. Which gas do plants take in for photosynthesis?
+    1. Oxygen 2. Nitrogen 3. Carbon dioxide 4. Helium
+    Answer Key
+    1. (3)
+    Answers with Explanations
+    1. Option (3) is correct.
+    Parliament regulates citizenship by law, as set out in
+    Part II, "Citizenship" (Articles 5-11). Parliament can make
+    provisions for acquiring and ending citizenship.
+    2. (2) 3. (2) 4. (3)
+    2. Option (2) is correct.
+    Mars looks red because of iron oxide on its surface.
+    3. Option (2) is correct.
+    Au comes from the Latin word aurum.
+    4. Option (3) is correct.
+    Part of the light energy is stored as sugar.
+"""
+
+
+def test_solved_paper_explanations_and_a_key_continued_between_them() -> None:
+    result = run(SOLVED_PAPER)
+
+    # The explanations are not read as more questions, and no sentence becomes a section.
+    assert [q.number for q in result.questions] == [1, 2, 3, 4]
+    assert result.sections == ["General Awareness"]
+    assert [q.answer_position for q in result.questions] == [3, 2, 2, 3]
+    assert not result.document_issues
+    assert "Part II" in (by_number(result, 1).explanation or "")
+    assert (by_number(result, 4).explanation or "").endswith("stored as sugar.")
+
+
+def test_a_sentence_starting_with_part_is_not_a_section_heading() -> None:
+    result = run(
+        """
+        Section A
+        Q.1 Part of the answer is given. Pick the rest.
+        (1) a (2) b (3) c (4) d
+        Part II, Article 11 says so.
+        Part B
+        Q.2 Pick one.
+        (1) a (2) b (3) c (4) d
+        """
+    )
+    assert result.sections == ["Section A", "Section B"]
+    assert by_number(result, 1).section == "Section A"
+
+
+def test_explanations_start_after_the_key_even_without_their_heading() -> None:
+    # The heading can be missing from the page text (drawn as a banner, or lost in layout).
+    paper = SOLVED_PAPER.replace("    Answers with Explanations\n", "")
+    result = run(paper)
+
+    assert [q.number for q in result.questions] == [1, 2, 3, 4]
+    assert [q.answer_position for q in result.questions] == [3, 2, 2, 3]
+    assert not any(
+        i.code == IssueCode.CONFLICTING_ANSWERS for q in result.questions for i in q.issues
+    )
