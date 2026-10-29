@@ -3,7 +3,12 @@ from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
-from app.domain.ai_content import MAX_EXPLANATION, MAX_GENERATED, QUICK_ANSWER_MAX_QUERY
+from app.domain.ai_content import (
+    MAX_EXPLANATION,
+    MAX_GENERATED,
+    QUICK_ANSWER_MAX_QUERY,
+    TOPIC_NAME_MAX,
+)
 from app.schemas.question import AIExplanationRead, QuestionRead
 
 
@@ -185,4 +190,60 @@ class SearchAnswer(BaseModel):
     confident: bool
     sources: list[SearchAnswerSource]
     model: str | None  # null when no AI call was needed (no matching material)
+    prompt_version: str
+
+
+class TopicRequest(BaseModel):
+    """A topic to learn or be tested on: any name (a syllabus topic or typed by the learner)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    exam_code: Annotated[str, StringConstraints(min_length=1, max_length=32)]
+    topic: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=2, max_length=TOPIC_NAME_MAX)
+    ]
+    subject: (
+        Annotated[
+            str, StringConstraints(strip_whitespace=True, min_length=1, max_length=TOPIC_NAME_MAX)
+        ]
+        | None
+    ) = None
+    language: Literal["en", "hi"] = "en"
+
+
+class TopicLessonRead(BaseModel):
+    """A short AI lesson on a topic. Not stored and not checked by anyone."""
+
+    topic: str
+    subject: str | None
+    overview: str
+    key_points: list[str]
+    example_question: str | None
+    example_answer: str | None
+    common_mistakes: list[str]
+    confident: bool
+    model: str
+    prompt_version: str
+
+
+class TopicQuizRequest(TopicRequest):
+    count: int = Field(default=MAX_GENERATED, ge=3, le=MAX_GENERATED)
+
+
+class QuizQuestionRead(BaseModel):
+    stem: str
+    options: list[str]
+    correct_option: int  # 1-based
+    explanation: str
+
+
+class TopicQuizRead(BaseModel):
+    """AI questions to check a topic. Not stored: the app marks them on the device and never
+    counts them as practice or progress."""
+
+    topic: str
+    subject: str | None
+    questions: list[QuizQuestionRead]
+    rejected: int
+    model: str
     prompt_version: str

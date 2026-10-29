@@ -33,6 +33,9 @@ import 'app_shell.dart';
 import 'routes.dart';
 import '../features/feedback/presentation/suggestions_screen.dart';
 import '../features/plus/presentation/plus_screen.dart';
+import '../features/ai/data/ai_repository.dart';
+import '../features/learn/presentation/topic_lesson_screen.dart';
+import '../features/learn/presentation/topic_quiz_screen.dart';
 
 export 'routes.dart';
 
@@ -107,6 +110,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           examCode: state.pathParameters['code']!,
           importSyllabus: state.uri.queryParameters['syllabus'] == '1',
         ),
+      ),
+      GoRoute(
+        path: '/learn/lesson',
+        builder: (context, state) => TopicLessonScreen(choice: _topicChoice(state)),
+      ),
+      GoRoute(
+        path: '/learn/quiz',
+        builder: (context, state) => TopicQuizScreen(choice: _topicChoice(state)),
       ),
       GoRoute(
         path: '/questions/:id',
@@ -250,6 +261,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 StatefulShellBranch _branch(String path, Widget screen) => StatefulShellBranch(
   routes: [GoRoute(path: path, builder: (context, state) => screen)],
+);
+
+/// The topic of a lesson or knowledge-check route.
+TopicChoice _topicChoice(GoRouterState state) => TopicChoice(
+  topic: state.uri.queryParameters['topic'] ?? '',
+  subject: state.uri.queryParameters['subject'],
 );
 
 class _NotFoundScreen extends StatelessWidget {

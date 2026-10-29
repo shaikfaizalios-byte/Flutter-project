@@ -110,6 +110,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   finding the questions → "Ready · 87 questions found · 9 need a look" / failed) on each paper; uploads are
   followed by `importWatcherProvider` (polls the list only while one is in progress) → `ImportNotices` in
   `DesktopFrame` shows "… is ready" with Review on any screen; `ImportsInProgress` on the Home Today card.
+- Start options + topic lessons/checks (docs/ai.md "Topic lesson"/"Topic quiz"): Home `StartOptionsCard`
+  (`features/learn`) offers learn a topic (AI lesson), test my knowledge (AI quiz) and analyse a paper (Imported
+  papers, no AI). Topic = syllabus topic or typed (`pickTopic`); topic cards have Learn / Test me. `POST
+  /ai/topic-lesson` and `/ai/topic-quiz` (pure `validate_lesson`/`validate_generated`, `TOPIC_SYSTEM`; tasks
+  `topic_lesson`/`topic_quiz`, migration 0027): NOTHING stored; the quiz is marked on the device with
+  `QuizRules` (shown in UI) and never counts toward practice, analytics or mastery.
 - Reading any paper with AI (docs/ai.md "Read a paper"): learner taps "Read with AI" on the review screen (`AiReadCard`,
   polls the parse summary) → `POST /ai/documents/{id}/read` queues `documents.ai_read_status`; the worker
   (`AiPaperReader`, also in `run_once`) sends 3 page images + text per request (`AIProvider.complete_json(images=)`),

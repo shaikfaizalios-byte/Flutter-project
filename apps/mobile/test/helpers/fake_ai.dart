@@ -186,4 +186,52 @@ class FakeAiRepository implements AiRepository {
     _maybeFail();
     return searchAnswerResult;
   }
+
+  /// Questions of the next knowledge checks (each one's answer is option 2, "B").
+  int quizCount = 3;
+
+  @override
+  Future<TopicLesson> topicLesson(
+    TopicChoice choice, {
+    required String examCode,
+    required ContentLanguage language,
+  }) async {
+    calls.add('lesson:${choice.topic}:${choice.subject}:$examCode:${language.code}');
+    _maybeFail();
+    return TopicLesson(
+      topic: choice.topic,
+      subject: choice.subject,
+      overview: 'Percentage means per hundred.',
+      keyPoints: const ['x% of y = x × y / 100'],
+      exampleQuestion: 'What is 20% of 150?',
+      exampleAnswer: '20/100 × 150 = 30',
+      commonMistakes: const ['Adding successive percentages'],
+      confident: confident,
+      model: 'fake-model',
+    );
+  }
+
+  @override
+  Future<TopicQuiz> topicQuiz(
+    TopicChoice choice, {
+    required String examCode,
+    required ContentLanguage language,
+  }) async {
+    calls.add('quiz:${choice.topic}:${choice.subject}:$examCode:${language.code}');
+    _maybeFail();
+    return TopicQuiz(
+      topic: choice.topic,
+      subject: choice.subject,
+      model: 'fake-model',
+      questions: [
+        for (var i = 1; i <= quizCount; i++)
+          QuizQuestion(
+            stem: 'Quiz question $i?',
+            options: ['A$i', 'B$i', 'C$i', 'D$i'],
+            correctOption: 2,
+            explanation: 'Because B$i.',
+          ),
+      ],
+    );
+  }
 }

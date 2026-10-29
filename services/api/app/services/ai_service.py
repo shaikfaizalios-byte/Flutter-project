@@ -51,10 +51,15 @@ from app.schemas.ai import (
     PaperTopicsResult,
     QuickAnswer,
     QuickAnswerRequest,
+    QuizQuestionRead,
     SearchAnswer,
     SearchAnswerRequest,
     SearchAnswerSource,
     TopicDraft,
+    TopicLessonRead,
+    TopicQuizRead,
+    TopicQuizRequest,
+    TopicRequest,
     TopicSuggestionResult,
 )
 from app.schemas.document import DocumentRead
@@ -538,6 +543,120 @@ class AIService:
             model=provider.model,
             prompt_version=ai_content.PROMPT_VERSION,
         )
+
+    # --- learning and checking a topic -------------------------------------------------------
+
+    def topic_lesson(self, request: TopicRequest) -> TopicLessonRead:
+        """A short lesson for a learner new to a topic. Nothing is stored (the call is logged
+        without its text); the app labels it as unchecked AI."""
+        provider = self._require_provider()
+        exam = self._visible_exam(request.exam_code)
+        result = self._call(
+            provider,
+            task="topic_lesson",
+            question_id=None,
+            prompt=ai_content.topic_lesson_prompt(
+                topic=request.topic,
+                subject=request.subject,
+                exam_name=exam.name,
+                language=request.language,
+            ),
+            schema=ai_content.LESSON_SCHEMA,
+            system=ai_content.TOPIC_SYSTEM,
+        )
+        lesson = ai_content.validate_lesson(result.data)
+        self._record(
+            provider,
+            "topic_lesson",
+            "ok" if lesson else "invalid",
+            result,
+            None,
+            created=1 if lesson else 0,
+            rejected=0 if lesson else 1,
+        )
+        self._session.commit()
+        if lesson is None:
+            raise AIUnavailableError("The AI lesson was not usable. Please try again.")
+        return TopicLessonRead(
+            topic=request.topic,
+            subject=request.subject,
+            overview=lesson.overview,
+            key_points=lesson.key_points,
+            example_question=lesson.example_question,
+            example_answer=lesson.example_answer,
+            common_mistakes=lesson.common_mistakes,
+            confident=lesson.confident,
+            model=provider.model,
+            prompt_version=ai_content.PROMPT_VERSION,
+        )
+
+    def topic_quiz(self, request: TopicQuizRequest) -> TopicQuizRead:
+        """Questions that check a topic the learner says they know. Validated like generated
+        practice questions but not stored: they never enter the question bank, practice
+        or progress."""
+        provider = self._require_provider()
+        exam = self._visible_exam(request.exam_code)
+        result = self._call(
+            provider,
+            task="topic_quiz",
+            question_id=None,
+            prompt=ai_content.topic_quiz_prompt(
+                topic=request.topic,
+                subject=request.subject,
+                exam_name=exam.name,
+                language=request.language,
+                count=request.count,
+            ),
+            schema=ai_content.QUESTIONS_SCHEMA,
+            system=ai_content.TOPIC_SYSTEM,
+        )
+        raw = result.data.get("questions")
+        items = raw[: request.count] if isinstance(raw, list) else []
+        questions: list[QuizQuestionRead] = []
+        reasons: set[str] = set()
+        stems: list[str] = []
+        for item in items:
+            valid, problems = ai_content.validate_generated(item, avoid_stems=stems)
+            if valid is None:
+                reasons.update(problems)
+                continue
+            stems.append(valid.stem)  # no duplicates within one quiz
+            questions.append(
+                QuizQuestionRead(
+                    stem=valid.stem,
+                    options=valid.options,
+                    correct_option=valid.correct_option,
+                    explanation=valid.explanation,
+                )
+            )
+        rejected = len(items) - len(questions)
+        self._record(
+            provider,
+            "topic_quiz",
+            "invalid" if not questions else ("partial" if rejected else "ok"),
+            result,
+            None,
+            ",".join(sorted(reasons)),
+            created=len(questions),
+            rejected=rejected,
+        )
+        self._session.commit()
+        if not questions:
+            raise AIUnavailableError("The AI questions were not usable. Please try again.")
+        return TopicQuizRead(
+            topic=request.topic,
+            subject=request.subject,
+            questions=questions,
+            rejected=rejected,
+            model=provider.model,
+            prompt_version=ai_content.PROMPT_VERSION,
+        )
+
+    def _visible_exam(self, code: str) -> Exam:
+        exam = ExamRepository(self._session).get_visible(code, self._owner_id)
+        if exam is None:
+            raise InvalidReferenceError(f"Unknown exam '{code}'.")
+        return exam
 
     # --- reading a paper with AI --------------------------------------------------------------
 
