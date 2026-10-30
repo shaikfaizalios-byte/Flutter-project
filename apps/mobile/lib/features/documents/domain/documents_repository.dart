@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../concepts/domain/concept.dart';
 import 'imported_document.dart';
 
@@ -16,6 +18,9 @@ abstract interface class DocumentsRepository {
 
   /// Permanently deletes the document and its original file on the server.
   Future<void> delete(String id);
+
+  /// One page (1-based) of the original PDF as PNG bytes, exactly as uploaded.
+  Future<Uint8List> pageImage(String id, int page);
 }
 
 /// Lets the UI cancel an in-flight upload without depending on Dio.

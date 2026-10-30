@@ -27,6 +27,9 @@ String importResultText(AppLocalizations l10n, ImportedDocument d) => d.question
 double? importProgressValue(ImportedDocument d) =>
     d.status == DocumentStatus.processing ? d.progress : null;
 
+/// How long the "paper is ready" message stays before it goes away by itself.
+const importNoticeDuration = Duration(seconds: 3);
+
 /// Shows a message when a followed paper is ready (or failed), on whatever screen is open,
 /// with a way to open it. Sits above the router's Navigator, so it opens pages through
 /// [routerContext].
@@ -57,7 +60,9 @@ class _ImportNoticesState extends ConsumerState<ImportNotices> {
     final failed = d.status == DocumentStatus.failed;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 8),
+        duration: importNoticeDuration,
+        // A SnackBar with an action stays until tapped unless told otherwise.
+        persist: false,
         content: Text(
           failed
               ? l10n.importFailedNotice(d.filename)

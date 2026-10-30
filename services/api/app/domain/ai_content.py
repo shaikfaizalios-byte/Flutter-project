@@ -574,3 +574,82 @@ def topic_quiz_prompt(
         f"{OPTIONS_PER_QUESTION} distinct options, exactly one correct option "
         "(correct_option is 1-based) and a short explanation of why it is correct."
     )
+
+
+# --- checking a learner's own answer (nothing is stored; shown as unchecked AI) ------------
+
+ANSWER_CHECK_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "verdict": {"type": "string", "enum": ["correct", "partly", "incorrect"]},
+        "feedback": {"type": "string"},
+        "ideal_answer": {"type": "string"},
+        "paper_answer": {"type": "string", "enum": ["agrees", "differs", "none"]},
+        "confident": {"type": "boolean"},
+    },
+    "required": ["verdict", "feedback", "ideal_answer", "paper_answer", "confident"],
+    "additionalProperties": False,
+}
+ANSWER_CHECK_MAX_ANSWER = 4000
+MAX_CHECK_FEEDBACK = 1500
+MAX_CHECK_IDEAL = 2500
+ANSWER_VERDICTS = ("correct", "partly", "incorrect")
+
+
+@dataclass(frozen=True)
+class AnswerCheck:
+    verdict: str
+    feedback: str
+    ideal_answer: str
+    # "agrees" / "differs": how the AI's own answer compares with the paper's; None without one.
+    paper_answer: str | None
+    confident: bool
+
+
+def answer_check_prompt(
+    *, stem: str, passage: str | None, paper_answer: str | None, answer: str, language: str
+) -> str:
+    context = f"Passage:\n{passage}\n\n" if passage else ""
+    paper = (
+        "The answer printed in their paper (it may contain reading errors, or be wrong):\n"
+        f"{paper_answer}\n\n"
+        if paper_answer
+        else "Their paper prints no answer for this question.\n\n"
+    )
+    return (
+        f"A learner is solving a question from their own imported paper.\n\n{context}"
+        f"Question:\n{stem}\n\n{paper}"
+        f"The learner's answer:\n{answer}\n\n"
+        f"Work out the correct answer yourself first. Then, in {LANGUAGE_NAMES[language]}:\n"
+        "- verdict: correct, partly or incorrect for the learner's answer, judged on meaning, "
+        "not wording or spelling.\n"
+        "- feedback: at most 80 words on what is right and what is missing or wrong.\n"
+        "- ideal_answer: a short, complete answer to the question.\n"
+        "- paper_answer: agrees if the paper's answer matches yours, differs if it does not "
+        "(say why in the feedback), none if the paper prints no answer.\n"
+        "Set confident to false if you are not sure what the correct answer is."
+    )
+
+
+def validate_answer_check(data: dict[str, Any], *, has_paper_answer: bool) -> AnswerCheck | None:
+    """The check, or None when any part is unusable or contradicts what was sent."""
+    verdict, feedback, ideal = data.get("verdict"), data.get("feedback"), data.get("ideal_answer")
+    paper = data.get("paper_answer")
+    if verdict not in ANSWER_VERDICTS:
+        return None
+    if not isinstance(feedback, str) or not (0 < len(feedback.strip()) <= MAX_CHECK_FEEDBACK):
+        return None
+    if not isinstance(ideal, str) or not (0 < len(ideal.strip()) <= MAX_CHECK_IDEAL):
+        return None
+    if has_paper_answer:
+        if paper not in ("agrees", "differs"):
+            return None
+    elif paper != "none":
+        return None
+    return AnswerCheck(
+        verdict=str(verdict),
+        feedback=unicodedata.normalize("NFC", feedback.strip()),
+        ideal_answer=unicodedata.normalize("NFC", ideal.strip()),
+        paper_answer=str(paper) if has_paper_answer else None,
+        confident=data.get("confident") is True,
+    )

@@ -333,7 +333,9 @@ class _DocumentTile extends ConsumerWidget {
         document.status == DocumentStatus.completed && document.segmentationStatus == 'pending';
 
     return ListTile(
-      onTap: document.canReview ? () => context.push(AppRoutes.documentReview(document.id)) : null,
+      onTap: document.status == DocumentStatus.failed
+          ? null
+          : () => showPaperActions(context, document),
       leading: Icon(
         document.status == DocumentStatus.failed ? Icons.error_outline : Icons.picture_as_pdf,
         color: statusColor,
@@ -406,4 +408,62 @@ class _DocumentTile extends ConsumerWidget {
       messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
     }
   }
+}
+
+/// What to do with a paper: solve its questions, read it as uploaded, or review what was read.
+Future<void> showPaperActions(BuildContext context, ImportedDocument document) {
+  final l10n = AppLocalizations.of(context);
+  final router = GoRouter.of(context);
+  final canSolve =
+      document.canReview && document.segmentationStatus != 'pending' && document.questionsFound > 0;
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheet) {
+      void open(String location) {
+        Navigator.of(sheet).pop();
+        router.push(location);
+      }
+
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
+              child: Text(
+                l10n.paperActionsTitle(document.filename),
+                style: Theme.of(sheet).textTheme.titleMedium,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_note),
+              title: Text(l10n.paperSolve),
+              subtitle: Text(
+                canSolve ? l10n.paperSolveHint(document.questionsFound) : l10n.paperSolveNotReady,
+              ),
+              enabled: canSolve,
+              onTap: () => open(AppRoutes.paperSolve(document.id, document.filename)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.chrome_reader_mode_outlined),
+              title: Text(l10n.paperRead),
+              subtitle: Text(l10n.paperReadHint),
+              enabled: document.pageCount > 0,
+              onTap: () =>
+                  open(AppRoutes.paperRead(document.id, document.filename, document.pageCount)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.fact_check_outlined),
+              title: Text(l10n.paperReview),
+              subtitle: Text(l10n.paperReviewHint),
+              enabled: document.canReview,
+              onTap: () => open(AppRoutes.documentReview(document.id)),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

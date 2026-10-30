@@ -110,6 +110,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   finding the questions → "Ready · 87 questions found · 9 need a look" / failed) on each paper; uploads are
   followed by `importWatcherProvider` (polls the list only while one is in progress) → `ImportNotices` in
   `DesktopFrame` shows "… is ready" with Review on any screen; `ImportsInProgress` on the Home Today card.
+- Paper actions (`showPaperActions` in `documents_screen.dart`): tapping a paper offers *Solve this paper*
+  (`PaperSolveScreen`, `/study/documents/:id/solve`: `paperQuestionsProvider` pages through `QuestionQuery.from`,
+  pure `paper_solve.dart` = printed order without rejected, `solveKind` choice|typed|written, marked on the device,
+  nothing saved, not practice; unreviewed questions say so; written answers → `POST /ai/questions/{id}/answer-check`
+  (docs/ai.md "Answer check", task `answer_check`, migration 0028) or "Show the answer from the paper"), *Read this
+  paper* (`PaperReadScreen`: `GET /documents/{id}/pages/{n}/image`, PDFium `PdfRenderer.page_png`, tap to zoom) and
+  *Review and correct questions* (the review screen). The "paper is ready" notice hides after 3 s (`persist: false`).
 - Start options + topic lessons/checks (docs/ai.md "Topic lesson"/"Topic quiz"), HIDDEN behind
   `AppFeatures.learnStart` (off: card, topic-card buttons and `/learn/*` routes all hidden) until Plus can be
   bought: Home `StartOptionsCard` (`features/learn`) offers learn a topic (AI lesson), test my knowledge (AI

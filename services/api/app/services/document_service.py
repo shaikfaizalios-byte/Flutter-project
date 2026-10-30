@@ -39,6 +39,7 @@ from app.schemas.document import (
     PageRead,
     PaperDateUpdate,
 )
+from app.services.page_layout import PdfRenderer
 
 logger = logging.getLogger("app.documents")
 
@@ -219,6 +220,17 @@ class DocumentService:
         if exam_format is None or exam_format.exam_code != exam_code:
             raise InvalidReferenceError(f"Unknown paper format '{code}' for this exam.")
         return exam_format
+
+    def page_image(self, document_id: uuid.UUID, page_number: int, max_edge: int) -> bytes:
+        """One page of the original PDF as PNG, exactly as uploaded (for reading the paper)."""
+        document = self._get_or_404(document_id)
+        if not 1 <= page_number <= document.page_count:
+            raise NotFoundError("Page not found.")
+        path = self._storage.path_for(document.storage_key)
+        if not path.exists():
+            raise NotFoundError("The original file is no longer available.")
+        with PdfRenderer(path) as renderer:
+            return renderer.page_png(page_number, max_edge)
 
     def _get_or_404(self, document_id: uuid.UUID) -> Document:
         document = self._documents.get(document_id)

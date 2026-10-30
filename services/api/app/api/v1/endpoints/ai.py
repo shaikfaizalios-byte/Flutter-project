@@ -9,6 +9,8 @@ from app.database.session import DbSession
 from app.integrations.ai import AIProvider
 from app.schemas.ai import (
     AIStatus,
+    AnswerCheckRead,
+    AnswerCheckRequest,
     ExplanationReview,
     GenerateQuestionsRequest,
     GenerateQuestionsResult,
@@ -189,6 +191,19 @@ def topic_lesson(body: TopicRequest, service: Service) -> TopicLessonRead:
 )
 def topic_quiz(body: TopicQuizRequest, service: Service) -> TopicQuizRead:
     return service.topic_quiz(body)
+
+
+@router.post(
+    "/ai/questions/{question_id}/answer-check",
+    response_model=AnswerCheckRead,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="Check the learner's own answer with AI, against the paper's answer (nothing saved)",
+)
+def check_answer(
+    question_id: uuid.UUID, body: AnswerCheckRequest, service: Service
+) -> AnswerCheckRead:
+    return service.check_answer(question_id, body)
 
 
 @router.post(

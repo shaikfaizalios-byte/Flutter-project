@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/errors/app_failure.dart';
@@ -56,6 +58,15 @@ class RemoteDocumentsRepository implements DocumentsRepository {
 
   @override
   Future<void> delete(String id) => _guard(() => _dio.delete<void>('$_path/$id'));
+
+  @override
+  Future<Uint8List> pageImage(String id, int page) => _guard(() async {
+    final response = await _dio.get<List<int>>(
+      '$_path/$id/pages/$page/image',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(response.data!);
+  });
 
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {

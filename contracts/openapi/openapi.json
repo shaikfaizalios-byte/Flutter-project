@@ -383,6 +383,95 @@
         "title": "AnswerAck",
         "type": "object"
       },
+      "AnswerCheckRead": {
+        "description": "An AI judgement of the learner's answer. Not stored and not checked by anyone.",
+        "properties": {
+          "confident": {
+            "title": "Confident",
+            "type": "boolean"
+          },
+          "feedback": {
+            "title": "Feedback",
+            "type": "string"
+          },
+          "ideal_answer": {
+            "title": "Ideal Answer",
+            "type": "string"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "paper_agreement": {
+            "anyOf": [
+              {
+                "enum": [
+                  "agrees",
+                  "differs"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paper Agreement"
+          },
+          "paper_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paper Answer"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "verdict": {
+            "enum": [
+              "correct",
+              "partly",
+              "incorrect"
+            ],
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "verdict",
+          "feedback",
+          "ideal_answer",
+          "paper_answer",
+          "paper_agreement",
+          "confident",
+          "model",
+          "prompt_version"
+        ],
+        "title": "AnswerCheckRead",
+        "type": "object"
+      },
+      "AnswerCheckRequest": {
+        "additionalProperties": false,
+        "description": "The learner's own answer to a question of their paper, to be checked by AI.",
+        "properties": {
+          "answer": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Answer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "answer"
+        ],
+        "title": "AnswerCheckRequest",
+        "type": "object"
+      },
       "AnswerUpdate": {
         "additionalProperties": false,
         "properties": {
@@ -7342,6 +7431,124 @@
         ]
       }
     },
+    "/api/v1/ai/questions/{question_id}/answer-check": {
+      "post": {
+        "operationId": "check_answer_api_v1_ai_questions__question_id__answer_check_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerCheckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerCheckRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check the learner's own answer with AI, against the paper's answer (nothing saved)",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
     "/api/v1/ai/questions/{question_id}/explanation": {
       "post": {
         "operationId": "draft_explanation_api_v1_ai_questions__question_id__explanation_post",
@@ -9790,6 +9997,95 @@
           }
         ],
         "summary": "Extracted text per page (with review flags)",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/pages/{page_number}/image": {
+      "get": {
+        "operationId": "get_page_image_api_v1_documents__document_id__pages__page_number__image_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "page_number",
+            "required": true,
+            "schema": {
+              "maximum": 100000,
+              "minimum": 1,
+              "title": "Page Number",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Longer side in pixels",
+            "in": "query",
+            "name": "max_edge",
+            "required": false,
+            "schema": {
+              "default": 1600,
+              "description": "Longer side in pixels",
+              "maximum": 2400,
+              "minimum": 400,
+              "title": "Max Edge",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {}
+            },
+            "description": "The page"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document or page not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "One page of the original PDF as PNG, as uploaded (for reading the paper)",
         "tags": [
           "documents"
         ]

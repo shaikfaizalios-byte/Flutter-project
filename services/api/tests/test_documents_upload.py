@@ -193,3 +193,24 @@ def test_list_get_and_delete(db_client: TestClient, settings: Settings) -> None:
 
 def test_documents_require_database(client: TestClient) -> None:
     assert client.get(URL).status_code == 503
+
+
+def test_pages_are_shown_as_uploaded(db_client: TestClient) -> None:
+    from io import BytesIO
+
+    from PIL import Image
+
+    paper = upload(db_client, text_pdf([["Q1. First page"], ["Q2. Second page"]])).json()
+    page = db_client.get(f"{URL}/{paper['id']}/pages/2/image", params={"max_edge": 800})
+
+    assert page.status_code == 200
+    assert page.headers["content-type"] == "image/png"
+    assert page.headers["cache-control"] == "private, max-age=86400"
+    with Image.open(BytesIO(page.content)) as image:
+        assert max(image.size) == 800
+    assert db_client.get(f"{URL}/{paper['id']}/pages/3/image").status_code == 404
+    assert db_client.get(f"{URL}/{paper['id']}/pages/0/image").status_code == 422
+    too_big = db_client.get(f"{URL}/{paper['id']}/pages/1/image", params={"max_edge": 5000})
+    assert too_big.status_code == 422
+    db_client.delete(f"{URL}/{paper['id']}")
+    assert db_client.get(f"{URL}/{paper['id']}/pages/1/image").status_code == 404

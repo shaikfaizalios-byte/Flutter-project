@@ -36,6 +36,9 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
   name (and its subject) is sent to the same provider to write them. The lesson and the questions
   are not stored by PrepLoop; a lesson you save as a concept is kept with your concepts and
   marked as AI-generated.
+- If you ask AI to check your answer while solving one of your papers, the question, the answer
+  printed in the paper (if any) and your answer are sent to the same provider. Nothing of it is
+  stored by PrepLoop.
 - If you switch on AI answers in the Study search, your search and the parts of your own
   material that match it (excerpts of your imported pages and questions, and your concept notes)
   are sent to the same provider to write an answer from them; when your material doesn't cover

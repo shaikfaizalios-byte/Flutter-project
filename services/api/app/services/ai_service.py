@@ -43,6 +43,8 @@ from app.models.question import (
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.ai import (
     AIStatus,
+    AnswerCheckRead,
+    AnswerCheckRequest,
     DraftSubjectRead,
     DraftTopicRead,
     ExplanationReview,
@@ -654,6 +656,52 @@ class AIService:
             prompt_version=ai_content.PROMPT_VERSION,
         )
 
+    def check_answer(self, question_id: uuid.UUID, request: AnswerCheckRequest) -> AnswerCheckRead:
+        """Judges the learner's own answer against the AI's answer and the paper's printed one.
+        Nothing is stored (the call is logged without text); the app labels it as unchecked AI."""
+        provider = self._require_provider()
+        question = self._question(question_id)
+        paper_answer = _paper_answer(question)
+        result = self._call(
+            provider,
+            task="answer_check",
+            question_id=question.id,
+            prompt=ai_content.answer_check_prompt(
+                stem=question.stem,
+                passage=question.passage.text if question.passage else None,
+                paper_answer=paper_answer,
+                answer=request.answer,
+                language=question.language,
+            ),
+            schema=ai_content.ANSWER_CHECK_SCHEMA,
+            system=ai_content.TOPIC_SYSTEM,
+        )
+        check = ai_content.validate_answer_check(
+            result.data, has_paper_answer=paper_answer is not None
+        )
+        self._record(
+            provider,
+            "answer_check",
+            "ok" if check else "invalid",
+            result,
+            question.id,
+            created=1 if check else 0,
+            rejected=0 if check else 1,
+        )
+        self._session.commit()
+        if check is None:
+            raise AIUnavailableError("The AI check was not usable. Please try again.")
+        return AnswerCheckRead(
+            verdict=check.verdict,
+            feedback=check.feedback,
+            ideal_answer=check.ideal_answer,
+            paper_answer=paper_answer,
+            paper_agreement=check.paper_answer,
+            confident=check.confident,
+            model=provider.model,
+            prompt_version=ai_content.PROMPT_VERSION,
+        )
+
     def _visible_exam(self, code: str) -> Exam:
         exam = ExamRepository(self._session).get_visible(code, self._owner_id)
         if exam is None:
@@ -846,6 +894,20 @@ class AIService:
                 question_id=question_id,
             )
         )
+
+
+def _paper_answer(question: Question) -> str | None:
+    """The answer printed in the paper, as text: the written answer, the typed-in answer or the
+    correct option."""
+    if question.answer_type == "written":
+        return question.model_answer
+    if question.answer_type == "typed":
+        return question.typed_answer
+    position = question.correct_option_position
+    for option in question.options:
+        if option.position == position:
+            return f"({position}) {option.text}"
+    return None
 
 
 MAX_PAPER_TOPIC_BATCHES = 3
