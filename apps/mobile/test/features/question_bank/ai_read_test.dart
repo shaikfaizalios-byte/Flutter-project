@@ -52,6 +52,9 @@ Future<void> openPaper(
   await tester.pumpAndSettle();
   await tester.tap(find.text('new-layout.pdf'));
   await tester.pumpAndSettle();
+  // Tapping a paper offers solve / read / review.
+  await tester.tap(find.text('Review and correct questions'));
+  await tester.pumpAndSettle();
 }
 
 Future<void> pumpFor(WidgetTester tester, Duration total) async {

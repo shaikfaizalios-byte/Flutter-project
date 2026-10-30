@@ -4017,4 +4017,26 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get paperSolveExplanation => 'व्याख्या';
+
+  @override
+  String paperSolveUnmarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count जाँचे नहीं गए (उत्तर कुंजी नहीं)',
+      one: '1 जाँचा नहीं गया (उत्तर कुंजी नहीं)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get paperSolveNoOptions =>
+      'इस प्रश्न के विकल्प आपकी PDF से पढ़े नहीं जा सके, इसलिए यहाँ उत्तर नहीं दिया जा सकता। पेपर की समीक्षा स्क्रीन पर इसे ठीक करें।';
+
+  @override
+  String get paperSolveAiNoFigures =>
+      'यह प्रश्न एक चित्र पर निर्भर है, इसलिए AI उत्तर नहीं जाँच सकता।';
+
+  @override
+  String get conceptAiLabelKept => 'AI पाठ से बनाया गया: इस पर हमेशा AI-निर्मित का लेबल रहेगा।';
 }

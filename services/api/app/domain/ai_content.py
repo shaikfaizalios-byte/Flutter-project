@@ -483,6 +483,7 @@ TOPIC_NAME_MAX = 100
 MAX_LESSON_OVERVIEW = 1500
 MAX_LESSON_POINT = 400
 MAX_LESSON_EXAMPLE = 1000
+MIN_KEY_POINTS = 3
 MAX_KEY_POINTS = 8
 MAX_MISTAKES = 5
 # A knowledge check needs at least this many usable questions; fewer give no fair verdict.
@@ -514,8 +515,8 @@ def topic_lesson_prompt(
         f"{LANGUAGE_NAMES[language]}:\n"
         "- overview: what the topic is and why it matters, in at most 120 words of plain "
         "language.\n"
-        f"- key_points: 3 to {MAX_KEY_POINTS} short points (rules, formulas, facts or steps) "
-        "a learner must know to answer questions on it.\n"
+        f"- key_points: {MIN_KEY_POINTS} to {MAX_KEY_POINTS} short points (rules, formulas, "
+        "facts or steps) a learner must know to answer questions on it.\n"
         "- example_question and example_answer: one original exam-style question and its "
         "worked answer, step by step. Leave both empty if the topic has no sensible example.\n"
         f"- common_mistakes: up to {MAX_MISTAKES} mistakes learners often make on it.\n"
@@ -542,7 +543,7 @@ def validate_lesson(data: dict[str, Any]) -> TopicLesson | None:
     mistakes = _clean_list(
         data.get("common_mistakes"), limit=MAX_MISTAKES, item_max=MAX_LESSON_POINT
     )
-    if not points or mistakes is None:
+    if points is None or len(points) < MIN_KEY_POINTS or mistakes is None:
         return None
     question, answer = data.get("example_question"), data.get("example_answer")
     if not isinstance(question, str) or not isinstance(answer, str):

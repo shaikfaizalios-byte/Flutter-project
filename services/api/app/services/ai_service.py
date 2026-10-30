@@ -661,6 +661,9 @@ class AIService:
         Nothing is stored (the call is logged without text); the app labels it as unchecked AI."""
         provider = self._require_provider()
         question = self._question(question_id)
+        if question.image_dependent or question.figures:
+            # The AI only gets the text: it can't judge an answer to a question it can't see.
+            raise NotEligibleError("This question depends on a figure, so AI can't check it.")
         paper_answer = _paper_answer(question)
         result = self._call(
             provider,

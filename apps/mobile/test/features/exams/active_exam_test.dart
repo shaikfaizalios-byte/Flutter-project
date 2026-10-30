@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
@@ -116,8 +118,10 @@ void switchingExamsGoesHomeTests() {
       db,
       studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL', 'SSC_CGL']),
     );
-    GoRouter.of(tester.element(find.byType(Scaffold).first))
-        .push(AppRoutes.paperSolve('doc1', 'iOS interview.pdf'));
+    unawaited(
+      GoRouter.of(tester.element(find.byType(Scaffold).first))
+          .push(AppRoutes.paperSolve('doc1', 'iOS interview.pdf')),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Solve: iOS interview.pdf'), findsOneWidget);
 

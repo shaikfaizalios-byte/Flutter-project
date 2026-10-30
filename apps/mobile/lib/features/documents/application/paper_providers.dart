@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +26,13 @@ final paperQuestionsProvider = FutureProvider.autoDispose.family<List<BankQuesti
 }, retry: (_, _) => null);
 
 /// One page of a paper's original PDF as an image (document id, 1-based page).
-final paperPageProvider = FutureProvider.autoDispose.family<Uint8List, (String, int)>(
-  (ref, page) => ref.watch(documentsRepositoryProvider).pageImage(page.$1, page.$2),
-  retry: (_, _) => null,
-);
+/// Kept for [pageCacheTime] after it scrolls out of view, so scrolling back doesn't ask the
+/// server to render the page again.
+final paperPageProvider = FutureProvider.autoDispose.family<Uint8List, (String, int)>((ref, page) {
+  final link = ref.keepAlive();
+  final timer = Timer(pageCacheTime, link.close);
+  ref.onDispose(timer.cancel);
+  return ref.watch(documentsRepositoryProvider).pageImage(page.$1, page.$2);
+}, retry: (_, _) => null);
+
+const pageCacheTime = Duration(minutes: 10);

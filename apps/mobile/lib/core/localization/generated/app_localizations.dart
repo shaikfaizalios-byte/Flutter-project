@@ -6452,6 +6452,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Explanation'**
   String get paperSolveExplanation;
+
+  /// No description provided for @paperSolveUnmarked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 not marked (no answer key)} other{{count} not marked (no answer key)}}'**
+  String paperSolveUnmarked(int count);
+
+  /// No description provided for @paperSolveNoOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'This question\'s options weren\'t read from your PDF, so it can\'t be answered here. Fix it on the paper\'s review screen.'**
+  String get paperSolveNoOptions;
+
+  /// No description provided for @paperSolveAiNoFigures.
+  ///
+  /// In en, this message translates to:
+  /// **'This question depends on a figure, so AI can\'t check the answer.'**
+  String get paperSolveAiNoFigures;
+
+  /// No description provided for @conceptAiLabelKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Made from an AI lesson: it always stays labelled as AI-generated.'**
+  String get conceptAiLabelKept;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

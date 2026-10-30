@@ -1059,5 +1059,9 @@
   "paperSolvePaperDiffers": "AI का उत्तर आपके पेपर के उत्तर से अलग है। अपनी किताब या नोट्स देखें।",
   "paperSolveNotConfident": "AI को इस पर पूरा भरोसा नहीं था।",
   "paperSolveAiCaution": "AI ({model}) द्वारा जाँचा गया, किसी व्यक्ति द्वारा नहीं। यह गलत हो सकता है।",
-  "paperSolveExplanation": "व्याख्या"
+  "paperSolveExplanation": "व्याख्या",
+  "paperSolveUnmarked": "{count, plural, =1{1 जाँचा नहीं गया (उत्तर कुंजी नहीं)} other{{count} जाँचे नहीं गए (उत्तर कुंजी नहीं)}}",
+  "paperSolveNoOptions": "इस प्रश्न के विकल्प आपकी PDF से पढ़े नहीं जा सके, इसलिए यहाँ उत्तर नहीं दिया जा सकता। पेपर की समीक्षा स्क्रीन पर इसे ठीक करें।",
+  "paperSolveAiNoFigures": "यह प्रश्न एक चित्र पर निर्भर है, इसलिए AI उत्तर नहीं जाँच सकता।",
+  "conceptAiLabelKept": "AI पाठ से बनाया गया: इस पर हमेशा AI-निर्मित का लेबल रहेगा।"
 }

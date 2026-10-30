@@ -4016,4 +4016,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paperSolveExplanation => 'Explanation';
+
+  @override
+  String paperSolveUnmarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count not marked (no answer key)',
+      one: '1 not marked (no answer key)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get paperSolveNoOptions =>
+      'This question\'s options weren\'t read from your PDF, so it can\'t be answered here. Fix it on the paper\'s review screen.';
+
+  @override
+  String get paperSolveAiNoFigures =>
+      'This question depends on a figure, so AI can\'t check the answer.';
+
+  @override
+  String get conceptAiLabelKept =>
+      'Made from an AI lesson: it always stays labelled as AI-generated.';
 }

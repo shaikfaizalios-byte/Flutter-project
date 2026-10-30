@@ -219,6 +219,9 @@ void main() {
 
     await tester.tap(find.text('chsl-2024.pdf'));
     await tester.pumpAndSettle();
+    // Tapping a paper offers solve / read / review.
+    await tester.tap(find.text('Review and correct questions'));
+    await tester.pumpAndSettle();
 
     expect(find.text('Review questions'), findsOneWidget);
     expect(find.text('2 questions found'), findsOneWidget);

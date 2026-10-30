@@ -152,7 +152,12 @@ void main() {
       return tester.widget<TextField>(input).controller!.text;
     }
 
-    expect(await field('Tags (optional)'), 'ai-generated');
+    // The AI tag isn't offered for editing; the form says it always stays.
+    expect(await field('Tags (optional)'), '');
+    expect(
+      find.text('Made from an AI lesson: it always stays labelled as AI-generated.'),
+      findsOneWidget,
+    );
     expect(await field('Source (optional)'), 'AI lesson (fake-model), not checked');
     expect(await field('Notes (optional)'), startsWith('[AI-generated · not checked]'));
   });

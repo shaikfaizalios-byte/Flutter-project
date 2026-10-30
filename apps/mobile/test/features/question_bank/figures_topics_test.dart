@@ -66,6 +66,9 @@ Future<void> openPaperReview(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(find.text('chsl-2024.pdf'));
   await tester.pumpAndSettle();
+  // Tapping a paper offers solve / read / review.
+  await tester.tap(find.text('Review and correct questions'));
+  await tester.pumpAndSettle();
 }
 
 FakeDocumentsRepository paperDocs() => FakeDocumentsRepository()

@@ -79,6 +79,18 @@ class ConceptDraft {
   final List<String> tags;
   final String? sourceReference;
 
+  ConceptDraft withTags(List<String> tags) => ConceptDraft(
+    examCode: examCode,
+    title: title,
+    subject: subject,
+    topic: topic,
+    language: language,
+    notes: notes,
+    subtopic: subtopic,
+    tags: tags,
+    sourceReference: sourceReference,
+  );
+
   /// Trims text, turns blank optionals into null, lower-cases and de-duplicates tags.
   /// Mirrors the backend's normalisation so local and server data agree.
   ConceptDraft normalized() {

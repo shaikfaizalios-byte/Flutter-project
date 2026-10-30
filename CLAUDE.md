@@ -114,7 +114,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `DesktopFrame` shows "… is ready" with Review on any screen; `ImportsInProgress` on the Home Today card.
 - Paper actions (`showPaperActions` in `documents_screen.dart`): tapping a paper offers *Solve this paper*
   (`PaperSolveScreen`, `/study/documents/:id/solve`: `paperQuestionsProvider` pages through `QuestionQuery.from`,
-  pure `paper_solve.dart` = printed order without rejected, `solveKind` choice|typed|written, marked on the device,
+  pure `paper_solve.dart` = printed order without rejected, `solveKind` choice|typed|written|unreadable (options
+  not read → can't be answered, says to fix it in review), marked on the device (answered questions keep their
+  state; the score counts marked answers only, "n not marked" apart; figure questions get no AI check, server
+  refuses them too),
   nothing saved, not practice; unreviewed questions say so; written answers → `POST /ai/questions/{id}/answer-check`
   (docs/ai.md "Answer check", task `answer_check`, migration 0028) or "Show the answer from the paper"), *Read this
   paper* (`PaperReadScreen`: `GET /documents/{id}/pages/{n}/image`, PDFium `PdfRenderer.page_png`, tap to zoom) and
@@ -127,7 +130,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `TOPIC_SYSTEM`; tasks `topic_lesson`/`topic_quiz`, migration 0027): NOTHING stored; quiz needs
   `MIN_QUIZ_QUESTIONS` (3) usable questions, marked on the device with `QuizRules` (shown in UI; < 3 → no
   verdict), each question labelled AI with an answer-key caveat; never counts toward practice/analytics/mastery.
-  A lesson saved as a concept (only if `confident`) carries tag `aiGeneratedTag` ("ai-generated"), an AI source
+  A lesson saved as a concept (only if `confident`) carries tag `aiGeneratedTag` ("ai-generated"; never editable:
+  the form hides it and `LocalConceptsRepository.update` keeps it), an AI source
   and a first-line label; the concept page shows the AI badge and RAG treats such concepts as unchecked.
 - Reading any paper with AI (docs/ai.md "Read a paper"): learner taps "Read with AI" on the review screen (`AiReadCard`,
   polls the parse summary) → `POST /ai/documents/{id}/read` queues `documents.ai_read_status`; the worker

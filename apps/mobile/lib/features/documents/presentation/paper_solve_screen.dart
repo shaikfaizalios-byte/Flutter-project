@@ -62,84 +62,52 @@ class _SolveRun extends StatefulWidget {
 class _SolveRunState extends State<_SolveRun> {
   int _index = 0;
 
-  /// Result per question id once answered: true right, false wrong, null not judged.
+  /// Questions opened so far, in the order first opened. They stay built (hidden), so an
+  /// answered question still shows its answer when the learner comes back to it.
+  final _opened = <int>[0];
+
+  /// Result per question id once answered: true right, false wrong, null not marked.
   final _results = <String, bool?>{};
 
   void _record(String id, bool? correct) => setState(() => _results[id] = correct);
 
+  void _go(int index) => setState(() {
+    _index = index;
+    if (!_opened.contains(index)) _opened.add(index);
+  });
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final question = widget.questions[_index];
     final total = widget.questions.length;
     final correct = _results.values.where((r) => r == true).length;
-    final muted = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+    // Answers that couldn't be marked (no answer key) are not counted as wrong.
+    final marked = _results.values.where((r) => r != null).length;
+    final unmarked = _results.length - marked;
 
     return Column(
       children: [
         Expanded(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
-              child: ListView(
-                key: ValueKey(question.id),
-                padding: const EdgeInsets.all(AppSpacing.md),
-                children: [
-                  Wrap(
-                    spacing: AppSpacing.sm,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        l10n.paperSolveProgress(_index + 1, total),
-                        style: theme.textTheme.labelLarge,
-                      ),
-                      if (question.sourceNumber != null)
-                        Text(l10n.paperSolveNumber(question.sourceNumber!), style: muted),
-                      Text(l10n.paperSolveScore(correct, _results.length), style: muted),
+          child: IndexedStack(
+            index: _opened.indexOf(_index),
+            children: [
+              for (final i in _opened)
+                KeyedSubtree(
+                  key: ValueKey(widget.questions[i].id),
+                  child: _QuestionView(
+                    question: widget.questions[i],
+                    header: [
+                      l10n.paperSolveProgress(i + 1, total),
+                      if (widget.questions[i].sourceNumber != null)
+                        l10n.paperSolveNumber(widget.questions[i].sourceNumber!),
+                      l10n.paperSolveScore(correct, marked),
+                      if (unmarked > 0) l10n.paperSolveUnmarked(unmarked),
                     ],
+                    answered: _results.containsKey(widget.questions[i].id),
+                    onResult: (r) => _record(widget.questions[i].id, r),
                   ),
-                  if (question.status != VerificationStatus.verified) ...[
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(l10n.paperSolveUnreviewed, style: muted),
-                  ],
-                  if (question.passage != null) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    Card(
-                      margin: EdgeInsets.zero,
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        child: SelectableText(question.passage!.text),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.md),
-                  SelectableText(question.stem, style: theme.textTheme.titleMedium),
-                  QuestionFigures(questionId: question.id, figures: question.figures),
-                  const SizedBox(height: AppSpacing.md),
-                  switch (solveKind(question)) {
-                    SolveKind.choice => _ChoicePanel(
-                      question: question,
-                      onResult: (r) => _record(question.id, r),
-                    ),
-                    SolveKind.typed => _TypedPanel(
-                      question: question,
-                      onResult: (r) => _record(question.id, r),
-                    ),
-                    SolveKind.written => _WrittenPanel(
-                      question: question,
-                      onResult: (r) => _record(question.id, r),
-                    ),
-                  },
-                  if (_results.containsKey(question.id) && question.explanation != null) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    Text(l10n.paperSolveExplanation, style: theme.textTheme.titleSmall),
-                    SelectableText(question.explanation!),
-                  ],
-                ],
-              ),
-            ),
+                ),
+            ],
           ),
         ),
         SafeArea(
@@ -149,12 +117,12 @@ class _SolveRunState extends State<_SolveRun> {
             child: Row(
               children: [
                 OutlinedButton(
-                  onPressed: _index == 0 ? null : () => setState(() => _index--),
+                  onPressed: _index == 0 ? null : () => _go(_index - 1),
                   child: Text(l10n.sessionPrevious),
                 ),
                 const Spacer(),
                 FilledButton(
-                  onPressed: _index + 1 == total ? null : () => setState(() => _index++),
+                  onPressed: _index + 1 == total ? null : () => _go(_index + 1),
                   child: Text(l10n.sessionNext),
                 ),
               ],
@@ -162,6 +130,79 @@ class _SolveRunState extends State<_SolveRun> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// One question: where it is in the paper, its text and figures, and the way to answer it.
+class _QuestionView extends StatelessWidget {
+  const _QuestionView({
+    required this.question,
+    required this.header,
+    required this.answered,
+    required this.onResult,
+  });
+
+  final BankQuestion question;
+
+  /// Position first, then the paper's number and the score.
+  final List<String> header;
+  final bool answered;
+  final ValueChanged<bool?> onResult;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          children: [
+            Wrap(
+              spacing: AppSpacing.sm,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(header.first, style: theme.textTheme.labelLarge),
+                for (final part in header.skip(1)) Text(part, style: muted),
+              ],
+            ),
+            if (question.status != VerificationStatus.verified) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(l10n.paperSolveUnreviewed, style: muted),
+            ],
+            if (question.passage != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Card(
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: SelectableText(question.passage!.text),
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.md),
+            SelectableText(question.stem, style: theme.textTheme.titleMedium),
+            QuestionFigures(questionId: question.id, figures: question.figures),
+            const SizedBox(height: AppSpacing.md),
+            switch (solveKind(question)) {
+              SolveKind.choice => _ChoicePanel(question: question, onResult: onResult),
+              SolveKind.typed => _TypedPanel(question: question, onResult: onResult),
+              SolveKind.written => _WrittenPanel(question: question, onResult: onResult),
+              // Its options weren't read from the PDF: nothing to pick from yet.
+              SolveKind.unreadable => Text(l10n.paperSolveNoOptions),
+            },
+            if (answered && question.explanation != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              Text(l10n.paperSolveExplanation, style: theme.textTheme.titleSmall),
+              SelectableText(question.explanation!),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -228,6 +269,7 @@ class _ChoicePanelState extends ConsumerState<_ChoicePanel> {
             Text(l10n.paperSolveNoKey),
             _AiChecker(
               questionId: question.id,
+              hasFigure: hasFigure(question),
               answer: () => _optionText(question, chosen),
               onResult: widget.onResult,
             ),
@@ -310,6 +352,7 @@ class _TypedPanelState extends State<_TypedPanel> {
           Text(l10n.paperSolveNoKey),
           _AiChecker(
             questionId: widget.question.id,
+            hasFigure: hasFigure(widget.question),
             answer: () => _answer.text,
             onResult: widget.onResult,
           ),
@@ -368,6 +411,7 @@ class _WrittenPanelState extends State<_WrittenPanel> {
         ),
         _AiChecker(
           questionId: widget.question.id,
+          hasFigure: hasFigure(widget.question),
           answer: () => _answer.text,
           enabled: _answer.text.trim().isNotEmpty,
           onResult: widget.onResult,
@@ -431,9 +475,13 @@ class _AiChecker extends ConsumerStatefulWidget {
     required this.answer,
     required this.onResult,
     this.enabled = true,
+    this.hasFigure = false,
   });
 
   final String questionId;
+
+  /// The question depends on a figure the AI can't see, so it can't check the answer.
+  final bool hasFigure;
   final String Function() answer;
   final ValueChanged<bool?> onResult;
   final bool enabled;
@@ -474,6 +522,12 @@ class _AiCheckerState extends ConsumerState<_AiChecker> {
     final theme = Theme.of(context);
     final status = ref.watch(aiStatusProvider).value;
     if (!(status?.enabled ?? false) || status!.needsPlus) return const SizedBox.shrink();
+    if (widget.hasFigure) {
+      return Text(
+        l10n.paperSolveAiNoFigures,
+        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      );
+    }
     final check = _check;
     if (check == null) {
       return Column(

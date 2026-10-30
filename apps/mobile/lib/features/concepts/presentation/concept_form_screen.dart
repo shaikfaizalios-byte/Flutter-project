@@ -79,7 +79,8 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
     _subject.text = widget.subject ?? '';
     _topic.text = widget.topic ?? '';
     _notes.text = widget.notes ?? '';
-    _tags.text = widget.tags.join(', ');
+    _aiGenerated = widget.tags.contains(aiGeneratedTag);
+    _tags.text = _editableTags(widget.tags);
     _source.text = widget.source ?? '';
     _loadState = _isEditing ? _LoadState.loading : _LoadState.ready;
     if (_isEditing) _load(widget.conceptId!);
@@ -97,7 +98,8 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
       _subject.text = concept.subject;
       _topic.text = concept.topic;
       _subtopic.text = concept.subtopic ?? '';
-      _tags.text = concept.tags.join(', ');
+      _aiGenerated = concept.isAiGenerated;
+      _tags.text = _editableTags(concept.tags);
       _source.text = concept.sourceReference ?? '';
       _notes.text = concept.notes;
       setState(() {
@@ -128,7 +130,13 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
     super.dispose();
   }
 
-  List<String> get _tagList => _tags.text.split(',');
+  /// Made from an AI lesson: its AI tag is kept out of the editable tags and always saved.
+  bool _aiGenerated = false;
+
+  static String _editableTags(List<String> tags) =>
+      tags.where((t) => t != aiGeneratedTag).join(', ');
+
+  List<String> get _tagList => [..._tags.text.split(','), if (_aiGenerated) aiGeneratedTag];
 
   String? _message(FieldError? error, int max) {
     final l10n = AppLocalizations.of(context);
@@ -293,6 +301,9 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
                   decoration: InputDecoration(
                     labelText: l10n.fieldTags,
                     hintText: l10n.fieldTagsHint,
+                    // The AI label can't be edited away.
+                    helperText: _aiGenerated ? l10n.conceptAiLabelKept : null,
+                    helperMaxLines: 3,
                   ),
                   textInputAction: TextInputAction.next,
                   validator: (_) =>

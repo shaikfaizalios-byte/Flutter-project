@@ -199,4 +199,31 @@ void main() {
     );
     expect(find.text("The AI wasn't sure about this one."), findsOneWidget);
   });
+
+  testAppWidgets('an answered question keeps its answer when the learner comes back', (
+    tester,
+    db,
+  ) async {
+    await openPaper(tester, db);
+    await tester.tap(find.text('Solve this paper'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('20'));
+    await tester.pumpAndSettle();
+    await next(tester);
+    await tester.tap(find.text('Previous'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Not quite. The answer is (2).'), findsOneWidget);
+    // Answered once: tapping another option doesn't change the result.
+    await tester.tap(find.text('30'));
+    await tester.pumpAndSettle();
+    expect(find.text('0 correct of 1 answered'), findsOneWidget);
+  });
+
+  test('unreadable options and figures are recognised', () {
+    final noOptions = bankQuestion(id: 'n', options: const [], answer: null);
+    expect(solveKind(noOptions), SolveKind.unreadable);
+    expect(hasFigure(bankQuestion(id: 'f', issues: const ['image_dependent'])), isTrue);
+    expect(hasFigure(bankQuestion(id: 'p')), isFalse);
+  });
 }

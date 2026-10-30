@@ -2301,5 +2301,10 @@
   "paperSolveNotConfident": "The AI wasn't sure about this one.",
   "paperSolveAiCaution": "Checked by AI ({model}), not by a person. It can be wrong.",
   "@paperSolveAiCaution": {"placeholders": {"model": {"type": "String"}}},
-  "paperSolveExplanation": "Explanation"
+  "paperSolveExplanation": "Explanation",
+  "paperSolveUnmarked": "{count, plural, =1{1 not marked (no answer key)} other{{count} not marked (no answer key)}}",
+  "@paperSolveUnmarked": {"placeholders": {"count": {"type": "int"}}},
+  "paperSolveNoOptions": "This question's options weren't read from your PDF, so it can't be answered here. Fix it on the paper's review screen.",
+  "paperSolveAiNoFigures": "This question depends on a figure, so AI can't check the answer.",
+  "conceptAiLabelKept": "Made from an AI lesson: it always stays labelled as AI-generated."
 }

@@ -215,6 +215,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('ssc-chsl-2-july-2019-shift-3.pdf'));
     await tester.pumpAndSettle();
+    // Tapping a paper offers solve / read / review.
+    await tester.tap(find.text('Review and correct questions'));
+    await tester.pumpAndSettle();
 
     expect(find.text('When was this paper held?'), findsOneWidget);
     expect(find.text('Jul 2, 2019 · Shift 3'), findsOneWidget);

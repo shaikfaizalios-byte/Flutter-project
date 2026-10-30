@@ -104,8 +104,17 @@ class LocalConceptsRepository implements ConceptsRepository {
 
   @override
   Future<Concept> update(String id, ConceptDraft draft) async {
-    final clean = _validated(draft);
+    var clean = _validated(draft);
     final rows = await _db.transaction(() async {
+      // A concept made from an AI lesson stays labelled as AI, whatever its tags are edited to.
+      final before = await (_db.select(
+        _db.concepts,
+      )..where((c) => c.id.equals(id))).getSingleOrNull();
+      if (before != null &&
+          before.tags.contains(aiGeneratedTag) &&
+          !clean.tags.contains(aiGeneratedTag)) {
+        clean = clean.withTags([...clean.tags, aiGeneratedTag]);
+      }
       final updated = await (_db.update(_db.concepts)..where((c) => c.id.equals(id)))
           .writeReturning(
             ConceptsCompanion(

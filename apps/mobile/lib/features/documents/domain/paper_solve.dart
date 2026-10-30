@@ -11,14 +11,20 @@ enum SolveKind {
 
   /// Write an answer in your own words (Q&A notes); checked by AI or against the paper's.
   written,
+
+  /// A multiple-choice question whose options weren't read from the PDF: it needs review.
+  unreadable,
 }
 
 SolveKind solveKind(BankQuestion question) => switch (question.answerType) {
   'typed' => SolveKind.typed,
   'written' => SolveKind.written,
-  _ when question.options.isEmpty => SolveKind.written,
+  _ when question.options.isEmpty => SolveKind.unreadable,
   _ => SolveKind.choice,
 };
+
+/// The question depends on a figure; the AI only sees its text, so it can't check answers.
+bool hasFigure(BankQuestion question) => question.imageDependent || question.figures.isNotEmpty;
 
 /// A paper's questions in printed order, without the ones a reviewer rejected.
 List<BankQuestion> solvableQuestions(Iterable<BankQuestion> questions) {

@@ -636,7 +636,11 @@ def test_topic_lesson_is_returned_and_logged_without_text(
     ai.responses = [
         {
             "overview": "Percentage means per hundred.",
-            "key_points": ["x% of y = x*y/100"],
+            "key_points": [
+                "x% of y = x*y/100",
+                "Increase then decrease is a net loss",
+                "Base matters",
+            ],
             "example_question": "What is 20% of 150?",
             "example_answer": "30",
             "common_mistakes": [],
@@ -651,7 +655,7 @@ def test_topic_lesson_is_returned_and_logged_without_text(
     assert response.status_code == 200, response.text
     body = response.json()
     assert (body["topic"], body["subject"]) == ("Percentage", "Maths")
-    assert body["key_points"] == ["x% of y = x*y/100"] and body["example_answer"] == "30"
+    assert body["key_points"][0] == "x% of y = x*y/100" and body["example_answer"] == "30"
     assert body["model"] == "fake-model-1"
     call = ai.calls[0]
     assert "Percentage (Maths)" in call.prompt and "Combined Higher Secondary" in call.prompt
@@ -758,3 +762,17 @@ def test_answer_check_failures(
     missing = f"/api/v1/ai/questions/{uuid.uuid4()}/answer-check"
     assert api.post(missing, json={"answer": "x"}).status_code == 404
     assert make_api(None).post(url, json={"answer": "x"}).status_code == 503
+
+
+def test_answer_check_refuses_questions_that_depend_on_a_figure(
+    api: TestClient, ai: FakeAIProvider, db_session: Session, document: Document
+) -> None:
+    question = make_question(db_session, document)
+    question.image_dependent = True
+    db_session.commit()
+
+    response = api.post(f"/api/v1/ai/questions/{question.id}/answer-check", json={"answer": "x"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "not_eligible"
+    assert ai.calls == []  # the AI never sees a question it can't see in full

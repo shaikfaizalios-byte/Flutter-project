@@ -214,7 +214,11 @@ def test_anthropic_adapter_maps_sdk_errors() -> None:
 def lesson_data(**changes: Any) -> dict[str, Any]:
     data: dict[str, Any] = {
         "overview": "  Percentage means per hundred.  ",
-        "key_points": ["x% of y = x*y/100", "Increase then decrease is a net loss"],
+        "key_points": [
+            "x% of y = x*y/100",
+            "Increase then decrease is a net loss",
+            "Successive changes multiply",
+        ],
         "example_question": "What is 20% of 150?",
         "example_answer": "20/100 × 150 = 30",
         "common_mistakes": ["Adding successive percentages"],
@@ -229,6 +233,9 @@ def test_lesson_validation_keeps_text_as_given_and_rejects_broken_parts() -> Non
     assert lesson is not None
     assert lesson.overview == "Percentage means per hundred."
     assert lesson.example_answer == "20/100 × 150 = 30" and lesson.confident
+
+    # Fewer key points than asked for is too thin to teach from.
+    assert ai_content.validate_lesson(lesson_data(key_points=["One point", "Two points"])) is None
 
     no_example = ai_content.validate_lesson(lesson_data(example_question="", example_answer=" "))
     assert no_example is not None and no_example.example_question is None
