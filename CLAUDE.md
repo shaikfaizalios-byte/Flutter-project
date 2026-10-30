@@ -51,7 +51,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   show only that exam, and so do concepts (Study list, filters) and revision cards (cards without an exam show
   everywhere); uploads and new concepts go to it (a note says so, no picker). ONE place to switch: `ExamSwitcher`
   in the desktop sidebar, or the Home app bar where there is no sidebar; its "Add or change exams" opens My exams
-  (which holds the `ExamSelector` chips; Profile has no exam settings). Analytics follow it too
+  (which holds the `ExamSelector` chips; Profile has no exam settings). Choosing another exam goes to Home first
+  and changes the exam after `untilAnimationsSettle()` (`app/route_transitions.dart`): screens paused under a page
+  must not wake up to a changed exam mid-build (Riverpod refuses). Analytics follow it too
   (`/analytics/overview?exam=`, counted by each question's exam; mocks by session exam).
 - Mastery per topic (`features/mastery`, mobile-only, no schema change): pure `masteryLevel`/`examMastery` with
   named `MasteryRules` (shown in UI): not started → learning (< 10 answers) → practising (< 60 % or flashcards

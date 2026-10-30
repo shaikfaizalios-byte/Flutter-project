@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:preploop/app/routes.dart';
+import 'package:preploop/features/exams/presentation/exam_switcher.dart';
+import 'package:preploop/app/app_shell.dart';
+import 'package:preploop/features/dashboard/presentation/home_screen.dart';
 import 'package:preploop/features/exams/application/active_exam.dart';
 
 import '../../helpers/pump_app.dart';
@@ -24,6 +30,8 @@ Future<void> openTab(WidgetTester tester, String tab) async {
 }
 
 void main() {
+  switchingExamsGoesHomeTests();
+
   testAppWidgets('each exam shows only its own papers; uploads go to the current exam', (
     tester,
     db,
@@ -91,5 +99,38 @@ void main() {
     await switchExam(tester, 'SSC CGL');
     await openTab(tester, 'Progress');
     expect(analytics.requestedExams.last, 'SSC_CGL');
+  });
+}
+
+void switchingExamsGoesHomeTests() {
+  testAppWidgets('switching exams leaves the old exam screens and lands on Home', (
+    tester,
+    db,
+  ) async {
+    // Desktop: the switcher sits in the sidebar, beside every screen.
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL', 'SSC_CGL']),
+    );
+    GoRouter.of(tester.element(find.byType(Scaffold).first))
+        .push(AppRoutes.paperSolve('doc1', 'iOS interview.pdf'));
+    await tester.pumpAndSettle();
+    expect(find.text('Solve: iOS interview.pdf'), findsOneWidget);
+
+    await tester.tap(
+      find.descendant(of: find.byType(AppSidebar), matching: find.byType(ExamSwitcher)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'SSC CGL'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Solve: iOS interview.pdf'), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
+    final container = ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
+    expect(container.read(activeExamProvider), 'SSC_CGL');
   });
 }
