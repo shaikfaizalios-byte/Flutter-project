@@ -19,6 +19,10 @@ from app.schemas.ai import (
     SearchAnswer,
     SearchAnswerRequest,
     TopicDraft,
+    TopicLessonRead,
+    TopicQuizRead,
+    TopicQuizRequest,
+    TopicRequest,
     TopicSuggestionResult,
 )
 from app.schemas.document import DocumentRead
@@ -163,6 +167,28 @@ def suggest_topic(question_id: uuid.UUID, service: Service) -> TopicSuggestionRe
 )
 def quick_answer(body: QuickAnswerRequest, service: Service) -> QuickAnswer:
     return service.quick_answer(body)
+
+
+@router.post(
+    "/ai/topic-lesson",
+    response_model=TopicLessonRead,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="A short AI lesson on a topic for a learner new to it (nothing is saved)",
+)
+def topic_lesson(body: TopicRequest, service: Service) -> TopicLessonRead:
+    return service.topic_lesson(body)
+
+
+@router.post(
+    "/ai/topic-quiz",
+    response_model=TopicQuizRead,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="AI questions to check a topic the learner already knows (nothing is saved)",
+)
+def topic_quiz(body: TopicQuizRequest, service: Service) -> TopicQuizRead:
+    return service.topic_quiz(body)
 
 
 @router.post(

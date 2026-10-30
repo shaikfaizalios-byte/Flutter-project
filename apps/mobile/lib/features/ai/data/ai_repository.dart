@@ -187,6 +187,117 @@ class SearchAnswer {
   ];
 }
 
+/// The topic a lesson or knowledge check is about: a syllabus topic or one the learner typed.
+@immutable
+class TopicChoice {
+  const TopicChoice({required this.topic, this.subject});
+
+  final String topic;
+  final String? subject;
+
+  @override
+  bool operator ==(Object other) =>
+      other is TopicChoice && other.topic == topic && other.subject == subject;
+
+  @override
+  int get hashCode => Object.hash(topic, subject);
+}
+
+/// A short AI lesson for a learner new to a topic. Not stored and not checked by anyone:
+/// always shown labelled as AI-generated.
+@immutable
+class TopicLesson {
+  const TopicLesson({
+    required this.topic,
+    required this.overview,
+    required this.keyPoints,
+    required this.commonMistakes,
+    required this.confident,
+    required this.model,
+    this.subject,
+    this.exampleQuestion,
+    this.exampleAnswer,
+  });
+
+  factory TopicLesson.fromJson(Map<String, dynamic> json) => TopicLesson(
+    topic: json['topic'] as String,
+    subject: json['subject'] as String?,
+    overview: json['overview'] as String,
+    keyPoints: (json['key_points'] as List<dynamic>).cast<String>(),
+    exampleQuestion: json['example_question'] as String?,
+    exampleAnswer: json['example_answer'] as String?,
+    commonMistakes: (json['common_mistakes'] as List<dynamic>).cast<String>(),
+    confident: json['confident'] as bool,
+    model: json['model'] as String,
+  );
+
+  final String topic;
+  final String? subject;
+  final String overview;
+  final List<String> keyPoints;
+
+  /// One worked example; both null when the topic has no sensible one.
+  final String? exampleQuestion;
+  final String? exampleAnswer;
+  final List<String> commonMistakes;
+
+  /// False when the AI said it isn't sure.
+  final bool confident;
+  final String model;
+}
+
+/// One AI question of a knowledge check (marked on the device, never stored).
+@immutable
+class QuizQuestion {
+  const QuizQuestion({
+    required this.stem,
+    required this.options,
+    required this.correctOption,
+    required this.explanation,
+  });
+
+  factory QuizQuestion.fromJson(Map<String, dynamic> json) => QuizQuestion(
+    stem: json['stem'] as String,
+    options: (json['options'] as List<dynamic>).cast<String>(),
+    correctOption: json['correct_option'] as int,
+    explanation: json['explanation'] as String,
+  );
+
+  final String stem;
+  final List<String> options;
+
+  /// 1-based, as the server sends it.
+  final int correctOption;
+  final String explanation;
+}
+
+/// AI questions to check a topic the learner says they know. They never count as practice
+/// or progress (they aren't reviewed).
+@immutable
+class TopicQuiz {
+  const TopicQuiz({
+    required this.topic,
+    required this.questions,
+    required this.model,
+    this.subject,
+  });
+
+  factory TopicQuiz.fromJson(Map<String, dynamic> json) => TopicQuiz(
+    topic: json['topic'] as String,
+    subject: json['subject'] as String?,
+    questions: [
+      for (final q in json['questions'] as List<dynamic>)
+        QuizQuestion.fromJson(q as Map<String, dynamic>),
+    ],
+    model: json['model'] as String,
+  );
+
+  final String topic;
+  final String? subject;
+  final List<QuizQuestion> questions;
+  final String model;
+}
+
 enum ReportReason {
   wrongAnswer('wrong_answer'),
   unclear('unclear'),
@@ -237,6 +348,21 @@ abstract interface class AiRepository {
   /// Answers from the learner's own material (RAG): the search and the matching excerpts go
   /// to the AI provider (only after the learner switched AI answers on).
   Future<SearchAnswer> searchAnswer(String text, {required String examCode});
+
+  /// A lesson on the topic (the topic name goes to the AI provider; nothing is stored).
+  Future<TopicLesson> topicLesson(
+    TopicChoice choice, {
+    required String examCode,
+    required ContentLanguage language,
+  });
+
+  /// Questions that check the topic (the topic name goes to the AI provider; nothing is
+  /// stored).
+  Future<TopicQuiz> topicQuiz(
+    TopicChoice choice, {
+    required String examCode,
+    required ContentLanguage language,
+  });
 }
 
 class RemoteAiRepository implements AiRepository {
@@ -372,6 +498,45 @@ class RemoteAiRepository implements AiRepository {
       )).data!,
     ),
   );
+
+  @override
+  Future<TopicLesson> topicLesson(
+    TopicChoice choice, {
+    required String examCode,
+    required ContentLanguage language,
+  }) => _guard(
+    () async => TopicLesson.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/ai/topic-lesson',
+        data: _topicBody(choice, examCode, language),
+      )).data!,
+    ),
+  );
+
+  @override
+  Future<TopicQuiz> topicQuiz(
+    TopicChoice choice, {
+    required String examCode,
+    required ContentLanguage language,
+  }) => _guard(
+    () async => TopicQuiz.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/ai/topic-quiz',
+        data: _topicBody(choice, examCode, language),
+      )).data!,
+    ),
+  );
+
+  static Map<String, Object> _topicBody(
+    TopicChoice choice,
+    String examCode,
+    ContentLanguage language,
+  ) => {
+    'exam_code': examCode,
+    'topic': choice.topic,
+    'subject': ?choice.subject,
+    'language': language.code,
+  };
 
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {

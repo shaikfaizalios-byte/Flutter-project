@@ -36,6 +36,17 @@ abstract final class AppRoutes {
   static String documentReview(String id) => '/study/documents/$id';
   static String question(String id) => '/questions/$id';
   static String practiceSession(String id) => '/practice/sessions/$id';
+
+  /// A lesson on a topic for a learner new to it (AI).
+  static String topicLesson(String topic, {String? subject}) =>
+      _learn('/learn/lesson', topic, subject);
+
+  /// Questions that check a topic the learner already knows (AI).
+  static String topicQuiz(String topic, {String? subject}) => _learn('/learn/quiz', topic, subject);
+
+  static String _learn(String path, String topic, String? subject) =>
+      Uri(path: path, queryParameters: {'topic': topic, 'subject': ?subject}).toString();
+
   static String examTopics(String code, {bool importSyllabus = false}) =>
       '/profile/exams/$code${importSyllabus ? '?syllabus=1' : ''}';
 }

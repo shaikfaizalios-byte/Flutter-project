@@ -5,10 +5,11 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
+from app.domain import ai_content
 from app.integrations.ai import AIProviderError
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
@@ -626,3 +627,89 @@ def test_quick_answer_in_hindi_without_exam_and_its_failures(
     assert api.post("/api/v1/ai/quick-answer", json={"text": "x"}).status_code == 422
     off = make_api(None).post("/api/v1/ai/quick-answer", json={"text": "swift"})
     assert off.status_code == 503
+
+
+def test_topic_lesson_is_returned_and_logged_without_text(
+    api: TestClient, ai: FakeAIProvider, db_session: Session
+) -> None:
+    ai.responses = [
+        {
+            "overview": "Percentage means per hundred.",
+            "key_points": ["x% of y = x*y/100"],
+            "example_question": "What is 20% of 150?",
+            "example_answer": "30",
+            "common_mistakes": [],
+            "confident": True,
+        }
+    ]
+    response = api.post(
+        "/api/v1/ai/topic-lesson",
+        json={"exam_code": "SSC_CHSL", "topic": " Percentage ", "subject": "Maths"},
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert (body["topic"], body["subject"]) == ("Percentage", "Maths")
+    assert body["key_points"] == ["x% of y = x*y/100"] and body["example_answer"] == "30"
+    assert body["model"] == "fake-model-1"
+    call = ai.calls[0]
+    assert "Percentage (Maths)" in call.prompt and "Combined Higher Secondary" in call.prompt
+    assert call.system == ai_content.TOPIC_SYSTEM
+    log = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "topic_lesson")).one()
+    assert (log.outcome, log.detail, log.items_created) == ("ok", "", 1)
+
+
+def test_topic_lesson_failures(make_api: AppFactory, ai: FakeAIProvider) -> None:
+    api = make_api(ai)
+    ai.responses = [{"overview": "", "key_points": [], "confident": True}]
+    lesson = {"exam_code": "SSC_CHSL", "topic": "Percentage"}
+    assert api.post("/api/v1/ai/topic-lesson", json=lesson).status_code == 502
+    unknown = api.post("/api/v1/ai/topic-lesson", json={**lesson, "exam_code": "NOPE"})
+    assert unknown.status_code == 422
+    assert api.post("/api/v1/ai/topic-lesson", json={**lesson, "topic": "x"}).status_code == 422
+    assert make_api(None).post("/api/v1/ai/topic-lesson", json=lesson).status_code == 503
+    assert len(ai.calls) == 1  # only the first request reached the provider
+
+
+def test_topic_quiz_returns_valid_questions_without_storing_them(
+    api: TestClient, ai: FakeAIProvider, db_session: Session
+) -> None:
+    quiz = generated(4, prefix="Quiz question")
+    quiz["questions"][3]["options"] = ["same", "same", "x", "y"]  # rejected
+    ai.responses = [quiz]
+    before = db_session.scalar(select(func.count()).select_from(Question))
+
+    response = api.post(
+        "/api/v1/ai/topic-quiz",
+        json={"exam_code": "SSC_CHSL", "topic": "Percentage", "language": "hi", "count": 4},
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert len(body["questions"]) == 3 and body["rejected"] == 1
+    assert body["questions"][0] == {
+        "stem": "Quiz question number 1?",
+        "options": ["A1", "B1", "C1", "D1"],
+        "correct_option": 2,
+        "explanation": "Because B1.",
+    }
+    assert "Write 4 original" in ai.calls[0].prompt and "Hindi" in ai.calls[0].prompt
+    assert db_session.scalar(select(func.count()).select_from(Question)) == before
+    log = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "topic_quiz")).one()
+    assert (log.outcome, log.detail) == ("partial", "duplicate_options")
+    assert (log.items_created, log.items_rejected) == (3, 1)
+
+
+def test_topic_quiz_with_too_few_usable_questions_fails(
+    api: TestClient, ai: FakeAIProvider, db_session: Session
+) -> None:
+    two_left = generated(3, prefix="Quiz question")
+    two_left["questions"][2]["correct_option"] = 9  # rejected: only 2 usable, too few to judge
+    ai.responses = [{"questions": [{"stem": "short"}]}, two_left]
+    request = {"exam_code": "SSC_CHSL", "topic": "Percentage"}
+    assert api.post("/api/v1/ai/topic-quiz", json=request).status_code == 502
+    assert api.post("/api/v1/ai/topic-quiz", json={**request, "count": 3}).status_code == 502
+    logs = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "topic_quiz")).all()
+    assert [(log.outcome, log.items_created) for log in logs] == [("invalid", 0), ("invalid", 2)]
+    too_many = api.post("/api/v1/ai/topic-quiz", json={**request, "count": 6})
+    assert too_many.status_code == 422

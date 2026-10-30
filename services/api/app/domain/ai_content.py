@@ -447,3 +447,130 @@ def validate_quick_answer(data: dict[str, Any]) -> tuple[str | None, bool]:
     if not isinstance(text, str) or not (0 < len(text.strip()) <= MAX_QUICK_ANSWER):
         return None, confident
     return unicodedata.normalize("NFC", text.strip()), confident
+
+
+# --- topic lessons and knowledge checks (nothing is stored; shown as unchecked AI) --------
+
+TOPIC_SYSTEM = (
+    "You are a patient tutor for learners preparing for competitive multiple-choice exams. "
+    "You teach and test one topic at a time with original material. Never claim or imply "
+    "that anything you write is from an official or previous-year paper, and never invent "
+    "exam patterns, cut-offs, marks, weightage or statistics. If you are not sure something "
+    "is correct, say so instead of guessing."
+)
+
+LESSON_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "overview": {"type": "string"},
+        "key_points": {"type": "array", "items": {"type": "string"}},
+        "example_question": {"type": "string"},
+        "example_answer": {"type": "string"},
+        "common_mistakes": {"type": "array", "items": {"type": "string"}},
+        "confident": {"type": "boolean"},
+    },
+    "required": [
+        "overview",
+        "key_points",
+        "example_question",
+        "example_answer",
+        "common_mistakes",
+        "confident",
+    ],
+    "additionalProperties": False,
+}
+TOPIC_NAME_MAX = 100
+MAX_LESSON_OVERVIEW = 1500
+MAX_LESSON_POINT = 400
+MAX_LESSON_EXAMPLE = 1000
+MAX_KEY_POINTS = 8
+MAX_MISTAKES = 5
+# A knowledge check needs at least this many usable questions; fewer give no fair verdict.
+MIN_QUIZ_QUESTIONS = 3
+
+
+@dataclass(frozen=True)
+class TopicLesson:
+    overview: str
+    key_points: list[str]
+    example_question: str | None
+    example_answer: str | None
+    common_mistakes: list[str]
+    confident: bool
+
+
+def _topic_line(topic: str, subject: str | None, exam_name: str | None) -> str:
+    where = f" ({subject})" if subject else ""
+    exam = exam_name or "a competitive exam"
+    return f"A learner preparing for {exam} chose the topic: {topic}{where}."
+
+
+def topic_lesson_prompt(
+    *, topic: str, subject: str | None, exam_name: str | None, language: str
+) -> str:
+    return (
+        f"{_topic_line(topic, subject, exam_name)}\n"
+        "They are new to it. Teach it from the beginning, in "
+        f"{LANGUAGE_NAMES[language]}:\n"
+        "- overview: what the topic is and why it matters, in at most 120 words of plain "
+        "language.\n"
+        f"- key_points: 3 to {MAX_KEY_POINTS} short points (rules, formulas, facts or steps) "
+        "a learner must know to answer questions on it.\n"
+        "- example_question and example_answer: one original exam-style question and its "
+        "worked answer, step by step. Leave both empty if the topic has no sensible example.\n"
+        f"- common_mistakes: up to {MAX_MISTAKES} mistakes learners often make on it.\n"
+        "Set confident to false if you are not sure the content is correct or the topic name "
+        "is unclear."
+    )
+
+
+def _clean_list(value: Any, *, limit: int, item_max: int) -> list[str] | None:
+    """The cleaned strings, or None when the list is malformed (never trimmed silently)."""
+    if not isinstance(value, list) or len(value) > limit:
+        return None
+    if not all(isinstance(v, str) and 0 < len(v.strip()) <= item_max for v in value):
+        return None
+    return [unicodedata.normalize("NFC", v.strip()) for v in value]
+
+
+def validate_lesson(data: dict[str, Any]) -> TopicLesson | None:
+    """The lesson, or None when any part is unusable."""
+    overview = data.get("overview")
+    if not isinstance(overview, str) or not (0 < len(overview.strip()) <= MAX_LESSON_OVERVIEW):
+        return None
+    points = _clean_list(data.get("key_points"), limit=MAX_KEY_POINTS, item_max=MAX_LESSON_POINT)
+    mistakes = _clean_list(
+        data.get("common_mistakes"), limit=MAX_MISTAKES, item_max=MAX_LESSON_POINT
+    )
+    if not points or mistakes is None:
+        return None
+    question, answer = data.get("example_question"), data.get("example_answer")
+    if not isinstance(question, str) or not isinstance(answer, str):
+        return None
+    question, answer = question.strip(), answer.strip()
+    # Both or neither: a question without its worked answer (or the reverse) is unusable.
+    if bool(question) != bool(answer):
+        return None
+    if len(question) > MAX_LESSON_EXAMPLE or len(answer) > MAX_LESSON_EXAMPLE:
+        return None
+    return TopicLesson(
+        overview=unicodedata.normalize("NFC", overview.strip()),
+        key_points=points,
+        example_question=unicodedata.normalize("NFC", question) if question else None,
+        example_answer=unicodedata.normalize("NFC", answer) if answer else None,
+        common_mistakes=mistakes,
+        confident=data.get("confident") is True,
+    )
+
+
+def topic_quiz_prompt(
+    *, topic: str, subject: str | None, exam_name: str | None, language: str, count: int
+) -> str:
+    return (
+        f"{_topic_line(topic, subject, exam_name)}\n"
+        f"They say they already know it. Write {count} original multiple-choice questions "
+        f"that check whether they really do, in {LANGUAGE_NAMES[language]}: start easy and "
+        "get harder, and cover different parts of the topic. Each has exactly "
+        f"{OPTIONS_PER_QUESTION} distinct options, exactly one correct option "
+        "(correct_option is 1-based) and a short explanation of why it is correct."
+    )

@@ -3701,4 +3701,181 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get learnStartTitle => 'How do you want to start?';
+
+  @override
+  String get learnOptionLearn => 'I\'m new to a topic: teach me first';
+
+  @override
+  String get learnOptionLearnHint =>
+      'A short lesson with key points, a worked example and common mistakes.';
+
+  @override
+  String get learnOptionTest => 'I know a topic: test my knowledge';
+
+  @override
+  String get learnOptionTestHint => 'Questions that check what you know, with explanations.';
+
+  @override
+  String get learnOptionPaper => 'Import a previous year paper';
+
+  @override
+  String get learnOptionPaperHint =>
+      'Upload a PDF: PrepLoop finds its questions, answers and topics.';
+
+  @override
+  String get learnNeedsAi => 'Needs AI help, which isn\'t available right now.';
+
+  @override
+  String get learnPlusMessage =>
+      'Lessons and knowledge checks use AI, which is part of PrepLoop Plus.';
+
+  @override
+  String get learnPickTitle => 'Choose a topic';
+
+  @override
+  String get learnPickSyllabus => 'From your syllabus';
+
+  @override
+  String get learnPickNoSyllabus => 'Add your syllabus to pick from its topics, or type one below.';
+
+  @override
+  String get learnPickTyped => 'Or type a topic';
+
+  @override
+  String get learnPickTypedHint => 'e.g. Percentage, Simple interest';
+
+  @override
+  String get learnPickGo => 'Continue';
+
+  @override
+  String get learnPickSends => 'The topic name is sent to the AI service. Nothing else is shared.';
+
+  @override
+  String learnLessonTitle(String topic) {
+    return 'Learn: $topic';
+  }
+
+  @override
+  String get learnLessonLoading => 'Writing your lesson…';
+
+  @override
+  String get learnOverview => 'What it is';
+
+  @override
+  String get learnKeyPoints => 'Key points';
+
+  @override
+  String get learnExample => 'Worked example';
+
+  @override
+  String get learnShowAnswer => 'Show the answer';
+
+  @override
+  String get learnMistakes => 'Common mistakes';
+
+  @override
+  String get learnNotConfident =>
+      'The AI wasn\'t sure about this lesson. Check it against your book or notes.';
+
+  @override
+  String learnCaution(String model) {
+    return 'Written by AI ($model) and not checked by anyone. It can be wrong: check it before relying on it.';
+  }
+
+  @override
+  String get learnAiLabel => 'AI-generated · not checked';
+
+  @override
+  String get learnTestMe => 'Test my knowledge';
+
+  @override
+  String get learnSaveConcept => 'Save as a concept';
+
+  @override
+  String learnQuizTitle(String topic) {
+    return 'Test: $topic';
+  }
+
+  @override
+  String get learnQuizLoading => 'Writing your questions…';
+
+  @override
+  String get learnQuizNote =>
+      'AI questions, not from any paper and not checked. They don\'t count toward your progress.';
+
+  @override
+  String learnQuizProgress(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String get learnQuizCorrect => 'Correct.';
+
+  @override
+  String learnQuizWrong(String option) {
+    return 'Not quite. The answer is $option.';
+  }
+
+  @override
+  String get learnQuizNext => 'Next';
+
+  @override
+  String get learnQuizFinish => 'See my result';
+
+  @override
+  String learnQuizScore(int correct, int total) {
+    return '$correct of $total correct';
+  }
+
+  @override
+  String get learnQuizKnowsIt =>
+      'You know this topic well. Practise questions from papers to keep it strong.';
+
+  @override
+  String get learnQuizPartly =>
+      'You know parts of it. Read the lesson for the points you missed, then try new questions.';
+
+  @override
+  String get learnQuizLearnFirst => 'This topic needs learning first. Start with the lesson.';
+
+  @override
+  String learnQuizRules(String knowIt, String partly, int min) {
+    return 'Know it: $knowIt or more correct. Partly: $partly or more. Judged only on $min or more questions.';
+  }
+
+  @override
+  String get learnQuizAgain => 'New questions';
+
+  @override
+  String get learnQuizLearn => 'Learn this topic';
+
+  @override
+  String get learnQuizDone => 'Done';
+
+  @override
+  String get learnTopicLearn => 'Learn';
+
+  @override
+  String get learnTopicTest => 'Test me';
+
+  @override
+  String get plusFeatureLessons => 'AI lessons and knowledge checks on any topic';
+
+  @override
+  String learnConceptSource(String model) {
+    return 'AI lesson ($model), not checked';
+  }
+
+  @override
+  String get learnQuizQuestionLabel => 'AI question · not from a paper';
+
+  @override
+  String get learnQuizKeyCaveat =>
+      'The AI chose this answer and no one has checked it. If it looks wrong, trust your book.';
+
+  @override
+  String get learnQuizTooFew => 'Too few questions to judge this topic. Try new questions.';
 }

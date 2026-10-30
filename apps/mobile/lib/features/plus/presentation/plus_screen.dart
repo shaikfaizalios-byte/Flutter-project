@@ -145,6 +145,7 @@ class _PlusDetails extends ConsumerWidget {
                 l10n.plusFeatureQuestions,
                 l10n.plusFeaturePaperTopics,
                 l10n.plusFeatureTopicDraft,
+                l10n.plusFeatureLessons,
               ])
                 ListTile(
                   contentPadding: EdgeInsets.zero,

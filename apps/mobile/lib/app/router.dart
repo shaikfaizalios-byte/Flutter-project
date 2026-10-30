@@ -30,9 +30,13 @@ import '../features/revision/presentation/revision_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/study_plan/application/study_profile_controller.dart';
 import 'app_shell.dart';
+import 'app_features.dart';
 import 'routes.dart';
 import '../features/feedback/presentation/suggestions_screen.dart';
 import '../features/plus/presentation/plus_screen.dart';
+import '../features/ai/data/ai_repository.dart';
+import '../features/learn/presentation/topic_lesson_screen.dart';
+import '../features/learn/presentation/topic_quiz_screen.dart';
 
 export 'routes.dart';
 
@@ -108,6 +112,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           importSyllabus: state.uri.queryParameters['syllabus'] == '1',
         ),
       ),
+      // Lessons and knowledge checks stay unreachable (even by link) while the feature is hidden.
+      GoRoute(
+        path: '/learn/lesson',
+        redirect: (context, state) =>
+            ref.read(appFeaturesProvider).learnStart ? null : AppRoutes.home,
+        builder: (context, state) => TopicLessonScreen(choice: _topicChoice(state)),
+      ),
+      GoRoute(
+        path: '/learn/quiz',
+        redirect: (context, state) =>
+            ref.read(appFeaturesProvider).learnStart ? null : AppRoutes.home,
+        builder: (context, state) => TopicQuizScreen(choice: _topicChoice(state)),
+      ),
       GoRoute(
         path: '/questions/:id',
         builder: (context, state) => QuestionReviewScreen(questionId: state.pathParameters['id']!),
@@ -151,14 +168,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'concepts/new',
                     parentNavigatorKey: _rootNavigatorKey,
-                    builder: (context, state) => ConceptFormScreen(
-                      subject: state.uri.queryParameters['subject'],
-                      topic: state.uri.queryParameters['topic'],
-                      notes: switch (state.extra) {
-                        ConceptPrefill(:final notes) => notes,
-                        _ => null,
-                      },
-                    ),
+                    builder: (context, state) {
+                      final prefill = state.extra is ConceptPrefill
+                          ? state.extra! as ConceptPrefill
+                          : null;
+                      return ConceptFormScreen(
+                        subject: state.uri.queryParameters['subject'],
+                        topic: state.uri.queryParameters['topic'],
+                        notes: prefill?.notes,
+                        tags: prefill?.tags ?? const [],
+                        source: prefill?.source,
+                      );
+                    },
                   ),
                   GoRoute(
                     path: 'concepts/:id',
@@ -250,6 +271,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 StatefulShellBranch _branch(String path, Widget screen) => StatefulShellBranch(
   routes: [GoRoute(path: path, builder: (context, state) => screen)],
+);
+
+/// The topic of a lesson or knowledge-check route.
+TopicChoice _topicChoice(GoRouterState state) => TopicChoice(
+  topic: state.uri.queryParameters['topic'] ?? '',
+  subject: state.uri.queryParameters['subject'],
 );
 
 class _NotFoundScreen extends StatelessWidget {

@@ -151,6 +151,23 @@ def test_questions_and_concepts_are_sources_but_never_ai_or_rejected_questions(
     assert question.label.startswith("Q.") and "sample.pdf" in question.label
 
 
+def test_concepts_saved_from_an_ai_lesson_are_unchecked_sources(
+    db_session: Session, user: User
+) -> None:
+    for item_id, tags in (("own", ["maths"]), ("ai", ["ai-generated"])):
+        db_session.add(
+            SyncItem(owner_id=user.id, entity="concept", item_id=item_id, deleted=False,
+                     data={"exam_code": "SSC_CHSL", "title": f"Percentage {item_id}",
+                           "notes": "Percentage means per hundred.", "subject": "Maths",
+                           "topic": "Percentage", "tags": tags, "archived_at": None})
+        )  # fmt: skip
+    db_session.flush()
+
+    found = RagRetriever(db_session, user.id).retrieve(["percentage"], "SSC_CHSL")
+
+    assert {s.concept_id: s.verified for s in found} == {"own": True, "ai": False}
+
+
 def test_nothing_matching_means_no_sources(db_session: Session, user: User) -> None:
     retriever = RagRetriever(db_session, user.id)
     assert retriever.retrieve(["kotlin"], "SSC_CHSL") == []

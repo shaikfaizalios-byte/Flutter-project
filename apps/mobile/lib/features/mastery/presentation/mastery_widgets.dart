@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
+import '../../ai/application/ai_providers.dart';
 import '../../analytics/application/analytics_providers.dart';
 import '../../analytics/domain/study_plan.dart';
 import '../../analytics/domain/weak_topics.dart';
@@ -371,6 +373,9 @@ class _TopicMasteryCardState extends ConsumerState<TopicMasteryCard> {
     final subjects = ref.watch(examMasteryProvider).value;
     final topic = subjects == null ? null : _find(subjects);
     if (topic == null) return const SizedBox.shrink();
+    final ai = ref.watch(aiStatusProvider).value;
+    final aiReady =
+        ref.watch(appFeaturesProvider).learnStart && (ai?.enabled ?? false) && !ai!.needsPlus;
     final evidence = [
       if (topic.counts.accuracy case final accuracy?)
         l10n.topicAccuracy(formatPercent(context, accuracy), topic.counts.answered)
@@ -425,6 +430,20 @@ class _TopicMasteryCardState extends ConsumerState<TopicMasteryCard> {
                           ),
                     ),
                   ),
+                if (aiReady) ...[
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.school_outlined),
+                    label: Text(l10n.learnTopicLearn),
+                    onPressed: () =>
+                        context.push(AppRoutes.topicLesson(topic.name, subject: topic.subject)),
+                  ),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.fact_check_outlined),
+                    label: Text(l10n.learnTopicTest),
+                    onPressed: () =>
+                        context.push(AppRoutes.topicQuiz(topic.name, subject: topic.subject)),
+                  ),
+                ],
                 OutlinedButton.icon(
                   icon: const Icon(Icons.add),
                   label: Text(l10n.masteryAddConcept),

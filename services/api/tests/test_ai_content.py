@@ -209,3 +209,51 @@ def test_anthropic_adapter_maps_sdk_errors() -> None:
     with pytest.raises(AIProviderError) as auth:
         provider.complete_json(system="s", prompt="p", schema={}, max_tokens=10)
     assert (auth.value.reason, auth.value.retryable) == ("provider_auth", False)
+
+
+def lesson_data(**changes: Any) -> dict[str, Any]:
+    data: dict[str, Any] = {
+        "overview": "  Percentage means per hundred.  ",
+        "key_points": ["x% of y = x*y/100", "Increase then decrease is a net loss"],
+        "example_question": "What is 20% of 150?",
+        "example_answer": "20/100 × 150 = 30",
+        "common_mistakes": ["Adding successive percentages"],
+        "confident": True,
+    }
+    data.update(changes)
+    return data
+
+
+def test_lesson_validation_keeps_text_as_given_and_rejects_broken_parts() -> None:
+    lesson = ai_content.validate_lesson(lesson_data())
+    assert lesson is not None
+    assert lesson.overview == "Percentage means per hundred."
+    assert lesson.example_answer == "20/100 × 150 = 30" and lesson.confident
+
+    no_example = ai_content.validate_lesson(lesson_data(example_question="", example_answer=" "))
+    assert no_example is not None and no_example.example_question is None
+
+    broken: dict[str, Any]
+    for broken in (
+        {"overview": "  "},
+        {"key_points": []},
+        {"key_points": ["ok", ""]},
+        {"key_points": ["p"] * (ai_content.MAX_KEY_POINTS + 1)},
+        {"common_mistakes": "not a list"},
+        {"example_question": "A question without its answer", "example_answer": ""},
+        {"example_answer": None},
+    ):
+        assert ai_content.validate_lesson(lesson_data(**broken)) is None, broken
+
+
+def test_topic_prompts_name_the_topic_exam_and_language() -> None:
+    lesson = ai_content.topic_lesson_prompt(
+        topic="Percentage", subject="Quantitative Aptitude", exam_name="SSC CGL", language="hi"
+    )
+    assert "Percentage (Quantitative Aptitude)" in lesson and "SSC CGL" in lesson
+    assert "Hindi" in lesson and "new to it" in lesson
+    quiz = ai_content.topic_quiz_prompt(
+        topic="Percentage", subject=None, exam_name=None, language="en", count=5
+    )
+    assert "Write 5 original" in quiz and "a competitive exam" in quiz and "English" in quiz
+    assert "previous-year" in ai_content.TOPIC_SYSTEM

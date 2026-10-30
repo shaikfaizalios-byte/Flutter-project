@@ -5930,6 +5930,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 paper} other{{count} papers}}'**
   String starterPapersShort(int count);
+
+  /// No description provided for @learnStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you want to start?'**
+  String get learnStartTitle;
+
+  /// No description provided for @learnOptionLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m new to a topic: teach me first'**
+  String get learnOptionLearn;
+
+  /// No description provided for @learnOptionLearnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A short lesson with key points, a worked example and common mistakes.'**
+  String get learnOptionLearnHint;
+
+  /// No description provided for @learnOptionTest.
+  ///
+  /// In en, this message translates to:
+  /// **'I know a topic: test my knowledge'**
+  String get learnOptionTest;
+
+  /// No description provided for @learnOptionTestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions that check what you know, with explanations.'**
+  String get learnOptionTestHint;
+
+  /// No description provided for @learnOptionPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a previous year paper'**
+  String get learnOptionPaper;
+
+  /// No description provided for @learnOptionPaperHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a PDF: PrepLoop finds its questions, answers and topics.'**
+  String get learnOptionPaperHint;
+
+  /// No description provided for @learnNeedsAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs AI help, which isn\'t available right now.'**
+  String get learnNeedsAi;
+
+  /// No description provided for @learnPlusMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons and knowledge checks use AI, which is part of PrepLoop Plus.'**
+  String get learnPlusMessage;
+
+  /// No description provided for @learnPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a topic'**
+  String get learnPickTitle;
+
+  /// No description provided for @learnPickSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'From your syllabus'**
+  String get learnPickSyllabus;
+
+  /// No description provided for @learnPickNoSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your syllabus to pick from its topics, or type one below.'**
+  String get learnPickNoSyllabus;
+
+  /// No description provided for @learnPickTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Or type a topic'**
+  String get learnPickTyped;
+
+  /// No description provided for @learnPickTypedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Percentage, Simple interest'**
+  String get learnPickTypedHint;
+
+  /// No description provided for @learnPickGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get learnPickGo;
+
+  /// No description provided for @learnPickSends.
+  ///
+  /// In en, this message translates to:
+  /// **'The topic name is sent to the AI service. Nothing else is shared.'**
+  String get learnPickSends;
+
+  /// No description provided for @learnLessonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn: {topic}'**
+  String learnLessonTitle(String topic);
+
+  /// No description provided for @learnLessonLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing your lesson…'**
+  String get learnLessonLoading;
+
+  /// No description provided for @learnOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'What it is'**
+  String get learnOverview;
+
+  /// No description provided for @learnKeyPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Key points'**
+  String get learnKeyPoints;
+
+  /// No description provided for @learnExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked example'**
+  String get learnExample;
+
+  /// No description provided for @learnShowAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the answer'**
+  String get learnShowAnswer;
+
+  /// No description provided for @learnMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Common mistakes'**
+  String get learnMistakes;
+
+  /// No description provided for @learnNotConfident.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI wasn\'t sure about this lesson. Check it against your book or notes.'**
+  String get learnNotConfident;
+
+  /// No description provided for @learnCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI ({model}) and not checked by anyone. It can be wrong: check it before relying on it.'**
+  String learnCaution(String model);
+
+  /// No description provided for @learnAiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated · not checked'**
+  String get learnAiLabel;
+
+  /// No description provided for @learnTestMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Test my knowledge'**
+  String get learnTestMe;
+
+  /// No description provided for @learnSaveConcept.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a concept'**
+  String get learnSaveConcept;
+
+  /// No description provided for @learnQuizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test: {topic}'**
+  String learnQuizTitle(String topic);
+
+  /// No description provided for @learnQuizLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing your questions…'**
+  String get learnQuizLoading;
+
+  /// No description provided for @learnQuizNote.
+  ///
+  /// In en, this message translates to:
+  /// **'AI questions, not from any paper and not checked. They don\'t count toward your progress.'**
+  String get learnQuizNote;
+
+  /// No description provided for @learnQuizProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {current} of {total}'**
+  String learnQuizProgress(int current, int total);
+
+  /// No description provided for @learnQuizCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct.'**
+  String get learnQuizCorrect;
+
+  /// No description provided for @learnQuizWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite. The answer is {option}.'**
+  String learnQuizWrong(String option);
+
+  /// No description provided for @learnQuizNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get learnQuizNext;
+
+  /// No description provided for @learnQuizFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'See my result'**
+  String get learnQuizFinish;
+
+  /// No description provided for @learnQuizScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} of {total} correct'**
+  String learnQuizScore(int correct, int total);
+
+  /// No description provided for @learnQuizKnowsIt.
+  ///
+  /// In en, this message translates to:
+  /// **'You know this topic well. Practise questions from papers to keep it strong.'**
+  String get learnQuizKnowsIt;
+
+  /// No description provided for @learnQuizPartly.
+  ///
+  /// In en, this message translates to:
+  /// **'You know parts of it. Read the lesson for the points you missed, then try new questions.'**
+  String get learnQuizPartly;
+
+  /// No description provided for @learnQuizLearnFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'This topic needs learning first. Start with the lesson.'**
+  String get learnQuizLearnFirst;
+
+  /// No description provided for @learnQuizRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Know it: {knowIt} or more correct. Partly: {partly} or more. Judged only on {min} or more questions.'**
+  String learnQuizRules(String knowIt, String partly, int min);
+
+  /// No description provided for @learnQuizAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'New questions'**
+  String get learnQuizAgain;
+
+  /// No description provided for @learnQuizLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn this topic'**
+  String get learnQuizLearn;
+
+  /// No description provided for @learnQuizDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get learnQuizDone;
+
+  /// No description provided for @learnTopicLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get learnTopicLearn;
+
+  /// No description provided for @learnTopicTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test me'**
+  String get learnTopicTest;
+
+  /// No description provided for @plusFeatureLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'AI lessons and knowledge checks on any topic'**
+  String get plusFeatureLessons;
+
+  /// No description provided for @learnConceptSource.
+  ///
+  /// In en, this message translates to:
+  /// **'AI lesson ({model}), not checked'**
+  String learnConceptSource(String model);
+
+  /// No description provided for @learnQuizQuestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI question · not from a paper'**
+  String get learnQuizQuestionLabel;
+
+  /// No description provided for @learnQuizKeyCaveat.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI chose this answer and no one has checked it. If it looks wrong, trust your book.'**
+  String get learnQuizKeyCaveat;
+
+  /// No description provided for @learnQuizTooFew.
+  ///
+  /// In en, this message translates to:
+  /// **'Too few questions to judge this topic. Try new questions.'**
+  String get learnQuizTooFew;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

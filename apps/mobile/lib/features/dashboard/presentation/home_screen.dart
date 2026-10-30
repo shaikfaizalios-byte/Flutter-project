@@ -28,6 +28,7 @@ import '../../analytics/domain/study_plan.dart';
 import '../../documents/presentation/import_progress.dart';
 import '../../../app/app_features.dart';
 import '../../weekly_review/application/weekly_review_providers.dart';
+import '../../learn/presentation/start_options_card.dart';
 
 /// Dashboard. Answers the three core questions from real local data only;
 /// where no data exists yet, each section says so honestly (no sample stats).
@@ -107,6 +108,8 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
               ],
+              const StartOptionsCard(),
+              const SizedBox(height: AppSpacing.md),
               const _WeakSection(),
               const SizedBox(height: AppSpacing.md),
               const _ShortcutsSection(),

@@ -3702,4 +3702,181 @@ class AppLocalizationsHi extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get learnStartTitle => 'आप कैसे शुरू करना चाहते हैं?';
+
+  @override
+  String get learnOptionLearn => 'यह टॉपिक मेरे लिए नया है: पहले सिखाइए';
+
+  @override
+  String get learnOptionLearnHint =>
+      'मुख्य बिंदु, एक हल किया हुआ उदाहरण और आम गलतियों के साथ एक छोटा पाठ।';
+
+  @override
+  String get learnOptionTest => 'मुझे यह टॉपिक आता है: मेरी जाँच कीजिए';
+
+  @override
+  String get learnOptionTestHint => 'आपकी समझ जाँचने वाले प्रश्न, व्याख्या के साथ।';
+
+  @override
+  String get learnOptionPaper => 'पिछले वर्ष का पेपर इम्पोर्ट करें';
+
+  @override
+  String get learnOptionPaperHint =>
+      'PDF अपलोड करें: PrepLoop उसके प्रश्न, उत्तर और टॉपिक ढूँढता है।';
+
+  @override
+  String get learnNeedsAi => 'इसके लिए AI सहायता चाहिए, जो अभी उपलब्ध नहीं है।';
+
+  @override
+  String get learnPlusMessage => 'पाठ और जाँच AI से बनते हैं, जो PrepLoop Plus का हिस्सा है।';
+
+  @override
+  String get learnPickTitle => 'टॉपिक चुनें';
+
+  @override
+  String get learnPickSyllabus => 'आपके सिलेबस से';
+
+  @override
+  String get learnPickNoSyllabus =>
+      'सिलेबस के टॉपिक से चुनने के लिए सिलेबस जोड़ें, या नीचे टॉपिक लिखें।';
+
+  @override
+  String get learnPickTyped => 'या टॉपिक लिखें';
+
+  @override
+  String get learnPickTypedHint => 'जैसे प्रतिशत, साधारण ब्याज';
+
+  @override
+  String get learnPickGo => 'आगे बढ़ें';
+
+  @override
+  String get learnPickSends => 'टॉपिक का नाम AI सेवा को भेजा जाता है। और कुछ साझा नहीं होता।';
+
+  @override
+  String learnLessonTitle(String topic) {
+    return 'सीखें: $topic';
+  }
+
+  @override
+  String get learnLessonLoading => 'आपका पाठ लिखा जा रहा है…';
+
+  @override
+  String get learnOverview => 'यह क्या है';
+
+  @override
+  String get learnKeyPoints => 'मुख्य बिंदु';
+
+  @override
+  String get learnExample => 'हल किया हुआ उदाहरण';
+
+  @override
+  String get learnShowAnswer => 'उत्तर दिखाएँ';
+
+  @override
+  String get learnMistakes => 'आम गलतियाँ';
+
+  @override
+  String get learnNotConfident =>
+      'AI को इस पाठ पर पूरा भरोसा नहीं था। इसे अपनी किताब या नोट्स से मिलाएँ।';
+
+  @override
+  String learnCaution(String model) {
+    return 'AI ($model) द्वारा लिखा गया, किसी ने जाँचा नहीं है। यह गलत हो सकता है: भरोसा करने से पहले जाँच लें।';
+  }
+
+  @override
+  String get learnAiLabel => 'AI द्वारा बनाया गया · जाँचा नहीं गया';
+
+  @override
+  String get learnTestMe => 'मेरी जाँच करें';
+
+  @override
+  String get learnSaveConcept => 'कॉन्सेप्ट के रूप में सहेजें';
+
+  @override
+  String learnQuizTitle(String topic) {
+    return 'जाँच: $topic';
+  }
+
+  @override
+  String get learnQuizLoading => 'आपके प्रश्न लिखे जा रहे हैं…';
+
+  @override
+  String get learnQuizNote =>
+      'AI प्रश्न, किसी पेपर से नहीं और जाँचे नहीं गए। ये आपकी प्रगति में नहीं गिने जाते।';
+
+  @override
+  String learnQuizProgress(int current, int total) {
+    return 'प्रश्न $current / $total';
+  }
+
+  @override
+  String get learnQuizCorrect => 'सही।';
+
+  @override
+  String learnQuizWrong(String option) {
+    return 'सही नहीं। उत्तर है $option।';
+  }
+
+  @override
+  String get learnQuizNext => 'अगला';
+
+  @override
+  String get learnQuizFinish => 'मेरा परिणाम देखें';
+
+  @override
+  String learnQuizScore(int correct, int total) {
+    return '$total में से $correct सही';
+  }
+
+  @override
+  String get learnQuizKnowsIt =>
+      'आपको यह टॉपिक अच्छी तरह आता है। इसे मज़बूत रखने के लिए पेपर के प्रश्नों का अभ्यास करें।';
+
+  @override
+  String get learnQuizPartly =>
+      'आपको इसके कुछ हिस्से आते हैं। छूटे बिंदुओं के लिए पाठ पढ़ें, फिर नए प्रश्न आज़माएँ।';
+
+  @override
+  String get learnQuizLearnFirst => 'इस टॉपिक को पहले सीखना होगा। पाठ से शुरू करें।';
+
+  @override
+  String learnQuizRules(String knowIt, String partly, int min) {
+    return 'आता है: $knowIt या अधिक सही। आंशिक: $partly या अधिक। कम से कम $min प्रश्नों पर ही आँका जाता है।';
+  }
+
+  @override
+  String get learnQuizAgain => 'नए प्रश्न';
+
+  @override
+  String get learnQuizLearn => 'यह टॉपिक सीखें';
+
+  @override
+  String get learnQuizDone => 'हो गया';
+
+  @override
+  String get learnTopicLearn => 'सीखें';
+
+  @override
+  String get learnTopicTest => 'जाँचें';
+
+  @override
+  String get plusFeatureLessons => 'किसी भी टॉपिक पर AI पाठ और जाँच';
+
+  @override
+  String learnConceptSource(String model) {
+    return 'AI पाठ ($model), जाँचा नहीं गया';
+  }
+
+  @override
+  String get learnQuizQuestionLabel => 'AI प्रश्न · किसी पेपर से नहीं';
+
+  @override
+  String get learnQuizKeyCaveat =>
+      'यह उत्तर AI ने चुना है और किसी ने जाँचा नहीं है। गलत लगे तो अपनी किताब पर भरोसा करें।';
+
+  @override
+  String get learnQuizTooFew => 'इस टॉपिक को आँकने के लिए प्रश्न बहुत कम हैं। नए प्रश्न आज़माएँ।';
 }
