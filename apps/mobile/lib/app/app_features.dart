@@ -20,4 +20,7 @@ class AppFeatures {
   final bool learnStart;
 }
 
-final appFeaturesProvider = Provider<AppFeatures>((ref) => const AppFeatures());
+/// `--dart-define=LEARN_START=true` turns lessons and knowledge checks on in a local test build.
+final appFeaturesProvider = Provider<AppFeatures>(
+  (ref) => const AppFeatures(learnStart: bool.fromEnvironment('LEARN_START')),
+);
