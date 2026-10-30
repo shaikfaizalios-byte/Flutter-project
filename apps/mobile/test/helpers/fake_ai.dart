@@ -190,6 +190,24 @@ class FakeAiRepository implements AiRepository {
   /// Questions of the next knowledge checks (each one's answer is option 2, "B").
   int quizCount = 3;
 
+  /// What the next answer checks return.
+  AnswerCheck answerCheckResult = const AnswerCheck(
+    verdict: AnswerVerdict.partly,
+    feedback: 'Right idea; the unit is missing.',
+    idealAnswer: '30 rupees',
+    paperAnswer: '30',
+    paperAgrees: true,
+    confident: true,
+    model: 'fake-model',
+  );
+
+  @override
+  Future<AnswerCheck> checkAnswer(String questionId, String answer) async {
+    calls.add('check:$questionId:$answer');
+    _maybeFail();
+    return answerCheckResult;
+  }
+
   @override
   Future<TopicLesson> topicLesson(
     TopicChoice choice, {

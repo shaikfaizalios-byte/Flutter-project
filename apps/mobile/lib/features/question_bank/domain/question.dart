@@ -569,16 +569,31 @@ class QuestionQuery {
     this.status,
     this.hasIssues,
     this.text = '',
+    this.offset = 0,
   });
+
+  /// Most questions one request returns; ask again from [offset] for the rest.
+  static const pageSize = 100;
 
   final String? documentId;
   final String? examCode;
   final VerificationStatus? status;
   final bool? hasIssues;
   final String text;
+  final int offset;
+
+  QuestionQuery from(int offset) => QuestionQuery(
+    documentId: documentId,
+    examCode: examCode,
+    status: status,
+    hasIssues: hasIssues,
+    text: text,
+    offset: offset,
+  );
 
   Map<String, Object> toParams() => {
-    'limit': 100,
+    'limit': pageSize,
+    if (offset > 0) 'offset': offset,
     'document_id': ?documentId,
     'exam': ?examCode,
     'status': ?status?.name,
@@ -593,10 +608,11 @@ class QuestionQuery {
       other.examCode == examCode &&
       other.status == status &&
       other.hasIssues == hasIssues &&
-      other.text == text;
+      other.text == text &&
+      other.offset == offset;
 
   @override
-  int get hashCode => Object.hash(documentId, examCode, status, hasIssues, text);
+  int get hashCode => Object.hash(documentId, examCode, status, hasIssues, text, offset);
 }
 
 /// Reviewer edits sent to the server. Null fields are left unchanged, except those

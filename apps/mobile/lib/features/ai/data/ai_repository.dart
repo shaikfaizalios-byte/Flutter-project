@@ -298,6 +298,51 @@ class TopicQuiz {
   final String model;
 }
 
+enum AnswerVerdict { correct, partly, incorrect }
+
+/// An AI judgement of the learner's own answer to a question of their paper. Not stored and
+/// not checked by anyone: always shown labelled as AI-generated.
+@immutable
+class AnswerCheck {
+  const AnswerCheck({
+    required this.verdict,
+    required this.feedback,
+    required this.idealAnswer,
+    required this.confident,
+    required this.model,
+    this.paperAnswer,
+    this.paperAgrees,
+  });
+
+  factory AnswerCheck.fromJson(Map<String, dynamic> json) => AnswerCheck(
+    verdict: AnswerVerdict.values.byName(json['verdict'] as String),
+    feedback: json['feedback'] as String,
+    idealAnswer: json['ideal_answer'] as String,
+    paperAnswer: json['paper_answer'] as String?,
+    paperAgrees: switch (json['paper_agreement']) {
+      'agrees' => true,
+      'differs' => false,
+      _ => null,
+    },
+    confident: json['confident'] as bool,
+    model: json['model'] as String,
+  );
+
+  final AnswerVerdict verdict;
+  final String feedback;
+
+  /// The AI's own short answer.
+  final String idealAnswer;
+
+  /// The answer printed in the paper, as read from the PDF; null when it prints none.
+  final String? paperAnswer;
+
+  /// Whether the AI's answer agrees with the paper's; null when the paper prints none.
+  final bool? paperAgrees;
+  final bool confident;
+  final String model;
+}
+
 enum ReportReason {
   wrongAnswer('wrong_answer'),
   unclear('unclear'),
@@ -363,6 +408,10 @@ abstract interface class AiRepository {
     required String examCode,
     required ContentLanguage language,
   });
+
+  /// Checks the learner's answer to a question of their paper (the question, the paper's answer
+  /// and the learner's answer go to the AI provider; nothing is stored).
+  Future<AnswerCheck> checkAnswer(String questionId, String answer);
 }
 
 class RemoteAiRepository implements AiRepository {
@@ -523,6 +572,16 @@ class RemoteAiRepository implements AiRepository {
       (await _dio.post<Map<String, dynamic>>(
         '$_base/ai/topic-quiz',
         data: _topicBody(choice, examCode, language),
+      )).data!,
+    ),
+  );
+
+  @override
+  Future<AnswerCheck> checkAnswer(String questionId, String answer) => _guard(
+    () async => AnswerCheck.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/ai/questions/$questionId/answer-check',
+        data: {'answer': answer},
       )).data!,
     ),
   );

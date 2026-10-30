@@ -257,3 +257,54 @@ def test_topic_prompts_name_the_topic_exam_and_language() -> None:
     )
     assert "Write 5 original" in quiz and "a competitive exam" in quiz and "English" in quiz
     assert "previous-year" in ai_content.TOPIC_SYSTEM
+
+
+def check_data(**changes: Any) -> dict[str, Any]:
+    data: dict[str, Any] = {
+        "verdict": "partly",
+        "feedback": " Right idea, but the unit is missing. ",
+        "ideal_answer": "30 rupees",
+        "paper_answer": "agrees",
+        "confident": True,
+    }
+    data.update(changes)
+    return data
+
+
+def test_answer_check_validation_matches_what_was_sent() -> None:
+    check = ai_content.validate_answer_check(check_data(), has_paper_answer=True)
+    assert check is not None
+    assert (check.verdict, check.feedback) == ("partly", "Right idea, but the unit is missing.")
+    assert check.paper_answer == "agrees"
+
+    without = ai_content.validate_answer_check(
+        check_data(paper_answer="none"), has_paper_answer=False
+    )
+    assert without is not None and without.paper_answer is None
+
+    broken: dict[str, Any]
+    for broken, has_paper in (
+        ({"verdict": "maybe"}, True),
+        ({"feedback": ""}, True),
+        ({"ideal_answer": None}, True),
+        ({"paper_answer": "none"}, True),  # a paper answer was sent: it must be compared
+        ({"paper_answer": "agrees"}, False),  # nothing to agree with
+    ):
+        assert (
+            ai_content.validate_answer_check(check_data(**broken), has_paper_answer=has_paper)
+            is None
+        )
+
+
+def test_answer_check_prompt_marks_the_paper_answer_as_possibly_wrong() -> None:
+    prompt = ai_content.answer_check_prompt(
+        stem="What is 20% of 150?", passage=None, paper_answer="30", answer="25", language="en"
+    )
+    assert (
+        "may contain reading errors, or be wrong" in prompt
+        and "The learner's answer:\n25" in prompt
+    )
+    none = ai_content.answer_check_prompt(
+        stem="Define GDP.", passage="About economics", paper_answer=None, answer="x", language="hi"
+    )
+    assert "prints no answer" in none and "Passage:\nAbout economics" in none and "Hindi" in none

@@ -14,6 +14,8 @@ import '../features/weekly_review/presentation/weekly_review_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
+import '../features/documents/presentation/paper_read_screen.dart';
+import '../features/documents/presentation/paper_solve_screen.dart';
 import '../features/exams/presentation/exam_topics_screen.dart';
 import '../features/exams/presentation/my_exams_screen.dart';
 import '../features/insights/presentation/repeats_screen.dart';
@@ -150,6 +152,25 @@ final routerProvider = Provider<GoRouter>((ref) {
                         parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) =>
                             DocumentReviewScreen(documentId: state.pathParameters['id']!),
+                        routes: [
+                          GoRoute(
+                            path: 'solve',
+                            parentNavigatorKey: _rootNavigatorKey,
+                            builder: (context, state) => PaperSolveScreen(
+                              documentId: state.pathParameters['id']!,
+                              name: state.uri.queryParameters['name'] ?? '',
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'read',
+                            parentNavigatorKey: _rootNavigatorKey,
+                            builder: (context, state) => PaperReadScreen(
+                              documentId: state.pathParameters['id']!,
+                              name: state.uri.queryParameters['name'] ?? '',
+                              pages: int.tryParse(state.uri.queryParameters['pages'] ?? '') ?? 0,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -76,6 +77,15 @@ class FakeDocumentsRepository implements DocumentsRepository {
 
   @override
   Future<void> delete(String id) async => deleted.add(id);
+
+  /// Pages asked for by [pageImage], as (document id, page).
+  final pageRequests = <(String, int)>[];
+
+  @override
+  Future<Uint8List> pageImage(String id, int page) async {
+    pageRequests.add((id, page));
+    return FakeQuestionsRepository.pngPixel;
+  }
 }
 
 final samplePdf = UploadSource(

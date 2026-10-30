@@ -6236,6 +6236,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too few questions to judge this topic. Try new questions.'**
   String get learnQuizTooFew;
+
+  /// No description provided for @paperActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}'**
+  String paperActionsTitle(String name);
+
+  /// No description provided for @paperSolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve this paper'**
+  String get paperSolve;
+
+  /// No description provided for @paperSolveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 question, one at a time: pick an option or type your answer.} other{{count} questions, one at a time: pick an option or type your answer.}}'**
+  String paperSolveHint(int count);
+
+  /// No description provided for @paperSolveNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Available once PrepLoop has found this paper\'s questions.'**
+  String get paperSolveNotReady;
+
+  /// No description provided for @paperRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read this paper'**
+  String get paperRead;
+
+  /// No description provided for @paperReadHint.
+  ///
+  /// In en, this message translates to:
+  /// **'See the PDF exactly as you uploaded it.'**
+  String get paperReadHint;
+
+  /// No description provided for @paperReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and correct questions'**
+  String get paperReview;
+
+  /// No description provided for @paperReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check and fix what PrepLoop read from the PDF.'**
+  String get paperReviewHint;
+
+  /// No description provided for @paperReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read: {name}'**
+  String paperReadTitle(String name);
+
+  /// No description provided for @paperPageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String paperPageOf(int page, int total);
+
+  /// No description provided for @paperPageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This page couldn\'t be loaded.'**
+  String get paperPageFailed;
+
+  /// No description provided for @paperSolveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve: {name}'**
+  String paperSolveTitle(String name);
+
+  /// No description provided for @paperSolveEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions were found in this paper yet.'**
+  String get paperSolveEmpty;
+
+  /// No description provided for @paperSolveProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {current} of {total}'**
+  String paperSolveProgress(int current, int total);
+
+  /// No description provided for @paperSolveNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Q. {number} in the paper'**
+  String paperSolveNumber(int number);
+
+  /// No description provided for @paperSolveScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} correct of {answered} answered'**
+  String paperSolveScore(int correct, int answered);
+
+  /// No description provided for @paperSolveUnreviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from your PDF automatically and not reviewed yet, so it may contain reading mistakes.'**
+  String get paperSolveUnreviewed;
+
+  /// No description provided for @paperSolveCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct.'**
+  String get paperSolveCorrect;
+
+  /// No description provided for @paperSolveWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite. The answer is ({label}).'**
+  String paperSolveWrong(String label);
+
+  /// No description provided for @paperSolveNoKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Your paper doesn\'t give the answer to this question.'**
+  String get paperSolveNoKey;
+
+  /// No description provided for @paperSolveTypeAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get paperSolveTypeAnswer;
+
+  /// No description provided for @paperSolveCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get paperSolveCheck;
+
+  /// No description provided for @paperSolveTypedWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite. The paper\'s answer is {answer}.'**
+  String paperSolveTypedWrong(String answer);
+
+  /// No description provided for @paperSolveCheckAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Check with AI'**
+  String get paperSolveCheckAi;
+
+  /// No description provided for @paperSolveCheckingAi.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI is checking your answer…'**
+  String get paperSolveCheckingAi;
+
+  /// No description provided for @paperSolveShowPaperAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the answer from the paper'**
+  String get paperSolveShowPaperAnswer;
+
+  /// No description provided for @paperSolvePaperAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer in your paper'**
+  String get paperSolvePaperAnswer;
+
+  /// No description provided for @paperSolveVerdictCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer is correct.'**
+  String get paperSolveVerdictCorrect;
+
+  /// No description provided for @paperSolveVerdictPartly.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer is partly right.'**
+  String get paperSolveVerdictPartly;
+
+  /// No description provided for @paperSolveVerdictIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer is not right.'**
+  String get paperSolveVerdictIncorrect;
+
+  /// No description provided for @paperSolveIdeal.
+  ///
+  /// In en, this message translates to:
+  /// **'A good answer'**
+  String get paperSolveIdeal;
+
+  /// No description provided for @paperSolvePaperAgrees.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI\'s answer matches the one in your paper.'**
+  String get paperSolvePaperAgrees;
+
+  /// No description provided for @paperSolvePaperDiffers.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI\'s answer differs from the one in your paper. Check your book or notes.'**
+  String get paperSolvePaperDiffers;
+
+  /// No description provided for @paperSolveNotConfident.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI wasn\'t sure about this one.'**
+  String get paperSolveNotConfident;
+
+  /// No description provided for @paperSolveAiCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked by AI ({model}), not by a person. It can be wrong.'**
+  String paperSolveAiCaution(String model);
+
+  /// No description provided for @paperSolveExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get paperSolveExplanation;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

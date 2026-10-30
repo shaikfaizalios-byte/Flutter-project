@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/route_transitions.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -83,9 +84,18 @@ class _ExamSwitcherSheet extends ConsumerWidget {
               leading: Icon(code == active ? Icons.radio_button_checked : Icons.radio_button_off),
               title: Text(ref.watch(examNameProvider(code))),
               selected: code == active,
-              onTap: () {
-                ref.read(activeExamChoiceProvider.notifier).choose(code);
+              onTap: () async {
+                final choice = ref.read(activeExamChoiceProvider.notifier);
+                final router = GoRouter.of(context);
                 Navigator.of(context).pop();
+                if (code == active) return;
+                // Another exam starts over on Home: screens opened for the old exam (a paper, a
+                // question, a session) must not stay on screen under the new one. The exam
+                // changes once Home is fully back in view: screens paused while covered must
+                // not wake up to a changed exam in the middle of a build (Riverpod refuses).
+                router.go(AppRoutes.home);
+                await untilAnimationsSettle();
+                await choice.choose(code);
               },
             ),
           ListTile(

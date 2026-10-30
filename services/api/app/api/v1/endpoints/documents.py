@@ -1,7 +1,18 @@
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Path,
+    Query,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 
 from app.api.deps import CurrentUser, client_key
 from app.core.config import Settings, get_settings
@@ -133,6 +144,29 @@ def get_document_pages(
     offset: Annotated[int, Query(ge=0, le=100_000)] = 0,
 ) -> PageList:
     return service.pages(document_id, limit=limit, offset=offset)
+
+
+@router.get(
+    "/{document_id}/pages/{page_number}/image",
+    summary="One page of the original PDF as PNG, as uploaded (for reading the paper)",
+    response_class=Response,
+    responses={
+        200: {"content": {"image/png": {}}, "description": "The page"},
+        404: {"model": ErrorResponse, "description": "Document or page not found"},
+    },
+)
+def get_page_image(
+    document_id: uuid.UUID,
+    page_number: Annotated[int, Path(ge=1, le=100_000)],
+    service: Service,
+    max_edge: Annotated[int, Query(ge=400, le=2400, description="Longer side in pixels")] = 1600,
+) -> Response:
+    return Response(
+        content=service.page_image(document_id, page_number, max_edge),
+        media_type="image/png",
+        # The original file never changes; only this account may cache it.
+        headers={"Cache-Control": "private, max-age=86400"},
+    )
 
 
 @router.delete(

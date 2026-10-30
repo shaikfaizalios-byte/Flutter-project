@@ -1,5 +1,6 @@
 """AI assistance with a deterministic fake provider (no network, real PostgreSQL)."""
 
+import uuid
 from collections.abc import Callable, Iterator
 from typing import Any
 
@@ -713,3 +714,47 @@ def test_topic_quiz_with_too_few_usable_questions_fails(
     assert [(log.outcome, log.items_created) for log in logs] == [("invalid", 0), ("invalid", 2)]
     too_many = api.post("/api/v1/ai/topic-quiz", json={**request, "count": 6})
     assert too_many.status_code == 422
+
+
+def test_answer_check_compares_with_the_paper_and_stores_nothing(
+    api: TestClient, ai: FakeAIProvider, db_session: Session, document: Document
+) -> None:
+    question = make_question(db_session, document, stem="What is 20% of 150?", answer=2)
+    db_session.commit()
+    ai.responses = [
+        {
+            "verdict": "incorrect",
+            "feedback": "20% of 150 is 30.",
+            "ideal_answer": "30",
+            "paper_answer": "agrees",
+            "confident": True,
+        }
+    ]
+
+    response = api.post(f"/api/v1/ai/questions/{question.id}/answer-check", json={"answer": " 25 "})
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert (body["verdict"], body["paper_agreement"]) == ("incorrect", "agrees")
+    assert body["paper_answer"] == "(2) opt 2"
+    call = ai.calls[0]
+    assert "What is 20% of 150?" in call.prompt and "(2) opt 2" in call.prompt
+    assert "The learner's answer:\n25" in call.prompt
+    log = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "answer_check")).one()
+    assert (log.outcome, log.question_id, log.detail) == ("ok", question.id, "")
+
+
+def test_answer_check_failures(
+    make_api: AppFactory, ai: FakeAIProvider, db_session: Session, document: Document
+) -> None:
+    api = make_api(ai)
+    question = make_question(db_session, document)
+    db_session.commit()
+    url = f"/api/v1/ai/questions/{question.id}/answer-check"
+    ai.responses = [{"verdict": "correct", "feedback": "ok", "ideal_answer": "x",
+                     "paper_answer": "none", "confident": True}]  # fmt: skip
+    assert api.post(url, json={"answer": "x"}).status_code == 502  # paper answer not compared
+    assert api.post(url, json={"answer": "  "}).status_code == 422
+    missing = f"/api/v1/ai/questions/{uuid.uuid4()}/answer-check"
+    assert api.post(missing, json={"answer": "x"}).status_code == 404
+    assert make_api(None).post(url, json={"answer": "x"}).status_code == 503

@@ -34,6 +34,16 @@ abstract final class AppRoutes {
   static String concept(String id) => '/study/concepts/$id';
   static String editConcept(String id) => '/study/concepts/$id/edit';
   static String documentReview(String id) => '/study/documents/$id';
+
+  /// Solve a paper's questions (options, or a box to type the answer).
+  static String paperSolve(String id, String name) =>
+      Uri(path: '/study/documents/$id/solve', queryParameters: {'name': name}).toString();
+
+  /// Read a paper as uploaded, page by page.
+  static String paperRead(String id, String name, int pages) => Uri(
+    path: '/study/documents/$id/read',
+    queryParameters: {'name': name, 'pages': '$pages'},
+  ).toString();
   static String question(String id) => '/questions/$id';
   static String practiceSession(String id) => '/practice/sessions/$id';
 

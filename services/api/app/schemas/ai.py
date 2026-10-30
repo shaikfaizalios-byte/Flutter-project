@@ -4,6 +4,7 @@ from typing import Annotated, Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 from app.domain.ai_content import (
+    ANSWER_CHECK_MAX_ANSWER,
     MAX_EXPLANATION,
     MAX_GENERATED,
     MIN_QUIZ_QUESTIONS,
@@ -246,5 +247,31 @@ class TopicQuizRead(BaseModel):
     subject: str | None
     questions: list[QuizQuestionRead]
     rejected: int
+    model: str
+    prompt_version: str
+
+
+class AnswerCheckRequest(BaseModel):
+    """The learner's own answer to a question of their paper, to be checked by AI."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    answer: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, min_length=1, max_length=ANSWER_CHECK_MAX_ANSWER),
+    ]
+
+
+class AnswerCheckRead(BaseModel):
+    """An AI judgement of the learner's answer. Not stored and not checked by anyone."""
+
+    verdict: Literal["correct", "partly", "incorrect"]
+    feedback: str
+    ideal_answer: str
+    # The answer printed in the paper (as read from the PDF), if it has one.
+    paper_answer: str | None
+    # How the AI's own answer compares with the paper's: agrees / differs; null without one.
+    paper_agreement: Literal["agrees", "differs"] | None
+    confident: bool
     model: str
     prompt_version: str

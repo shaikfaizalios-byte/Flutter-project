@@ -3878,4 +3878,142 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get learnQuizTooFew => 'Too few questions to judge this topic. Try new questions.';
+
+  @override
+  String paperActionsTitle(String name) {
+    return '$name';
+  }
+
+  @override
+  String get paperSolve => 'Solve this paper';
+
+  @override
+  String paperSolveHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions, one at a time: pick an option or type your answer.',
+      one: '1 question, one at a time: pick an option or type your answer.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get paperSolveNotReady => 'Available once PrepLoop has found this paper\'s questions.';
+
+  @override
+  String get paperRead => 'Read this paper';
+
+  @override
+  String get paperReadHint => 'See the PDF exactly as you uploaded it.';
+
+  @override
+  String get paperReview => 'Review and correct questions';
+
+  @override
+  String get paperReviewHint => 'Check and fix what PrepLoop read from the PDF.';
+
+  @override
+  String paperReadTitle(String name) {
+    return 'Read: $name';
+  }
+
+  @override
+  String paperPageOf(int page, int total) {
+    return 'Page $page of $total';
+  }
+
+  @override
+  String get paperPageFailed => 'This page couldn\'t be loaded.';
+
+  @override
+  String paperSolveTitle(String name) {
+    return 'Solve: $name';
+  }
+
+  @override
+  String get paperSolveEmpty => 'No questions were found in this paper yet.';
+
+  @override
+  String paperSolveProgress(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String paperSolveNumber(int number) {
+    return 'Q. $number in the paper';
+  }
+
+  @override
+  String paperSolveScore(int correct, int answered) {
+    return '$correct correct of $answered answered';
+  }
+
+  @override
+  String get paperSolveUnreviewed =>
+      'Read from your PDF automatically and not reviewed yet, so it may contain reading mistakes.';
+
+  @override
+  String get paperSolveCorrect => 'Correct.';
+
+  @override
+  String paperSolveWrong(String label) {
+    return 'Not quite. The answer is ($label).';
+  }
+
+  @override
+  String get paperSolveNoKey => 'Your paper doesn\'t give the answer to this question.';
+
+  @override
+  String get paperSolveTypeAnswer => 'Your answer';
+
+  @override
+  String get paperSolveCheck => 'Check';
+
+  @override
+  String paperSolveTypedWrong(String answer) {
+    return 'Not quite. The paper\'s answer is $answer.';
+  }
+
+  @override
+  String get paperSolveCheckAi => 'Check with AI';
+
+  @override
+  String get paperSolveCheckingAi => 'The AI is checking your answer…';
+
+  @override
+  String get paperSolveShowPaperAnswer => 'Show the answer from the paper';
+
+  @override
+  String get paperSolvePaperAnswer => 'Answer in your paper';
+
+  @override
+  String get paperSolveVerdictCorrect => 'Your answer is correct.';
+
+  @override
+  String get paperSolveVerdictPartly => 'Your answer is partly right.';
+
+  @override
+  String get paperSolveVerdictIncorrect => 'Your answer is not right.';
+
+  @override
+  String get paperSolveIdeal => 'A good answer';
+
+  @override
+  String get paperSolvePaperAgrees => 'The AI\'s answer matches the one in your paper.';
+
+  @override
+  String get paperSolvePaperDiffers =>
+      'The AI\'s answer differs from the one in your paper. Check your book or notes.';
+
+  @override
+  String get paperSolveNotConfident => 'The AI wasn\'t sure about this one.';
+
+  @override
+  String paperSolveAiCaution(String model) {
+    return 'Checked by AI ($model), not by a person. It can be wrong.';
+  }
+
+  @override
+  String get paperSolveExplanation => 'Explanation';
 }

@@ -51,7 +51,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   show only that exam, and so do concepts (Study list, filters) and revision cards (cards without an exam show
   everywhere); uploads and new concepts go to it (a note says so, no picker). ONE place to switch: `ExamSwitcher`
   in the desktop sidebar, or the Home app bar where there is no sidebar; its "Add or change exams" opens My exams
-  (which holds the `ExamSelector` chips; Profile has no exam settings). Analytics follow it too
+  (which holds the `ExamSelector` chips; Profile has no exam settings). Choosing another exam goes to Home first
+  and changes the exam after `untilAnimationsSettle()` (`app/route_transitions.dart`): screens paused under a page
+  must not wake up to a changed exam mid-build (Riverpod refuses). Analytics follow it too
   (`/analytics/overview?exam=`, counted by each question's exam; mocks by session exam).
 - Mastery per topic (`features/mastery`, mobile-only, no schema change): pure `masteryLevel`/`examMastery` with
   named `MasteryRules` (shown in UI): not started → learning (< 10 answers) → practising (< 60 % or flashcards
@@ -110,6 +112,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   finding the questions → "Ready · 87 questions found · 9 need a look" / failed) on each paper; uploads are
   followed by `importWatcherProvider` (polls the list only while one is in progress) → `ImportNotices` in
   `DesktopFrame` shows "… is ready" with Review on any screen; `ImportsInProgress` on the Home Today card.
+- Paper actions (`showPaperActions` in `documents_screen.dart`): tapping a paper offers *Solve this paper*
+  (`PaperSolveScreen`, `/study/documents/:id/solve`: `paperQuestionsProvider` pages through `QuestionQuery.from`,
+  pure `paper_solve.dart` = printed order without rejected, `solveKind` choice|typed|written, marked on the device,
+  nothing saved, not practice; unreviewed questions say so; written answers → `POST /ai/questions/{id}/answer-check`
+  (docs/ai.md "Answer check", task `answer_check`, migration 0028) or "Show the answer from the paper"), *Read this
+  paper* (`PaperReadScreen`: `GET /documents/{id}/pages/{n}/image`, PDFium `PdfRenderer.page_png`, tap to zoom) and
+  *Review and correct questions* (the review screen). The "paper is ready" notice hides after 3 s (`persist: false`).
 - Start options + topic lessons/checks (docs/ai.md "Topic lesson"/"Topic quiz"), HIDDEN behind
   `AppFeatures.learnStart` (off: card, topic-card buttons and `/learn/*` routes all hidden) until Plus can be
   bought: Home `StartOptionsCard` (`features/learn`) offers learn a topic (AI lesson), test my knowledge (AI

@@ -3879,4 +3879,142 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get learnQuizTooFew => 'इस टॉपिक को आँकने के लिए प्रश्न बहुत कम हैं। नए प्रश्न आज़माएँ।';
+
+  @override
+  String paperActionsTitle(String name) {
+    return '$name';
+  }
+
+  @override
+  String get paperSolve => 'यह पेपर हल करें';
+
+  @override
+  String paperSolveHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count प्रश्न, एक-एक करके: विकल्प चुनें या अपना उत्तर लिखें।',
+      one: '1 प्रश्न, एक-एक करके: विकल्प चुनें या अपना उत्तर लिखें।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get paperSolveNotReady => 'PrepLoop को इस पेपर के प्रश्न मिलने के बाद उपलब्ध।';
+
+  @override
+  String get paperRead => 'यह पेपर पढ़ें';
+
+  @override
+  String get paperReadHint => 'PDF को ठीक वैसे ही देखें जैसे आपने अपलोड किया था।';
+
+  @override
+  String get paperReview => 'प्रश्नों की समीक्षा करें और सुधारें';
+
+  @override
+  String get paperReviewHint => 'PrepLoop ने PDF से जो पढ़ा, उसे जाँचें और ठीक करें।';
+
+  @override
+  String paperReadTitle(String name) {
+    return 'पढ़ें: $name';
+  }
+
+  @override
+  String paperPageOf(int page, int total) {
+    return 'पृष्ठ $page / $total';
+  }
+
+  @override
+  String get paperPageFailed => 'यह पृष्ठ लोड नहीं हो सका।';
+
+  @override
+  String paperSolveTitle(String name) {
+    return 'हल करें: $name';
+  }
+
+  @override
+  String get paperSolveEmpty => 'इस पेपर में अभी कोई प्रश्न नहीं मिला।';
+
+  @override
+  String paperSolveProgress(int current, int total) {
+    return 'प्रश्न $current / $total';
+  }
+
+  @override
+  String paperSolveNumber(int number) {
+    return 'पेपर में प्र. $number';
+  }
+
+  @override
+  String paperSolveScore(int correct, int answered) {
+    return '$answered में से $correct सही';
+  }
+
+  @override
+  String get paperSolveUnreviewed =>
+      'आपकी PDF से अपने-आप पढ़ा गया और अभी समीक्षा नहीं हुई, इसलिए इसमें पढ़ने की गलतियाँ हो सकती हैं।';
+
+  @override
+  String get paperSolveCorrect => 'सही।';
+
+  @override
+  String paperSolveWrong(String label) {
+    return 'सही नहीं। उत्तर है ($label)।';
+  }
+
+  @override
+  String get paperSolveNoKey => 'आपका पेपर इस प्रश्न का उत्तर नहीं देता।';
+
+  @override
+  String get paperSolveTypeAnswer => 'आपका उत्तर';
+
+  @override
+  String get paperSolveCheck => 'जाँचें';
+
+  @override
+  String paperSolveTypedWrong(String answer) {
+    return 'सही नहीं। पेपर का उत्तर है $answer।';
+  }
+
+  @override
+  String get paperSolveCheckAi => 'AI से जाँचें';
+
+  @override
+  String get paperSolveCheckingAi => 'AI आपका उत्तर जाँच रहा है…';
+
+  @override
+  String get paperSolveShowPaperAnswer => 'पेपर का उत्तर दिखाएँ';
+
+  @override
+  String get paperSolvePaperAnswer => 'आपके पेपर में उत्तर';
+
+  @override
+  String get paperSolveVerdictCorrect => 'आपका उत्तर सही है।';
+
+  @override
+  String get paperSolveVerdictPartly => 'आपका उत्तर आंशिक रूप से सही है।';
+
+  @override
+  String get paperSolveVerdictIncorrect => 'आपका उत्तर सही नहीं है।';
+
+  @override
+  String get paperSolveIdeal => 'एक अच्छा उत्तर';
+
+  @override
+  String get paperSolvePaperAgrees => 'AI का उत्तर आपके पेपर के उत्तर से मेल खाता है।';
+
+  @override
+  String get paperSolvePaperDiffers =>
+      'AI का उत्तर आपके पेपर के उत्तर से अलग है। अपनी किताब या नोट्स देखें।';
+
+  @override
+  String get paperSolveNotConfident => 'AI को इस पर पूरा भरोसा नहीं था।';
+
+  @override
+  String paperSolveAiCaution(String model) {
+    return 'AI ($model) द्वारा जाँचा गया, किसी व्यक्ति द्वारा नहीं। यह गलत हो सकता है।';
+  }
+
+  @override
+  String get paperSolveExplanation => 'व्याख्या';
 }
