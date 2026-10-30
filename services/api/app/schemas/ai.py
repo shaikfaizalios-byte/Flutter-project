@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_vali
 from app.domain.ai_content import (
     MAX_EXPLANATION,
     MAX_GENERATED,
+    MIN_QUIZ_QUESTIONS,
     QUICK_ANSWER_MAX_QUERY,
     TOPIC_NAME_MAX,
 )
@@ -227,7 +228,7 @@ class TopicLessonRead(BaseModel):
 
 
 class TopicQuizRequest(TopicRequest):
-    count: int = Field(default=MAX_GENERATED, ge=3, le=MAX_GENERATED)
+    count: int = Field(default=MAX_GENERATED, ge=MIN_QUIZ_QUESTIONS, le=MAX_GENERATED)
 
 
 class QuizQuestionRead(BaseModel):

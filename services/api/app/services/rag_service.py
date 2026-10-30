@@ -31,6 +31,8 @@ from app.models.sync import SyncItem
 from app.services.shared_bank import visible_question
 
 CANDIDATES_PER_KIND = SOURCES_PER_ANSWER  # fetch this many of each kind, then merge
+# Concepts the app saved from an AI lesson carry this tag (mobile `aiGeneratedTag`).
+AI_CONCEPT_TAG = "ai-generated"
 TS_CONFIG = "simple"
 
 
@@ -169,7 +171,8 @@ class RagRetriever:
                     kind="concept",
                     label=f"Concept: {concept.get('title', '')}",
                     text=best_window(text, terms),
-                    verified=True,  # the learner's own notes
+                    # The learner's own notes, unless saved from an AI lesson (tagged by the app).
+                    verified=AI_CONCEPT_TAG not in (concept.get("tags") or []),
                     rank=float(score),
                     concept_id=item.item_id,
                 )

@@ -3719,7 +3719,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learnOptionTestHint => 'Questions that check what you know, with explanations.';
 
   @override
-  String get learnOptionPaper => 'Analyse a previous year paper';
+  String get learnOptionPaper => 'Import a previous year paper';
 
   @override
   String get learnOptionPaperHint =>
@@ -3842,8 +3842,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learnQuizLearnFirst => 'This topic needs learning first. Start with the lesson.';
 
   @override
-  String learnQuizRules(String knowIt, String partly) {
-    return 'Know it: $knowIt or more correct. Partly: $partly or more.';
+  String learnQuizRules(String knowIt, String partly, int min) {
+    return 'Know it: $knowIt or more correct. Partly: $partly or more. Judged only on $min or more questions.';
   }
 
   @override
@@ -3863,4 +3863,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plusFeatureLessons => 'AI lessons and knowledge checks on any topic';
+
+  @override
+  String learnConceptSource(String model) {
+    return 'AI lesson ($model), not checked';
+  }
+
+  @override
+  String get learnQuizQuestionLabel => 'AI question · not from a paper';
+
+  @override
+  String get learnQuizKeyCaveat =>
+      'The AI chose this answer and no one has checked it. If it looks wrong, trust your book.';
+
+  @override
+  String get learnQuizTooFew => 'Too few questions to judge this topic. Try new questions.';
 }

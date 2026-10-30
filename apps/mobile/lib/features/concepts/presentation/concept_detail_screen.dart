@@ -155,6 +155,10 @@ class _ConceptDetails extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
               ],
               SelectableText(concept.title, style: theme.textTheme.headlineSmall),
+              if (concept.isAiGenerated) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Align(alignment: Alignment.centerLeft, child: AiLabel(l10n.learnAiLabel)),
+              ],
               const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: AppSpacing.sm,

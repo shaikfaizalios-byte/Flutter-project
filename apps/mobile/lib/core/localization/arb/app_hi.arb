@@ -978,7 +978,7 @@
   "learnOptionLearnHint": "मुख्य बिंदु, एक हल किया हुआ उदाहरण और आम गलतियों के साथ एक छोटा पाठ।",
   "learnOptionTest": "मुझे यह टॉपिक आता है: मेरी जाँच कीजिए",
   "learnOptionTestHint": "आपकी समझ जाँचने वाले प्रश्न, व्याख्या के साथ।",
-  "learnOptionPaper": "पिछले वर्ष का पेपर जाँचें",
+  "learnOptionPaper": "पिछले वर्ष का पेपर इम्पोर्ट करें",
   "learnOptionPaperHint": "PDF अपलोड करें: PrepLoop उसके प्रश्न, उत्तर और टॉपिक ढूँढता है।",
   "learnNeedsAi": "इसके लिए AI सहायता चाहिए, जो अभी उपलब्ध नहीं है।",
   "learnPlusMessage": "पाठ और जाँच AI से बनते हैं, जो PrepLoop Plus का हिस्सा है।",
@@ -1013,11 +1013,15 @@
   "learnQuizKnowsIt": "आपको यह टॉपिक अच्छी तरह आता है। इसे मज़बूत रखने के लिए पेपर के प्रश्नों का अभ्यास करें।",
   "learnQuizPartly": "आपको इसके कुछ हिस्से आते हैं। छूटे बिंदुओं के लिए पाठ पढ़ें, फिर नए प्रश्न आज़माएँ।",
   "learnQuizLearnFirst": "इस टॉपिक को पहले सीखना होगा। पाठ से शुरू करें।",
-  "learnQuizRules": "आता है: {knowIt} या अधिक सही। आंशिक: {partly} या अधिक।",
+  "learnQuizRules": "आता है: {knowIt} या अधिक सही। आंशिक: {partly} या अधिक। कम से कम {min} प्रश्नों पर ही आँका जाता है।",
   "learnQuizAgain": "नए प्रश्न",
   "learnQuizLearn": "यह टॉपिक सीखें",
   "learnQuizDone": "हो गया",
   "learnTopicLearn": "सीखें",
   "learnTopicTest": "जाँचें",
-  "plusFeatureLessons": "किसी भी टॉपिक पर AI पाठ और जाँच"
+  "plusFeatureLessons": "किसी भी टॉपिक पर AI पाठ और जाँच",
+  "learnConceptSource": "AI पाठ ({model}), जाँचा नहीं गया",
+  "learnQuizQuestionLabel": "AI प्रश्न · किसी पेपर से नहीं",
+  "learnQuizKeyCaveat": "यह उत्तर AI ने चुना है और किसी ने जाँचा नहीं है। गलत लगे तो अपनी किताब पर भरोसा करें।",
+  "learnQuizTooFew": "इस टॉपिक को आँकने के लिए प्रश्न बहुत कम हैं। नए प्रश्न आज़माएँ।"
 }

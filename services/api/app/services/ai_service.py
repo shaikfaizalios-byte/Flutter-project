@@ -630,10 +630,12 @@ class AIService:
                 )
             )
         rejected = len(items) - len(questions)
+        # Too few usable questions can't judge a topic: nothing is returned (not counted as ok).
+        usable_too_few = len(questions) < ai_content.MIN_QUIZ_QUESTIONS
         self._record(
             provider,
             "topic_quiz",
-            "invalid" if not questions else ("partial" if rejected else "ok"),
+            "invalid" if usable_too_few else ("partial" if rejected else "ok"),
             result,
             None,
             ",".join(sorted(reasons)),
@@ -641,7 +643,7 @@ class AIService:
             rejected=rejected,
         )
         self._session.commit()
-        if not questions:
+        if usable_too_few:
             raise AIUnavailableError("The AI questions were not usable. Please try again.")
         return TopicQuizRead(
             topic=request.topic,

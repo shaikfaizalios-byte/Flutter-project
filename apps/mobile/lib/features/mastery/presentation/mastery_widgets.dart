@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -373,7 +374,8 @@ class _TopicMasteryCardState extends ConsumerState<TopicMasteryCard> {
     final topic = subjects == null ? null : _find(subjects);
     if (topic == null) return const SizedBox.shrink();
     final ai = ref.watch(aiStatusProvider).value;
-    final aiReady = (ai?.enabled ?? false) && !ai!.needsPlus;
+    final aiReady =
+        ref.watch(appFeaturesProvider).learnStart && (ai?.enabled ?? false) && !ai!.needsPlus;
     final evidence = [
       if (topic.counts.accuracy case final accuracy?)
         l10n.topicAccuracy(formatPercent(context, accuracy), topic.counts.answered)

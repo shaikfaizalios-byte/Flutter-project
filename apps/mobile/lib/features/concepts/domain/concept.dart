@@ -45,7 +45,14 @@ class Concept {
   final DateTime updatedAt;
 
   bool get isArchived => archivedAt != null;
+
+  /// Made from an AI lesson (tagged [aiGeneratedTag]): labelled as unchecked AI wherever shown.
+  bool get isAiGenerated => tags.contains(aiGeneratedTag);
 }
+
+/// Tag on concepts saved from an AI lesson. The server's answer search reads it too (the same
+/// value is in services/api/app/services/rag_service.py) and treats them as unchecked.
+const aiGeneratedTag = 'ai-generated';
 
 /// User input for a new concept. Call [normalized] before saving.
 @immutable

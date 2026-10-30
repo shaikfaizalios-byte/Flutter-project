@@ -113,9 +113,17 @@ class _QuizRunState extends State<_QuizRun> {
       padding: const EdgeInsets.all(AppSpacing.md),
       children: [
         ...note,
-        Text(
-          l10n.learnQuizProgress(_index + 1, quiz.questions.length),
-          style: theme.textTheme.labelLarge,
+        Wrap(
+          spacing: AppSpacing.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              l10n.learnQuizProgress(_index + 1, quiz.questions.length),
+              style: theme.textTheme.labelLarge,
+            ),
+            // Every question carries its own label: it looks like an exam question but isn't one.
+            AiLabel(l10n.learnQuizQuestionLabel),
+          ],
         ),
         const SizedBox(height: AppSpacing.sm),
         SelectableText(question.stem, style: theme.textTheme.titleMedium),
@@ -142,6 +150,11 @@ class _QuizRunState extends State<_QuizRun> {
           ),
           const SizedBox(height: AppSpacing.xs),
           SelectableText(question.explanation),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l10n.learnQuizKeyCaveat,
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
           const SizedBox(height: AppSpacing.md),
           Align(
             alignment: Alignment.centerRight,
@@ -216,12 +229,14 @@ class _Result extends StatelessWidget {
           QuizVerdict.knowsIt => l10n.learnQuizKnowsIt,
           QuizVerdict.partly => l10n.learnQuizPartly,
           QuizVerdict.learnFirst => l10n.learnQuizLearnFirst,
+          QuizVerdict.tooFew => l10n.learnQuizTooFew,
         }),
         const SizedBox(height: AppSpacing.xs),
         Text(
           l10n.learnQuizRules(
             formatPercent(context, QuizRules.knowIt),
             formatPercent(context, QuizRules.partly),
+            QuizRules.minQuestions,
           ),
           style: theme.textTheme.bodySmall,
         ),
@@ -230,9 +245,9 @@ class _Result extends StatelessWidget {
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: [
-            if (verdict == QuizVerdict.knowsIt)
-              FilledButton(onPressed: onAgain, child: Text(l10n.learnQuizAgain))
-            else
+            if (verdict == QuizVerdict.knowsIt || verdict == QuizVerdict.tooFew)
+              FilledButton(onPressed: onAgain, child: Text(l10n.learnQuizAgain)),
+            if (verdict != QuizVerdict.knowsIt)
               FilledButton.icon(
                 icon: const Icon(Icons.school_outlined),
                 label: Text(l10n.learnQuizLearn),
@@ -240,7 +255,7 @@ class _Result extends StatelessWidget {
                   AppRoutes.topicLesson(quiz.topic, subject: quiz.subject),
                 ),
               ),
-            if (verdict != QuizVerdict.knowsIt)
+            if (verdict == QuizVerdict.partly || verdict == QuizVerdict.learnFirst)
               OutlinedButton(onPressed: onAgain, child: Text(l10n.learnQuizAgain)),
             TextButton(onPressed: () => context.pop(), child: Text(l10n.learnQuizDone)),
           ],

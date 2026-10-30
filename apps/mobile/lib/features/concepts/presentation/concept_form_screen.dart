@@ -14,14 +14,26 @@ import '../domain/concept.dart';
 /// Text to start a new concept with (e.g. notes written in a recall check), passed as the
 /// route's `extra`.
 class ConceptPrefill {
-  const ConceptPrefill({this.notes = ''});
+  const ConceptPrefill({this.notes = '', this.tags = const [], this.source});
 
   final String notes;
+
+  /// E.g. [aiGeneratedTag] for a concept made from an AI lesson.
+  final List<String> tags;
+  final String? source;
 }
 
 /// Creates a concept, or edits one when [conceptId] is given.
 class ConceptFormScreen extends ConsumerStatefulWidget {
-  const ConceptFormScreen({super.key, this.conceptId, this.subject, this.topic, this.notes});
+  const ConceptFormScreen({
+    super.key,
+    this.conceptId,
+    this.subject,
+    this.topic,
+    this.notes,
+    this.tags = const [],
+    this.source,
+  });
 
   final String? conceptId;
 
@@ -31,6 +43,10 @@ class ConceptFormScreen extends ConsumerStatefulWidget {
 
   /// Prefilled notes for a new concept.
   final String? notes;
+
+  /// Prefilled tags and source for a new concept.
+  final List<String> tags;
+  final String? source;
 
   @override
   ConsumerState<ConceptFormScreen> createState() => _ConceptFormScreenState();
@@ -63,6 +79,8 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
     _subject.text = widget.subject ?? '';
     _topic.text = widget.topic ?? '';
     _notes.text = widget.notes ?? '';
+    _tags.text = widget.tags.join(', ');
+    _source.text = widget.source ?? '';
     _loadState = _isEditing ? _LoadState.loading : _LoadState.ready;
     if (_isEditing) _load(widget.conceptId!);
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -12,14 +13,16 @@ import '../../exams/application/active_exam.dart';
 import '../../mastery/application/mastery_providers.dart';
 import '../../plus/presentation/plus_prompt.dart';
 
-/// The three ways to start: learn a new topic, check one you know, or analyse a paper.
-/// Learning and checking need AI; analysing a paper works without it.
+/// The three ways to start: learn a new topic, check one you know, or import a paper.
+/// Learning and checking need AI; importing a paper works without it. Hidden unless
+/// [AppFeatures.learnStart] is on.
 class StartOptionsCard extends ConsumerWidget {
   const StartOptionsCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    if (!ref.watch(appFeaturesProvider).learnStart) return const SizedBox.shrink();
     if (ref.watch(activeExamProvider) == null) return const SizedBox.shrink();
     final status = ref.watch(aiStatusProvider).value;
     final aiOn = status?.enabled ?? false;

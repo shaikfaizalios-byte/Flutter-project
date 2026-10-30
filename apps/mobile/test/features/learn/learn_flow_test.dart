@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:preploop/app/app_features.dart';
 import 'package:preploop/app/routes.dart';
 import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/core/errors/app_failure.dart';
+import 'package:preploop/features/concepts/presentation/concept_form_screen.dart';
 import 'package:preploop/features/documents/presentation/documents_screen.dart';
 import 'package:preploop/features/learn/domain/quiz_rules.dart';
 import 'package:preploop/features/learn/presentation/topic_lesson_screen.dart';
@@ -11,11 +13,14 @@ import 'package:preploop/features/learn/presentation/topic_quiz_screen.dart';
 
 import '../../helpers/pump_app.dart';
 
+final learnOn = appFeaturesProvider.overrideWithValue(const AppFeatures(learnStart: true));
+
 Future<FakeAiRepository> openHome(
   WidgetTester tester,
   AppDatabase db, {
   bool enabled = true,
   bool requiresPlus = false,
+  bool featureOn = true,
 }) async {
   final ai = FakeAiRepository(enabled: enabled, requiresPlus: requiresPlus);
   await pumpPrepLoopApp(
@@ -23,8 +28,9 @@ Future<FakeAiRepository> openHome(
     db,
     ai: ai,
     studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
+    extraOverrides: [if (featureOn) learnOn],
   );
-  await scrollTo(tester, find.text('How do you want to start?'));
+  if (featureOn) await scrollTo(tester, find.text('How do you want to start?'));
   return ai;
 }
 
@@ -46,12 +52,32 @@ Future<void> answer(WidgetTester tester, String option, {required bool last}) as
   await tester.pumpAndSettle();
 }
 
+const keyCaveat =
+    'The AI chose this answer and no one has checked it. If it looks wrong, trust your book.';
+
 void main() {
-  test('quiz verdict follows the stated thresholds', () {
+  test('quiz verdict follows the stated thresholds and needs enough questions', () {
     expect(quizVerdict(4, 5), QuizVerdict.knowsIt);
     expect(quizVerdict(3, 5), QuizVerdict.partly);
     expect(quizVerdict(2, 5), QuizVerdict.learnFirst);
-    expect(quizVerdict(0, 0), QuizVerdict.learnFirst);
+    expect(quizVerdict(3, 3), QuizVerdict.knowsIt);
+    expect(quizVerdict(2, 2), QuizVerdict.tooFew);
+    expect(quizVerdict(1, 1), QuizVerdict.tooFew);
+    expect(quizVerdict(0, 0), QuizVerdict.tooFew);
+  });
+
+  testAppWidgets('while the feature is off, nothing of it shows or opens', (tester, db) async {
+    final ai = await openHome(tester, db, featureOn: false);
+
+    expect(find.text('How do you want to start?'), findsNothing);
+    push(tester, AppRoutes.topicLesson('Percentage'));
+    await tester.pumpAndSettle();
+    push(tester, AppRoutes.topicQuiz('Percentage'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TopicLessonScreen), findsNothing);
+    expect(find.byType(TopicQuizScreen), findsNothing);
+    expect(ai.calls, isEmpty);
   });
 
   testAppWidgets('Home offers three ways to start; a paper opens the importer', (tester, db) async {
@@ -59,7 +85,7 @@ void main() {
 
     expect(find.text("I'm new to a topic: teach me first"), findsOneWidget);
     expect(find.text('I know a topic: test my knowledge'), findsOneWidget);
-    await tester.tap(find.text('Analyse a previous year paper'));
+    await tester.tap(find.text('Import a previous year paper'));
     await tester.pumpAndSettle();
 
     expect(find.byType(DocumentsScreen), findsOneWidget);
@@ -109,16 +135,54 @@ void main() {
     expect(ai.calls.last, 'quiz:Percentage:null:SSC_CHSL:en');
   });
 
-  testAppWidgets('a knowledge check is marked on the device with explanations', (tester, db) async {
+  testAppWidgets('a lesson saved as a concept keeps its AI label', (tester, db) async {
+    await openHome(tester, db);
+    push(tester, AppRoutes.topicLesson('Percentage', subject: 'Maths'));
+    await tester.pumpAndSettle();
+
+    await scrollWithin(tester, TopicLessonScreen, find.text('Save as a concept'));
+    await tester.tap(find.text('Save as a concept'));
+    await tester.pumpAndSettle();
+
+    final form = find.byType(ConceptFormScreen);
+    expect(form, findsOneWidget);
+    Future<String> field(String label) async {
+      final input = find.widgetWithText(TextField, label);
+      await scrollWithin(tester, ConceptFormScreen, input);
+      return tester.widget<TextField>(input).controller!.text;
+    }
+
+    expect(await field('Tags (optional)'), 'ai-generated');
+    expect(await field('Source (optional)'), 'AI lesson (fake-model), not checked');
+    expect(await field('Notes (optional)'), startsWith('[AI-generated · not checked]'));
+  });
+
+  testAppWidgets('a lesson the AI was unsure about cannot be saved', (tester, db) async {
+    final ai = await openHome(tester, db);
+    ai.confident = false;
+    push(tester, AppRoutes.topicLesson('Percentage'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("The AI wasn't sure"), findsOneWidget);
+    await scrollWithin(tester, TopicLessonScreen, find.text('Test my knowledge'));
+    expect(find.text('Save as a concept'), findsNothing);
+  });
+
+  testAppWidgets('a knowledge check is marked on the device with labelled questions', (
+    tester,
+    db,
+  ) async {
     final ai = await openHome(tester, db);
     push(tester, AppRoutes.topicQuiz('Percentage', subject: 'Maths'));
     await tester.pumpAndSettle();
 
     expect(find.text('Question 1 of 3'), findsOneWidget);
+    expect(find.text('AI question · not from a paper'), findsOneWidget);
     await tester.tap(find.text('A1'));
     await tester.pumpAndSettle();
     expect(find.text('Not quite. The answer is B.'), findsOneWidget);
     expect(find.text('Because B1.'), findsOneWidget);
+    expect(find.text(keyCaveat), findsOneWidget);
     await tester.tap(find.text('A1')); // locked once answered
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
@@ -141,7 +205,6 @@ void main() {
     db,
   ) async {
     final ai = await openHome(tester, db)
-      ..quizCount = 1
       ..failure = const ServerFailure(code: 'ai_unavailable', statusCode: 502);
     push(tester, AppRoutes.topicQuiz('Ratio'));
     await tester.pumpAndSettle();
@@ -149,11 +212,25 @@ void main() {
     expect(find.text('Try again'), findsOneWidget);
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
-    await answer(tester, 'B1', last: true);
+    await answer(tester, 'B1', last: false);
+    await answer(tester, 'B2', last: false);
+    await answer(tester, 'B3', last: true);
 
-    expect(find.text('1 of 1 correct'), findsOneWidget);
+    expect(find.text('3 of 3 correct'), findsOneWidget);
     expect(find.textContaining('You know this topic well.'), findsOneWidget);
     expect(find.text('Learn this topic'), findsNothing);
     expect(ai.calls, hasLength(2));
+  });
+
+  testAppWidgets('too few questions give no verdict', (tester, db) async {
+    final ai = await openHome(tester, db);
+    ai.quizCount = 1;
+    push(tester, AppRoutes.topicQuiz('Ratio'));
+    await tester.pumpAndSettle();
+    await answer(tester, 'B1', last: true);
+
+    expect(find.text('1 of 1 correct'), findsOneWidget);
+    expect(find.text('Too few questions to judge this topic. Try new questions.'), findsOneWidget);
+    expect(find.textContaining('You know this topic well.'), findsNothing);
   });
 }

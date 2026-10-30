@@ -700,9 +700,16 @@ def test_topic_quiz_returns_valid_questions_without_storing_them(
     assert (log.items_created, log.items_rejected) == (3, 1)
 
 
-def test_topic_quiz_with_no_usable_question_fails(api: TestClient, ai: FakeAIProvider) -> None:
-    ai.responses = [{"questions": [{"stem": "short"}]}]
+def test_topic_quiz_with_too_few_usable_questions_fails(
+    api: TestClient, ai: FakeAIProvider, db_session: Session
+) -> None:
+    two_left = generated(3, prefix="Quiz question")
+    two_left["questions"][2]["correct_option"] = 9  # rejected: only 2 usable, too few to judge
+    ai.responses = [{"questions": [{"stem": "short"}]}, two_left]
     request = {"exam_code": "SSC_CHSL", "topic": "Percentage"}
     assert api.post("/api/v1/ai/topic-quiz", json=request).status_code == 502
+    assert api.post("/api/v1/ai/topic-quiz", json={**request, "count": 3}).status_code == 502
+    logs = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "topic_quiz")).all()
+    assert [(log.outcome, log.items_created) for log in logs] == [("invalid", 0), ("invalid", 2)]
     too_many = api.post("/api/v1/ai/topic-quiz", json={**request, "count": 6})
     assert too_many.status_code == 422

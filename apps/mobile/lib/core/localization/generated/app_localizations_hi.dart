@@ -3720,7 +3720,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get learnOptionTestHint => 'आपकी समझ जाँचने वाले प्रश्न, व्याख्या के साथ।';
 
   @override
-  String get learnOptionPaper => 'पिछले वर्ष का पेपर जाँचें';
+  String get learnOptionPaper => 'पिछले वर्ष का पेपर इम्पोर्ट करें';
 
   @override
   String get learnOptionPaperHint =>
@@ -3843,8 +3843,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get learnQuizLearnFirst => 'इस टॉपिक को पहले सीखना होगा। पाठ से शुरू करें।';
 
   @override
-  String learnQuizRules(String knowIt, String partly) {
-    return 'आता है: $knowIt या अधिक सही। आंशिक: $partly या अधिक।';
+  String learnQuizRules(String knowIt, String partly, int min) {
+    return 'आता है: $knowIt या अधिक सही। आंशिक: $partly या अधिक। कम से कम $min प्रश्नों पर ही आँका जाता है।';
   }
 
   @override
@@ -3864,4 +3864,19 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get plusFeatureLessons => 'किसी भी टॉपिक पर AI पाठ और जाँच';
+
+  @override
+  String learnConceptSource(String model) {
+    return 'AI पाठ ($model), जाँचा नहीं गया';
+  }
+
+  @override
+  String get learnQuizQuestionLabel => 'AI प्रश्न · किसी पेपर से नहीं';
+
+  @override
+  String get learnQuizKeyCaveat =>
+      'यह उत्तर AI ने चुना है और किसी ने जाँचा नहीं है। गलत लगे तो अपनी किताब पर भरोसा करें।';
+
+  @override
+  String get learnQuizTooFew => 'इस टॉपिक को आँकने के लिए प्रश्न बहुत कम हैं। नए प्रश्न आज़माएँ।';
 }

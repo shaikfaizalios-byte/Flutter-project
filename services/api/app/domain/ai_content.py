@@ -485,6 +485,8 @@ MAX_LESSON_POINT = 400
 MAX_LESSON_EXAMPLE = 1000
 MAX_KEY_POINTS = 8
 MAX_MISTAKES = 5
+# A knowledge check needs at least this many usable questions; fewer give no fair verdict.
+MIN_QUIZ_QUESTIONS = 3
 
 
 @dataclass(frozen=True)

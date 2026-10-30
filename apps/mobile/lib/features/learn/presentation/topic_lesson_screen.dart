@@ -7,6 +7,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../ai/data/ai_repository.dart';
 import '../../ai/presentation/ai_widgets.dart';
+import '../../concepts/domain/concept.dart';
 import '../../concepts/presentation/concept_form_screen.dart';
 import '../application/learn_providers.dart';
 import 'learn_widgets.dart';
@@ -45,8 +46,10 @@ class _LessonBody extends ConsumerWidget {
   }
 }
 
-/// Lesson text as notes for a concept (the learner edits it before saving).
+/// Lesson text as notes for a concept (the learner edits it before saving). The first line
+/// keeps the AI label wherever the notes appear (revision cards, search).
 String lessonNotes(AppLocalizations l10n, TopicLesson lesson) => [
+  '[${l10n.learnAiLabel}]',
   lesson.overview,
   '${l10n.learnKeyPoints}:\n${lesson.keyPoints.map((p) => '• $p').join('\n')}',
   if (lesson.exampleQuestion != null)
@@ -149,14 +152,20 @@ class _LessonViewState extends State<_LessonView> {
                 AppRoutes.topicQuiz(lesson.topic, subject: lesson.subject),
               ),
             ),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.bookmark_add_outlined),
-              label: Text(l10n.learnSaveConcept),
-              onPressed: () => context.push(
-                AppRoutes.newConceptIn(lesson.subject ?? '', lesson.topic),
-                extra: ConceptPrefill(notes: lessonNotes(l10n, lesson)),
+            // A lesson the AI wasn't sure about can be read but not kept as notes.
+            if (lesson.confident)
+              OutlinedButton.icon(
+                icon: const Icon(Icons.bookmark_add_outlined),
+                label: Text(l10n.learnSaveConcept),
+                onPressed: () => context.push(
+                  AppRoutes.newConceptIn(lesson.subject ?? '', lesson.topic),
+                  extra: ConceptPrefill(
+                    notes: lessonNotes(l10n, lesson),
+                    tags: const [aiGeneratedTag],
+                    source: l10n.learnConceptSource(lesson.model),
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ],

@@ -5964,7 +5964,7 @@ abstract class AppLocalizations {
   /// No description provided for @learnOptionPaper.
   ///
   /// In en, this message translates to:
-  /// **'Analyse a previous year paper'**
+  /// **'Import a previous year paper'**
   String get learnOptionPaper;
 
   /// No description provided for @learnOptionPaperHint.
@@ -6174,8 +6174,8 @@ abstract class AppLocalizations {
   /// No description provided for @learnQuizRules.
   ///
   /// In en, this message translates to:
-  /// **'Know it: {knowIt} or more correct. Partly: {partly} or more.'**
-  String learnQuizRules(String knowIt, String partly);
+  /// **'Know it: {knowIt} or more correct. Partly: {partly} or more. Judged only on {min} or more questions.'**
+  String learnQuizRules(String knowIt, String partly, int min);
 
   /// No description provided for @learnQuizAgain.
   ///
@@ -6212,6 +6212,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI lessons and knowledge checks on any topic'**
   String get plusFeatureLessons;
+
+  /// No description provided for @learnConceptSource.
+  ///
+  /// In en, this message translates to:
+  /// **'AI lesson ({model}), not checked'**
+  String learnConceptSource(String model);
+
+  /// No description provided for @learnQuizQuestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI question · not from a paper'**
+  String get learnQuizQuestionLabel;
+
+  /// No description provided for @learnQuizKeyCaveat.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI chose this answer and no one has checked it. If it looks wrong, trust your book.'**
+  String get learnQuizKeyCaveat;
+
+  /// No description provided for @learnQuizTooFew.
+  ///
+  /// In en, this message translates to:
+  /// **'Too few questions to judge this topic. Try new questions.'**
+  String get learnQuizTooFew;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
