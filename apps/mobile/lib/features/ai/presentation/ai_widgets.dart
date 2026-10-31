@@ -63,8 +63,11 @@ class AiLabel extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Chip(
       visualDensity: VisualDensity.compact,
-      avatar: const Icon(Icons.auto_awesome, size: 16),
+      avatar: Icon(Icons.auto_awesome, size: 16, color: colors.onTertiaryContainer),
       label: Text(text),
+      // The chip theme's label colour (onSurface) is unreadable on this container.
+      labelStyle: Theme.of(context).chipTheme.labelStyle
+          ?.copyWith(color: colors.onTertiaryContainer),
       backgroundColor: colors.tertiaryContainer,
     );
   }
