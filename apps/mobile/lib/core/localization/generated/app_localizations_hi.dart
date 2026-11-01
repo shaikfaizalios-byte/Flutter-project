@@ -1864,6 +1864,94 @@ class AppLocalizationsHi extends AppLocalizations {
   String get syncFailed => 'सिंक नहीं हो सका। फिर से कोशिश की जाएगी।';
 
   @override
+  String get accountDevices => 'साइन-इन किए गए डिवाइस';
+
+  @override
+  String get devicesTitle => 'साइन-इन किए गए डिवाइस';
+
+  @override
+  String get devicesIntro =>
+      'आपका खाता इन डिवाइस पर साइन-इन है। जिसे आप नहीं पहचानते, उसे साइन आउट करें; दोबारा साइन-इन के लिए आपका पासवर्ड चाहिए होगा। केवल डिवाइस का प्रकार दर्ज होता है, उसका नाम नहीं।';
+
+  @override
+  String get devicesThisDevice => 'यह डिवाइस';
+
+  @override
+  String devicesLastActive(String date) {
+    return 'आख़िरी बार सक्रिय $date';
+  }
+
+  @override
+  String devicesSignedInAt(String date) {
+    return 'साइन-इन $date';
+  }
+
+  @override
+  String get devicePlatformAndroid => 'Android फ़ोन या टैबलेट';
+
+  @override
+  String get devicePlatformIos => 'iPhone या iPad';
+
+  @override
+  String get devicePlatformWeb => 'वेब ब्राउज़र';
+
+  @override
+  String get devicePlatformWindows => 'Windows कंप्यूटर';
+
+  @override
+  String get devicePlatformMacos => 'Mac';
+
+  @override
+  String get devicePlatformLinux => 'Linux कंप्यूटर';
+
+  @override
+  String get devicePlatformUnknown => 'यह सूची बनने से पहले साइन-इन किया गया डिवाइस';
+
+  @override
+  String get devicesSignOut => 'साइन आउट';
+
+  @override
+  String devicesSignOutTitle(String device) {
+    return '$device से साइन आउट करें?';
+  }
+
+  @override
+  String get devicesSignOutMessage =>
+      'वह तुरंत साइन आउट हो जाएगा। उस डिवाइस का अध्ययन डेटा तब तक वहीं रहेगा जब तक कोई दोबारा साइन-इन नहीं करता।';
+
+  @override
+  String get devicesSignOutOthers => 'बाकी सभी डिवाइस से साइन आउट करें';
+
+  @override
+  String get devicesSignOutOthersTitle => 'बाकी डिवाइस से साइन आउट करें?';
+
+  @override
+  String devicesSignOutOthersMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count और डिवाइस तुरंत साइन आउट हो जाएँगे।',
+      one: '1 और डिवाइस तुरंत साइन आउट हो जाएगा।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSignedOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count डिवाइस साइन आउट हुए।',
+      one: '1 डिवाइस साइन आउट हुआ।',
+      zero: 'कोई और डिवाइस साइन-इन नहीं था।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesLoadFailed => 'आपके डिवाइस लोड नहीं हो सके';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

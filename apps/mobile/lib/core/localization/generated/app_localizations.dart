@@ -3063,6 +3063,132 @@ abstract class AppLocalizations {
   /// **'Could not sync. It will be retried.'**
   String get syncFailed;
 
+  /// No description provided for @accountDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed-in devices'**
+  String get accountDevices;
+
+  /// No description provided for @devicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed-in devices'**
+  String get devicesTitle;
+
+  /// No description provided for @devicesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is signed in on these devices. Sign out any you don\'t recognise; they will need your password to sign in again. Only the kind of device is recorded, not its name.'**
+  String get devicesIntro;
+
+  /// No description provided for @devicesThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get devicesThisDevice;
+
+  /// No description provided for @devicesLastActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Last active {date}'**
+  String devicesLastActive(String date);
+
+  /// No description provided for @devicesSignedInAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in {date}'**
+  String devicesSignedInAt(String date);
+
+  /// No description provided for @devicePlatformAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android phone or tablet'**
+  String get devicePlatformAndroid;
+
+  /// No description provided for @devicePlatformIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone or iPad'**
+  String get devicePlatformIos;
+
+  /// No description provided for @devicePlatformWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Web browser'**
+  String get devicePlatformWeb;
+
+  /// No description provided for @devicePlatformWindows.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows computer'**
+  String get devicePlatformWindows;
+
+  /// No description provided for @devicePlatformMacos.
+  ///
+  /// In en, this message translates to:
+  /// **'Mac'**
+  String get devicePlatformMacos;
+
+  /// No description provided for @devicePlatformLinux.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux computer'**
+  String get devicePlatformLinux;
+
+  /// No description provided for @devicePlatformUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Device signed in before this list existed'**
+  String get devicePlatformUnknown;
+
+  /// No description provided for @devicesSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get devicesSignOut;
+
+  /// No description provided for @devicesSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out {device}?'**
+  String devicesSignOutTitle(String device);
+
+  /// No description provided for @devicesSignOutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It is signed out straight away. Study data on that device stays there until someone signs in again.'**
+  String get devicesSignOutMessage;
+
+  /// No description provided for @devicesSignOutOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out all other devices'**
+  String get devicesSignOutOthers;
+
+  /// No description provided for @devicesSignOutOthersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out other devices?'**
+  String get devicesSignOutOthersTitle;
+
+  /// No description provided for @devicesSignOutOthersMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 other device will be signed out straight away.} other{{count} other devices will be signed out straight away.}}'**
+  String devicesSignOutOthersMessage(int count);
+
+  /// No description provided for @devicesSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No other devices were signed in.} =1{1 device signed out.} other{{count} devices signed out.}}'**
+  String devicesSignedOut(int count);
+
+  /// No description provided for @devicesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your devices'**
+  String get devicesLoadFailed;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

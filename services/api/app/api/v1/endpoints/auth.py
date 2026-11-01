@@ -1,9 +1,10 @@
 import logging
+import uuid
 from typing import Annotated, Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response, status
 
-from app.api.deps import CurrentUser, client_key, get_token_signer
+from app.api.deps import CurrentSessionId, CurrentUser, client_key, get_token_signer
 from app.core.config import Settings, get_settings
 from app.core.security import TokenSigner
 from app.database.session import DbSession
@@ -12,11 +13,13 @@ from app.schemas.auth import (
     Accepted,
     AccountExport,
     DeleteAccountRequest,
+    DeviceSession,
     LoginRequest,
     PasswordResetConfirm,
     PasswordResetRequest,
     RefreshRequest,
     RegisterRequest,
+    SignedOut,
     TokenPair,
     UserRead,
     VerifyEmailConfirm,
@@ -64,7 +67,7 @@ def register(
     body: RegisterRequest, request: Request, service: Service, background: BackgroundTasks
 ) -> TokenPair:
     _limit(request, body.email)
-    pair = service.register(body.email, body.password, body.display_name)
+    pair = service.register(body.email, body.password, body.display_name, body.platform)
     _send(request, background, service.request_verification(service.user(pair.user.id)))
     return pair
 
@@ -72,7 +75,7 @@ def register(
 @router.post("/login", response_model=TokenPair, responses=UNAUTHORIZED, summary="Sign in")
 def login(body: LoginRequest, request: Request, service: Service) -> TokenPair:
     _limit(request, body.email)
-    return service.login(body.email, body.password)
+    return service.login(body.email, body.password, body.platform)
 
 
 @router.post(
@@ -93,6 +96,39 @@ def refresh(body: RefreshRequest, service: Service) -> TokenPair:
 def logout(body: RefreshRequest, service: Service) -> Response:
     service.logout(body.refresh_token)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get(
+    "/sessions",
+    response_model=list[DeviceSession],
+    responses=UNAUTHORIZED,
+    summary="Your signed-in devices (this one first)",
+)
+def sessions(user: CurrentUser, current: CurrentSessionId, service: Service) -> list[DeviceSession]:
+    return service.sessions(user, current)
+
+
+@router.delete(
+    "/sessions/{session_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={**UNAUTHORIZED, 404: {"model": ErrorResponse, "description": "Not your device"}},
+    summary="Sign a device out (its tokens stop working at once)",
+)
+def sign_out_device(session_id: uuid.UUID, user: CurrentUser, service: Service) -> Response:
+    service.sign_out_device(user, session_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/sessions/sign-out-others",
+    response_model=SignedOut,
+    responses=UNAUTHORIZED,
+    summary="Sign out every device except this one",
+)
+def sign_out_other_devices(
+    user: CurrentUser, current: CurrentSessionId, service: Service
+) -> SignedOut:
+    return SignedOut(signed_out=service.sign_out_other_devices(user, current))
 
 
 @router.get("/me", response_model=UserRead, responses=UNAUTHORIZED, summary="The signed-in account")

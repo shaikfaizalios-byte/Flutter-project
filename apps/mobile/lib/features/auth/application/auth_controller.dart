@@ -138,6 +138,30 @@ class AuthController extends Notifier<AuthState> {
     return ref.read(authApiProvider).export(session.accessToken);
   }
 
+  Future<List<SignedInDevice>> devices() =>
+      _withAccessToken((token) => ref.read(authApiProvider).devices(token));
+
+  Future<void> signOutDevice(String deviceId) =>
+      _withAccessToken((token) => ref.read(authApiProvider).signOutDevice(token, deviceId));
+
+  Future<int> signOutOtherDevices() =>
+      _withAccessToken((token) => ref.read(authApiProvider).signOutOtherDevices(token));
+
+  /// Calls with the current access token; after a 401 (expired, or issued before devices
+  /// were recorded) refreshes once and retries.
+  Future<T> _withAccessToken<T>(Future<T> Function(String token) call) async {
+    final session = state.session;
+    if (session == null) throw const ServerFailure(statusCode: 401, code: 'unauthorized');
+    try {
+      return await call(session.accessToken);
+    } on ServerFailure catch (failure) {
+      if (failure.statusCode != 401) rethrow;
+      final token = await refreshAccessToken();
+      if (token == null) rethrow;
+      return call(token);
+    }
+  }
+
   Future<void> _adopt(AuthSession session) async {
     final db = ref.read(appDatabaseProvider);
     final engine = ref.read(syncEngineProvider);

@@ -14,7 +14,7 @@ Code:
 |---|---|
 | Sign-in | Email + password, hosted by our own server (no third-party identity service). Emails are stored trimmed and lower-case (unique). |
 | Passwords | 10–128 characters with no composition rules (NIST SP 800-63B), and not equal to the email. Hashed with **Argon2id** (`argon2-cffi`, MIT) and re-hashed on login if the parameters change. Unknown emails are checked against a dummy hash, so timing and error text are the same ("Email or password is not correct"). |
-| Access token | HS256 JWT (`PyJWT`, MIT) signed with `PREPLOOP_AUTH_SECRET`. Lifetime `PREPLOOP_ACCESS_TOKEN_MINUTES` (15). Checks issuer, audience, `type=access` and `exp`. |
+| Access token | HS256 JWT (`PyJWT`, MIT) signed with `PREPLOOP_AUTH_SECRET`. Lifetime `PREPLOOP_ACCESS_TOKEN_MINUTES` (15). Checks issuer, audience, `type=access` and `exp`. Carries `sid` = the refresh-token family (the signed-in device); a token whose family is revoked is refused at once (one indexed lookup per request), so sign-out, remote sign-out, password reset and reuse detection end access immediately rather than after 15 minutes. Tokens issued before `sid` existed still work until they expire. |
 | Refresh token | 48 random bytes, opaque. Only its **SHA-256** is stored. Lifetime `PREPLOOP_REFRESH_TOKEN_DAYS` (30). **Rotates on every use.** Using a token that was already rotated (theft or replay) revokes its whole family (all of that device's sessions). Logout revokes the family. |
 | Secret | Required (32+ characters) in staging and production; the settings refuse to start without it. In development a random secret is generated per process, so sign-ins end on restart. |
 | Brute force | `PREPLOOP_AUTH_RATE_LIMIT` attempts per `PREPLOOP_AUTH_RATE_WINDOW_SECONDS` (default 10 per 15 min) per client address + email, for sign-in and registration |
@@ -26,6 +26,11 @@ Endpoints:
 - `/me` (the account)
 - `/me/export` (everything the server holds for the account)
 - `/me/delete` (password required). This deletes every owned row by cascade **and the stored PDF files**.
+- `/sessions` (signed-in devices, this one first), `DELETE /sessions/{id}` (sign a device out; other
+  accounts' devices → 404), `POST /sessions/sign-out-others` (needs a token with `sid`; a 401 makes the app
+  refresh and retry). A device is a refresh-token family; migration `0029` records its `platform`
+  (android|ios|web|windows|macos|linux, sent by the app at sign-in; no device name or model is collected).
+  App: Profile → "Signed-in devices" (`features/auth/presentation/devices_screen.dart`).
 
 ## Ownership
 
@@ -89,7 +94,6 @@ Device preferences (language, theme, reminder switch) stay per device. Documents
 
 - No password reset or email verification (that needs an email provider; planned for release).
 - No multi-device conflict UI: last writer wins per record, silently. Field-level merging isn't implemented.
-- No list of signed-in devices in the app. Revoking a single session happens only through logout or token reuse detection.
 - Rate limits are per process (shared store needed before scaling out).
 - The older `/api/v1/concepts` REST API is a separate server-side store kept for API clients (marked deprecated). The
   app syncs concepts through `/sync`.

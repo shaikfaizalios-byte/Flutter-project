@@ -35,6 +35,50 @@ class AuthUser {
   };
 }
 
+/// A device signed in to the account (one refresh-token family on the server).
+@immutable
+class SignedInDevice {
+  const SignedInDevice({
+    required this.id,
+    required this.signedInAt,
+    required this.lastActiveAt,
+    this.platform,
+    this.current = false,
+  });
+
+  factory SignedInDevice.fromJson(Map<String, dynamic> json) => SignedInDevice(
+    id: json['id'] as String,
+    platform: json['platform'] as String?,
+    signedInAt: DateTime.parse(json['signed_in_at'] as String),
+    lastActiveAt: DateTime.parse(json['last_active_at'] as String),
+    current: json['current'] as bool? ?? false,
+  );
+
+  final String id;
+
+  /// android, ios, web, windows, macos or linux; null for sign-ins before devices were
+  /// recorded. Only the kind of device is sent, never its name or model.
+  final String? platform;
+  final DateTime signedInAt;
+  final DateTime lastActiveAt;
+
+  /// The device this app runs on.
+  final bool current;
+}
+
+/// The kind of device this app runs on, as the server records it for the device list.
+String devicePlatform() {
+  if (kIsWeb) return 'web';
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android => 'android',
+    TargetPlatform.iOS => 'ios',
+    TargetPlatform.windows => 'windows',
+    TargetPlatform.macOS => 'macos',
+    TargetPlatform.linux => 'linux',
+    TargetPlatform.fuchsia => 'android',
+  };
+}
+
 /// Tokens for the signed-in account. The access token is short-lived; the refresh token
 /// rotates on every use.
 @immutable
@@ -160,6 +204,15 @@ abstract interface class AuthApi {
   Future<void> requestVerification(String accessToken);
 
   Future<AuthUser> confirmVerification(String accessToken, String code);
+
+  /// The account's signed-in devices, this one first.
+  Future<List<SignedInDevice>> devices(String accessToken);
+
+  /// Signs a device out; its tokens stop working at once.
+  Future<void> signOutDevice(String accessToken, String deviceId);
+
+  /// Signs out every device except this one; returns how many were signed out.
+  Future<int> signOutOtherDevices(String accessToken);
 }
 
 class RemoteAuthApi implements AuthApi {
@@ -176,11 +229,15 @@ class RemoteAuthApi implements AuthApi {
         // The sign-up form can't be sent until the learner ticks the minimum-age box.
         'confirms_minimum_age': true,
         if (displayName != null && displayName.trim().isNotEmpty) 'display_name': displayName,
+        'platform': devicePlatform(),
       });
 
   @override
-  Future<AuthSession> login(String email, String password) =>
-      _session('$_base/login', {'email': email, 'password': password});
+  Future<AuthSession> login(String email, String password) => _session('$_base/login', {
+    'email': email,
+    'password': password,
+    'platform': devicePlatform(),
+  });
 
   @override
   Future<AuthSession> refresh(String refreshToken) =>
@@ -231,6 +288,28 @@ class RemoteAuthApi implements AuthApi {
       )).data!,
     ),
   );
+
+  @override
+  Future<List<SignedInDevice>> devices(String accessToken) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '$_base/sessions',
+      options: _bearer(accessToken),
+    );
+    return [for (final d in response.data!) SignedInDevice.fromJson(d as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<void> signOutDevice(String accessToken, String deviceId) =>
+      _guard(() => _dio.delete<void>('$_base/sessions/$deviceId', options: _bearer(accessToken)));
+
+  @override
+  Future<int> signOutOtherDevices(String accessToken) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_base/sessions/sign-out-others',
+      options: _bearer(accessToken),
+    );
+    return response.data!['signed_out'] as int;
+  });
 
   Future<AuthSession> _session(String path, Map<String, Object> body) => _guard(
     () async =>

@@ -31,8 +31,13 @@ class _EmailInput(BaseModel):
         return email
 
 
+# The kind of device the app runs on, shown in the learner's list of signed-in devices.
+Platform = Literal["android", "ios", "web", "windows", "macos", "linux"]
+
+
 class RegisterRequest(_EmailInput):
     password: Password
+    platform: Platform | None = None
     # The learner confirms they are at least MINIMUM_AGE; sign-up is refused without it.
     confirms_minimum_age: Literal[True] = Field(
         description=f"Must be true: the learner confirms they are at least {MINIMUM_AGE}."
@@ -46,6 +51,7 @@ class RegisterRequest(_EmailInput):
 class LoginRequest(_EmailInput):
     # No minimum here: old accounts must still be able to sign in if rules change.
     password: Annotated[str, Field(min_length=1, max_length=PASSWORD_MAX)]
+    platform: Platform | None = None
 
 
 class RefreshRequest(BaseModel):
@@ -107,3 +113,17 @@ class VerifyEmailConfirm(BaseModel):
 
 class Accepted(BaseModel):
     detail: str
+
+
+class DeviceSession(BaseModel):
+    """A signed-in device (one refresh-token family)."""
+
+    id: uuid.UUID
+    platform: Platform | None  # None: signed in before devices were recorded
+    signed_in_at: datetime
+    last_active_at: datetime  # last sign-in or token refresh (about every 15 minutes in use)
+    current: bool  # the device making this request
+
+
+class SignedOut(BaseModel):
+    signed_out: int  # devices signed out

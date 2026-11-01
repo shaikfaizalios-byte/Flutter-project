@@ -1861,6 +1861,94 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncFailed => 'Could not sync. It will be retried.';
 
   @override
+  String get accountDevices => 'Signed-in devices';
+
+  @override
+  String get devicesTitle => 'Signed-in devices';
+
+  @override
+  String get devicesIntro =>
+      'Your account is signed in on these devices. Sign out any you don\'t recognise; they will need your password to sign in again. Only the kind of device is recorded, not its name.';
+
+  @override
+  String get devicesThisDevice => 'This device';
+
+  @override
+  String devicesLastActive(String date) {
+    return 'Last active $date';
+  }
+
+  @override
+  String devicesSignedInAt(String date) {
+    return 'Signed in $date';
+  }
+
+  @override
+  String get devicePlatformAndroid => 'Android phone or tablet';
+
+  @override
+  String get devicePlatformIos => 'iPhone or iPad';
+
+  @override
+  String get devicePlatformWeb => 'Web browser';
+
+  @override
+  String get devicePlatformWindows => 'Windows computer';
+
+  @override
+  String get devicePlatformMacos => 'Mac';
+
+  @override
+  String get devicePlatformLinux => 'Linux computer';
+
+  @override
+  String get devicePlatformUnknown => 'Device signed in before this list existed';
+
+  @override
+  String get devicesSignOut => 'Sign out';
+
+  @override
+  String devicesSignOutTitle(String device) {
+    return 'Sign out $device?';
+  }
+
+  @override
+  String get devicesSignOutMessage =>
+      'It is signed out straight away. Study data on that device stays there until someone signs in again.';
+
+  @override
+  String get devicesSignOutOthers => 'Sign out all other devices';
+
+  @override
+  String get devicesSignOutOthersTitle => 'Sign out other devices?';
+
+  @override
+  String devicesSignOutOthersMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count other devices will be signed out straight away.',
+      one: '1 other device will be signed out straight away.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSignedOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices signed out.',
+      one: '1 device signed out.',
+      zero: 'No other devices were signed in.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesLoadFailed => 'Could not load your devices';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override

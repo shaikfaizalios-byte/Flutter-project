@@ -1285,6 +1285,62 @@
     }
   },
   "syncFailed": "Could not sync. It will be retried.",
+  "accountDevices": "Signed-in devices",
+  "devicesTitle": "Signed-in devices",
+  "devicesIntro": "Your account is signed in on these devices. Sign out any you don't recognise; they will need your password to sign in again. Only the kind of device is recorded, not its name.",
+  "devicesThisDevice": "This device",
+  "devicesLastActive": "Last active {date}",
+  "@devicesLastActive": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesSignedInAt": "Signed in {date}",
+  "@devicesSignedInAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devicePlatformAndroid": "Android phone or tablet",
+  "devicePlatformIos": "iPhone or iPad",
+  "devicePlatformWeb": "Web browser",
+  "devicePlatformWindows": "Windows computer",
+  "devicePlatformMacos": "Mac",
+  "devicePlatformLinux": "Linux computer",
+  "devicePlatformUnknown": "Device signed in before this list existed",
+  "devicesSignOut": "Sign out",
+  "devicesSignOutTitle": "Sign out {device}?",
+  "@devicesSignOutTitle": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesSignOutMessage": "It is signed out straight away. Study data on that device stays there until someone signs in again.",
+  "devicesSignOutOthers": "Sign out all other devices",
+  "devicesSignOutOthersTitle": "Sign out other devices?",
+  "devicesSignOutOthersMessage": "{count, plural, =1{1 other device will be signed out straight away.} other{{count} other devices will be signed out straight away.}}",
+  "@devicesSignOutOthersMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesSignedOut": "{count, plural, =0{No other devices were signed in.} =1{1 device signed out.} other{{count} devices signed out.}}",
+  "@devicesSignedOut": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesLoadFailed": "Could not load your devices",
   "accountExport": "Copy my data",
   "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
   "accountSignOut": "Sign out",
