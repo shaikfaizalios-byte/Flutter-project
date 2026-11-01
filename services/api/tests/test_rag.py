@@ -6,6 +6,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.domain import ai_content
 from app.domain.rag import (
     RagSource,
     best_window,
@@ -214,7 +215,7 @@ def test_no_matching_material_is_answered_without_an_ai_call(
     assert response.json() == {
         "found": False, "answer": None, "simple": None, "confident": True, "sources": [],
         "model": None,
-        "prompt_version": "p9.5",
+        "prompt_version": ai_content.PROMPT_VERSION,
     }  # fmt: skip
     assert ai.calls == []  # nothing spent
 

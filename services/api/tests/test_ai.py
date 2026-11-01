@@ -137,7 +137,7 @@ def test_explanation_draft_review_and_labelled_use_in_practice(
     assert response.status_code == 201, response.text
     draft = response.json()
     assert (draft["status"], draft["provider"], draft["model"]) == ("draft", "fake", "fake-model-1")
-    assert draft["prompt_version"] == "p9.5"
+    assert draft["prompt_version"] == ai_content.PROMPT_VERSION
 
     # The prompt carries the question and its known answer; the system prompt forbids
     # presenting output as official.
@@ -261,7 +261,7 @@ def test_generated_questions_are_validated_stored_unverified_and_labelled(
     assert first["ai"] == {
         "provider": "fake",
         "model": "fake-model-1",
-        "prompt_version": "p9.5",
+        "prompt_version": ai_content.PROMPT_VERSION,
         "source_question_id": str(source.id),
         "source_note": None,
     }
@@ -600,7 +600,7 @@ def test_quick_answer_for_a_search_is_returned_and_logged_without_text(
     body = response.json()
     assert body["answer"] == "Optional binding unwraps a value with if let."
     assert body["confident"] is True
-    assert (body["model"], body["prompt_version"]) == ("fake-model-1", "p9.5")
+    assert (body["model"], body["prompt_version"]) == ("fake-model-1", ai_content.PROMPT_VERSION)
     call = ai.calls[0]
     assert "swift optional binding" in call.prompt
     assert "Combined Higher Secondary" in call.prompt and "English" in call.prompt
@@ -658,7 +658,8 @@ def test_topic_lesson_is_returned_and_logged_without_text(
     assert body["key_points"][0] == "x% of y = x*y/100" and body["example_answer"] == "30"
     assert body["model"] == "fake-model-1"
     call = ai.calls[0]
-    assert "Percentage (Maths)" in call.prompt and "Combined Higher Secondary" in call.prompt
+    assert "topic (Maths):\n<material>\nPercentage\n" in call.prompt
+    assert "Combined Higher Secondary" in call.prompt
     assert call.system == ai_content.TOPIC_SYSTEM
     log = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "topic_lesson")).one()
     assert (log.outcome, log.detail, log.items_created) == ("ok", "", 1)
@@ -743,7 +744,7 @@ def test_answer_check_compares_with_the_paper_and_stores_nothing(
     assert body["paper_answer"] == "(2) opt 2"
     call = ai.calls[0]
     assert "What is 20% of 150?" in call.prompt and "(2) opt 2" in call.prompt
-    assert "The learner's answer:\n25" in call.prompt
+    assert "The learner's answer:\n<material>\n25\n" in call.prompt
     log = db_session.scalars(select(AIGeneration).where(AIGeneration.task == "answer_check")).one()
     assert (log.outcome, log.question_id, log.detail) == ("ok", question.id, "")
 

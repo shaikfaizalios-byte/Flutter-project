@@ -24,6 +24,7 @@ provenance, and reviewed before learners rely on it. AI never produces previous-
 | What is stored | AI output (questions, explanation drafts, topic choice) with provider, model, prompt version and source. `ai_generations` stores the task, model, outcome, reason codes and token counts, but **never prompt or output text**. A concept's notes are not stored on the server. Only `ai_source_note = "Concept: <title>"` is kept. |
 | Logging | Only reason codes (e.g. `timeout`, `provider_status_529`). No prompts, document text, notes or keys. The key is a `SecretStr`. |
 | Provider's data retention | Governed by Anthropic's API terms. Review these before enabling in production. |
+| Untrusted input | Paper text, options, passages, notes, searches, topic names and RAG sources go into the prompt inside one `<material>…</material>` block each (`app/domain/untrusted.py` `material()`; tags inside the text are neutralised so it can't close its block), and every system prompt ends with `UNTRUSTED_RULE`: the block is data, never instructions. Output is still validated as before, so an "obeyed" injection (unknown source, off-list topic, wrong shape) is rejected. `tests/test_prompt_injection.py` covers every prompt builder. The general system prompt names no exam; prompts that need the exam take its catalog name. Prompt version `p10`. This lowers the risk; it does not make injection impossible — never let AI output act without validation. |
 
 ## Features
 

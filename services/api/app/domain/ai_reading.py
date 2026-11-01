@@ -15,6 +15,7 @@ from typing import Any
 
 from app.domain.ai_content import LANGUAGE_NAMES
 from app.domain.segmentation import Issue, IssueCode
+from app.domain.untrusted import UNTRUSTED_RULE, material
 
 PAGES_PER_CALL = 3  # main pages per request; the next page is added as context
 MAX_STEM = 4000
@@ -37,7 +38,7 @@ READ_SYSTEM = (
     "When a question needs a picture, diagram, chart or table that can't be written as text, "
     "set has_figure to true. Q&A notes and interview questions have no options: give their "
     "written answer, copied exactly, in written_answer (null for multiple-choice questions). "
-    "Skip instructions, headers and anything that is not a question."
+    "Skip instructions, headers and anything that is not a question." + UNTRUSTED_RULE
 )
 
 READ_SCHEMA: dict[str, Any] = {
@@ -96,7 +97,9 @@ def read_prompt(pages: Sequence[PageInput], language: str) -> str:
     for page in pages:
         role = "" if page.main else " (context only: do not return questions starting here)"
         text = page.text.strip() or "(no text layer: read the image)"
-        parts.append(f"Page {page.number}{role}. Extracted text (may be out of order):\n{text}")
+        parts.append(
+            f"Page {page.number}{role}. Extracted text (may be out of order):\n{material(text)}"
+        )
     return (
         "The images above are the pages listed below, in the same order.\n\n"
         + "\n\n".join(parts)

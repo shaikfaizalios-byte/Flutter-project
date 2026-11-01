@@ -109,9 +109,10 @@ def test_prompts_ask_for_the_learners_language() -> None:
     )
     assert "Hindi (Devanagari script)" in hindi
     notes = ai_content.questions_from_notes_prompt(
-        title="T", notes="", subject="S", topic="P", language="en", count=2
+        title="T", notes="", subject="S", topic="P", language="en", count=2, exam_name="RRB NTPC"
     )
     assert "(no notes)" in notes and "Write 2" in notes
+    assert "level of RRB NTPC" in notes and "SSC" not in notes
 
 
 # --- provider wiring ---------------------------------------------------------------------
@@ -257,7 +258,8 @@ def test_topic_prompts_name_the_topic_exam_and_language() -> None:
     lesson = ai_content.topic_lesson_prompt(
         topic="Percentage", subject="Quantitative Aptitude", exam_name="SSC CGL", language="hi"
     )
-    assert "Percentage (Quantitative Aptitude)" in lesson and "SSC CGL" in lesson
+    assert "topic (Quantitative Aptitude):\n<material>\nPercentage\n" in lesson
+    assert "SSC CGL" in lesson
     assert "Hindi" in lesson and "new to it" in lesson
     quiz = ai_content.topic_quiz_prompt(
         topic="Percentage", subject=None, exam_name=None, language="en", count=5
@@ -309,9 +311,10 @@ def test_answer_check_prompt_marks_the_paper_answer_as_possibly_wrong() -> None:
     )
     assert (
         "may contain reading errors, or be wrong" in prompt
-        and "The learner's answer:\n25" in prompt
+        and "The learner's answer:\n<material>\n25\n" in prompt
     )
     none = ai_content.answer_check_prompt(
         stem="Define GDP.", passage="About economics", paper_answer=None, answer="x", language="hi"
     )
-    assert "prints no answer" in none and "Passage:\nAbout economics" in none and "Hindi" in none
+    assert "prints no answer" in none and "Hindi" in none
+    assert "Passage:\n<material>\nAbout economics\n</material>" in none

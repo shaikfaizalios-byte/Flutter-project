@@ -10,18 +10,20 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-PROMPT_VERSION = "p9.5"
+from app.domain.untrusted import UNTRUSTED_RULE, material
+
+PROMPT_VERSION = "p10"
 OPTIONS_PER_QUESTION = 4  # SSC CGL/CHSL objective questions have four options
 MAX_GENERATED = 5
 
 LANGUAGE_NAMES = {"en": "English", "hi": "Hindi (Devanagari script)"}
 
 SYSTEM = (
-    "You help Indian students prepare for SSC CGL and SSC CHSL exams. You write original "
-    "practice material only. Never claim or imply that anything you write is from an "
-    "official or previous-year paper, and never invent exam patterns, cut-offs, marks or "
-    "statistics. If you are not sure something is correct, say so in the explanation "
-    "instead of guessing."
+    "You help learners prepare for multiple-choice exams. You write original practice "
+    "material only. Never claim or imply that anything you write is from an official or "
+    "previous-year paper, and never invent exam patterns, cut-offs, marks or statistics. If "
+    "you are not sure something is correct, say so in the explanation instead of guessing."
+    + UNTRUSTED_RULE
 )
 
 EXPLANATION_SCHEMA: dict[str, Any] = {
@@ -105,9 +107,10 @@ def _fmt_options(options: list[str]) -> str:
 def explanation_prompt(
     *, stem: str, options: list[str], correct: int, subject: str | None, language: str
 ) -> str:
+    question = material(f"{stem}\n\nOptions:\n{_fmt_options(options)}")
     return (
         f"Subject: {subject or 'not given'}\n"
-        f"Question:\n{stem}\n\nOptions:\n{_fmt_options(options)}\n\n"
+        f"Question:\n{question}\n\n"
         f"The correct answer is option ({correct}).\n\n"
         f"Write a short step-by-step explanation (at most 150 words) of why option "
         f"({correct}) is correct, in {LANGUAGE_NAMES[language]}. Set confident to false if "
@@ -125,9 +128,10 @@ def questions_from_question_prompt(
     language: str,
     count: int,
 ) -> str:
+    example = material(f"{stem}\n{_fmt_options(options)}")
     return (
         f"Subject: {subject or 'not given'}. Topic: {topic or 'not given'}.\n"
-        f"Example question (do not copy it):\n{stem}\n{_fmt_options(options)}\n"
+        f"Example question (do not copy it):\n{example}\n"
         f"Answer: ({correct})\n\n"
         f"Write {count} new, different multiple-choice practice questions on the same "
         f"topic and level, in {LANGUAGE_NAMES[language]}. Each has exactly "
@@ -137,13 +141,21 @@ def questions_from_question_prompt(
 
 
 def questions_from_notes_prompt(
-    *, title: str, notes: str, subject: str, topic: str, language: str, count: int
+    *,
+    title: str,
+    notes: str,
+    subject: str,
+    topic: str,
+    language: str,
+    count: int,
+    exam_name: str,
 ) -> str:
+    own_notes = material(f"{title}\n\n{notes or '(no notes)'}")
     return (
         f"Subject: {subject}. Topic: {topic}.\n"
-        f"The student's own notes on '{title}':\n{notes or '(no notes)'}\n\n"
-        f"Write {count} multiple-choice practice questions that test this concept at SSC "
-        f"CGL/CHSL level, in {LANGUAGE_NAMES[language]}. Each has exactly "
+        f"The student's own notes (title first):\n{own_notes}\n\n"
+        f"Write {count} multiple-choice practice questions that test this concept at the "
+        f"level of {exam_name}, in {LANGUAGE_NAMES[language]}. Each has exactly "
         f"{OPTIONS_PER_QUESTION} distinct options, exactly one correct option "
         "(correct_option is 1-based) and a short explanation. If the notes contain a "
         "mistake, do not repeat it."
@@ -153,7 +165,7 @@ def questions_from_notes_prompt(
 def topic_prompt(*, stem: str, subject: str, topics: list[str]) -> str:
     listed = "\n".join(f"- {t}" for t in topics)
     return (
-        f"Subject: {subject}\nQuestion:\n{stem}\n\n"
+        f"Subject: {subject}\nQuestion:\n{material(stem)}\n\n"
         f"Choose the single best topic for this question from this list, copying the name "
         f"exactly:\n{listed}\n\nUse null if none fits."
     )
@@ -176,7 +188,7 @@ def paper_topics_prompt(
         'this list, copying the label exactly ("Subject > Topic"). If a question names its '
         "subject, choose a topic of that subject. Use null when you are not sure or nothing "
         f"fits; a wrong topic is worse than none.\n\nTopics:\n{listed}\n\nQuestions:\n"
-        + "\n\n".join(blocks)
+        + material("\n\n".join(blocks))
         + "\n\nAnswer once for every question number."
     )
 
@@ -232,7 +244,7 @@ def taxonomy_prompt(exam_name: str, stems: Sequence[str], existing: Sequence[str
         "wording, so questions can be matched to it. Only propose topics these questions "
         "actually cover; do not invent exam patterns, question counts or marking. "
         f"Do not repeat topics the exam already has.\n\nAlready has:\n{have}\n\n"
-        f"Questions:\n{listed}"
+        f"Questions:\n{material(listed)}"
     )
 
 
@@ -406,7 +418,7 @@ QUICK_ANSWER_SYSTEM = (
     "plainly so a learner can check their understanding. Never claim or imply that your "
     "answer comes from an official or previous-year paper, and never invent exam "
     "patterns, cut-offs, marks or statistics. If you are not sure, say so instead of "
-    "guessing."
+    "guessing." + UNTRUSTED_RULE
 )
 
 QUICK_ANSWER_SCHEMA: dict[str, Any] = {
@@ -430,7 +442,7 @@ def query_language(text: str) -> str:
 def quick_answer_prompt(*, query: str, exam_name: str | None) -> str:
     preparing = f"preparing for {exam_name}" if exam_name else "preparing for an exam"
     return (
-        f"A learner {preparing} searched their notes for:\n{query}\n\n"
+        f"A learner {preparing} searched their notes for:\n{material(query)}\n\n"
         "None of their imported papers has a matching question. Answer in at most 120 "
         f"words, in {LANGUAGE_NAMES[query_language(query)]}. If the search is a question, "
         "give the answer first and then the key reason in a sentence or two. If it is a "
@@ -456,7 +468,7 @@ TOPIC_SYSTEM = (
     "You teach and test one topic at a time with original material. Never claim or imply "
     "that anything you write is from an official or previous-year paper, and never invent "
     "exam patterns, cut-offs, marks, weightage or statistics. If you are not sure something "
-    "is correct, say so instead of guessing."
+    "is correct, say so instead of guessing." + UNTRUSTED_RULE
 )
 
 LESSON_SCHEMA: dict[str, Any] = {
@@ -503,7 +515,7 @@ class TopicLesson:
 def _topic_line(topic: str, subject: str | None, exam_name: str | None) -> str:
     where = f" ({subject})" if subject else ""
     exam = exam_name or "a competitive exam"
-    return f"A learner preparing for {exam} chose the topic: {topic}{where}."
+    return f"A learner preparing for {exam} chose the topic{where}:\n{material(topic)}"
 
 
 def topic_lesson_prompt(
@@ -610,17 +622,17 @@ class AnswerCheck:
 def answer_check_prompt(
     *, stem: str, passage: str | None, paper_answer: str | None, answer: str, language: str
 ) -> str:
-    context = f"Passage:\n{passage}\n\n" if passage else ""
+    context = f"Passage:\n{material(passage)}\n\n" if passage else ""
     paper = (
         "The answer printed in their paper (it may contain reading errors, or be wrong):\n"
-        f"{paper_answer}\n\n"
+        f"{material(paper_answer)}\n\n"
         if paper_answer
         else "Their paper prints no answer for this question.\n\n"
     )
     return (
         f"A learner is solving a question from their own imported paper.\n\n{context}"
-        f"Question:\n{stem}\n\n{paper}"
-        f"The learner's answer:\n{answer}\n\n"
+        f"Question:\n{material(stem)}\n\n{paper}"
+        f"The learner's answer:\n{material(answer)}\n\n"
         f"Work out the correct answer yourself first. Then, in {LANGUAGE_NAMES[language]}:\n"
         "- verdict: correct, partly or incorrect for the learner's answer, judged on meaning, "
         "not wording or spelling.\n"

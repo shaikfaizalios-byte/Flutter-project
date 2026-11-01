@@ -219,7 +219,8 @@ class AIService:
         else:
             concept = request.concept
             assert concept is not None  # noqa: S101 - guaranteed by the request validator
-            if ExamRepository(self._session).get_visible(request.exam_code, self._owner_id) is None:
+            exam = ExamRepository(self._session).get_visible(request.exam_code, self._owner_id)
+            if exam is None:
                 raise InvalidReferenceError(f"Unknown exam '{request.exam_code}'.")
             exam_code, subject, section = request.exam_code, concept.subject, concept.subject
             topic = self._session.scalars(
@@ -236,6 +237,7 @@ class AIService:
                 topic=concept.topic,
                 language=request.language,
                 count=request.count,
+                exam_name=exam.name,
             )
             note = f"Concept: {concept.title}"[:300]
 

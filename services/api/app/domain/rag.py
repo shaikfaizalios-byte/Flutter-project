@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from app.domain.ai_content import LANGUAGE_NAMES, query_language
+from app.domain.untrusted import UNTRUSTED_RULE, material
 
 SourceKind = Literal["page", "question", "concept"]
 
@@ -110,7 +111,7 @@ RAG_SYSTEM = (
     "the sources, and use no [S#] markers. If the sources do not answer the search, set found "
     "to false and leave both parts empty. Sources may contain OCR mistakes; if a source looks "
     "garbled or sources disagree, say so in ANSWER. Never invent exam patterns, cut-offs, marks "
-    "or statistics, and never call something official unless a source says so."
+    "or statistics, and never call something official unless a source says so." + UNTRUSTED_RULE
 )
 
 # Structured output: the API guarantees JSON of this shape, so we never parse free text.
@@ -131,13 +132,14 @@ RAG_SCHEMA: dict[str, Any] = {
 def rag_prompt(*, query: str, exam_name: str | None, sources: Sequence[RagSource]) -> str:
     """Sources first, the question last: models attend best to instructions near the end."""
     blocks = "\n\n".join(
-        f"[{s.key}] {s.label}{'' if s.verified else ' (not checked by a reviewer)'}\n{s.text}"
+        f"[{s.key}] {s.label}{'' if s.verified else ' (not checked by a reviewer)'}\n"
+        + material(s.text)
         for s in sources
     )
-    material = f" for {exam_name}" if exam_name else ""
+    exam = f" for {exam_name}" if exam_name else ""
     return (
-        f"Sources from the learner's material{material}:\n\n{blocks}\n\n"
-        f"Search: {query}\n\n"
+        f"Sources from the learner's material{exam}:\n\n{blocks}\n\n"
+        f"Search:\n{material(query)}\n\n"
         f"Write in {LANGUAGE_NAMES[query_language(query)]}. answer: at most 150 words, only "
         "from the sources above in their own wording, with a [S#] marker after each statement. "
         "simple: at most 120 words explaining the same thing in simple terms, no markers. List "
