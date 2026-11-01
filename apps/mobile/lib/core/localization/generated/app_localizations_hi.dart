@@ -2079,6 +2079,37 @@ class AppLocalizationsHi extends AppLocalizations {
       'अभी खरीदारी जाँची नहीं जा सकी। इसे फिर से जाँचा जाएगा; आपसे दो बार शुल्क नहीं लिया जाएगा।';
 
   @override
+  String sessionSectionOf(int index, int count, String name) {
+    return 'खंड $index / $count: $name';
+  }
+
+  @override
+  String sessionSectionHint(int minutes) {
+    return 'इस खंड का अपना $minutes मिनट का टाइमर है। समय खत्म होने पर, या आपके खंड पूरा करने पर, अगला खंड खुलता है; आप इस खंड में वापस नहीं आ सकते।';
+  }
+
+  @override
+  String get sessionFinishSection => 'खंड पूरा करें';
+
+  @override
+  String get sessionFinishSectionTitle => 'यह खंड पूरा करें?';
+
+  @override
+  String sessionFinishSectionMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'इस खंड के $count प्रश्न बिना उत्तर हैं।',
+      one: 'इस खंड का 1 प्रश्न बिना उत्तर है।',
+      zero: 'इस खंड के सभी प्रश्नों के उत्तर दिए गए हैं।',
+    );
+    return '$_temp0 आप इस खंड में वापस नहीं आ सकते।';
+  }
+
+  @override
+  String get sessionSectionTimeUp => 'उस खंड का समय पूरा हुआ। अगला खंड खुल गया है।';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

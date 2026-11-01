@@ -43,6 +43,19 @@ review edits to a question therefore never change a session that has already sta
   counts. If any section lacks enough verified questions, starting it returns
   `422 not_enough_questions`, and the message says which sections are short. Sections are matched by subject name,
   never by position.
+- **Sectional timers** (global Phase 5, migration 0033): a format with `sectional_timing` (SSC CGL
+  2026 Tier-I: 4 × 15 min, fixed order) gives the mock a section plan copied into
+  `selection.sections` (name, first/last position, minutes) plus `current_section` /
+  `section_started_at`. Pure rules in `app/domain/sections.py`: a section closes when its own time is
+  up (the next opens at that moment) or when the learner finishes it early
+  (`POST /practice/sessions/{id}/next-section` with `from_section`, harmless when retried); a closed
+  section can't be reopened; closing the last one submits (`time_up` at the last section's end, or
+  `user`). Answers outside the open section → `409 section_closed`; questions of sections not open yet
+  come without content. `SessionRead` adds `sections`, `current_section`, `section_deadline_at`. The
+  app shows "Section x of n", the section's own countdown, Finish section (no way back), and loads the
+  next section when the time is up. Finishing a section early is this mock's choice; the official
+  notice records the timers, not whether a section can be left early. Mocks started before 0033 keep
+  one overall timer. Formats without sectional timing (CHSL) are unchanged.
 - Questions are sampled with a recorded random seed (`selection.seed`) for reproducibility.
 - Answers can be changed until submission. **No feedback** is shown until the test is submitted.
 

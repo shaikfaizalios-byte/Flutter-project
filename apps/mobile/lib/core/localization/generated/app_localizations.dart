@@ -3399,6 +3399,42 @@ abstract class AppLocalizations {
   /// **'The purchase couldn\'t be checked right now. It will be checked again; you won\'t be charged twice.'**
   String get plusPurchaseFailed;
 
+  /// No description provided for @sessionSectionOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Section {index} of {count}: {name}'**
+  String sessionSectionOf(int index, int count, String name);
+
+  /// No description provided for @sessionSectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This section has its own {minutes}-minute timer. When it ends, or when you finish it, the next section opens; you can\'t come back to it.'**
+  String sessionSectionHint(int minutes);
+
+  /// No description provided for @sessionFinishSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish section'**
+  String get sessionFinishSection;
+
+  /// No description provided for @sessionFinishSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish this section?'**
+  String get sessionFinishSectionTitle;
+
+  /// No description provided for @sessionFinishSectionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Every question in this section is answered.} =1{1 question in this section is unanswered.} other{{count} questions in this section are unanswered.}} You can\'t come back to this section.'**
+  String sessionFinishSectionMessage(int count);
+
+  /// No description provided for @sessionSectionTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time\'s up for that section. The next section is open.'**
+  String get sessionSectionTimeUp;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

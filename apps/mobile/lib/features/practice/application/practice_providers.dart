@@ -129,14 +129,26 @@ class SessionState {
     submitting: submitting ?? this.submitting,
   );
 
-  /// Seconds left on a mock test, from the server deadline (null when untimed).
+  /// Seconds left on a mock test, from the server deadline (null when untimed). In a
+  /// sectionally timed mock this is the open section's time.
   int? remainingSeconds(DateTime deviceNow) {
-    final deadline = session.deadlineAt;
+    final deadline = session.sectional ? session.sectionDeadlineAt : session.deadlineAt;
     if (deadline == null || session.submitted) return null;
     final serverNow = deviceNow.add(clockOffset);
     final left = deadline.difference(serverNow).inSeconds;
     return left < 0 ? 0 : left;
   }
+}
+
+/// Where to start in [session]: the first unanswered question that can be answered now.
+int _startIndex(PracticeSessionView session) {
+  if (session.submitted) return 0;
+  final open = [
+    for (final (i, item) in session.items.indexed)
+      if (session.isOpen(item.position)) i,
+  ];
+  if (open.isEmpty) return 0;
+  return open.firstWhere((i) => !session.items[i].answered, orElse: () => open.first);
 }
 
 /// Drives one session screen. The server is the source of truth; answers go through the
@@ -152,18 +164,56 @@ class SessionController extends AsyncNotifier<SessionState> {
   Future<SessionState> build() async {
     final fetchedAt = ref.read(clockProvider)();
     final session = await _repo.session(sessionId);
-    final current = session.items.indexWhere((i) => !i.answered);
     return SessionState(
       session: session,
       clockOffset: session.serverNow.difference(fetchedAt),
-      current: session.submitted || current < 0 ? 0 : current,
+      current: _startIndex(session),
     );
   }
 
   void goTo(int index) {
     final value = state.value;
     if (value == null || index < 0 || index >= value.session.items.length) return;
+    if (!value.session.isOpen(value.session.items[index].position)) return;
     state = AsyncData(value.copyWith(current: index));
+  }
+
+  /// Closes the open section early in a sectionally timed mock; the next one opens (the
+  /// last one submits the test).
+  Future<void> finishSection() async {
+    final value = state.value;
+    final section = value?.session.currentSection;
+    if (value == null || section == null || value.session.submitted || value.submitting) return;
+    state = AsyncData(value.copyWith(submitting: true));
+    try {
+      final updated = await _repo.finishSection(sessionId, section);
+      _replace(updated, value.clockOffset);
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Finishing a section failed', error, stack);
+      state = AsyncData(value.copyWith(submitting: false));
+      rethrow;
+    }
+  }
+
+  /// Reloads the session from the server (a section's time ran out: the server opens the
+  /// next one, or submits after the last).
+  Future<void> refresh() async {
+    final value = state.value;
+    if (value == null) return;
+    final fetchedAt = ref.read(clockProvider)();
+    final updated = await _repo.session(sessionId);
+    _replace(updated, updated.serverNow.difference(fetchedAt));
+  }
+
+  void _replace(PracticeSessionView session, Duration clockOffset) {
+    state = AsyncData(
+      SessionState(session: session, clockOffset: clockOffset, current: _startIndex(session)),
+    );
+    if (session.submitted) {
+      ref
+        ..invalidate(sessionHistoryProvider)
+        ..invalidate(incorrectQuestionsProvider);
+    }
   }
 
   /// Returns false when the answer could not be saved (e.g. the session closed).
@@ -197,8 +247,8 @@ class SessionController extends AsyncNotifier<SessionState> {
       );
       return true;
     } on ServerFailure catch (failure) {
-      if (failure.code == 'session_closed') {
-        ref.invalidateSelf(); // reload the submitted session and its result
+      if (failure.code == 'session_closed' || failure.code == 'section_closed') {
+        ref.invalidateSelf(); // reload: the session was submitted or its section closed
       }
       return false;
     } on Object catch (error, stack) {
@@ -235,7 +285,9 @@ class SessionController extends AsyncNotifier<SessionState> {
       );
       return true;
     } on ServerFailure catch (failure) {
-      if (failure.code == 'session_closed') ref.invalidateSelf();
+      if (failure.code == 'session_closed' || failure.code == 'section_closed') {
+        ref.invalidateSelf();
+      }
       return false;
     } on Object catch (error, stack) {
       logError('Saving typed answer failed', error, stack);

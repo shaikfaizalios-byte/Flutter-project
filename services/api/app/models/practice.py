@@ -68,6 +68,10 @@ class PracticeSession(Base):
     score: Mapped[float | None] = mapped_column(Float)
     max_score: Mapped[float | None] = mapped_column(Float)
     result: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    # Sectionally timed mocks (app/domain/sections.py): the plan is in selection["sections"];
+    # these say which section is open (len(plan) = all closed) and since when.
+    current_section: Mapped[int | None] = mapped_column(Integer)
+    section_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     items: Mapped[list["SessionItem"]] = relationship(

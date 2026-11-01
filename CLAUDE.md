@@ -364,8 +364,8 @@ Known limitations right now:
   bookmarks and reports need the server); mock tests need a connection. Signing out erases unsent offline sessions.
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
 - Verified exam formats: SSC CHSL 2026 Tier-I (migration 0003) and SSC CGL 2026 Tier-I (migration 0018, F. No.
-  HQ-C11018/1/2026-C-1 para 13.8). CGL's 15-minute sectional timers are recorded per section but mocks keep one
-  overall timer (the marking note says so). **Every other catalog exam has none** — add only after verifying the
+  HQ-C11018/1/2026-C-1 para 13.8). CGL mocks enforce its 15-minute sectional timers (global Phase 5, migration
+  0033, `app/domain/sections.py`): sections in order, each with its own timer, finishable early, no way back. **Every other catalog exam has none** — add only after verifying the
   current official notice (record source in a migration). Without a format: practice, repeats and Radar work;
   timed mocks and count checks don't. A format that leaves out any scoring fact (pure
   `app/domain/exam_format.py` `format_problems()`) is listed as incomplete and can't start a mock (`422

@@ -177,6 +177,24 @@ class FormatRef(BaseModel):
     name: str
 
 
+class SectionRead(BaseModel):
+    """One timed section of a sectionally timed mock (positions inclusive, 1-based)."""
+
+    name: str
+    first_position: int
+    last_position: int
+    minutes: int
+
+
+class SectionAdvance(BaseModel):
+    """Finish the open section early. ``from_section`` makes retries harmless: nothing
+    happens unless that section is still the open one."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    from_section: int = Field(ge=0)
+
+
 class SessionRead(BaseModel):
     id: uuid.UUID
     mode: Literal["practice", "mock"]
@@ -193,6 +211,12 @@ class SessionRead(BaseModel):
     answered_count: int
     items: list[SessionItemRead]
     result: SessionResult | None
+    # Sectionally timed mocks only: the sections in order, the open one (index; equal to the
+    # number of sections once all are closed) and when it closes. Questions of sections not
+    # open yet come without their content; closed sections can't be answered.
+    sections: list[SectionRead] = []
+    current_section: int | None = None
+    section_deadline_at: datetime | None = None
 
 
 class SessionSummary(BaseModel):

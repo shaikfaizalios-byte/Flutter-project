@@ -229,6 +229,32 @@ class SessionResultView {
 }
 
 @immutable
+/// One timed section of a sectionally timed mock (positions 1-based, inclusive).
+@immutable
+class TimedSectionView {
+  const TimedSectionView({
+    required this.name,
+    required this.firstPosition,
+    required this.lastPosition,
+    required this.minutes,
+  });
+
+  factory TimedSectionView.fromJson(Map<String, dynamic> json) => TimedSectionView(
+    name: json['name'] as String,
+    firstPosition: json['first_position'] as int,
+    lastPosition: json['last_position'] as int,
+    minutes: json['minutes'] as int,
+  );
+
+  final String name;
+  final int firstPosition;
+  final int lastPosition;
+  final int minutes;
+
+  bool contains(int position) => position >= firstPosition && position <= lastPosition;
+}
+
+@immutable
 class PracticeSessionView {
   const PracticeSessionView({
     required this.id,
@@ -242,6 +268,9 @@ class PracticeSessionView {
     this.submitReason,
     this.result,
     this.offline = false,
+    this.sections = const [],
+    this.currentSection,
+    this.sectionDeadlineAt,
   });
 
   factory PracticeSessionView.fromJson(Map<String, dynamic> json) => PracticeSessionView(
@@ -260,6 +289,14 @@ class PracticeSessionView {
     result: json['result'] == null
         ? null
         : SessionResultView.fromJson(json['result'] as Map<String, dynamic>),
+    sections: [
+      for (final s in json['sections'] as List<dynamic>? ?? const [])
+        TimedSectionView.fromJson(s as Map<String, dynamic>),
+    ],
+    currentSection: json['current_section'] as int?,
+    sectionDeadlineAt: json['section_deadline_at'] == null
+        ? null
+        : DateTime.parse(json['section_deadline_at'] as String),
   );
 
   final String id;
@@ -279,6 +316,26 @@ class PracticeSessionView {
   /// when back online.
   final bool offline;
 
+  /// Sectionally timed mock (e.g. SSC CGL): sections are taken in order, each with its own
+  /// timer from the verified format. Empty for everything else.
+  final List<TimedSectionView> sections;
+
+  /// Index of the open section (equals [sections] length once all are closed).
+  final int? currentSection;
+
+  /// When the open section closes (server time).
+  final DateTime? sectionDeadlineAt;
+
+  bool get sectional => sections.isNotEmpty;
+
+  TimedSectionView? get openSection {
+    final index = currentSection;
+    return index != null && index < sections.length ? sections[index] : null;
+  }
+
+  /// Whether the question at [position] can be shown and answered now.
+  bool isOpen(int position) => !sectional || (openSection?.contains(position) ?? false);
+
   int get answeredCount => items.where((i) => i.answered).length;
 
   PracticeSessionView withItem(SessionItemView item) => PracticeSessionView(
@@ -293,6 +350,9 @@ class PracticeSessionView {
     items: [for (final i in items) i.position == item.position ? item : i],
     result: result,
     offline: offline,
+    sections: sections,
+    currentSection: currentSection,
+    sectionDeadlineAt: sectionDeadlineAt,
   );
 }
 

@@ -15,6 +15,7 @@ from app.schemas.practice import (
     OfflineSessionUpload,
     PracticeCreate,
     QuestionHistory,
+    SectionAdvance,
     SessionList,
     SessionRead,
 )
@@ -131,6 +132,16 @@ def save_answer(
 )
 def submit_session(session_id: uuid.UUID, service: Service) -> SessionRead:
     return service.submit(session_id)
+
+
+@router.post(
+    "/practice/sessions/{session_id}/next-section",
+    response_model=SessionRead,
+    responses=NOT_FOUND,
+    summary="Finish the open section early (sectionally timed mocks; the last one submits)",
+)
+def finish_section(session_id: uuid.UUID, body: SectionAdvance, service: Service) -> SessionRead:
+    return service.finish_section(session_id, body.from_section)
 
 
 @router.put(

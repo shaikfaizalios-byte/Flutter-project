@@ -2076,6 +2076,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'The purchase couldn\'t be checked right now. It will be checked again; you won\'t be charged twice.';
 
   @override
+  String sessionSectionOf(int index, int count, String name) {
+    return 'Section $index of $count: $name';
+  }
+
+  @override
+  String sessionSectionHint(int minutes) {
+    return 'This section has its own $minutes-minute timer. When it ends, or when you finish it, the next section opens; you can\'t come back to it.';
+  }
+
+  @override
+  String get sessionFinishSection => 'Finish section';
+
+  @override
+  String get sessionFinishSectionTitle => 'Finish this section?';
+
+  @override
+  String sessionFinishSectionMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions in this section are unanswered.',
+      one: '1 question in this section is unanswered.',
+      zero: 'Every question in this section is answered.',
+    );
+    return '$_temp0 You can\'t come back to this section.';
+  }
+
+  @override
+  String get sessionSectionTimeUp => 'Time\'s up for that section. The next section is open.';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override

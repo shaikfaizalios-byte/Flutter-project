@@ -5480,6 +5480,22 @@
         "title": "SearchAnswerSource",
         "type": "object"
       },
+      "SectionAdvance": {
+        "additionalProperties": false,
+        "description": "Finish the open section early. ``from_section`` makes retries harmless: nothing\nhappens unless that section is still the open one.",
+        "properties": {
+          "from_section": {
+            "minimum": 0.0,
+            "title": "From Section",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "from_section"
+        ],
+        "title": "SectionAdvance",
+        "type": "object"
+      },
       "SectionAvailability": {
         "properties": {
           "available": {
@@ -5501,6 +5517,35 @@
           "available"
         ],
         "title": "SectionAvailability",
+        "type": "object"
+      },
+      "SectionRead": {
+        "description": "One timed section of a sectionally timed mock (positions inclusive, 1-based).",
+        "properties": {
+          "first_position": {
+            "title": "First Position",
+            "type": "integer"
+          },
+          "last_position": {
+            "title": "Last Position",
+            "type": "integer"
+          },
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "first_position",
+          "last_position",
+          "minutes"
+        ],
+        "title": "SectionRead",
         "type": "object"
       },
       "SectionResult": {
@@ -5811,6 +5856,17 @@
             "title": "Answered Count",
             "type": "integer"
           },
+          "current_section": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Section"
+          },
           "deadline_at": {
             "anyOf": [
               {
@@ -5888,6 +5944,26 @@
                 "type": "null"
               }
             ]
+          },
+          "section_deadline_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Deadline At"
+          },
+          "sections": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SectionRead"
+            },
+            "title": "Sections",
+            "type": "array"
           },
           "server_now": {
             "format": "date-time",
@@ -12954,6 +13030,84 @@
           }
         ],
         "summary": "Save an answer (idempotent; older client_seq values are ignored)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/sessions/{session_id}/next-section": {
+      "post": {
+        "operationId": "finish_section_api_v1_practice_sessions__session_id__next_section_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SectionAdvance"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Finish the open section early (sectionally timed mocks; the last one submits)",
         "tags": [
           "practice"
         ]

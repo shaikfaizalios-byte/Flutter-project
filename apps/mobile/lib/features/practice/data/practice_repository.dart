@@ -213,6 +213,20 @@ class PracticeRepository {
     ];
   });
 
+  /// Closes the open section of a sectionally timed mock early (the last one submits).
+  /// [fromSection] makes a retried request harmless on the server.
+  Future<PracticeSessionView> finishSection(String id, int fromSection) async {
+    await flush(sessionId: id); // answers of this section first
+    return _guard(
+      () async => _session(
+        (await _dio.post<Map<String, dynamic>>(
+          '$_base/sessions/$id/next-section',
+          data: {'from_section': fromSection},
+        )).data!,
+      ),
+    );
+  }
+
   Future<PracticeSessionView> submit(String id) async {
     final offline = await _offline(id);
     if (offline != null) return _submitOffline(offline);

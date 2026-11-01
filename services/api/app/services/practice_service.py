@@ -25,6 +25,13 @@ from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
 from app.domain.exam_format import format_problems
 from app.domain.scoring import ScoredItem, is_correct, score_session, tally_json, to_decimal
+from app.domain.sections import (
+    PlannedSection,
+    SectionClock,
+    advance,
+    finish_early,
+    section_of,
+)
 from app.domain.segmentation import same_subject
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
@@ -59,6 +66,7 @@ from app.schemas.practice import (
     PracticeCreate,
     QuestionHistory,
     SectionAvailability,
+    SectionRead,
     SectionResult,
     SessionItemRead,
     SessionList,
@@ -111,6 +119,12 @@ ANSWERED = or_(
 def _count(value: object) -> int:
     """A section's question count as stated, or 0 (the format is then listed as incomplete)."""
     return value if isinstance(value, int) and not isinstance(value, bool) and value > 0 else 0
+
+
+def _plan(practice: PracticeSession) -> list[PlannedSection]:
+    """The section plan of a sectionally timed mock (empty for everything else)."""
+    raw = (practice.selection or {}).get("sections")
+    return [PlannedSection.from_json(p) for p in raw] if isinstance(raw, list) else []
 
 
 def _eligible(
@@ -393,9 +407,11 @@ class PracticeService:
         )
         position = 0
         items: list[SessionItem] = []
+        plan: list[PlannedSection] = []
         for section, pool in zip(exam_format.sections, pools, strict=True):
             needed = int(section["questions"])
             per_question = float(section["max_marks"]) / needed
+            first = position + 1
             for question in rng.sample(pool, needed):
                 position += 1
                 item = self._item(
@@ -403,7 +419,21 @@ class PracticeService:
                 )
                 item.section = section["subject"]
                 items.append(item)
+            if exam_format.sectional_timing:
+                plan.append(
+                    PlannedSection(
+                        name=str(section["subject"]),
+                        first_position=first,
+                        last_position=position,
+                        minutes=int(section["timer_minutes"]),
+                    )
+                )
         mock.items = items
+        if plan:
+            # Copied into the attempt: later format changes never change it.
+            mock.selection = {**mock.selection, "sections": [p.to_json() for p in plan]}
+            mock.current_section = 0
+            mock.section_started_at = started
         self._session.add(mock)
         self._session.commit()
         return self.get(mock.id)
@@ -481,6 +511,11 @@ class PracticeService:
         item = next((i for i in practice.items if i.position == position), None)
         if item is None:
             raise InvalidAnswerError(f"No question at position {position}.")
+        plan = _plan(practice)
+        if plan and section_of(plan, position) != practice.current_section:
+            raise ConflictError(
+                "section_closed", "This question's section is not open (sections are timed)."
+            )
         typed = item.answer_type == "typed"
         if typed and update.selected_position is not None:
             raise InvalidAnswerError("This question takes a typed answer.")
@@ -523,13 +558,47 @@ class PracticeService:
             self._finalize(practice, reason=reason)
         return self.get(session_id)
 
+    def finish_section(self, session_id: uuid.UUID, from_section: int) -> SessionRead:
+        """Closes the open section early (sectionally timed mocks); the next one opens now.
+        Closing the last section submits the mock. Does nothing unless ``from_section`` is
+        still the open section, so a retried request can't skip a section."""
+        practice = self._load(session_id)
+        self._expire_if_due(practice)
+        plan = _plan(practice)
+        if not plan:
+            raise InvalidAnswerError("This test has no timed sections.")
+        if practice.status == SessionStatus.ACTIVE and practice.current_section == from_section:
+            clock = finish_early(plan, self._clock(practice), self._now())
+            practice.current_section, practice.section_started_at = clock.current, clock.started_at
+            if clock.finished(plan):
+                self._finalize(practice, reason="user")
+            else:
+                self._session.commit()
+        return self.get(session_id)
+
     def _expire_if_due(self, practice: PracticeSession) -> None:
-        if (
-            practice.status == SessionStatus.ACTIVE
-            and practice.deadline_at is not None
-            and self._now() >= practice.deadline_at
-        ):
+        if practice.status != SessionStatus.ACTIVE:
+            return
+        plan = _plan(practice)
+        if plan:
+            before = self._clock(practice)
+            clock = advance(plan, before, self._now())
+            if clock != before:
+                practice.current_section = clock.current
+                practice.section_started_at = clock.started_at
+                if clock.finished(plan):
+                    # The last section's own time ran out: that is when the mock ended.
+                    self._finalize(practice, reason="time_up", at=clock.started_at)
+                    return
+                self._session.commit()
+        if practice.deadline_at is not None and self._now() >= practice.deadline_at:
             self._finalize(practice, reason="time_up")
+
+    @staticmethod
+    def _clock(practice: PracticeSession) -> SectionClock:
+        return SectionClock(
+            practice.current_section or 0, practice.section_started_at or practice.started_at
+        )
 
     def _finalize(
         self, practice: PracticeSession, *, reason: str, at: datetime | None = None
@@ -573,13 +642,21 @@ class PracticeService:
         ]
         negative = exam_format.negative_marks_per_wrong
         timers = {int(s["timer_minutes"]) for s in exam_format.sections if s.get("timer_minutes")}
-        # The mock has one overall timer; say so when the real exam times each section.
-        sectional = (
-            f" The exam times each section separately ({', '.join(map(str, sorted(timers)))}"
-            " min each); this mock uses one overall timer."
-            if timers
-            else ""
-        )
+        minutes = ", ".join(map(str, sorted(timers)))
+        if _plan(practice):
+            sectional = (
+                f" Each section had its own timer ({minutes} min each, from the format) and the"
+                " sections were taken in order. In this mock a section could be finished early;"
+                " a closed section could not be reopened."
+            )
+        elif timers:
+            # Mocks started before sectional timers were enforced kept one overall timer.
+            sectional = (
+                f" The exam times each section separately ({minutes} min each); this mock used"
+                " one overall timer."
+            )
+        else:
+            sectional = ""
         return (
             f"{exam_format.name}. "
             + "; ".join(parts)
@@ -613,10 +690,16 @@ class PracticeService:
         remaining = None
         if practice.deadline_at is not None and practice.status == SessionStatus.ACTIVE:
             remaining = max(0, int((practice.deadline_at - now).total_seconds()))
+        plan = _plan(practice)
+        active = practice.status == SessionStatus.ACTIVE
+        open_section = practice.current_section if plan and active else None
 
         items: list[SessionItemRead] = []
         for item in practice.items:
             question = questions.get(item.question_id) if item.question_id else None
+            index = section_of(plan, item.position) if plan else None
+            if active and open_section is not None and index is not None and index > open_section:
+                question = None  # a section that hasn't opened yet: nothing to peek at
             answer = answers.get(item.position)
             shared = question is not None and question.owner_id != self._owner_id
             items.append(
@@ -677,6 +760,9 @@ class PracticeService:
             answered_count=sum(_answered(a) for a in practice.answers),
             items=items,
             result=self._result(practice.result) if practice.result else None,
+            sections=[SectionRead(**p.to_json()) for p in plan],
+            current_section=practice.current_section if plan else None,
+            section_deadline_at=self._clock(practice).deadline(plan) if plan and active else None,
         )
 
     def list_sessions(self, *, limit: int, offset: int) -> SessionList:
