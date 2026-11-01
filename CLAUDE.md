@@ -186,6 +186,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`app/api/deps.py`) AND every service takes the owner id and scopes every query (other accounts → 404).
   First account claims pre-account (owner NULL) rows. Mobile: `flutter_secure_storage`, `AuthInterceptor`
   (single refresh + one retry via a separate client), sign-in gate in `appRedirect`.
+  Signed-in devices (global Phase 1): a device = a refresh-token family; `refresh_tokens.platform` (migration
+  0029; kind only, no device name); access tokens carry `sid` and `get_current_user` refuses a revoked family at
+  once; `GET /auth/sessions`, `DELETE /auth/sessions/{id}`, `POST /auth/sessions/sign-out-others`; app Profile →
+  "Signed-in devices" (`features/auth/presentation/devices_screen.dart`). Export/delete coverage:
+  `app/services/account_data.py` classifies every table; `tests/test_account_data.py` fails on a new one.
 - Account recovery (Phase 11): emailed 6-digit codes (`account_codes`, HMAC-stored, 15 min, 5 tries) for
   password reset (no enumeration; emails sent in background; reset revokes all sessions) and email
   verification. Email via `EmailSender` (`app/integrations/email.py`): SMTP (stdlib) or dev file outbox.
@@ -201,6 +206,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`app/domain/ai_content.py`, versioned `PROMPT_VERSION`). AI questions = `origin=ai` rows with provenance
   (CHECK), unverified; AI explanations in `ai_explanations` (draft→approved), never in `questions.explanation`;
   every call logged in `ai_generations` without text. Practice uses AI only with `include_ai`; mocks never.
+  Paper/notes/search text goes into prompts as `<material>` blocks (`app/domain/untrusted.py`) and every system
+  prompt says it is data, never instructions; the general system prompt names no exam (`tests/test_prompt_injection.py`).
   See docs/ai.md.
 - Analytics: `GET /api/v1/analytics/overview?timezone=<IANA>` returns RAW counts only (days bucketed in
   PostgreSQL with `timezone(zone, answered_at)`; mock answers count only once submitted). Mobile decides
@@ -329,7 +336,7 @@ Known limitations right now:
   app is built only once `API_BASE_URL` is set) and the backend on a small VPS (`infra/production`, see
   docs/deployment.md). GitHub Pages sends no COOP/COEP headers, so the web app's Drift uses its non-OPFS fallback.
   Docker image/compose and the Android build are verified only by CI (no Docker/Android SDK locally).
-- Accounts: no device list or remote session revocation UI. Unverified emails can still use the app.
+- Accounts: unverified emails can still use the app. The device list shows only the kind of device and dates.
 - Legal texts are DRAFTS with [placeholders] (operator, contact, processors, retention, law, minimum age).
 - Launcher icon/splash are provisional (generated); application id `com.preploop.preploop` must be changed
   to the operator's domain before the first Play upload. R8 shrinking is off until verified on a device.
@@ -341,7 +348,9 @@ Known limitations right now:
   HQ-C11018/1/2026-C-1 para 13.8). CGL's 15-minute sectional timers are recorded per section but mocks keep one
   overall timer (the marking note says so). **Every other catalog exam has none** — add only after verifying the
   current official notice (record source in a migration). Without a format: practice, repeats and Radar work;
-  timed mocks and count checks don't.
+  timed mocks and count checks don't. A format that leaves out any scoring fact (pure
+  `app/domain/exam_format.py` `format_problems()`) is listed as incomplete and can't start a mock (`422
+  format_incomplete`); nothing is filled in with a default.
 - Question types: multiple-choice, typed-in (TITA) and written (Q&A notes, revised as flashcards; not practised
   or marked). Multi-select is not supported; timed mocks use multiple-choice only. Unnumbered Q&A questions are
   numbered in order by PrepLoop.
@@ -386,7 +395,7 @@ Known limitations right now:
 ## Post-release backlog (not scheduled)
 - Verify on devices (docs/release.md §3): notifications, secure storage, PDF picker, Hindi, offline sync, R8.
 - S3-compatible `DocumentStorage`; malware scanning if originals become downloadable.
-- Device/session list with remote sign-out; field-level sync merge or conflict UI.
+- Field-level sync merge or conflict UI.
 - Verified SSC CGL exam format (from the current official notice, source recorded).
 - Native-speaker review of Hindi strings; typed Dart API client from `contracts/openapi`.
 - Opt-in server error reporting (documented in the privacy policy before enabling).
