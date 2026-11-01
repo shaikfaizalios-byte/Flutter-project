@@ -1483,6 +1483,30 @@
   "sharedReportSent": "Thanks. The PrepLoop team will review it.",
   "sharedReportTooMany": "You've sent 10 reports today. Please try again tomorrow.",
   "sharedReportFailed": "The report couldn't be sent. Please try again.",
+  "markFigureAction": "Mark a figure on the page",
+  "markFigureTitle": "Mark the figure",
+  "markFigureHint": "Drag a box around the figure on the paper's page. PrepLoop keeps that part of the page with the question, as printed.",
+  "markFigureKeep": "Keep",
+  "markFigurePage": "Page {page}",
+  "@markFigurePage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "markFigurePreviousPage": "Previous page",
+  "markFigureNextPage": "Next page",
+  "markFigurePageFailed": "The page couldn't be loaded.",
+  "figureMarkedByYou": "Figure you marked (page {page})",
+  "@figureMarkedByYou": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "figureRemove": "Remove this figure",
   "accountExport": "Copy my data",
   "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
   "accountSignOut": "Sign out",

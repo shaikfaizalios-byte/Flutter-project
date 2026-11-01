@@ -2173,6 +2173,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharedReportFailed => 'The report couldn\'t be sent. Please try again.';
 
   @override
+  String get markFigureAction => 'Mark a figure on the page';
+
+  @override
+  String get markFigureTitle => 'Mark the figure';
+
+  @override
+  String get markFigureHint =>
+      'Drag a box around the figure on the paper\'s page. PrepLoop keeps that part of the page with the question, as printed.';
+
+  @override
+  String get markFigureKeep => 'Keep';
+
+  @override
+  String markFigurePage(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get markFigurePreviousPage => 'Previous page';
+
+  @override
+  String get markFigureNextPage => 'Next page';
+
+  @override
+  String get markFigurePageFailed => 'The page couldn\'t be loaded.';
+
+  @override
+  String figureMarkedByYou(int page) {
+    return 'Figure you marked (page $page)';
+  }
+
+  @override
+  String get figureRemove => 'Remove this figure';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override

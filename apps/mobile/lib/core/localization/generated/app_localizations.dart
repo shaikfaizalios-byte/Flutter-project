@@ -3549,6 +3549,66 @@ abstract class AppLocalizations {
   /// **'The report couldn\'t be sent. Please try again.'**
   String get sharedReportFailed;
 
+  /// No description provided for @markFigureAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark a figure on the page'**
+  String get markFigureAction;
+
+  /// No description provided for @markFigureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the figure'**
+  String get markFigureTitle;
+
+  /// No description provided for @markFigureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag a box around the figure on the paper\'s page. PrepLoop keeps that part of the page with the question, as printed.'**
+  String get markFigureHint;
+
+  /// No description provided for @markFigureKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get markFigureKeep;
+
+  /// No description provided for @markFigurePage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String markFigurePage(int page);
+
+  /// No description provided for @markFigurePreviousPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get markFigurePreviousPage;
+
+  /// No description provided for @markFigureNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get markFigureNextPage;
+
+  /// No description provided for @markFigurePageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The page couldn\'t be loaded.'**
+  String get markFigurePageFailed;
+
+  /// No description provided for @figureMarkedByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Figure you marked (page {page})'**
+  String figureMarkedByYou(int page);
+
+  /// No description provided for @figureRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this figure'**
+  String get figureRemove;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

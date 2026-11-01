@@ -82,6 +82,20 @@ class FigureRead(BaseModel):
     page_number: int
     width: int
     height: int
+    # pdf: found by PrepLoop in the PDF; reviewer: marked on the page by a reviewer.
+    source: Literal["pdf", "reviewer"] = "pdf"
+
+
+class FigureCreate(BaseModel):
+    """A region of one of the paper's pages to keep as a figure of the question. ``box`` is
+    [left, top, right, bottom] as fractions of the page (0 = left/top edge, 1 = right/bottom)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    page_number: int = Field(ge=1)
+    box: list[float] = Field(min_length=4, max_length=4)
+    kind: Literal["stem", "option", "original"] = "stem"
+    option_position: int | None = Field(default=None, ge=1, le=6)
 
 
 class IssueRead(BaseModel):

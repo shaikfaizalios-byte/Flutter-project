@@ -385,7 +385,10 @@ Known limitations right now:
   numbered in order by PrepLoop.
   Catalog exams other than SSC/banking/railways start with no shared topics (learners add their own or use
   the AI draft). Own exams/topics never join the Radar.
-- Figures are found only from PDF vector/image objects: scanned papers (one image per page), multi-column
+- Figures are found automatically only from PDF vector/image objects; for scans a reviewer marks them on the page
+  (global Phase 8: `POST /questions/{id}/figures`, review screen "Mark a figure on the page"). Pages record their
+  script and are flagged `two_columns` / `devanagari_in_english_document` (`app/domain/page_analysis.py`).
+  Without a reviewer's mark: scanned papers (one image per page), multi-column
   and rotated pages give no crops (flagged `figures_not_extracted`; reviewer uses the source page).
   Topic rules suggested 83/100 on one sample CHSL paper (coverage, not validated accuracy).
 - Repeats count the learner's own papers, or the shared bank (empty until the operator publishes papers it has

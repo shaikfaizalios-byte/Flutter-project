@@ -123,6 +123,43 @@ class FakeQuestionsRepository implements QuestionsRepository {
   );
   String pageTextValue = 'Q.1 What is 20% of 150?\n(1) 20 (2) 30 (3) 40 (4) 50';
 
+  /// Figures marked by the reviewer: (question id, page, box).
+  final addedFigures = <(String, int, List<double>)>[];
+
+  @override
+  Future<BankQuestion> addFigure(String questionId, int page, List<double> box) async {
+    addedFigures.add((questionId, page, box));
+    final q = questions[questionId]!;
+    final figure = QuestionFigure(
+      id: 'f${addedFigures.length}',
+      kind: FigureKind.stem,
+      pageNumber: page,
+      width: 100,
+      height: 50,
+      byReviewer: true,
+    );
+    return questions[questionId] = _withFigures(q, [...q.figures, figure]);
+  }
+
+  @override
+  Future<BankQuestion> deleteFigure(String questionId, String figureId) async {
+    final q = questions[questionId]!;
+    return questions[questionId] = _withFigures(q, [
+      for (final f in q.figures)
+        if (f.id != figureId) f,
+    ]);
+  }
+
+  static BankQuestion _withFigures(BankQuestion q, List<QuestionFigure> figures) => bankQuestion(
+    id: q.id,
+    number: q.sourceNumber ?? 1,
+    stem: q.stem,
+    options: [for (final o in q.options) o.text],
+    answer: q.correctPosition,
+    documentId: q.documentId,
+    figures: figures,
+  );
+
   /// Shared-content reports sent: (question id, kind, text).
   final sharedReports = <(String, SharedReportKind, String)>[];
 

@@ -81,6 +81,8 @@ class PageRead(BaseModel):
     ocr_confidence: float | None
     needs_review: bool
     review_reasons: list[str]
+    # devanagari | latin | mixed | none; null for pages read before scripts were recorded.
+    script: str | None = None
 
 
 class PageList(BaseModel):

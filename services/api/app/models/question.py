@@ -379,6 +379,7 @@ class QuestionFigure(Base):
     __tablename__ = "question_figures"
     __table_args__ = (
         CheckConstraint("kind IN ('stem', 'option', 'original')", name="kind_valid"),
+        CheckConstraint("source IN ('pdf', 'reviewer')", name="source_valid"),
         CheckConstraint(
             "(kind = 'option') = (option_position IS NOT NULL)", name="option_position_iff_option"
         ),
@@ -398,6 +399,9 @@ class QuestionFigure(Base):
     width: Mapped[int] = mapped_column(Integer)  # pixels
     height: Mapped[int] = mapped_column(Integer)
     content_type: Mapped[str] = mapped_column(String(32), default="image/png")
+    # pdf: found from the PDF's image/vector objects; reviewer: a region a reviewer marked on
+    # the page (scans and layouts the rules can't read), cropped from the same page.
+    source: Mapped[str] = mapped_column(String(10), default="pdf", server_default="pdf")
     data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

@@ -2176,6 +2176,41 @@ class AppLocalizationsHi extends AppLocalizations {
   String get sharedReportFailed => 'शिकायत नहीं भेजी जा सकी। कृपया फिर कोशिश करें।';
 
   @override
+  String get markFigureAction => 'पेज पर चित्र चिह्नित करें';
+
+  @override
+  String get markFigureTitle => 'चित्र चिह्नित करें';
+
+  @override
+  String get markFigureHint =>
+      'पेपर के पेज पर चित्र के चारों ओर बॉक्स खींचें। PrepLoop पेज का वह हिस्सा प्रश्न के साथ वैसा ही रखेगा जैसा छपा है।';
+
+  @override
+  String get markFigureKeep => 'रखें';
+
+  @override
+  String markFigurePage(int page) {
+    return 'पेज $page';
+  }
+
+  @override
+  String get markFigurePreviousPage => 'पिछला पेज';
+
+  @override
+  String get markFigureNextPage => 'अगला पेज';
+
+  @override
+  String get markFigurePageFailed => 'पेज लोड नहीं हो सका।';
+
+  @override
+  String figureMarkedByYou(int page) {
+    return 'आपके द्वारा चिह्नित चित्र (पेज $page)';
+  }
+
+  @override
+  String get figureRemove => 'यह चित्र हटाएँ';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

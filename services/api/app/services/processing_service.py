@@ -95,6 +95,7 @@ class DocumentProcessor:
                         ocr_confidence=result.ocr_confidence,
                         needs_review=result.needs_review,
                         review_reasons=list(result.review_reasons),
+                        script=result.script,
                     )
                 )
                 methods.add(result.method)

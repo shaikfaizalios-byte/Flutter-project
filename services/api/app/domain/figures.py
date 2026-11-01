@@ -472,3 +472,23 @@ def _on_line(figure: Box, line: Box) -> bool:
     """The figure shares at least half of the line's height (it is part of that line)."""
     overlap = min(figure.top, line.top) - max(figure.bottom, line.bottom)
     return line.height > 0 and overlap >= line.height / 2
+
+
+# A reviewer's region: at least this share of the page in each direction.
+MIN_REGION = 0.02
+
+
+def figure_box_problem(box: Sequence[float]) -> str | None:
+    """Why a marked region can't be used ([left, top, right, bottom] as page fractions)."""
+    if len(box) != 4 or not all(0.0 <= v <= 1.0 for v in box):
+        return "The region must lie on the page."
+    left, top, right, bottom = box
+    if right - left < MIN_REGION or bottom - top < MIN_REGION:
+        return "The region is too small."
+    return None
+
+
+def page_box(box: Sequence[float], width: float, height: float) -> Box:
+    """A region given as page fractions from the top-left, in PDF points (origin bottom-left)."""
+    left, top, right, bottom = box
+    return Box(left * width, height - bottom * height, right * width, height - top * height)

@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Query, Request, Response
 
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
@@ -9,6 +9,8 @@ from app.schemas.concept import Language
 from app.schemas.errors import ErrorResponse
 from app.schemas.question import (
     ExamFormatRead,
+    FigureCreate,
+    FigureRead,
     PatternRead,
     QuestionList,
     QuestionRead,
@@ -100,6 +102,34 @@ def update_question(question_id: uuid.UUID, body: QuestionUpdate, service: Servi
 )
 def list_question_revisions(question_id: uuid.UUID, service: Service) -> list[QuestionRevisionRead]:
     return service.revisions(question_id)
+
+
+@router.post(
+    "/questions/{question_id}/figures",
+    response_model=FigureRead,
+    status_code=201,
+    tags=["questions"],
+    responses={**NOT_FOUND, 422: {"model": ErrorResponse}},
+    summary="Keep a region of one of the paper's pages as a figure of the question (own)",
+)
+def add_question_figure(
+    question_id: uuid.UUID, body: FigureCreate, request: Request, service: Service
+) -> FigureRead:
+    return service.add_figure(question_id, body, request.app.state.document_storage)
+
+
+@router.delete(
+    "/questions/{question_id}/figures/{figure_id}",
+    status_code=204,
+    tags=["questions"],
+    responses=NOT_FOUND,
+    summary="Remove a figure from your question (e.g. matched to the wrong question)",
+)
+def delete_question_figure(
+    question_id: uuid.UUID, figure_id: uuid.UUID, service: Service
+) -> Response:
+    service.delete_figure(question_id, figure_id)
+    return Response(status_code=204)
 
 
 @router.get(

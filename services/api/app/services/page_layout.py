@@ -47,7 +47,7 @@ def _layout(page: pdfium.PdfPage, number: int) -> PageLayout:
     width, height = page.get_size()
     text_page = page.get_textpage()
     try:
-        lines = _lines(text_page)
+        lines = text_lines(text_page)
     finally:
         text_page.close()
     graphics: list[Graphic] = []
@@ -68,7 +68,7 @@ def _layout(page: pdfium.PdfPage, number: int) -> PageLayout:
     )
 
 
-def _lines(text_page: pdfium.PdfTextPage) -> list[LayoutLine]:
+def text_lines(text_page: pdfium.PdfTextPage) -> list[LayoutLine]:
     count = text_page.count_chars()
     if count <= 0:
         return []
@@ -91,6 +91,45 @@ def _lines(text_page: pdfium.PdfTextPage) -> list[LayoutLine]:
         lines.append(LayoutLine(line_text, box or Box(0, 0, 0, 0)))
         start = index + 1
     return lines
+
+
+def text_runs(text_page: pdfium.PdfTextPage, gap: float) -> list[LayoutLine]:
+    """Pieces of text lines, split where the horizontal gap between two characters is wider
+    than ``gap`` points. PDFium joins text that shares a baseline into one line, so the two
+    columns of a page come out as one line each; runs keep them apart (for layout checks only:
+    the stored text is never changed)."""
+    count = text_page.count_chars()
+    if count <= 0:
+        return []
+    text = text_page.get_text_range(0, count)
+    if len(text) != count:
+        return []
+    runs: list[LayoutLine] = []
+    chars: list[str] = []
+    box: Box | None = None
+
+    def close() -> None:
+        nonlocal chars, box
+        if box is not None:
+            runs.append(LayoutLine("".join(chars).strip(), box))
+        chars, box = [], None
+
+    for i in range(count):
+        ch = text[i]
+        if ch in "\r\n":
+            close()
+            continue
+        if ch.isspace() or pdfium_c.FPDFText_IsGenerated(text_page, i) == 1:
+            chars.append(ch)
+            continue
+        left, bottom, right, top = text_page.get_charbox(i)
+        char_box = Box(left, bottom, right, top)
+        if box is not None and left - box.right > gap:
+            close()
+        chars.append(ch)
+        box = char_box if box is None else box.union(char_box)
+    close()
+    return runs
 
 
 class PdfRenderer:
@@ -126,6 +165,14 @@ class PdfRenderer:
                     image.close()
             finally:
                 bitmap.close()
+        finally:
+            page.close()
+
+    def page_size(self, page_number: int) -> tuple[float, float]:
+        page = self._document[page_number - 1]
+        try:
+            width, height = page.get_size()
+            return float(width), float(height)
         finally:
             page.close()
 

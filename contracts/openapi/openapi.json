@@ -2177,6 +2177,55 @@
         "title": "Feedback",
         "type": "object"
       },
+      "FigureCreate": {
+        "additionalProperties": false,
+        "description": "A region of one of the paper's pages to keep as a figure of the question. ``box`` is\n[left, top, right, bottom] as fractions of the page (0 = left/top edge, 1 = right/bottom).",
+        "properties": {
+          "box": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Box",
+            "type": "array"
+          },
+          "kind": {
+            "default": "stem",
+            "enum": [
+              "stem",
+              "option",
+              "original"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "option_position": {
+            "anyOf": [
+              {
+                "maximum": 6.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Option Position"
+          },
+          "page_number": {
+            "minimum": 1.0,
+            "title": "Page Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page_number",
+          "box"
+        ],
+        "title": "FigureCreate",
+        "type": "object"
+      },
       "FigureRead": {
         "description": "An image cropped from the question's source PDF page (fetch it from\n``/questions/{question_id}/figures/{id}``).",
         "properties": {
@@ -2212,6 +2261,15 @@
           "page_number": {
             "title": "Page Number",
             "type": "integer"
+          },
+          "source": {
+            "default": "pdf",
+            "enum": [
+              "pdf",
+              "reviewer"
+            ],
+            "title": "Source",
+            "type": "string"
           },
           "width": {
             "title": "Width",
@@ -3234,6 +3292,17 @@
             },
             "title": "Review Reasons",
             "type": "array"
+          },
+          "script": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Script"
           },
           "text": {
             "title": "Text",
@@ -14292,7 +14361,154 @@
         ]
       }
     },
+    "/api/v1/questions/{question_id}/figures": {
+      "post": {
+        "operationId": "add_question_figure_api_v1_questions__question_id__figures_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FigureCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FigureRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Keep a region of one of the paper's pages as a figure of the question (own)",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
     "/api/v1/questions/{question_id}/figures/{figure_id}": {
+      "delete": {
+        "operationId": "delete_question_figure_api_v1_questions__question_id__figures__figure_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "figure_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Figure Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Remove a figure from your question (e.g. matched to the wrong question)",
+        "tags": [
+          "questions"
+        ]
+      },
       "get": {
         "operationId": "get_question_figure_api_v1_questions__question_id__figures__figure_id__get",
         "parameters": [

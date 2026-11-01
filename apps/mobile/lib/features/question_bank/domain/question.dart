@@ -121,6 +121,7 @@ class QuestionFigure {
     required this.width,
     required this.height,
     this.optionPosition,
+    this.byReviewer = false,
   });
 
   factory QuestionFigure.fromJson(Map<String, dynamic> json) => QuestionFigure(
@@ -130,6 +131,7 @@ class QuestionFigure {
     pageNumber: json['page_number'] as int,
     width: json['width'] as int,
     height: json['height'] as int,
+    byReviewer: json['source'] == 'reviewer',
   );
 
   final String id;
@@ -140,6 +142,9 @@ class QuestionFigure {
   /// Image size in pixels (rendered at 2× the PDF's point size).
   final int width;
   final int height;
+
+  /// Marked on the page by a reviewer (rather than found in the PDF by PrepLoop).
+  final bool byReviewer;
 }
 
 List<QuestionFigure> figuresFromJson(Object? json) => [

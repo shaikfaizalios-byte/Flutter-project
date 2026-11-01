@@ -24,6 +24,9 @@ class ReviewReason:
     OCR_EMPTY = "ocr_found_no_text"
     OCR_FAILED = "ocr_failed"
     OCR_UNAVAILABLE = "ocr_unavailable"
+    # Global Phase 8 (app/domain/page_analysis.py):
+    TWO_COLUMNS = "two_columns"  # check the question order on this page
+    DEVANAGARI_IN_ENGLISH = "devanagari_in_english_document"  # read as English: check it
 
 
 def normalize_text(text: str) -> str:
