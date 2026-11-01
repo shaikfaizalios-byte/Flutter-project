@@ -63,6 +63,12 @@ final mockTestsProvider = FutureProvider.autoDispose<List<MockTestView>>((ref) a
   ];
 }, retry: _noRetry);
 
+/// How many questions a starter check would ask for [examCode] (0: none available yet).
+final starterCheckSizeProvider = FutureProvider.autoDispose.family<int, String>(
+  (ref, examCode) => ref.watch(practiceRepositoryProvider).starterCheckSize(examCode),
+  retry: _noRetry,
+);
+
 final sessionHistoryProvider = FutureProvider.autoDispose<List<SessionSummaryView>>((ref) async {
   final exam = ref.watch(activeExamProvider);
   final sessions = await ref.watch(practiceRepositoryProvider).history();
@@ -223,7 +229,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     final item = value.item;
     // Practice answers are final once given.
     if (value.session.mode == SessionMode.practice && item.answered) return false;
-    final next = value.session.mode == SessionMode.mock && item.selectedPosition == optionPosition
+    final next = value.session.mode.testLike && item.selectedPosition == optionPosition
         ? null // tapping the chosen option again clears it in a mock
         : optionPosition;
 

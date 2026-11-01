@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.database.base import Base
 from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
+from app.models.content import ContentReport, ContentRights
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
@@ -138,6 +139,18 @@ def _fill_account(db: Session, user: User) -> None:
     )
     db.add(document)
     db.flush()
+    db.add_all(
+        [
+            ContentRights(
+                document_id=document.id,
+                basis="Test basis",
+                permitted_uses=["practice"],
+                territory="IN",
+                decided_by="Test",
+            ),
+            ContentReport(owner_id=user.id, kind="other", text="A test report."),
+        ]
+    )
     passage = Passage(document_id=document.id, text="Read this.", source_pages=[1])
     db.add_all([DocumentPage(document_id=document.id, page_number=1, method="text"), passage])
     db.flush()

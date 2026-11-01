@@ -1112,6 +1112,153 @@
         "title": "ConceptUpdate",
         "type": "object"
       },
+      "ContentReportCreate": {
+        "additionalProperties": false,
+        "description": "A learner reports a shared paper or one of its questions.",
+        "properties": {
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "kind": {
+            "enum": [
+              "rights",
+              "error",
+              "other"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text"
+        ],
+        "title": "ContentReportCreate",
+        "type": "object"
+      },
+      "ContentReportRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "rights",
+              "error",
+              "other"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "upheld",
+              "dismissed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "document_id",
+          "question_id",
+          "kind",
+          "text",
+          "status",
+          "resolution",
+          "created_at",
+          "resolved_at"
+        ],
+        "title": "ContentReportRead",
+        "type": "object"
+      },
       "CustomExamCreate": {
         "additionalProperties": false,
         "properties": {
@@ -6000,7 +6147,8 @@
           "mode": {
             "enum": [
               "practice",
-              "mock"
+              "mock",
+              "diagnostic"
             ],
             "title": "Mode",
             "type": "string"
@@ -6236,7 +6384,8 @@
           "mode": {
             "enum": [
               "practice",
-              "mock"
+              "mock",
+              "diagnostic"
             ],
             "title": "Mode",
             "type": "string"
@@ -6459,6 +6608,54 @@
           "text"
         ],
         "title": "SnapshotOption",
+        "type": "object"
+      },
+      "StarterCheckAvailability": {
+        "description": "Whether a new learner can take a starter check for an exam (no papers of their own).",
+        "properties": {
+          "available_questions": {
+            "title": "Available Questions",
+            "type": "integer"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "question_count": {
+            "title": "Question Count",
+            "type": "integer"
+          },
+          "subjects": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Subjects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "exam_code",
+          "available_questions",
+          "question_count",
+          "subjects"
+        ],
+        "title": "StarterCheckAvailability",
+        "type": "object"
+      },
+      "StarterCheckCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Exam Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code"
+        ],
+        "title": "StarterCheckCreate",
         "type": "object"
       },
       "SubjectStats": {
@@ -10510,6 +10707,120 @@
         ]
       }
     },
+    "/api/v1/content-reports": {
+      "get": {
+        "operationId": "my_reports_api_v1_content_reports_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ContentReportRead"
+                  },
+                  "title": "Response My Reports Api V1 Content Reports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your reports and their status",
+        "tags": [
+          "content"
+        ]
+      },
+      "post": {
+        "operationId": "report_content_api_v1_content_reports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentReportCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentReportRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not a shared paper you can see"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many reports today"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Report a shared paper or question (rights problem, error, other)",
+        "tags": [
+          "content"
+        ]
+      }
+    },
     "/api/v1/documents": {
       "get": {
         "operationId": "list_documents_api_v1_documents_get",
@@ -13313,6 +13624,119 @@
           }
         ],
         "summary": "Submit (idempotent: returns the existing result if already submitted)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/starter-check": {
+      "get": {
+        "operationId": "starter_check_availability_api_v1_practice_starter_check_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "minLength": 1,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StarterCheckAvailability"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Whether a starter check can be taken for an exam (shared papers allowed for it)",
+        "tags": [
+          "practice"
+        ]
+      },
+      "post": {
+        "operationId": "start_starter_check_api_v1_practice_starter_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StarterCheckCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No starter check for this exam"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start a short check across subjects (for learners without papers of their own)",
         "tags": [
           "practice"
         ]

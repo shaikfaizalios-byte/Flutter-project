@@ -5,6 +5,7 @@ import 'package:preploop/core/utils/calendar_date.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/question_bank/data/questions_repository.dart';
 import 'package:preploop/features/question_bank/domain/question.dart';
+import 'package:preploop/features/question_bank/domain/shared_report_kind.dart';
 
 BankQuestion bankQuestion({
   String id = 'q1',
@@ -121,6 +122,13 @@ class FakeQuestionsRepository implements QuestionsRepository {
     documentIssues: [QuestionIssue(code: 'numbering_gaps', detail: 'Missing: 3', resolved: false)],
   );
   String pageTextValue = 'Q.1 What is 20% of 150?\n(1) 20 (2) 30 (3) 40 (4) 50';
+
+  /// Shared-content reports sent: (question id, kind, text).
+  final sharedReports = <(String, SharedReportKind, String)>[];
+
+  @override
+  Future<void> reportShared(String questionId, SharedReportKind kind, String text) async =>
+      sharedReports.add((questionId, kind, text));
 
   @override
   Future<(List<BankQuestion>, int)> list(QuestionQuery query) async {

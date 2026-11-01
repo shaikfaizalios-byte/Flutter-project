@@ -19,7 +19,8 @@ FOLDER holds the PDFs and a ``manifest.json``::
           "source": "SSC CHSL 2024 Tier-I, 1 July 2024, shift 1 (official paper, ssc.gov.in, ...)",
           "rights": "Published by the exam body for candidates; ...",
           "exam_date": "2024-07-01",
-          "shift": 1
+          "shift": 1,
+          "uses": ["practice", "diagnostic"]
         }
       ]
     }
@@ -73,6 +74,8 @@ class StarterPaper:
     rights: str
     exam_date: date | None = None
     shift: int | None = None
+    # What the paper may be used for once shared (content_rights): practice, diagnostic.
+    uses: tuple[str, ...] = ("practice",)
 
     @property
     def sha256(self) -> str:
@@ -126,6 +129,9 @@ def load_manifest(folder: Path) -> Manifest:
             raise ManifestError(f"{where}: exam_date must be YYYY-MM-DD.") from error
         if shift is not None and not isinstance(shift, int):
             raise ManifestError(f"{where}: shift must be a number.")
+        uses = entry.get("uses", ["practice"])
+        if not isinstance(uses, list) or not uses or not set(uses) <= {"practice", "diagnostic"}:
+            raise ManifestError(f"{where}: uses must list practice and/or diagnostic.")
         papers.append(
             StarterPaper(
                 file=file,
@@ -135,6 +141,7 @@ def load_manifest(folder: Path) -> Manifest:
                 rights=_text(entry, "rights", where),
                 exam_date=exam_date,
                 shift=shift,
+                uses=tuple(uses),
             )
         )
     if not papers:
@@ -243,7 +250,12 @@ def publish(session: Session, manifest: Manifest, out: Callable[[str], None]) ->
             continue
         try:
             result = shared_bank.publish(
-                session, document.id, rights_basis=paper.rights, source=paper.source
+                session,
+                document.id,
+                rights_basis=paper.rights,
+                source=paper.source,
+                uses=paper.uses,
+                decided_by=manifest.operator,
             )
         except DomainError as error:
             session.rollback()

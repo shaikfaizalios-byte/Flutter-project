@@ -34,6 +34,7 @@ from app.domain.sections import (
 )
 from app.domain.segmentation import same_subject
 from app.models.ai import AIExplanation, DraftStatus
+from app.models.content import ContentRights
 from app.models.document import Document
 from app.models.practice import (
     Bookmark,
@@ -52,6 +53,7 @@ from app.models.question import (
     Topic,
     VerificationStatus,
 )
+from app.schemas.content import StarterCheckAvailability
 from app.schemas.practice import (
     AnswerAck,
     AnswerUpdate,
@@ -78,10 +80,17 @@ from app.schemas.practice import (
 )
 from app.schemas.question import FigureRead, OptionRead, PassageRead
 from app.services.exam_formats import is_in_effect, mock_formats
-from app.services.shared_bank import visible_question
+from app.services.shared_bank import shared_question, visible_question
 from app.services.taxonomy_service import subject_labels_by_topic
 
 PRACTICE_MARKING_NOTE = "Practice: 1 point per correct answer, no negative marking."
+STARTER_MARKING_NOTE = (
+    "Starter check: 1 point per correct answer, no negative marking. It shows where to start,"
+    " not an exam score. Questions come from shared papers PrepLoop may use for this check."
+)
+# The starter check: up to this many questions per subject, and in all.
+STARTER_PER_SUBJECT = 5
+STARTER_MAX = 20
 
 
 class NoQuestionsAvailableError(DomainError):
@@ -367,6 +376,66 @@ class PracticeService:
         self._finalize(practice, reason="offline", at=finished)
         return self.get(practice.id)
 
+    # --- the starter check (no papers of one's own yet) --------------------------------
+
+    def _starter_pool(self, exam_code: str) -> dict[str, list[Question]]:
+        """Shared-bank questions whose recorded rights allow the starter check, by subject."""
+        allowed = select(ContentRights.document_id).where(
+            ContentRights.permitted_uses.contains(["diagnostic"])
+        )
+        rows = self._session.scalars(
+            _eligible(include_unverified=False, include_typed=False)
+            .where(
+                Question.exam_code == exam_code,
+                shared_question(),
+                Question.document_id.in_(allowed),
+                Question.owner_id != self._owner_id,
+            )
+            .options(selectinload(Question.options))
+        ).all()
+        pool: dict[str, list[Question]] = {}
+        for q in rows:
+            pool.setdefault(q.subject or q.section or "", []).append(q)
+        return dict(sorted(pool.items()))
+
+    def starter_check_availability(self, exam_code: str) -> StarterCheckAvailability:
+        pool = self._starter_pool(exam_code)
+        count = min(STARTER_MAX, sum(min(STARTER_PER_SUBJECT, len(q)) for q in pool.values()))
+        return StarterCheckAvailability(
+            exam_code=exam_code,
+            available_questions=sum(len(q) for q in pool.values()),
+            question_count=count,
+            subjects=[s for s in pool if s],
+        )
+
+    def start_starter_check(self, exam_code: str) -> SessionRead:
+        """A short check across subjects for a learner without papers: untimed, answers
+        hidden until submitted; its results feed the same progress and study plan."""
+        pool = self._starter_pool(exam_code)
+        if not pool:
+            raise NoQuestionsAvailableError("No starter check is available for this exam yet.")
+        seed = random.SystemRandom().randrange(2**31)
+        rng = random.Random(seed)  # noqa: S311 - question sampling, recorded for reproducibility
+        chosen: list[Question] = []
+        for questions in pool.values():
+            take = min(STARTER_PER_SUBJECT, len(questions), STARTER_MAX - len(chosen))
+            chosen.extend(rng.sample(questions, take))
+        check = PracticeSession(
+            owner_id=self._owner_id,
+            mode=SessionMode.DIAGNOSTIC,
+            exam_code=exam_code,
+            selection={"starter_check": True, "seed": seed},
+            status=SessionStatus.ACTIVE,
+            started_at=self._now(),
+        )
+        check.items = [
+            self._item(position, q, marks_correct=1.0, marks_wrong=0.0)
+            for position, q in enumerate(chosen, start=1)
+        ]
+        self._session.add(check)
+        self._session.commit()
+        return self.get(check.id)
+
     def mock_availability(self, exam_code: str | None) -> list[MockAvailability]:
         """Verified formats in effect today (drafts and retired versions are not offered)."""
         today = self._now().date()
@@ -644,6 +713,8 @@ class PracticeService:
     def _marking_note(self, practice: PracticeSession) -> str:
         if practice.mode == SessionMode.PRACTICE:
             return PRACTICE_MARKING_NOTE
+        if practice.mode == SessionMode.DIAGNOSTIC:
+            return STARTER_MARKING_NOTE
         exam_format = self._session.get(ExamFormat, practice.exam_format_id)
         if exam_format is None:
             return "Marking from the exam format used when this test started."

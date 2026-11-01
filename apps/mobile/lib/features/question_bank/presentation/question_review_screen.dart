@@ -16,6 +16,7 @@ import '../data/questions_repository.dart';
 import '../domain/question.dart';
 import 'figure_view.dart';
 import 'question_history_widgets.dart';
+import 'shared_report.dart';
 import 'question_widgets.dart';
 
 class QuestionReviewScreen extends ConsumerWidget {
@@ -48,14 +49,15 @@ class QuestionReviewScreen extends ConsumerWidget {
   }
 }
 
-/// A shared-bank question (another account's paper): shown as published, nothing to edit.
-class _SharedQuestionView extends StatelessWidget {
+/// A shared-bank question (another account's paper): shown as published, nothing to edit;
+/// it can be reported to the PrepLoop team.
+class _SharedQuestionView extends ConsumerWidget {
   const _SharedQuestionView({required this.question});
 
   final BankQuestion question;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final q = question;
@@ -69,7 +71,14 @@ class _SharedQuestionView extends StatelessWidget {
         title: Text(
           q.sourceNumber == null ? l10n.questionTitle : l10n.questionNumberLabel(q.sourceNumber!),
         ),
-        actions: [WebSearchAction(query: q.stem)],
+        actions: [
+          WebSearchAction(query: q.stem),
+          IconButton(
+            tooltip: l10n.sharedReportTitle,
+            icon: const Icon(Icons.flag_outlined),
+            onPressed: () => reportSharedContent(context, ref, q.id),
+          ),
+        ],
       ),
       body: Align(
         alignment: Alignment.topCenter,

@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
+from app.models.content import ContentReport, ContentRights
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
@@ -62,6 +63,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
     PracticeSession,
     AIGeneration,
     Suggestion,
+    ContentReport,
     Subscription,
     PlayPurchase,
     SyncItem,
@@ -72,6 +74,7 @@ CHILD_DATA: tuple[ChildData, ...] = (
     ChildData(QuestionPattern, (("topic_id", "topics"),)),
     ChildData(TopicTaxonomyLink, (("topic_id", "topics"),)),
     ChildData(DocumentPage, (("document_id", "documents"),)),
+    ChildData(ContentRights, (("document_id", "documents"),)),
     ChildData(Passage, (("document_id", "documents"),)),
     ChildData(QuestionOption, (("question_id", "questions"),)),
     ChildData(QuestionIssue, (("question_id", "questions"), ("document_id", "documents"))),
@@ -95,6 +98,7 @@ NOT_EXPORTED: dict[str, str] = {
     "exam_formats": "official reference data, not the learner's",
     "taxonomy_nodes": "canonical topics: reference data, not the learner's",
     "taxonomy_labels": "names of canonical topics: reference data",
+    "audit_events": "operator decisions about shared content (ids and reasons, no content)",
     "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
     "after deletion with the account link cleared; the purchases are in play_purchases",
 }

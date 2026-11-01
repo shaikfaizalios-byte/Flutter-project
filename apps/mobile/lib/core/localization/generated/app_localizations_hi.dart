@@ -2126,6 +2126,56 @@ class AppLocalizationsHi extends AppLocalizations {
   String get topicCanonicalNo => 'नहीं';
 
   @override
+  String get starterCheckTitle => 'शुरुआती जाँच';
+
+  @override
+  String get starterCheckHint =>
+      'हर विषय से कुछ प्रश्न, बिना टाइमर के, यह देखने के लिए कि कहाँ से शुरू करें। उत्तर और व्याख्या सबमिट करने के बाद दिखेंगे।';
+
+  @override
+  String starterCheckStart(int count) {
+    return 'शुरुआती जाँच दें ($count प्रश्न)';
+  }
+
+  @override
+  String get starterCheckDoneTitle => 'कहाँ से शुरू करें';
+
+  @override
+  String get starterCheckDoneMessage =>
+      'नीचे विषय और टॉपिक के परिणाम बताते हैं कि कहाँ से शुरू करें। होम पर आपकी अध्ययन योजना अब इन उत्तरों का उपयोग करती है। यह शुरुआत का संकेत है, परीक्षा का अंक नहीं।';
+
+  @override
+  String get sharedReportTitle => 'इस साझा पेपर की शिकायत करें';
+
+  @override
+  String get sharedReportIntro =>
+      'यह प्रश्न ऐसे पेपर से है जिसे PrepLoop सभी शिक्षार्थियों के साथ साझा करता है। PrepLoop टीम को बताएँ कि क्या गलत है; वे हर शिकायत की समीक्षा करते हैं।';
+
+  @override
+  String get sharedReportRights => 'इसे साझा नहीं किया जाना चाहिए (कॉपीराइट या अनुमति)';
+
+  @override
+  String get sharedReportError => 'इसमें कुछ गलत है';
+
+  @override
+  String get sharedReportOther => 'कुछ और';
+
+  @override
+  String get sharedReportText => 'क्या समस्या है?';
+
+  @override
+  String get sharedReportTextHelp => 'कम से कम 10 अक्षर। निजी जानकारी न लिखें।';
+
+  @override
+  String get sharedReportSent => 'धन्यवाद। PrepLoop टीम इसकी समीक्षा करेगी।';
+
+  @override
+  String get sharedReportTooMany => 'आज आप 10 शिकायतें भेज चुके हैं। कृपया कल फिर कोशिश करें।';
+
+  @override
+  String get sharedReportFailed => 'शिकायत नहीं भेजी जा सकी। कृपया फिर कोशिश करें।';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

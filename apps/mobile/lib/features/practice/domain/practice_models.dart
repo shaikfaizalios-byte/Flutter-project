@@ -4,9 +4,19 @@ import '../../question_bank/domain/question.dart';
 
 enum SessionMode {
   practice,
-  mock;
+  mock,
 
-  static SessionMode fromCode(String code) => code == 'mock' ? mock : practice;
+  /// The starter check for a learner without papers: untimed, answers shown after submitting.
+  diagnostic;
+
+  static SessionMode fromCode(String code) => switch (code) {
+    'mock' => mock,
+    'diagnostic' => diagnostic,
+    _ => practice,
+  };
+
+  /// Answers can change and are only marked after submitting (mocks and the starter check).
+  bool get testLike => this != practice;
 }
 
 @immutable

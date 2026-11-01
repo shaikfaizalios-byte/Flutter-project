@@ -31,6 +31,7 @@ from app.core.config import get_settings
 from app.database.session import build_engine, build_sessionmaker
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
 from app.models.question import ExamFormat, FormatStatus
+from app.services.content import audit
 from app.services.exam_formats import publish_problems
 
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
@@ -122,6 +123,7 @@ def publish(session: Session, code: str, reviewer: str, today: date) -> ExamForm
     draft.status = FormatStatus.VERIFIED
     draft.verified_on = today
     draft.reviewed_by = reviewer.strip()[:100]
+    audit(session, reviewer, "format_publish", "exam_format", draft.code, draft.source_reference)
     if draft.supersedes_id is not None:
         old = session.get(ExamFormat, draft.supersedes_id)
         if old is not None and old.effective_to is None:
@@ -140,6 +142,7 @@ def retire(session: Session, code: str, on: date) -> ExamFormat:
         raise ValueError("A format can't end before it starts.")
     found.status = FormatStatus.RETIRED
     found.effective_to = on
+    audit(session, "operator", "format_retire", "exam_format", found.code, f"after {on}")
     return found
 
 

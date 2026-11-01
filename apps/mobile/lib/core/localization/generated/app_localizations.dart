@@ -3459,6 +3459,96 @@ abstract class AppLocalizations {
   /// **'No'**
   String get topicCanonicalNo;
 
+  /// No description provided for @starterCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter check'**
+  String get starterCheckTitle;
+
+  /// No description provided for @starterCheckHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A few questions from each subject, with no timer, to see where to start. Answers and explanations come after you submit.'**
+  String get starterCheckHint;
+
+  /// No description provided for @starterCheckStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a starter check ({count} questions)'**
+  String starterCheckStart(int count);
+
+  /// No description provided for @starterCheckDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to start'**
+  String get starterCheckDoneTitle;
+
+  /// No description provided for @starterCheckDoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The subject and topic results below show where to begin. Your study plan on Home now uses these answers. This is a starting point, not an exam score.'**
+  String get starterCheckDoneMessage;
+
+  /// No description provided for @sharedReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this shared paper'**
+  String get sharedReportTitle;
+
+  /// No description provided for @sharedReportIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This question comes from a paper PrepLoop shares with every learner. Tell the PrepLoop team what\'s wrong; they review every report.'**
+  String get sharedReportIntro;
+
+  /// No description provided for @sharedReportRights.
+  ///
+  /// In en, this message translates to:
+  /// **'It shouldn\'t be shared (copyright or permission)'**
+  String get sharedReportRights;
+
+  /// No description provided for @sharedReportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something in it is wrong'**
+  String get sharedReportError;
+
+  /// No description provided for @sharedReportOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get sharedReportOther;
+
+  /// No description provided for @sharedReportText.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s the problem?'**
+  String get sharedReportText;
+
+  /// No description provided for @sharedReportTextHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 10 characters. Don\'t include personal details.'**
+  String get sharedReportTextHelp;
+
+  /// No description provided for @sharedReportSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks. The PrepLoop team will review it.'**
+  String get sharedReportSent;
+
+  /// No description provided for @sharedReportTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve sent 10 reports today. Please try again tomorrow.'**
+  String get sharedReportTooMany;
+
+  /// No description provided for @sharedReportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The report couldn\'t be sent. Please try again.'**
+  String get sharedReportFailed;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

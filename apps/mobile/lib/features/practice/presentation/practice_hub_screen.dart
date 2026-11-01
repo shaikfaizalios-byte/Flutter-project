@@ -403,14 +403,16 @@ class _HistoryCard extends ConsumerWidget {
             for (final s in value.take(10))
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  s.mode == SessionMode.mock ? Icons.timer_outlined : Icons.quiz_outlined,
-                ),
-                title: Text(
-                  s.mode == SessionMode.mock
-                      ? l10n.historyMock(s.formatName ?? '')
-                      : l10n.historyPractice,
-                ),
+                leading: Icon(switch (s.mode) {
+                  SessionMode.mock => Icons.timer_outlined,
+                  SessionMode.diagnostic => Icons.flag_outlined,
+                  SessionMode.practice => Icons.quiz_outlined,
+                }),
+                title: Text(switch (s.mode) {
+                  SessionMode.mock => l10n.historyMock(s.formatName ?? ''),
+                  SessionMode.diagnostic => l10n.starterCheckTitle,
+                  SessionMode.practice => l10n.historyPractice,
+                }),
                 subtitle: Text(DateFormat.yMMMd(locale).add_jm().format(s.startedAt.toLocal())),
                 trailing: Text(
                   s.submitted && s.score != null

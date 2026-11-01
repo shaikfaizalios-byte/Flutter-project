@@ -292,6 +292,17 @@ class _StarterPapers extends ConsumerWidget {
                           ),
                     ),
                   ),
+                  if ((ref.watch(starterCheckSizeProvider(exam)).value ?? 0) > 0)
+                    FilledButton.tonalIcon(
+                      icon: const Icon(Icons.flag_outlined),
+                      label: Text(
+                        l10n.starterCheckStart(ref.watch(starterCheckSizeProvider(exam)).value!),
+                      ),
+                      onPressed: () => startAndOpen(
+                        context,
+                        () => ref.read(practiceRepositoryProvider).startStarterCheck(exam),
+                      ),
+                    ),
                   OutlinedButton.icon(
                     icon: const Icon(Icons.repeat),
                     label: Text(l10n.starterRepeats),

@@ -91,6 +91,27 @@ class FakePracticeRepository implements PracticeRepository {
   @override
   Future<List<MockTestView>> mockTests() async => mocks;
 
+  /// Questions the starter check would ask (0: none available).
+  int starterCheckQuestions = 0;
+
+  @override
+  Future<int> starterCheckSize(String examCode) async => starterCheckQuestions;
+
+  @override
+  Future<PracticeSessionView> startStarterCheck(String examCode) async {
+    if (starterCheckQuestions == 0) {
+      throw const ServerFailure(statusCode: 422, code: 'no_questions_available');
+    }
+    final id = 'd${sessions.length + 1}';
+    sessions[id] = _FakeSession(
+      id: id,
+      mode: SessionMode.diagnostic,
+      questions: pool,
+      startedAt: serverNow(),
+    );
+    return _view(sessions[id]!);
+  }
+
   @override
   Future<PracticeSessionView> startMock(String formatCode) async {
     final id = 'm${sessions.length + 1}';
@@ -339,9 +360,12 @@ class FakePracticeRepository implements PracticeRepository {
                     'Correct $correct × 1.00 = $correct.00; Total $correct.00 of ${s.questions.length}.00',
               ),
               timeTakenSeconds: serverNow().difference(s.startedAt).inSeconds,
-              markingNote: s.mode == SessionMode.practice
-                  ? 'Practice: 1 point per correct answer, no negative marking.'
-                  : 'SSC CHSL 2026 Tier-I. Wrong answer: -0.50.',
+              markingNote: switch (s.mode) {
+                SessionMode.practice =>
+                  'Practice: 1 point per correct answer, no negative marking.',
+                SessionMode.diagnostic => 'Starter check: 1 point per correct answer.',
+                SessionMode.mock => 'SSC CHSL 2026 Tier-I. Wrong answer: -0.50.',
+              },
               sections: const [],
               topics: const [],
             )

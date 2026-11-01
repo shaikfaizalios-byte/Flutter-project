@@ -1461,6 +1461,28 @@
   },
   "topicCanonicalYes": "Yes, same",
   "topicCanonicalNo": "No",
+  "starterCheckTitle": "Starter check",
+  "starterCheckHint": "A few questions from each subject, with no timer, to see where to start. Answers and explanations come after you submit.",
+  "starterCheckStart": "Take a starter check ({count} questions)",
+  "@starterCheckStart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "starterCheckDoneTitle": "Where to start",
+  "starterCheckDoneMessage": "The subject and topic results below show where to begin. Your study plan on Home now uses these answers. This is a starting point, not an exam score.",
+  "sharedReportTitle": "Report this shared paper",
+  "sharedReportIntro": "This question comes from a paper PrepLoop shares with every learner. Tell the PrepLoop team what's wrong; they review every report.",
+  "sharedReportRights": "It shouldn't be shared (copyright or permission)",
+  "sharedReportError": "Something in it is wrong",
+  "sharedReportOther": "Something else",
+  "sharedReportText": "What's the problem?",
+  "sharedReportTextHelp": "At least 10 characters. Don't include personal details.",
+  "sharedReportSent": "Thanks. The PrepLoop team will review it.",
+  "sharedReportTooMany": "You've sent 10 reports today. Please try again tomorrow.",
+  "sharedReportFailed": "The report couldn't be sent. Please try again.",
   "accountExport": "Copy my data",
   "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
   "accountSignOut": "Sign out",

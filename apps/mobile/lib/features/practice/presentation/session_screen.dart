@@ -12,6 +12,7 @@ import '../../ai/presentation/ai_widgets.dart';
 import '../../question_bank/domain/question.dart';
 import '../../question_bank/presentation/figure_view.dart';
 import '../../question_bank/presentation/question_widgets.dart';
+import '../../question_bank/presentation/shared_report.dart';
 import '../application/practice_providers.dart';
 import '../domain/practice_models.dart';
 import 'result_view.dart';
@@ -126,6 +127,8 @@ class _SessionBody extends ConsumerWidget {
     final session = state.session;
     final item = state.item;
     final isMock = session.mode == SessionMode.mock;
+    // Mocks and the starter check: answers can change and are marked after submitting.
+    final testLike = session.mode.testLike;
     final last = state.current == session.items.length - 1;
     final open = session.openSection;
     final canGoBack =
@@ -144,11 +147,13 @@ class _SessionBody extends ConsumerWidget {
               icon: Icon(item.bookmarked ? Icons.bookmark : Icons.bookmark_border),
               onPressed: () => _controller(ref).toggleBookmark(),
             ),
-          if (item.questionId != null && !item.shared && !session.offline)
+          if (item.questionId != null && !session.offline)
             IconButton(
-              tooltip: l10n.reportTitle,
+              tooltip: item.shared ? l10n.sharedReportTitle : l10n.reportTitle,
               icon: const Icon(Icons.flag_outlined),
-              onPressed: () => reportQuestion(context, ref, item.questionId!),
+              onPressed: () => item.shared
+                  ? reportSharedContent(context, ref, item.questionId!)
+                  : reportQuestion(context, ref, item.questionId!),
             ),
           if (isMock)
             IconButton(
@@ -158,7 +163,7 @@ class _SessionBody extends ConsumerWidget {
             ),
           TextButton(
             onPressed: state.submitting ? null : () => _submit(context, ref),
-            child: Text(isMock ? l10n.sessionSubmit : l10n.sessionFinish),
+            child: Text(testLike ? l10n.sessionSubmit : l10n.sessionFinish),
           ),
         ],
       ),
@@ -184,6 +189,18 @@ class _SessionBody extends ConsumerWidget {
                         ),
                       ),
                       subtitle: Text(l10n.sessionSectionHint(open.minutes)),
+                    ),
+                  ),
+                ),
+              if (session.mode == SessionMode.diagnostic)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Card(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    child: ListTile(
+                      leading: const Icon(Icons.flag_outlined),
+                      title: Text(l10n.starterCheckTitle),
+                      subtitle: Text(l10n.starterCheckHint),
                     ),
                   ),
                 ),
@@ -244,7 +261,7 @@ class _SessionBody extends ConsumerWidget {
                 _TypedAnswerBox(
                   key: ValueKey('typed-${item.position}'),
                   item: item,
-                  locked: !isMock && item.answered,
+                  locked: !testLike && item.answered,
                   onSubmit: (text) => _controller(ref).submitTyped(text),
                 ),
               for (final option in item.options)
@@ -273,7 +290,9 @@ class _SessionBody extends ConsumerWidget {
                     const Icon(Icons.cloud_upload_outlined, size: 18),
                     const SizedBox(width: AppSpacing.xs),
                     Expanded(
-                      child: Text(isMock ? l10n.sessionSavedOffline : l10n.sessionFeedbackOffline),
+                      child: Text(
+                        testLike ? l10n.sessionSavedOffline : l10n.sessionFeedbackOffline,
+                      ),
                     ),
                   ],
                 ),
@@ -301,7 +320,7 @@ class _SessionBody extends ConsumerWidget {
               else if (last)
                 FilledButton(
                   onPressed: state.submitting ? null : () => _submit(context, ref),
-                  child: Text(isMock ? l10n.sessionSubmit : l10n.sessionFinish),
+                  child: Text(testLike ? l10n.sessionSubmit : l10n.sessionFinish),
                 )
               else
                 FilledButton(

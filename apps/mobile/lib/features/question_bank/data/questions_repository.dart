@@ -7,6 +7,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../domain/question.dart';
+import '../domain/shared_report_kind.dart';
 
 /// Server-backed question bank. Methods throw `AppFailure`s.
 abstract interface class QuestionsRepository {
@@ -39,6 +40,9 @@ abstract interface class QuestionsRepository {
 
   /// Extracted text of one source page (1-based), for side-by-side review.
   Future<String> pageText(String documentId, int page);
+
+  /// Reports a question of a shared paper (rights problem, error, other) to the PrepLoop team.
+  Future<void> reportShared(String questionId, SharedReportKind kind, String text);
 }
 
 class RemoteQuestionsRepository implements QuestionsRepository {
@@ -147,6 +151,14 @@ class RemoteQuestionsRepository implements QuestionsRepository {
     );
     return Uint8List.fromList(response.data!);
   });
+
+  @override
+  Future<void> reportShared(String questionId, SharedReportKind kind, String text) => _guard(
+    () => _dio.post<void>(
+      '/api/v1/content-reports',
+      data: {'question_id': questionId, 'kind': kind.name, 'text': text},
+    ),
+  );
 
   @override
   Future<String> pageText(String documentId, int page) => _guard(() async {

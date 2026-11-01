@@ -2123,6 +2123,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get topicCanonicalNo => 'No';
 
   @override
+  String get starterCheckTitle => 'Starter check';
+
+  @override
+  String get starterCheckHint =>
+      'A few questions from each subject, with no timer, to see where to start. Answers and explanations come after you submit.';
+
+  @override
+  String starterCheckStart(int count) {
+    return 'Take a starter check ($count questions)';
+  }
+
+  @override
+  String get starterCheckDoneTitle => 'Where to start';
+
+  @override
+  String get starterCheckDoneMessage =>
+      'The subject and topic results below show where to begin. Your study plan on Home now uses these answers. This is a starting point, not an exam score.';
+
+  @override
+  String get sharedReportTitle => 'Report this shared paper';
+
+  @override
+  String get sharedReportIntro =>
+      'This question comes from a paper PrepLoop shares with every learner. Tell the PrepLoop team what\'s wrong; they review every report.';
+
+  @override
+  String get sharedReportRights => 'It shouldn\'t be shared (copyright or permission)';
+
+  @override
+  String get sharedReportError => 'Something in it is wrong';
+
+  @override
+  String get sharedReportOther => 'Something else';
+
+  @override
+  String get sharedReportText => 'What\'s the problem?';
+
+  @override
+  String get sharedReportTextHelp => 'At least 10 characters. Don\'t include personal details.';
+
+  @override
+  String get sharedReportSent => 'Thanks. The PrepLoop team will review it.';
+
+  @override
+  String get sharedReportTooMany => 'You\'ve sent 10 reports today. Please try again tomorrow.';
+
+  @override
+  String get sharedReportFailed => 'The report couldn\'t be sent. Please try again.';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override

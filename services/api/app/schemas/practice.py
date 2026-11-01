@@ -197,7 +197,7 @@ class SectionAdvance(BaseModel):
 
 class SessionRead(BaseModel):
     id: uuid.UUID
-    mode: Literal["practice", "mock"]
+    mode: Literal["practice", "mock", "diagnostic"]
     status: Literal["active", "submitted"]
     exam_code: str | None
     exam_format: FormatRef | None
@@ -221,7 +221,7 @@ class SessionRead(BaseModel):
 
 class SessionSummary(BaseModel):
     id: uuid.UUID
-    mode: Literal["practice", "mock"]
+    mode: Literal["practice", "mock", "diagnostic"]
     status: Literal["active", "submitted"]
     exam_code: str | None
     exam_format_name: str | None

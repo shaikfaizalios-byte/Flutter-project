@@ -278,6 +278,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   papers). `GET /insights/shared-bank` = papers + verified questions per exam → mobile `sharedBankProvider`:
   Home "Starter papers" card (while the learner has no own papers; Practise / Topics that repeat →
   `AppRoutes.repeatsShared`), Repeated models empty state button, paper counts on the exam chips.
+  Content governance + starter check (global Phase 7, migration 0035): `content_rights` per shared paper (basis,
+  holder, permitted uses practice|diagnostic, territory, attribution, decided by), `content_reports` (learners
+  report shared content; app flag button), `audit_events`; operator `python -m app.cli.content`
+  (reports/resolve/takedown/audit). Starter check = `diagnostic` session from shared questions whose rights allow
+  it (`/practice/starter-check`, Home starter card); none until the operator publishes such papers.
 - Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
   in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and

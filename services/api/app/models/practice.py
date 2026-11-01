@@ -24,6 +24,9 @@ from app.database.base import Base
 class SessionMode(StrEnum):
     PRACTICE = "practice"  # untimed, immediate feedback, 1 point per correct answer
     MOCK = "mock"  # timed, marking from a verified exam format, feedback after submit
+    # The starter check for a new learner: untimed, 1 point per correct answer, feedback after
+    # submit; only shared-bank questions whose rights allow it (app/services/diagnostic.py).
+    DIAGNOSTIC = "diagnostic"
 
 
 class SessionStatus(StrEnum):
@@ -34,7 +37,8 @@ class SessionStatus(StrEnum):
 class PracticeSession(Base):
     __tablename__ = "practice_sessions"
     __table_args__ = (
-        CheckConstraint("mode IN ('practice', 'mock')", name="mode_valid"),
+        # diagnostic: the starter check for a new learner (no timer, results after submitting).
+        CheckConstraint("mode IN ('practice', 'mock', 'diagnostic')", name="mode_valid"),
         CheckConstraint("status IN ('active', 'submitted')", name="status_valid"),
         CheckConstraint(
             "mode <> 'mock' OR (exam_format_id IS NOT NULL AND deadline_at IS NOT NULL)",
