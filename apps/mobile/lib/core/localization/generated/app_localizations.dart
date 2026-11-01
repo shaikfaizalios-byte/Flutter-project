@@ -3333,6 +3333,72 @@ abstract class AppLocalizations {
   /// **'Two devices changed this note before they synced. This copy holds one device\'s version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.'**
   String get conceptSyncConflictMessage;
 
+  /// No description provided for @plusPlayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought with Google Play.'**
+  String get plusPlayLabel;
+
+  /// No description provided for @plusManageInPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage or cancel in Google Play'**
+  String get plusManageInPlay;
+
+  /// No description provided for @plusSubscribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get plusSubscribe;
+
+  /// No description provided for @plusRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get plusRestore;
+
+  /// No description provided for @plusPlayTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play takes the payment and renews the subscription until you cancel it in Google Play. Plus starts once PrepLoop has checked the purchase with Google.'**
+  String get plusPlayTerms;
+
+  /// No description provided for @plusPlayOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus can be bought in the Android app from Google Play.'**
+  String get plusPlayOnly;
+
+  /// No description provided for @plusPlayUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play could not be reached. Try again later.'**
+  String get plusPlayUnavailable;
+
+  /// No description provided for @plusPurchasePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play is waiting for your payment. Plus starts when it is complete.'**
+  String get plusPurchasePending;
+
+  /// No description provided for @plusPurchaseAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! PrepLoop Plus is on.'**
+  String get plusPurchaseAdded;
+
+  /// No description provided for @plusPurchaseRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play did not confirm this purchase for this account. If you bought Plus with another PrepLoop account, sign in with that one.'**
+  String get plusPurchaseRefused;
+
+  /// No description provided for @plusPurchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase couldn\'t be checked right now. It will be checked again; you won\'t be charged twice.'**
+  String get plusPurchaseFailed;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

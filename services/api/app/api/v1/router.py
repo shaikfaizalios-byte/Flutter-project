@@ -5,6 +5,7 @@ from app.api.v1.endpoints import (
     ai,
     analytics,
     auth,
+    billing,
     concepts,
     documents,
     exam_topics,
@@ -44,3 +45,5 @@ api_router.include_router(ai.router, dependencies=_signed_in)
 api_router.include_router(sync.router, dependencies=_signed_in)
 api_router.include_router(feedback.router, dependencies=_signed_in)
 api_router.include_router(plus.router, dependencies=_signed_in)
+# Not signed in as a whole: Google's notifications carry their own token (verify needs a user).
+api_router.include_router(billing.router)

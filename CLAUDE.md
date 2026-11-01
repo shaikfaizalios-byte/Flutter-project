@@ -100,7 +100,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   sidebar shortcut). AI gating: `guard_ai` → `PlusService.check_ai_allowed()` (403 `plus_required`, 429
   `ai_allowance_used`; `PREPLOOP_PLUS_REQUIRED_FOR_AI`, default true, dev-only false; tests' fixture sets it
   false, `tests/test_plus.py` turns it on); `/ai/status` `requires_plus`/`plus_active`/`ai_left_this_month`;
-  app `AiStatus.needsPlus` → `PlusPrompt`. NOT built yet: payments (Play Billing / web / Apple), legal texts.
+  app `AiStatus.needsPlus` → `PlusPrompt`. Google Play (global Phase 4, off until configured: `PREPLOOP_PLAY_*`):
+  `POST /billing/play/verify` reads the token with the Play Developer API (`app/integrations/play_billing.py`,
+  pure rules `app/domain/billing.py`), refuses other products/accounts, stores `play_purchases`, acknowledges,
+  sets `subscriptions` source play; Pub/Sub RTDN at `/billing/play/rtdn` (Google OIDC checked, once per message);
+  `billing_events` audit (token hash only), migration 0031. App: `in_app_purchase`, `features/plus/data/play_store.dart`,
+  `PlayPurchaseController` (listens from app start; completes only after the server confirms). NOT built yet: web /
+  Apple payments, legal texts. See docs/plus.md.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
   chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
   "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.

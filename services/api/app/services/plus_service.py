@@ -1,6 +1,6 @@
 """PrepLoop Plus: whether an account is subscribed and how much of its monthly AI allowance it
 has used. The server decides; the app only shows it. Test subscriptions exist only while
-`plus_test_mode` is on (development); store purchases are not built yet."""
+`plus_test_mode` is on (development); Google Play purchases are in billing_service.py."""
 
 import uuid
 from collections.abc import Callable
@@ -40,11 +40,15 @@ class PlusService:
         owner_id: uuid.UUID,
         settings: Settings,
         now: Callable[[], datetime] | None = None,
+        *,
+        play_account_id: str | None = None,
     ) -> None:
         self._session = session
         self._owner_id = owner_id
         self._settings = settings
         self._now = now or (lambda: datetime.now(UTC))
+        # Set when Google Play purchases are available (see BillingService.play_account_id).
+        self._play_account_id = play_account_id
 
     def status(self) -> PlusStatus:
         now = self._now()
@@ -65,7 +69,11 @@ class PlusService:
             ai_monthly_allowance=self._settings.plus_ai_monthly_allowance,
             period_resets_at=following,
             test_mode=self._settings.plus_test_mode,
-            purchases_available=False,
+            purchases_available=self._play_account_id is not None,
+            play_product_ids=list(self._settings.play_subscription_ids)
+            if self._play_account_id
+            else [],
+            play_account_id=self._play_account_id,
         )
 
     def check_ai_allowed(self) -> None:

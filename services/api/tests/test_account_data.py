@@ -14,7 +14,7 @@ from app.models.concept import Concept
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
-from app.models.plus import Subscription
+from app.models.plus import PlayPurchase, Subscription
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
 from app.models.progress import TopicCompletion
 from app.models.question import (
@@ -106,6 +106,14 @@ def _fill_account(db: Session, user: User) -> None:
             ),
             Suggestion(owner_id=user.id, kind="add", text="Please add a ratio drill."),
             Subscription(owner_id=user.id, source="test", active_until=now + timedelta(days=1)),
+            PlayPurchase(
+                owner_id=user.id,
+                purchase_token=f"token-{uuid.uuid4().hex}",
+                product_id="plus_monthly",
+                state="SUBSCRIPTION_STATE_ACTIVE",
+                acknowledged=True,
+                test_purchase=True,
+            ),
             SyncItem(owner_id=user.id, entity="setting", item_id="theme", data={"value": "dark"}),
         ]
     )

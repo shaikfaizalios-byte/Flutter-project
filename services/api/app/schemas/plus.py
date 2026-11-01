@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 PlusSource = Literal["test", "operator", "play", "web"]
 TEST_DAYS_MAX = 31
@@ -19,8 +19,22 @@ class PlusStatus(BaseModel):
     period_resets_at: datetime
     # A development server lets learners start a free test subscription.
     test_mode: bool
-    # Real purchases (Google Play, web payments) are not built yet.
+    # Plus can be bought on this server (Google Play is configured; docs/plus.md).
     purchases_available: bool
+    # Google Play subscription product ids the app may offer (prices come from Play).
+    play_product_ids: list[str] = []
+    # Passed to Play as the obfuscated account id at purchase time, so the purchase can only
+    # be added to this account (null when purchases are not available).
+    play_account_id: str | None = None
+
+
+class PlayPurchaseVerify(BaseModel):
+    """A Google Play purchase the app reports after buying or restoring."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    product_id: Annotated[str, StringConstraints(min_length=1, max_length=100)]
+    purchase_token: Annotated[str, StringConstraints(min_length=10, max_length=512)]
 
 
 class PlusTestStart(BaseModel):

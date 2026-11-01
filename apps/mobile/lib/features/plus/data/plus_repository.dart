@@ -30,6 +30,8 @@ class PlusStatus {
     this.activeUntil,
     this.testMode = false,
     this.purchasesAvailable = false,
+    this.playProductIds = const [],
+    this.playAccountId,
   });
 
   factory PlusStatus.fromJson(Map<String, dynamic> json) => PlusStatus(
@@ -44,6 +46,8 @@ class PlusStatus {
     periodResetsAt: DateTime.parse(json['period_resets_at'] as String),
     testMode: json['test_mode'] as bool,
     purchasesAvailable: json['purchases_available'] as bool,
+    playProductIds: [for (final id in json['play_product_ids'] as List<dynamic>? ?? []) '$id'],
+    playAccountId: json['play_account_id'] as String?,
   );
 
   final bool active;
@@ -60,6 +64,12 @@ class PlusStatus {
 
   /// Store purchases (Google Play, web payments) can be made.
   final bool purchasesAvailable;
+
+  /// Google Play subscriptions this server sells (prices come from Play).
+  final List<String> playProductIds;
+
+  /// Passed to Play with a purchase, so the server adds it to this account only.
+  final String? playAccountId;
 }
 
 /// Days of a test subscription started from the app.
@@ -71,6 +81,9 @@ abstract interface class PlusRepository {
   Future<PlusStatus> startTest({int days = plusTestDays});
 
   Future<PlusStatus> endTest();
+
+  /// Reports a Google Play purchase; the server checks it with Google before adding Plus.
+  Future<PlusStatus> verifyPlay({required String productId, required String purchaseToken});
 }
 
 class RemotePlusRepository implements PlusRepository {
@@ -95,6 +108,17 @@ class RemotePlusRepository implements PlusRepository {
   Future<PlusStatus> endTest() => _guard(
     () async => PlusStatus.fromJson((await _dio.delete<Map<String, dynamic>>('$_path/test')).data!),
   );
+
+  @override
+  Future<PlusStatus> verifyPlay({required String productId, required String purchaseToken}) =>
+      _guard(
+        () async => PlusStatus.fromJson(
+          (await _dio.post<Map<String, dynamic>>(
+            '/api/v1/billing/play/verify',
+            data: {'product_id': productId, 'purchase_token': purchaseToken},
+          )).data!,
+        ),
+      );
 
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {

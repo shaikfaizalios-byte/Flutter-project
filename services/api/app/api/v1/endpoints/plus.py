@@ -1,13 +1,24 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from app.api.deps import CurrentUser
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.schemas.errors import ErrorResponse
 from app.schemas.plus import PlusStatus, PlusTestStart
+from app.services.billing_service import BillingService
 from app.services.plus_service import PlusService
+
+
+def billing_service(request: Request, session: DbSession, settings: Settings) -> BillingService:
+    return BillingService(
+        session,
+        settings,
+        request.app.state.play_billing,
+        account_secret=request.app.state.token_signer.secret,
+    )
+
 
 router = APIRouter(
     tags=["plus"],
@@ -16,9 +27,14 @@ router = APIRouter(
 
 
 def get_plus_service(
-    session: DbSession, user: CurrentUser, settings: Annotated[Settings, Depends(get_settings)]
+    request: Request,
+    session: DbSession,
+    user: CurrentUser,
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> PlusService:
-    return PlusService(session, user.id, settings)
+    billing = billing_service(request, session, settings)
+    play_id = billing.play_account_id(user.id) if request.app.state.play_billing else None
+    return PlusService(session, user.id, settings, play_account_id=play_id)
 
 
 Service = Annotated[PlusService, Depends(get_plus_service)]

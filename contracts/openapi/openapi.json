@@ -3561,6 +3561,30 @@
         "title": "PatternRepeat",
         "type": "object"
       },
+      "PlayPurchaseVerify": {
+        "additionalProperties": false,
+        "description": "A Google Play purchase the app reports after buying or restoring.",
+        "properties": {
+          "product_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Product Id",
+            "type": "string"
+          },
+          "purchase_token": {
+            "maxLength": 512,
+            "minLength": 10,
+            "title": "Purchase Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "purchase_token"
+        ],
+        "title": "PlayPurchaseVerify",
+        "type": "object"
+      },
       "PlusStatus": {
         "description": "The account's PrepLoop Plus state, as the server sees it.",
         "properties": {
@@ -3592,6 +3616,25 @@
             "format": "date-time",
             "title": "Period Resets At",
             "type": "string"
+          },
+          "play_account_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Play Account Id"
+          },
+          "play_product_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Play Product Ids",
+            "type": "array"
           },
           "purchases_available": {
             "title": "Purchases Available",
@@ -9511,6 +9554,72 @@
         "summary": "Email a 6-digit code to confirm the account's address",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/v1/billing/play/verify": {
+      "post": {
+        "operationId": "verify_play_purchase_api_v1_billing_play_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayPurchaseVerify"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlusStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Purchase refused"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Google Play unreachable"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Purchases not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add a Google Play purchase to your account (checked with Google first)",
+        "tags": [
+          "billing"
         ]
       }
     },

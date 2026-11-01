@@ -2042,6 +2042,43 @@ class AppLocalizationsHi extends AppLocalizations {
       'सिंक होने से पहले दो डिवाइस ने यह नोट बदला। इस कॉपी में एक डिवाइस का संस्करण है; उसी शीर्षक वाले नोट में दूसरा। जो चाहिए वह रखें, दूसरा नोट हटाएँ, फिर यहाँ से sync-conflict टैग हटा दें।';
 
   @override
+  String get plusPlayLabel => 'Google Play से खरीदा गया।';
+
+  @override
+  String get plusManageInPlay => 'Google Play में बदलें या रद्द करें';
+
+  @override
+  String get plusSubscribe => 'सदस्यता लें';
+
+  @override
+  String get plusRestore => 'खरीदारी वापस लाएँ';
+
+  @override
+  String get plusPlayTerms =>
+      'भुगतान Google Play लेता है और जब तक आप Google Play में रद्द न करें, सदस्यता अपने-आप नवीनीकृत होती है। PrepLoop द्वारा Google से खरीदारी जाँचने के बाद Plus शुरू होता है।';
+
+  @override
+  String get plusPlayOnly => 'Plus को Android ऐप में Google Play से खरीदा जा सकता है।';
+
+  @override
+  String get plusPlayUnavailable => 'Google Play से संपर्क नहीं हो सका। बाद में फिर कोशिश करें।';
+
+  @override
+  String get plusPurchasePending =>
+      'Google Play आपके भुगतान की प्रतीक्षा कर रहा है। भुगतान पूरा होने पर Plus शुरू होगा।';
+
+  @override
+  String get plusPurchaseAdded => 'धन्यवाद! PrepLoop Plus चालू है।';
+
+  @override
+  String get plusPurchaseRefused =>
+      'Google Play ने इस खाते के लिए यह खरीदारी पक्की नहीं की। अगर आपने किसी दूसरे PrepLoop खाते से Plus खरीदा है, तो उससे साइन इन करें।';
+
+  @override
+  String get plusPurchaseFailed =>
+      'अभी खरीदारी जाँची नहीं जा सकी। इसे फिर से जाँचा जाएगा; आपसे दो बार शुल्क नहीं लिया जाएगा।';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

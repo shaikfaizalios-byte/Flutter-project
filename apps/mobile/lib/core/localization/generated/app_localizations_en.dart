@@ -2039,6 +2039,43 @@ class AppLocalizationsEn extends AppLocalizations {
       'Two devices changed this note before they synced. This copy holds one device\'s version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.';
 
   @override
+  String get plusPlayLabel => 'Bought with Google Play.';
+
+  @override
+  String get plusManageInPlay => 'Manage or cancel in Google Play';
+
+  @override
+  String get plusSubscribe => 'Subscribe';
+
+  @override
+  String get plusRestore => 'Restore purchases';
+
+  @override
+  String get plusPlayTerms =>
+      'Google Play takes the payment and renews the subscription until you cancel it in Google Play. Plus starts once PrepLoop has checked the purchase with Google.';
+
+  @override
+  String get plusPlayOnly => 'Plus can be bought in the Android app from Google Play.';
+
+  @override
+  String get plusPlayUnavailable => 'Google Play could not be reached. Try again later.';
+
+  @override
+  String get plusPurchasePending =>
+      'Google Play is waiting for your payment. Plus starts when it is complete.';
+
+  @override
+  String get plusPurchaseAdded => 'Thank you! PrepLoop Plus is on.';
+
+  @override
+  String get plusPurchaseRefused =>
+      'Google Play did not confirm this purchase for this account. If you bought Plus with another PrepLoop account, sign in with that one.';
+
+  @override
+  String get plusPurchaseFailed =>
+      'The purchase couldn\'t be checked right now. It will be checked again; you won\'t be charged twice.';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override

@@ -19,7 +19,7 @@ from app.models.concept import Concept
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
-from app.models.plus import Subscription
+from app.models.plus import PlayPurchase, Subscription
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
 from app.models.progress import TopicCompletion
 from app.models.question import (
@@ -62,6 +62,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
     AIGeneration,
     Suggestion,
     Subscription,
+    PlayPurchase,
     SyncItem,
 )
 
@@ -90,6 +91,8 @@ NOT_EXPORTED: dict[str, str] = {
     "account_codes": "one-time code hashes that expire in minutes; removed with the account",
     "rate_limit_counters": "keyed by a hash of the client, not linked to an account",
     "exam_formats": "official reference data, not the learner's",
+    "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
+    "after deletion with the account link cleared; the purchases are in play_purchases",
 }
 
 

@@ -6,7 +6,7 @@ from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
 from app.models.ops import RateLimitCounter
-from app.models.plus import Subscription
+from app.models.plus import BillingEvent, PlayPurchase, Subscription
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
 from app.models.progress import TopicCompletion
 from app.models.question import (
@@ -17,6 +17,7 @@ from app.models.question import (
     QuestionIssue,
     QuestionOption,
     QuestionPattern,
+    QuestionRevision,
     SyllabusImport,
     Topic,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "AIExplanation",
     "AIGeneration",
     "AccountCode",
+    "BillingEvent",
     "Bookmark",
     "Concept",
     "Document",
@@ -34,12 +36,14 @@ __all__ = [
     "Exam",
     "ExamFormat",
     "Passage",
+    "PlayPurchase",
     "PracticeSession",
     "Question",
     "QuestionFigure",
     "QuestionIssue",
     "QuestionOption",
     "QuestionPattern",
+    "QuestionRevision",
     "RateLimitCounter",
     "RefreshToken",
     "SessionAnswer",

@@ -22,6 +22,12 @@ from app.database.session import build_engine, build_sessionmaker
 from app.integrations.ai import AIProvider, provider_from_settings
 from app.integrations.email import EmailSender, email_sender_from_settings
 from app.integrations.ocr import OcrEngine, TesseractOcrEngine
+from app.integrations.play_billing import (
+    PlayBillingClient,
+    PushTokenVerifier,
+    play_client_from_settings,
+    push_verifier_from_settings,
+)
 from app.integrations.storage import DocumentStorage, LocalDocumentStorage
 from app.schemas.health import HealthResponse
 from app.workers.document_worker import start_background_worker
@@ -45,6 +51,8 @@ def create_app(
     ai_provider: AIProvider | None = None,
     email_sender: EmailSender | None = None,
     ocr_engine: OcrEngine | None = None,
+    play_billing: PlayBillingClient | None = None,
+    play_push_verifier: PushTokenVerifier | None = None,
 ) -> FastAPI:
     """Build the app. ``engine`` and ``storage`` let tests inject dependencies; by default
     they are created from settings (no engine if ``database_url`` is unset)."""
@@ -102,6 +110,15 @@ def create_app(
         settings.auth_rate_limit,
         settings.auth_rate_window_seconds,
         "Too many attempts. Please wait and try again.",
+    )
+    # Google Play purchases: off unless injected (tests) or configured (docs/plus.md).
+    app.state.play_billing = (
+        play_billing if play_billing is not None else play_client_from_settings(settings)
+    )
+    app.state.play_push_verifier = (
+        play_push_verifier
+        if play_push_verifier is not None
+        else push_verifier_from_settings(settings)
     )
     # AI is off unless a provider is injected (tests) or an API key is configured.
     app.state.ai_provider = (
