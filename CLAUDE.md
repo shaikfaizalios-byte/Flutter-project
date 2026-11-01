@@ -152,6 +152,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   needs options or a typed answer); the review screen's `WrittenFlashcardsCard` turns verified ones into revision
   cards (back = written answer). Bulk "verify clean" skips open `REVIEW_FIRST_CODES` (AI mismatch/scan,
   unreadable text). RAG answers have two parts: `answer` (cited, from the material) + `simple` (AI, plain words).
+- Exam formats as versions (global Phase 5, migration 0032): `exam_formats.status` draft|verified|retired,
+  effective dates, `supersedes_id`, `question_types`, `sectional_timing`, `reviewed_by`; mocks use only verified
+  formats in effect today; drafts never leave the operator tool `python -m app.cli.exam_formats`
+  (import/check/publish/retire/list, and `exam` to add or describe catalog exams: country, authority, aliases).
+  Publishing is refused while pure `format_problems`/`config_problems` find a missing or inconsistent fact.
 - Question bank: worker runs the pure segmenter (`app/domain/segmentation.py`) after extraction →
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a

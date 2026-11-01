@@ -50,7 +50,14 @@ class ExamFormatRead(BaseModel):
     source_url: str
     source_reference: str
     source_published_on: date
-    verified_on: date
+    verified_on: date | None
+    # draft formats are never returned; retired ones still describe older papers.
+    status: Literal["verified", "retired"] = "verified"
+    effective_from: date | None = None
+    effective_to: date | None = None
+    question_types: list[str] = ["choice"]
+    # Each section has its own timer and sections are taken in order (mocks enforce it).
+    sectional_timing: bool = False
 
 
 class OptionRead(BaseModel):

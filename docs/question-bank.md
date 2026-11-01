@@ -86,8 +86,30 @@ Unknown formats simply have no row, and count checks are skipped for them.
 | `SSC_CHSL_2026_TIER1` | SSC notice "Combined Higher Secondary (10+2) Level Examination, 2026", F. No. HQ-C1102/5/2026-C-1, published 07-09-2026, para 13.8 and 13.8.2. Verified 2026-10-13 against the PDF on ssc.gov.in. | 4 parts × 25 questions / 50 marks: English Language (Basic Knowledge), General Intelligence, Quantitative Aptitude (Basic Arithmetic Skill), General Awareness. 60 minutes. 0.50 negative marks per wrong answer. **Parts "Not in sequence".** |
 
 Because the notice says the parts are not in a fixed order, section counts are compared **by section
-name**, never by position. **SSC CGL has no verified format yet.** Add one only after checking the
-current official notice, and record its source in a migration.
+name**, never by position. SSC CGL 2026 Tier-I was added in migration 0018 (its sections have 15-minute
+timers and a fixed order).
+
+### Versions, review and the catalog (global Phase 5, migration 0032)
+
+A format is a **version**: `status` draft | verified | retired, `effective_from`/`effective_to`,
+`supersedes_id`, `question_types` (choice, typed), `sectional_timing`, `reviewed_by`, `review_notes`.
+Published formats are never edited; a new notice becomes a new row, so past attempts (which keep
+`exam_format_id` and per-item marks) stay reproducible. The two recorded formats became `verified`
+(CGL `sectional_timing` = true because every section records a timer).
+
+- New mocks use only `verified` formats in effect today (`app/services/exam_formats.py`,
+  pure `in_effect`); `GET /exam-formats` and linking a paper show verified and retired formats,
+  never drafts.
+- Operator tool `python -m app.cli.exam_formats`: `import FILE.json` (creates a draft; unknown keys
+  refused; facts the notice doesn't give stay null), `check CODE`, `publish CODE --reviewer NAME`
+  (refused while `format_problems` + `config_problems` find anything: missing marks/counts/duration/
+  negative marking, timers that don't add up, sectional timing without a fixed order, unsupported
+  answer types, dates, a source without title/https URL/reference; ends the superseded format the day
+  before the new one starts), `retire CODE --on DATE`, `list`.
+- Catalog exams by configuration: `exam CODE --name --short-name --category --country --authority
+  --alias`. `exams.country_code` (ISO alpha-2, CHECK), `authority`, `aliases`; returned by `/exams`.
+  The 0012 catalog exams got country IN (all Indian exams); authorities are left for the operator to
+  set from official sources.
 
 A document is linked to a format at upload (`exam_format_code`) or later
 (`PUT /documents/{id}/exam-format`). Re-run segmentation to apply a newly linked format.

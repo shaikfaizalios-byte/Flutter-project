@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -19,6 +20,11 @@ class Exam(Base):
     """
 
     __tablename__ = "exams"
+    __table_args__ = (
+        CheckConstraint(
+            "country_code IS NULL OR country_code ~ '^[A-Z]{2}$'", name="country_code_iso"
+        ),
+    )
 
     code: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
@@ -32,4 +38,9 @@ class Exam(Base):
     category: Mapped[str | None] = mapped_column(String(40))
     featured: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     sort_order: Mapped[int] = mapped_column(Integer, default=100, server_default="100")
+    # Global exam catalog (set by the operator, never guessed): ISO 3166-1 alpha-2 country, the
+    # body that runs the exam, and other names learners search for.
+    country_code: Mapped[str | None] = mapped_column(String(2))
+    authority: Mapped[str | None] = mapped_column(String(120))
+    aliases: Mapped[list[str]] = mapped_column(ARRAY(String(60)), default=list, server_default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

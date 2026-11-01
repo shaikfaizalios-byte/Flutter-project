@@ -69,6 +69,7 @@ from app.schemas.practice import (
     TopicResult,
 )
 from app.schemas.question import FigureRead, OptionRead, PassageRead
+from app.services.exam_formats import is_in_effect, mock_formats
 from app.services.shared_bank import visible_question
 
 PRACTICE_MARKING_NOTE = "Practice: 1 point per correct answer, no negative marking."
@@ -347,16 +348,15 @@ class PracticeService:
         return self.get(practice.id)
 
     def mock_availability(self, exam_code: str | None) -> list[MockAvailability]:
-        stmt = select(ExamFormat).order_by(ExamFormat.code)
-        if exam_code:
-            stmt = stmt.where(ExamFormat.exam_code == exam_code)
-        return [self._availability(f)[0] for f in self._session.scalars(stmt).all()]
+        """Verified formats in effect today (drafts and retired versions are not offered)."""
+        today = self._now().date()
+        return [self._availability(f)[0] for f in mock_formats(self._session, exam_code, today)]
 
     def start_mock(self, request: MockCreate) -> SessionRead:
         exam_format = self._session.scalars(
             select(ExamFormat).where(ExamFormat.code == request.exam_format_code)
         ).first()
-        if exam_format is None:
+        if exam_format is None or not is_in_effect(exam_format, self._now().date()):
             raise InvalidReferenceError(f"Unknown paper format '{request.exam_format_code}'.")
         availability, pools = self._availability(exam_format)
         if availability.format_problems:

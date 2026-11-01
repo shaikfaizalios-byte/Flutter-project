@@ -1603,6 +1603,30 @@
             ],
             "title": "Duration Minutes"
           },
+          "effective_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective From"
+          },
+          "effective_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective To"
+          },
           "exam_code": {
             "title": "Exam Code",
             "type": "string"
@@ -1621,6 +1645,21 @@
               }
             ],
             "title": "Negative Marks Per Wrong"
+          },
+          "question_types": {
+            "default": [
+              "choice"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "title": "Question Types",
+            "type": "array"
+          },
+          "sectional_timing": {
+            "default": false,
+            "title": "Sectional Timing",
+            "type": "boolean"
           },
           "sections": {
             "items": {
@@ -1650,6 +1689,15 @@
             "title": "Source Url",
             "type": "string"
           },
+          "status": {
+            "default": "verified",
+            "enum": [
+              "verified",
+              "retired"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
           "tier": {
             "title": "Tier",
             "type": "string"
@@ -1659,9 +1707,16 @@
             "type": "integer"
           },
           "verified_on": {
-            "format": "date",
-            "title": "Verified On",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified On"
           }
         },
         "required": [
@@ -1730,6 +1785,25 @@
       },
       "ExamRead": {
         "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authority"
+          },
           "category": {
             "anyOf": [
               {
@@ -1744,6 +1818,17 @@
           "code": {
             "title": "Code",
             "type": "string"
+          },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
           },
           "custom": {
             "default": false,

@@ -19,6 +19,10 @@ class ExamRead(BaseModel):
     featured: bool = False
     # True for an exam the learner created (private to them).
     custom: bool = False
+    # Catalog data set by the operator (null/empty when not recorded).
+    country_code: str | None = None
+    authority: str | None = None
+    aliases: list[str] = []
 
 
 class CustomExamCreate(BaseModel):

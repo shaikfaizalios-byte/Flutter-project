@@ -70,6 +70,9 @@ def exam_read(exam: Exam) -> ExamRead:
         category=exam.category,
         featured=exam.featured,
         custom=exam.owner_id is not None,
+        country_code=exam.country_code,
+        authority=exam.authority,
+        aliases=list(exam.aliases or []),
     )
 
 

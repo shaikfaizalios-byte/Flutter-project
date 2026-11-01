@@ -46,6 +46,7 @@ from app.schemas.question import (
     QuestionUpdate,
     TopicRead,
 )
+from app.services.exam_formats import published_formats
 from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
 from app.services.question_history import (
     current_snapshot,
@@ -235,10 +236,10 @@ class QuestionService:
         return [PatternRead.model_validate(p) for p in self._session.scalars(stmt).all()]
 
     def exam_formats(self, exam_code: str | None) -> list[ExamFormatRead]:
-        stmt = select(ExamFormat).order_by(ExamFormat.exam_code, ExamFormat.code)
-        if exam_code:
-            stmt = stmt.where(ExamFormat.exam_code == exam_code)
-        return [ExamFormatRead.model_validate(f) for f in self._session.scalars(stmt).all()]
+        """Published formats (verified and retired, with their status); never drafts."""
+        return [
+            ExamFormatRead.model_validate(f) for f in published_formats(self._session, exam_code)
+        ]
 
     def parse_summary(self, document_id: uuid.UUID) -> ParseSummary:
         document = self._session.get(Document, document_id)

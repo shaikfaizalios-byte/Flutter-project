@@ -105,6 +105,8 @@ def test_an_incomplete_format_is_listed_but_cannot_start_a_mock(
             source_reference="Test",
             source_published_on=date(2026, 1, 1),
             verified_on=date(2026, 1, 1),
+            status="verified",
+            reviewed_by="Test",
         )
     )
     db_session.flush()

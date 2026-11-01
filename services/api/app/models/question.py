@@ -41,12 +41,32 @@ class TopicStatus(StrEnum):
     CONFIRMED = "confirmed"
 
 
+class FormatStatus(StrEnum):
+    DRAFT = "draft"  # imported, not reviewed: never used for mocks or checks
+    VERIFIED = "verified"  # checked against its official source and published by a reviewer
+    RETIRED = "retired"  # replaced by a newer format; old attempts keep pointing at it
+
+
 class ExamFormat(Base):
-    """A verified exam paper layout. Only formats confirmed against an official source are
-    stored; the source is recorded so it can be re-checked. Unknown formats simply have no
-    row, and count-based checks are skipped for them."""
+    """One version of an exam's paper layout and marking, with its official source.
+
+    A format is a version: a new notice becomes a new row (``supersedes_id``), never an edit,
+    so past attempts keep the rules they were taken under. Only ``verified`` formats in effect
+    are used for mocks; drafts are checked and published with ``python -m app.cli.exam_formats``.
+    Unknown formats simply have no row, and count-based checks are skipped for them."""
 
     __tablename__ = "exam_formats"
+    __table_args__ = (
+        CheckConstraint("status IN ('draft', 'verified', 'retired')", name="status_valid"),
+        CheckConstraint(
+            "status = 'draft' OR (verified_on IS NOT NULL AND reviewed_by IS NOT NULL)",
+            name="published_is_reviewed",
+        ),
+        CheckConstraint(
+            "effective_to IS NULL OR effective_from IS NULL OR effective_to >= effective_from",
+            name="effective_range",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     code: Mapped[str] = mapped_column(String(64), unique=True)
@@ -65,7 +85,24 @@ class ExamFormat(Base):
     source_url: Mapped[str] = mapped_column(String(500))
     source_reference: Mapped[str] = mapped_column(String(300))
     source_published_on: Mapped[date] = mapped_column(Date)
-    verified_on: Mapped[date] = mapped_column(Date)
+    verified_on: Mapped[date | None] = mapped_column(Date)
+    status: Mapped[str] = mapped_column(
+        String(10), default=FormatStatus.DRAFT, server_default="draft"
+    )
+    # Dates the format applies to (null: open-ended). Mocks use formats in effect today.
+    effective_from: Mapped[date | None] = mapped_column(Date)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+    supersedes_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("exam_formats.id", ondelete="SET NULL")
+    )
+    # Answer types the paper uses (choice, typed); mocks are built from these only.
+    question_types: Mapped[list[str]] = mapped_column(
+        ARRAY(String(8)), default=lambda: ["choice"], server_default="{choice}"
+    )
+    # Each section has its own timer (its timer_minutes) and sections are taken in order.
+    sectional_timing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    reviewed_by: Mapped[str | None] = mapped_column(String(100))
+    review_notes: Mapped[str | None] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
