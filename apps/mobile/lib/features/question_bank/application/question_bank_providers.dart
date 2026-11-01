@@ -20,6 +20,12 @@ final questionProvider = FutureProvider.autoDispose.family<BankQuestion, String>
   retry: _noRetry,
 );
 
+/// A question's history, oldest first (own questions only).
+final questionRevisionsProvider = FutureProvider.autoDispose.family<List<QuestionRevision>, String>(
+  (ref, id) => ref.watch(questionsRepositoryProvider).revisions(id),
+  retry: _noRetry,
+);
+
 final parseSummaryProvider = FutureProvider.autoDispose.family<ParseSummary, String>(
   (ref, documentId) => ref.watch(questionsRepositoryProvider).parseSummary(documentId),
   retry: _noRetry,

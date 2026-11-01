@@ -3189,6 +3189,132 @@ abstract class AppLocalizations {
   /// **'Could not load your devices'**
   String get devicesLoadFailed;
 
+  /// No description provided for @answerOriginPaperKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer from the paper\'s answer key, as PrepLoop read it.'**
+  String get answerOriginPaperKey;
+
+  /// No description provided for @answerOriginPaperInline.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer printed with the question in the paper, as PrepLoop read it.'**
+  String get answerOriginPaperInline;
+
+  /// No description provided for @answerOriginAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer written by AI with the question. Check it before approving.'**
+  String get answerOriginAi;
+
+  /// No description provided for @answerOriginReviewerPaperSaid.
+  ///
+  /// In en, this message translates to:
+  /// **'You set this answer. The paper said {answer}.'**
+  String answerOriginReviewerPaperSaid(String answer);
+
+  /// No description provided for @answerOriginReviewerPaperNone.
+  ///
+  /// In en, this message translates to:
+  /// **'You set this answer. The paper gave none.'**
+  String get answerOriginReviewerPaperNone;
+
+  /// No description provided for @answerOriginReviewerUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'You set or changed this answer. What the paper said was not recorded (read before history was kept).'**
+  String get answerOriginReviewerUnknown;
+
+  /// No description provided for @approveIsNotOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Approving means you checked this question. It is not an official answer key.'**
+  String get approveIsNotOfficial;
+
+  /// No description provided for @questionHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit history'**
+  String get questionHistoryTitle;
+
+  /// No description provided for @questionHistoryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the history'**
+  String get questionHistoryFailed;
+
+  /// No description provided for @questionHistoryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No history recorded for this question.'**
+  String get questionHistoryNone;
+
+  /// No description provided for @historyReadByRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from the paper by PrepLoop'**
+  String get historyReadByRules;
+
+  /// No description provided for @historyReadByAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from the paper by AI'**
+  String get historyReadByAi;
+
+  /// No description provided for @historyGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI'**
+  String get historyGenerated;
+
+  /// No description provided for @historyBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'History starts here (read before history was kept)'**
+  String get historyBaseline;
+
+  /// No description provided for @historyEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed in review: {fields}'**
+  String historyEdited(String fields);
+
+  /// No description provided for @historyFieldWording.
+  ///
+  /// In en, this message translates to:
+  /// **'wording'**
+  String get historyFieldWording;
+
+  /// No description provided for @historyFieldOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'options'**
+  String get historyFieldOptions;
+
+  /// No description provided for @historyFieldAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'answer'**
+  String get historyFieldAnswer;
+
+  /// No description provided for @historyFieldExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'explanation'**
+  String get historyFieldExplanation;
+
+  /// No description provided for @historyAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer: {answer}'**
+  String historyAnswer(String answer);
+
+  /// No description provided for @historyNoAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer'**
+  String get historyNoAnswer;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

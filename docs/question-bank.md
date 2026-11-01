@@ -145,6 +145,37 @@ each paper has a suggested/confirmed **exam date and shift**. Both feed the repe
 Questions have `origin`: `source` (from an upload) or `ai` (Phase 9). The app always shows which one,
 and AI questions are never presented as official previous-year questions.
 
+## Question history and answer provenance (global Phase 2)
+
+Edits never erase what the paper said. `question_revisions` (migration `0030`) is append-only;
+each row is a snapshot of the tracked fields (`stem`, `options`, `answer_type`,
+`correct_option_position`, `typed_answer`, `model_answer`, `answer_source`, `explanation`) after
+one action:
+
+| action | actor | when |
+|---|---|---|
+| `extracted` | `rules` / `ai` | the question is read from its paper (segmenter, Q&A notes, AI reading) |
+| `generated` | `ai` | an AI practice question is created |
+| `baseline` | `migration` | questions that existed before `0030`: their state when history began (earlier edits unknown, so it never counts as the paper's answer) |
+| `edited` | `reviewer` | `PATCH /questions/{id}` changed a tracked field (`changed` lists which) |
+
+Status-only changes (approve, reject, verify-clean, reports) add no revision; `verified_at` and
+issues record those. Rules are pure in `app/domain/question_history.py`; writing/reading in
+`app/services/question_history.py`.
+
+`QuestionRead` adds `answer_origin` — `paper` (`answer_source` answer_key/inline, as read),
+`reviewer` (set or changed in review, or with no recorded source), `ai`, `none` — and, for a
+reviewer's answer, `paper_answer` taken from the `extracted` snapshot (all null: the paper gave
+none; `paper_answer` null: not recorded). `GET /questions/{id}/revisions` lists the history (own
+questions only; others → 404). The app shows the origin under the answer ("You set this answer.
+The paper said (b) 30."), says approving is not an official answer key, and lists the history
+("Edit history") on the review screen. Practice and scoring still read the effective answer
+columns, so nothing else changed.
+
+Not built: an "official key matched" state (needs an official answer-key source per paper) and
+"independently checked" (needs a second reviewer); the app's "Verified" status still means "checked
+by the paper's owner".
+
 ## Known limitations
 
 - Passages without a stated question range ("Read the passage and answer the questions that follow")

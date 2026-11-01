@@ -289,6 +289,13 @@ class Question(Base):
         passive_deletes=True,
         order_by="QuestionFigure.sort_order",
     )
+    # Append-only history; new questions add their first revision through this list, later
+    # revisions are added directly (see app/services/question_history.py).
+    revisions: Mapped[list["QuestionRevision"]] = relationship(
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="QuestionRevision.created_at",
+    )
 
 
 class QuestionOption(Base):
@@ -356,3 +363,31 @@ class QuestionFigure(Base):
     content_type: Mapped[str] = mapped_column(String(32), default="image/png")
     data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class QuestionRevision(Base):
+    """A snapshot of a question's wording and answer after one action (append-only).
+
+    The first "extracted" revision keeps the question as read from its paper, so the paper's
+    own answer stays known after a reviewer changes it (app/domain/question_history.py).
+    """
+
+    __tablename__ = "question_revisions"
+    __table_args__ = (
+        CheckConstraint(
+            "action IN ('extracted', 'generated', 'baseline', 'edited')", name="action_valid"
+        ),
+        CheckConstraint("actor IN ('rules', 'ai', 'reviewer', 'migration')", name="actor_valid"),
+        Index("ix_question_revisions_question_created", "question_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    question_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"))
+    action: Mapped[str] = mapped_column(String(10))
+    actor: Mapped[str] = mapped_column(String(10))
+    # Tracked fields that changed with this action (all of them for the first revision).
+    changed: Mapped[list[str]] = mapped_column(ARRAY(String(32)), default=list)
+    snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.clock_timestamp()
+    )

@@ -56,6 +56,7 @@ from app.models.question import (
 )
 from app.services.page_layout import PdfRenderer, read_layouts
 from app.services.patterns import pattern_candidates, refresh_pattern
+from app.services.question_history import add_first_revision
 from app.services.topic_service import visible_topics
 
 logger = logging.getLogger("app.segmentation")
@@ -313,6 +314,7 @@ class SegmentationService:
             question.issues = [
                 QuestionIssue(document_id=document.id, code=i.code, detail=i.detail) for i in issues
             ]
+            add_first_revision(question, "extracted", "rules")
             refresh_pattern(question, patterns)
             self._session.add(question)
             created += 1
@@ -373,6 +375,7 @@ class SegmentationService:
             QuestionIssue(document_id=document.id, code=i.code, detail=i.detail)
             for i in parsed.issues
         ]
+        add_first_revision(question, "extracted", "rules")
         return question
 
 

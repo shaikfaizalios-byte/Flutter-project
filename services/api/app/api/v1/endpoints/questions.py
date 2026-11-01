@@ -12,6 +12,7 @@ from app.schemas.question import (
     PatternRead,
     QuestionList,
     QuestionRead,
+    QuestionRevisionRead,
     QuestionUpdate,
     TopicRead,
     VerificationLiteral,
@@ -88,6 +89,17 @@ def get_question(question_id: uuid.UUID, service: Service) -> QuestionRead:
 )
 def update_question(question_id: uuid.UUID, body: QuestionUpdate, service: Service) -> QuestionRead:
     return service.update(question_id, body)
+
+
+@router.get(
+    "/questions/{question_id}/revisions",
+    response_model=list[QuestionRevisionRead],
+    tags=["questions"],
+    responses=NOT_FOUND,
+    summary="The question's history: as read from its paper, then every edit (own questions)",
+)
+def list_question_revisions(question_id: uuid.UUID, service: Service) -> list[QuestionRevisionRead]:
+    return service.revisions(question_id)
 
 
 @router.get(

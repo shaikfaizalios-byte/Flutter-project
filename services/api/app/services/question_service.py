@@ -10,7 +10,7 @@ from sqlalchemy import Select, and_, exists, func, or_, select
 from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
-from app.domain import ai_reading, typed_answers
+from app.domain import ai_reading, question_history, typed_answers
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.segmentation import EXPECTED_OPTIONS, Issue, IssueCode, content_issues
 from app.models.ai import AIExplanation, DraftStatus
@@ -35,16 +35,24 @@ from app.schemas.question import (
     FigureRead,
     IssueRead,
     OptionRead,
+    PaperAnswerRead,
     PaperDateRead,
     ParseSummary,
     PassageRead,
     PatternRead,
     QuestionList,
     QuestionRead,
+    QuestionRevisionRead,
     QuestionUpdate,
     TopicRead,
 )
 from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
+from app.services.question_history import (
+    current_snapshot,
+    extracted_snapshots,
+    record_edit,
+)
+from app.services.question_history import revisions as question_revisions
 from app.services.shared_bank import visible_question
 from app.services.topic_service import topic_scope
 
@@ -319,6 +327,7 @@ class QuestionService:
 
     def update(self, question_id: uuid.UUID, data: QuestionUpdate) -> QuestionRead:
         question = self._get_or_404(question_id)
+        before = current_snapshot(question)
         changes = data.model_dump(exclude_unset=True)
         status = changes.pop("verification_status", None)
 
@@ -389,6 +398,7 @@ class QuestionService:
 
         content_changed = bool(data.model_fields_set - {"verification_status"})
         self._refresh_content_issues(question)
+        record_edit(self._session, question, before)
 
         if status == VerificationStatus.VERIFIED:
             self._verify(question)
@@ -403,6 +413,14 @@ class QuestionService:
         self._session.commit()
         self._session.expire(question)  # reload relationships changed via their ids
         return self.get(question_id)
+
+    def revisions(self, question_id: uuid.UUID) -> list[QuestionRevisionRead]:
+        """The question's history, oldest first (own questions only)."""
+        question = self._get_or_404(question_id)
+        return [
+            QuestionRevisionRead.model_validate(r)
+            for r in question_revisions(self._session, question.id)
+        ]
 
     def report(self, question_id: uuid.UUID, reason: str, note: str) -> QuestionRead:
         """A learner flags a question. It gets an open "learner_report" issue and, if it was
@@ -640,9 +658,29 @@ class QuestionService:
         sources = self._shared_sources(
             {q.document_id for q in questions if q.owner_id != self._owner_id}
         )
+        extracted = extracted_snapshots(
+            self._session,
+            [q.id for q in questions if q.answer_source not in ("answer_key", "inline", "ai")],
+        )
         reads = []
         for q in questions:
             read = self._read(q, filenames, explanations.get(q.id))
+            origin = question_history.answer_origin(
+                origin=q.origin,
+                answer_source=q.answer_source,
+                answered=question_history.has_answer(current_snapshot(q)),
+            )
+            paper = (
+                question_history.paper_answer(extracted.get(q.id)) if origin == "reviewer" else None
+            )
+            read = read.model_copy(
+                update={
+                    "answer_origin": origin,
+                    "paper_answer": PaperAnswerRead.model_validate(paper, from_attributes=True)
+                    if paper
+                    else None,
+                }
+            )
             if q.owner_id != self._owner_id:
                 # Someone else's paper from the shared bank: read-only, and the publisher's
                 # file name and review notes are replaced by the recorded source.

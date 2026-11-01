@@ -68,6 +68,7 @@ from app.schemas.document import DocumentRead
 from app.schemas.question import AIExplanationRead
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.plus_service import PlusService
+from app.services.question_history import add_first_revision
 from app.services.question_service import QuestionService
 from app.services.rag_service import RagRetriever
 from app.services.topic_service import topic_scope, visible_topics
@@ -284,6 +285,7 @@ class AIService:
                 QuestionOption(position=i, label=str(i), text=text)
                 for i, text in enumerate(valid.options, start=1)
             ]
+            add_first_revision(question, "generated", "ai")
             if request.language == "hi":
                 question.issues = [
                     QuestionIssue(

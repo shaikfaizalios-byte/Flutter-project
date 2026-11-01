@@ -15,6 +15,7 @@ import '../application/question_bank_providers.dart';
 import '../data/questions_repository.dart';
 import '../domain/question.dart';
 import 'figure_view.dart';
+import 'question_history_widgets.dart';
 import 'question_widgets.dart';
 
 class QuestionReviewScreen extends ConsumerWidget {
@@ -137,6 +138,7 @@ class _SharedQuestionView extends StatelessWidget {
                 Text('${l10n.fieldTypedAnswer}: ${q.typedAnswer}')
               else if (correct != null)
                 Text(l10n.sessionCorrectAnswer(correct.label)),
+              AnswerOriginNote(question: q),
               if (q.explanation != null && q.explanation!.trim().isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),
                 Text(l10n.questionExplanationTitle, style: theme.textTheme.titleSmall),
@@ -279,6 +281,7 @@ class _EditorState extends ConsumerState<_Editor> {
       if (!mounted) return;
       setState(() => _load(updated));
       ref.invalidate(questionListProvider);
+      ref.invalidate(questionRevisionsProvider(updated.id));
       if (updated.documentId != null) ref.invalidate(parseSummaryProvider(updated.documentId!));
       messenger.showSnackBar(
         SnackBar(
@@ -488,6 +491,11 @@ class _EditorState extends ConsumerState<_Editor> {
             ],
           ),
         ],
+        AnswerOriginNote(question: q),
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
+          child: Text(l10n.approveIsNotOfficial, style: Theme.of(context).textTheme.bodySmall),
+        ),
         const SizedBox(height: AppSpacing.md),
         _TopicPicker(
           examCode: q.examCode,
@@ -519,6 +527,8 @@ class _EditorState extends ConsumerState<_Editor> {
           minLines: 2,
           maxLines: 8,
         ),
+        const SizedBox(height: AppSpacing.md),
+        QuestionHistoryTile(questionId: q.id),
         const SizedBox(height: 96),
       ],
     );

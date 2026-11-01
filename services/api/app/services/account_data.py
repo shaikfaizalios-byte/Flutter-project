@@ -28,6 +28,7 @@ from app.models.question import (
     QuestionIssue,
     QuestionOption,
     QuestionPattern,
+    QuestionRevision,
     SyllabusImport,
     Topic,
 )
@@ -74,6 +75,7 @@ CHILD_DATA: tuple[ChildData, ...] = (
     # Figure metadata only: the crops themselves are images of the account's own paper.
     ChildData(QuestionFigure, (("question_id", "questions"),)),
     ChildData(AIExplanation, (("question_id", "questions"),)),
+    ChildData(QuestionRevision, (("question_id", "questions"),)),
     ChildData(Bookmark, (("question_id", "questions"),)),
     # By session only: a session may include shared-bank questions owned by the operator,
     # and the operator's export must never contain other learners' answers.

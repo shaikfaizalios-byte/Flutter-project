@@ -150,6 +150,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a
   recorded official source; topic keywords only suggest. See docs/question-bank.md.
+- Question history (global Phase 2): append-only `question_revisions` (migration 0030; snapshots of wording + answer;
+  `extracted`/`generated`/`baseline`/`edited`), written at every creation path and by `PATCH /questions/{id}`;
+  `QuestionRead.answer_origin` (paper|reviewer|ai|none) + `paper_answer` (from the extracted snapshot);
+  `GET /questions/{id}/revisions`; app: answer origin line, "not an official answer key" note, Edit history.
+  See docs/question-bank.md.
 - Figures: after segmentation the worker reads page layouts with PDFium (`app/services/page_layout.py`) and
   the pure `app/domain/figures.py` assigns figure crops (stem / option / `original` = question as printed)
   to questions → `question_figures` (PNG in Postgres), served by `GET /questions/{id}/figures/{fid}`; mobile

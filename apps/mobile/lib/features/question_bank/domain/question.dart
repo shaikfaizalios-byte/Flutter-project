@@ -223,6 +223,107 @@ class AiExplanation {
   final bool edited;
 }
 
+/// The answer the paper gave when PrepLoop first read the question (all null: it gave none).
+@immutable
+class PaperAnswer {
+  const PaperAnswer({
+    this.source,
+    this.optionPosition,
+    this.optionLabel,
+    this.optionText,
+    this.typedAnswer,
+    this.writtenAnswer,
+  });
+
+  factory PaperAnswer.fromJson(Map<String, dynamic> json) => PaperAnswer(
+    source: json['source'] as String?,
+    optionPosition: json['option_position'] as int?,
+    optionLabel: json['option_label'] as String?,
+    optionText: json['option_text'] as String?,
+    typedAnswer: json['typed_answer'] as String?,
+    writtenAnswer: json['written_answer'] as String?,
+  );
+
+  /// `answer_key` or `inline` (printed with the question); null: the paper gave no answer.
+  final String? source;
+  final int? optionPosition;
+  final String? optionLabel;
+  final String? optionText;
+  final String? typedAnswer;
+  final String? writtenAnswer;
+}
+
+/// A question's wording and answer at one point of its history.
+@immutable
+class QuestionSnapshot {
+  const QuestionSnapshot({
+    required this.stem,
+    required this.options,
+    required this.answerType,
+    this.correctPosition,
+    this.typedAnswer,
+    this.modelAnswer,
+  });
+
+  factory QuestionSnapshot.fromJson(Map<String, dynamic> json) => QuestionSnapshot(
+    stem: json['stem'] as String,
+    options: [
+      for (final o in json['options'] as List<dynamic>)
+        ((o as Map<String, dynamic>)['label'] as String, o['text'] as String),
+    ],
+    answerType: json['answer_type'] as String? ?? 'choice',
+    correctPosition: json['correct_option_position'] as int?,
+    typedAnswer: json['typed_answer'] as String?,
+    modelAnswer: json['model_answer'] as String?,
+  );
+
+  final String stem;
+
+  /// (printed label, text) in display order.
+  final List<(String, String)> options;
+  final String answerType;
+  final int? correctPosition;
+  final String? typedAnswer;
+  final String? modelAnswer;
+}
+
+/// One entry of a question's history (oldest first): its state after the action.
+@immutable
+class QuestionRevision {
+  const QuestionRevision({
+    required this.id,
+    required this.action,
+    required this.actor,
+    required this.changed,
+    required this.snapshot,
+    required this.createdAt,
+  });
+
+  factory QuestionRevision.fromJson(Map<String, dynamic> json) => QuestionRevision(
+    id: json['id'] as String,
+    action: json['action'] as String,
+    actor: json['actor'] as String,
+    changed: [for (final c in json['changed'] as List<dynamic>) c as String],
+    snapshot: QuestionSnapshot.fromJson(json['snapshot'] as Map<String, dynamic>),
+    createdAt: DateTime.parse(json['created_at'] as String),
+  );
+
+  final String id;
+
+  /// extracted (read from the paper), generated (written by AI), baseline (the state when
+  /// history began; earlier edits unknown) or edited (changed in review).
+  final String action;
+
+  /// rules (PrepLoop's reading rules), ai, reviewer or migration.
+  final String actor;
+
+  /// Fields that changed: stem, options, answer_type, correct_option_position,
+  /// typed_answer, model_answer, answer_source, explanation.
+  final List<String> changed;
+  final QuestionSnapshot snapshot;
+  final DateTime createdAt;
+}
+
 class BankQuestion {
   const BankQuestion({
     required this.id,
@@ -261,6 +362,8 @@ class BankQuestion {
     this.aiExplanation,
     this.readOnly = false,
     this.sharedSource,
+    this.answerOrigin = 'none',
+    this.paperAnswer,
   });
 
   factory BankQuestion.fromJson(Map<String, dynamic> json) => BankQuestion(
@@ -304,6 +407,10 @@ class BankQuestion {
     typedAnswerNumeric: json['typed_answer_numeric'] as bool? ?? false,
     modelAnswer: json['model_answer'] as String?,
     answerSource: json['answer_source'] as String?,
+    answerOrigin: json['answer_origin'] as String? ?? 'none',
+    paperAnswer: json['paper_answer'] == null
+        ? null
+        : PaperAnswer.fromJson(json['paper_answer'] as Map<String, dynamic>),
     readByAi: json['extracted_by'] == 'ai',
     explanation: json['explanation'] as String?,
     imageDependent: json['image_dependent'] as bool,
@@ -368,6 +475,14 @@ class BankQuestion {
   final String? modelAnswer;
   final String? answerSource;
 
+  /// Where the current answer comes from: `paper` (as read from it), `reviewer` (set or
+  /// changed in review), `ai` (AI-generated question) or `none`.
+  final String answerOrigin;
+
+  /// What the paper said, when the answer is a reviewer's and the question's history goes
+  /// back to its reading; null when that isn't known.
+  final PaperAnswer? paperAnswer;
+
   /// Read out of the paper by AI (compare with the source page before verifying).
   final bool readByAi;
   final String? explanation;
@@ -417,6 +532,8 @@ class BankQuestion {
     typedAnswerNumeric: typedAnswerNumeric,
     modelAnswer: modelAnswer,
     answerSource: answerSource,
+    answerOrigin: answerOrigin,
+    paperAnswer: paperAnswer,
     readByAi: readByAi,
     explanation: explanation,
     topicSuggestedBy: topicSuggestedBy != null ? topicSuggestedBy() : this.topicSuggestedBy,

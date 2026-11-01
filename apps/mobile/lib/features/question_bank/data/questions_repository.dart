@@ -14,6 +14,9 @@ abstract interface class QuestionsRepository {
   Future<BankQuestion> get(String id);
   Future<BankQuestion> update(String id, QuestionEdit edit);
 
+  /// The question's history, oldest first (own questions only).
+  Future<List<QuestionRevision>> revisions(String id);
+
   /// Topics the learner can use (for one exam when given).
   Future<List<TopicRef>> topics({String? examCode});
 
@@ -72,6 +75,12 @@ class RemoteQuestionsRepository implements QuestionsRepository {
       data: edit.toJson(),
     );
     return BankQuestion.fromJson(response.data!);
+  });
+
+  @override
+  Future<List<QuestionRevision>> revisions(String id) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>('/api/v1/questions/$id/revisions');
+    return [for (final r in response.data!) QuestionRevision.fromJson(r as Map<String, dynamic>)];
   });
 
   @override

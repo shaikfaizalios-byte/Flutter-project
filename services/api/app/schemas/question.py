@@ -128,6 +128,18 @@ class VerifyCleanResult(BaseModel):
     left_for_review: int  # unverified questions that still need a reviewer
 
 
+class PaperAnswerRead(BaseModel):
+    """The answer the paper gave when PrepLoop first read the question (all null: the paper
+    gave none)."""
+
+    source: Literal["answer_key", "inline"] | None
+    option_position: int | None
+    option_label: str | None
+    option_text: str | None
+    typed_answer: str | None
+    written_answer: str | None
+
+
 class QuestionRead(BaseModel):
     id: uuid.UUID
     origin: Literal["source", "ai"]
@@ -179,6 +191,44 @@ class QuestionRead(BaseModel):
     # read-only for everyone but its owner; `shared_source` says where the paper came from.
     read_only: bool = False
     shared_source: str | None = None
+    # Where the current answer comes from: "paper" (its answer key or printed with the
+    # question, as read), "reviewer" (set or changed in review), "ai" (AI-generated
+    # question), "none" (no answer yet). A reviewer's answer is never shown as the paper's.
+    answer_origin: Literal["paper", "reviewer", "ai", "none"] = "none"
+    # What the paper said, when the current answer is a reviewer's and the question's
+    # history goes back to its reading (null when it doesn't: read before history began).
+    paper_answer: PaperAnswerRead | None = None
+
+
+class SnapshotOption(BaseModel):
+    label: str
+    text: str
+
+
+class QuestionSnapshotRead(BaseModel):
+    stem: str
+    options: list[SnapshotOption]
+    answer_type: Literal["choice", "typed", "written"]
+    correct_option_position: int | None
+    typed_answer: str | None
+    model_answer: str | None
+    answer_source: str | None
+    explanation: str | None
+
+
+class QuestionRevisionRead(BaseModel):
+    """One entry of a question's history (oldest first): its state after the action."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    # extracted: read from the paper; generated: written by AI; baseline: the state when
+    # history began (earlier edits unknown); edited: changed in review.
+    action: Literal["extracted", "generated", "baseline", "edited"]
+    actor: Literal["rules", "ai", "reviewer", "migration"]
+    changed: list[str]
+    snapshot: QuestionSnapshotRead
+    created_at: datetime
 
 
 class QuestionList(BaseModel):

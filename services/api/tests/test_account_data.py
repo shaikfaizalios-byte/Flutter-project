@@ -24,6 +24,7 @@ from app.models.question import (
     QuestionIssue,
     QuestionOption,
     QuestionPattern,
+    QuestionRevision,
     SyllabusImport,
     Topic,
 )
@@ -176,6 +177,13 @@ def _fill_account(db: Session, user: User) -> None:
                 prompt_version="1",
             ),
             Bookmark(question_id=question.id),
+            QuestionRevision(
+                question_id=question.id,
+                action="extracted",
+                actor="rules",
+                changed=["stem"],
+                snapshot={"stem": "2 : 3 = ?"},
+            ),
             SessionAnswer(
                 session_id=session.id,
                 position=1,

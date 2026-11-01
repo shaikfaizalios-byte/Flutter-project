@@ -1341,6 +1341,48 @@
     }
   },
   "devicesLoadFailed": "Could not load your devices",
+  "answerOriginPaperKey": "Answer from the paper's answer key, as PrepLoop read it.",
+  "answerOriginPaperInline": "Answer printed with the question in the paper, as PrepLoop read it.",
+  "answerOriginAi": "Answer written by AI with the question. Check it before approving.",
+  "answerOriginReviewerPaperSaid": "You set this answer. The paper said {answer}.",
+  "@answerOriginReviewerPaperSaid": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "answerOriginReviewerPaperNone": "You set this answer. The paper gave none.",
+  "answerOriginReviewerUnknown": "You set or changed this answer. What the paper said was not recorded (read before history was kept).",
+  "approveIsNotOfficial": "Approving means you checked this question. It is not an official answer key.",
+  "questionHistoryTitle": "Edit history",
+  "questionHistoryFailed": "Could not load the history",
+  "questionHistoryNone": "No history recorded for this question.",
+  "historyReadByRules": "Read from the paper by PrepLoop",
+  "historyReadByAi": "Read from the paper by AI",
+  "historyGenerated": "Written by AI",
+  "historyBaseline": "History starts here (read before history was kept)",
+  "historyEdited": "Changed in review: {fields}",
+  "@historyEdited": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "historyFieldWording": "wording",
+  "historyFieldOptions": "options",
+  "historyFieldAnswer": "answer",
+  "historyFieldExplanation": "explanation",
+  "historyAnswer": "Answer: {answer}",
+  "@historyAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "historyNoAnswer": "No answer",
   "accountExport": "Copy my data",
   "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
   "accountSignOut": "Sign out",

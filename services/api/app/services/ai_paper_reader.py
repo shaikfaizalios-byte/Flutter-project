@@ -35,6 +35,7 @@ from app.models.question import (
 )
 from app.services.page_layout import PdfRenderer
 from app.services.patterns import pattern_candidates, refresh_pattern
+from app.services.question_history import add_first_revision
 from app.services.topic_service import visible_topics
 
 logger = logging.getLogger("app.ai_reading")
@@ -255,6 +256,7 @@ class AiPaperReader:
                 QuestionOption(position=i + 1, label=o.label, text=o.text)
                 for i, o in enumerate(read.options)
             ]
+            add_first_revision(question, "extracted", "ai")
             question.issues = [
                 QuestionIssue(document_id=document.id, code=i.code, detail=i.detail[:500])
                 for i in read.issues

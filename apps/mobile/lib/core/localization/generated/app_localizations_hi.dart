@@ -1952,6 +1952,78 @@ class AppLocalizationsHi extends AppLocalizations {
   String get devicesLoadFailed => 'आपके डिवाइस लोड नहीं हो सके';
 
   @override
+  String get answerOriginPaperKey => 'उत्तर पेपर की उत्तर कुंजी से, जैसा PrepLoop ने पढ़ा।';
+
+  @override
+  String get answerOriginPaperInline =>
+      'उत्तर पेपर में प्रश्न के साथ छपा था, जैसा PrepLoop ने पढ़ा।';
+
+  @override
+  String get answerOriginAi => 'यह उत्तर AI ने प्रश्न के साथ लिखा है। स्वीकृत करने से पहले जाँचें।';
+
+  @override
+  String answerOriginReviewerPaperSaid(String answer) {
+    return 'यह उत्तर आपने चुना है। पेपर में $answer था।';
+  }
+
+  @override
+  String get answerOriginReviewerPaperNone => 'यह उत्तर आपने चुना है। पेपर में कोई उत्तर नहीं था।';
+
+  @override
+  String get answerOriginReviewerUnknown =>
+      'यह उत्तर आपने चुना या बदला है। पेपर में क्या था, यह दर्ज नहीं है (इतिहास रखने से पहले पढ़ा गया)।';
+
+  @override
+  String get approveIsNotOfficial =>
+      'स्वीकृत करने का अर्थ है कि आपने यह प्रश्न जाँचा है। यह आधिकारिक उत्तर कुंजी नहीं है।';
+
+  @override
+  String get questionHistoryTitle => 'बदलावों का इतिहास';
+
+  @override
+  String get questionHistoryFailed => 'इतिहास लोड नहीं हो सका';
+
+  @override
+  String get questionHistoryNone => 'इस प्रश्न का कोई इतिहास दर्ज नहीं है।';
+
+  @override
+  String get historyReadByRules => 'PrepLoop ने पेपर से पढ़ा';
+
+  @override
+  String get historyReadByAi => 'AI ने पेपर से पढ़ा';
+
+  @override
+  String get historyGenerated => 'AI ने लिखा';
+
+  @override
+  String get historyBaseline => 'इतिहास यहाँ से शुरू (इतिहास रखने से पहले पढ़ा गया)';
+
+  @override
+  String historyEdited(String fields) {
+    return 'समीक्षा में बदला गया: $fields';
+  }
+
+  @override
+  String get historyFieldWording => 'शब्द';
+
+  @override
+  String get historyFieldOptions => 'विकल्प';
+
+  @override
+  String get historyFieldAnswer => 'उत्तर';
+
+  @override
+  String get historyFieldExplanation => 'व्याख्या';
+
+  @override
+  String historyAnswer(String answer) {
+    return 'उत्तर: $answer';
+  }
+
+  @override
+  String get historyNoAnswer => 'कोई उत्तर नहीं';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

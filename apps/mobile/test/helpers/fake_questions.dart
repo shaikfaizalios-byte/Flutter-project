@@ -37,6 +37,8 @@ BankQuestion bankQuestion({
   String? typedAnswer,
   String? sharedSource,
   bool readByAi = false,
+  String? answerOrigin,
+  PaperAnswer? paperAnswer,
 }) => BankQuestion(
   id: id,
   readByAi: readByAi,
@@ -64,6 +66,14 @@ BankQuestion bankQuestion({
   passage: passage,
   correctPosition: answer,
   answerSource: answer == null ? null : 'answer_key',
+  answerOrigin:
+      answerOrigin ??
+      (origin == QuestionOrigin.ai
+          ? 'ai'
+          : answer == null
+          ? 'none'
+          : 'paper'),
+  paperAnswer: paperAnswer,
   explanation: explanation,
   ai: ai,
   aiExplanation: aiExplanation,
@@ -127,6 +137,12 @@ class FakeQuestionsRepository implements QuestionsRepository {
     }).toList();
     return (items, items.length);
   }
+
+  /// History per question id (empty when not set).
+  final revisionsById = <String, List<QuestionRevision>>{};
+
+  @override
+  Future<List<QuestionRevision>> revisions(String id) async => revisionsById[id] ?? const [];
 
   @override
   Future<BankQuestion> get(String id) async =>

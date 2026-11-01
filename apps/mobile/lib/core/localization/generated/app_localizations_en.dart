@@ -1949,6 +1949,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devicesLoadFailed => 'Could not load your devices';
 
   @override
+  String get answerOriginPaperKey => 'Answer from the paper\'s answer key, as PrepLoop read it.';
+
+  @override
+  String get answerOriginPaperInline =>
+      'Answer printed with the question in the paper, as PrepLoop read it.';
+
+  @override
+  String get answerOriginAi => 'Answer written by AI with the question. Check it before approving.';
+
+  @override
+  String answerOriginReviewerPaperSaid(String answer) {
+    return 'You set this answer. The paper said $answer.';
+  }
+
+  @override
+  String get answerOriginReviewerPaperNone => 'You set this answer. The paper gave none.';
+
+  @override
+  String get answerOriginReviewerUnknown =>
+      'You set or changed this answer. What the paper said was not recorded (read before history was kept).';
+
+  @override
+  String get approveIsNotOfficial =>
+      'Approving means you checked this question. It is not an official answer key.';
+
+  @override
+  String get questionHistoryTitle => 'Edit history';
+
+  @override
+  String get questionHistoryFailed => 'Could not load the history';
+
+  @override
+  String get questionHistoryNone => 'No history recorded for this question.';
+
+  @override
+  String get historyReadByRules => 'Read from the paper by PrepLoop';
+
+  @override
+  String get historyReadByAi => 'Read from the paper by AI';
+
+  @override
+  String get historyGenerated => 'Written by AI';
+
+  @override
+  String get historyBaseline => 'History starts here (read before history was kept)';
+
+  @override
+  String historyEdited(String fields) {
+    return 'Changed in review: $fields';
+  }
+
+  @override
+  String get historyFieldWording => 'wording';
+
+  @override
+  String get historyFieldOptions => 'options';
+
+  @override
+  String get historyFieldAnswer => 'answer';
+
+  @override
+  String get historyFieldExplanation => 'explanation';
+
+  @override
+  String historyAnswer(String answer) {
+    return 'Answer: $answer';
+  }
+
+  @override
+  String get historyNoAnswer => 'No answer';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override
