@@ -2137,6 +2137,14 @@
             "title": "Exam Format Code",
             "type": "string"
           },
+          "format_problems": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Format Problems",
+            "type": "array"
+          },
           "name": {
             "title": "Name",
             "type": "string"

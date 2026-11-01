@@ -1623,6 +1623,12 @@ abstract class AppLocalizations {
   /// **'Start mock test'**
   String get mockStart;
 
+  /// No description provided for @mockFormatIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam format is missing official details (marks, negative marking or time), so this mock is not available yet.'**
+  String get mockFormatIncomplete;
+
   /// No description provided for @mockUnavailable.
   ///
   /// In en, this message translates to:

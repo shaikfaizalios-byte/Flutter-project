@@ -232,6 +232,8 @@ class MockAvailability(BaseModel):
     exam_code: str
     name: str
     available: bool
+    # Facts the format does not state (English); a mock can't start until they are verified.
+    format_problems: list[str] = []
     total_questions: int
     duration_minutes: int | None
     negative_marks_per_wrong: float | None

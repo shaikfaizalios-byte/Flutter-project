@@ -32,6 +32,13 @@ review edits to a question therefore never change a session that has already sta
   count per section, duration and negative marks all come from the format row.
   - Marks per question = section `max_marks` ÷ section `questions`.
   - Wrong answer = −`negative_marks_per_wrong`.
+  - Nothing is filled in with a default. The pure `app/domain/exam_format.py` `format_problems()`
+    lists every missing fact (a section without subject, question count or `max_marks`; counts that
+    don't add up to `total_questions`; no duration; negative marking not stated — `0` means "none",
+    `NULL` means "not verified"). A format with problems is listed with `available: false` and
+    `format_problems` (English details; the app shows a localised "missing official details" line),
+    and starting it returns `422 format_incomplete`. `tests/test_exam_format.py` also checks that
+    every seeded format is complete.
 - `GET /practice/mock-tests` lists each format with `available` and per-section `needed` / `available`
   counts. If any section lacks enough verified questions, starting it returns
   `422 not_enough_questions`, and the message says which sections are short. Sections are matched by subject name,

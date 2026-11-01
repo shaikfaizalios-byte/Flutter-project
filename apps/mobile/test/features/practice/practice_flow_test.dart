@@ -91,6 +91,45 @@ void main() {
     expect(find.text('Questions to revisit'), findsOneWidget);
   });
 
+  test('a format with problems is read as incomplete; older servers send none', () {
+    Map<String, dynamic> json([List<String>? problems]) => {
+      'exam_format_code': 'X',
+      'name': 'X',
+      'available': false,
+      'total_questions': 1,
+      'sections': <dynamic>[],
+      'format_problems': ?problems,
+    };
+    expect(MockTestView.fromJson(json(['No marks.'])).formatComplete, isFalse);
+    expect(MockTestView.fromJson(json([])).formatComplete, isTrue);
+    expect(MockTestView.fromJson(json()).formatComplete, isTrue);
+  });
+
+  testAppWidgets('an incomplete format says so and cannot be started', (tester, db) async {
+    await pumpPractice(
+      tester,
+      db,
+      mocks: [
+        const MockTestView(
+          code: 'X',
+          name: 'Incomplete format',
+          available: false,
+          totalQuestions: 25,
+          durationMinutes: 60,
+          formatComplete: false,
+          sections: [
+            SectionAvailabilityView(subject: 'General Awareness', needed: 25, available: 3),
+          ],
+        ),
+      ],
+    );
+
+    expect(find.textContaining('missing official details'), findsOneWidget);
+    expect(find.textContaining('General Awareness: 3 of 25'), findsNothing);
+    final start = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Start mock test'));
+    expect(start.onPressed, isNull);
+  });
+
   testAppWidgets('practice setup sends the chosen options', (tester, db) async {
     final repo = await pumpPractice(tester, db);
 

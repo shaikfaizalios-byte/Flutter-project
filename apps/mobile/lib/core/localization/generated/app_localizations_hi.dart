@@ -902,6 +902,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get mockStart => 'मॉक टेस्ट शुरू करें';
 
   @override
+  String get mockFormatIncomplete =>
+      'इस परीक्षा प्रारूप में आधिकारिक जानकारी (अंक, नेगेटिव मार्किंग या समय) अधूरी है, इसलिए यह मॉक टेस्ट अभी उपलब्ध नहीं है।';
+
+  @override
   String get mockUnavailable => 'अभी पर्याप्त जाँचे हुए प्रश्न नहीं हैं:';
 
   @override

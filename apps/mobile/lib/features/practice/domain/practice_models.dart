@@ -359,6 +359,7 @@ class MockTestView {
     this.examCode,
     this.durationMinutes,
     this.negativeMarks,
+    this.formatComplete = true,
   });
 
   factory MockTestView.fromJson(Map<String, dynamic> json) => MockTestView(
@@ -369,6 +370,7 @@ class MockTestView {
     totalQuestions: json['total_questions'] as int,
     durationMinutes: json['duration_minutes'] as int?,
     negativeMarks: (json['negative_marks_per_wrong'] as num?)?.toDouble(),
+    formatComplete: (json['format_problems'] as List<dynamic>? ?? const []).isEmpty,
     sections: [
       for (final s in json['sections'] as List<dynamic>)
         SectionAvailabilityView(
@@ -388,6 +390,10 @@ class MockTestView {
   final int totalQuestions;
   final int? durationMinutes;
   final double? negativeMarks;
+
+  /// False when the format does not state every fact a mock needs (marks, negative marking,
+  /// duration). The server then refuses to start it; nothing is filled in with a default.
+  final bool formatComplete;
   final List<SectionAvailabilityView> sections;
 }
 

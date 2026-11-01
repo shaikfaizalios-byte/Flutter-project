@@ -900,6 +900,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mockStart => 'Start mock test';
 
   @override
+  String get mockFormatIncomplete =>
+      'This exam format is missing official details (marks, negative marking or time), so this mock is not available yet.';
+
+  @override
   String get mockUnavailable => 'Not enough reviewed questions yet:';
 
   @override

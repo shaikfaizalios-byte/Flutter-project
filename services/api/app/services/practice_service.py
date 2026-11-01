@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
+from app.domain.exam_format import format_problems
 from app.domain.scoring import ScoredItem, is_correct, score_session, tally_json, to_decimal
 from app.domain.segmentation import same_subject
 from app.models.ai import AIExplanation, DraftStatus
@@ -83,6 +84,13 @@ class NotEnoughQuestionsError(DomainError):
     code = "not_enough_questions"
 
 
+class FormatIncompleteError(DomainError):
+    """The exam format does not state a fact the mock needs; nothing is filled in instead."""
+
+    status_code = 422
+    code = "format_incomplete"
+
+
 class InvalidAnswerError(DomainError):
     status_code = 422
     code = "invalid_answer"
@@ -97,6 +105,11 @@ def _answered(answer: SessionAnswer | None) -> bool:
 ANSWERED = or_(
     SessionAnswer.selected_position.is_not(None), SessionAnswer.typed_answer.is_not(None)
 )
+
+
+def _count(value: object) -> int:
+    """A section's question count as stated, or 0 (the format is then listed as incomplete)."""
+    return value if isinstance(value, int) and not isinstance(value, bool) and value > 0 else 0
 
 
 def _eligible(
@@ -346,6 +359,10 @@ class PracticeService:
         if exam_format is None:
             raise InvalidReferenceError(f"Unknown paper format '{request.exam_format_code}'.")
         availability, pools = self._availability(exam_format)
+        if availability.format_problems:
+            raise FormatIncompleteError(
+                "This paper format is incomplete: " + " ".join(availability.format_problems)
+            )
         if not availability.available:
             short = [
                 f"{s.subject}: {s.available} of {s.needed}"
@@ -355,8 +372,11 @@ class PracticeService:
             raise NotEnoughQuestionsError(
                 "Not enough reviewed questions for this mock test (" + "; ".join(short) + ")."
             )
-        if exam_format.duration_minutes is None:
-            raise NotEnoughQuestionsError("This format has no verified duration.")
+        # format_problems() has checked these; nothing below falls back to a default.
+        duration = exam_format.duration_minutes
+        negative = exam_format.negative_marks_per_wrong
+        if duration is None or negative is None:  # pragma: no cover - guarded above
+            raise FormatIncompleteError("This paper format is incomplete.")
 
         seed = random.SystemRandom().randrange(2**31)
         rng = random.Random(seed)  # noqa: S311 - question sampling, recorded for reproducibility
@@ -369,14 +389,13 @@ class PracticeService:
             selection={"exam_format_code": exam_format.code, "seed": seed},
             status=SessionStatus.ACTIVE,
             started_at=started,
-            deadline_at=started + timedelta(minutes=exam_format.duration_minutes),
+            deadline_at=started + timedelta(minutes=duration),
         )
         position = 0
         items: list[SessionItem] = []
-        negative = exam_format.negative_marks_per_wrong or 0.0
         for section, pool in zip(exam_format.sections, pools, strict=True):
             needed = int(section["questions"])
-            per_question = float(section["max_marks"]) / needed if section.get("max_marks") else 1.0
+            per_question = float(section["max_marks"]) / needed
             for question in rng.sample(pool, needed):
                 position += 1
                 item = self._item(
@@ -398,10 +417,16 @@ class PracticeService:
                 visible_question(self._owner_id),
             )
         ).all()
+        problems = format_problems(
+            sections=exam_format.sections,
+            total_questions=exam_format.total_questions,
+            duration_minutes=exam_format.duration_minutes,
+            negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
+        )
         pools: list[list[Question]] = []
         sections: list[SectionAvailability] = []
-        for section in exam_format.sections:
-            subject = str(section["subject"])
+        for section in exam_format.sections or []:
+            subject = str(section.get("subject") or "")
             pool = [
                 q
                 for q in candidates
@@ -410,14 +435,15 @@ class PracticeService:
             pools.append(pool)
             sections.append(
                 SectionAvailability(
-                    subject=subject, needed=int(section["questions"]), available=len(pool)
+                    subject=subject, needed=_count(section.get("questions")), available=len(pool)
                 )
             )
         availability = MockAvailability(
             exam_format_code=exam_format.code,
             exam_code=exam_format.exam_code,
             name=exam_format.name,
-            available=all(s.available >= s.needed for s in sections),
+            available=not problems and all(s.available >= s.needed for s in sections),
+            format_problems=problems,
             total_questions=exam_format.total_questions,
             duration_minutes=exam_format.duration_minutes,
             negative_marks_per_wrong=exam_format.negative_marks_per_wrong,

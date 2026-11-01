@@ -340,14 +340,19 @@ class _MockTile extends ConsumerWidget {
       if (mock.negativeMarks != null && mock.negativeMarks! > 0)
         l10n.mockNegative(mock.negativeMarks!.toStringAsFixed(2)),
     ].join(' · ');
-    final short = mock.sections.where((s) => s.available < s.needed).toList();
+    final short = mock.formatComplete
+        ? mock.sections.where((s) => s.available < s.needed).toList()
+        : const <SectionAvailabilityView>[];
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(mock.name),
       subtitle: Text(
         [
           details,
-          if (!mock.available) l10n.mockUnavailable,
+          if (!mock.formatComplete)
+            l10n.mockFormatIncomplete
+          else if (!mock.available)
+            l10n.mockUnavailable,
           for (final s in short) l10n.mockSectionShort(s.subject, s.available, s.needed),
         ].where((s) => s.isNotEmpty).join('\n'),
       ),
