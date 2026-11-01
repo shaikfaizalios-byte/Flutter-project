@@ -12,6 +12,8 @@ import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
+import 'generated/schema_v7.dart' as v7;
+import 'generated/schema_v8.dart' as v8;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -171,6 +173,55 @@ void main() {
           expect(migrated.cardId, 'card-1');
           expect(migrated.syncId, hasLength(32));
           expect(await newDb.select(newDb.syncOutbox).get(), isEmpty);
+        },
+      );
+    },
+  );
+
+  // v7 -> v8: notes remember their server version; the sync cursor is reset so the next
+  // sync pulls everything once and learns those versions. Notes and other settings stay.
+  test(
+    'migration from v7 to v8 keeps notes and resets only the sync cursor',
+    () async {
+      const note = v7.ConceptsData(
+        id: 'c1',
+        examCode: 'SSC_CGL',
+        title: 'Percent change',
+        notes: 'new - old / old',
+        subject: 'Quantitative Aptitude',
+        topic: 'Percentage',
+        language: 'en',
+        tags: '[]',
+        createdAt: '2026-10-13T09:00:00.000Z',
+        updatedAt: '2026-10-14T09:00:00.000Z',
+      );
+      await verifier.testWithDataIntegrity(
+        oldVersion: 7,
+        newVersion: 8,
+        createOld: v7.DatabaseAtV7.new,
+        createNew: v8.DatabaseAtV8.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) {
+          batch.insert(oldDb.concepts, note);
+          batch.insert(
+            oldDb.appSettings,
+            const v7.AppSettingsData(key: 'sync_cursor', value: '42'),
+          );
+          batch.insert(
+            oldDb.appSettings,
+            const v7.AppSettingsData(key: 'theme', value: 'dark'),
+          );
+        },
+        validateItems: (newDb) async {
+          final migrated = (await newDb.select(newDb.concepts).get()).single;
+          expect(
+            (migrated.title, migrated.serverSeq),
+            ('Percent change', null),
+          );
+          final keys = [
+            for (final s in await newDb.select(newDb.appSettings).get()) s.key,
+          ];
+          expect(keys, ['theme']);
         },
       );
     },

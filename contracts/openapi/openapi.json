@@ -599,6 +599,18 @@
       "Change": {
         "additionalProperties": false,
         "properties": {
+          "base_seq": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Seq"
+          },
           "data": {
             "anyOf": [
               {
@@ -3774,6 +3786,14 @@
             "title": "Accepted",
             "type": "integer"
           },
+          "conflicts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ServerChange"
+            },
+            "title": "Conflicts",
+            "type": "array"
+          },
           "ignored_deleted": {
             "items": {
               "type": "string"
@@ -3786,6 +3806,14 @@
               "type": "string"
             },
             "title": "Rejected",
+            "type": "object"
+          },
+          "seqs": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "default": {},
+            "title": "Seqs",
             "type": "object"
           }
         },

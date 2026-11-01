@@ -70,7 +70,13 @@ class AccountSection extends ConsumerWidget {
                 size: 18,
               ),
               const SizedBox(width: AppSpacing.xs),
-              Expanded(child: Text(status)),
+              Expanded(
+                child: Text(
+                  sync.conflicts > 0
+                      ? '$status\n${l10n.syncConflictsKept(sync.conflicts)}'
+                      : status,
+                ),
+              ),
               TextButton(
                 onPressed: sync.syncing
                     ? null

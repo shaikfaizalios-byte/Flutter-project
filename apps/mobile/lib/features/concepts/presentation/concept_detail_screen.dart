@@ -155,6 +155,17 @@ class _ConceptDetails extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
               ],
               SelectableText(concept.title, style: theme.textTheme.headlineSmall),
+              if (concept.isSyncConflictCopy) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Card(
+                  color: theme.colorScheme.secondaryContainer,
+                  child: ListTile(
+                    leading: const Icon(Icons.call_split),
+                    title: Text(l10n.conceptSyncConflictTitle),
+                    subtitle: Text(l10n.conceptSyncConflictMessage),
+                  ),
+                ),
+              ],
               if (concept.isAiGenerated) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Align(alignment: Alignment.centerLeft, child: AiLabel(l10n.learnAiLabel)),

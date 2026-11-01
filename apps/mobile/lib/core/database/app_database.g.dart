@@ -131,6 +131,15 @@ class $ConceptsTable extends Concepts with TableInfo<$ConceptsTable, ConceptRow>
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta('serverSeq');
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -146,6 +155,7 @@ class $ConceptsTable extends Concepts with TableInfo<$ConceptsTable, ConceptRow>
     archivedAt,
     createdAt,
     updatedAt,
+    serverSeq,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -232,6 +242,12 @@ class $ConceptsTable extends Concepts with TableInfo<$ConceptsTable, ConceptRow>
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
     return context;
   }
 
@@ -289,6 +305,10 @@ class $ConceptsTable extends Concepts with TableInfo<$ConceptsTable, ConceptRow>
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
     );
   }
 
@@ -314,6 +334,10 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
   final DateTime? archivedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// The server's version of this note as this device last saw it (sync `seq`), sent as
+  /// `base_seq` so an edit made elsewhere meanwhile is detected, not overwritten (v8).
+  final int? serverSeq;
   const ConceptRow({
     required this.id,
     required this.examCode,
@@ -328,6 +352,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
     this.archivedAt,
     required this.createdAt,
     required this.updatedAt,
+    this.serverSeq,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -353,6 +378,9 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
     return map;
   }
 
@@ -373,6 +401,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
       archivedAt: archivedAt == null && nullToAbsent ? const Value.absent() : Value(archivedAt),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      serverSeq: serverSeq == null && nullToAbsent ? const Value.absent() : Value(serverSeq),
     );
   }
 
@@ -392,6 +421,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
       archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      serverSeq: serializer.fromJson<int?>(json['serverSeq']),
     );
   }
   @override
@@ -411,6 +441,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
       'archivedAt': serializer.toJson<DateTime?>(archivedAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'serverSeq': serializer.toJson<int?>(serverSeq),
     };
   }
 
@@ -428,6 +459,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
     Value<DateTime?> archivedAt = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    Value<int?> serverSeq = const Value.absent(),
   }) => ConceptRow(
     id: id ?? this.id,
     examCode: examCode ?? this.examCode,
@@ -442,6 +474,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
     archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
   );
   ConceptRow copyWithCompanion(ConceptsCompanion data) {
     return ConceptRow(
@@ -460,6 +493,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
       archivedAt: data.archivedAt.present ? data.archivedAt.value : this.archivedAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
     );
   }
 
@@ -478,7 +512,8 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
           ..write('sourceReference: $sourceReference, ')
           ..write('archivedAt: $archivedAt, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('serverSeq: $serverSeq')
           ..write(')'))
         .toString();
   }
@@ -498,6 +533,7 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
     archivedAt,
     createdAt,
     updatedAt,
+    serverSeq,
   );
   @override
   bool operator ==(Object other) =>
@@ -515,7 +551,8 @@ class ConceptRow extends DataClass implements Insertable<ConceptRow> {
           other.sourceReference == this.sourceReference &&
           other.archivedAt == this.archivedAt &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.serverSeq == this.serverSeq);
 }
 
 class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
@@ -532,6 +569,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
   final Value<DateTime?> archivedAt;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<int?> serverSeq;
   final Value<int> rowid;
   const ConceptsCompanion({
     this.id = const Value.absent(),
@@ -547,6 +585,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
     this.archivedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ConceptsCompanion.insert({
@@ -563,6 +602,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
     this.archivedAt = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.serverSeq = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        examCode = Value(examCode),
@@ -586,6 +626,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
     Expression<DateTime>? archivedAt,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<int>? serverSeq,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -602,6 +643,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
       if (archivedAt != null) 'archived_at': archivedAt,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (serverSeq != null) 'server_seq': serverSeq,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -620,6 +662,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
     Value<DateTime?>? archivedAt,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<int?>? serverSeq,
     Value<int>? rowid,
   }) {
     return ConceptsCompanion(
@@ -636,6 +679,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
       archivedAt: archivedAt ?? this.archivedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      serverSeq: serverSeq ?? this.serverSeq,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -682,6 +726,9 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -704,6 +751,7 @@ class ConceptsCompanion extends UpdateCompanion<ConceptRow> {
           ..write('archivedAt: $archivedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('serverSeq: $serverSeq, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4396,6 +4444,7 @@ typedef $$ConceptsTableCreateCompanionBuilder = ConceptsCompanion Function({
   Value<DateTime?> archivedAt,
   required DateTime createdAt,
   required DateTime updatedAt,
+  Value<int?> serverSeq,
   Value<int> rowid,
 });
 typedef $$ConceptsTableUpdateCompanionBuilder = ConceptsCompanion Function({
@@ -4412,6 +4461,7 @@ typedef $$ConceptsTableUpdateCompanionBuilder = ConceptsCompanion Function({
   Value<DateTime?> archivedAt,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
+  Value<int?> serverSeq,
   Value<int> rowid,
 });
 
@@ -4488,6 +4538,9 @@ class $$ConceptsTableFilterComposer extends Composer<_$AppDatabase, $ConceptsTab
   ColumnFilters<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => ColumnFilters(column));
+
   Expression<bool> revisionCardsRefs(
     Expression<bool> Function($$RevisionCardsTableFilterComposer f) f,
   ) {
@@ -4557,6 +4610,9 @@ class $$ConceptsTableOrderingComposer extends Composer<_$AppDatabase, $ConceptsT
 
   ColumnOrderings<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => ColumnOrderings(column));
 }
 
 class $$ConceptsTableAnnotationComposer extends Composer<_$AppDatabase, $ConceptsTable> {
@@ -4605,6 +4661,9 @@ class $$ConceptsTableAnnotationComposer extends Composer<_$AppDatabase, $Concept
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
 
   Expression<T> revisionCardsRefs<T extends Object>(
     Expression<T> Function($$RevisionCardsTableAnnotationComposer a) f,
@@ -4666,6 +4725,7 @@ class $$ConceptsTableTableManager
                 Value<DateTime?> archivedAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ConceptsCompanion(
                 id: id,
@@ -4681,6 +4741,7 @@ class $$ConceptsTableTableManager
                 archivedAt: archivedAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                serverSeq: serverSeq,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4698,6 +4759,7 @@ class $$ConceptsTableTableManager
                 Value<DateTime?> archivedAt = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<int?> serverSeq = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ConceptsCompanion.insert(
                 id: id,
@@ -4713,6 +4775,7 @@ class $$ConceptsTableTableManager
                 archivedAt: archivedAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                serverSeq: serverSeq,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

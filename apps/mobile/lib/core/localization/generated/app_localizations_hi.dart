@@ -2024,6 +2024,24 @@ class AppLocalizationsHi extends AppLocalizations {
   String get historyNoAnswer => 'कोई उत्तर नहीं';
 
   @override
+  String syncConflictsKept(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count नोट दो डिवाइस पर बदले गए; दोनों संस्करण रखे गए।',
+      one: '1 नोट दो डिवाइस पर बदला गया; दोनों संस्करण रखे गए।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get conceptSyncConflictTitle => 'दो डिवाइस पर बदला गया';
+
+  @override
+  String get conceptSyncConflictMessage =>
+      'सिंक होने से पहले दो डिवाइस ने यह नोट बदला। इस कॉपी में एक डिवाइस का संस्करण है; उसी शीर्षक वाले नोट में दूसरा। जो चाहिए वह रखें, दूसरा नोट हटाएँ, फिर यहाँ से sync-conflict टैग हटा दें।';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

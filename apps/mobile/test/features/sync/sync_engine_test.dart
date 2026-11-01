@@ -104,7 +104,7 @@ void main() {
     expect(await tablet.pending(), 0); // applying pulled data never marks it dirty
   });
 
-  test('last writer wins and both devices converge', () async {
+  test('a note edited on two devices keeps both versions on both devices', () async {
     final concept = await phone.concepts.create(draft('Original'));
     await phone.engine.run();
     await tablet.engine.run();
@@ -112,11 +112,33 @@ void main() {
     await phone.concepts.update(concept.id, draft('Phone edit'));
     await tablet.concepts.update(concept.id, draft('Tablet edit'));
     await phone.engine.run();
-    await tablet.engine.run(); // pushes after the phone → wins
+    final report = await tablet.engine.run(); // the phone's edit got there first
+    await tablet.engine.run(); // uploads the tablet's copy
     await phone.engine.run();
 
-    expect(await phone.titles(), ['Tablet edit']);
-    expect(await tablet.titles(), ['Tablet edit']);
+    expect(report.conflicts, 1);
+    expect(await phone.titles(), ['Phone edit', 'Tablet edit']);
+    expect(await tablet.titles(), ['Phone edit', 'Tablet edit']);
+    final original = await tablet.concepts.getById(concept.id);
+    expect((original!.title, original.isSyncConflictCopy), ('Phone edit', false));
+    final copy = (await tablet.concepts.watch().first).firstWhere((c) => c.isSyncConflictCopy);
+    expect(copy.title, 'Tablet edit');
+    expect(copy.tags, [syncConflictTag]);
+    expect(await tablet.pending(), 0);
+  });
+
+  test('settings and profile still take the last change', () async {
+    await phone.profile.save(const StudyProfile(dailyStudyMinutes: 30));
+    await phone.engine.run();
+    await tablet.engine.run();
+    await phone.profile.save(const StudyProfile(dailyStudyMinutes: 45));
+    await tablet.profile.save(const StudyProfile(dailyStudyMinutes: 60));
+    await phone.engine.run();
+    final report = await tablet.engine.run();
+    await phone.engine.run();
+
+    expect(report.conflicts, 0);
+    expect((await phone.profile.load()).dailyStudyMinutes, 60);
   });
 
   test('a pending local change is not overwritten by pulled data', () async {
@@ -133,8 +155,25 @@ void main() {
     server.offline = false;
     await phone.engine.run();
 
-    expect(await phone.titles(), ['Phone edit (offline)']);
-    expect(server.data('concept', concept.id)!['title'], 'Phone edit (offline)');
+    // The offline edit was made on the old version, so it is kept beside the tablet's.
+    expect(await phone.titles(), ['Phone edit (offline)', 'Tablet edit']);
+    expect(server.data('concept', concept.id)!['title'], 'Tablet edit');
+  });
+
+  test('an edit made from the latest version is simply uploaded', () async {
+    final concept = await phone.concepts.create(draft('Original'));
+    await phone.engine.run();
+    await tablet.engine.run();
+    await tablet.concepts.update(concept.id, draft('Tablet edit'));
+    await tablet.engine.run();
+    await phone.engine.run(); // phone learns the tablet's version
+
+    await phone.concepts.update(concept.id, draft('Phone edit on top'));
+    final report = await phone.engine.run();
+    await tablet.engine.run();
+
+    expect(report.conflicts, 0);
+    expect(await tablet.titles(), ['Phone edit on top']);
   });
 
   test('deletes win over edits made elsewhere, including cascaded cards', () async {

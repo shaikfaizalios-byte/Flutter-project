@@ -1,4 +1,4 @@
-"""Device-data sync: push/pull, last-writer-wins, tombstones, validation, ownership."""
+"""Device-data sync: push/pull, conflicts, last-writer-wins, tombstones, validation, ownership."""
 
 from typing import Any
 
@@ -56,7 +56,13 @@ def test_push_then_pull_round_trip_with_cursor(db_client: TestClient) -> None:
         },
         {"entity": "setting", "id": "revision_day_offsets", "data": {"value": "1,4,7"}},
     )
-    assert result == {"accepted": 3, "ignored_deleted": [], "rejected": {}}
+    assert (result["accepted"], result["ignored_deleted"], result["rejected"]) == (3, [], {})
+    assert result["conflicts"] == []
+    assert set(result["seqs"]) == {
+        f"concept:{CONCEPT_ID}",
+        "study_profile:profile",
+        "setting:revision_day_offsets",
+    }
 
     page = pull(db_client)
     assert [(c["entity"], c["id"]) for c in page["changes"]] == [
@@ -112,6 +118,61 @@ def test_replaying_a_push_is_harmless(db_client: TestClient) -> None:
 
     changes = pull(db_client)["changes"]
     assert [(c["entity"], c["id"]) for c in changes] == [("card_review", "r-1")]
+
+
+# --- conflicts (base_seq) ------------------------------------------------------------------
+
+
+def test_a_stale_note_edit_is_returned_as_a_conflict_not_applied(db_client: TestClient) -> None:
+    first = push(db_client, concept("Original"))
+    base = first["seqs"][f"concept:{CONCEPT_ID}"]
+    tablet = push(db_client, {**concept("Edited on tablet"), "base_seq": base})
+    tablet_seq = tablet["seqs"][f"concept:{CONCEPT_ID}"]
+
+    # The phone edited the same note offline, from the original version.
+    phone = push(db_client, {**concept("Edited on phone"), "base_seq": base})
+
+    assert (phone["accepted"], phone["seqs"]) == (0, {})
+    [conflict] = phone["conflicts"]
+    assert (conflict["id"], conflict["seq"]) == (CONCEPT_ID, tablet_seq)
+    assert conflict["data"]["title"] == "Edited on tablet"
+    [stored] = pull(db_client)["changes"]
+    assert stored["data"]["title"] == "Edited on tablet"  # nothing was overwritten
+
+
+def test_an_up_to_date_edit_is_applied_and_returns_its_new_version(db_client: TestClient) -> None:
+    base = push(db_client, concept("Original"))["seqs"][f"concept:{CONCEPT_ID}"]
+
+    result = push(db_client, {**concept("Edited"), "base_seq": base})
+
+    assert result["accepted"] == 1 and result["conflicts"] == []
+    assert result["seqs"][f"concept:{CONCEPT_ID}"] > base
+
+
+def test_without_base_seq_older_apps_keep_last_writer_wins(db_client: TestClient) -> None:
+    push(db_client, concept("From phone"))
+    result = push(db_client, concept("From an older app"))
+
+    assert (result["accepted"], result["conflicts"]) == (1, [])
+
+
+def test_card_reviews_are_append_only(db_client: TestClient) -> None:
+    data: dict[str, Any] = {
+        "card_id": CARD_ID,
+        "reviewed_at": "2026-10-14T09:00:00Z",
+        "rating": "good",
+        "due_before": "2026-10-14",
+        "due_after": "2026-10-17",
+        "gap_days": 3,
+    }
+    review = {"entity": "card_review", "id": "r-1", "data": data}
+    first = push(db_client, review)
+    changed = {**review, "data": {**data, "rating": "easy"}}
+    again = push(db_client, changed)
+
+    assert again["seqs"] == first["seqs"]  # same version: not rewritten, not re-sent
+    [stored] = pull(db_client)["changes"]
+    assert stored["data"]["rating"] == "good"
 
 
 def test_invalid_records_are_rejected_individually(db_client: TestClient) -> None:

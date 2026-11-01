@@ -48,7 +48,15 @@ class Concept {
 
   /// Made from an AI lesson (tagged [aiGeneratedTag]): labelled as unchecked AI wherever shown.
   bool get isAiGenerated => tags.contains(aiGeneratedTag);
+
+  /// This device's copy of a note that was changed on two devices at once (tagged
+  /// [syncConflictTag]); the other version is kept as the original note.
+  bool get isSyncConflictCopy => tags.contains(syncConflictTag);
 }
+
+/// Tag on the copy sync keeps when a note was edited on two devices before they synced
+/// (docs/accounts-sync.md "Conflicts"). The learner compares, keeps one and removes the tag.
+const syncConflictTag = 'sync-conflict';
 
 /// Tag on concepts saved from an AI lesson. The server's answer search reads it too (the same
 /// value is in services/api/app/services/rag_service.py) and treats them as unchecked.

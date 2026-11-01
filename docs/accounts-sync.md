@@ -71,6 +71,25 @@ Device preferences (language, theme, reminder switch) stay per device. Documents
   with an advisory lock, so `seq` order equals commit order and a cursor can't skip a change.
 - **Pull:** `?cursor=<seq>` returns the account's changes after the cursor, oldest first, in pages of 500.
 
+### Conflicts (global Phase 3)
+
+Each change may carry `base_seq`: the server version the device last saw. The policy is per entity
+(`app/schemas/sync.py` `CONFLICT_CHECKED` / `APPEND_ONLY`):
+
+| Entity | Rule |
+|---|---|
+| `concept` (notes) | Edit with an older `base_seq` than the server's → **not applied**; the server's version comes back in `conflicts`. The device keeps its own text as a **new note tagged `sync-conflict`** (uploaded next) and takes the server's version for the original. The note page explains it; Profile says "n notes were changed on two devices; both versions were kept". |
+| `card_review` | **Append-only**: a review already stored is never rewritten (its `seq` is returned, nothing re-sent). |
+| `revision_card`, `study_profile`, `setting` | Last writer wins (card state follows from the reviews; profile and settings are small choices). |
+
+Deletes still win (a tombstone ignores later edits) and a delete is sent without `base_seq`. A push
+without `base_seq` (older apps, or a note never synced) keeps last-writer-wins, so old clients keep
+working. `PushResult.seqs` gives each accepted record's new version. Device: `concepts.server_seq`
+(Drift v8) stores the version; the v7→v8 migration resets the sync cursor once so the next sync pulls
+everything and learns the versions (`test/drift/app_database/migration_test.dart`). Tests:
+`tests/test_sync.py` (server), `test/features/sync/sync_engine_test.dart` (two devices),
+`test/features/sync/sync_conflict_ui_test.dart`.
+
 **Device** (Drift schema v5):
 - **Outbox:** every local write also marks the record in `sync_outbox` (entity, id, `version`), in the same transaction.
   Repeated edits coalesce. Deleting a concept also marks its cascaded revision card.
@@ -93,7 +112,8 @@ Device preferences (language, theme, reminder switch) stay per device. Documents
 ## Not covered yet
 
 - No password reset or email verification (that needs an email provider; planned for release).
-- No multi-device conflict UI: last writer wins per record, silently. Field-level merging isn't implemented.
+- Conflicts are detected for notes only; there is no field-level merge (both versions are kept and the learner
+  chooses). Revision cards, the study profile and settings are last writer wins.
 - Rate limits are per process (shared store needed before scaling out).
 - The older `/api/v1/concepts` REST API is a separate server-side store kept for API clients (marked deprecated). The
   app syncs concepts through `/sync`.

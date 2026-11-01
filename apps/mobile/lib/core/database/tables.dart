@@ -32,6 +32,10 @@ class Concepts extends Table {
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
+  /// The server's version of this note as this device last saw it (sync `seq`), sent as
+  /// `base_seq` so an edit made elsewhere meanwhile is detected, not overwritten (v8).
+  IntColumn get serverSeq => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }

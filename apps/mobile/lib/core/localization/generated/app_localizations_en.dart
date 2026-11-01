@@ -2021,6 +2021,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyNoAnswer => 'No answer';
 
   @override
+  String syncConflictsKept(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes were changed on two devices; both versions were kept.',
+      one: '1 note was changed on two devices; both versions were kept.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get conceptSyncConflictTitle => 'Changed on two devices';
+
+  @override
+  String get conceptSyncConflictMessage =>
+      'Two devices changed this note before they synced. This copy holds one device\'s version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override

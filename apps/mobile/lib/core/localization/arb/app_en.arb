@@ -1383,6 +1383,16 @@
     }
   },
   "historyNoAnswer": "No answer",
+  "syncConflictsKept": "{count, plural, =1{1 note was changed on two devices; both versions were kept.} other{{count} notes were changed on two devices; both versions were kept.}}",
+  "@syncConflictsKept": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "conceptSyncConflictTitle": "Changed on two devices",
+  "conceptSyncConflictMessage": "Two devices changed this note before they synced. This copy holds one device's version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.",
   "accountExport": "Copy my data",
   "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
   "accountSignOut": "Sign out",

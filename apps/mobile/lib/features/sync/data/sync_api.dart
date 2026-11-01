@@ -6,19 +6,33 @@ import '../../../core/errors/app_failure.dart';
 /// One record change, as exchanged with the server.
 @immutable
 class SyncChange {
-  const SyncChange({required this.entity, required this.id, this.deleted = false, this.data});
+  const SyncChange({
+    required this.entity,
+    required this.id,
+    this.deleted = false,
+    this.data,
+    this.seq,
+    this.baseSeq,
+  });
 
   factory SyncChange.fromJson(Map<String, dynamic> json) => SyncChange(
     entity: json['entity'] as String,
     id: json['id'] as String,
     deleted: json['deleted'] as bool,
     data: json['data'] as Map<String, dynamic>?,
+    seq: json['seq'] as int?,
   );
 
   final String entity;
   final String id;
   final bool deleted;
   final Map<String, dynamic>? data;
+
+  /// The server's version of the record (in pulled changes and conflicts).
+  final int? seq;
+
+  /// The server version this device last saw (sent with a push; null: unknown or new).
+  final int? baseSeq;
 
   String get key => '$entity:$id';
 
@@ -27,6 +41,7 @@ class SyncChange {
     'id': id,
     'deleted': deleted,
     if (data != null) 'data': data,
+    if (baseSeq != null) 'base_seq': baseSeq,
   };
 }
 
@@ -36,6 +51,8 @@ class PushOutcome {
     required this.accepted,
     this.ignoredDeleted = const [],
     this.rejected = const {},
+    this.seqs = const {},
+    this.conflicts = const [],
   });
 
   final int accepted;
@@ -45,6 +62,13 @@ class PushOutcome {
 
   /// `entity:id` → reason. These are dropped, not retried.
   final Map<String, String> rejected;
+
+  /// `entity:id` → the server version of each accepted record.
+  final Map<String, int> seqs;
+
+  /// Records changed elsewhere since this device's version: the server kept its own and
+  /// returns it here (the device keeps both, see SyncEngine).
+  final List<SyncChange> conflicts;
 }
 
 @immutable
@@ -80,6 +104,11 @@ class RemoteSyncApi implements SyncApi {
       accepted: data['accepted'] as int,
       ignoredDeleted: (data['ignored_deleted'] as List<dynamic>).cast<String>(),
       rejected: (data['rejected'] as Map<String, dynamic>).cast<String, String>(),
+      seqs: (data['seqs'] as Map<String, dynamic>? ?? const {}).cast<String, int>(),
+      conflicts: [
+        for (final c in data['conflicts'] as List<dynamic>? ?? const [])
+          SyncChange.fromJson(c as Map<String, dynamic>),
+      ],
     );
   });
 

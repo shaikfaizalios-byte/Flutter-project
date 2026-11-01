@@ -28,7 +28,13 @@ const syncDebounce = Duration(seconds: 3);
 
 @immutable
 class SyncStatus {
-  const SyncStatus({this.syncing = false, this.pending = 0, this.lastSyncedAt, this.error});
+  const SyncStatus({
+    this.syncing = false,
+    this.pending = 0,
+    this.lastSyncedAt,
+    this.error,
+    this.conflicts = 0,
+  });
 
   final bool syncing;
 
@@ -39,16 +45,21 @@ class SyncStatus {
   /// Why the last attempt failed (null after a success).
   final AppFailure? error;
 
+  /// Notes the last sync found changed on two devices (both versions were kept).
+  final int conflicts;
+
   SyncStatus copyWith({
     bool? syncing,
     int? pending,
     DateTime? lastSyncedAt,
     AppFailure? Function()? error,
+    int? conflicts,
   }) => SyncStatus(
     syncing: syncing ?? this.syncing,
     pending: pending ?? this.pending,
     lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
     error: error != null ? error() : this.error,
+    conflicts: conflicts ?? this.conflicts,
   );
 }
 
@@ -103,6 +114,7 @@ class SyncController extends Notifier<SyncStatus> {
         pending: pending,
         lastSyncedAt: DateTime.now(),
         error: () => null,
+        conflicts: report.conflicts,
       );
     } on AppFailure catch (failure) {
       final pending = await ref.read(syncEngineProvider).pendingCount();

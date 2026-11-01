@@ -235,7 +235,7 @@ is a server sequence number rather than `updated_at` + `id`, because it is monot
 
 1. **Identity:** the client generates UUIDs, and the server accepts them, so no ID remapping is needed.
 2. **Direction:** each device pushes its local changes, then pulls server changes made since its last sync cursor (server `updated_at` plus `id` as tiebreaker).
-3. **Conflicts:** last-writer-wins per record using server-assigned `updated_at`. Archive and unarchive are ordinary field updates. Deletes become tombstones that win over concurrent edits.
+3. **Conflicts:** see docs/accounts-sync.md "Conflicts" (notes: both versions kept; reviews append-only; the rest last-writer-wins per record). Archive and unarchive are ordinary field updates. Deletes become tombstones that win over concurrent edits.
 4. **Ownership:** sync endpoints only ever return the authenticated user's rows.
 5. **Offline:** all reads and writes go to the local database first, so the UI never waits for the network.
 6. **Before enabling sync:** add `owner_id` and tombstones on the server, sync metadata (`dirty`, `server_updated_at`) on the device, and tests for each conflict case.

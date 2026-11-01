@@ -3315,6 +3315,24 @@ abstract class AppLocalizations {
   /// **'No answer'**
   String get historyNoAnswer;
 
+  /// No description provided for @syncConflictsKept.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 note was changed on two devices; both versions were kept.} other{{count} notes were changed on two devices; both versions were kept.}}'**
+  String syncConflictsKept(int count);
+
+  /// No description provided for @conceptSyncConflictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed on two devices'**
+  String get conceptSyncConflictTitle;
+
+  /// No description provided for @conceptSyncConflictMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Two devices changed this note before they synced. This copy holds one device\'s version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.'**
+  String get conceptSyncConflictMessage;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

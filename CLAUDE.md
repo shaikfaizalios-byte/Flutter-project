@@ -32,7 +32,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v7)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v8)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -202,7 +202,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   Rate limits: `RateLimiter` protocol, `PostgresRateLimiter` (shared) in staging/prod. Staging/prod settings
   refuse to start without auth secret, postgres limits and TLS SMTP. Metrics: `/api/v1/metrics` (token).
 - Sync (Phase 10): server `sync_items` per account (strict per-entity schemas, `sync_seq` cursor, LWW,
-  tombstones win, per-account advisory lock). Device: repositories call `db.markDirty(entity, id)` in the
+  tombstones win, per-account advisory lock). Global Phase 3: changes carry `base_seq`; a stale note edit is a
+  conflict (server keeps its version, returns it; the device keeps its text as a note tagged `sync-conflict`),
+  card reviews are append-only, the rest stays LWW; `concepts.server_seq` (Drift v8). docs/accounts-sync.md. Device: repositories call `db.markDirty(entity, id)` in the
   same transaction; `SyncEngine` pushes current state of outbox ids (versioned clear), pulls all pages and
   applies in one deferred-FK transaction skipping pending records. Switching account erases device data.
   See docs/accounts-sync.md.
@@ -345,7 +347,8 @@ Known limitations right now:
 - Legal texts are DRAFTS with [placeholders] (operator, contact, processors, retention, law, minimum age).
 - Launcher icon/splash are provisional (generated); application id `com.preploop.preploop` must be changed
   to the operator's domain before the first Play upload. R8 shrinking is off until verified on a device.
-- Sync is last-writer-wins per record (no field merge, no conflict UI). Documents and the question bank are
+- Sync keeps both versions of a note edited on two devices (no field merge); cards, profile and settings are
+  last-writer-wins. Documents and the question bank are
   server-only. Practice works offline from the saved pack (questions with figures excluded; AI explanations,
   bookmarks and reports need the server); mock tests need a connection. Signing out erases unsent offline sessions.
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
@@ -400,7 +403,7 @@ Known limitations right now:
 ## Post-release backlog (not scheduled)
 - Verify on devices (docs/release.md §3): notifications, secure storage, PDF picker, Hindi, offline sync, R8.
 - S3-compatible `DocumentStorage`; malware scanning if originals become downloadable.
-- Field-level sync merge or conflict UI.
+- Field-level sync merge for notes (today both versions are kept).
 - Verified SSC CGL exam format (from the current official notice, source recorded).
 - Native-speaker review of Hindi strings; typed Dart API client from `contracts/openapi`.
 - Opt-in server error reporting (documented in the privacy policy before enabling).
