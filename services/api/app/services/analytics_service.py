@@ -105,13 +105,38 @@ class AnalyticsService:
                 )
             return query
 
+        timed = SessionAnswer.time_spent_ms.is_not(None)
+        timed_answered = func.coalesce(func.sum(case((timed, 1), else_=0)), 0)
+        time_spent = func.coalesce(func.sum(SessionAnswer.time_spent_ms), 0)
+
         total = self._session.execute(
             counted(
                 func.count().cast(Integer),
                 correct,
                 func.count(func.distinct(SessionAnswer.session_id)),
+                timed_answered,
+                time_spent,
             )
         ).one()
+
+        # Questions answered wrong in two or more sessions, per topic.
+        wrong_twice = (
+            counted(SessionItem.topic_id.label("topic_id"))
+            .where(
+                SessionAnswer.is_correct.is_(False),
+                SessionItem.topic_id.is_not(None),
+                SessionAnswer.question_id.is_not(None),
+            )
+            .group_by(SessionItem.topic_id, SessionAnswer.question_id)
+            .having(func.count(func.distinct(SessionAnswer.session_id)) >= 2)
+            .subquery()
+        )
+        repeated: dict[uuid.UUID, int] = {
+            topic_id: count
+            for topic_id, count in self._session.execute(
+                select(wrong_twice.c.topic_id, func.count()).group_by(wrong_twice.c.topic_id)
+            )
+        }
 
         subject_name = func.coalesce(SessionItem.subject, SessionItem.section, "")
         subjects = [
@@ -139,6 +164,10 @@ class AnalyticsService:
                 correct=row[4],
                 recent_answered=row[5],
                 recent_correct=row[6],
+                timed_answered=row[7],
+                time_spent_ms=row[8],
+                last_answered_on=row[9],
+                repeated_mistakes=repeated.get(row[0], 0),
             )
             for row in self._session.execute(
                 counted(
@@ -149,6 +178,9 @@ class AnalyticsService:
                     correct,
                     recent_answered,
                     recent_correct,
+                    timed_answered,
+                    time_spent,
+                    func.max(local_day),
                 )
                 .join(Topic, Topic.id == SessionItem.topic_id)
                 .group_by(Topic.id, Topic.name, Topic.subject)
@@ -174,6 +206,8 @@ class AnalyticsService:
             answered=total[0],
             correct=total[1],
             sessions=total[2],
+            timed_answered=total[3],
+            time_spent_ms=total[4],
             subjects=subjects,
             topics=topics,
             daily=daily,

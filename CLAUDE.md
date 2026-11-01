@@ -55,6 +55,14 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   and changes the exam after `untilAnimationsSettle()` (`app/route_transitions.dart`): screens paused under a page
   must not wake up to a changed exam mid-build (Riverpod refuses). Analytics follow it too
   (`/analytics/overview?exam=`, counted by each question's exam; mocks by session exam).
+- Diagnosis + readiness (global Phase 9, docs/analytics.md): the session screen sends `time_spent_ms` (shown →
+  answered, ≤ 10 min, `timeOnQuestion`); `TopicStats` adds `timed_answered`/`time_spent_ms`/`last_answered_on`/
+  `repeated_mistakes` (questions wrong in 2+ sessions) and the overview the overall timed totals (raw counts).
+  `AnalyticsRules` adds weak reasons `repeatedMistakes` (3+) and `slow` (≥ 1.5 × own pace, 10+ timed answers) and
+  `dueForRefresh` (21+ days) → plan item `refreshTopic`; every plan item lists its reasons. Progress `ReadinessCard`
+  (`buildReadiness`): syllabus coverage + evidence (14-day answers, 30-day mocks, exam days), never a score or pass
+  chance. FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
+  `app/domain/fsrs.py`, aggregates only); the ladder stays the scheduler.
 - Mastery per topic (`features/mastery`, mobile-only, no schema change): pure `masteryLevel`/`examMastery` with
   named `MasteryRules` (shown in UI): not started → learning (< 10 answers) → practising (< 60 % or flashcards
   often forgotten) → strong → mastered (25+ answers at 85 %+, marked revised); 30-day analytics window.

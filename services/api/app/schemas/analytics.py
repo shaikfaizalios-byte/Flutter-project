@@ -22,10 +22,22 @@ class SubjectStats(AnswerCounts):
     name: str
 
 
-class TopicStats(AnswerCounts):
+class TimedCounts(BaseModel):
+    """Answers that recorded the time spent on the question, and their total time. Speed
+    is judged by the client from these (never from answers without a time)."""
+
+    timed_answered: int = 0
+    time_spent_ms: int = 0
+
+
+class TopicStats(AnswerCounts, TimedCounts):
     topic_id: uuid.UUID
     name: str
     subject: str
+    # The learner's local day of the latest counted answer in this topic.
+    last_answered_on: date | None = None
+    # Questions of this topic answered wrong in two or more sessions.
+    repeated_mistakes: int = 0
 
 
 class DailyStats(BaseModel):
@@ -48,7 +60,7 @@ class MockResult(BaseModel):
     marking_note: str | None
 
 
-class AnalyticsOverview(BaseModel):
+class AnalyticsOverview(TimedCounts):
     timezone: str
     today: date
     days: int

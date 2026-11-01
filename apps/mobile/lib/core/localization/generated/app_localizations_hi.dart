@@ -4390,4 +4390,100 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get conceptAiLabelKept => 'AI पाठ से बनाया गया: इस पर हमेशा AI-निर्मित का लेबल रहेगा।';
+
+  @override
+  String topicSecondsPerAnswer(String seconds) {
+    return 'प्रति उत्तर $seconds सेकंड';
+  }
+
+  @override
+  String topicRepeatedMistakes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count प्रश्न एक से अधिक बार गलत',
+      one: '1 प्रश्न एक से अधिक बार गलत',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reasonOftenForgotten => 'अक्सर भूले गए';
+
+  @override
+  String get reasonRepeatedMistakes => 'वही गलतियाँ दोबारा';
+
+  @override
+  String get reasonSlower => 'आपकी सामान्य गति से धीमा';
+
+  @override
+  String planRefreshTitle(String topic) {
+    return '$topic दोहराएँ';
+  }
+
+  @override
+  String reasonNotPractisedFor(int days) {
+    return '$days दिनों से अभ्यास नहीं किया';
+  }
+
+  @override
+  String progressRulesMore(int mistakes, String factor, int timed, int days) {
+    return 'कोई टॉपिक तब भी कमज़ोर है जब उसके $mistakes या अधिक प्रश्न दो सत्रों में गलत हुए हों, या उसके उत्तरों में आपके सामान्य समय का $factor गुना समय लगे ($timed समय दर्ज उत्तरों के बाद)। $days दिनों से अभ्यास न किया गया टॉपिक दोहराने के लिए सुझाया जाता है।';
+  }
+
+  @override
+  String get readinessTitle => 'तैयारी';
+
+  @override
+  String readinessCoverage(int practised, int topics) {
+    return 'सिलेबस के $topics में से $practised टॉपिक का अभ्यास किया';
+  }
+
+  @override
+  String readinessStrong(int strong) {
+    return '$strong मज़बूत या पूर्ण';
+  }
+
+  @override
+  String readinessSubject(int practised, int topics, int strong) {
+    return '$practised/$topics अभ्यास किया · $strong मज़बूत';
+  }
+
+  @override
+  String get readinessNoSyllabus =>
+      'सिलेबस का कितना हिस्सा पूरा हुआ, यह देखने के लिए अपने सिलेबस के टॉपिक जोड़ें।';
+
+  @override
+  String get readinessEvidenceTitle => 'अब तक के प्रमाण';
+
+  @override
+  String readinessRecent(int answers, int days, String percent) {
+    return 'पिछले $days दिनों में $answers उत्तर, $percent सही';
+  }
+
+  @override
+  String readinessNoRecent(int days) {
+    return 'पिछले $days दिनों में कोई अभ्यास उत्तर नहीं।';
+  }
+
+  @override
+  String get readinessOffline => 'अभ्यास के प्रमाण के लिए इंटरनेट चाहिए।';
+
+  @override
+  String readinessMocks(int count, int days, String score, String max, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count मॉक टेस्ट',
+      one: '1 मॉक टेस्ट',
+    );
+    return 'पिछले $days दिनों में $_temp0; पिछला: $date को $max में से $score';
+  }
+
+  @override
+  String get readinessNoMock => 'अभी तक कोई मॉक टेस्ट जमा नहीं किया।';
+
+  @override
+  String get readinessNotPrediction =>
+      'यह दिखाता है कि आपने क्या पूरा किया है और अब तक आपके उत्तर क्या बताते हैं। यह आपके परिणाम का अनुमान नहीं है।';
 }

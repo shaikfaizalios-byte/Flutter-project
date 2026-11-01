@@ -26,7 +26,10 @@ No sample data, ratios or charts are shown without recorded data. A topic with n
 - Responses contain **raw counts only**:
   - totals
   - per subject (the snapshot subject, or the section)
-  - per topic (with id, name and subject)
+  - per topic (with id, name and subject; global Phase 9 adds `timed_answered` and `time_spent_ms`,
+    `last_answered_on` (local day) and `repeated_mistakes` = questions of the topic answered wrong in two or
+    more sessions)
+  - overall `timed_answered` / `time_spent_ms` (the learner's own usual pace)
   - per local day
   - mocks
 
@@ -43,11 +46,33 @@ No sample data, ratios or charts are shown without recorded data. A topic with n
 | Trend: answers needed in the last 14 days **and** before them | 5 each |
 | Improving or declining when the accuracy change is at least | 10 points |
 | Analysis window (daily charts, flashcard recall) | 30 days |
+| Weak with this many repeated mistakes (questions wrong in two sessions), however few answers | 3 |
+| Timed answers needed, in the topic and overall, before speed is judged | 10 |
+| Weak ("slower than your usual pace") when the topic's time per answer is at least | 1.5 × the learner's own average |
+| Suggested for a refresh (not weak) when a topic with 10+ answers was last practised | 21+ days ago |
 
-- A topic is **weak** if either rule applies. The reasons are listed, with the evidence: "40% correct over 20 answers · forgotten in 3 of 5 flashcard reviews".
+**Time spent** (global Phase 9): the session screen records the time from when a question was shown until it was
+answered (`timeOnQuestion`); more than 10 minutes is not recorded (the learner was probably away), and answers
+without a time never count towards speed. Speed is compared with the learner's own pace, never with other
+learners or an exam's time budget.
+
+- A topic is **weak** if any rule applies. The reasons are listed, with the evidence: "40% correct over 20 answers · forgotten in 3 of 5 flashcard reviews".
 - Server topics (from question topics) and device topics (concept or question cards) are matched by subject and name, ignoring case.
 - Topics that don't have enough data yet are counted ("2 more topics need more data before they are judged"), not judged.
 - Weakest first: lowest accuracy, then highest forget rate.
+- **Insufficient evidence**: a topic with some answers but below every threshold is not judged; the Progress card
+  counts it ("1 more topic needs more data") instead of guessing.
+
+## Readiness (`buildReadiness`, Progress tab, global Phase 9)
+
+Readiness is **coverage plus evidence, never a score or a pass probability** (PrepLoop has no data that could
+support one; the card says "It is not a prediction of your result"):
+
+- Coverage of the current exam's **syllabus topics** (the learner's own concept topics are left out): topics
+  practised (any level but "not started"), topics strong or mastered, and the same per subject. Without syllabus
+  topics it asks the learner to add them.
+- Evidence: practice answers and accuracy in the last 14 days (from `daily`; "needs a connection" offline, never
+  0), mock tests submitted in the last 30 days with the latest score and its date, and the days to the exam date.
 
 ## Mastery levels (`MasteryRules`, shown in the app)
 
@@ -80,10 +105,14 @@ Candidates, in priority order. Each one says why it is in the plan and roughly h
 
 1. **Revise due flashcards.** About 1 minute per card, at least 5 minutes. Reason: "12 due today, 3 overdue".
 2. **Practise each weak topic** (at most 2, and only topics with a server topic id). This is a 10-question practice
-   session on that topic (about 15 min). Reason: the evidence and "below 60%".
+   session on that topic (about 15 min). Reason: the evidence (accuracy, forgetting, seconds per answer, repeated
+   mistakes) and every rule that applies ("below 60%", "often forgotten", "the same mistakes again", "slower than
+   your usual pace").
 3. **Otherwise, practise mixed questions** (about 15 min). Reason: there are no practice answers yet, or no weak
    topic was found ("a topic is judged after 10 answers").
-4. **Take a mock test**, if a verified, available format exists for the learner's exams and it is due:
+4. **Refresh a topic** not practised for 21+ days (at most 1 a day, the longest unpractised first; not a weak
+   topic). Reason: "Not practised for 30 days" and the evidence.
+5. **Take a mock test**, if a verified, available format exists for the learner's exams and it is due:
    - weekly when the exam is within 60 days, otherwise every 14 days
    - "never taken" also counts as due
 
@@ -118,5 +147,7 @@ Candidates, in priority order. Each one says why it is in the plan and roughly h
 ## Not covered yet
 
 - Analytics are single-learner and unauthenticated until Phase 10 (accounts).
-- No per-section trends or time-per-question analysis yet. `time_spent_ms` is recorded for later.
+- No per-section trends. Time per question is recorded from global Phase 9 on; older answers have none, so the
+  speed signal needs new timed answers before it says anything.
+- Readiness thresholds and the diagnosis rules are product choices, not validated research.
 - Topic stats come only from questions that have a topic, whether suggested or confirmed.

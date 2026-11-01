@@ -33,7 +33,120 @@ TopicStats topicStats(
   ),
 );
 
+TopicStats timedStats(
+  String name, {
+  int answered = 12,
+  int correct = 10,
+  int timed = 0,
+  int seconds = 0,
+  int repeated = 0,
+  CalendarDate? last,
+}) => TopicStats(
+  topicId: 'id-$name',
+  name: name,
+  subject: 'Quantitative Aptitude',
+  counts: AnswerCounts(answered: answered, correct: correct),
+  timedAnswered: timed,
+  timeSpentMs: timed * seconds * 1000,
+  repeatedMistakes: repeated,
+  lastAnsweredOn: last,
+);
+
+PracticeAnalytics timedPractice(List<TopicStats> topics) => PracticeAnalytics(
+  timezone: 'Asia/Kolkata',
+  today: CalendarDate(2026, 10, 13),
+  days: 30,
+  recentDays: 14,
+  total: const AnswerCounts(answered: 100, correct: 80),
+  sessions: 5,
+  timedAnswered: topics.fold(0, (sum, t) => sum + t.timedAnswered),
+  timeSpentMs: topics.fold(0, (sum, t) => sum + t.timeSpentMs),
+  topics: topics,
+);
+
 void main() {
+  group('diagnosis (global Phase 9)', () {
+    test('repeated mistakes make a topic weak even with few answers', () {
+      final result = assessTopics(
+        timedPractice([
+          timedStats('Ratio', answered: 6, correct: 0, repeated: 3),
+          timedStats('Average', answered: 6, correct: 2, repeated: 2),
+        ]),
+        const RevisionStats(),
+      );
+      final byName = {for (final t in result) t.name: t};
+      expect(byName['Ratio']!.reasons, [WeakReason.repeatedMistakes]);
+      expect(byName['Ratio']!.hasEnoughData, isTrue);
+      expect(byName['Average']!.isWeak, isFalse);
+      expect(byName['Average']!.hasEnoughData, isFalse); // insufficient evidence
+    });
+
+    test('slow means much slower than the learner\'s own pace, with enough timed answers', () {
+      final result = assessTopics(
+        timedPractice([
+          timedStats('Algebra', timed: 10, seconds: 90),
+          timedStats('Average', timed: 20, seconds: 30),
+          timedStats('Ratio', timed: 4, seconds: 30), // too few timed answers to judge
+        ]),
+        const RevisionStats(),
+      );
+      final byName = {for (final t in result) t.name: t};
+      expect(byName['Algebra']!.reasons, [WeakReason.slow]);
+      expect(byName['Algebra']!.secondsPerAnswer, 90);
+      expect(byName['Average']!.isWeak, isFalse);
+      expect(byName['Ratio']!.isWeak, isFalse);
+      expect(byName['Ratio']!.secondsPerAnswer, isNull);
+    });
+
+    test('speed is not judged without enough timed answers overall', () {
+      final result = assessTopics(
+        timedPractice([timedStats('Algebra', timed: 9, seconds: 300)]),
+        const RevisionStats(),
+      );
+      expect(result.single.isWeak, isFalse);
+    });
+
+    test('a topic not practised for a while is suggested for a refresh, not called weak', () {
+      final today = CalendarDate(2026, 10, 13);
+      final topics = assessTopics(
+        timedPractice([
+          timedStats('Average', last: today.addDays(-30)),
+          timedStats('Ratio', last: today.addDays(-25)),
+          timedStats('Algebra', last: today.addDays(-2)),
+          timedStats('Series', answered: 5, correct: 5, last: today.addDays(-40)), // too few
+        ]),
+        const RevisionStats(),
+      );
+      final byName = {for (final t in topics) t.name: t};
+      expect(byName['Average']!.dueForRefresh, isTrue);
+      expect(byName['Average']!.isWeak, isFalse);
+      expect(byName['Average']!.daysSinceLast, 30);
+      expect(byName['Algebra']!.dueForRefresh, isFalse);
+      expect(byName['Series']!.dueForRefresh, isFalse);
+
+      final plan = buildStudyPlan(
+        today: today,
+        dueCards: 0,
+        overdueCards: 0,
+        topics: topics,
+        practiceDataAvailable: true,
+        answeredTotal: 100,
+      );
+      expect(plan.items.map((i) => i.kind), [
+        PlanItemKind.practiceMixed,
+        PlanItemKind.refreshTopic,
+      ]);
+      final refresh = plan.items.last;
+      expect(refresh.topicName, 'Average'); // the longest unpractised first, one per day
+      expect((refresh.reason as TopicNotRecent).topic.daysSinceLast, 30);
+    });
+
+    test('offline (no practice data) there is no recency to judge', () {
+      final result = assessTopics(null, const RevisionStats());
+      expect(result, isEmpty);
+    });
+  });
+
   group('weak topics', () {
     test('low accuracy is weak only with enough answers', () {
       final result = assessTopics(

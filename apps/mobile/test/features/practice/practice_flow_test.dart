@@ -196,6 +196,34 @@ void main() {
     expect(find.textContaining('no negative marking'), findsOneWidget);
   });
 
+  testAppWidgets('answers carry the time spent on the question', (tester, db) async {
+    final clock = TestClock();
+    final repo = await pumpPractice(tester, db, clock: clock);
+    await startPractice(tester);
+
+    clock.now = clock.now.add(const Duration(seconds: 40));
+    await tester.tap(find.text('30'));
+    await tester.pumpAndSettle();
+    expect(repo.timesSpent[1], 40000);
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    clock.now = clock.now.add(const Duration(minutes: 11)); // probably away: not recorded
+    await tester.tap(find.text('20'));
+    await tester.pumpAndSettle();
+    expect(repo.timesSpent.containsKey(2), isTrue);
+    expect(repo.timesSpent[2], isNull);
+  });
+
+  test('time on a question is only kept when plausible', () {
+    final shown = DateTime(2026, 10, 14, 9);
+    expect(timeOnQuestion(shown, shown.add(const Duration(seconds: 5))), 5000);
+    expect(timeOnQuestion(null, shown), isNull);
+    expect(timeOnQuestion(shown, shown.subtract(const Duration(seconds: 1))), isNull);
+    expect(timeOnQuestion(shown, shown.add(maxTimedAnswer)), maxTimedAnswer.inMilliseconds);
+    expect(timeOnQuestion(shown, shown.add(maxTimedAnswer + const Duration(seconds: 1))), isNull);
+  });
+
   testAppWidgets('unreviewed questions are labelled during practice', (tester, db) async {
     await pumpPractice(tester, db, pool: [bankQuestion(status: VerificationStatus.unverified)]);
     await startPractice(tester);

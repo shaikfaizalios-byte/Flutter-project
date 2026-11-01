@@ -7028,6 +7028,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Made from an AI lesson: it always stays labelled as AI-generated.'**
   String get conceptAiLabelKept;
+
+  /// No description provided for @topicSecondsPerAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s per answer'**
+  String topicSecondsPerAnswer(String seconds);
+
+  /// No description provided for @topicRepeatedMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 question wrong more than once} other{{count} questions wrong more than once}}'**
+  String topicRepeatedMistakes(int count);
+
+  /// No description provided for @reasonOftenForgotten.
+  ///
+  /// In en, this message translates to:
+  /// **'often forgotten'**
+  String get reasonOftenForgotten;
+
+  /// No description provided for @reasonRepeatedMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'the same mistakes again'**
+  String get reasonRepeatedMistakes;
+
+  /// No description provided for @reasonSlower.
+  ///
+  /// In en, this message translates to:
+  /// **'slower than your usual pace'**
+  String get reasonSlower;
+
+  /// No description provided for @planRefreshTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh {topic}'**
+  String planRefreshTitle(String topic);
+
+  /// No description provided for @reasonNotPractisedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not practised for {days} days'**
+  String reasonNotPractisedFor(int days);
+
+  /// No description provided for @progressRulesMore.
+  ///
+  /// In en, this message translates to:
+  /// **'A topic is also weak with {mistakes} or more questions answered wrong in two sessions, or when its answers take {factor} times your usual time (after {timed} timed answers). A topic not practised for {days} days is suggested for a refresh.'**
+  String progressRulesMore(int mistakes, String factor, int timed, int days);
+
+  /// No description provided for @readinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness'**
+  String get readinessTitle;
+
+  /// No description provided for @readinessCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'{practised} of {topics} syllabus topics practised'**
+  String readinessCoverage(int practised, int topics);
+
+  /// No description provided for @readinessStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'{strong} strong or mastered'**
+  String readinessStrong(int strong);
+
+  /// No description provided for @readinessSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'{practised}/{topics} practised · {strong} strong'**
+  String readinessSubject(int practised, int topics, int strong);
+
+  /// No description provided for @readinessNoSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your syllabus topics to see how much of the syllabus you have covered.'**
+  String get readinessNoSyllabus;
+
+  /// No description provided for @readinessEvidenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence so far'**
+  String get readinessEvidenceTitle;
+
+  /// No description provided for @readinessRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'{answers} answers in the last {days} days, {percent} correct'**
+  String readinessRecent(int answers, int days, String percent);
+
+  /// No description provided for @readinessNoRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'No practice answers in the last {days} days.'**
+  String readinessNoRecent(int days);
+
+  /// No description provided for @readinessOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice evidence needs a connection.'**
+  String get readinessOffline;
+
+  /// No description provided for @readinessMocks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 mock test} other{{count} mock tests}} in the last {days} days; latest: {score} of {max} on {date}'**
+  String readinessMocks(int count, int days, String score, String max, String date);
+
+  /// No description provided for @readinessNoMock.
+  ///
+  /// In en, this message translates to:
+  /// **'No mock test submitted yet.'**
+  String get readinessNoMock;
+
+  /// No description provided for @readinessNotPrediction.
+  ///
+  /// In en, this message translates to:
+  /// **'This shows what you have covered and what your answers show so far. It is not a prediction of your result.'**
+  String get readinessNotPrediction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -52,6 +52,9 @@ class FakePracticeRepository implements PracticeRepository {
   bool offline = false;
   String? startFailureCode;
   final submits = <String>[];
+
+  /// Time spent sent with each answer (position → milliseconds).
+  final timesSpent = <int, int?>{};
   final List<PracticeRequest> practiceRequests = [];
 
   /// Offline practice is covered by the real repository's tests (practice_offline_test.dart).
@@ -192,6 +195,7 @@ class FakePracticeRepository implements PracticeRepository {
     int? timeSpentMs,
   }) async {
     final s = _get(sessionId);
+    timesSpent[position] = timeSpentMs;
     if (offline) return const AnswerOutcome.queued();
     _expire(s);
     if (s.submitted) throw const ServerFailure(statusCode: 409, code: 'session_closed');

@@ -4390,4 +4390,100 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get conceptAiLabelKept =>
       'Made from an AI lesson: it always stays labelled as AI-generated.';
+
+  @override
+  String topicSecondsPerAnswer(String seconds) {
+    return '$seconds s per answer';
+  }
+
+  @override
+  String topicRepeatedMistakes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions wrong more than once',
+      one: '1 question wrong more than once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reasonOftenForgotten => 'often forgotten';
+
+  @override
+  String get reasonRepeatedMistakes => 'the same mistakes again';
+
+  @override
+  String get reasonSlower => 'slower than your usual pace';
+
+  @override
+  String planRefreshTitle(String topic) {
+    return 'Refresh $topic';
+  }
+
+  @override
+  String reasonNotPractisedFor(int days) {
+    return 'Not practised for $days days';
+  }
+
+  @override
+  String progressRulesMore(int mistakes, String factor, int timed, int days) {
+    return 'A topic is also weak with $mistakes or more questions answered wrong in two sessions, or when its answers take $factor times your usual time (after $timed timed answers). A topic not practised for $days days is suggested for a refresh.';
+  }
+
+  @override
+  String get readinessTitle => 'Readiness';
+
+  @override
+  String readinessCoverage(int practised, int topics) {
+    return '$practised of $topics syllabus topics practised';
+  }
+
+  @override
+  String readinessStrong(int strong) {
+    return '$strong strong or mastered';
+  }
+
+  @override
+  String readinessSubject(int practised, int topics, int strong) {
+    return '$practised/$topics practised · $strong strong';
+  }
+
+  @override
+  String get readinessNoSyllabus =>
+      'Add your syllabus topics to see how much of the syllabus you have covered.';
+
+  @override
+  String get readinessEvidenceTitle => 'Evidence so far';
+
+  @override
+  String readinessRecent(int answers, int days, String percent) {
+    return '$answers answers in the last $days days, $percent correct';
+  }
+
+  @override
+  String readinessNoRecent(int days) {
+    return 'No practice answers in the last $days days.';
+  }
+
+  @override
+  String get readinessOffline => 'Practice evidence needs a connection.';
+
+  @override
+  String readinessMocks(int count, int days, String score, String max, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mock tests',
+      one: '1 mock test',
+    );
+    return '$_temp0 in the last $days days; latest: $score of $max on $date';
+  }
+
+  @override
+  String get readinessNoMock => 'No mock test submitted yet.';
+
+  @override
+  String get readinessNotPrediction =>
+      'This shows what you have covered and what your answers show so far. It is not a prediction of your result.';
 }

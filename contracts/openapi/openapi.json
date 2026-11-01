@@ -298,6 +298,16 @@
             "title": "Subjects",
             "type": "array"
           },
+          "time_spent_ms": {
+            "default": 0,
+            "title": "Time Spent Ms",
+            "type": "integer"
+          },
+          "timed_answered": {
+            "default": 0,
+            "title": "Timed Answered",
+            "type": "integer"
+          },
           "timezone": {
             "title": "Timezone",
             "type": "string"
@@ -7581,6 +7591,18 @@
             "title": "Correct",
             "type": "integer"
           },
+          "last_answered_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Answered On"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -7593,9 +7615,24 @@
             "title": "Recent Correct",
             "type": "integer"
           },
+          "repeated_mistakes": {
+            "default": 0,
+            "title": "Repeated Mistakes",
+            "type": "integer"
+          },
           "subject": {
             "title": "Subject",
             "type": "string"
+          },
+          "time_spent_ms": {
+            "default": 0,
+            "title": "Time Spent Ms",
+            "type": "integer"
+          },
+          "timed_answered": {
+            "default": 0,
+            "title": "Timed Answered",
+            "type": "integer"
           },
           "topic_id": {
             "format": "uuid",

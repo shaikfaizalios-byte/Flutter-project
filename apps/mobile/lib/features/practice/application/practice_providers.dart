@@ -157,6 +157,19 @@ int _startIndex(PracticeSessionView session) {
   return open.firstWhere((i) => !session.items[i].answered, orElse: () => open.first);
 }
 
+/// Time on a question (from when it was last shown until it was answered) above this is not
+/// recorded: the learner probably left the screen. Used for the speed signal (docs/analytics.md).
+const maxTimedAnswer = Duration(minutes: 10);
+
+/// Milliseconds between [shownAt] and [answeredAt], or null when unknown or too long to be
+/// time spent on the question.
+int? timeOnQuestion(DateTime? shownAt, DateTime answeredAt) {
+  if (shownAt == null) return null;
+  final spent = answeredAt.difference(shownAt);
+  if (spent.isNegative || spent > maxTimedAnswer) return null;
+  return spent.inMilliseconds;
+}
+
 /// Drives one session screen. The server is the source of truth; answers go through the
 /// offline queue, and an expired mock is submitted (idempotently) when its time is up.
 class SessionController extends AsyncNotifier<SessionState> {
@@ -166,10 +179,18 @@ class SessionController extends AsyncNotifier<SessionState> {
 
   PracticeRepository get _repo => ref.read(practiceRepositoryProvider);
 
+  /// When the current question was shown (for the time spent on it).
+  DateTime? _shownAt;
+
+  DateTime _now() => ref.read(clockProvider)();
+
+  int? _timeSpent() => timeOnQuestion(_shownAt, _now());
+
   @override
   Future<SessionState> build() async {
     final fetchedAt = ref.read(clockProvider)();
     final session = await _repo.session(sessionId);
+    _shownAt = _now();
     return SessionState(
       session: session,
       clockOffset: session.serverNow.difference(fetchedAt),
@@ -181,6 +202,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     final value = state.value;
     if (value == null || index < 0 || index >= value.session.items.length) return;
     if (!value.session.isOpen(value.session.items[index].position)) return;
+    _shownAt = _now();
     state = AsyncData(value.copyWith(current: index));
   }
 
@@ -212,6 +234,7 @@ class SessionController extends AsyncNotifier<SessionState> {
   }
 
   void _replace(PracticeSessionView session, Duration clockOffset) {
+    _shownAt = _now();
     state = AsyncData(
       SessionState(session: session, clockOffset: clockOffset, current: _startIndex(session)),
     );
@@ -237,7 +260,12 @@ class SessionController extends AsyncNotifier<SessionState> {
       value.copyWith(session: value.session.withItem(item.copyWith(selectedPosition: () => next))),
     );
     try {
-      final outcome = await _repo.answer(sessionId, item.position, next);
+      final outcome = await _repo.answer(
+        sessionId,
+        item.position,
+        next,
+        timeSpentMs: next == null ? null : _timeSpent(),
+      );
       final latest = state.value!;
       final queued = {...latest.queuedPositions};
       outcome.queued ? queued.add(item.position) : queued.remove(item.position);
@@ -275,7 +303,13 @@ class SessionController extends AsyncNotifier<SessionState> {
       value.copyWith(session: value.session.withItem(item.copyWith(typedAnswer: () => answer))),
     );
     try {
-      final outcome = await _repo.answer(sessionId, item.position, null, typedAnswer: answer);
+      final outcome = await _repo.answer(
+        sessionId,
+        item.position,
+        null,
+        typedAnswer: answer,
+        timeSpentMs: _timeSpent(),
+      );
       final latest = state.value!;
       final queued = {...latest.queuedPositions};
       outcome.queued ? queued.add(item.position) : queued.remove(item.position);

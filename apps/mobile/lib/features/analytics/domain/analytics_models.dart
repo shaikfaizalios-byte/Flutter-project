@@ -46,12 +46,26 @@ class TopicStats {
     required this.name,
     required this.subject,
     required this.counts,
+    this.timedAnswered = 0,
+    this.timeSpentMs = 0,
+    this.lastAnsweredOn,
+    this.repeatedMistakes = 0,
   });
 
   final String topicId;
   final String name;
   final String subject;
   final AnswerCounts counts;
+
+  /// Answers that recorded the time spent on the question, and their total time.
+  final int timedAnswered;
+  final int timeSpentMs;
+
+  /// The learner's local day of the latest answer in this topic.
+  final CalendarDate? lastAnsweredOn;
+
+  /// Questions of this topic answered wrong in two or more sessions.
+  final int repeatedMistakes;
 }
 
 @immutable
@@ -96,6 +110,8 @@ class PracticeAnalytics {
     required this.recentDays,
     required this.total,
     required this.sessions,
+    this.timedAnswered = 0,
+    this.timeSpentMs = 0,
     this.subjects = const [],
     this.topics = const [],
     this.daily = const [],
@@ -113,6 +129,8 @@ class PracticeAnalytics {
       recentDays: json['recent_days'] as int,
       total: AnswerCounts(answered: json['answered'] as int, correct: json['correct'] as int),
       sessions: json['sessions'] as int,
+      timedAnswered: json['timed_answered'] as int? ?? 0,
+      timeSpentMs: json['time_spent_ms'] as int? ?? 0,
       subjects: [
         for (final s in list('subjects'))
           SubjectStats(name: s['name'] as String, counts: AnswerCounts.fromJson(s)),
@@ -124,6 +142,10 @@ class PracticeAnalytics {
             name: t['name'] as String,
             subject: t['subject'] as String,
             counts: AnswerCounts.fromJson(t),
+            timedAnswered: t['timed_answered'] as int? ?? 0,
+            timeSpentMs: t['time_spent_ms'] as int? ?? 0,
+            lastAnsweredOn: CalendarDate.tryParse(t['last_answered_on'] as String?),
+            repeatedMistakes: t['repeated_mistakes'] as int? ?? 0,
           ),
       ],
       daily: [
@@ -155,6 +177,10 @@ class PracticeAnalytics {
   final int recentDays;
   final AnswerCounts total;
   final int sessions;
+
+  /// All timed answers and their total time (the learner's own usual pace).
+  final int timedAnswered;
+  final int timeSpentMs;
   final List<SubjectStats> subjects;
   final List<TopicStats> topics;
   final List<DailyStats> daily;

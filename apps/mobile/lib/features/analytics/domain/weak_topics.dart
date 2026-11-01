@@ -28,11 +28,26 @@ abstract final class AnalyticsRules {
 
   /// Recent window for trends.
   static const recentDays = 14;
+
+  /// A question answered wrong in two or more sessions is a repeated mistake; this many in
+  /// one topic make it weak, however few answers it has.
+  static const minRepeatedMistakes = 3;
+
+  /// Timed answers needed, in the topic and overall, before speed is judged.
+  static const minTimedAnswers = 10;
+
+  /// A topic is slow when its average time per answer is at least this many times the
+  /// learner's own average over all timed answers.
+  static const slowFactor = 1.5;
+
+  /// A topic with enough answers that has not been practised for this many days is
+  /// suggested for a refresh (it is not called weak).
+  static const refreshAfterDays = 21;
 }
 
 enum Trend { improving, steady, declining }
 
-enum WeakReason { lowAccuracy, oftenForgotten }
+enum WeakReason { lowAccuracy, oftenForgotten, repeatedMistakes, slow }
 
 /// A topic with its evidence. [reasons] is empty for topics that are not weak.
 @immutable
@@ -46,6 +61,10 @@ class TopicAssessment {
     this.reviews = 0,
     this.forgot = 0,
     this.trend,
+    this.timedAnswered = 0,
+    this.timeSpentMs = 0,
+    this.repeatedMistakes = 0,
+    this.daysSinceLast,
   });
 
   final String subject;
@@ -59,14 +78,33 @@ class TopicAssessment {
   final int forgot;
   final Trend? trend;
   final List<WeakReason> reasons;
+  final int timedAnswered;
+  final int timeSpentMs;
+  final int repeatedMistakes;
+
+  /// Days since the latest practice answer in this topic; null when never practised (or
+  /// offline).
+  final int? daysSinceLast;
 
   bool get isWeak => reasons.isNotEmpty;
 
   /// Enough evidence for at least one judgement.
   bool get hasEnoughData =>
-      counts.answered >= AnalyticsRules.minAnswers || reviews >= AnalyticsRules.minReviews;
+      counts.answered >= AnalyticsRules.minAnswers ||
+      reviews >= AnalyticsRules.minReviews ||
+      repeatedMistakes >= AnalyticsRules.minRepeatedMistakes;
 
   double? get forgetRate => reviews == 0 ? null : forgot / reviews;
+
+  /// Average seconds per timed answer; null without enough timed answers to say.
+  double? get secondsPerAnswer =>
+      timedAnswered < AnalyticsRules.minTimedAnswers ? null : timeSpentMs / timedAnswered / 1000;
+
+  /// Practised enough before, but not for [AnalyticsRules.refreshAfterDays] days or more.
+  bool get dueForRefresh =>
+      counts.answered >= AnalyticsRules.minAnswers &&
+      daysSinceLast != null &&
+      daysSinceLast! >= AnalyticsRules.refreshAfterDays;
 }
 
 /// Trend from recent vs earlier answers, or null without enough of both.
@@ -81,10 +119,13 @@ Trend? trendOf(AnswerCounts c) {
   return Trend.steady;
 }
 
-/// Combines practice accuracy (server) and flashcard recall (device) per topic.
-/// Topics are matched by subject and name, ignoring case. Weak topics come first, the
-/// weakest (lowest accuracy, then highest forget rate) at the top.
+/// Combines practice accuracy, speed, recency and repeated mistakes (server) and flashcard
+/// recall (device) per topic. Topics are matched by subject and name, ignoring case. Weak
+/// topics come first, the weakest (lowest accuracy, then highest forget rate) at the top.
 List<TopicAssessment> assessTopics(PracticeAnalytics? practice, RevisionStats revision) {
+  final usualPace = practice == null || practice.timedAnswered < AnalyticsRules.minTimedAnswers
+      ? null
+      : practice.timeSpentMs / practice.timedAnswered;
   String key(String subject, String name) =>
       '${subject.trim().toLowerCase()}\u001f${name.trim().toLowerCase()}';
   final recall = {for (final r in revision.byTopic) key(r.subject, r.topic): r};
@@ -97,10 +138,15 @@ List<TopicAssessment> assessTopics(PracticeAnalytics? practice, RevisionStats re
     String? topicId,
     AnswerCounts counts = const AnswerCounts(answered: 0, correct: 0),
     TopicRecall? cards,
+    TopicStats? stats,
   }) {
     final reviews = cards?.reviews ?? 0;
     final forgot = cards?.forgot ?? 0;
     final accuracy = counts.accuracy;
+    final timed = stats?.timedAnswered ?? 0;
+    final spent = stats?.timeSpentMs ?? 0;
+    final repeated = stats?.repeatedMistakes ?? 0;
+    final last = stats?.lastAnsweredOn;
     return TopicAssessment(
       subject: subject,
       name: name,
@@ -109,6 +155,10 @@ List<TopicAssessment> assessTopics(PracticeAnalytics? practice, RevisionStats re
       reviews: reviews,
       forgot: forgot,
       trend: trendOf(counts),
+      timedAnswered: timed,
+      timeSpentMs: spent,
+      repeatedMistakes: repeated,
+      daysSinceLast: last == null || practice == null ? null : last.daysUntil(practice.today),
       reasons: [
         if (counts.answered >= AnalyticsRules.minAnswers &&
             accuracy != null &&
@@ -117,6 +167,11 @@ List<TopicAssessment> assessTopics(PracticeAnalytics? practice, RevisionStats re
         if (reviews >= AnalyticsRules.minReviews &&
             forgot / reviews >= AnalyticsRules.weakForgetRate)
           WeakReason.oftenForgotten,
+        if (repeated >= AnalyticsRules.minRepeatedMistakes) WeakReason.repeatedMistakes,
+        if (usualPace != null &&
+            timed >= AnalyticsRules.minTimedAnswers &&
+            spent / timed >= usualPace * AnalyticsRules.slowFactor)
+          WeakReason.slow,
       ],
     );
   }
@@ -131,6 +186,7 @@ List<TopicAssessment> assessTopics(PracticeAnalytics? practice, RevisionStats re
         topicId: topic.topicId,
         counts: topic.counts,
         cards: recall[k],
+        stats: topic,
       ),
     );
   }
