@@ -2107,6 +2107,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionSectionTimeUp => 'Time\'s up for that section. The next section is open.';
 
   @override
+  String topicCanonicalSuggested(String topic, String subject) {
+    return 'Same as the shared topic \"$topic\" ($subject)?';
+  }
+
+  @override
+  String topicCanonicalLinked(String topic, String subject) {
+    return 'Counts as the shared topic \"$topic\" ($subject)';
+  }
+
+  @override
+  String get topicCanonicalYes => 'Yes, same';
+
+  @override
+  String get topicCanonicalNo => 'No';
+
+  @override
   String get accountExport => 'Copy my data';
 
   @override

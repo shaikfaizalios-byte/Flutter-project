@@ -2110,6 +2110,22 @@ class AppLocalizationsHi extends AppLocalizations {
   String get sessionSectionTimeUp => 'उस खंड का समय पूरा हुआ। अगला खंड खुल गया है।';
 
   @override
+  String topicCanonicalSuggested(String topic, String subject) {
+    return 'क्या यह साझा विषय \"$topic\" ($subject) ही है?';
+  }
+
+  @override
+  String topicCanonicalLinked(String topic, String subject) {
+    return 'साझा विषय \"$topic\" ($subject) के रूप में गिना जाता है';
+  }
+
+  @override
+  String get topicCanonicalYes => 'हाँ, वही है';
+
+  @override
+  String get topicCanonicalNo => 'नहीं';
+
+  @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
 
   @override

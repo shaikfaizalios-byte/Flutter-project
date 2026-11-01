@@ -48,6 +48,9 @@ abstract interface class ExamsRepository {
   /// Marks a topic as revised (or not) for the learner.
   Future<ExamTopic> setCompleted(String topicId, {required bool completed});
 
+  /// Confirms (or rejects) that the learner's topic means this canonical topic.
+  Future<ExamTopic> decideCanonical(String topicId, String nodeId, {required bool confirmed});
+
   /// Removes several of the learner's own topics; returns how many were removed.
   Future<int> deleteTopics(List<String> topicIds);
 
@@ -157,6 +160,17 @@ class RemoteExamsRepository implements ExamsRepository {
     final response = await _dio.post<Map<String, dynamic>>('$_base/ai/exams/$examCode/topic-draft');
     return TopicDraft.fromJson(response.data!);
   });
+
+  @override
+  Future<ExamTopic> decideCanonical(String topicId, String nodeId, {required bool confirmed}) =>
+      _guard(
+        () async => ExamTopic.fromJson(
+          (await _dio.put<Map<String, dynamic>>(
+            '/api/v1/topics/$topicId/canonical',
+            data: {'node_id': nodeId, 'confirmed': confirmed},
+          )).data!,
+        ),
+      );
 
   @override
   Future<int> deleteTopics(List<String> topicIds) => _guard(() async {

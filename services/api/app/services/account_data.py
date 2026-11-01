@@ -34,6 +34,7 @@ from app.models.question import (
 )
 from app.models.question import Question as QuestionModel
 from app.models.sync import SyncItem
+from app.models.taxonomy import TopicTaxonomyLink
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,6 +70,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
 # In order: a parent is always listed before its children.
 CHILD_DATA: tuple[ChildData, ...] = (
     ChildData(QuestionPattern, (("topic_id", "topics"),)),
+    ChildData(TopicTaxonomyLink, (("topic_id", "topics"),)),
     ChildData(DocumentPage, (("document_id", "documents"),)),
     ChildData(Passage, (("document_id", "documents"),)),
     ChildData(QuestionOption, (("question_id", "questions"),)),
@@ -91,6 +93,8 @@ NOT_EXPORTED: dict[str, str] = {
     "account_codes": "one-time code hashes that expire in minutes; removed with the account",
     "rate_limit_counters": "keyed by a hash of the client, not linked to an account",
     "exam_formats": "official reference data, not the learner's",
+    "taxonomy_nodes": "canonical topics: reference data, not the learner's",
+    "taxonomy_labels": "names of canonical topics: reference data",
     "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
     "after deletion with the account link cleared; the purchases are in play_purchases",
 }

@@ -3435,6 +3435,30 @@ abstract class AppLocalizations {
   /// **'Time\'s up for that section. The next section is open.'**
   String get sessionSectionTimeUp;
 
+  /// No description provided for @topicCanonicalSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the shared topic \"{topic}\" ({subject})?'**
+  String topicCanonicalSuggested(String topic, String subject);
+
+  /// No description provided for @topicCanonicalLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts as the shared topic \"{topic}\" ({subject})'**
+  String topicCanonicalLinked(String topic, String subject);
+
+  /// No description provided for @topicCanonicalYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, same'**
+  String get topicCanonicalYes;
+
+  /// No description provided for @topicCanonicalNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get topicCanonicalNo;
+
   /// No description provided for @accountExport.
   ///
   /// In en, this message translates to:

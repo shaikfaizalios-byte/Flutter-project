@@ -1437,6 +1437,30 @@
     }
   },
   "sessionSectionTimeUp": "Time's up for that section. The next section is open.",
+  "topicCanonicalSuggested": "Same as the shared topic \"{topic}\" ({subject})?",
+  "@topicCanonicalSuggested": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      },
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "topicCanonicalLinked": "Counts as the shared topic \"{topic}\" ({subject})",
+  "@topicCanonicalLinked": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      },
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "topicCanonicalYes": "Yes, same",
+  "topicCanonicalNo": "No",
   "accountExport": "Copy my data",
   "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
   "accountSignOut": "Sign out",

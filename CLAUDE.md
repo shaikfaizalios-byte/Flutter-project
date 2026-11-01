@@ -157,6 +157,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   formats in effect today; drafts never leave the operator tool `python -m app.cli.exam_formats`
   (import/check/publish/retire/list, and `exam` to add or describe catalog exams: country, authority, aliases).
   Publishing is refused while pure `format_problems`/`config_problems` find a missing or inconsistent fact.
+- Canonical topics (global Phase 6, migration 0034): `taxonomy_nodes`/`taxonomy_labels`/`topic_taxonomy_links`,
+  seeded 1:1 from the shared topics (confirmed); learners' own topics get a suggested link only on an exact
+  normalized name match (`app/domain/taxonomy.py`), confirmed or rejected by the learner
+  (`PUT /topics/{id}/canonical`, topics screen). Only confirmed links count: mock sections match questions via the
+  canonical subject too (`subject_labels_by_topic`). See docs/question-bank.md.
 - Question bank: worker runs the pure segmenter (`app/domain/segmentation.py`) after extraction →
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a

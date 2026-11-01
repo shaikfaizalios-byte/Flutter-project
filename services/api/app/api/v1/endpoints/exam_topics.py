@@ -12,6 +12,7 @@ from app.database.session import DbSession
 from app.schemas.concept import Language
 from app.schemas.errors import ErrorResponse
 from app.schemas.exam import (
+    CanonicalDecision,
     CustomExamCreate,
     CustomExamUpdate,
     ExamRead,
@@ -20,6 +21,7 @@ from app.schemas.exam import (
     SyllabusDraftRead,
     SyllabusImportRead,
     SyllabusText,
+    TaxonomySubjectRead,
     TopicCompletionUpdate,
     TopicCreate,
     TopicsBulkCreate,
@@ -29,6 +31,7 @@ from app.schemas.exam import (
 )
 from app.schemas.question import PatternRead
 from app.services.syllabus_service import SyllabusService
+from app.services.taxonomy_service import canonical_tree
 from app.services.topic_service import TopicService
 
 router = APIRouter(
@@ -196,6 +199,27 @@ def create_topics(body: TopicsBulkCreate, service: Service) -> list[OwnTopicRead
 )
 def update_topic(topic_id: uuid.UUID, body: TopicUpdate, service: Service) -> OwnTopicRead:
     return service.update_topic(topic_id, body)
+
+
+@router.put(
+    "/topics/{topic_id}/canonical",
+    response_model=OwnTopicRead,
+    responses={**NOT_FOUND, 422: {"model": ErrorResponse}},
+    summary="Confirm or reject that your topic means a canonical (shared) topic",
+)
+def decide_canonical(
+    topic_id: uuid.UUID, body: CanonicalDecision, service: Service
+) -> OwnTopicRead:
+    return service.decide_canonical(topic_id, body)
+
+
+@router.get(
+    "/taxonomy",
+    response_model=list[TaxonomySubjectRead],
+    summary="Canonical subjects and topics (shared across exams), to link your topics to",
+)
+def taxonomy(session: DbSession, user: CurrentUser) -> list[TaxonomySubjectRead]:
+    return canonical_tree(session)
 
 
 @router.delete(

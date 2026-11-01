@@ -206,6 +206,12 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
   Future<void> _toggle(ExamTopic topic, bool completed) =>
       _run(() => ref.read(examsRepositoryProvider).setCompleted(topic.id, completed: completed));
 
+  Future<void> _decide(ExamTopic topic, {required bool confirmed}) => _run(
+    () => ref
+        .read(examsRepositoryProvider)
+        .decideCanonical(topic.id, topic.canonical!.nodeId, confirmed: confirmed),
+  );
+
   void _changed() => ref
     ..invalidate(examTopicsProvider(widget.examCode))
     ..invalidate(syllabusImportsProvider(widget.examCode))
@@ -370,6 +376,24 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
           ),
           if (_levels[_topicKey(topic.subject, topic.name)] case final level?)
             MasteryChip(level: level),
+          if (topic.canonical case final link? when topic.own)
+            link.confirmed
+                ? Text(l10n.topicCanonicalLinked(link.label, link.subjectLabel))
+                : Wrap(
+                    spacing: AppSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(l10n.topicCanonicalSuggested(link.label, link.subjectLabel)),
+                      TextButton(
+                        onPressed: _busy ? null : () => _decide(topic, confirmed: true),
+                        child: Text(l10n.topicCanonicalYes),
+                      ),
+                      TextButton(
+                        onPressed: _busy ? null : () => _decide(topic, confirmed: false),
+                        child: Text(l10n.topicCanonicalNo),
+                      ),
+                    ],
+                  ),
         ],
       ),
       trailing: topic.own

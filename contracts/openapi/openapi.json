@@ -596,6 +596,77 @@
         "title": "Body_upload_document_api_v1_documents_post",
         "type": "object"
       },
+      "CanonicalDecision": {
+        "additionalProperties": false,
+        "description": "The learner says whether their topic means this canonical topic.",
+        "properties": {
+          "confirmed": {
+            "title": "Confirmed",
+            "type": "boolean"
+          },
+          "node_id": {
+            "format": "uuid",
+            "title": "Node Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_id",
+          "confirmed"
+        ],
+        "title": "CanonicalDecision",
+        "type": "object"
+      },
+      "CanonicalTopicRead": {
+        "description": "The canonical topic an exam topic means (shared across exams and languages).",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "node_id": {
+            "format": "uuid",
+            "title": "Node Id",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "enum": [
+              "suggested",
+              "confirmed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_label": {
+            "title": "Subject Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_id",
+          "key",
+          "label",
+          "subject_label",
+          "status"
+        ],
+        "title": "CanonicalTopicRead",
+        "type": "object"
+      },
       "Change": {
         "additionalProperties": false,
         "properties": {
@@ -2868,6 +2939,16 @@
       },
       "OwnTopicRead": {
         "properties": {
+          "canonical": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CanonicalTopicRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "completed": {
             "default": false,
             "title": "Completed",
@@ -6642,6 +6723,62 @@
           "text"
         ],
         "title": "SyllabusText",
+        "type": "object"
+      },
+      "TaxonomySubjectRead": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "node_id": {
+            "format": "uuid",
+            "title": "Node Id",
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TaxonomyTopicRead"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "node_id",
+          "key",
+          "label",
+          "topics"
+        ],
+        "title": "TaxonomySubjectRead",
+        "type": "object"
+      },
+      "TaxonomyTopicRead": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "node_id": {
+            "format": "uuid",
+            "title": "Node Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_id",
+          "key",
+          "label"
+        ],
+        "title": "TaxonomyTopicRead",
         "type": "object"
       },
       "TokenPair": {
@@ -14479,6 +14616,46 @@
         ]
       }
     },
+    "/api/v1/taxonomy": {
+      "get": {
+        "operationId": "taxonomy_api_v1_taxonomy_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaxonomySubjectRead"
+                  },
+                  "title": "Response Taxonomy Api V1 Taxonomy Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Canonical subjects and topics (shared across exams), to link your topics to",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/api/v1/topics": {
       "get": {
         "operationId": "list_topics_api_v1_topics_get",
@@ -14889,6 +15066,84 @@
           }
         ],
         "summary": "Update Topic",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/canonical": {
+      "put": {
+        "operationId": "decide_canonical_api_v1_topics__topic_id__canonical_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Topic Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CanonicalDecision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnTopicRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm or reject that your topic means a canonical (shared) topic",
         "tags": [
           "exams"
         ]

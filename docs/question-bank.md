@@ -114,6 +114,27 @@ Published formats are never edited; a new notice becomes a new row, so past atte
 A document is linked to a format at upload (`exam_format_code`) or later
 (`PUT /documents/{id}/exam-format`). Re-run segmentation to apply a newly linked format.
 
+## Canonical topics (global Phase 6, migration 0034)
+
+One id per subject or topic, whatever an exam or a learner calls it: `taxonomy_nodes` (`key` such as
+`quantitative-aptitude/percentage`, kind subject|topic, parent), `taxonomy_labels` (language, label,
+alias) and `topic_taxonomy_links` (exam topic → canonical topic; status suggested|confirmed|rejected,
+source migration|rules|learner|operator; at most one confirmed per topic).
+
+- Seeded from the shared topics (4 subjects, 60 topics, used by the SSC, banking and railway exams):
+  one node each with the existing English name, and each shared topic linked to its own node
+  (`confirmed`, source `migration`). No Hindi labels were added (none were reviewed).
+- A learner's own topic gets a **suggested** link only when its name matches exactly one canonical
+  topic (pure `app/domain/taxonomy.py`: case, spacing, punctuation, "&"/"and", simple plurals);
+  two candidates → no suggestion. Renaming drops old suggestions; a rejection is never suggested
+  again. `OwnTopicRead.canonical` shows it; `PUT /topics/{id}/canonical {node_id, confirmed}` (own
+  topics only); `GET /taxonomy` lists the tree. App: "Same as the shared topic …? Yes, same / No" on
+  the topics screen, then "Counts as the shared topic …".
+- Used where it matters now: a mock section also takes questions whose topic is **confirmed**
+  linked to a canonical topic of the section's subject (by id), so a learner's own "Reasoning
+  Ability > Analogies" counts toward CGL's "General Intelligence and Reasoning". Suggestions never
+  count. Topic wording in papers and syllabuses is never changed.
+
 ## Exams and topics for any exam
 
 - `exams`: the **catalog** (names, short names, categories, featured; added by migrations; no patterns or marking)

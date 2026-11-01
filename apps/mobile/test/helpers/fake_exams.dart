@@ -215,6 +215,33 @@ class FakeExamsRepository implements ExamsRepository {
   }
 
   @override
+  Future<ExamTopic> decideCanonical(
+    String topicId,
+    String nodeId, {
+    required bool confirmed,
+  }) async {
+    calls.add('canonical:$topicId:$nodeId:$confirmed');
+    for (final entry in topicsByExam.entries) {
+      final i = entry.value.indexWhere((t) => t.id == topicId);
+      if (i >= 0) {
+        final link = entry.value[i].canonical;
+        entry.value[i] = entry.value[i].copyWith(
+          canonical: () => !confirmed || link == null
+              ? null
+              : CanonicalTopic(
+                  nodeId: link.nodeId,
+                  label: link.label,
+                  subjectLabel: link.subjectLabel,
+                  confirmed: true,
+                ),
+        );
+        return entry.value[i];
+      }
+    }
+    throw const ServerFailure(statusCode: 404, code: 'not_found');
+  }
+
+  @override
   Future<ExamTopic> setCompleted(String topicId, {required bool completed}) async {
     calls.add('completed:$topicId:$completed');
     for (final entry in topicsByExam.entries) {

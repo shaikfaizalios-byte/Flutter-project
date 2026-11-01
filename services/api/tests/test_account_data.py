@@ -29,6 +29,7 @@ from app.models.question import (
     Topic,
 )
 from app.models.sync import SyncItem
+from app.models.taxonomy import TaxonomyNode, TopicTaxonomyLink
 from app.models.user import User
 from app.services.account_data import CHILD_DATA, NOT_EXPORTED, OWNED_DATA
 from tests.conftest import make_user
@@ -95,6 +96,14 @@ def _fill_account(db: Session, user: User) -> None:
     db.add_all(
         [
             QuestionPattern(topic_id=topic.id, name="Mixtures", keywords=[]),
+            TopicTaxonomyLink(
+                topic_id=topic.id,
+                node_id=db.scalars(
+                    select(TaxonomyNode.id).where(TaxonomyNode.kind == "topic").limit(1)
+                ).one(),
+                status="suggested",
+                source="rules",
+            ),
             TopicCompletion(owner_id=user.id, topic_id=topic.id),
             Concept(
                 owner_id=user.id,

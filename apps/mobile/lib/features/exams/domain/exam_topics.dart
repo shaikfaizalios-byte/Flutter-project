@@ -1,5 +1,29 @@
 import 'package:flutter/foundation.dart';
 
+/// The canonical (shared, cross-exam) topic an exam topic means. Only a confirmed link
+/// counts (e.g. toward a mock section); a suggestion waits for the learner.
+@immutable
+class CanonicalTopic {
+  const CanonicalTopic({
+    required this.nodeId,
+    required this.label,
+    required this.subjectLabel,
+    required this.confirmed,
+  });
+
+  factory CanonicalTopic.fromJson(Map<String, dynamic> json) => CanonicalTopic(
+    nodeId: json['node_id'] as String,
+    label: json['label'] as String,
+    subjectLabel: json['subject_label'] as String,
+    confirmed: json['status'] == 'confirmed',
+  );
+
+  final String nodeId;
+  final String label;
+  final String subjectLabel;
+  final bool confirmed;
+}
+
 /// A topic that applies to an exam: shared taxonomy (read-only) or the learner's own.
 @immutable
 class ExamTopic {
@@ -11,6 +35,7 @@ class ExamTopic {
     this.keywords = const [],
     this.completed = false,
     this.syllabusImportId,
+    this.canonical,
   });
 
   factory ExamTopic.fromJson(Map<String, dynamic> json) => ExamTopic(
@@ -21,6 +46,9 @@ class ExamTopic {
     keywords: [for (final k in json['keywords'] as List<dynamic>) k as String],
     completed: json['completed'] as bool? ?? false,
     syllabusImportId: json['syllabus_import_id'] as String?,
+    canonical: json['canonical'] == null
+        ? null
+        : CanonicalTopic.fromJson(json['canonical'] as Map<String, dynamic>),
   );
 
   final String id;
@@ -35,7 +63,10 @@ class ExamTopic {
   /// The syllabus import that added it (shown in that import's section).
   final String? syllabusImportId;
 
-  ExamTopic copyWith({bool? completed}) => ExamTopic(
+  /// The canonical topic it means, or one suggested for the learner to confirm.
+  final CanonicalTopic? canonical;
+
+  ExamTopic copyWith({bool? completed, CanonicalTopic? Function()? canonical}) => ExamTopic(
     id: id,
     subject: subject,
     name: name,
@@ -43,6 +74,7 @@ class ExamTopic {
     keywords: keywords,
     completed: completed ?? this.completed,
     syllabusImportId: syllabusImportId,
+    canonical: canonical != null ? canonical() : this.canonical,
   );
 }
 

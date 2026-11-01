@@ -79,6 +79,7 @@ from app.schemas.practice import (
 from app.schemas.question import FigureRead, OptionRead, PassageRead
 from app.services.exam_formats import is_in_effect, mock_formats
 from app.services.shared_bank import visible_question
+from app.services.taxonomy_service import subject_labels_by_topic
 
 PRACTICE_MARKING_NOTE = "Practice: 1 point per correct answer, no negative marking."
 
@@ -125,6 +126,11 @@ def _plan(practice: PracticeSession) -> list[PlannedSection]:
     """The section plan of a sectionally timed mock (empty for everything else)."""
     raw = (practice.selection or {}).get("sections")
     return [PlannedSection.from_json(p) for p in raw] if isinstance(raw, list) else []
+
+
+def _canonical(labels: dict[uuid.UUID, list[str]], question: Question) -> list[str]:
+    """Labels of the canonical subject of the question's topic (confirmed links only)."""
+    return labels.get(question.topic_id, []) if question.topic_id else []
 
 
 def _eligible(
@@ -453,6 +459,9 @@ class PracticeService:
             duration_minutes=exam_format.duration_minutes,
             negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
         )
+        canonical = subject_labels_by_topic(
+            self._session, {q.topic_id for q in candidates if q.topic_id}
+        )
         pools: list[list[Question]] = []
         sections: list[SectionAvailability] = []
         for section in exam_format.sections or []:
@@ -460,7 +469,9 @@ class PracticeService:
             pool = [
                 q
                 for q in candidates
-                if same_subject(q.subject or "", subject) or same_subject(q.section or "", subject)
+                if same_subject(q.subject or "", subject)
+                or same_subject(q.section or "", subject)
+                or any(same_subject(label, subject) for label in _canonical(canonical, q))
             ]
             pools.append(pool)
             sections.append(

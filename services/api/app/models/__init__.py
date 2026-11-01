@@ -22,6 +22,7 @@ from app.models.question import (
     Topic,
 )
 from app.models.sync import SyncItem
+from app.models.taxonomy import TaxonomyLabel, TaxonomyNode, TopicTaxonomyLink
 from app.models.user import AccountCode, RefreshToken, User
 
 __all__ = [
@@ -52,7 +53,10 @@ __all__ = [
     "Suggestion",
     "SyllabusImport",
     "SyncItem",
+    "TaxonomyLabel",
+    "TaxonomyNode",
     "Topic",
     "TopicCompletion",
+    "TopicTaxonomyLink",
     "User",
 ]
