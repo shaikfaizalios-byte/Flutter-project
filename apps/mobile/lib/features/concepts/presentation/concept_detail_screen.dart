@@ -176,13 +176,7 @@ class _ConceptDetails extends ConsumerWidget {
                 runSpacing: AppSpacing.xs,
                 children: [
                   Chip(label: Text(ref.watch(examNameProvider(concept.examCode)))),
-                  Chip(
-                    label: Text(
-                      concept.language == ContentLanguage.hindi
-                          ? l10n.languageHindi
-                          : l10n.languageEnglish,
-                    ),
-                  ),
+                  Chip(label: Text(contentLanguageName(l10n, concept.language))),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),

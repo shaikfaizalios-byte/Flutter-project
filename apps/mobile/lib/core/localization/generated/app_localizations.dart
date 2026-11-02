@@ -7148,6 +7148,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This shows what you have covered and what your answers show so far. It is not a prediction of your result.'**
   String get readinessNotPrediction;
+
+  /// No description provided for @settingsAppLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get settingsAppLanguage;
+
+  /// No description provided for @settingsContentLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Papers, syllabus and notes'**
+  String get settingsContentLanguage;
+
+  /// No description provided for @settingsContentLanguageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen first when you add a paper, syllabus or note; you can still pick another each time.'**
+  String get settingsContentLanguageHint;
+
+  /// No description provided for @settingsAiLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'AI lessons and checks'**
+  String get settingsAiLanguage;
+
+  /// No description provided for @settingsAiLanguageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'AI explanations are written in their question\'s language.'**
+  String get settingsAiLanguageHint;
+
+  /// No description provided for @languageSameAsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as app'**
+  String get languageSameAsApp;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

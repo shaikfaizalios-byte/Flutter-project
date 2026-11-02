@@ -4,6 +4,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
+from app.schemas.language import Language
+
 VerificationLiteral = Literal["unverified", "verified", "rejected"]
 
 
@@ -133,7 +135,7 @@ class AIExplanationRead(BaseModel):
     id: uuid.UUID
     question_id: uuid.UUID
     text: str
-    language: Literal["en", "hi"]
+    language: Language
     model_confident: bool
     provider: str
     model: str
@@ -177,7 +179,7 @@ class QuestionRead(BaseModel):
     pattern_status: Literal["unassigned", "suggested", "confirmed"]
     pattern_suggestion_reason: str | None
     stem: str
-    language: Literal["en", "hi"]
+    language: Language
     document_id: uuid.UUID | None
     document_filename: str | None
     source_question_number: int | None

@@ -17,7 +17,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
-from app.domain import ai_content, rag
+from app.domain import ai_content, languages, rag
 from app.domain.errors import (
     AIDisabledError,
     AIUnavailableError,
@@ -76,7 +76,8 @@ from app.services.topic_service import topic_scope, visible_topics
 MIN_TAXONOMY_QUESTIONS = 5
 logger = logging.getLogger(__name__)
 
-# Issue raised on AI text in Hindi so a reviewer checks the language (like OCR text).
+# Issue raised on AI text in a language whose AI text needs a check (Hindi; see
+# app/domain/languages.py) so a reviewer checks the language (like OCR text).
 AI_LANGUAGE_REVIEW = "ai_language_review"
 
 
@@ -286,11 +287,15 @@ class AIService:
                 for i, text in enumerate(valid.options, start=1)
             ]
             add_first_revision(question, "generated", "ai")
-            if request.language == "hi":
+            written_in = languages.language(request.language)
+            if written_in.review_ai_text:
                 question.issues = [
                     QuestionIssue(
                         code=AI_LANGUAGE_REVIEW,
-                        detail="AI-written Hindi: check spelling and terms before approving.",
+                        detail=(
+                            f"AI-written {written_in.english_name}: check spelling and terms "
+                            "before approving."
+                        ),
                     )
                 ]
             self._session.add(question)

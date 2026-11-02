@@ -318,10 +318,8 @@ class _ConceptTile extends ConsumerWidget {
       subtitle: Text('${ref.watch(examNameProvider(concept.examCode))} · $path'),
       leading: CircleAvatar(
         child: Text(
-          concept.language == ContentLanguage.hindi ? 'हि' : 'En',
-          semanticsLabel: concept.language == ContentLanguage.hindi
-              ? l10n.languageHindi
-              : l10n.languageEnglish,
+          contentLanguageBadge(concept.language),
+          semanticsLabel: contentLanguageName(l10n, concept.language),
         ),
       ),
       trailing: PopupMenuButton<_ConceptAction>(

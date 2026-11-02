@@ -18,7 +18,6 @@ from app.api.deps import CurrentUser, client_key
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.domain.errors import UploadTooLargeError
-from app.schemas.concept import Language
 from app.schemas.document import (
     DocumentPageList,
     DocumentRead,
@@ -27,6 +26,7 @@ from app.schemas.document import (
     PaperDateUpdate,
 )
 from app.schemas.errors import ErrorResponse
+from app.schemas.language import Language
 from app.schemas.question import (
     DocumentFormatUpdate,
     ParseSummary,

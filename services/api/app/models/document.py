@@ -46,7 +46,6 @@ class Document(Base):
         CheckConstraint(
             "status IN ('queued', 'processing', 'completed', 'failed')", name="status_valid"
         ),
-        CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
         CheckConstraint(
             "ai_read_status IN ('none', 'queued', 'running', 'completed', 'failed')",
             name="ai_read_status_valid",
@@ -82,7 +81,7 @@ class Document(Base):
     exam_code: Mapped[str] = mapped_column(
         String(32), ForeignKey("exams.code", ondelete="RESTRICT")
     )
-    language: Mapped[str] = mapped_column(String(8))
+    language: Mapped[str] = mapped_column(String(8), ForeignKey("languages.code"))
     original_filename: Mapped[str] = mapped_column(String(255))
     size_bytes: Mapped[int] = mapped_column(Integer)
     sha256: Mapped[str] = mapped_column(String(64), index=True)

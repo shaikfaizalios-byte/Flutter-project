@@ -98,6 +98,7 @@ NOT_EXPORTED: dict[str, str] = {
     "exam_formats": "official reference data, not the learner's",
     "taxonomy_nodes": "canonical topics: reference data, not the learner's",
     "taxonomy_labels": "names of canonical topics: reference data",
+    "languages": "the supported content languages: reference data",
     "audit_events": "operator decisions about shared content (ids and reasons, no content)",
     "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
     "after deletion with the account link cleared; the purchases are in play_purchases",

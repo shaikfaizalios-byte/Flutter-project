@@ -43,4 +43,10 @@ class Exam(Base):
     country_code: Mapped[str | None] = mapped_column(String(2))
     authority: Mapped[str | None] = mapped_column(String(120))
     aliases: Mapped[list[str]] = mapped_column(ARRAY(String(60)), default=list, server_default="{}")
+    # Languages the exam's question paper is offered in, from its official notice (codes of
+    # app/domain/languages.py, checked by the operator tool). Empty = not recorded yet; it is
+    # never filled in by guess (global Phase 10).
+    languages: Mapped[list[str]] = mapped_column(
+        ARRAY(String(8)), default=list, server_default="{}"
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

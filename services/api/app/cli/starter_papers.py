@@ -49,6 +49,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import Settings, get_settings
 from app.database.session import build_engine, build_sessionmaker
 from app.domain.errors import DomainError
+from app.domain.languages import CODES
 from app.integrations.storage import LocalDocumentStorage
 from app.models.document import Document, DocumentStatus
 from app.models.question import Question, VerificationStatus
@@ -58,7 +59,7 @@ from app.services import shared_bank
 from app.services.document_service import DocumentService, read_documents
 
 MANIFEST = "manifest.json"
-LANGUAGES = ("en", "hi")
+LANGUAGES = CODES
 
 
 class ManifestError(ValueError):

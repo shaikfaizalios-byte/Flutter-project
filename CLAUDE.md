@@ -63,6 +63,15 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`buildReadiness`): syllabus coverage + evidence (14-day answers, 30-day mocks, exam days), never a score or pass
   chance. FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
   `app/domain/fsrs.py`, aggregates only); the ladder stays the scheduler.
+- Languages (global Phase 10): content languages are ONE reference list — `app/domain/languages.py` (code, names,
+  ISO 15924 script, direction, Tesseract data, prompt name, `review_ai_text`) + the `languages` table (migration 0037)
+  that `documents`/`questions`/`concepts`/`ai_explanations.language` reference (no more `en|hi` CHECKs); schemas use
+  `app/schemas/language.py` `Language` (OpenAPI enum from the list). `exams.languages` = languages the paper is
+  offered in, only from the notice (`exam_formats exam --languages`); empty for every exam so far. App:
+  `core/localization/content_language.dart` `ContentLanguage` is a code value (unknown codes kept, never turned
+  into English; `contentLanguageSegments`); Settings → Language has the app language plus "Papers, syllabus and
+  notes" (`AppPreferences.contentLanguage`, preselected on upload/syllabus/notes) and "AI lessons and checks"
+  (`aiLanguage`); null = same as the app. Explanations follow their question's language. RTL: not needed by en/hi.
 - Mastery per topic (`features/mastery`, mobile-only, no schema change): pure `masteryLevel`/`examMastery` with
   named `MasteryRules` (shown in UI): not started → learning (< 10 answers) → practising (< 60 % or flashcards
   often forgotten) → strong → mastered (25+ answers at 85 %+, marked revised); 30-day analytics window.

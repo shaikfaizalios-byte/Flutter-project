@@ -1,16 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-enum ContentLanguage {
-  english('en'),
-  hindi('hi');
+import '../../../core/localization/content_language.dart';
 
-  const ContentLanguage(this.code);
-
-  final String code;
-
-  static ContentLanguage fromCode(String code) =>
-      values.firstWhere((l) => l.code == code, orElse: () => ContentLanguage.english);
-}
+export '../../../core/localization/content_language.dart';
 
 @immutable
 class Concept {

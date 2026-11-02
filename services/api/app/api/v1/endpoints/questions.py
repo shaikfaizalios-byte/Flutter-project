@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, Query, Request, Response
 
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
-from app.schemas.concept import Language
 from app.schemas.errors import ErrorResponse
+from app.schemas.language import Language
 from app.schemas.question import (
     ExamFormatRead,
     FigureCreate,

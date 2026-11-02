@@ -4486,4 +4486,23 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get readinessNotPrediction =>
       'यह दिखाता है कि आपने क्या पूरा किया है और अब तक आपके उत्तर क्या बताते हैं। यह आपके परिणाम का अनुमान नहीं है।';
+
+  @override
+  String get settingsAppLanguage => 'ऐप';
+
+  @override
+  String get settingsContentLanguage => 'पेपर, सिलेबस और नोट्स';
+
+  @override
+  String get settingsContentLanguageHint =>
+      'पेपर, सिलेबस या नोट जोड़ते समय यही पहले चुनी रहती है; हर बार दूसरी भाषा भी चुन सकते हैं।';
+
+  @override
+  String get settingsAiLanguage => 'AI पाठ और जाँच';
+
+  @override
+  String get settingsAiLanguageHint => 'AI व्याख्याएँ उसी भाषा में लिखी जाती हैं जिसमें प्रश्न है।';
+
+  @override
+  String get languageSameAsApp => 'ऐप जैसी';
 }

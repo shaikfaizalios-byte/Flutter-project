@@ -10,13 +10,15 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from app.domain.languages import LANGUAGES
 from app.domain.untrusted import UNTRUSTED_RULE, material
 
 PROMPT_VERSION = "p10"
 OPTIONS_PER_QUESTION = 4  # SSC CGL/CHSL objective questions have four options
 MAX_GENERATED = 5
 
-LANGUAGE_NAMES = {"en": "English", "hi": "Hindi (Devanagari script)"}
+# How each content language is named in prompts (from the reference list).
+LANGUAGE_NAMES = {code: lang.prompt_name for code, lang in LANGUAGES.items()}
 
 SYSTEM = (
     "You help learners prepare for multiple-choice exams. You write original practice "

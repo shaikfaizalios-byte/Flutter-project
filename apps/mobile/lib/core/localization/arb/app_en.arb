@@ -2560,5 +2560,11 @@
   "readinessMocks": "{count, plural, =1{1 mock test} other{{count} mock tests}} in the last {days} days; latest: {score} of {max} on {date}",
   "@readinessMocks": {"placeholders": {"count": {"type": "int"}, "days": {"type": "int"}, "score": {"type": "String"}, "max": {"type": "String"}, "date": {"type": "String"}}},
   "readinessNoMock": "No mock test submitted yet.",
-  "readinessNotPrediction": "This shows what you have covered and what your answers show so far. It is not a prediction of your result."
+  "readinessNotPrediction": "This shows what you have covered and what your answers show so far. It is not a prediction of your result.",
+  "settingsAppLanguage": "App",
+  "settingsContentLanguage": "Papers, syllabus and notes",
+  "settingsContentLanguageHint": "Chosen first when you add a paper, syllabus or note; you can still pick another each time.",
+  "settingsAiLanguage": "AI lessons and checks",
+  "settingsAiLanguageHint": "AI explanations are written in their question's language.",
+  "languageSameAsApp": "Same as app"
 }

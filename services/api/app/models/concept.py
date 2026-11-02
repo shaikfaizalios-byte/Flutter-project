@@ -7,8 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
 
-SUPPORTED_LANGUAGES = ("en", "hi")
-
 
 class Concept(Base):
     """A unit of study material the user organises (notes on a topic).
@@ -19,7 +17,6 @@ class Concept(Base):
 
     __tablename__ = "concepts"
     __table_args__ = (
-        CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
         CheckConstraint("char_length(btrim(title)) > 0", name="title_not_blank"),
         Index("ix_concepts_exam_archived", "exam_code", "archived_at"),
         Index("ix_concepts_tags", "tags", postgresql_using="gin"),
@@ -39,7 +36,7 @@ class Concept(Base):
     subject: Mapped[str] = mapped_column(String(100))
     topic: Mapped[str] = mapped_column(String(100))
     subtopic: Mapped[str | None] = mapped_column(String(100))
-    language: Mapped[str] = mapped_column(String(8))
+    language: Mapped[str] = mapped_column(String(8), ForeignKey("languages.code"))
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(50)), default=list, server_default="{}")
     source_reference: Mapped[str | None] = mapped_column(String(500))
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

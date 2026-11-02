@@ -6,6 +6,8 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
+from app.schemas.language import Language
+
 Short = Annotated[str, StringConstraints(max_length=100)]
 Label = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 ItemId = Annotated[
@@ -24,7 +26,7 @@ class ConceptData(_Payload):
     subject: Label
     topic: Label
     subtopic: Short | None = None
-    language: Literal["en", "hi"]
+    language: Language
     tags: list[Annotated[str, StringConstraints(max_length=50)]] = Field(default=[], max_length=20)
     source_reference: Annotated[str, StringConstraints(max_length=500)] | None = None
     archived_at: datetime | None = None

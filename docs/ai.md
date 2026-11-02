@@ -62,6 +62,11 @@ provenance, and reviewed before learners rely on it. AI never produces previous-
   The `ai_has_provenance` database CHECK guarantees the provenance fields are present.
 - **Topic:** inherited from the source question, or matched to the concept's topic by name, always as *suggested by AI*.
 - **Hindi:** Hindi output gets an `ai_language_review` issue, so a reviewer checks the language, as with OCR text.
+  Which languages get this flag is part of the language reference list (`review_ai_text` in
+  `app/domain/languages.py`), as is the name each language has in prompts.
+- **Which language:** lessons and knowledge checks use the learner's "AI lessons and checks" language (Settings;
+  default = the app's language); generated questions default to their source's language (the learner can change
+  it); explanations are always written in their question's language.
 - **Review:** AI questions appear in the question bank (filter: AI-generated) and go through the normal review: edit, approve or reject.
 
 ## Where AI content can appear

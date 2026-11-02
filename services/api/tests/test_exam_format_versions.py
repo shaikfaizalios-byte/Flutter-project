@@ -180,6 +180,7 @@ def test_catalog_exams_are_added_and_described_by_configuration(
         country="GB",
         authority="Test Board",
         aliases=["TBE exam"],
+        languages=["en", "hi", "en"],
     )
     _set(db_session, "SSC_CGL", authority="Recorded authority")
     db_session.flush()
@@ -193,6 +194,11 @@ def test_catalog_exams_are_added_and_described_by_configuration(
         "Recorded authority",
         "IN",
     )
+    # Global Phase 10: an exam's languages come from its notice; none is guessed.
+    assert exams["TEST_EXAM"]["languages"] == ["en", "hi"]
+    assert exams["SSC_CGL"]["languages"] == []
+    with pytest.raises(ValueError, match="Unsupported language xx"):
+        _set(db_session, "TEST_EXAM", languages=["xx"])
     with pytest.raises(ValueError, match="ISO 3166"):
         _set(db_session, "TEST_EXAM", country="India")
     with pytest.raises(ValueError, match="needs --name"):

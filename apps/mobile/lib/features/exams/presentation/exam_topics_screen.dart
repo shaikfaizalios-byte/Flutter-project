@@ -9,7 +9,6 @@ import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
 import '../../ai/application/ai_providers.dart';
-import '../../concepts/domain/concept.dart';
 import '../../documents/application/documents_providers.dart';
 import '../../documents/domain/imported_document.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
@@ -21,6 +20,7 @@ import '../../mastery/domain/mastery.dart';
 import '../../mastery/presentation/mastery_widgets.dart';
 import '../data/exams_repository.dart';
 import '../domain/exam_topics.dart';
+import '../../settings/application/app_preferences.dart';
 
 /// Subjects and topics of one exam: shared ones (read-only) and the learner's own, which
 /// they add, rename and delete, or import from the exam's syllabus PDF. Each topic can be
@@ -65,9 +65,9 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
       return;
     }
     if (source == null || !mounted) return;
-    final language = Localizations.localeOf(context).languageCode == 'hi'
-        ? ContentLanguage.hindi
-        : ContentLanguage.english;
+    final language = ref
+        .read(appPreferencesProvider)
+        .contentLanguageFor(Localizations.localeOf(context));
     SyllabusDraft? draft;
     await _run(() async {
       draft = await ref

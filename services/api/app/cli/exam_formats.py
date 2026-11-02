@@ -1,6 +1,7 @@
 """Exam catalog and exam formats (operator tool; docs/question-bank.md "Exam formats").
 
     python -m app.cli.exam_formats exam SSC_CGL --country IN --authority "<from the notice>"
+    python -m app.cli.exam_formats exam SSC_CGL --languages en,hi   # as the notice states
     python -m app.cli.exam_formats exam NEW_EXAM --name "<official name>" \\
         --short-name "<short>" --category "<group>" --country IN
     python -m app.cli.exam_formats list [--exam SSC_CGL] [--drafts]
@@ -29,6 +30,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.database.session import build_engine, build_sessionmaker
+from app.domain.languages import CODES, is_supported
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
 from app.models.question import ExamFormat, FormatStatus
 from app.services.content import audit
@@ -156,6 +158,7 @@ def set_exam(
     country: str | None,
     authority: str | None,
     aliases: list[str] | None,
+    languages: list[str] | None = None,
 ) -> Exam:
     """Creates a catalog exam (needs ``name``) or updates the details given."""
     if code.startswith(CUSTOM_EXAM_PREFIX) or not code.replace("_", "").isalnum():
@@ -182,6 +185,13 @@ def set_exam(
         exam.authority = authority[:120] or None
     if aliases is not None:
         exam.aliases = [a.strip()[:60] for a in aliases if a.strip()]
+    if languages is not None:
+        unknown = [code for code in languages if not is_supported(code)]
+        if unknown:
+            raise ValueError(
+                f"Unsupported language {', '.join(unknown)}; supported: {', '.join(CODES)}."
+            )
+        exam.languages = list(dict.fromkeys(languages))
     return exam
 
 
@@ -217,6 +227,10 @@ def main(argv: list[str] | None = None) -> int:
     for option in ("--name", "--short-name", "--category", "--country", "--authority"):
         ex.add_argument(option)
     ex.add_argument("--alias", action="append", dest="aliases")
+    ex.add_argument(
+        "--languages",
+        help="comma-separated codes of the languages the notice offers the paper in, e.g. en,hi",
+    )
     args = parser.parse_args(argv)
 
     engine = build_engine(get_settings())
@@ -266,6 +280,11 @@ def main(argv: list[str] | None = None) -> int:
                 country=args.country,
                 authority=args.authority,
                 aliases=args.aliases,
+                languages=(
+                    None
+                    if args.languages is None
+                    else [c.strip() for c in args.languages.split(",") if c.strip()]
+                ),
             )
             session.commit()
             print(f"{exam.code}: {exam.name} ({exam.country_code or 'no country'}).")

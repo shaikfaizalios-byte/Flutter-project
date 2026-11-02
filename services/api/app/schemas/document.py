@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.schemas.language import Language
+
 DocumentStatusLiteral = Literal["queued", "processing", "completed", "failed"]
 
 
@@ -14,7 +16,7 @@ class DocumentRead(BaseModel):
 
     id: uuid.UUID
     exam_code: str
-    language: Literal["en", "hi"]
+    language: Language
     original_filename: str
     size_bytes: int
     sha256: str

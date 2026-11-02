@@ -10,6 +10,7 @@ import '../../../core/widgets/empty_state.dart';
 import '../../exams/application/active_exam.dart';
 import '../application/concepts_providers.dart';
 import '../domain/concept.dart';
+import '../../settings/application/app_preferences.dart';
 
 /// Text to start a new concept with (e.g. notes written in a recall check), passed as the
 /// route's `extra`.
@@ -117,9 +118,9 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Default the content language to the interface language.
-    _language ??= Localizations.localeOf(context).languageCode == 'hi'
-        ? ContentLanguage.hindi
-        : ContentLanguage.english;
+    _language ??= ref
+        .read(appPreferencesProvider)
+        .contentLanguageFor(Localizations.localeOf(context));
   }
 
   @override
@@ -285,13 +286,7 @@ class _ConceptFormScreenState extends ConsumerState<ConceptFormScreen> {
                 Text(l10n.fieldContentLanguage, style: Theme.of(context).textTheme.labelLarge),
                 const SizedBox(height: AppSpacing.sm),
                 SegmentedButton<ContentLanguage>(
-                  segments: [
-                    ButtonSegment(
-                      value: ContentLanguage.english,
-                      label: Text(l10n.languageEnglish),
-                    ),
-                    ButtonSegment(value: ContentLanguage.hindi, label: Text(l10n.languageHindi)),
-                  ],
+                  segments: contentLanguageSegments(l10n, current: _language),
                   selected: {_language!},
                   onSelectionChanged: (s) => setState(() => _language = s.first),
                 ),

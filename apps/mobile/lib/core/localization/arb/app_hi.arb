@@ -1175,5 +1175,11 @@
   "readinessOffline": "अभ्यास के प्रमाण के लिए इंटरनेट चाहिए।",
   "readinessMocks": "पिछले {days} दिनों में {count, plural, =1{1 मॉक टेस्ट} other{{count} मॉक टेस्ट}}; पिछला: {date} को {max} में से {score}",
   "readinessNoMock": "अभी तक कोई मॉक टेस्ट जमा नहीं किया।",
-  "readinessNotPrediction": "यह दिखाता है कि आपने क्या पूरा किया है और अब तक आपके उत्तर क्या बताते हैं। यह आपके परिणाम का अनुमान नहीं है।"
+  "readinessNotPrediction": "यह दिखाता है कि आपने क्या पूरा किया है और अब तक आपके उत्तर क्या बताते हैं। यह आपके परिणाम का अनुमान नहीं है।",
+  "settingsAppLanguage": "ऐप",
+  "settingsContentLanguage": "पेपर, सिलेबस और नोट्स",
+  "settingsContentLanguageHint": "पेपर, सिलेबस या नोट जोड़ते समय यही पहले चुनी रहती है; हर बार दूसरी भाषा भी चुन सकते हैं।",
+  "settingsAiLanguage": "AI पाठ और जाँच",
+  "settingsAiLanguageHint": "AI व्याख्याएँ उसी भाषा में लिखी जाती हैं जिसमें प्रश्न है।",
+  "languageSameAsApp": "ऐप जैसी"
 }

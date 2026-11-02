@@ -44,6 +44,7 @@ def test_list_exams_returns_seeded_reference_data(db_client: TestClient) -> None
         "country_code": "IN",
         "authority": None,  # set by the operator from the notice, never guessed
         "aliases": [],
+        "languages": [],
     }
     assert all(not e["custom"] for e in exams)  # nobody's own exams in the public catalog
 

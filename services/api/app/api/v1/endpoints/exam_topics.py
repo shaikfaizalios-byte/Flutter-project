@@ -9,7 +9,6 @@ from app.api.deps import CurrentUser
 from app.api.v1.endpoints.documents import UPLOAD_ERRORS, guard_upload
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
-from app.schemas.concept import Language
 from app.schemas.errors import ErrorResponse
 from app.schemas.exam import (
     CanonicalDecision,
@@ -29,6 +28,7 @@ from app.schemas.exam import (
     TopicsDeleted,
     TopicUpdate,
 )
+from app.schemas.language import Language
 from app.schemas.question import PatternRead
 from app.services.syllabus_service import SyllabusService
 from app.services.taxonomy_service import canonical_tree

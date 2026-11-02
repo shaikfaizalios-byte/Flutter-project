@@ -5,6 +5,8 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
+from app.domain import languages
+
 DEVANAGARI = re.compile(r"[ऀ-ॿ]")
 LETTER = re.compile(r"[^\W\d_]", re.UNICODE)
 REPLACEMENT_CHAR = "�"
@@ -71,5 +73,6 @@ def assess_text_layer(
 
 
 def ocr_languages(document_language: str) -> str:
-    """Tesseract language set. Hindi papers routinely mix in English, digits and symbols."""
-    return "hin+eng" if document_language == "hi" else "eng"
+    """Tesseract language set. Papers in other languages routinely mix in English, digits and
+    symbols, so English is added (see app/domain/languages.py)."""
+    return languages.ocr_languages(document_language)

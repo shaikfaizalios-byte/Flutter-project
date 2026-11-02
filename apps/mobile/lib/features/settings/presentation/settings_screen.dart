@@ -10,6 +10,7 @@ import '../../insights/presentation/radar_sharing_card.dart';
 import '../../plus/presentation/plus_card.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/localization/content_language.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/section_card.dart';
 import '../../study_plan/presentation/study_plan_section.dart';
@@ -49,15 +50,39 @@ class SettingsScreen extends ConsumerWidget {
               SectionCard(
                 icon: Icons.translate,
                 title: l10n.settingsLanguage,
-                child: SegmentedButton<AppLanguage>(
-                  showSelectedIcon: false,
-                  segments: [
-                    ButtonSegment(value: AppLanguage.system, label: Text(l10n.languageSystem)),
-                    ButtonSegment(value: AppLanguage.english, label: Text(l10n.languageEnglish)),
-                    ButtonSegment(value: AppLanguage.hindi, label: Text(l10n.languageHindi)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.settingsAppLanguage, style: Theme.of(context).textTheme.labelLarge),
+                    const SizedBox(height: AppSpacing.xs),
+                    SegmentedButton<AppLanguage>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(value: AppLanguage.system, label: Text(l10n.languageSystem)),
+                        ButtonSegment(
+                          value: AppLanguage.english,
+                          label: Text(l10n.languageEnglish),
+                        ),
+                        ButtonSegment(value: AppLanguage.hindi, label: Text(l10n.languageHindi)),
+                      ],
+                      selected: {prefs.language},
+                      onSelectionChanged: (selection) => controller.setLanguage(selection.first),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _ContentLanguageChoice(
+                      label: l10n.settingsContentLanguage,
+                      hint: l10n.settingsContentLanguageHint,
+                      value: prefs.contentLanguage,
+                      onChanged: controller.setContentLanguage,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _ContentLanguageChoice(
+                      label: l10n.settingsAiLanguage,
+                      hint: l10n.settingsAiLanguageHint,
+                      value: prefs.aiLanguage,
+                      onChanged: controller.setAiLanguage,
+                    ),
                   ],
-                  selected: {prefs.language},
-                  onSelectionChanged: (selection) => controller.setLanguage(selection.first),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -168,5 +193,51 @@ class _ServerStatus extends ConsumerWidget {
         ],
       ),
     };
+  }
+}
+
+/// "Same as the app" or one of the content languages (global Phase 10).
+class _ContentLanguageChoice extends StatelessWidget {
+  const _ContentLanguageChoice({
+    required this.label,
+    required this.hint,
+    required this.value,
+    required this.onChanged,
+  });
+
+  static const _sameAsApp = '';
+
+  final String label;
+  final String hint;
+  final ContentLanguage? value;
+  final ValueChanged<ContentLanguage?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: theme.textTheme.labelLarge),
+        const SizedBox(height: AppSpacing.xs),
+        SegmentedButton<String>(
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(value: _sameAsApp, label: Text(l10n.languageSameAsApp)),
+            for (final language in ContentLanguage.known)
+              ButtonSegment(value: language.code, label: Text(contentLanguageName(l10n, language))),
+          ],
+          selected: {value?.code ?? _sameAsApp},
+          onSelectionChanged: (s) =>
+              onChanged(s.first == _sameAsApp ? null : ContentLanguage.fromCode(s.first)),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          hint,
+          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
   }
 }

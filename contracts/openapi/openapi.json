@@ -547,10 +547,6 @@
           "language": {
             "default": "en",
             "description": "Language of the syllabus",
-            "enum": [
-              "en",
-              "hi"
-            ],
             "title": "Language",
             "type": "string"
           }
@@ -590,10 +586,6 @@
           },
           "language": {
             "description": "Language of the document's content",
-            "enum": [
-              "en",
-              "hi"
-            ],
             "title": "Language",
             "type": "string"
           }
@@ -2067,6 +2059,14 @@
             "default": false,
             "title": "Featured",
             "type": "boolean"
+          },
+          "languages": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Languages",
+            "type": "array"
           },
           "name": {
             "title": "Name",

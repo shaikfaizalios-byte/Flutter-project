@@ -201,7 +201,6 @@ class Question(Base):
         CheckConstraint(
             "topic_status IN ('unassigned', 'suggested', 'confirmed')", name="topic_status_valid"
         ),
-        CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
         # Source questions must carry provenance.
         CheckConstraint(
             "origin <> 'source' OR (document_id IS NOT NULL AND source_question_number IS NOT NULL)",  # noqa: E501
@@ -259,7 +258,7 @@ class Question(Base):
     )
     topic_status: Mapped[str] = mapped_column(String(12), default=TopicStatus.UNASSIGNED)
     stem: Mapped[str] = mapped_column(Text)
-    language: Mapped[str] = mapped_column(String(8))
+    language: Mapped[str] = mapped_column(String(8), ForeignKey("languages.code"))
     document_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("documents.id", ondelete="CASCADE")
     )

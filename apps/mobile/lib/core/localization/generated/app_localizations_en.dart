@@ -4486,4 +4486,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readinessNotPrediction =>
       'This shows what you have covered and what your answers show so far. It is not a prediction of your result.';
+
+  @override
+  String get settingsAppLanguage => 'App';
+
+  @override
+  String get settingsContentLanguage => 'Papers, syllabus and notes';
+
+  @override
+  String get settingsContentLanguageHint =>
+      'Chosen first when you add a paper, syllabus or note; you can still pick another each time.';
+
+  @override
+  String get settingsAiLanguage => 'AI lessons and checks';
+
+  @override
+  String get settingsAiLanguageHint => 'AI explanations are written in their question\'s language.';
+
+  @override
+  String get languageSameAsApp => 'Same as app';
 }

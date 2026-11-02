@@ -81,6 +81,7 @@ def exam_read(exam: Exam) -> ExamRead:
         country_code=exam.country_code,
         authority=exam.authority,
         aliases=list(exam.aliases or []),
+        languages=list(exam.languages or []),
     )
 
 
