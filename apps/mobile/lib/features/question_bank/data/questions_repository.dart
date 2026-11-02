@@ -7,12 +7,16 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../domain/question.dart';
+import '../domain/shared_report_kind.dart';
 
 /// Server-backed question bank. Methods throw `AppFailure`s.
 abstract interface class QuestionsRepository {
   Future<(List<BankQuestion> items, int total)> list(QuestionQuery query);
   Future<BankQuestion> get(String id);
   Future<BankQuestion> update(String id, QuestionEdit edit);
+
+  /// The question's history, oldest first (own questions only).
+  Future<List<QuestionRevision>> revisions(String id);
 
   /// Topics the learner can use (for one exam when given).
   Future<List<TopicRef>> topics({String? examCode});
@@ -34,8 +38,18 @@ abstract interface class QuestionsRepository {
   /// PNG bytes of a figure cropped from the question's source PDF.
   Future<Uint8List> figure(String questionId, String figureId);
 
+  /// Keeps a region of one of the paper's pages (page fractions [left, top, right, bottom]) as
+  /// a figure of the question; returns the question with it.
+  Future<BankQuestion> addFigure(String questionId, int page, List<double> box);
+
+  /// Removes a figure from the reviewer's question; returns the question without it.
+  Future<BankQuestion> deleteFigure(String questionId, String figureId);
+
   /// Extracted text of one source page (1-based), for side-by-side review.
   Future<String> pageText(String documentId, int page);
+
+  /// Reports a question of a shared paper (rights problem, error, other) to the PrepLoop team.
+  Future<void> reportShared(String questionId, SharedReportKind kind, String text);
 }
 
 class RemoteQuestionsRepository implements QuestionsRepository {
@@ -72,6 +86,12 @@ class RemoteQuestionsRepository implements QuestionsRepository {
       data: edit.toJson(),
     );
     return BankQuestion.fromJson(response.data!);
+  });
+
+  @override
+  Future<List<QuestionRevision>> revisions(String id) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>('/api/v1/questions/$id/revisions');
+    return [for (final r in response.data!) QuestionRevision.fromJson(r as Map<String, dynamic>)];
   });
 
   @override
@@ -138,6 +158,29 @@ class RemoteQuestionsRepository implements QuestionsRepository {
     );
     return Uint8List.fromList(response.data!);
   });
+
+  @override
+  Future<BankQuestion> addFigure(String questionId, int page, List<double> box) => _guard(() async {
+    await _dio.post<void>(
+      '/api/v1/questions/$questionId/figures',
+      data: {'page_number': page, 'box': box, 'kind': 'stem'},
+    );
+    return get(questionId);
+  });
+
+  @override
+  Future<BankQuestion> deleteFigure(String questionId, String figureId) => _guard(() async {
+    await _dio.delete<void>('/api/v1/questions/$questionId/figures/$figureId');
+    return get(questionId);
+  });
+
+  @override
+  Future<void> reportShared(String questionId, SharedReportKind kind, String text) => _guard(
+    () => _dio.post<void>(
+      '/api/v1/content-reports',
+      data: {'question_id': questionId, 'kind': kind.name, 'text': text},
+    ),
+  );
 
   @override
   Future<String> pageText(String documentId, int page) => _guard(() async {

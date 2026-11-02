@@ -23,9 +23,18 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
+from app.domain.exam_format import format_problems
 from app.domain.scoring import ScoredItem, is_correct, score_session, tally_json, to_decimal
+from app.domain.sections import (
+    PlannedSection,
+    SectionClock,
+    advance,
+    finish_early,
+    section_of,
+)
 from app.domain.segmentation import same_subject
 from app.models.ai import AIExplanation, DraftStatus
+from app.models.content import ContentRights
 from app.models.document import Document
 from app.models.practice import (
     Bookmark,
@@ -44,6 +53,7 @@ from app.models.question import (
     Topic,
     VerificationStatus,
 )
+from app.schemas.content import StarterCheckAvailability
 from app.schemas.practice import (
     AnswerAck,
     AnswerUpdate,
@@ -58,6 +68,7 @@ from app.schemas.practice import (
     PracticeCreate,
     QuestionHistory,
     SectionAvailability,
+    SectionRead,
     SectionResult,
     SessionItemRead,
     SessionList,
@@ -68,9 +79,18 @@ from app.schemas.practice import (
     TopicResult,
 )
 from app.schemas.question import FigureRead, OptionRead, PassageRead
-from app.services.shared_bank import visible_question
+from app.services.exam_formats import is_in_effect, mock_formats
+from app.services.shared_bank import shared_question, visible_question
+from app.services.taxonomy_service import subject_labels_by_topic
 
 PRACTICE_MARKING_NOTE = "Practice: 1 point per correct answer, no negative marking."
+STARTER_MARKING_NOTE = (
+    "Starter check: 1 point per correct answer, no negative marking. It shows where to start,"
+    " not an exam score. Questions come from shared papers PrepLoop may use for this check."
+)
+# The starter check: up to this many questions per subject, and in all.
+STARTER_PER_SUBJECT = 5
+STARTER_MAX = 20
 
 
 class NoQuestionsAvailableError(DomainError):
@@ -81,6 +101,13 @@ class NoQuestionsAvailableError(DomainError):
 class NotEnoughQuestionsError(DomainError):
     status_code = 422
     code = "not_enough_questions"
+
+
+class FormatIncompleteError(DomainError):
+    """The exam format does not state a fact the mock needs; nothing is filled in instead."""
+
+    status_code = 422
+    code = "format_incomplete"
 
 
 class InvalidAnswerError(DomainError):
@@ -97,6 +124,22 @@ def _answered(answer: SessionAnswer | None) -> bool:
 ANSWERED = or_(
     SessionAnswer.selected_position.is_not(None), SessionAnswer.typed_answer.is_not(None)
 )
+
+
+def _count(value: object) -> int:
+    """A section's question count as stated, or 0 (the format is then listed as incomplete)."""
+    return value if isinstance(value, int) and not isinstance(value, bool) and value > 0 else 0
+
+
+def _plan(practice: PracticeSession) -> list[PlannedSection]:
+    """The section plan of a sectionally timed mock (empty for everything else)."""
+    raw = (practice.selection or {}).get("sections")
+    return [PlannedSection.from_json(p) for p in raw] if isinstance(raw, list) else []
+
+
+def _canonical(labels: dict[uuid.UUID, list[str]], question: Question) -> list[str]:
+    """Labels of the canonical subject of the question's topic (confirmed links only)."""
+    return labels.get(question.topic_id, []) if question.topic_id else []
 
 
 def _eligible(
@@ -333,19 +376,82 @@ class PracticeService:
         self._finalize(practice, reason="offline", at=finished)
         return self.get(practice.id)
 
+    # --- the starter check (no papers of one's own yet) --------------------------------
+
+    def _starter_pool(self, exam_code: str) -> dict[str, list[Question]]:
+        """Shared-bank questions whose recorded rights allow the starter check, by subject."""
+        allowed = select(ContentRights.document_id).where(
+            ContentRights.permitted_uses.contains(["diagnostic"])
+        )
+        rows = self._session.scalars(
+            _eligible(include_unverified=False, include_typed=False)
+            .where(
+                Question.exam_code == exam_code,
+                shared_question(),
+                Question.document_id.in_(allowed),
+                Question.owner_id != self._owner_id,
+            )
+            .options(selectinload(Question.options))
+        ).all()
+        pool: dict[str, list[Question]] = {}
+        for q in rows:
+            pool.setdefault(q.subject or q.section or "", []).append(q)
+        return dict(sorted(pool.items()))
+
+    def starter_check_availability(self, exam_code: str) -> StarterCheckAvailability:
+        pool = self._starter_pool(exam_code)
+        count = min(STARTER_MAX, sum(min(STARTER_PER_SUBJECT, len(q)) for q in pool.values()))
+        return StarterCheckAvailability(
+            exam_code=exam_code,
+            available_questions=sum(len(q) for q in pool.values()),
+            question_count=count,
+            subjects=[s for s in pool if s],
+        )
+
+    def start_starter_check(self, exam_code: str) -> SessionRead:
+        """A short check across subjects for a learner without papers: untimed, answers
+        hidden until submitted; its results feed the same progress and study plan."""
+        pool = self._starter_pool(exam_code)
+        if not pool:
+            raise NoQuestionsAvailableError("No starter check is available for this exam yet.")
+        seed = random.SystemRandom().randrange(2**31)
+        rng = random.Random(seed)  # noqa: S311 - question sampling, recorded for reproducibility
+        chosen: list[Question] = []
+        for questions in pool.values():
+            take = min(STARTER_PER_SUBJECT, len(questions), STARTER_MAX - len(chosen))
+            chosen.extend(rng.sample(questions, take))
+        check = PracticeSession(
+            owner_id=self._owner_id,
+            mode=SessionMode.DIAGNOSTIC,
+            exam_code=exam_code,
+            selection={"starter_check": True, "seed": seed},
+            status=SessionStatus.ACTIVE,
+            started_at=self._now(),
+        )
+        check.items = [
+            self._item(position, q, marks_correct=1.0, marks_wrong=0.0)
+            for position, q in enumerate(chosen, start=1)
+        ]
+        self._session.add(check)
+        self._session.commit()
+        return self.get(check.id)
+
     def mock_availability(self, exam_code: str | None) -> list[MockAvailability]:
-        stmt = select(ExamFormat).order_by(ExamFormat.code)
-        if exam_code:
-            stmt = stmt.where(ExamFormat.exam_code == exam_code)
-        return [self._availability(f)[0] for f in self._session.scalars(stmt).all()]
+        """Verified formats in effect today (drafts and retired versions are not offered)."""
+        today = self._now().date()
+        return [self._availability(f)[0] for f in mock_formats(self._session, exam_code, today)]
 
     def start_mock(self, request: MockCreate) -> SessionRead:
         exam_format = self._session.scalars(
             select(ExamFormat).where(ExamFormat.code == request.exam_format_code)
         ).first()
-        if exam_format is None:
+        if exam_format is None or not is_in_effect(exam_format, self._now().date()):
             raise InvalidReferenceError(f"Unknown paper format '{request.exam_format_code}'.")
         availability, pools = self._availability(exam_format)
+        if availability.format_problems:
+            raise FormatIncompleteError(
+                "This paper format is incomplete: " + " ".join(availability.format_problems)
+            )
         if not availability.available:
             short = [
                 f"{s.subject}: {s.available} of {s.needed}"
@@ -355,8 +461,11 @@ class PracticeService:
             raise NotEnoughQuestionsError(
                 "Not enough reviewed questions for this mock test (" + "; ".join(short) + ")."
             )
-        if exam_format.duration_minutes is None:
-            raise NotEnoughQuestionsError("This format has no verified duration.")
+        # format_problems() has checked these; nothing below falls back to a default.
+        duration = exam_format.duration_minutes
+        negative = exam_format.negative_marks_per_wrong
+        if duration is None or negative is None:  # pragma: no cover - guarded above
+            raise FormatIncompleteError("This paper format is incomplete.")
 
         seed = random.SystemRandom().randrange(2**31)
         rng = random.Random(seed)  # noqa: S311 - question sampling, recorded for reproducibility
@@ -369,14 +478,15 @@ class PracticeService:
             selection={"exam_format_code": exam_format.code, "seed": seed},
             status=SessionStatus.ACTIVE,
             started_at=started,
-            deadline_at=started + timedelta(minutes=exam_format.duration_minutes),
+            deadline_at=started + timedelta(minutes=duration),
         )
         position = 0
         items: list[SessionItem] = []
-        negative = exam_format.negative_marks_per_wrong or 0.0
+        plan: list[PlannedSection] = []
         for section, pool in zip(exam_format.sections, pools, strict=True):
             needed = int(section["questions"])
-            per_question = float(section["max_marks"]) / needed if section.get("max_marks") else 1.0
+            per_question = float(section["max_marks"]) / needed
+            first = position + 1
             for question in rng.sample(pool, needed):
                 position += 1
                 item = self._item(
@@ -384,7 +494,21 @@ class PracticeService:
                 )
                 item.section = section["subject"]
                 items.append(item)
+            if exam_format.sectional_timing:
+                plan.append(
+                    PlannedSection(
+                        name=str(section["subject"]),
+                        first_position=first,
+                        last_position=position,
+                        minutes=int(section["timer_minutes"]),
+                    )
+                )
         mock.items = items
+        if plan:
+            # Copied into the attempt: later format changes never change it.
+            mock.selection = {**mock.selection, "sections": [p.to_json() for p in plan]}
+            mock.current_section = 0
+            mock.section_started_at = started
         self._session.add(mock)
         self._session.commit()
         return self.get(mock.id)
@@ -398,30 +522,43 @@ class PracticeService:
                 visible_question(self._owner_id),
             )
         ).all()
+        problems = format_problems(
+            sections=exam_format.sections,
+            total_questions=exam_format.total_questions,
+            duration_minutes=exam_format.duration_minutes,
+            negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
+        )
+        canonical = subject_labels_by_topic(
+            self._session, {q.topic_id for q in candidates if q.topic_id}
+        )
         pools: list[list[Question]] = []
         sections: list[SectionAvailability] = []
-        for section in exam_format.sections:
-            subject = str(section["subject"])
+        for section in exam_format.sections or []:
+            subject = str(section.get("subject") or "")
             pool = [
                 q
                 for q in candidates
-                if same_subject(q.subject or "", subject) or same_subject(q.section or "", subject)
+                if same_subject(q.subject or "", subject)
+                or same_subject(q.section or "", subject)
+                or any(same_subject(label, subject) for label in _canonical(canonical, q))
             ]
             pools.append(pool)
             sections.append(
                 SectionAvailability(
-                    subject=subject, needed=int(section["questions"]), available=len(pool)
+                    subject=subject, needed=_count(section.get("questions")), available=len(pool)
                 )
             )
         availability = MockAvailability(
             exam_format_code=exam_format.code,
             exam_code=exam_format.exam_code,
             name=exam_format.name,
-            available=all(s.available >= s.needed for s in sections),
+            available=not problems and all(s.available >= s.needed for s in sections),
+            format_problems=problems,
             total_questions=exam_format.total_questions,
             duration_minutes=exam_format.duration_minutes,
             negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
             sections=sections,
+            section_counts_indicative=exam_format.section_counts_indicative,
         )
         return availability, pools
 
@@ -455,6 +592,11 @@ class PracticeService:
         item = next((i for i in practice.items if i.position == position), None)
         if item is None:
             raise InvalidAnswerError(f"No question at position {position}.")
+        plan = _plan(practice)
+        if plan and section_of(plan, position) != practice.current_section:
+            raise ConflictError(
+                "section_closed", "This question's section is not open (sections are timed)."
+            )
         typed = item.answer_type == "typed"
         if typed and update.selected_position is not None:
             raise InvalidAnswerError("This question takes a typed answer.")
@@ -497,13 +639,47 @@ class PracticeService:
             self._finalize(practice, reason=reason)
         return self.get(session_id)
 
+    def finish_section(self, session_id: uuid.UUID, from_section: int) -> SessionRead:
+        """Closes the open section early (sectionally timed mocks); the next one opens now.
+        Closing the last section submits the mock. Does nothing unless ``from_section`` is
+        still the open section, so a retried request can't skip a section."""
+        practice = self._load(session_id)
+        self._expire_if_due(practice)
+        plan = _plan(practice)
+        if not plan:
+            raise InvalidAnswerError("This test has no timed sections.")
+        if practice.status == SessionStatus.ACTIVE and practice.current_section == from_section:
+            clock = finish_early(plan, self._clock(practice), self._now())
+            practice.current_section, practice.section_started_at = clock.current, clock.started_at
+            if clock.finished(plan):
+                self._finalize(practice, reason="user")
+            else:
+                self._session.commit()
+        return self.get(session_id)
+
     def _expire_if_due(self, practice: PracticeSession) -> None:
-        if (
-            practice.status == SessionStatus.ACTIVE
-            and practice.deadline_at is not None
-            and self._now() >= practice.deadline_at
-        ):
+        if practice.status != SessionStatus.ACTIVE:
+            return
+        plan = _plan(practice)
+        if plan:
+            before = self._clock(practice)
+            clock = advance(plan, before, self._now())
+            if clock != before:
+                practice.current_section = clock.current
+                practice.section_started_at = clock.started_at
+                if clock.finished(plan):
+                    # The last section's own time ran out: that is when the mock ended.
+                    self._finalize(practice, reason="time_up", at=clock.started_at)
+                    return
+                self._session.commit()
+        if practice.deadline_at is not None and self._now() >= practice.deadline_at:
             self._finalize(practice, reason="time_up")
+
+    @staticmethod
+    def _clock(practice: PracticeSession) -> SectionClock:
+        return SectionClock(
+            practice.current_section or 0, practice.section_started_at or practice.started_at
+        )
 
     def _finalize(
         self, practice: PracticeSession, *, reason: str, at: datetime | None = None
@@ -538,6 +714,8 @@ class PracticeService:
     def _marking_note(self, practice: PracticeSession) -> str:
         if practice.mode == SessionMode.PRACTICE:
             return PRACTICE_MARKING_NOTE
+        if practice.mode == SessionMode.DIAGNOSTIC:
+            return STARTER_MARKING_NOTE
         exam_format = self._session.get(ExamFormat, practice.exam_format_id)
         if exam_format is None:
             return "Marking from the exam format used when this test started."
@@ -547,11 +725,24 @@ class PracticeService:
         ]
         negative = exam_format.negative_marks_per_wrong
         timers = {int(s["timer_minutes"]) for s in exam_format.sections if s.get("timer_minutes")}
-        # The mock has one overall timer; say so when the real exam times each section.
-        sectional = (
-            f" The exam times each section separately ({', '.join(map(str, sorted(timers)))}"
-            " min each); this mock uses one overall timer."
-            if timers
+        minutes = ", ".join(map(str, sorted(timers)))
+        if _plan(practice):
+            sectional = (
+                f" Each section had its own timer ({minutes} min each, from the format) and the"
+                " sections were taken in order. In this mock a section could be finished early;"
+                " a closed section could not be reopened."
+            )
+        elif timers:
+            # Mocks started before sectional timers were enforced kept one overall timer.
+            sectional = (
+                f" The exam times each section separately ({minutes} min each); this mock used"
+                " one overall timer."
+            )
+        else:
+            sectional = ""
+        indicative = (
+            " The notice gives this section split as only indicative: real papers may vary."
+            if exam_format.section_counts_indicative
             else ""
         )
         return (
@@ -559,6 +750,7 @@ class PracticeService:
             + "; ".join(parts)
             + (f". Wrong answer: -{negative:.2f}." if negative else ". No negative marking.")
             + sectional
+            + indicative
             + f" Source: {exam_format.source_reference}."
         )
 
@@ -587,10 +779,16 @@ class PracticeService:
         remaining = None
         if practice.deadline_at is not None and practice.status == SessionStatus.ACTIVE:
             remaining = max(0, int((practice.deadline_at - now).total_seconds()))
+        plan = _plan(practice)
+        active = practice.status == SessionStatus.ACTIVE
+        open_section = practice.current_section if plan and active else None
 
         items: list[SessionItemRead] = []
         for item in practice.items:
             question = questions.get(item.question_id) if item.question_id else None
+            index = section_of(plan, item.position) if plan else None
+            if active and open_section is not None and index is not None and index > open_section:
+                question = None  # a section that hasn't opened yet: nothing to peek at
             answer = answers.get(item.position)
             shared = question is not None and question.owner_id != self._owner_id
             items.append(
@@ -651,6 +849,9 @@ class PracticeService:
             answered_count=sum(_answered(a) for a in practice.answers),
             items=items,
             result=self._result(practice.result) if practice.result else None,
+            sections=[SectionRead(**p.to_json()) for p in plan],
+            current_section=practice.current_section if plan else None,
+            section_deadline_at=self._clock(practice).deadline(plan) if plan and active else None,
         )
 
     def list_sessions(self, *, limit: int, offset: int) -> SessionList:

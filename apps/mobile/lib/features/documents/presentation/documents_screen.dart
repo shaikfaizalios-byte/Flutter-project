@@ -19,6 +19,7 @@ import 'import_progress.dart';
 import '../../exams/application/active_exam.dart';
 import '../../../core/database/app_database.dart';
 import '../../exams/application/syllabus_prompt.dart';
+import '../../settings/application/app_preferences.dart';
 
 /// Lists imported PDFs with live processing status, and imports new ones.
 class DocumentsScreen extends ConsumerWidget {
@@ -248,9 +249,9 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    _language ??= Localizations.localeOf(context).languageCode == 'hi'
-        ? ContentLanguage.hindi
-        : ContentLanguage.english;
+    _language ??= ref
+        .read(appPreferencesProvider)
+        .contentLanguageFor(Localizations.localeOf(context));
 
     return SafeArea(
       child: Padding(
@@ -284,10 +285,7 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
             Text(l10n.fieldContentLanguage, style: theme.textTheme.labelLarge),
             const SizedBox(height: AppSpacing.sm),
             SegmentedButton<ContentLanguage>(
-              segments: [
-                ButtonSegment(value: ContentLanguage.english, label: Text(l10n.languageEnglish)),
-                ButtonSegment(value: ContentLanguage.hindi, label: Text(l10n.languageHindi)),
-              ],
+              segments: contentLanguageSegments(l10n, current: _language),
               selected: {_language!},
               onSelectionChanged: (s) => setState(() => _language = s.first),
             ),
@@ -319,9 +317,7 @@ class _DocumentTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final language = document.language == ContentLanguage.hindi
-        ? l10n.languageHindi
-        : l10n.languageEnglish;
+    final language = contentLanguageName(l10n, document.language);
 
     final statusText = importStatusText(l10n, document);
     final statusColor = switch (document.status) {

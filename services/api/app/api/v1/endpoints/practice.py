@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
+from app.schemas.content import StarterCheckAvailability, StarterCheckCreate
 from app.schemas.errors import ErrorResponse
 from app.schemas.practice import (
     AnswerAck,
@@ -15,6 +16,7 @@ from app.schemas.practice import (
     OfflineSessionUpload,
     PracticeCreate,
     QuestionHistory,
+    SectionAdvance,
     SessionList,
     SessionRead,
 )
@@ -131,6 +133,38 @@ def save_answer(
 )
 def submit_session(session_id: uuid.UUID, service: Service) -> SessionRead:
     return service.submit(session_id)
+
+
+@router.get(
+    "/practice/starter-check",
+    response_model=StarterCheckAvailability,
+    summary="Whether a starter check can be taken for an exam (shared papers allowed for it)",
+)
+def starter_check_availability(
+    service: Service, exam: Annotated[str, Query(min_length=1, max_length=32)]
+) -> StarterCheckAvailability:
+    return service.starter_check_availability(exam)
+
+
+@router.post(
+    "/practice/starter-check",
+    response_model=SessionRead,
+    status_code=status.HTTP_201_CREATED,
+    responses={422: {"model": ErrorResponse, "description": "No starter check for this exam"}},
+    summary="Start a short check across subjects (for learners without papers of their own)",
+)
+def start_starter_check(body: StarterCheckCreate, service: Service) -> SessionRead:
+    return service.start_starter_check(body.exam_code)
+
+
+@router.post(
+    "/practice/sessions/{session_id}/next-section",
+    response_model=SessionRead,
+    responses=NOT_FOUND,
+    summary="Finish the open section early (sectionally timed mocks; the last one submits)",
+)
+def finish_section(session_id: uuid.UUID, body: SectionAdvance, service: Service) -> SessionRead:
+    return service.finish_section(session_id, body.from_section)
 
 
 @router.put(

@@ -339,15 +339,21 @@ class _MockTile extends ConsumerWidget {
         l10n.mockTestDetails(mock.totalQuestions, mock.durationMinutes!),
       if (mock.negativeMarks != null && mock.negativeMarks! > 0)
         l10n.mockNegative(mock.negativeMarks!.toStringAsFixed(2)),
+      if (mock.sectionCountsIndicative) l10n.mockSectionsIndicative,
     ].join(' · ');
-    final short = mock.sections.where((s) => s.available < s.needed).toList();
+    final short = mock.formatComplete
+        ? mock.sections.where((s) => s.available < s.needed).toList()
+        : const <SectionAvailabilityView>[];
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(mock.name),
       subtitle: Text(
         [
           details,
-          if (!mock.available) l10n.mockUnavailable,
+          if (!mock.formatComplete)
+            l10n.mockFormatIncomplete
+          else if (!mock.available)
+            l10n.mockUnavailable,
           for (final s in short) l10n.mockSectionShort(s.subject, s.available, s.needed),
         ].where((s) => s.isNotEmpty).join('\n'),
       ),
@@ -398,14 +404,16 @@ class _HistoryCard extends ConsumerWidget {
             for (final s in value.take(10))
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  s.mode == SessionMode.mock ? Icons.timer_outlined : Icons.quiz_outlined,
-                ),
-                title: Text(
-                  s.mode == SessionMode.mock
-                      ? l10n.historyMock(s.formatName ?? '')
-                      : l10n.historyPractice,
-                ),
+                leading: Icon(switch (s.mode) {
+                  SessionMode.mock => Icons.timer_outlined,
+                  SessionMode.diagnostic => Icons.flag_outlined,
+                  SessionMode.practice => Icons.quiz_outlined,
+                }),
+                title: Text(switch (s.mode) {
+                  SessionMode.mock => l10n.historyMock(s.formatName ?? ''),
+                  SessionMode.diagnostic => l10n.starterCheckTitle,
+                  SessionMode.practice => l10n.historyPractice,
+                }),
                 subtitle: Text(DateFormat.yMMMd(locale).add_jm().format(s.startedAt.toLocal())),
                 trailing: Text(
                   s.submitted && s.score != null

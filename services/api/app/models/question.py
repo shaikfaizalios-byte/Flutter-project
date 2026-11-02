@@ -41,12 +41,32 @@ class TopicStatus(StrEnum):
     CONFIRMED = "confirmed"
 
 
+class FormatStatus(StrEnum):
+    DRAFT = "draft"  # imported, not reviewed: never used for mocks or checks
+    VERIFIED = "verified"  # checked against its official source and published by a reviewer
+    RETIRED = "retired"  # replaced by a newer format; old attempts keep pointing at it
+
+
 class ExamFormat(Base):
-    """A verified exam paper layout. Only formats confirmed against an official source are
-    stored; the source is recorded so it can be re-checked. Unknown formats simply have no
-    row, and count-based checks are skipped for them."""
+    """One version of an exam's paper layout and marking, with its official source.
+
+    A format is a version: a new notice becomes a new row (``supersedes_id``), never an edit,
+    so past attempts keep the rules they were taken under. Only ``verified`` formats in effect
+    are used for mocks; drafts are checked and published with ``python -m app.cli.exam_formats``.
+    Unknown formats simply have no row, and count-based checks are skipped for them."""
 
     __tablename__ = "exam_formats"
+    __table_args__ = (
+        CheckConstraint("status IN ('draft', 'verified', 'retired')", name="status_valid"),
+        CheckConstraint(
+            "status = 'draft' OR (verified_on IS NOT NULL AND reviewed_by IS NOT NULL)",
+            name="published_is_reviewed",
+        ),
+        CheckConstraint(
+            "effective_to IS NULL OR effective_from IS NULL OR effective_to >= effective_from",
+            name="effective_range",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     code: Mapped[str] = mapped_column(String(64), unique=True)
@@ -65,7 +85,28 @@ class ExamFormat(Base):
     source_url: Mapped[str] = mapped_column(String(500))
     source_reference: Mapped[str] = mapped_column(String(300))
     source_published_on: Mapped[date] = mapped_column(Date)
-    verified_on: Mapped[date] = mapped_column(Date)
+    verified_on: Mapped[date | None] = mapped_column(Date)
+    status: Mapped[str] = mapped_column(
+        String(10), default=FormatStatus.DRAFT, server_default="draft"
+    )
+    # Dates the format applies to (null: open-ended). Mocks use formats in effect today.
+    effective_from: Mapped[date | None] = mapped_column(Date)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+    supersedes_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("exam_formats.id", ondelete="SET NULL")
+    )
+    # Answer types the paper uses (choice, typed); mocks are built from these only.
+    question_types: Mapped[list[str]] = mapped_column(
+        ARRAY(String(8)), default=lambda: ["choice"], server_default="{choice}"
+    )
+    # Each section has its own timer (its timer_minutes) and sections are taken in order.
+    sectional_timing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    # The notice gives the section split as only indicative (real papers may vary); mocks say so.
+    section_counts_indicative: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false"
+    )
+    reviewed_by: Mapped[str | None] = mapped_column(String(100))
+    review_notes: Mapped[str | None] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -164,7 +205,6 @@ class Question(Base):
         CheckConstraint(
             "topic_status IN ('unassigned', 'suggested', 'confirmed')", name="topic_status_valid"
         ),
-        CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
         # Source questions must carry provenance.
         CheckConstraint(
             "origin <> 'source' OR (document_id IS NOT NULL AND source_question_number IS NOT NULL)",  # noqa: E501
@@ -222,7 +262,7 @@ class Question(Base):
     )
     topic_status: Mapped[str] = mapped_column(String(12), default=TopicStatus.UNASSIGNED)
     stem: Mapped[str] = mapped_column(Text)
-    language: Mapped[str] = mapped_column(String(8))
+    language: Mapped[str] = mapped_column(String(8), ForeignKey("languages.code"))
     document_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("documents.id", ondelete="CASCADE")
     )
@@ -289,6 +329,13 @@ class Question(Base):
         passive_deletes=True,
         order_by="QuestionFigure.sort_order",
     )
+    # Append-only history; new questions add their first revision through this list, later
+    # revisions are added directly (see app/services/question_history.py).
+    revisions: Mapped[list["QuestionRevision"]] = relationship(
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="QuestionRevision.created_at",
+    )
 
 
 class QuestionOption(Base):
@@ -335,6 +382,7 @@ class QuestionFigure(Base):
     __tablename__ = "question_figures"
     __table_args__ = (
         CheckConstraint("kind IN ('stem', 'option', 'original')", name="kind_valid"),
+        CheckConstraint("source IN ('pdf', 'reviewer')", name="source_valid"),
         CheckConstraint(
             "(kind = 'option') = (option_position IS NOT NULL)", name="option_position_iff_option"
         ),
@@ -354,5 +402,36 @@ class QuestionFigure(Base):
     width: Mapped[int] = mapped_column(Integer)  # pixels
     height: Mapped[int] = mapped_column(Integer)
     content_type: Mapped[str] = mapped_column(String(32), default="image/png")
+    # pdf: found from the PDF's image/vector objects; reviewer: a region a reviewer marked on
+    # the page (scans and layouts the rules can't read), cropped from the same page.
+    source: Mapped[str] = mapped_column(String(10), default="pdf", server_default="pdf")
     data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class QuestionRevision(Base):
+    """A snapshot of a question's wording and answer after one action (append-only).
+
+    The first "extracted" revision keeps the question as read from its paper, so the paper's
+    own answer stays known after a reviewer changes it (app/domain/question_history.py).
+    """
+
+    __tablename__ = "question_revisions"
+    __table_args__ = (
+        CheckConstraint(
+            "action IN ('extracted', 'generated', 'baseline', 'edited')", name="action_valid"
+        ),
+        CheckConstraint("actor IN ('rules', 'ai', 'reviewer', 'migration')", name="actor_valid"),
+        Index("ix_question_revisions_question_created", "question_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    question_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"))
+    action: Mapped[str] = mapped_column(String(10))
+    actor: Mapped[str] = mapped_column(String(10))
+    # Tracked fields that changed with this action (all of them for the first revision).
+    changed: Mapped[list[str]] = mapped_column(ARRAY(String(32)), default=list)
+    snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.clock_timestamp()
+    )

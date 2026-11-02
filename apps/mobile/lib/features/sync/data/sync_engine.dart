@@ -5,6 +5,10 @@ import '../../../core/database/app_database.dart';
 import '../../exams/application/exam_catalog_controller.dart' show examCatalogCacheKey;
 import '../../../core/database/sync_outbox.dart';
 import '../../../core/utils/app_log.dart';
+
+import 'package:uuid/uuid.dart';
+
+import '../../concepts/domain/concept.dart' show syncConflictTag;
 import 'sync_api.dart';
 import '../../exams/application/active_exam.dart';
 import '../../focus/application/focus_controller.dart'
@@ -20,6 +24,7 @@ class SyncReport {
     this.pulled = 0,
     this.dropped = 0,
     this.pulledEntities = const {},
+    this.conflicts = 0,
   });
 
   final int pushed;
@@ -30,6 +35,9 @@ class SyncReport {
 
   /// Local changes the server refused (invalid); they are not retried.
   final int dropped;
+
+  /// Notes changed on another device since this one last synced them: both versions kept.
+  final int conflicts;
 }
 
 /// Device side of sync (rules: docs/database.md "Sync rules").
@@ -41,18 +49,23 @@ class SyncReport {
 ///    one transaction (parents before children, foreign keys checked at commit). A record
 ///    that still has a local pending change is skipped: the local change wins and is
 ///    pushed next time. Applying pulled data never marks anything dirty.
+/// 3. **Conflicts**: notes are pushed with the server version they were last synced from
+///    (`base_seq`). If another device changed the note meanwhile, the server keeps its
+///    version and returns it; this device then keeps its own text as a separate note tagged
+///    [syncConflictTag] and takes the server's version for the original, so no edit is lost.
 class SyncEngine {
-  SyncEngine(this._db, this._api);
+  SyncEngine(this._db, this._api, {Uuid? uuid}) : _uuid = uuid ?? const Uuid();
 
   final AppDatabase _db;
   final SyncApi _api;
+  final Uuid _uuid;
 
   static const cursorKey = 'sync_cursor';
   static const lastSyncedKey = 'sync_last_synced_at';
   static const _batch = 200;
 
   Future<SyncReport> run() async {
-    final (pushed, dropped) = await _push();
+    final (pushed, dropped, conflicts) = await _push();
     final entities = await _pull();
     await _setSetting(lastSyncedKey, DateTime.now().toUtc().toIso8601String());
     return SyncReport(
@@ -60,6 +73,7 @@ class SyncEngine {
       pulled: entities.length,
       dropped: dropped,
       pulledEntities: entities.toSet(),
+      conflicts: conflicts,
     );
   }
 
@@ -129,9 +143,10 @@ class SyncEngine {
 
   // --- push ---------------------------------------------------------------------------
 
-  Future<(int, int)> _push() async {
+  Future<(int, int, int)> _push() async {
     var pushed = 0;
     var dropped = 0;
+    var conflicts = 0;
     for (var round = 0; round < 50; round++) {
       final entries =
           await (_db.select(_db.syncOutbox)
@@ -156,6 +171,17 @@ class SyncEngine {
           final (entity, id) = _split(key);
           await _deleteLocal(entity, id);
         }
+        // Remember the server version of each note just uploaded (the next base_seq).
+        for (final MapEntry(:key, value: seq) in outcome.seqs.entries) {
+          final (entity, id) = _split(key);
+          if (entity != SyncEntity.concept) continue;
+          await (_db.update(
+            _db.concepts,
+          )..where((t) => t.id.equals(id))).write(ConceptsCompanion(serverSeq: Value(seq)));
+        }
+        for (final conflict in outcome.conflicts) {
+          if (await _keepBoth(conflict)) conflicts++;
+        }
       });
       if (outcome.rejected.isNotEmpty) {
         logError('Sync rejected ${outcome.rejected.length} changes', outcome.rejected.keys);
@@ -164,7 +190,36 @@ class SyncEngine {
       dropped += outcome.rejected.length;
       if (entries.length < _batch) break;
     }
-    return (pushed, dropped);
+    return (pushed, dropped, conflicts);
+  }
+
+  /// A note changed here and on another device: this device's text becomes a new note
+  /// tagged [syncConflictTag] (uploaded next), and the original takes the server's version.
+  Future<bool> _keepBoth(SyncChange server) async {
+    if (server.entity != SyncEntity.concept) return false;
+    final local = await (_db.select(
+      _db.concepts,
+    )..where((t) => t.id.equals(server.id))).getSingleOrNull();
+    if (local != null) {
+      final copyId = _uuid.v4();
+      await _db
+          .into(_db.concepts)
+          .insert(
+            local.copyWith(
+              id: copyId,
+              tags: local.tags.contains(syncConflictTag)
+                  ? local.tags
+                  : [...local.tags.take(19), syncConflictTag],
+              serverSeq: const Value(null),
+            ),
+          );
+      await _db.markDirty(SyncEntity.concept, copyId);
+    }
+    await (_db.delete(
+      _db.syncOutbox,
+    )..where((o) => o.entity.equals(SyncEntity.concept) & o.entityId.equals(server.id))).go();
+    await _apply(server);
+    return local != null;
   }
 
   Future<SyncChange> _changeFor(String entity, String id) async {
@@ -176,7 +231,12 @@ class SyncEngine {
       SyncEntity.setting => await _settingData(id),
       _ => null,
     };
-    return SyncChange(entity: entity, id: id, deleted: data == null, data: data);
+    final base = entity == SyncEntity.concept && data != null
+        ? (await (_db.select(
+            _db.concepts,
+          )..where((t) => t.id.equals(id))).getSingleOrNull())?.serverSeq
+        : null;
+    return SyncChange(entity: entity, id: id, deleted: data == null, data: data, baseSeq: base);
   }
 
   Future<Map<String, dynamic>?> _conceptData(String id) async {
@@ -321,6 +381,7 @@ class SyncEngine {
                 archivedAt: Value(_date(d['archived_at'])),
                 createdAt: _date(d['created_at'])!,
                 updatedAt: _date(d['updated_at'])!,
+                serverSeq: Value(change.seq),
               ),
             );
       case SyncEntity.studyProfile:

@@ -8,13 +8,15 @@ it). Publishing happens only through the operator CLI (`python -m app.cli.shared
 """
 
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from sqlalchemy import ColumnElement, Select, and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.domain.errors import ConflictError, NotFoundError
+from app.models.content import ContentRights
 from app.models.document import Document
 from app.models.question import (
     Question,
@@ -24,6 +26,7 @@ from app.models.question import (
     VerificationStatus,
 )
 from app.schemas.insights import SharedBankExam
+from app.services.content import audit, set_rights
 
 RIGHTS_MAX = 500
 
@@ -56,8 +59,20 @@ class PublishResult:
 
 
 def publish(
-    session: Session, document_id: uuid.UUID, *, rights_basis: str, source: str
+    session: Session,
+    document_id: uuid.UUID,
+    *,
+    rights_basis: str,
+    source: str,
+    uses: Sequence[str] = ("practice",),
+    decided_by: str = "operator",
+    rights_holder: str | None = None,
+    territory: str | None = None,
+    attribution: str | None = None,
+    review_by: date | None = None,
 ) -> PublishResult:
+    """Shares a paper's verified questions, recording why it may be shared and for which uses
+    (content_rights; "diagnostic" lets the starter check use them)."""
     rights_basis, source = rights_basis.strip(), source.strip()
     if not rights_basis or not source:
         raise ConflictError("rights_required", "A rights basis and a source are both required.")
@@ -104,18 +119,49 @@ def publish(
     document.shared_at = datetime.now(UTC)
     document.shared_rights_basis = rights_basis
     document.shared_source = source
+    rights = set_rights(
+        session,
+        document,
+        basis=rights_basis,
+        uses=uses,
+        decided_by=decided_by,
+        rights_holder=rights_holder,
+        territory=territory,
+        attribution=attribution,
+        review_by=review_by,
+    )
+    audit(
+        session,
+        decided_by,
+        "publish",
+        "document",
+        document.id,
+        f"uses={','.join(rights.permitted_uses)}; source={source}",
+    )
     session.commit()
     return PublishResult(document.id, document.original_filename, count, shared=True)
 
 
-def unpublish(session: Session, document_id: uuid.UUID) -> PublishResult:
+def unpublish(
+    session: Session,
+    document_id: uuid.UUID,
+    *,
+    actor: str = "operator",
+    reason: str = "",
+    commit: bool = True,
+) -> PublishResult:
     document = session.get(Document, document_id)
     if document is None:
         raise NotFoundError("Document not found.")
     document.shared_at = None
     document.shared_rights_basis = None
     document.shared_source = None
-    session.commit()
+    rights = session.get(ContentRights, document.id)
+    if rights is not None:
+        session.delete(rights)
+    audit(session, actor, "unpublish", "document", document.id, reason)
+    if commit:
+        session.commit()
     return PublishResult(document.id, document.original_filename, 0, shared=False)
 
 

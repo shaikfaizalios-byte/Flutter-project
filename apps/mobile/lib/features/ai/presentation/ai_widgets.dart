@@ -277,10 +277,7 @@ Future<(int, ContentLanguage)?> showGenerateDialog(
             ),
             const SizedBox(height: AppSpacing.sm),
             SegmentedButton<ContentLanguage>(
-              segments: [
-                ButtonSegment(value: ContentLanguage.english, label: Text(l10n.languageEnglish)),
-                ButtonSegment(value: ContentLanguage.hindi, label: Text(l10n.languageHindi)),
-              ],
+              segments: contentLanguageSegments(l10n, current: lang),
               selected: {lang},
               onSelectionChanged: (s) => setState(() => lang = s.first),
             ),

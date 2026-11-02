@@ -75,6 +75,7 @@ void main() {
           available: false,
           totalQuestions: 100,
           durationMinutes: 60,
+          sectionCountsIndicative: true,
           sections: [
             SectionAvailabilityView(subject: 'General Awareness', needed: 25, available: 3),
           ],
@@ -86,9 +87,55 @@ void main() {
     expect(find.text('SSC CHSL 2026 Tier-I'), findsOneWidget);
     expect(find.textContaining('100 questions · 60 min · −0.50 per wrong answer'), findsOneWidget);
     expect(find.textContaining('General Awareness: 3 of 25'), findsOneWidget);
+    // Only the format whose notice calls its split indicative says so.
+    expect(find.textContaining('section split as indicative'), findsOneWidget);
     await scrollTo(tester, find.text('Questions to revisit'));
     expect(find.text('Bookmarks'), findsOneWidget);
     expect(find.text('Questions to revisit'), findsOneWidget);
+  });
+
+  test('a format with problems is read as incomplete; older servers send none', () {
+    Map<String, dynamic> json([List<String>? problems]) => {
+      'exam_format_code': 'X',
+      'name': 'X',
+      'available': false,
+      'total_questions': 1,
+      'sections': <dynamic>[],
+      'format_problems': ?problems,
+    };
+    expect(MockTestView.fromJson(json(['No marks.'])).formatComplete, isFalse);
+    expect(MockTestView.fromJson(json([])).formatComplete, isTrue);
+    expect(MockTestView.fromJson(json()).formatComplete, isTrue);
+    expect(MockTestView.fromJson(json()).sectionCountsIndicative, isFalse);
+    expect(
+      MockTestView.fromJson({...json(), 'section_counts_indicative': true}).sectionCountsIndicative,
+      isTrue,
+    );
+  });
+
+  testAppWidgets('an incomplete format says so and cannot be started', (tester, db) async {
+    await pumpPractice(
+      tester,
+      db,
+      mocks: [
+        const MockTestView(
+          code: 'X',
+          name: 'Incomplete format',
+          available: false,
+          totalQuestions: 25,
+          durationMinutes: 60,
+          formatComplete: false,
+          sections: [
+            SectionAvailabilityView(subject: 'General Awareness', needed: 25, available: 3),
+          ],
+        ),
+      ],
+    );
+
+    expect(find.textContaining('missing official details'), findsOneWidget);
+    expect(find.textContaining('General Awareness: 3 of 25'), findsNothing);
+    final start = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Start mock test'));
+    expect(start.onPressed, isNull);
   });
 
   testAppWidgets('practice setup sends the chosen options', (tester, db) async {
@@ -155,6 +202,34 @@ void main() {
     expect(find.text('Accuracy 50%'), findsOneWidget);
     expect(find.text('How this score was calculated'), findsOneWidget);
     expect(find.textContaining('no negative marking'), findsOneWidget);
+  });
+
+  testAppWidgets('answers carry the time spent on the question', (tester, db) async {
+    final clock = TestClock();
+    final repo = await pumpPractice(tester, db, clock: clock);
+    await startPractice(tester);
+
+    clock.now = clock.now.add(const Duration(seconds: 40));
+    await tester.tap(find.text('30'));
+    await tester.pumpAndSettle();
+    expect(repo.timesSpent[1], 40000);
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    clock.now = clock.now.add(const Duration(minutes: 11)); // probably away: not recorded
+    await tester.tap(find.text('20'));
+    await tester.pumpAndSettle();
+    expect(repo.timesSpent.containsKey(2), isTrue);
+    expect(repo.timesSpent[2], isNull);
+  });
+
+  test('time on a question is only kept when plausible', () {
+    final shown = DateTime(2026, 10, 14, 9);
+    expect(timeOnQuestion(shown, shown.add(const Duration(seconds: 5))), 5000);
+    expect(timeOnQuestion(null, shown), isNull);
+    expect(timeOnQuestion(shown, shown.subtract(const Duration(seconds: 1))), isNull);
+    expect(timeOnQuestion(shown, shown.add(maxTimedAnswer)), maxTimedAnswer.inMilliseconds);
+    expect(timeOnQuestion(shown, shown.add(maxTimedAnswer + const Duration(seconds: 1))), isNull);
   });
 
   testAppWidgets('unreviewed questions are labelled during practice', (tester, db) async {

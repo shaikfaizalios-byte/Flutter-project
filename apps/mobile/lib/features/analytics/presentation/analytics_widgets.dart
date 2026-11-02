@@ -19,21 +19,43 @@ import '../../exams/application/active_exam.dart';
 String formatPercent(BuildContext context, double value) =>
     NumberFormat.percentPattern(Localizations.localeOf(context).toLanguageTag()).format(value);
 
-/// One line of evidence for a topic: accuracy over N answers and/or flashcard forgetting.
+/// One line of evidence for a topic: accuracy over N answers, flashcard forgetting, time per
+/// answer and repeated mistakes (each only when there is data for it).
 String topicEvidence(BuildContext context, TopicAssessment topic) {
   final l10n = AppLocalizations.of(context);
+  final seconds = topic.secondsPerAnswer;
   final parts = <String>[
     if (topic.counts.answered > 0)
       l10n.topicAccuracy(formatPercent(context, topic.counts.accuracy!), topic.counts.answered),
     if (topic.reviews > 0) l10n.topicForgotten(topic.forgot, topic.reviews),
+    if (seconds != null)
+      l10n.topicSecondsPerAnswer(
+        NumberFormat.decimalPattern(Localizations.localeOf(context).toLanguageTag())
+            .format(seconds.round()),
+      ),
+    if (topic.repeatedMistakes > 0) l10n.topicRepeatedMistakes(topic.repeatedMistakes),
   ];
   return parts.join(' · ');
+}
+
+/// Why a topic is called weak, one short phrase per reason.
+String weakReasonLabel(BuildContext context, WeakReason reason) {
+  final l10n = AppLocalizations.of(context);
+  return switch (reason) {
+    WeakReason.lowAccuracy => l10n.reasonBelowThreshold(
+      formatPercent(context, AnalyticsRules.weakAccuracy),
+    ),
+    WeakReason.oftenForgotten => l10n.reasonOftenForgotten,
+    WeakReason.repeatedMistakes => l10n.reasonRepeatedMistakes,
+    WeakReason.slow => l10n.reasonSlower,
+  };
 }
 
 String planTitle(AppLocalizations l10n, PlanItem item) => switch (item.kind) {
   PlanItemKind.revision => l10n.planRevisionTitle((item.reason as CardsDue).due),
   PlanItemKind.weakTopic => l10n.planWeakTopicTitle(item.topicName ?? ''),
   PlanItemKind.practiceMixed => l10n.planMixedTitle,
+  PlanItemKind.refreshTopic => l10n.planRefreshTitle(item.topicName ?? ''),
   PlanItemKind.mockTest => l10n.planMockTitle(item.mockName ?? ''),
 };
 
@@ -44,7 +66,11 @@ String planReason(BuildContext context, PlanItem item) {
       overdue > 0 ? l10n.reasonCardsDueOverdue(due, overdue) : l10n.reasonCardsDue(due),
     WeakTopicEvidence(:final topic) => [
       topicEvidence(context, topic),
-      l10n.reasonBelowThreshold(formatPercent(context, AnalyticsRules.weakAccuracy)),
+      for (final reason in topic.reasons) weakReasonLabel(context, reason),
+    ].where((s) => s.isNotEmpty).join(' · '),
+    TopicNotRecent(:final topic) => [
+      l10n.reasonNotPractisedFor(topic.daysSinceLast ?? 0),
+      topicEvidence(context, topic),
     ].where((s) => s.isNotEmpty).join(' · '),
     NoPracticeDataYet() => l10n.reasonNoPracticeData,
     NoWeakTopicFound() => l10n.reasonNoWeakTopic(AnalyticsRules.minAnswers),
@@ -76,6 +102,7 @@ class PlanItemTile extends ConsumerWidget {
               PlanItemKind.revision => Icons.style_outlined,
               PlanItemKind.weakTopic => Icons.trending_up,
               PlanItemKind.practiceMixed => Icons.quiz_outlined,
+              PlanItemKind.refreshTopic => Icons.history,
               PlanItemKind.mockTest => Icons.timer_outlined,
             }, color: theme.colorScheme.primary),
           ),
@@ -105,7 +132,7 @@ class PlanItemTile extends ConsumerWidget {
     switch (item.kind) {
       case PlanItemKind.revision:
         await context.push(AppRoutes.revisionReview);
-      case PlanItemKind.weakTopic:
+      case PlanItemKind.weakTopic || PlanItemKind.refreshTopic:
         await startAndOpen(
           context,
           () => practice.startPractice(

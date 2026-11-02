@@ -8,11 +8,14 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../../core/utils/external_links.dart';
 import '../../ai/application/ai_providers.dart';
+import '../application/play_purchases.dart';
 import '../data/plus_repository.dart';
 
-/// PrepLoop Plus: what it includes, the account's status and this month's AI use. Payments are
-/// not built yet; a development server offers a free test subscription instead.
+/// PrepLoop Plus: what it includes, the account's status and this month's AI use. Bought with
+/// Google Play where the server sells it (prices from Play); a development server offers a free
+/// test subscription instead.
 class PlusScreen extends ConsumerStatefulWidget {
   const PlusScreen({super.key});
 
@@ -116,6 +119,16 @@ class _PlusDetails extends ConsumerWidget {
               if (s.active && s.source == PlusSource.test)
                 Text(l10n.plusTestLabel, style: TextStyle(color: theme.colorScheme.tertiary)),
               if (s.active && s.source == PlusSource.operator) Text(l10n.plusOperatorLabel),
+              if (s.active && s.source == PlusSource.play) ...[
+                if (ref.watch(playPurchaseControllerProvider).notice == PurchaseNotice.added)
+                  Text(l10n.plusPurchaseAdded, style: TextStyle(color: theme.colorScheme.primary)),
+                Text(l10n.plusPlayLabel),
+                TextButton.icon(
+                  icon: const Icon(Icons.open_in_new),
+                  label: Text(l10n.plusManageInPlay),
+                  onPressed: () => ref.read(linkOpenerProvider)(playSubscriptionsUri),
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               if (s.active && s.source == PlusSource.test)
                 OutlinedButton(onPressed: busy ? null : onEndTest, child: Text(l10n.plusEndTest))
@@ -127,7 +140,9 @@ class _PlusDetails extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(l10n.plusTestExplained, style: theme.textTheme.bodySmall),
-              ] else if (!s.active && !s.purchasesAvailable)
+              ] else if (!s.active && s.purchasesAvailable && s.playAccountId != null)
+                _PlayOffers(accountId: s.playAccountId!)
+              else if (!s.active)
                 Text(l10n.plusNotForSaleYet, style: theme.textTheme.bodySmall),
             ],
           ),
@@ -189,5 +204,59 @@ class _PlusDetails extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+/// Google Play's subscription page, where the learner cancels or changes the plan.
+final playSubscriptionsUri = Uri.parse('https://play.google.com/store/account/subscriptions');
+
+/// The Plus subscriptions Google Play offers, with Play's own prices, plus restore.
+class _PlayOffers extends ConsumerWidget {
+  const _PlayOffers({required this.accountId});
+
+  final String accountId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final purchase = ref.watch(playPurchaseControllerProvider);
+    final controller = ref.read(playPurchaseControllerProvider.notifier);
+    final notice = switch (purchase.notice) {
+      PurchaseNotice.pending => l10n.plusPurchasePending,
+      PurchaseNotice.added => l10n.plusPurchaseAdded,
+      PurchaseNotice.refused => l10n.plusPurchaseRefused,
+      PurchaseNotice.failed => l10n.plusPurchaseFailed,
+      PurchaseNotice.none => null,
+    };
+    return switch (ref.watch(playOffersProvider)) {
+      AsyncData(value: final offers) when offers.isEmpty => Text(
+        l10n.plusPlayOnly,
+        style: theme.textTheme.bodySmall,
+      ),
+      AsyncData(value: final offers) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final offer in offers)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(offer.title),
+              subtitle: Text(offer.price),
+              trailing: FilledButton(
+                onPressed: purchase.busy ? null : () => controller.buy(offer, accountId: accountId),
+                child: Text(l10n.plusSubscribe),
+              ),
+            ),
+          if (notice != null) Text(notice, style: theme.textTheme.bodySmall),
+          TextButton(
+            onPressed: purchase.busy ? null : () => controller.restore(accountId: accountId),
+            child: Text(l10n.plusRestore),
+          ),
+          Text(l10n.plusPlayTerms, style: theme.textTheme.bodySmall),
+        ],
+      ),
+      AsyncError() => Text(l10n.plusPlayUnavailable, style: theme.textTheme.bodySmall),
+      _ => const LinearProgressIndicator(),
+    };
   }
 }

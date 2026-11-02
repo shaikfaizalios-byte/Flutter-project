@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
-from typing import Annotated, Literal
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
-Language = Literal["en", "hi"]
+from app.schemas.language import Language
+
 Title = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 Label = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 OptionalLabel = Annotated[str, StringConstraints(strip_whitespace=True, max_length=100)]

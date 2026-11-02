@@ -11,6 +11,7 @@ from app.domain.ai_content import (
     QUICK_ANSWER_MAX_QUERY,
     TOPIC_NAME_MAX,
 )
+from app.schemas.language import Language
 from app.schemas.question import AIExplanationRead, QuestionRead
 
 
@@ -45,7 +46,7 @@ class GenerateQuestionsRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     exam_code: Annotated[str, StringConstraints(min_length=1, max_length=32)]
-    language: Literal["en", "hi"]
+    language: Language
     count: int = Field(default=3, ge=1, le=MAX_GENERATED)
     # Exactly one basis: a verified source question, or the learner's concept.
     source_question_id: uuid.UUID | None = None
@@ -210,7 +211,7 @@ class TopicRequest(BaseModel):
         ]
         | None
     ) = None
-    language: Literal["en", "hi"] = "en"
+    language: Language = "en"
 
 
 class TopicLessonRead(BaseModel):

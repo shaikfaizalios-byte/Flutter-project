@@ -1,16 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-enum ContentLanguage {
-  english('en'),
-  hindi('hi');
+import '../../../core/localization/content_language.dart';
 
-  const ContentLanguage(this.code);
-
-  final String code;
-
-  static ContentLanguage fromCode(String code) =>
-      values.firstWhere((l) => l.code == code, orElse: () => ContentLanguage.english);
-}
+export '../../../core/localization/content_language.dart';
 
 @immutable
 class Concept {
@@ -48,7 +40,15 @@ class Concept {
 
   /// Made from an AI lesson (tagged [aiGeneratedTag]): labelled as unchecked AI wherever shown.
   bool get isAiGenerated => tags.contains(aiGeneratedTag);
+
+  /// This device's copy of a note that was changed on two devices at once (tagged
+  /// [syncConflictTag]); the other version is kept as the original note.
+  bool get isSyncConflictCopy => tags.contains(syncConflictTag);
 }
+
+/// Tag on the copy sync keeps when a note was edited on two devices before they synced
+/// (docs/accounts-sync.md "Conflicts"). The learner compares, keeps one and removes the tag.
+const syncConflictTag = 'sync-conflict';
 
 /// Tag on concepts saved from an AI lesson. The server's answer search reads it too (the same
 /// value is in services/api/app/services/rag_service.py) and treats them as unchecked.

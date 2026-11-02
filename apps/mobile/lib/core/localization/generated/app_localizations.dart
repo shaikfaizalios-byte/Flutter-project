@@ -1623,6 +1623,12 @@ abstract class AppLocalizations {
   /// **'Start mock test'**
   String get mockStart;
 
+  /// No description provided for @mockFormatIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam format is missing official details (marks, negative marking or time), so this mock is not available yet.'**
+  String get mockFormatIncomplete;
+
   /// No description provided for @mockUnavailable.
   ///
   /// In en, this message translates to:
@@ -3056,6 +3062,552 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not sync. It will be retried.'**
   String get syncFailed;
+
+  /// No description provided for @accountDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed-in devices'**
+  String get accountDevices;
+
+  /// No description provided for @devicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed-in devices'**
+  String get devicesTitle;
+
+  /// No description provided for @devicesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is signed in on these devices. Sign out any you don\'t recognise; they will need your password to sign in again. Only the kind of device is recorded, not its name.'**
+  String get devicesIntro;
+
+  /// No description provided for @devicesThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get devicesThisDevice;
+
+  /// No description provided for @devicesLastActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Last active {date}'**
+  String devicesLastActive(String date);
+
+  /// No description provided for @devicesSignedInAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in {date}'**
+  String devicesSignedInAt(String date);
+
+  /// No description provided for @devicePlatformAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android phone or tablet'**
+  String get devicePlatformAndroid;
+
+  /// No description provided for @devicePlatformIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone or iPad'**
+  String get devicePlatformIos;
+
+  /// No description provided for @devicePlatformWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Web browser'**
+  String get devicePlatformWeb;
+
+  /// No description provided for @devicePlatformWindows.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows computer'**
+  String get devicePlatformWindows;
+
+  /// No description provided for @devicePlatformMacos.
+  ///
+  /// In en, this message translates to:
+  /// **'Mac'**
+  String get devicePlatformMacos;
+
+  /// No description provided for @devicePlatformLinux.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux computer'**
+  String get devicePlatformLinux;
+
+  /// No description provided for @devicePlatformUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Device signed in before this list existed'**
+  String get devicePlatformUnknown;
+
+  /// No description provided for @devicesSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get devicesSignOut;
+
+  /// No description provided for @devicesSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out {device}?'**
+  String devicesSignOutTitle(String device);
+
+  /// No description provided for @devicesSignOutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It is signed out straight away. Study data on that device stays there until someone signs in again.'**
+  String get devicesSignOutMessage;
+
+  /// No description provided for @devicesSignOutOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out all other devices'**
+  String get devicesSignOutOthers;
+
+  /// No description provided for @devicesSignOutOthersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out other devices?'**
+  String get devicesSignOutOthersTitle;
+
+  /// No description provided for @devicesSignOutOthersMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 other device will be signed out straight away.} other{{count} other devices will be signed out straight away.}}'**
+  String devicesSignOutOthersMessage(int count);
+
+  /// No description provided for @devicesSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No other devices were signed in.} =1{1 device signed out.} other{{count} devices signed out.}}'**
+  String devicesSignedOut(int count);
+
+  /// No description provided for @devicesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your devices'**
+  String get devicesLoadFailed;
+
+  /// No description provided for @answerOriginPaperKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer from the paper\'s answer key, as PrepLoop read it.'**
+  String get answerOriginPaperKey;
+
+  /// No description provided for @answerOriginPaperInline.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer printed with the question in the paper, as PrepLoop read it.'**
+  String get answerOriginPaperInline;
+
+  /// No description provided for @answerOriginAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer written by AI with the question. Check it before approving.'**
+  String get answerOriginAi;
+
+  /// No description provided for @answerOriginReviewerPaperSaid.
+  ///
+  /// In en, this message translates to:
+  /// **'You set this answer. The paper said {answer}.'**
+  String answerOriginReviewerPaperSaid(String answer);
+
+  /// No description provided for @answerOriginReviewerPaperNone.
+  ///
+  /// In en, this message translates to:
+  /// **'You set this answer. The paper gave none.'**
+  String get answerOriginReviewerPaperNone;
+
+  /// No description provided for @answerOriginReviewerUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'You set or changed this answer. What the paper said was not recorded (read before history was kept).'**
+  String get answerOriginReviewerUnknown;
+
+  /// No description provided for @approveIsNotOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Approving means you checked this question. It is not an official answer key.'**
+  String get approveIsNotOfficial;
+
+  /// No description provided for @questionHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit history'**
+  String get questionHistoryTitle;
+
+  /// No description provided for @questionHistoryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the history'**
+  String get questionHistoryFailed;
+
+  /// No description provided for @questionHistoryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No history recorded for this question.'**
+  String get questionHistoryNone;
+
+  /// No description provided for @historyReadByRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from the paper by PrepLoop'**
+  String get historyReadByRules;
+
+  /// No description provided for @historyReadByAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from the paper by AI'**
+  String get historyReadByAi;
+
+  /// No description provided for @historyGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI'**
+  String get historyGenerated;
+
+  /// No description provided for @historyBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'History starts here (read before history was kept)'**
+  String get historyBaseline;
+
+  /// No description provided for @historyEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed in review: {fields}'**
+  String historyEdited(String fields);
+
+  /// No description provided for @historyFieldWording.
+  ///
+  /// In en, this message translates to:
+  /// **'wording'**
+  String get historyFieldWording;
+
+  /// No description provided for @historyFieldOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'options'**
+  String get historyFieldOptions;
+
+  /// No description provided for @historyFieldAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'answer'**
+  String get historyFieldAnswer;
+
+  /// No description provided for @historyFieldExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'explanation'**
+  String get historyFieldExplanation;
+
+  /// No description provided for @historyAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer: {answer}'**
+  String historyAnswer(String answer);
+
+  /// No description provided for @historyNoAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer'**
+  String get historyNoAnswer;
+
+  /// No description provided for @syncConflictsKept.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 note was changed on two devices; both versions were kept.} other{{count} notes were changed on two devices; both versions were kept.}}'**
+  String syncConflictsKept(int count);
+
+  /// No description provided for @conceptSyncConflictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed on two devices'**
+  String get conceptSyncConflictTitle;
+
+  /// No description provided for @conceptSyncConflictMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Two devices changed this note before they synced. This copy holds one device\'s version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.'**
+  String get conceptSyncConflictMessage;
+
+  /// No description provided for @plusPlayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought with Google Play.'**
+  String get plusPlayLabel;
+
+  /// No description provided for @plusManageInPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage or cancel in Google Play'**
+  String get plusManageInPlay;
+
+  /// No description provided for @plusSubscribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get plusSubscribe;
+
+  /// No description provided for @plusRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get plusRestore;
+
+  /// No description provided for @plusPlayTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play takes the payment and renews the subscription until you cancel it in Google Play. Plus starts once PrepLoop has checked the purchase with Google.'**
+  String get plusPlayTerms;
+
+  /// No description provided for @plusPlayOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus can be bought in the Android app from Google Play.'**
+  String get plusPlayOnly;
+
+  /// No description provided for @plusPlayUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play could not be reached. Try again later.'**
+  String get plusPlayUnavailable;
+
+  /// No description provided for @plusPurchasePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play is waiting for your payment. Plus starts when it is complete.'**
+  String get plusPurchasePending;
+
+  /// No description provided for @plusPurchaseAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! PrepLoop Plus is on.'**
+  String get plusPurchaseAdded;
+
+  /// No description provided for @plusPurchaseRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play did not confirm this purchase for this account. If you bought Plus with another PrepLoop account, sign in with that one.'**
+  String get plusPurchaseRefused;
+
+  /// No description provided for @plusPurchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase couldn\'t be checked right now. It will be checked again; you won\'t be charged twice.'**
+  String get plusPurchaseFailed;
+
+  /// No description provided for @sessionSectionOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Section {index} of {count}: {name}'**
+  String sessionSectionOf(int index, int count, String name);
+
+  /// No description provided for @sessionSectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This section has its own {minutes}-minute timer. When it ends, or when you finish it, the next section opens; you can\'t come back to it.'**
+  String sessionSectionHint(int minutes);
+
+  /// No description provided for @sessionFinishSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish section'**
+  String get sessionFinishSection;
+
+  /// No description provided for @sessionFinishSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish this section?'**
+  String get sessionFinishSectionTitle;
+
+  /// No description provided for @sessionFinishSectionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Every question in this section is answered.} =1{1 question in this section is unanswered.} other{{count} questions in this section are unanswered.}} You can\'t come back to this section.'**
+  String sessionFinishSectionMessage(int count);
+
+  /// No description provided for @sessionSectionTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time\'s up for that section. The next section is open.'**
+  String get sessionSectionTimeUp;
+
+  /// No description provided for @topicCanonicalSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the shared topic \"{topic}\" ({subject})?'**
+  String topicCanonicalSuggested(String topic, String subject);
+
+  /// No description provided for @topicCanonicalLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts as the shared topic \"{topic}\" ({subject})'**
+  String topicCanonicalLinked(String topic, String subject);
+
+  /// No description provided for @topicCanonicalYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, same'**
+  String get topicCanonicalYes;
+
+  /// No description provided for @topicCanonicalNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get topicCanonicalNo;
+
+  /// No description provided for @starterCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter check'**
+  String get starterCheckTitle;
+
+  /// No description provided for @starterCheckHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A few questions from each subject, with no timer, to see where to start. Answers and explanations come after you submit.'**
+  String get starterCheckHint;
+
+  /// No description provided for @starterCheckStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a starter check ({count} questions)'**
+  String starterCheckStart(int count);
+
+  /// No description provided for @starterCheckDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to start'**
+  String get starterCheckDoneTitle;
+
+  /// No description provided for @starterCheckDoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The subject and topic results below show where to begin. Your study plan on Home now uses these answers. This is a starting point, not an exam score.'**
+  String get starterCheckDoneMessage;
+
+  /// No description provided for @sharedReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this shared paper'**
+  String get sharedReportTitle;
+
+  /// No description provided for @sharedReportIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This question comes from a paper PrepLoop shares with every learner. Tell the PrepLoop team what\'s wrong; they review every report.'**
+  String get sharedReportIntro;
+
+  /// No description provided for @sharedReportRights.
+  ///
+  /// In en, this message translates to:
+  /// **'It shouldn\'t be shared (copyright or permission)'**
+  String get sharedReportRights;
+
+  /// No description provided for @sharedReportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something in it is wrong'**
+  String get sharedReportError;
+
+  /// No description provided for @sharedReportOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get sharedReportOther;
+
+  /// No description provided for @sharedReportText.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s the problem?'**
+  String get sharedReportText;
+
+  /// No description provided for @sharedReportTextHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 10 characters. Don\'t include personal details.'**
+  String get sharedReportTextHelp;
+
+  /// No description provided for @sharedReportSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks. The PrepLoop team will review it.'**
+  String get sharedReportSent;
+
+  /// No description provided for @sharedReportTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve sent 10 reports today. Please try again tomorrow.'**
+  String get sharedReportTooMany;
+
+  /// No description provided for @sharedReportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The report couldn\'t be sent. Please try again.'**
+  String get sharedReportFailed;
+
+  /// No description provided for @markFigureAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark a figure on the page'**
+  String get markFigureAction;
+
+  /// No description provided for @markFigureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the figure'**
+  String get markFigureTitle;
+
+  /// No description provided for @markFigureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag a box around the figure on the paper\'s page. PrepLoop keeps that part of the page with the question, as printed.'**
+  String get markFigureHint;
+
+  /// No description provided for @markFigureKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get markFigureKeep;
+
+  /// No description provided for @markFigurePage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String markFigurePage(int page);
+
+  /// No description provided for @markFigurePreviousPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get markFigurePreviousPage;
+
+  /// No description provided for @markFigureNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get markFigureNextPage;
+
+  /// No description provided for @markFigurePageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The page couldn\'t be loaded.'**
+  String get markFigurePageFailed;
+
+  /// No description provided for @figureMarkedByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Figure you marked (page {page})'**
+  String figureMarkedByYou(int page);
+
+  /// No description provided for @figureRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this figure'**
+  String get figureRemove;
 
   /// No description provided for @accountExport.
   ///
@@ -6476,6 +7028,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Made from an AI lesson: it always stays labelled as AI-generated.'**
   String get conceptAiLabelKept;
+
+  /// No description provided for @topicSecondsPerAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s per answer'**
+  String topicSecondsPerAnswer(String seconds);
+
+  /// No description provided for @topicRepeatedMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 question wrong more than once} other{{count} questions wrong more than once}}'**
+  String topicRepeatedMistakes(int count);
+
+  /// No description provided for @reasonOftenForgotten.
+  ///
+  /// In en, this message translates to:
+  /// **'often forgotten'**
+  String get reasonOftenForgotten;
+
+  /// No description provided for @reasonRepeatedMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'the same mistakes again'**
+  String get reasonRepeatedMistakes;
+
+  /// No description provided for @reasonSlower.
+  ///
+  /// In en, this message translates to:
+  /// **'slower than your usual pace'**
+  String get reasonSlower;
+
+  /// No description provided for @planRefreshTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh {topic}'**
+  String planRefreshTitle(String topic);
+
+  /// No description provided for @reasonNotPractisedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not practised for {days} days'**
+  String reasonNotPractisedFor(int days);
+
+  /// No description provided for @progressRulesMore.
+  ///
+  /// In en, this message translates to:
+  /// **'A topic is also weak with {mistakes} or more questions answered wrong in two sessions, or when its answers take {factor} times your usual time (after {timed} timed answers). A topic not practised for {days} days is suggested for a refresh.'**
+  String progressRulesMore(int mistakes, String factor, int timed, int days);
+
+  /// No description provided for @readinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness'**
+  String get readinessTitle;
+
+  /// No description provided for @readinessCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'{practised} of {topics} syllabus topics practised'**
+  String readinessCoverage(int practised, int topics);
+
+  /// No description provided for @readinessStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'{strong} strong or mastered'**
+  String readinessStrong(int strong);
+
+  /// No description provided for @readinessSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'{practised}/{topics} practised · {strong} strong'**
+  String readinessSubject(int practised, int topics, int strong);
+
+  /// No description provided for @readinessNoSyllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your syllabus topics to see how much of the syllabus you have covered.'**
+  String get readinessNoSyllabus;
+
+  /// No description provided for @readinessEvidenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence so far'**
+  String get readinessEvidenceTitle;
+
+  /// No description provided for @readinessRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'{answers} answers in the last {days} days, {percent} correct'**
+  String readinessRecent(int answers, int days, String percent);
+
+  /// No description provided for @readinessNoRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'No practice answers in the last {days} days.'**
+  String readinessNoRecent(int days);
+
+  /// No description provided for @readinessOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice evidence needs a connection.'**
+  String get readinessOffline;
+
+  /// No description provided for @readinessMocks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 mock test} other{{count} mock tests}} in the last {days} days; latest: {score} of {max} on {date}'**
+  String readinessMocks(int count, int days, String score, String max, String date);
+
+  /// No description provided for @readinessNoMock.
+  ///
+  /// In en, this message translates to:
+  /// **'No mock test submitted yet.'**
+  String get readinessNoMock;
+
+  /// No description provided for @readinessNotPrediction.
+  ///
+  /// In en, this message translates to:
+  /// **'This shows what you have covered and what your answers show so far. It is not a prediction of your result.'**
+  String get readinessNotPrediction;
+
+  /// No description provided for @settingsAppLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get settingsAppLanguage;
+
+  /// No description provided for @settingsContentLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Papers, syllabus and notes'**
+  String get settingsContentLanguage;
+
+  /// No description provided for @settingsContentLanguageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen first when you add a paper, syllabus or note; you can still pick another each time.'**
+  String get settingsContentLanguageHint;
+
+  /// No description provided for @settingsAiLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'AI lessons and checks'**
+  String get settingsAiLanguage;
+
+  /// No description provided for @settingsAiLanguageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'AI explanations are written in their question\'s language.'**
+  String get settingsAiLanguageHint;
+
+  /// No description provided for @languageSameAsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as app'**
+  String get languageSameAsApp;
+
+  /// No description provided for @mockSectionsIndicative.
+  ///
+  /// In en, this message translates to:
+  /// **'the notice gives this section split as indicative; real papers may vary'**
+  String get mockSectionsIndicative;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

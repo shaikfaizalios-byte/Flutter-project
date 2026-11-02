@@ -18,6 +18,10 @@ abstract final class PlanRules {
   /// Weak topics suggested per day at most.
   static const maxWeakTopics = 2;
 
+  /// Topics not practised for a while (see [AnalyticsRules.refreshAfterDays]) suggested per
+  /// day at most.
+  static const maxRefreshTopics = 1;
+
   /// Suggest a mock this often (days) when the exam is within [examSoonDays], otherwise
   /// at [mockEveryDaysOtherwise].
   static const examSoonDays = 60;
@@ -25,7 +29,7 @@ abstract final class PlanRules {
   static const mockEveryDaysOtherwise = 14;
 }
 
-enum PlanItemKind { revision, weakTopic, practiceMixed, mockTest }
+enum PlanItemKind { revision, weakTopic, practiceMixed, refreshTopic, mockTest }
 
 /// Why an item is in the plan (rendered as a localised sentence).
 sealed class PlanReason {
@@ -41,6 +45,13 @@ class CardsDue extends PlanReason {
 
 class WeakTopicEvidence extends PlanReason {
   const WeakTopicEvidence(this.topic);
+
+  final TopicAssessment topic;
+}
+
+/// A topic practised enough before but not for a while.
+class TopicNotRecent extends PlanReason {
+  const TopicNotRecent(this.topic);
 
   final TopicAssessment topic;
 }
@@ -112,8 +123,9 @@ class StudyPlan {
 }
 
 /// Builds today's plan in priority order — due revision, weak topics (or mixed practice
-/// when there is not enough data), then a mock test when one is due — and keeps items
-/// that fit the daily goal (the first item always stays).
+/// when there is not enough data), a topic not practised for a while, then a mock test when
+/// one is due — and keeps items that fit the daily goal (the first item always stays).
+/// Every item carries the reason it was chosen.
 StudyPlan buildStudyPlan({
   required CalendarDate today,
   required int dueCards,
@@ -161,6 +173,20 @@ StudyPlan buildStudyPlan({
           kind: PlanItemKind.practiceMixed,
           minutes: PlanRules.practiceMinutes,
           reason: answeredTotal == 0 ? const NoPracticeDataYet() : const NoWeakTopicFound(),
+        ),
+      );
+    }
+
+    final refresh = topics.where((t) => !t.isWeak && t.dueForRefresh && t.topicId != null).toList()
+      ..sort((a, b) => b.daysSinceLast!.compareTo(a.daysSinceLast!));
+    for (final topic in refresh.take(PlanRules.maxRefreshTopics)) {
+      candidates.add(
+        PlanItem(
+          kind: PlanItemKind.refreshTopic,
+          minutes: PlanRules.practiceMinutes,
+          reason: TopicNotRecent(topic),
+          topicId: topic.topicId,
+          topicName: topic.name,
         ),
       );
     }

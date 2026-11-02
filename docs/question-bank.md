@@ -86,11 +86,81 @@ Unknown formats simply have no row, and count checks are skipped for them.
 | `SSC_CHSL_2026_TIER1` | SSC notice "Combined Higher Secondary (10+2) Level Examination, 2026", F. No. HQ-C1102/5/2026-C-1, published 07-09-2026, para 13.8 and 13.8.2. Verified 2026-10-13 against the PDF on ssc.gov.in. | 4 parts × 25 questions / 50 marks: English Language (Basic Knowledge), General Intelligence, Quantitative Aptitude (Basic Arithmetic Skill), General Awareness. 60 minutes. 0.50 negative marks per wrong answer. **Parts "Not in sequence".** |
 
 Because the notice says the parts are not in a fixed order, section counts are compared **by section
-name**, never by position. **SSC CGL has no verified format yet.** Add one only after checking the
-current official notice, and record its source in a migration.
+name**, never by position. SSC CGL 2026 Tier-I was added in migration 0018 (its sections have 15-minute
+timers and a fixed order).
+
+### Versions, review and the catalog (global Phase 5, migration 0032)
+
+A format is a **version**: `status` draft | verified | retired, `effective_from`/`effective_to`,
+`supersedes_id`, `question_types` (choice, typed), `sectional_timing`, `reviewed_by`, `review_notes`.
+Published formats are never edited; a new notice becomes a new row, so past attempts (which keep
+`exam_format_id` and per-item marks) stay reproducible. The two recorded formats became `verified`
+(CGL `sectional_timing` = true because every section records a timer).
+
+- New mocks use only `verified` formats in effect today (`app/services/exam_formats.py`,
+  pure `in_effect`); `GET /exam-formats` and linking a paper show verified and retired formats,
+  never drafts.
+- Operator tool `python -m app.cli.exam_formats`: `import FILE.json` (creates a draft; unknown keys
+  refused; facts the notice doesn't give stay null), `check CODE`, `publish CODE --reviewer NAME`
+  (refused while `format_problems` + `config_problems` find anything: missing marks/counts/duration/
+  negative marking, timers that don't add up, sectional timing without a fixed order, unsupported
+  answer types, dates, a source without title/https URL/reference; ends the superseded format the day
+  before the new one starts), `retire CODE --on DATE`, `list`.
+- Catalog exams by configuration: `exam CODE --name --short-name --category --country --authority
+  --alias`. `exams.country_code` (ISO alpha-2, CHECK), `authority`, `aliases`; returned by `/exams`.
+  The 0012 catalog exams got country IN (all Indian exams); authorities are left for the operator to
+  set from official sources. `--languages en,hi,...` records the languages the paper is offered in
+  (`exams.languages`, any ISO 639 code as the notice states, not only PrepLoop's content languages).
+- `section_counts_indicative` (migration 0038): the notice gives its section-wise counts as only
+  indicative. Mocks still use those counts, and say so on the mock card and in the marking note.
+
+### RRB NTPC (global Phase 10, CEN 06/2026 and 07/2026)
+
+From the official Centralised Employment Notices CEN No. 06/2026 (NTPC Graduate) and 07/2026 (NTPC
+Under Graduate), Railway Recruitment Boards (indicative notice in Employment News 26.09.2026):
+
+| Format (draft file in `services/api/data/exam_formats/`) | Duration | Questions (GA / Maths / GI&R) | Source |
+|---|---|---|---|
+| `RRB_NTPC_G_2026_CBT1`, `RRB_NTPC_UG_2026_CBT1` | 90 min | 100 (40 / 30 / 30) | para 13.1 |
+| `RRB_NTPC_G_2026_CBT2`, `RRB_NTPC_UG_2026_CBT2` | 90 min | 120 (50 / 35 / 35) | para 13.2.1 |
+
+Each question is 1 mark; 1/3 mark is deducted per wrong answer; the section split is "only
+indicative"; no sectional timers; no section order stated (`sections_in_fixed_order` false). The
+120-minute duration applies only to eligible PwBD candidates with a scribe (mocks use 90). The files
+are **drafts**: the operator imports each (`import`), checks it against the notice and publishes it
+under their own name (`publish --reviewer`); until then no RRB mock is offered.
+
+Migration 0038 also records RRB NTPC's authority and its 15 languages (para 14.3 d), adds
+"Mathematics" as an alias of the canonical subject "Quantitative Aptitude" (mock sections named
+"Mathematics" find those questions; "General Intelligence and Reasoning" already matches "General
+Intelligence" by name), and adds the 25 syllabus items of para 13.1 that no shared topic covered
+(e.g. Elementary Statistics, Data Sufficiency, Flagship Government Programs) as shared topics for
+RRB_NTPC only, each with its own confirmed canonical topic. RRB Group D has no notice yet: nothing
+is recorded for it.
 
 A document is linked to a format at upload (`exam_format_code`) or later
 (`PUT /documents/{id}/exam-format`). Re-run segmentation to apply a newly linked format.
+
+## Canonical topics (global Phase 6, migration 0034)
+
+One id per subject or topic, whatever an exam or a learner calls it: `taxonomy_nodes` (`key` such as
+`quantitative-aptitude/percentage`, kind subject|topic, parent), `taxonomy_labels` (language, label,
+alias) and `topic_taxonomy_links` (exam topic → canonical topic; status suggested|confirmed|rejected,
+source migration|rules|learner|operator; at most one confirmed per topic).
+
+- Seeded from the shared topics (4 subjects, 60 topics, used by the SSC, banking and railway exams):
+  one node each with the existing English name, and each shared topic linked to its own node
+  (`confirmed`, source `migration`). No Hindi labels were added (none were reviewed).
+- A learner's own topic gets a **suggested** link only when its name matches exactly one canonical
+  topic (pure `app/domain/taxonomy.py`: case, spacing, punctuation, "&"/"and", simple plurals);
+  two candidates → no suggestion. Renaming drops old suggestions; a rejection is never suggested
+  again. `OwnTopicRead.canonical` shows it; `PUT /topics/{id}/canonical {node_id, confirmed}` (own
+  topics only); `GET /taxonomy` lists the tree. App: "Same as the shared topic …? Yes, same / No" on
+  the topics screen, then "Counts as the shared topic …".
+- Used where it matters now: a mock section also takes questions whose topic is **confirmed**
+  linked to a canonical topic of the section's subject (by id), so a learner's own "Reasoning
+  Ability > Analogies" counts toward CGL's "General Intelligence and Reasoning". Suggestions never
+  count. Topic wording in papers and syllabuses is never changed.
 
 ## Exams and topics for any exam
 
@@ -144,6 +214,37 @@ each paper has a suggested/confirmed **exam date and shift**. Both feed the repe
 
 Questions have `origin`: `source` (from an upload) or `ai` (Phase 9). The app always shows which one,
 and AI questions are never presented as official previous-year questions.
+
+## Question history and answer provenance (global Phase 2)
+
+Edits never erase what the paper said. `question_revisions` (migration `0030`) is append-only;
+each row is a snapshot of the tracked fields (`stem`, `options`, `answer_type`,
+`correct_option_position`, `typed_answer`, `model_answer`, `answer_source`, `explanation`) after
+one action:
+
+| action | actor | when |
+|---|---|---|
+| `extracted` | `rules` / `ai` | the question is read from its paper (segmenter, Q&A notes, AI reading) |
+| `generated` | `ai` | an AI practice question is created |
+| `baseline` | `migration` | questions that existed before `0030`: their state when history began (earlier edits unknown, so it never counts as the paper's answer) |
+| `edited` | `reviewer` | `PATCH /questions/{id}` changed a tracked field (`changed` lists which) |
+
+Status-only changes (approve, reject, verify-clean, reports) add no revision; `verified_at` and
+issues record those. Rules are pure in `app/domain/question_history.py`; writing/reading in
+`app/services/question_history.py`.
+
+`QuestionRead` adds `answer_origin` — `paper` (`answer_source` answer_key/inline, as read),
+`reviewer` (set or changed in review, or with no recorded source), `ai`, `none` — and, for a
+reviewer's answer, `paper_answer` taken from the `extracted` snapshot (all null: the paper gave
+none; `paper_answer` null: not recorded). `GET /questions/{id}/revisions` lists the history (own
+questions only; others → 404). The app shows the origin under the answer ("You set this answer.
+The paper said (b) 30."), says approving is not an official answer key, and lists the history
+("Edit history") on the review screen. Practice and scoring still read the effective answer
+columns, so nothing else changed.
+
+Not built: an "official key matched" state (needs an official answer-key source per paper) and
+"independently checked" (needs a second reviewer); the app's "Verified" status still means "checked
+by the paper's owner".
 
 ## Known limitations
 

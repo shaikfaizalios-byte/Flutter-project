@@ -17,7 +17,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
-from app.domain import ai_content, rag
+from app.domain import ai_content, languages, rag
 from app.domain.errors import (
     AIDisabledError,
     AIUnavailableError,
@@ -68,6 +68,7 @@ from app.schemas.document import DocumentRead
 from app.schemas.question import AIExplanationRead
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.plus_service import PlusService
+from app.services.question_history import add_first_revision
 from app.services.question_service import QuestionService
 from app.services.rag_service import RagRetriever
 from app.services.topic_service import topic_scope, visible_topics
@@ -75,7 +76,8 @@ from app.services.topic_service import topic_scope, visible_topics
 MIN_TAXONOMY_QUESTIONS = 5
 logger = logging.getLogger(__name__)
 
-# Issue raised on AI text in Hindi so a reviewer checks the language (like OCR text).
+# Issue raised on AI text in a language whose AI text needs a check (Hindi; see
+# app/domain/languages.py) so a reviewer checks the language (like OCR text).
 AI_LANGUAGE_REVIEW = "ai_language_review"
 
 
@@ -219,7 +221,8 @@ class AIService:
         else:
             concept = request.concept
             assert concept is not None  # noqa: S101 - guaranteed by the request validator
-            if ExamRepository(self._session).get_visible(request.exam_code, self._owner_id) is None:
+            exam = ExamRepository(self._session).get_visible(request.exam_code, self._owner_id)
+            if exam is None:
                 raise InvalidReferenceError(f"Unknown exam '{request.exam_code}'.")
             exam_code, subject, section = request.exam_code, concept.subject, concept.subject
             topic = self._session.scalars(
@@ -236,6 +239,7 @@ class AIService:
                 topic=concept.topic,
                 language=request.language,
                 count=request.count,
+                exam_name=exam.name,
             )
             note = f"Concept: {concept.title}"[:300]
 
@@ -282,11 +286,16 @@ class AIService:
                 QuestionOption(position=i, label=str(i), text=text)
                 for i, text in enumerate(valid.options, start=1)
             ]
-            if request.language == "hi":
+            add_first_revision(question, "generated", "ai")
+            written_in = languages.language(request.language)
+            if written_in.review_ai_text:
                 question.issues = [
                     QuestionIssue(
                         code=AI_LANGUAGE_REVIEW,
-                        detail="AI-written Hindi: check spelling and terms before approving.",
+                        detail=(
+                            f"AI-written {written_in.english_name}: check spelling and terms "
+                            "before approving."
+                        ),
                     )
                 ]
             self._session.add(question)

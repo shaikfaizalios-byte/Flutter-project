@@ -9,12 +9,13 @@ review. Nothing is ever invented or "corrected".
 import logging
 import time
 from collections.abc import Callable, Iterator
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import pypdfium2 as pdfium
 
 from app.core.config import Settings
+from app.domain.page_analysis import Script, detect_script, two_columns
 from app.domain.text_quality import (
     ReviewReason,
     assess_text_layer,
@@ -24,6 +25,10 @@ from app.domain.text_quality import (
 )
 from app.integrations.ocr import OcrEngine, OcrFailedError, OcrUnavailableError
 from app.models.document import ExtractionMethod
+from app.services.page_layout import text_runs
+
+# A horizontal gap wider than this share of the page splits text into separate runs.
+COLUMN_GAP = 0.04
 
 logger = logging.getLogger("app.extraction")
 
@@ -35,6 +40,8 @@ class PageExtraction:
     text: str
     ocr_confidence: float | None = None
     review_reasons: tuple[str, ...] = field(default_factory=tuple)
+    # Mostly devanagari, latin, both ("mixed"), or too little text to tell ("none").
+    script: Script = "none"
 
     @property
     def needs_review(self) -> bool:
@@ -77,9 +84,23 @@ def extract_pages(
 def _extract_page(
     page: pdfium.PdfPage, page_number: int, *, language: str, ocr: OcrEngine, settings: Settings
 ) -> PageExtraction:
+    """The page's text (text layer, else OCR), its script and why it needs review."""
+    found = _read_page(page, page_number, language=language, ocr=ocr, settings=settings)
+    script = detect_script(found.text)
+    extra: list[str] = []
+    if language == "en" and script == "devanagari":
+        extra.append(ReviewReason.DEVANAGARI_IN_ENGLISH)
+    return replace(found, script=script, review_reasons=(*found.review_reasons, *extra))
+
+
+def _read_page(
+    page: pdfium.PdfPage, page_number: int, *, language: str, ocr: OcrEngine, settings: Settings
+) -> PageExtraction:
     text_page = page.get_textpage()
     try:
         layer_text = normalize_text(text_page.get_text_bounded())
+        width = page.get_size()[0]
+        columns = two_columns(text_runs(text_page, gap=width * COLUMN_GAP), width)
     finally:
         text_page.close()
 
@@ -90,7 +111,8 @@ def _extract_page(
         hindi_min_devanagari_ratio=settings.hindi_min_devanagari_ratio,
     )
     if verdict.acceptable:
-        return PageExtraction(page_number, ExtractionMethod.TEXT, layer_text)
+        flags: tuple[str, ...] = (ReviewReason.TWO_COLUMNS,) if columns else ()
+        return PageExtraction(page_number, ExtractionMethod.TEXT, layer_text, review_reasons=flags)
 
     # The text layer is missing or suspect: try OCR on a rendered image of the page.
     bitmap = page.render(scale=settings.ocr_dpi / 72)

@@ -14,7 +14,7 @@ Code:
 |---|---|
 | Sign-in | Email + password, hosted by our own server (no third-party identity service). Emails are stored trimmed and lower-case (unique). |
 | Passwords | 10–128 characters with no composition rules (NIST SP 800-63B), and not equal to the email. Hashed with **Argon2id** (`argon2-cffi`, MIT) and re-hashed on login if the parameters change. Unknown emails are checked against a dummy hash, so timing and error text are the same ("Email or password is not correct"). |
-| Access token | HS256 JWT (`PyJWT`, MIT) signed with `PREPLOOP_AUTH_SECRET`. Lifetime `PREPLOOP_ACCESS_TOKEN_MINUTES` (15). Checks issuer, audience, `type=access` and `exp`. |
+| Access token | HS256 JWT (`PyJWT`, MIT) signed with `PREPLOOP_AUTH_SECRET`. Lifetime `PREPLOOP_ACCESS_TOKEN_MINUTES` (15). Checks issuer, audience, `type=access` and `exp`. Carries `sid` = the refresh-token family (the signed-in device); a token whose family is revoked is refused at once (one indexed lookup per request), so sign-out, remote sign-out, password reset and reuse detection end access immediately rather than after 15 minutes. Tokens issued before `sid` existed still work until they expire. |
 | Refresh token | 48 random bytes, opaque. Only its **SHA-256** is stored. Lifetime `PREPLOOP_REFRESH_TOKEN_DAYS` (30). **Rotates on every use.** Using a token that was already rotated (theft or replay) revokes its whole family (all of that device's sessions). Logout revokes the family. |
 | Secret | Required (32+ characters) in staging and production; the settings refuse to start without it. In development a random secret is generated per process, so sign-ins end on restart. |
 | Brute force | `PREPLOOP_AUTH_RATE_LIMIT` attempts per `PREPLOOP_AUTH_RATE_WINDOW_SECONDS` (default 10 per 15 min) per client address + email, for sign-in and registration |
@@ -26,6 +26,11 @@ Endpoints:
 - `/me` (the account)
 - `/me/export` (everything the server holds for the account)
 - `/me/delete` (password required). This deletes every owned row by cascade **and the stored PDF files**.
+- `/sessions` (signed-in devices, this one first), `DELETE /sessions/{id}` (sign a device out; other
+  accounts' devices → 404), `POST /sessions/sign-out-others` (needs a token with `sid`; a 401 makes the app
+  refresh and retry). A device is a refresh-token family; migration `0029` records its `platform`
+  (android|ios|web|windows|macos|linux, sent by the app at sign-in; no device name or model is collected).
+  App: Profile → "Signed-in devices" (`features/auth/presentation/devices_screen.dart`).
 
 ## Ownership
 
@@ -66,6 +71,25 @@ Device preferences (language, theme, reminder switch) stay per device. Documents
   with an advisory lock, so `seq` order equals commit order and a cursor can't skip a change.
 - **Pull:** `?cursor=<seq>` returns the account's changes after the cursor, oldest first, in pages of 500.
 
+### Conflicts (global Phase 3)
+
+Each change may carry `base_seq`: the server version the device last saw. The policy is per entity
+(`app/schemas/sync.py` `CONFLICT_CHECKED` / `APPEND_ONLY`):
+
+| Entity | Rule |
+|---|---|
+| `concept` (notes) | Edit with an older `base_seq` than the server's → **not applied**; the server's version comes back in `conflicts`. The device keeps its own text as a **new note tagged `sync-conflict`** (uploaded next) and takes the server's version for the original. The note page explains it; Profile says "n notes were changed on two devices; both versions were kept". |
+| `card_review` | **Append-only**: a review already stored is never rewritten (its `seq` is returned, nothing re-sent). |
+| `revision_card`, `study_profile`, `setting` | Last writer wins (card state follows from the reviews; profile and settings are small choices). |
+
+Deletes still win (a tombstone ignores later edits) and a delete is sent without `base_seq`. A push
+without `base_seq` (older apps, or a note never synced) keeps last-writer-wins, so old clients keep
+working. `PushResult.seqs` gives each accepted record's new version. Device: `concepts.server_seq`
+(Drift v8) stores the version; the v7→v8 migration resets the sync cursor once so the next sync pulls
+everything and learns the versions (`test/drift/app_database/migration_test.dart`). Tests:
+`tests/test_sync.py` (server), `test/features/sync/sync_engine_test.dart` (two devices),
+`test/features/sync/sync_conflict_ui_test.dart`.
+
 **Device** (Drift schema v5):
 - **Outbox:** every local write also marks the record in `sync_outbox` (entity, id, `version`), in the same transaction.
   Repeated edits coalesce. Deleting a concept also marks its cascaded revision card.
@@ -88,8 +112,8 @@ Device preferences (language, theme, reminder switch) stay per device. Documents
 ## Not covered yet
 
 - No password reset or email verification (that needs an email provider; planned for release).
-- No multi-device conflict UI: last writer wins per record, silently. Field-level merging isn't implemented.
-- No list of signed-in devices in the app. Revoking a single session happens only through logout or token reuse detection.
+- Conflicts are detected for notes only; there is no field-level merge (both versions are kept and the learner
+  chooses). Revision cards, the study profile and settings are last writer wins.
 - Rate limits are per process (shared store needed before scaling out).
 - The older `/api/v1/concepts` REST API is a separate server-side store kept for API clients (marked deprecated). The
   app syncs concepts through `/sync`.

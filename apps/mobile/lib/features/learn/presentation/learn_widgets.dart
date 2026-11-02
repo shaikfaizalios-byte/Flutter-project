@@ -11,12 +11,12 @@ import '../../concepts/domain/concept.dart';
 import '../../exams/application/active_exam.dart';
 import '../../plus/presentation/plus_prompt.dart';
 import '../application/learn_providers.dart';
+import '../../settings/application/app_preferences.dart';
 
-/// Lessons and questions are written in the interface language.
-ContentLanguage learnLanguage(BuildContext context) =>
-    Localizations.localeOf(context).languageCode == 'hi'
-    ? ContentLanguage.hindi
-    : ContentLanguage.english;
+/// Lessons and questions are written in the learner's AI language (Settings), which is the
+/// interface language unless they chose another.
+ContentLanguage learnLanguage(BuildContext context, WidgetRef ref) =>
+    ref.read(appPreferencesProvider).aiLanguageFor(Localizations.localeOf(context));
 
 /// A lesson or knowledge-check screen: shows why AI can't be used (off, needs Plus, no exam)
 /// or builds [body] with the request for the current exam.
@@ -46,7 +46,7 @@ class LearnScreenFrame extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         child: PlusPrompt(message: l10n.learnPlusMessage),
       ),
-      AsyncData() => body((examCode: exam!, choice: choice, language: learnLanguage(context))),
+      AsyncData() => body((examCode: exam!, choice: choice, language: learnLanguage(context, ref))),
       _ => const Center(child: CircularProgressIndicator()),
     };
     return Scaffold(

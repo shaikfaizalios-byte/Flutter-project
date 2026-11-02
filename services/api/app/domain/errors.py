@@ -117,3 +117,25 @@ class InvalidCodeError(DomainError):
 
     status_code = 400
     code = "invalid_code"
+
+
+class BillingUnavailableError(DomainError):
+    """Store purchases are not configured on this server."""
+
+    status_code = 503
+    code = "billing_unavailable"
+
+
+class StoreUnavailableError(DomainError):
+    """The store's API could not be reached or answered with an error; worth retrying."""
+
+    status_code = 502
+    code = "store_unavailable"
+
+
+class PurchaseRefusedError(DomainError):
+    """The store does not confirm this purchase for this account (unknown token, another
+    product, or bought from another account)."""
+
+    status_code = 422
+    code = "purchase_refused"

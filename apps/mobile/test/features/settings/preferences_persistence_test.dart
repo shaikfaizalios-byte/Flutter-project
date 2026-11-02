@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/database/app_database.dart';
+import 'package:preploop/core/localization/content_language.dart';
 import 'package:preploop/features/settings/application/app_preferences.dart';
 import 'package:preploop/features/settings/data/preferences_repository.dart';
 
@@ -22,6 +23,30 @@ void main() {
     await repo.save(prefs); // upsert, not duplicate
 
     expect(await repo.load(), prefs);
+  });
+
+  test('content and AI languages round-trip, and "same as app" removes them', () async {
+    final repo = PreferencesRepository(createTestDatabase());
+    const prefs = AppPreferences(
+      contentLanguage: ContentLanguage.hindi,
+      aiLanguage: ContentLanguage.english,
+    );
+    await repo.save(prefs);
+    expect(await repo.load(), prefs);
+
+    await repo.save(const AppPreferences(aiLanguage: ContentLanguage.english));
+    final loaded = await repo.load();
+    expect(loaded.contentLanguage, isNull);
+    expect(loaded.aiLanguage, ContentLanguage.english);
+  });
+
+  test('a stored language this app does not offer means "same as app"', () async {
+    final db = createTestDatabase();
+    await db
+        .into(db.appSettings)
+        .insert(AppSettingsCompanion.insert(key: 'content_language', value: 'xx'));
+
+    expect((await PreferencesRepository(db).load()).contentLanguage, isNull);
   });
 
   test('unknown stored values fall back to defaults', () async {

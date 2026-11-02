@@ -26,6 +26,8 @@ from app.models.progress import TopicCompletion
 from app.models.question import Question, QuestionPattern, SyllabusImport, Topic, TopicStatus
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.exam import (
+    CanonicalDecision,
+    CanonicalTopicRead,
     CustomExamCreate,
     CustomExamUpdate,
     ExamRead,
@@ -37,6 +39,12 @@ from app.schemas.exam import (
     TopicUpdate,
 )
 from app.schemas.question import PatternRead
+from app.services.taxonomy_service import (
+    canonical_for,
+    decide,
+    forget_suggestions,
+    suggest_link,
+)
 
 MAX_OWN_EXAMS = 30
 MAX_OWN_TOPICS_PER_EXAM = 300
@@ -70,11 +78,18 @@ def exam_read(exam: Exam) -> ExamRead:
         category=exam.category,
         featured=exam.featured,
         custom=exam.owner_id is not None,
+        country_code=exam.country_code,
+        authority=exam.authority,
+        aliases=list(exam.aliases or []),
+        languages=list(exam.languages or []),
     )
 
 
-def _own_topic_read(topic: Topic, completed: bool = False) -> OwnTopicRead:
+def _own_topic_read(
+    topic: Topic, completed: bool = False, canonical: CanonicalTopicRead | None = None
+) -> OwnTopicRead:
     return OwnTopicRead(
+        canonical=canonical,
         id=topic.id,
         subject=topic.subject,
         name=topic.name,
@@ -160,10 +175,20 @@ class TopicService:
                 select(TopicCompletion.topic_id).where(TopicCompletion.owner_id == self._owner_id)
             )
         )
+        topics = visible_topics(self._session, self._owner_id, exam_code)
+        links = canonical_for(self._session, [t.id for t in topics])
         return [
-            _own_topic_read(t, completed=t.id in done)
-            for t in visible_topics(self._session, self._owner_id, exam_code)
+            _own_topic_read(t, completed=t.id in done, canonical=links.get(t.id)) for t in topics
         ]
+
+    def decide_canonical(self, topic_id: uuid.UUID, data: CanonicalDecision) -> OwnTopicRead:
+        """The learner confirms or rejects that their topic means a canonical topic."""
+        decide(self._session, self._owner_id, topic_id, data.node_id, data.confirmed)
+        self._session.commit()
+        topic = self._own_topic(topic_id)
+        return _own_topic_read(
+            topic, canonical=canonical_for(self._session, [topic.id]).get(topic.id)
+        )
 
     def set_completed(self, topic_id: uuid.UUID, completed: bool) -> OwnTopicRead:
         """Marks a visible topic (shared or own) as revised, or not, for this learner."""
@@ -183,7 +208,9 @@ class TopicService:
     def create_topic(self, data: TopicCreate) -> OwnTopicRead:
         topic = self._new_topic(data)
         self._session.commit()
-        return _own_topic_read(topic)
+        return _own_topic_read(
+            topic, canonical=canonical_for(self._session, [topic.id]).get(topic.id)
+        )
 
     def create_topics(
         self,
@@ -217,7 +244,8 @@ class TopicService:
             for topic in created:
                 topic.syllabus_import_id = record.id
         self._session.commit()
-        return [_own_topic_read(t) for t in created]
+        links = canonical_for(self._session, [t.id for t in created])
+        return [_own_topic_read(t, canonical=links.get(t.id)) for t in created]
 
     def syllabus_imports(self, exam_code: str) -> list[SyllabusImportRead]:
         self._visible_exam(exam_code)
@@ -268,8 +296,12 @@ class TopicService:
             exam_code, subject, name, exclude=topic.id
         ):
             raise ConflictError("topic_exists", "This exam already has that topic.")
+        renamed = changes.get("name", topic.name) != topic.name
         for field_name, value in changes.items():
             setattr(topic, field_name, value)
+        if renamed:
+            forget_suggestions(self._session, topic)
+            suggest_link(self._session, topic)
         if "subject" in changes:  # questions follow their topic's subject
             self._session.execute(
                 update(Question)
@@ -278,7 +310,9 @@ class TopicService:
             )
         self._session.commit()
         self._session.expire_all()
-        return _own_topic_read(topic)
+        return _own_topic_read(
+            topic, canonical=canonical_for(self._session, [topic.id]).get(topic.id)
+        )
 
     def delete_topic(self, topic_id: uuid.UUID) -> None:
         """Questions of the topic go back to "no topic" (their patterns too)."""
@@ -335,6 +369,7 @@ class TopicService:
         )
         self._session.add(topic)
         self._session.flush()
+        suggest_link(self._session, topic)
         return topic
 
     def _duplicate(

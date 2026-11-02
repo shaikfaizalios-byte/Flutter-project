@@ -90,6 +90,16 @@ class Settings(BaseSettings):
     # AI features need an active subscription and stop at the allowance. Off only for
     # development setups that want AI without Plus (refused in staging/production).
     plus_required_for_ai: bool = True
+    # Google Play Billing (docs/plus.md "Google Play"). Purchases are verified only on the server
+    # with the Play Developer API, using a service account with access to the app in Play
+    # Console. All three are needed to sell Plus; without them purchases stay unavailable.
+    play_package_name: str | None = None
+    play_subscription_ids: Annotated[list[str], NoDecode] = Field(default_factory=list)
+    play_service_account_file: Path | None = None
+    # Real-time developer notifications (Pub/Sub push to /api/v1/billing/play/rtdn): the
+    # audience and service account the push subscription signs its OIDC token with.
+    play_rtdn_audience: str | None = None
+    play_rtdn_service_account: str | None = None
     # Accounts. The signing secret is required outside development/test; locally a random
     # one is generated per process (tokens then stop working after a restart).
     auth_secret: SecretStr | None = None
@@ -121,9 +131,10 @@ class Settings(BaseSettings):
     @classmethod
     def _split_origins(cls, data: object) -> object:
         if isinstance(data, dict):
-            raw = data.get("cors_origins")
-            if isinstance(raw, str):
-                data["cors_origins"] = [o.strip() for o in raw.split(",") if o.strip()]
+            for key in ("cors_origins", "play_subscription_ids"):
+                raw = data.get(key)
+                if isinstance(raw, str):
+                    data[key] = [o.strip() for o in raw.split(",") if o.strip()]
         return data
 
     @model_validator(mode="after")
@@ -149,6 +160,12 @@ class Settings(BaseSettings):
         if self.email_backend == "smtp" and (not self.smtp_host or not self.smtp_from):
             raise ValueError("PREPLOOP_SMTP_HOST and PREPLOOP_SMTP_FROM are required for SMTP.")
         return self
+
+    @property
+    def play_billing_configured(self) -> bool:
+        return bool(
+            self.play_package_name and self.play_subscription_ids and self.play_service_account_file
+        )
 
     @property
     def docs_enabled(self) -> bool:

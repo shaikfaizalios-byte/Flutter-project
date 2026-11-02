@@ -166,6 +166,25 @@ class PracticeRepository {
     return [for (final m in response.data!) MockTestView.fromJson(m as Map<String, dynamic>)];
   });
 
+  /// How many questions the starter check would ask for [examCode] (0: none available).
+  Future<int> starterCheckSize(String examCode) => _guard(() async {
+    final data = (await _dio.get<Map<String, dynamic>>(
+      '$_base/starter-check',
+      queryParameters: {'exam': examCode},
+    )).data!;
+    return data['question_count'] as int;
+  });
+
+  /// Starts the starter check: shared papers whose rights allow it, across subjects.
+  Future<PracticeSessionView> startStarterCheck(String examCode) => _guard(
+    () async => _session(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/starter-check',
+        data: {'exam_code': examCode},
+      )).data!,
+    ),
+  );
+
   Future<PracticeSessionView> startMock(String formatCode) => _guard(
     () async => _session(
       (await _dio.post<Map<String, dynamic>>(
@@ -212,6 +231,20 @@ class PracticeRepository {
         SessionSummaryView.fromJson(s as Map<String, dynamic>),
     ];
   });
+
+  /// Closes the open section of a sectionally timed mock early (the last one submits).
+  /// [fromSection] makes a retried request harmless on the server.
+  Future<PracticeSessionView> finishSection(String id, int fromSection) async {
+    await flush(sessionId: id); // answers of this section first
+    return _guard(
+      () async => _session(
+        (await _dio.post<Map<String, dynamic>>(
+          '$_base/sessions/$id/next-section',
+          data: {'from_section': fromSection},
+        )).data!,
+      ),
+    );
+  }
 
   Future<PracticeSessionView> submit(String id) async {
     final offline = await _offline(id);

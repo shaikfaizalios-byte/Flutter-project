@@ -32,7 +32,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v7)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v8)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -55,6 +55,23 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   and changes the exam after `untilAnimationsSettle()` (`app/route_transitions.dart`): screens paused under a page
   must not wake up to a changed exam mid-build (Riverpod refuses). Analytics follow it too
   (`/analytics/overview?exam=`, counted by each question's exam; mocks by session exam).
+- Diagnosis + readiness (global Phase 9, docs/analytics.md): the session screen sends `time_spent_ms` (shown →
+  answered, ≤ 10 min, `timeOnQuestion`); `TopicStats` adds `timed_answered`/`time_spent_ms`/`last_answered_on`/
+  `repeated_mistakes` (questions wrong in 2+ sessions) and the overview the overall timed totals (raw counts).
+  `AnalyticsRules` adds weak reasons `repeatedMistakes` (3+) and `slow` (≥ 1.5 × own pace, 10+ timed answers) and
+  `dueForRefresh` (21+ days) → plan item `refreshTopic`; every plan item lists its reasons. Progress `ReadinessCard`
+  (`buildReadiness`): syllabus coverage + evidence (14-day answers, 30-day mocks, exam days), never a score or pass
+  chance. FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
+  `app/domain/fsrs.py`, aggregates only); the ladder stays the scheduler.
+- Languages (global Phase 10): content languages are ONE reference list — `app/domain/languages.py` (code, names,
+  ISO 15924 script, direction, Tesseract data, prompt name, `review_ai_text`) + the `languages` table (migration 0037)
+  that `documents`/`questions`/`concepts`/`ai_explanations.language` reference (no more `en|hi` CHECKs); schemas use
+  `app/schemas/language.py` `Language` (OpenAPI enum from the list). `exams.languages` = languages the paper is
+  offered in (any ISO 639 code), only from the notice (`exam_formats exam --languages`); set for RRB NTPC only. App:
+  `core/localization/content_language.dart` `ContentLanguage` is a code value (unknown codes kept, never turned
+  into English; `contentLanguageSegments`); Settings → Language has the app language plus "Papers, syllabus and
+  notes" (`AppPreferences.contentLanguage`, preselected on upload/syllabus/notes) and "AI lessons and checks"
+  (`aiLanguage`); null = same as the app. Explanations follow their question's language. RTL: not needed by en/hi.
 - Mastery per topic (`features/mastery`, mobile-only, no schema change): pure `masteryLevel`/`examMastery` with
   named `MasteryRules` (shown in UI): not started → learning (< 10 answers) → practising (< 60 % or flashcards
   often forgotten) → strong → mastered (25+ answers at 85 %+, marked revised); 30-day analytics window.
@@ -100,7 +117,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   sidebar shortcut). AI gating: `guard_ai` → `PlusService.check_ai_allowed()` (403 `plus_required`, 429
   `ai_allowance_used`; `PREPLOOP_PLUS_REQUIRED_FOR_AI`, default true, dev-only false; tests' fixture sets it
   false, `tests/test_plus.py` turns it on); `/ai/status` `requires_plus`/`plus_active`/`ai_left_this_month`;
-  app `AiStatus.needsPlus` → `PlusPrompt`. NOT built yet: payments (Play Billing / web / Apple), legal texts.
+  app `AiStatus.needsPlus` → `PlusPrompt`. Google Play (global Phase 4, off until configured: `PREPLOOP_PLAY_*`):
+  `POST /billing/play/verify` reads the token with the Play Developer API (`app/integrations/play_billing.py`,
+  pure rules `app/domain/billing.py`), refuses other products/accounts, stores `play_purchases`, acknowledges,
+  sets `subscriptions` source play; Pub/Sub RTDN at `/billing/play/rtdn` (Google OIDC checked, once per message);
+  `billing_events` audit (token hash only), migration 0031. App: `in_app_purchase`, `features/plus/data/play_store.dart`,
+  `PlayPurchaseController` (listens from app start; completes only after the server confirms). NOT built yet: web /
+  Apple payments, legal texts. See docs/plus.md.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
   chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
   "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.
@@ -146,10 +169,25 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   needs options or a typed answer); the review screen's `WrittenFlashcardsCard` turns verified ones into revision
   cards (back = written answer). Bulk "verify clean" skips open `REVIEW_FIRST_CODES` (AI mismatch/scan,
   unreadable text). RAG answers have two parts: `answer` (cited, from the material) + `simple` (AI, plain words).
+- Exam formats as versions (global Phase 5, migration 0032): `exam_formats.status` draft|verified|retired,
+  effective dates, `supersedes_id`, `question_types`, `sectional_timing`, `reviewed_by`; mocks use only verified
+  formats in effect today; drafts never leave the operator tool `python -m app.cli.exam_formats`
+  (import/check/publish/retire/list, and `exam` to add or describe catalog exams: country, authority, aliases).
+  Publishing is refused while pure `format_problems`/`config_problems` find a missing or inconsistent fact.
+- Canonical topics (global Phase 6, migration 0034): `taxonomy_nodes`/`taxonomy_labels`/`topic_taxonomy_links`,
+  seeded 1:1 from the shared topics (confirmed); learners' own topics get a suggested link only on an exact
+  normalized name match (`app/domain/taxonomy.py`), confirmed or rejected by the learner
+  (`PUT /topics/{id}/canonical`, topics screen). Only confirmed links count: mock sections match questions via the
+  canonical subject too (`subject_labels_by_topic`). See docs/question-bank.md.
 - Question bank: worker runs the pure segmenter (`app/domain/segmentation.py`) after extraction →
   `questions`/`question_options`/`passages`/`question_issues`; review via PATCH (verify blocked while
   content issues are open); re-runs keep verified/rejected questions; `exam_formats` rows only with a
   recorded official source; topic keywords only suggest. See docs/question-bank.md.
+- Question history (global Phase 2): append-only `question_revisions` (migration 0030; snapshots of wording + answer;
+  `extracted`/`generated`/`baseline`/`edited`), written at every creation path and by `PATCH /questions/{id}`;
+  `QuestionRead.answer_origin` (paper|reviewer|ai|none) + `paper_answer` (from the extracted snapshot);
+  `GET /questions/{id}/revisions`; app: answer origin line, "not an official answer key" note, Edit history.
+  See docs/question-bank.md.
 - Figures: after segmentation the worker reads page layouts with PDFium (`app/services/page_layout.py`) and
   the pure `app/domain/figures.py` assigns figure crops (stem / option / `original` = question as printed)
   to questions → `question_figures` (PNG in Postgres), served by `GET /questions/{id}/figures/{fid}`; mobile
@@ -186,13 +224,20 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`app/api/deps.py`) AND every service takes the owner id and scopes every query (other accounts → 404).
   First account claims pre-account (owner NULL) rows. Mobile: `flutter_secure_storage`, `AuthInterceptor`
   (single refresh + one retry via a separate client), sign-in gate in `appRedirect`.
+  Signed-in devices (global Phase 1): a device = a refresh-token family; `refresh_tokens.platform` (migration
+  0029; kind only, no device name); access tokens carry `sid` and `get_current_user` refuses a revoked family at
+  once; `GET /auth/sessions`, `DELETE /auth/sessions/{id}`, `POST /auth/sessions/sign-out-others`; app Profile →
+  "Signed-in devices" (`features/auth/presentation/devices_screen.dart`). Export/delete coverage:
+  `app/services/account_data.py` classifies every table; `tests/test_account_data.py` fails on a new one.
 - Account recovery (Phase 11): emailed 6-digit codes (`account_codes`, HMAC-stored, 15 min, 5 tries) for
   password reset (no enumeration; emails sent in background; reset revokes all sessions) and email
   verification. Email via `EmailSender` (`app/integrations/email.py`): SMTP (stdlib) or dev file outbox.
   Rate limits: `RateLimiter` protocol, `PostgresRateLimiter` (shared) in staging/prod. Staging/prod settings
   refuse to start without auth secret, postgres limits and TLS SMTP. Metrics: `/api/v1/metrics` (token).
 - Sync (Phase 10): server `sync_items` per account (strict per-entity schemas, `sync_seq` cursor, LWW,
-  tombstones win, per-account advisory lock). Device: repositories call `db.markDirty(entity, id)` in the
+  tombstones win, per-account advisory lock). Global Phase 3: changes carry `base_seq`; a stale note edit is a
+  conflict (server keeps its version, returns it; the device keeps its text as a note tagged `sync-conflict`),
+  card reviews are append-only, the rest stays LWW; `concepts.server_seq` (Drift v8). docs/accounts-sync.md. Device: repositories call `db.markDirty(entity, id)` in the
   same transaction; `SyncEngine` pushes current state of outbox ids (versioned clear), pulls all pages and
   applies in one deferred-FK transaction skipping pending records. Switching account erases device data.
   See docs/accounts-sync.md.
@@ -201,6 +246,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`app/domain/ai_content.py`, versioned `PROMPT_VERSION`). AI questions = `origin=ai` rows with provenance
   (CHECK), unverified; AI explanations in `ai_explanations` (draft→approved), never in `questions.explanation`;
   every call logged in `ai_generations` without text. Practice uses AI only with `include_ai`; mocks never.
+  Paper/notes/search text goes into prompts as `<material>` blocks (`app/domain/untrusted.py`) and every system
+  prompt says it is data, never instructions; the general system prompt names no exam (`tests/test_prompt_injection.py`).
   See docs/ai.md.
 - Analytics: `GET /api/v1/analytics/overview?timezone=<IANA>` returns RAW counts only (days bucketed in
   PostgreSQL with `timezone(zone, answered_at)`; mock answers count only once submitted). Mobile decides
@@ -248,6 +295,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   papers). `GET /insights/shared-bank` = papers + verified questions per exam → mobile `sharedBankProvider`:
   Home "Starter papers" card (while the learner has no own papers; Practise / Topics that repeat →
   `AppRoutes.repeatsShared`), Repeated models empty state button, paper counts on the exam chips.
+  Content governance + starter check (global Phase 7, migration 0035): `content_rights` per shared paper (basis,
+  holder, permitted uses practice|diagnostic, territory, attribution, decided by), `content_reports` (learners
+  report shared content; app flag button), `audit_events`; operator `python -m app.cli.content`
+  (reports/resolve/takedown/audit). Starter check = `diagnostic` session from shared questions whose rights allow
+  it (`/practice/starter-check`, Home starter card); none until the operator publishes such papers.
 - Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
   in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and
@@ -329,25 +381,36 @@ Known limitations right now:
   app is built only once `API_BASE_URL` is set) and the backend on a small VPS (`infra/production`, see
   docs/deployment.md). GitHub Pages sends no COOP/COEP headers, so the web app's Drift uses its non-OPFS fallback.
   Docker image/compose and the Android build are verified only by CI (no Docker/Android SDK locally).
-- Accounts: no device list or remote session revocation UI. Unverified emails can still use the app.
+- Accounts: unverified emails can still use the app. The device list shows only the kind of device and dates.
 - Legal texts are DRAFTS with [placeholders] (operator, contact, processors, retention, law, minimum age).
 - Launcher icon/splash are provisional (generated); application id `com.preploop.preploop` must be changed
   to the operator's domain before the first Play upload. R8 shrinking is off until verified on a device.
-- Sync is last-writer-wins per record (no field merge, no conflict UI). Documents and the question bank are
+- Sync keeps both versions of a note edited on two devices (no field merge); cards, profile and settings are
+  last-writer-wins. Documents and the question bank are
   server-only. Practice works offline from the saved pack (questions with figures excluded; AI explanations,
   bookmarks and reports need the server); mock tests need a connection. Signing out erases unsent offline sessions.
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
 - Verified exam formats: SSC CHSL 2026 Tier-I (migration 0003) and SSC CGL 2026 Tier-I (migration 0018, F. No.
-  HQ-C11018/1/2026-C-1 para 13.8). CGL's 15-minute sectional timers are recorded per section but mocks keep one
-  overall timer (the marking note says so). **Every other catalog exam has none** — add only after verifying the
+  HQ-C11018/1/2026-C-1 para 13.8). CGL mocks enforce its 15-minute sectional timers (global Phase 5, migration
+  0033, `app/domain/sections.py`): sections in order, each with its own timer, finishable early, no way back.
+  RRB NTPC (global Phase 10, CEN 06/2026 + 07/2026): four DRAFT formats in `services/api/data/exam_formats/`
+  (Graduate/Under Graduate × 1st/2nd stage CBT; 90 min, 100 or 120 questions, −1/3, section split "only
+  indicative" → `exam_formats.section_counts_indicative`, shown on the mock), published only by a named reviewer;
+  migration 0038 adds its authority, 15 languages, the "Mathematics" alias of Quantitative Aptitude and the
+  notice's missing syllabus topics (RRB_NTPC only). **Every other catalog exam has none** — add only after verifying the
   current official notice (record source in a migration). Without a format: practice, repeats and Radar work;
-  timed mocks and count checks don't.
+  timed mocks and count checks don't. A format that leaves out any scoring fact (pure
+  `app/domain/exam_format.py` `format_problems()`) is listed as incomplete and can't start a mock (`422
+  format_incomplete`); nothing is filled in with a default.
 - Question types: multiple-choice, typed-in (TITA) and written (Q&A notes, revised as flashcards; not practised
   or marked). Multi-select is not supported; timed mocks use multiple-choice only. Unnumbered Q&A questions are
   numbered in order by PrepLoop.
   Catalog exams other than SSC/banking/railways start with no shared topics (learners add their own or use
   the AI draft). Own exams/topics never join the Radar.
-- Figures are found only from PDF vector/image objects: scanned papers (one image per page), multi-column
+- Figures are found automatically only from PDF vector/image objects; for scans a reviewer marks them on the page
+  (global Phase 8: `POST /questions/{id}/figures`, review screen "Mark a figure on the page"). Pages record their
+  script and are flagged `two_columns` / `devanagari_in_english_document` (`app/domain/page_analysis.py`).
+  Without a reviewer's mark: scanned papers (one image per page), multi-column
   and rotated pages give no crops (flagged `figures_not_extracted`; reviewer uses the source page).
   Topic rules suggested 83/100 on one sample CHSL paper (coverage, not validated accuracy).
 - Repeats count the learner's own papers, or the shared bank (empty until the operator publishes papers it has
@@ -386,7 +449,7 @@ Known limitations right now:
 ## Post-release backlog (not scheduled)
 - Verify on devices (docs/release.md §3): notifications, secure storage, PDF picker, Hindi, offline sync, R8.
 - S3-compatible `DocumentStorage`; malware scanning if originals become downloadable.
-- Device/session list with remote sign-out; field-level sync merge or conflict UI.
+- Field-level sync merge for notes (today both versions are kept).
 - Verified SSC CGL exam format (from the current official notice, source recorded).
 - Native-speaker review of Hindi strings; typed Dart API client from `contracts/openapi`.
 - Opt-in server error reporting (documented in the privacy policy before enabling).

@@ -49,6 +49,24 @@ worker ─▶ claim oldest queued document (row lock, SKIP LOCKED, lease)
 | `ocr_found_no_text` | OCR ran but recognised nothing |
 | `ocr_failed` | Tesseract crashed or timed out on the page |
 | `ocr_unavailable` | Tesseract, or the language data it needs, is not installed |
+| `two_columns` | A text-layer page set in two columns (global Phase 8): check the question order and that no two questions were mixed. The text is stored as found, never reordered |
+| `devanagari_in_english_document` | The paper was uploaded as English but this page is mostly Devanagari (it was read, or OCR'd, as English): check it, or upload it as Hindi |
+
+Each page also records `document_pages.script` (`devanagari`, `latin`, `mixed`, or `none` when it
+has under 20 letters; migration 0036), from pure `app/domain/page_analysis.py`. Two columns are found
+from character positions (`page_layout.text_runs`: PDFium joins text sharing a baseline into one
+line, so lines are split at gaps wider than 4% of the page): both halves need 5+ runs, 60% of runs
+must sit in one half and at most 25% may run across the middle.
+
+### Figures marked by a reviewer (scans)
+
+Figures are found automatically only from a PDF's image/vector objects, so scanned pages (one image
+per page) and some layouts give none (`figures_not_extracted`). A reviewer can mark one: the review
+screen's "Mark a figure on the page" opens the question's page, the reviewer drags a box, and
+`POST /questions/{id}/figures {page_number, box: [left, top, right, bottom] as page fractions, kind}`
+crops that region from the original PDF (`question_figures.source = 'reviewer'`; the question becomes
+image-dependent). `DELETE /questions/{id}/figures/{fid}` removes a wrongly matched figure (own questions
+only). Nothing is cropped or guessed automatically for scans.
 
 ### Document failure codes (`documents.error_code`)
 

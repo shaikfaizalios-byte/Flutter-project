@@ -29,7 +29,13 @@ from app.domain.errors import (
 )
 from app.integrations.storage import DocumentStorage
 from app.models.document import Document, DocumentStatus
-from app.models.question import ExamFormat, Question, QuestionIssue, VerificationStatus
+from app.models.question import (
+    ExamFormat,
+    FormatStatus,
+    Question,
+    QuestionIssue,
+    VerificationStatus,
+)
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.document import (
@@ -217,7 +223,11 @@ class DocumentService:
         exam_format = self._session.scalars(
             select(ExamFormat).where(ExamFormat.code == code)
         ).first()
-        if exam_format is None or exam_format.exam_code != exam_code:
+        if (
+            exam_format is None
+            or exam_format.exam_code != exam_code
+            or exam_format.status == FormatStatus.DRAFT
+        ):
             raise InvalidReferenceError(f"Unknown paper format '{code}' for this exam.")
         return exam_format
 

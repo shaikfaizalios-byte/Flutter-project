@@ -6,8 +6,9 @@ from fastapi import APIRouter, Depends, Query, status
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
 from app.repositories.concept_repository import ConceptFilter
-from app.schemas.concept import ConceptCreate, ConceptPage, ConceptRead, ConceptUpdate, Language
+from app.schemas.concept import ConceptCreate, ConceptPage, ConceptRead, ConceptUpdate
 from app.schemas.errors import ErrorResponse
+from app.schemas.language import Language
 from app.services.concept_service import ConceptService
 
 router = APIRouter(

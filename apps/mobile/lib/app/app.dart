@@ -5,6 +5,7 @@ import '../core/localization/generated/app_localizations.dart';
 import '../features/reminders/application/reminder_controller.dart';
 import '../features/settings/application/app_preferences.dart';
 import '../features/sync/application/sync_controller.dart';
+import '../features/plus/application/play_purchases.dart';
 import 'app_shell.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
@@ -19,6 +20,9 @@ class PrepLoopApp extends ConsumerWidget {
     ref.listen(reminderControllerProvider, (_, _) {});
     // Keeps device data in sync with the account while the app runs.
     ref.listen(syncControllerProvider, (_, _) {});
+    // Play delivers purchase updates (also ones finished while the app was closed) as soon as
+    // the app listens, so the listener starts with the app.
+    ref.listen(playPurchaseControllerProvider, (_, _) {});
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,

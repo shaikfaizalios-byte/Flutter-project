@@ -19,6 +19,13 @@ class ExamRead(BaseModel):
     featured: bool = False
     # True for an exam the learner created (private to them).
     custom: bool = False
+    # Catalog data set by the operator (null/empty when not recorded).
+    country_code: str | None = None
+    authority: str | None = None
+    aliases: list[str] = []
+    # Languages the exam's paper is offered in, from its official notice (ISO 639 codes, any
+    # language, not only those PrepLoop supports for content; empty = not recorded).
+    languages: list[str] = []
 
 
 class CustomExamCreate(BaseModel):
@@ -52,6 +59,40 @@ class TopicUpdate(BaseModel):
     keywords: list[Keyword] | None = Field(default=None, max_length=30)
 
 
+class CanonicalTopicRead(BaseModel):
+    """The canonical topic an exam topic means (shared across exams and languages)."""
+
+    node_id: uuid.UUID
+    key: str
+    label: str
+    subject_label: str
+    # confirmed: counts everywhere; suggested: a name match the learner hasn't confirmed yet.
+    status: Literal["suggested", "confirmed"]
+    reason: str | None = None
+
+
+class TaxonomyTopicRead(BaseModel):
+    node_id: uuid.UUID
+    key: str
+    label: str
+
+
+class TaxonomySubjectRead(BaseModel):
+    node_id: uuid.UUID
+    key: str
+    label: str
+    topics: list[TaxonomyTopicRead]
+
+
+class CanonicalDecision(BaseModel):
+    """The learner says whether their topic means this canonical topic."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_id: uuid.UUID
+    confirmed: bool
+
+
 class OwnTopicRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -66,6 +107,8 @@ class OwnTopicRead(BaseModel):
     completed: bool = False
     # The syllabus import that added it (null for typed, AI-drafted and shared topics).
     syllabus_import_id: uuid.UUID | None = None
+    # The canonical topic it means (shared topics: themselves), or a suggestion to confirm.
+    canonical: CanonicalTopicRead | None = None
 
 
 class SyllabusSource(BaseModel):

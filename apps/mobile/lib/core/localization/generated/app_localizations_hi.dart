@@ -902,6 +902,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get mockStart => 'मॉक टेस्ट शुरू करें';
 
   @override
+  String get mockFormatIncomplete =>
+      'इस परीक्षा प्रारूप में आधिकारिक जानकारी (अंक, नेगेटिव मार्किंग या समय) अधूरी है, इसलिए यह मॉक टेस्ट अभी उपलब्ध नहीं है।';
+
+  @override
   String get mockUnavailable => 'अभी पर्याप्त जाँचे हुए प्रश्न नहीं हैं:';
 
   @override
@@ -1858,6 +1862,353 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get syncFailed => 'सिंक नहीं हो सका। फिर से कोशिश की जाएगी।';
+
+  @override
+  String get accountDevices => 'साइन-इन किए गए डिवाइस';
+
+  @override
+  String get devicesTitle => 'साइन-इन किए गए डिवाइस';
+
+  @override
+  String get devicesIntro =>
+      'आपका खाता इन डिवाइस पर साइन-इन है। जिसे आप नहीं पहचानते, उसे साइन आउट करें; दोबारा साइन-इन के लिए आपका पासवर्ड चाहिए होगा। केवल डिवाइस का प्रकार दर्ज होता है, उसका नाम नहीं।';
+
+  @override
+  String get devicesThisDevice => 'यह डिवाइस';
+
+  @override
+  String devicesLastActive(String date) {
+    return 'आख़िरी बार सक्रिय $date';
+  }
+
+  @override
+  String devicesSignedInAt(String date) {
+    return 'साइन-इन $date';
+  }
+
+  @override
+  String get devicePlatformAndroid => 'Android फ़ोन या टैबलेट';
+
+  @override
+  String get devicePlatformIos => 'iPhone या iPad';
+
+  @override
+  String get devicePlatformWeb => 'वेब ब्राउज़र';
+
+  @override
+  String get devicePlatformWindows => 'Windows कंप्यूटर';
+
+  @override
+  String get devicePlatformMacos => 'Mac';
+
+  @override
+  String get devicePlatformLinux => 'Linux कंप्यूटर';
+
+  @override
+  String get devicePlatformUnknown => 'यह सूची बनने से पहले साइन-इन किया गया डिवाइस';
+
+  @override
+  String get devicesSignOut => 'साइन आउट';
+
+  @override
+  String devicesSignOutTitle(String device) {
+    return '$device से साइन आउट करें?';
+  }
+
+  @override
+  String get devicesSignOutMessage =>
+      'वह तुरंत साइन आउट हो जाएगा। उस डिवाइस का अध्ययन डेटा तब तक वहीं रहेगा जब तक कोई दोबारा साइन-इन नहीं करता।';
+
+  @override
+  String get devicesSignOutOthers => 'बाकी सभी डिवाइस से साइन आउट करें';
+
+  @override
+  String get devicesSignOutOthersTitle => 'बाकी डिवाइस से साइन आउट करें?';
+
+  @override
+  String devicesSignOutOthersMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count और डिवाइस तुरंत साइन आउट हो जाएँगे।',
+      one: '1 और डिवाइस तुरंत साइन आउट हो जाएगा।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSignedOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count डिवाइस साइन आउट हुए।',
+      one: '1 डिवाइस साइन आउट हुआ।',
+      zero: 'कोई और डिवाइस साइन-इन नहीं था।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesLoadFailed => 'आपके डिवाइस लोड नहीं हो सके';
+
+  @override
+  String get answerOriginPaperKey => 'उत्तर पेपर की उत्तर कुंजी से, जैसा PrepLoop ने पढ़ा।';
+
+  @override
+  String get answerOriginPaperInline =>
+      'उत्तर पेपर में प्रश्न के साथ छपा था, जैसा PrepLoop ने पढ़ा।';
+
+  @override
+  String get answerOriginAi => 'यह उत्तर AI ने प्रश्न के साथ लिखा है। स्वीकृत करने से पहले जाँचें।';
+
+  @override
+  String answerOriginReviewerPaperSaid(String answer) {
+    return 'यह उत्तर आपने चुना है। पेपर में $answer था।';
+  }
+
+  @override
+  String get answerOriginReviewerPaperNone => 'यह उत्तर आपने चुना है। पेपर में कोई उत्तर नहीं था।';
+
+  @override
+  String get answerOriginReviewerUnknown =>
+      'यह उत्तर आपने चुना या बदला है। पेपर में क्या था, यह दर्ज नहीं है (इतिहास रखने से पहले पढ़ा गया)।';
+
+  @override
+  String get approveIsNotOfficial =>
+      'स्वीकृत करने का अर्थ है कि आपने यह प्रश्न जाँचा है। यह आधिकारिक उत्तर कुंजी नहीं है।';
+
+  @override
+  String get questionHistoryTitle => 'बदलावों का इतिहास';
+
+  @override
+  String get questionHistoryFailed => 'इतिहास लोड नहीं हो सका';
+
+  @override
+  String get questionHistoryNone => 'इस प्रश्न का कोई इतिहास दर्ज नहीं है।';
+
+  @override
+  String get historyReadByRules => 'PrepLoop ने पेपर से पढ़ा';
+
+  @override
+  String get historyReadByAi => 'AI ने पेपर से पढ़ा';
+
+  @override
+  String get historyGenerated => 'AI ने लिखा';
+
+  @override
+  String get historyBaseline => 'इतिहास यहाँ से शुरू (इतिहास रखने से पहले पढ़ा गया)';
+
+  @override
+  String historyEdited(String fields) {
+    return 'समीक्षा में बदला गया: $fields';
+  }
+
+  @override
+  String get historyFieldWording => 'शब्द';
+
+  @override
+  String get historyFieldOptions => 'विकल्प';
+
+  @override
+  String get historyFieldAnswer => 'उत्तर';
+
+  @override
+  String get historyFieldExplanation => 'व्याख्या';
+
+  @override
+  String historyAnswer(String answer) {
+    return 'उत्तर: $answer';
+  }
+
+  @override
+  String get historyNoAnswer => 'कोई उत्तर नहीं';
+
+  @override
+  String syncConflictsKept(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count नोट दो डिवाइस पर बदले गए; दोनों संस्करण रखे गए।',
+      one: '1 नोट दो डिवाइस पर बदला गया; दोनों संस्करण रखे गए।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get conceptSyncConflictTitle => 'दो डिवाइस पर बदला गया';
+
+  @override
+  String get conceptSyncConflictMessage =>
+      'सिंक होने से पहले दो डिवाइस ने यह नोट बदला। इस कॉपी में एक डिवाइस का संस्करण है; उसी शीर्षक वाले नोट में दूसरा। जो चाहिए वह रखें, दूसरा नोट हटाएँ, फिर यहाँ से sync-conflict टैग हटा दें।';
+
+  @override
+  String get plusPlayLabel => 'Google Play से खरीदा गया।';
+
+  @override
+  String get plusManageInPlay => 'Google Play में बदलें या रद्द करें';
+
+  @override
+  String get plusSubscribe => 'सदस्यता लें';
+
+  @override
+  String get plusRestore => 'खरीदारी वापस लाएँ';
+
+  @override
+  String get plusPlayTerms =>
+      'भुगतान Google Play लेता है और जब तक आप Google Play में रद्द न करें, सदस्यता अपने-आप नवीनीकृत होती है। PrepLoop द्वारा Google से खरीदारी जाँचने के बाद Plus शुरू होता है।';
+
+  @override
+  String get plusPlayOnly => 'Plus को Android ऐप में Google Play से खरीदा जा सकता है।';
+
+  @override
+  String get plusPlayUnavailable => 'Google Play से संपर्क नहीं हो सका। बाद में फिर कोशिश करें।';
+
+  @override
+  String get plusPurchasePending =>
+      'Google Play आपके भुगतान की प्रतीक्षा कर रहा है। भुगतान पूरा होने पर Plus शुरू होगा।';
+
+  @override
+  String get plusPurchaseAdded => 'धन्यवाद! PrepLoop Plus चालू है।';
+
+  @override
+  String get plusPurchaseRefused =>
+      'Google Play ने इस खाते के लिए यह खरीदारी पक्की नहीं की। अगर आपने किसी दूसरे PrepLoop खाते से Plus खरीदा है, तो उससे साइन इन करें।';
+
+  @override
+  String get plusPurchaseFailed =>
+      'अभी खरीदारी जाँची नहीं जा सकी। इसे फिर से जाँचा जाएगा; आपसे दो बार शुल्क नहीं लिया जाएगा।';
+
+  @override
+  String sessionSectionOf(int index, int count, String name) {
+    return 'खंड $index / $count: $name';
+  }
+
+  @override
+  String sessionSectionHint(int minutes) {
+    return 'इस खंड का अपना $minutes मिनट का टाइमर है। समय खत्म होने पर, या आपके खंड पूरा करने पर, अगला खंड खुलता है; आप इस खंड में वापस नहीं आ सकते।';
+  }
+
+  @override
+  String get sessionFinishSection => 'खंड पूरा करें';
+
+  @override
+  String get sessionFinishSectionTitle => 'यह खंड पूरा करें?';
+
+  @override
+  String sessionFinishSectionMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'इस खंड के $count प्रश्न बिना उत्तर हैं।',
+      one: 'इस खंड का 1 प्रश्न बिना उत्तर है।',
+      zero: 'इस खंड के सभी प्रश्नों के उत्तर दिए गए हैं।',
+    );
+    return '$_temp0 आप इस खंड में वापस नहीं आ सकते।';
+  }
+
+  @override
+  String get sessionSectionTimeUp => 'उस खंड का समय पूरा हुआ। अगला खंड खुल गया है।';
+
+  @override
+  String topicCanonicalSuggested(String topic, String subject) {
+    return 'क्या यह साझा विषय \"$topic\" ($subject) ही है?';
+  }
+
+  @override
+  String topicCanonicalLinked(String topic, String subject) {
+    return 'साझा विषय \"$topic\" ($subject) के रूप में गिना जाता है';
+  }
+
+  @override
+  String get topicCanonicalYes => 'हाँ, वही है';
+
+  @override
+  String get topicCanonicalNo => 'नहीं';
+
+  @override
+  String get starterCheckTitle => 'शुरुआती जाँच';
+
+  @override
+  String get starterCheckHint =>
+      'हर विषय से कुछ प्रश्न, बिना टाइमर के, यह देखने के लिए कि कहाँ से शुरू करें। उत्तर और व्याख्या सबमिट करने के बाद दिखेंगे।';
+
+  @override
+  String starterCheckStart(int count) {
+    return 'शुरुआती जाँच दें ($count प्रश्न)';
+  }
+
+  @override
+  String get starterCheckDoneTitle => 'कहाँ से शुरू करें';
+
+  @override
+  String get starterCheckDoneMessage =>
+      'नीचे विषय और टॉपिक के परिणाम बताते हैं कि कहाँ से शुरू करें। होम पर आपकी अध्ययन योजना अब इन उत्तरों का उपयोग करती है। यह शुरुआत का संकेत है, परीक्षा का अंक नहीं।';
+
+  @override
+  String get sharedReportTitle => 'इस साझा पेपर की शिकायत करें';
+
+  @override
+  String get sharedReportIntro =>
+      'यह प्रश्न ऐसे पेपर से है जिसे PrepLoop सभी शिक्षार्थियों के साथ साझा करता है। PrepLoop टीम को बताएँ कि क्या गलत है; वे हर शिकायत की समीक्षा करते हैं।';
+
+  @override
+  String get sharedReportRights => 'इसे साझा नहीं किया जाना चाहिए (कॉपीराइट या अनुमति)';
+
+  @override
+  String get sharedReportError => 'इसमें कुछ गलत है';
+
+  @override
+  String get sharedReportOther => 'कुछ और';
+
+  @override
+  String get sharedReportText => 'क्या समस्या है?';
+
+  @override
+  String get sharedReportTextHelp => 'कम से कम 10 अक्षर। निजी जानकारी न लिखें।';
+
+  @override
+  String get sharedReportSent => 'धन्यवाद। PrepLoop टीम इसकी समीक्षा करेगी।';
+
+  @override
+  String get sharedReportTooMany => 'आज आप 10 शिकायतें भेज चुके हैं। कृपया कल फिर कोशिश करें।';
+
+  @override
+  String get sharedReportFailed => 'शिकायत नहीं भेजी जा सकी। कृपया फिर कोशिश करें।';
+
+  @override
+  String get markFigureAction => 'पेज पर चित्र चिह्नित करें';
+
+  @override
+  String get markFigureTitle => 'चित्र चिह्नित करें';
+
+  @override
+  String get markFigureHint =>
+      'पेपर के पेज पर चित्र के चारों ओर बॉक्स खींचें। PrepLoop पेज का वह हिस्सा प्रश्न के साथ वैसा ही रखेगा जैसा छपा है।';
+
+  @override
+  String get markFigureKeep => 'रखें';
+
+  @override
+  String markFigurePage(int page) {
+    return 'पेज $page';
+  }
+
+  @override
+  String get markFigurePreviousPage => 'पिछला पेज';
+
+  @override
+  String get markFigureNextPage => 'अगला पेज';
+
+  @override
+  String get markFigurePageFailed => 'पेज लोड नहीं हो सका।';
+
+  @override
+  String figureMarkedByYou(int page) {
+    return 'आपके द्वारा चिह्नित चित्र (पेज $page)';
+  }
+
+  @override
+  String get figureRemove => 'यह चित्र हटाएँ';
 
   @override
   String get accountExport => 'मेरा डेटा कॉपी करें';
@@ -4039,4 +4390,123 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get conceptAiLabelKept => 'AI पाठ से बनाया गया: इस पर हमेशा AI-निर्मित का लेबल रहेगा।';
+
+  @override
+  String topicSecondsPerAnswer(String seconds) {
+    return 'प्रति उत्तर $seconds सेकंड';
+  }
+
+  @override
+  String topicRepeatedMistakes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count प्रश्न एक से अधिक बार गलत',
+      one: '1 प्रश्न एक से अधिक बार गलत',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reasonOftenForgotten => 'अक्सर भूले गए';
+
+  @override
+  String get reasonRepeatedMistakes => 'वही गलतियाँ दोबारा';
+
+  @override
+  String get reasonSlower => 'आपकी सामान्य गति से धीमा';
+
+  @override
+  String planRefreshTitle(String topic) {
+    return '$topic दोहराएँ';
+  }
+
+  @override
+  String reasonNotPractisedFor(int days) {
+    return '$days दिनों से अभ्यास नहीं किया';
+  }
+
+  @override
+  String progressRulesMore(int mistakes, String factor, int timed, int days) {
+    return 'कोई टॉपिक तब भी कमज़ोर है जब उसके $mistakes या अधिक प्रश्न दो सत्रों में गलत हुए हों, या उसके उत्तरों में आपके सामान्य समय का $factor गुना समय लगे ($timed समय दर्ज उत्तरों के बाद)। $days दिनों से अभ्यास न किया गया टॉपिक दोहराने के लिए सुझाया जाता है।';
+  }
+
+  @override
+  String get readinessTitle => 'तैयारी';
+
+  @override
+  String readinessCoverage(int practised, int topics) {
+    return 'सिलेबस के $topics में से $practised टॉपिक का अभ्यास किया';
+  }
+
+  @override
+  String readinessStrong(int strong) {
+    return '$strong मज़बूत या पूर्ण';
+  }
+
+  @override
+  String readinessSubject(int practised, int topics, int strong) {
+    return '$practised/$topics अभ्यास किया · $strong मज़बूत';
+  }
+
+  @override
+  String get readinessNoSyllabus =>
+      'सिलेबस का कितना हिस्सा पूरा हुआ, यह देखने के लिए अपने सिलेबस के टॉपिक जोड़ें।';
+
+  @override
+  String get readinessEvidenceTitle => 'अब तक के प्रमाण';
+
+  @override
+  String readinessRecent(int answers, int days, String percent) {
+    return 'पिछले $days दिनों में $answers उत्तर, $percent सही';
+  }
+
+  @override
+  String readinessNoRecent(int days) {
+    return 'पिछले $days दिनों में कोई अभ्यास उत्तर नहीं।';
+  }
+
+  @override
+  String get readinessOffline => 'अभ्यास के प्रमाण के लिए इंटरनेट चाहिए।';
+
+  @override
+  String readinessMocks(int count, int days, String score, String max, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count मॉक टेस्ट',
+      one: '1 मॉक टेस्ट',
+    );
+    return 'पिछले $days दिनों में $_temp0; पिछला: $date को $max में से $score';
+  }
+
+  @override
+  String get readinessNoMock => 'अभी तक कोई मॉक टेस्ट जमा नहीं किया।';
+
+  @override
+  String get readinessNotPrediction =>
+      'यह दिखाता है कि आपने क्या पूरा किया है और अब तक आपके उत्तर क्या बताते हैं। यह आपके परिणाम का अनुमान नहीं है।';
+
+  @override
+  String get settingsAppLanguage => 'ऐप';
+
+  @override
+  String get settingsContentLanguage => 'पेपर, सिलेबस और नोट्स';
+
+  @override
+  String get settingsContentLanguageHint =>
+      'पेपर, सिलेबस या नोट जोड़ते समय यही पहले चुनी रहती है; हर बार दूसरी भाषा भी चुन सकते हैं।';
+
+  @override
+  String get settingsAiLanguage => 'AI पाठ और जाँच';
+
+  @override
+  String get settingsAiLanguageHint => 'AI व्याख्याएँ उसी भाषा में लिखी जाती हैं जिसमें प्रश्न है।';
+
+  @override
+  String get languageSameAsApp => 'ऐप जैसी';
+
+  @override
+  String get mockSectionsIndicative =>
+      'सूचना में यह खंड-विभाजन केवल सांकेतिक है; असली पेपर अलग हो सकते हैं';
 }

@@ -39,6 +39,35 @@ cd services\api
 
 With Docker (production): `docker compose exec api python -m app.cli.shared_bank list`.
 
+## Rights, reports and takedown (global Phase 7, migration 0035)
+
+- **Rights record.** Every shared paper has a `content_rights` row: basis (required), rights holder
+  (when known), **permitted uses** (`practice`, `diagnostic` = the starter check), territory,
+  attribution, review-by date, who decided and when. Uploading a paper never creates one: private
+  processing is not permission to share. `python -m app.cli.shared_bank publish ... --by NAME
+  [--use practice --use diagnostic] [--holder] [--territory] [--attribution] [--review-by]`;
+  starter papers take `"uses"` per paper from `manifest.json` and the manifest's operator as
+  decider. Papers shared before 0035 got a record for **practice only** ("territory: not recorded").
+- **Reports.** Learners report a shared paper or question (`POST /content-reports`: rights problem,
+  error, other; 10–2000 chars; 10 a day; only other accounts' shared papers) and see the status
+  (`GET /content-reports`). App: flag button on shared questions (question screen and practice).
+- **Operator tool** `python -m app.cli.content`: `reports [--all]`, `resolve ID --uphold|--dismiss
+  --note --by`, `takedown DOCUMENT_ID --reason --by` (withdraws the paper at once, upholds its open
+  reports; the paper stays in its owner's account), `audit`.
+- **Audit log.** `audit_events` records publish, unpublish, takedown, report decisions and exam-format
+  publish/retire: who, what, target id and reason; never content. Kept after the target is gone.
+
+## Starter check (cold start)
+
+A learner without papers takes a short check from Home's starter card: `GET /practice/starter-check?exam=`
+(how many questions) and `POST /practice/starter-check` → a `diagnostic` session (migration 0035 adds
+the mode). Questions: verified shared-bank questions of the exam whose rights include `diagnostic`,
+up to 5 per subject and 20 in all, never the learner's own; untimed; answers can change and are
+marked after submitting (1 point each). The result shows the subject/topic breakdown, says it is a
+starting point and not an exam score, and its answers feed the usual progress and study plan.
+**No starter check exists until the operator publishes papers with the `diagnostic` use**: PrepLoop
+writes no sample questions of its own.
+
 ## What may be shared
 
 Only what you have the right to share: material the exam body itself published for the

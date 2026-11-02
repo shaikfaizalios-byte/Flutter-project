@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -68,7 +70,13 @@ class AccountSection extends ConsumerWidget {
                 size: 18,
               ),
               const SizedBox(width: AppSpacing.xs),
-              Expanded(child: Text(status)),
+              Expanded(
+                child: Text(
+                  sync.conflicts > 0
+                      ? '$status\n${l10n.syncConflictsKept(sync.conflicts)}'
+                      : status,
+                ),
+              ),
               TextButton(
                 onPressed: sync.syncing
                     ? null
@@ -86,6 +94,11 @@ class AccountSection extends ConsumerWidget {
                 icon: const Icon(Icons.download_outlined),
                 label: Text(l10n.accountExport),
                 onPressed: () => _export(context, ref),
+              ),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.devices_outlined),
+                label: Text(l10n.accountDevices),
+                onPressed: () => context.push(AppRoutes.devices),
               ),
               OutlinedButton.icon(
                 icon: const Icon(Icons.logout),

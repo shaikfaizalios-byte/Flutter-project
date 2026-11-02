@@ -10,6 +10,7 @@ import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/features/feedback/data/feedback_repository.dart';
 import 'package:preploop/features/plus/data/plus_repository.dart';
+import 'package:preploop/features/plus/data/play_store.dart';
 import 'package:preploop/features/settings/application/app_preferences.dart';
 import 'package:preploop/features/settings/data/server_status_repository.dart';
 import 'package:preploop/features/settings/domain/server_health.dart';
@@ -136,6 +137,7 @@ Future<void> pumpPrepLoopApp(
   FakeExamsRepository? exams,
   FakeFeedbackRepository? feedback,
   FakePlusRepository? plus,
+  FakePlayStore? playStore,
   List<ExamOption> examCatalog = testCatalog,
   AuthSession? session = testSession,
   FakeAuthApi? authApi,
@@ -166,6 +168,7 @@ Future<void> pumpPrepLoopApp(
     examsRepositoryProvider.overrideWithValue(exams ?? FakeExamsRepository()),
     feedbackRepositoryProvider.overrideWithValue(feedback ?? FakeFeedbackRepository()),
     plusRepositoryProvider.overrideWithValue(plus ?? FakePlusRepository()),
+    playStoreProvider.overrideWithValue(playStore ?? FakePlayStore()),
     initialExamCatalogProvider.overrideWithValue(examCatalog),
     initialAuthSessionProvider.overrideWithValue(session),
     authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),

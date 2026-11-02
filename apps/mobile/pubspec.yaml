@@ -20,6 +20,7 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   flutter_timezone: ^5.1.1
   go_router: ^18.0.2
+  in_app_purchase: ^3.3.1
   intl: ^0.20.3
   timezone: ^0.11.2
   url_launcher: ^6.3.3

@@ -175,3 +175,17 @@ def answer_key_table_pdf() -> bytes:
     pdf.showPage()
     pdf.save()
     return buffer.getvalue()
+
+
+def two_column_pdf(rows: int = 12) -> bytes:
+    """A page set in two columns of questions (like many printed papers)."""
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer)  # US letter, 612 points wide
+    y = 760
+    for row in range(rows):
+        pdf.drawString(50, y, f"Q.{row + 1} Left column question {row + 1}?")
+        pdf.drawString(330, y, f"Q.{rows + row + 1} Right column question {row + 1}?")
+        y -= 24
+    pdf.showPage()
+    pdf.save()
+    return buffer.getvalue()

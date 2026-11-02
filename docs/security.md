@@ -58,6 +58,13 @@
 - **Ownership** is enforced in every service as well as at the router. Another account's data looks exactly like a missing record (404). Tests cover each route family, including AI and sync.
 - **Rate limits:** uploads and AI calls are limited per account.
 - **Privacy:** account deletion removes every owned row by cascade, plus the stored PDF files. The export returns everything the server holds for the account (no password hash).
+  Both follow `app/services/account_data.py`: tables owned by the account, their children (by the
+  account's own parent rows only — a session's answers go with the session, never with the owner of
+  a shared question), and tables left out with a reason (credential hashes, rate-limit counters,
+  official reference data). `tests/test_account_data.py` fails when a new table is not classified, when
+  a link is not `ON DELETE CASCADE`, or when a filled account's export or deletion misses a row.
+  Figure crops are exported as metadata (no image bytes); the PDFs themselves are not in the JSON.
+  Nightly backups (`infra/production/backup.sh`) keep deleted data for up to 14 days.
 - **Sync records** are validated per entity with the app's limits, and rejected one by one. Pushes are serialised per account.
 
 ## Implemented (Phase 11: release readiness)

@@ -900,6 +900,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mockStart => 'Start mock test';
 
   @override
+  String get mockFormatIncomplete =>
+      'This exam format is missing official details (marks, negative marking or time), so this mock is not available yet.';
+
+  @override
   String get mockUnavailable => 'Not enough reviewed questions yet:';
 
   @override
@@ -1855,6 +1859,353 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncFailed => 'Could not sync. It will be retried.';
+
+  @override
+  String get accountDevices => 'Signed-in devices';
+
+  @override
+  String get devicesTitle => 'Signed-in devices';
+
+  @override
+  String get devicesIntro =>
+      'Your account is signed in on these devices. Sign out any you don\'t recognise; they will need your password to sign in again. Only the kind of device is recorded, not its name.';
+
+  @override
+  String get devicesThisDevice => 'This device';
+
+  @override
+  String devicesLastActive(String date) {
+    return 'Last active $date';
+  }
+
+  @override
+  String devicesSignedInAt(String date) {
+    return 'Signed in $date';
+  }
+
+  @override
+  String get devicePlatformAndroid => 'Android phone or tablet';
+
+  @override
+  String get devicePlatformIos => 'iPhone or iPad';
+
+  @override
+  String get devicePlatformWeb => 'Web browser';
+
+  @override
+  String get devicePlatformWindows => 'Windows computer';
+
+  @override
+  String get devicePlatformMacos => 'Mac';
+
+  @override
+  String get devicePlatformLinux => 'Linux computer';
+
+  @override
+  String get devicePlatformUnknown => 'Device signed in before this list existed';
+
+  @override
+  String get devicesSignOut => 'Sign out';
+
+  @override
+  String devicesSignOutTitle(String device) {
+    return 'Sign out $device?';
+  }
+
+  @override
+  String get devicesSignOutMessage =>
+      'It is signed out straight away. Study data on that device stays there until someone signs in again.';
+
+  @override
+  String get devicesSignOutOthers => 'Sign out all other devices';
+
+  @override
+  String get devicesSignOutOthersTitle => 'Sign out other devices?';
+
+  @override
+  String devicesSignOutOthersMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count other devices will be signed out straight away.',
+      one: '1 other device will be signed out straight away.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSignedOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices signed out.',
+      one: '1 device signed out.',
+      zero: 'No other devices were signed in.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesLoadFailed => 'Could not load your devices';
+
+  @override
+  String get answerOriginPaperKey => 'Answer from the paper\'s answer key, as PrepLoop read it.';
+
+  @override
+  String get answerOriginPaperInline =>
+      'Answer printed with the question in the paper, as PrepLoop read it.';
+
+  @override
+  String get answerOriginAi => 'Answer written by AI with the question. Check it before approving.';
+
+  @override
+  String answerOriginReviewerPaperSaid(String answer) {
+    return 'You set this answer. The paper said $answer.';
+  }
+
+  @override
+  String get answerOriginReviewerPaperNone => 'You set this answer. The paper gave none.';
+
+  @override
+  String get answerOriginReviewerUnknown =>
+      'You set or changed this answer. What the paper said was not recorded (read before history was kept).';
+
+  @override
+  String get approveIsNotOfficial =>
+      'Approving means you checked this question. It is not an official answer key.';
+
+  @override
+  String get questionHistoryTitle => 'Edit history';
+
+  @override
+  String get questionHistoryFailed => 'Could not load the history';
+
+  @override
+  String get questionHistoryNone => 'No history recorded for this question.';
+
+  @override
+  String get historyReadByRules => 'Read from the paper by PrepLoop';
+
+  @override
+  String get historyReadByAi => 'Read from the paper by AI';
+
+  @override
+  String get historyGenerated => 'Written by AI';
+
+  @override
+  String get historyBaseline => 'History starts here (read before history was kept)';
+
+  @override
+  String historyEdited(String fields) {
+    return 'Changed in review: $fields';
+  }
+
+  @override
+  String get historyFieldWording => 'wording';
+
+  @override
+  String get historyFieldOptions => 'options';
+
+  @override
+  String get historyFieldAnswer => 'answer';
+
+  @override
+  String get historyFieldExplanation => 'explanation';
+
+  @override
+  String historyAnswer(String answer) {
+    return 'Answer: $answer';
+  }
+
+  @override
+  String get historyNoAnswer => 'No answer';
+
+  @override
+  String syncConflictsKept(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes were changed on two devices; both versions were kept.',
+      one: '1 note was changed on two devices; both versions were kept.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get conceptSyncConflictTitle => 'Changed on two devices';
+
+  @override
+  String get conceptSyncConflictMessage =>
+      'Two devices changed this note before they synced. This copy holds one device\'s version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.';
+
+  @override
+  String get plusPlayLabel => 'Bought with Google Play.';
+
+  @override
+  String get plusManageInPlay => 'Manage or cancel in Google Play';
+
+  @override
+  String get plusSubscribe => 'Subscribe';
+
+  @override
+  String get plusRestore => 'Restore purchases';
+
+  @override
+  String get plusPlayTerms =>
+      'Google Play takes the payment and renews the subscription until you cancel it in Google Play. Plus starts once PrepLoop has checked the purchase with Google.';
+
+  @override
+  String get plusPlayOnly => 'Plus can be bought in the Android app from Google Play.';
+
+  @override
+  String get plusPlayUnavailable => 'Google Play could not be reached. Try again later.';
+
+  @override
+  String get plusPurchasePending =>
+      'Google Play is waiting for your payment. Plus starts when it is complete.';
+
+  @override
+  String get plusPurchaseAdded => 'Thank you! PrepLoop Plus is on.';
+
+  @override
+  String get plusPurchaseRefused =>
+      'Google Play did not confirm this purchase for this account. If you bought Plus with another PrepLoop account, sign in with that one.';
+
+  @override
+  String get plusPurchaseFailed =>
+      'The purchase couldn\'t be checked right now. It will be checked again; you won\'t be charged twice.';
+
+  @override
+  String sessionSectionOf(int index, int count, String name) {
+    return 'Section $index of $count: $name';
+  }
+
+  @override
+  String sessionSectionHint(int minutes) {
+    return 'This section has its own $minutes-minute timer. When it ends, or when you finish it, the next section opens; you can\'t come back to it.';
+  }
+
+  @override
+  String get sessionFinishSection => 'Finish section';
+
+  @override
+  String get sessionFinishSectionTitle => 'Finish this section?';
+
+  @override
+  String sessionFinishSectionMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions in this section are unanswered.',
+      one: '1 question in this section is unanswered.',
+      zero: 'Every question in this section is answered.',
+    );
+    return '$_temp0 You can\'t come back to this section.';
+  }
+
+  @override
+  String get sessionSectionTimeUp => 'Time\'s up for that section. The next section is open.';
+
+  @override
+  String topicCanonicalSuggested(String topic, String subject) {
+    return 'Same as the shared topic \"$topic\" ($subject)?';
+  }
+
+  @override
+  String topicCanonicalLinked(String topic, String subject) {
+    return 'Counts as the shared topic \"$topic\" ($subject)';
+  }
+
+  @override
+  String get topicCanonicalYes => 'Yes, same';
+
+  @override
+  String get topicCanonicalNo => 'No';
+
+  @override
+  String get starterCheckTitle => 'Starter check';
+
+  @override
+  String get starterCheckHint =>
+      'A few questions from each subject, with no timer, to see where to start. Answers and explanations come after you submit.';
+
+  @override
+  String starterCheckStart(int count) {
+    return 'Take a starter check ($count questions)';
+  }
+
+  @override
+  String get starterCheckDoneTitle => 'Where to start';
+
+  @override
+  String get starterCheckDoneMessage =>
+      'The subject and topic results below show where to begin. Your study plan on Home now uses these answers. This is a starting point, not an exam score.';
+
+  @override
+  String get sharedReportTitle => 'Report this shared paper';
+
+  @override
+  String get sharedReportIntro =>
+      'This question comes from a paper PrepLoop shares with every learner. Tell the PrepLoop team what\'s wrong; they review every report.';
+
+  @override
+  String get sharedReportRights => 'It shouldn\'t be shared (copyright or permission)';
+
+  @override
+  String get sharedReportError => 'Something in it is wrong';
+
+  @override
+  String get sharedReportOther => 'Something else';
+
+  @override
+  String get sharedReportText => 'What\'s the problem?';
+
+  @override
+  String get sharedReportTextHelp => 'At least 10 characters. Don\'t include personal details.';
+
+  @override
+  String get sharedReportSent => 'Thanks. The PrepLoop team will review it.';
+
+  @override
+  String get sharedReportTooMany => 'You\'ve sent 10 reports today. Please try again tomorrow.';
+
+  @override
+  String get sharedReportFailed => 'The report couldn\'t be sent. Please try again.';
+
+  @override
+  String get markFigureAction => 'Mark a figure on the page';
+
+  @override
+  String get markFigureTitle => 'Mark the figure';
+
+  @override
+  String get markFigureHint =>
+      'Drag a box around the figure on the paper\'s page. PrepLoop keeps that part of the page with the question, as printed.';
+
+  @override
+  String get markFigureKeep => 'Keep';
+
+  @override
+  String markFigurePage(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get markFigurePreviousPage => 'Previous page';
+
+  @override
+  String get markFigureNextPage => 'Next page';
+
+  @override
+  String get markFigurePageFailed => 'The page couldn\'t be loaded.';
+
+  @override
+  String figureMarkedByYou(int page) {
+    return 'Figure you marked (page $page)';
+  }
+
+  @override
+  String get figureRemove => 'Remove this figure';
 
   @override
   String get accountExport => 'Copy my data';
@@ -4039,4 +4390,123 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get conceptAiLabelKept =>
       'Made from an AI lesson: it always stays labelled as AI-generated.';
+
+  @override
+  String topicSecondsPerAnswer(String seconds) {
+    return '$seconds s per answer';
+  }
+
+  @override
+  String topicRepeatedMistakes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions wrong more than once',
+      one: '1 question wrong more than once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reasonOftenForgotten => 'often forgotten';
+
+  @override
+  String get reasonRepeatedMistakes => 'the same mistakes again';
+
+  @override
+  String get reasonSlower => 'slower than your usual pace';
+
+  @override
+  String planRefreshTitle(String topic) {
+    return 'Refresh $topic';
+  }
+
+  @override
+  String reasonNotPractisedFor(int days) {
+    return 'Not practised for $days days';
+  }
+
+  @override
+  String progressRulesMore(int mistakes, String factor, int timed, int days) {
+    return 'A topic is also weak with $mistakes or more questions answered wrong in two sessions, or when its answers take $factor times your usual time (after $timed timed answers). A topic not practised for $days days is suggested for a refresh.';
+  }
+
+  @override
+  String get readinessTitle => 'Readiness';
+
+  @override
+  String readinessCoverage(int practised, int topics) {
+    return '$practised of $topics syllabus topics practised';
+  }
+
+  @override
+  String readinessStrong(int strong) {
+    return '$strong strong or mastered';
+  }
+
+  @override
+  String readinessSubject(int practised, int topics, int strong) {
+    return '$practised/$topics practised · $strong strong';
+  }
+
+  @override
+  String get readinessNoSyllabus =>
+      'Add your syllabus topics to see how much of the syllabus you have covered.';
+
+  @override
+  String get readinessEvidenceTitle => 'Evidence so far';
+
+  @override
+  String readinessRecent(int answers, int days, String percent) {
+    return '$answers answers in the last $days days, $percent correct';
+  }
+
+  @override
+  String readinessNoRecent(int days) {
+    return 'No practice answers in the last $days days.';
+  }
+
+  @override
+  String get readinessOffline => 'Practice evidence needs a connection.';
+
+  @override
+  String readinessMocks(int count, int days, String score, String max, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mock tests',
+      one: '1 mock test',
+    );
+    return '$_temp0 in the last $days days; latest: $score of $max on $date';
+  }
+
+  @override
+  String get readinessNoMock => 'No mock test submitted yet.';
+
+  @override
+  String get readinessNotPrediction =>
+      'This shows what you have covered and what your answers show so far. It is not a prediction of your result.';
+
+  @override
+  String get settingsAppLanguage => 'App';
+
+  @override
+  String get settingsContentLanguage => 'Papers, syllabus and notes';
+
+  @override
+  String get settingsContentLanguageHint =>
+      'Chosen first when you add a paper, syllabus or note; you can still pick another each time.';
+
+  @override
+  String get settingsAiLanguage => 'AI lessons and checks';
+
+  @override
+  String get settingsAiLanguageHint => 'AI explanations are written in their question\'s language.';
+
+  @override
+  String get languageSameAsApp => 'Same as app';
+
+  @override
+  String get mockSectionsIndicative =>
+      'the notice gives this section split as indicative; real papers may vary';
 }

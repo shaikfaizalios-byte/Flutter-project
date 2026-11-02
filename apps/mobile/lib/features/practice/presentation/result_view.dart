@@ -41,6 +41,17 @@ class ResultView extends StatelessWidget {
             ),
             Text(l10n.resultTime(formatClock(result.timeTakenSeconds))),
             if (session.submitReason == 'time_up') Text(l10n.resultSubmittedTimeUp),
+            if (session.mode == SessionMode.diagnostic) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Card(
+                color: theme.colorScheme.secondaryContainer,
+                child: ListTile(
+                  leading: const Icon(Icons.route_outlined),
+                  title: Text(l10n.starterCheckDoneTitle),
+                  subtitle: Text(l10n.starterCheckDoneMessage),
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.md),
             SectionCard(
               icon: Icons.calculate_outlined,

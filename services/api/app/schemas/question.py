@@ -4,6 +4,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
+from app.schemas.language import Language
+
 VerificationLiteral = Literal["unverified", "verified", "rejected"]
 
 
@@ -50,7 +52,16 @@ class ExamFormatRead(BaseModel):
     source_url: str
     source_reference: str
     source_published_on: date
-    verified_on: date
+    verified_on: date | None
+    # draft formats are never returned; retired ones still describe older papers.
+    status: Literal["verified", "retired"] = "verified"
+    effective_from: date | None = None
+    effective_to: date | None = None
+    question_types: list[str] = ["choice"]
+    # Each section has its own timer and sections are taken in order (mocks enforce it).
+    sectional_timing: bool = False
+    # The notice says its section-wise question counts are only indicative.
+    section_counts_indicative: bool = False
 
 
 class OptionRead(BaseModel):
@@ -75,6 +86,20 @@ class FigureRead(BaseModel):
     page_number: int
     width: int
     height: int
+    # pdf: found by PrepLoop in the PDF; reviewer: marked on the page by a reviewer.
+    source: Literal["pdf", "reviewer"] = "pdf"
+
+
+class FigureCreate(BaseModel):
+    """A region of one of the paper's pages to keep as a figure of the question. ``box`` is
+    [left, top, right, bottom] as fractions of the page (0 = left/top edge, 1 = right/bottom)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    page_number: int = Field(ge=1)
+    box: list[float] = Field(min_length=4, max_length=4)
+    kind: Literal["stem", "option", "original"] = "stem"
+    option_position: int | None = Field(default=None, ge=1, le=6)
 
 
 class IssueRead(BaseModel):
@@ -112,7 +137,7 @@ class AIExplanationRead(BaseModel):
     id: uuid.UUID
     question_id: uuid.UUID
     text: str
-    language: Literal["en", "hi"]
+    language: Language
     model_confident: bool
     provider: str
     model: str
@@ -126,6 +151,18 @@ class AIExplanationRead(BaseModel):
 class VerifyCleanResult(BaseModel):
     verified: int  # questions verified now
     left_for_review: int  # unverified questions that still need a reviewer
+
+
+class PaperAnswerRead(BaseModel):
+    """The answer the paper gave when PrepLoop first read the question (all null: the paper
+    gave none)."""
+
+    source: Literal["answer_key", "inline"] | None
+    option_position: int | None
+    option_label: str | None
+    option_text: str | None
+    typed_answer: str | None
+    written_answer: str | None
 
 
 class QuestionRead(BaseModel):
@@ -144,7 +181,7 @@ class QuestionRead(BaseModel):
     pattern_status: Literal["unassigned", "suggested", "confirmed"]
     pattern_suggestion_reason: str | None
     stem: str
-    language: Literal["en", "hi"]
+    language: Language
     document_id: uuid.UUID | None
     document_filename: str | None
     source_question_number: int | None
@@ -179,6 +216,44 @@ class QuestionRead(BaseModel):
     # read-only for everyone but its owner; `shared_source` says where the paper came from.
     read_only: bool = False
     shared_source: str | None = None
+    # Where the current answer comes from: "paper" (its answer key or printed with the
+    # question, as read), "reviewer" (set or changed in review), "ai" (AI-generated
+    # question), "none" (no answer yet). A reviewer's answer is never shown as the paper's.
+    answer_origin: Literal["paper", "reviewer", "ai", "none"] = "none"
+    # What the paper said, when the current answer is a reviewer's and the question's
+    # history goes back to its reading (null when it doesn't: read before history began).
+    paper_answer: PaperAnswerRead | None = None
+
+
+class SnapshotOption(BaseModel):
+    label: str
+    text: str
+
+
+class QuestionSnapshotRead(BaseModel):
+    stem: str
+    options: list[SnapshotOption]
+    answer_type: Literal["choice", "typed", "written"]
+    correct_option_position: int | None
+    typed_answer: str | None
+    model_answer: str | None
+    answer_source: str | None
+    explanation: str | None
+
+
+class QuestionRevisionRead(BaseModel):
+    """One entry of a question's history (oldest first): its state after the action."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    # extracted: read from the paper; generated: written by AI; baseline: the state when
+    # history began (earlier edits unknown); edited: changed in review.
+    action: Literal["extracted", "generated", "baseline", "edited"]
+    actor: Literal["rules", "ai", "reviewer", "migration"]
+    changed: list[str]
+    snapshot: QuestionSnapshotRead
+    created_at: datetime
 
 
 class QuestionList(BaseModel):

@@ -23,14 +23,13 @@ class AIExplanation(Base):
     __tablename__ = "ai_explanations"
     __table_args__ = (
         CheckConstraint("status IN ('draft', 'approved', 'rejected')", name="status_valid"),
-        CheckConstraint("language IN ('en', 'hi')", name="language_supported"),
         Index("ix_ai_explanations_question", "question_id", "created_at"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     question_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"))
     text: Mapped[str] = mapped_column(Text)
-    language: Mapped[str] = mapped_column(String(8))
+    language: Mapped[str] = mapped_column(String(8), ForeignKey("languages.code"))
     # The model's own doubt about the given answer; reviewers see it.
     model_confident: Mapped[bool] = mapped_column(default=True)
     provider: Mapped[str] = mapped_column(String(32))

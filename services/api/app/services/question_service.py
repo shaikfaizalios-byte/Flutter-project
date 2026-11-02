@@ -10,9 +10,11 @@ from sqlalchemy import Select, and_, exists, func, or_, select
 from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
-from app.domain import ai_reading, typed_answers
+from app.domain import ai_reading, question_history, typed_answers
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
+from app.domain.figures import figure_box_problem, page_box
 from app.domain.segmentation import EXPECTED_OPTIONS, Issue, IssueCode, content_issues
+from app.integrations.storage import DocumentStorage
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
 from app.models.question import (
@@ -32,19 +34,30 @@ from app.schemas.question import (
     AIExplanationRead,
     AIProvenance,
     ExamFormatRead,
+    FigureCreate,
     FigureRead,
     IssueRead,
     OptionRead,
+    PaperAnswerRead,
     PaperDateRead,
     ParseSummary,
     PassageRead,
     PatternRead,
     QuestionList,
     QuestionRead,
+    QuestionRevisionRead,
     QuestionUpdate,
     TopicRead,
 )
+from app.services.exam_formats import published_formats
+from app.services.page_layout import PdfRenderer
 from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
+from app.services.question_history import (
+    current_snapshot,
+    extracted_snapshots,
+    record_edit,
+)
+from app.services.question_history import revisions as question_revisions
 from app.services.shared_bank import visible_question
 from app.services.topic_service import topic_scope
 
@@ -227,10 +240,10 @@ class QuestionService:
         return [PatternRead.model_validate(p) for p in self._session.scalars(stmt).all()]
 
     def exam_formats(self, exam_code: str | None) -> list[ExamFormatRead]:
-        stmt = select(ExamFormat).order_by(ExamFormat.exam_code, ExamFormat.code)
-        if exam_code:
-            stmt = stmt.where(ExamFormat.exam_code == exam_code)
-        return [ExamFormatRead.model_validate(f) for f in self._session.scalars(stmt).all()]
+        """Published formats (verified and retired, with their status); never drafts."""
+        return [
+            ExamFormatRead.model_validate(f) for f in published_formats(self._session, exam_code)
+        ]
 
     def parse_summary(self, document_id: uuid.UUID) -> ParseSummary:
         document = self._session.get(Document, document_id)
@@ -319,6 +332,7 @@ class QuestionService:
 
     def update(self, question_id: uuid.UUID, data: QuestionUpdate) -> QuestionRead:
         question = self._get_or_404(question_id)
+        before = current_snapshot(question)
         changes = data.model_dump(exclude_unset=True)
         status = changes.pop("verification_status", None)
 
@@ -389,6 +403,7 @@ class QuestionService:
 
         content_changed = bool(data.model_fields_set - {"verification_status"})
         self._refresh_content_issues(question)
+        record_edit(self._session, question, before)
 
         if status == VerificationStatus.VERIFIED:
             self._verify(question)
@@ -403,6 +418,14 @@ class QuestionService:
         self._session.commit()
         self._session.expire(question)  # reload relationships changed via their ids
         return self.get(question_id)
+
+    def revisions(self, question_id: uuid.UUID) -> list[QuestionRevisionRead]:
+        """The question's history, oldest first (own questions only)."""
+        question = self._get_or_404(question_id)
+        return [
+            QuestionRevisionRead.model_validate(r)
+            for r in question_revisions(self._session, question.id)
+        ]
 
     def report(self, question_id: uuid.UUID, reason: str, note: str) -> QuestionRead:
         """A learner flags a question. It gets an open "learner_report" issue and, if it was
@@ -490,6 +513,58 @@ class QuestionService:
         if figure is None:
             raise NotFoundError("Figure not found.")
         return figure
+
+    def add_figure(
+        self, question_id: uuid.UUID, data: FigureCreate, storage: DocumentStorage
+    ) -> FigureRead:
+        """Crops a region a reviewer marked on one of the paper's pages and keeps it as a
+        figure of the question (rendered from the original PDF, so it is shown as printed)."""
+        question = self._get_or_404(question_id)
+        document = (
+            self._session.get(Document, question.document_id) if question.document_id else None
+        )
+        if document is None:
+            raise InvalidReferenceError("Only questions read from a paper have its pages.")
+        if not 1 <= data.page_number <= document.page_count:
+            raise InvalidReferenceError("That page is not in the paper.")
+        problem = figure_box_problem(data.box)
+        if problem:
+            raise InvalidReferenceError(problem)
+        if (data.kind == "option") != (data.option_position is not None):
+            raise InvalidReferenceError("An option figure needs its option, and only it.")
+        path = storage.path_for(document.storage_key)
+        if not path.exists():
+            raise NotFoundError("The original file is no longer available.")
+        with PdfRenderer(path) as renderer:
+            width, height = renderer.page_size(data.page_number)
+            box = page_box(data.box, width, height)
+            png, pixels_w, pixels_h = renderer.render(data.page_number, box)
+        order = max((f.sort_order for f in question.figures), default=0) + 1
+        figure = QuestionFigure(
+            question_id=question.id,
+            kind=data.kind,
+            option_position=data.option_position,
+            sort_order=order,
+            page_number=data.page_number,
+            box=[box.left, box.bottom, box.right, box.top],
+            width=pixels_w,
+            height=pixels_h,
+            data=png,
+            source="reviewer",
+        )
+        self._session.add(figure)
+        question.image_dependent = True
+        self._session.commit()
+        return FigureRead.model_validate(figure)
+
+    def delete_figure(self, question_id: uuid.UUID, figure_id: uuid.UUID) -> None:
+        """Removes a figure from one's own question (e.g. matched to the wrong question)."""
+        question = self._get_or_404(question_id)
+        figure = next((f for f in question.figures if f.id == figure_id), None)
+        if figure is None:
+            raise NotFoundError("Figure not found.")
+        self._session.delete(figure)
+        self._session.commit()
 
     def accept_suggested_topics(self, document_id: uuid.UUID) -> tuple[int, int]:
         """Confirm every suggested topic, and every suggested pattern, of a paper's
@@ -640,9 +715,29 @@ class QuestionService:
         sources = self._shared_sources(
             {q.document_id for q in questions if q.owner_id != self._owner_id}
         )
+        extracted = extracted_snapshots(
+            self._session,
+            [q.id for q in questions if q.answer_source not in ("answer_key", "inline", "ai")],
+        )
         reads = []
         for q in questions:
             read = self._read(q, filenames, explanations.get(q.id))
+            origin = question_history.answer_origin(
+                origin=q.origin,
+                answer_source=q.answer_source,
+                answered=question_history.has_answer(current_snapshot(q)),
+            )
+            paper = (
+                question_history.paper_answer(extracted.get(q.id)) if origin == "reviewer" else None
+            )
+            read = read.model_copy(
+                update={
+                    "answer_origin": origin,
+                    "paper_answer": PaperAnswerRead.model_validate(paper, from_attributes=True)
+                    if paper
+                    else None,
+                }
+            )
             if q.owner_id != self._owner_id:
                 # Someone else's paper from the shared bank: read-only, and the publisher's
                 # file name and review notes are replaced by the recorded source.

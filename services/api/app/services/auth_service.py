@@ -25,6 +25,7 @@ from app.domain.errors import (
     EmailTakenError,
     InvalidCodeError,
     InvalidCredentialsError,
+    NotFoundError,
     UnauthorizedError,
 )
 from app.integrations.email import OutgoingEmail
@@ -33,12 +34,11 @@ from app.models.ai import AIGeneration
 from app.models.concept import Concept
 from app.models.document import Document
 from app.models.feedback import Suggestion
-from app.models.plus import Subscription
 from app.models.practice import PracticeSession
 from app.models.question import Question
-from app.models.sync import SyncItem
 from app.models.user import AccountCode, RefreshToken, User
-from app.schemas.auth import AccountExport, TokenPair, UserRead
+from app.schemas.auth import AccountExport, DeviceSession, TokenPair, UserRead
+from app.services.account_data import account_data
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,9 @@ class AuthService:
 
     # --- accounts -------------------------------------------------------------------------
 
-    def register(self, email: str, password: str, display_name: str | None) -> TokenPair:
+    def register(
+        self, email: str, password: str, display_name: str | None, platform: str | None = None
+    ) -> TokenPair:
         if password.strip().lower() == email:
             raise InvalidCredentialsError("Choose a password that is not your email address.")
         self._session.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": _CLAIM_LOCK})
@@ -98,18 +100,18 @@ class AuthService:
                 claimed += result.rowcount  # type: ignore[attr-defined]
             if claimed:
                 logger.info("First account claimed %d existing rows", claimed)
-        pair = self._issue(user, family_id=uuid.uuid4())
+        pair = self._issue(user, family_id=uuid.uuid4(), platform=platform)
         self._session.commit()
         return pair
 
-    def login(self, email: str, password: str) -> TokenPair:
+    def login(self, email: str, password: str, platform: str | None = None) -> TokenPair:
         user = self._session.scalars(select(User).where(User.email == email)).first()
         if not verify_password(user.password_hash if user else None, password) or user is None:
             raise InvalidCredentialsError("Email or password is not correct.")
         if needs_rehash(user.password_hash):
             user.password_hash = hash_password(password)
         user.last_login_at = self._now()
-        pair = self._issue(user, family_id=uuid.uuid4())
+        pair = self._issue(user, family_id=uuid.uuid4(), platform=platform)
         self._session.commit()
         return pair
 
@@ -137,7 +139,7 @@ class AuthService:
         if row.expires_at <= now:
             raise UnauthorizedError("Your session has expired. Please sign in again.")
         row.used_at = now
-        pair = self._issue(self.user(row.user_id), family_id=row.family_id)
+        pair = self._issue(self.user(row.user_id), family_id=row.family_id, platform=row.platform)
         self._session.commit()
         return pair
 
@@ -149,34 +151,94 @@ class AuthService:
             self._revoke_family(row.family_id, self._now())
             self._session.commit()
 
+    # --- signed-in devices (one refresh-token family each) ---------------------------------
+
+    def sessions(self, user: User, current: uuid.UUID | None) -> list[DeviceSession]:
+        """The account's signed-in devices, most recently active first."""
+        now = self._now()
+        rows = self._session.execute(
+            select(
+                RefreshToken.family_id,
+                func.min(RefreshToken.created_at),
+                func.max(RefreshToken.created_at),
+            )
+            .where(RefreshToken.user_id == user.id)
+            .group_by(RefreshToken.family_id)
+            .having(
+                # Still signed in: the family's latest token is unused, unrevoked and unexpired.
+                func.count().filter(
+                    RefreshToken.used_at.is_(None),
+                    RefreshToken.revoked_at.is_(None),
+                    RefreshToken.expires_at > now,
+                )
+                > 0
+            )
+        ).all()
+        active = self._session.execute(
+            select(RefreshToken.family_id, RefreshToken.platform).where(
+                RefreshToken.family_id.in_([r[0] for r in rows]),
+                RefreshToken.used_at.is_(None),
+                RefreshToken.revoked_at.is_(None),
+            )
+        ).all()
+        platforms = {family: platform for family, platform in active}
+        devices = [
+            DeviceSession(
+                id=family,
+                platform=platforms.get(family),
+                signed_in_at=first,
+                last_active_at=last,
+                current=family == current,
+            )
+            for family, first, last in rows
+        ]
+        return sorted(devices, key=lambda d: (not d.current, -d.last_active_at.timestamp()))
+
+    def sign_out_device(self, user: User, session_id: uuid.UUID) -> None:
+        """Signs one of the account's devices out (its tokens stop working at once)."""
+        owned = self._session.scalar(
+            select(RefreshToken.id)
+            .where(RefreshToken.family_id == session_id, RefreshToken.user_id == user.id)
+            .limit(1)
+        )
+        if owned is None:
+            raise NotFoundError("No such signed-in device.")
+        self._revoke_family(session_id, self._now())
+        self._session.commit()
+
+    def sign_out_other_devices(self, user: User, current: uuid.UUID | None) -> int:
+        """Signs out every device but this one; returns how many were signed out."""
+        if current is None:
+            # A token from before sessions were recorded: the app refreshes and retries.
+            raise UnauthorizedError("Please sign in again.")
+        result = self._session.execute(
+            update(RefreshToken)
+            .where(
+                RefreshToken.user_id == user.id,
+                RefreshToken.family_id != current,
+                RefreshToken.revoked_at.is_(None),
+                RefreshToken.used_at.is_(None),
+                RefreshToken.expires_at > self._now(),
+            )
+            .values(revoked_at=self._now())
+        )
+        # Revoke the rest of those families too (replaced tokens), so none can be replayed.
+        self._session.execute(
+            update(RefreshToken)
+            .where(
+                RefreshToken.user_id == user.id,
+                RefreshToken.family_id != current,
+                RefreshToken.revoked_at.is_(None),
+            )
+            .values(revoked_at=self._now())
+        )
+        self._session.commit()
+        return int(result.rowcount)  # type: ignore[attr-defined]
+
     # --- privacy --------------------------------------------------------------------------
 
     def export(self, user: User) -> AccountExport:
-        data: dict[str, list[dict[str, Any]]] = {}
-        for model in OWNED_MODELS:
-            rows = self._session.scalars(select(model).where(model.owner_id == user.id)).all()
-            data[model.__tablename__] = [_row_dict(r) for r in rows]
-        # Children that belong to owned rows.
-        question_ids = [q["id"] for q in data.get("questions", [])]
-        if question_ids:
-            from app.models.question import QuestionOption
-
-            options = self._session.scalars(
-                select(QuestionOption).where(QuestionOption.question_id.in_(question_ids))
-            ).all()
-            data["question_options"] = [_row_dict(o) for o in options]
-        subscription = self._session.get(Subscription, user.id)
-        data["subscriptions"] = [_row_dict(subscription)] if subscription else []
-        synced = self._session.scalars(select(SyncItem).where(SyncItem.owner_id == user.id)).all()
-        data["sync_items"] = [_row_dict(s) for s in synced]
-        session_ids = [s["id"] for s in data.get("practice_sessions", [])]
-        if session_ids:
-            from app.models.practice import SessionAnswer
-
-            answers = self._session.scalars(
-                select(SessionAnswer).where(SessionAnswer.session_id.in_(session_ids))
-            ).all()
-            data["session_answers"] = [_row_dict(a) for a in answers]
+        data = account_data(self._session, user.id)
         data["account_settings"] = [
             {
                 "radar_opt_in": user.radar_opt_in,
@@ -298,7 +360,7 @@ class AuthService:
 
     # --- helpers --------------------------------------------------------------------------
 
-    def _issue(self, user: User, *, family_id: uuid.UUID) -> TokenPair:
+    def _issue(self, user: User, *, family_id: uuid.UUID, platform: str | None = None) -> TokenPair:
         token = new_refresh_token()
         self._session.add(
             RefreshToken(
@@ -306,10 +368,11 @@ class AuthService:
                 family_id=family_id,
                 token_hash=hash_refresh_token(token),
                 expires_at=self._now() + timedelta(days=self._settings.refresh_token_days),
+                platform=platform,
             )
         )
         return TokenPair(
-            access_token=self._signer.access_token(user.id, now=self._now()),
+            access_token=self._signer.access_token(user.id, session_id=family_id, now=self._now()),
             refresh_token=token,
             expires_in=self._signer.access_minutes * 60,
             user=UserRead.model_validate(user),
@@ -321,10 +384,6 @@ class AuthService:
             .where(RefreshToken.family_id == family_id, RefreshToken.revoked_at.is_(None))
             .values(revoked_at=now)
         )
-
-
-def _row_dict(row: Any) -> dict[str, Any]:
-    return {attr.key: getattr(row, attr.key) for attr in row.__mapper__.column_attrs}
 
 
 def _reset_email(to: str, code: str, minutes: int) -> OutgoingEmail:

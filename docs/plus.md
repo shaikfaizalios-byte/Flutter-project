@@ -35,11 +35,59 @@ practice, mock tests, revision, reminders and progress never need Plus.
   a "Start a 7-day test" button only when the server is in test mode, otherwise "can't be bought
   yet". The app never decides entitlement itself.
 
+## Google Play (global Phase 4)
+
+Built, **off until the operator configures it**. The server is the only judge: a purchase counts
+after the Play Developer API confirms it, never because the app or a notification says so.
+
+**Flow.** `GET /me/plus` adds `purchases_available`, `play_product_ids` and `play_account_id`
+(HMAC of the account id with the server secret, `app/domain/billing.py`). The Android app shows
+Play's products with **Play's own price** (`in_app_purchase`, `features/plus/data/play_store.dart`)
+and buys with `applicationUserName = play_account_id`. Every purchase update goes to
+`POST /billing/play/verify` (`app/services/billing_service.py`): read the token with
+`purchases.subscriptionsv2.get`; refuse unless it is one of our products, its
+`obfuscatedExternalAccountId` is this account's and no other account holds the token; store it
+(`play_purchases`, migration 0031), acknowledge it, and set `subscriptions` (source `play`,
+`active_until` = expiry). Only then does the app complete the purchase with Play; a purchase the
+server couldn't check (offline, Google down → 502 `store_unavailable`) stays uncompleted, and Play
+delivers it again. The purchase listener starts with the app (purchases finished while it was
+closed are checked on start).
+
+**Entitlement** (pure rules): active, in grace period, or canceled-but-paid → Plus until the
+expiry; pending, on hold, paused, expired → no Plus; refunded/charged back (`VOIDED`) → ends now and
+stays ended. An upgrade or resubscription replaces the old purchase (`linkedPurchaseToken`). A
+longer operator grant or test subscription is not shortened.
+
+**Notifications.** Real-time developer notifications arrive as Pub/Sub push at
+`POST /api/v1/billing/play/rtdn` (not in the OpenAPI schema). The OIDC token must be signed by
+Google, for `PREPLOOP_PLAY_RTDN_AUDIENCE`, from `PREPLOOP_PLAY_RTDN_SERVICE_ACCOUNT` (else 401).
+Each message is applied once (`billing_events.event_key = rtdn:<messageId>`); the purchase is read
+again from Google. Errors reaching Google return 502 so Pub/Sub retries.
+
+**Audit.** `billing_events` records every check and notification: kind, outcome, Play state or
+refusal reason, SHA-256 of the token (never the token), account (cleared on account deletion).
+
+**Operator setup** (all needed; without them `purchases_available` is false):
+1. Play Console: create the subscription product(s) and base plan(s) with prices per country (the
+   app shows Play's price; no price is in our code). Upload a build with billing to a test track.
+2. Google Cloud: a service account with access to the app in Play Console (Users and permissions:
+   view financial data, manage orders and subscriptions); download its JSON key **to the server
+   only** (never into the repo).
+3. Server env: `PREPLOOP_PLAY_PACKAGE_NAME`, `PREPLOOP_PLAY_SUBSCRIPTION_IDS` (comma-separated
+   product ids), `PREPLOOP_PLAY_SERVICE_ACCOUNT_FILE` (path to the key).
+4. Notifications: a Pub/Sub topic set in Play Console (Monetization setup), a **push** subscription
+   to `https://<api>/api/v1/billing/play/rtdn` with authentication on; set
+   `PREPLOOP_PLAY_RTDN_AUDIENCE` and `PREPLOOP_PLAY_RTDN_SERVICE_ACCOUNT` to that subscription's
+   audience and service account. Send a test notification from Play Console; it appears in
+   `billing_events` as kind `test`.
+5. License testers in Play Console buy without being charged (`test_purchase` is recorded).
+
 ## Not built yet
 
-1. **Payments.** Google Play Billing on Android (required for digital subscriptions sold in the
-   app), a payment provider for the web app, Apple in-app purchase for iOS. Each needs server-side
-   receipt/webhook verification that sets `source` play/web and `active_until`. The operator
-   needs the store/payment accounts first.
+1. **Other payments.** A payment provider for the web app and Apple in-app purchase for iOS (the
+   same `subscriptions` row; `billing_events.provider` would gain values). Google Play is built
+   (above) but has never run against the real Play API (no Play Console here).
 2. **Legal.** Terms: price, renewal, cancellation, refunds; GST invoicing in India; privacy
-   policy: payment processor as a recipient.
+   policy: Google Play as payment processor, what `play_purchases`/`billing_events` keep and for how long.
+3. **Account deletion with an active Play subscription.** Deleting the account does not cancel
+   billing in Google Play; the app should tell the learner to cancel in Play first.

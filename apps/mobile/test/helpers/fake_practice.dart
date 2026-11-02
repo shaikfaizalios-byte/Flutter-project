@@ -21,6 +21,11 @@ class _FakeSession {
   final DateTime startedAt;
   final DateTime? deadline;
   final String? formatName;
+
+  /// Sectionally timed mock: the plan, the open section and when it opened.
+  List<TimedSectionView> sections = const [];
+  int currentSection = 0;
+  DateTime? sectionStartedAt;
   final Map<int, int?> answers = {};
   final Map<int, String> typed = {};
   final Set<String> bookmarked = {};
@@ -40,9 +45,16 @@ class FakePracticeRepository implements PracticeRepository {
   final List<BankQuestion> pool;
   final sessions = <String, _FakeSession>{};
   List<MockTestView> mocks = const [];
+
+  /// When set, mocks are sectionally timed with this plan (like SSC CGL).
+  List<TimedSectionView> mockSections = const [];
+  final finishedSections = <int>[];
   bool offline = false;
   String? startFailureCode;
   final submits = <String>[];
+
+  /// Time spent sent with each answer (position → milliseconds).
+  final timesSpent = <int, int?>{};
   final List<PracticeRequest> practiceRequests = [];
 
   /// Offline practice is covered by the real repository's tests (practice_offline_test.dart).
@@ -82,17 +94,41 @@ class FakePracticeRepository implements PracticeRepository {
   @override
   Future<List<MockTestView>> mockTests() async => mocks;
 
+  /// Questions the starter check would ask (0: none available).
+  int starterCheckQuestions = 0;
+
+  @override
+  Future<int> starterCheckSize(String examCode) async => starterCheckQuestions;
+
+  @override
+  Future<PracticeSessionView> startStarterCheck(String examCode) async {
+    if (starterCheckQuestions == 0) {
+      throw const ServerFailure(statusCode: 422, code: 'no_questions_available');
+    }
+    final id = 'd${sessions.length + 1}';
+    sessions[id] = _FakeSession(
+      id: id,
+      mode: SessionMode.diagnostic,
+      questions: pool,
+      startedAt: serverNow(),
+    );
+    return _view(sessions[id]!);
+  }
+
   @override
   Future<PracticeSessionView> startMock(String formatCode) async {
     final id = 'm${sessions.length + 1}';
-    sessions[id] = _FakeSession(
-      id: id,
-      mode: SessionMode.mock,
-      questions: pool,
-      startedAt: serverNow(),
-      deadline: serverNow().add(const Duration(minutes: 60)),
-      formatName: 'SSC CHSL 2026 Tier-I',
-    );
+    sessions[id] =
+        _FakeSession(
+            id: id,
+            mode: SessionMode.mock,
+            questions: pool,
+            startedAt: serverNow(),
+            deadline: serverNow().add(const Duration(minutes: 60)),
+            formatName: 'SSC CHSL 2026 Tier-I',
+          )
+          ..sections = mockSections
+          ..sectionStartedAt = serverNow();
     return _view(sessions[id]!);
   }
 
@@ -119,6 +155,25 @@ class FakePracticeRepository implements PracticeRepository {
   ];
 
   @override
+  Future<PracticeSessionView> finishSection(String id, int fromSection) async {
+    if (offline) throw const NetworkFailure();
+    final s = _get(id);
+    _expire(s);
+    finishedSections.add(fromSection);
+    if (!s.submitted && s.currentSection == fromSection) {
+      s
+        ..currentSection += 1
+        ..sectionStartedAt = serverNow();
+      if (s.currentSection >= s.sections.length) {
+        s
+          ..submitted = true
+          ..submitReason = 'user';
+      }
+    }
+    return _view(s);
+  }
+
+  @override
   Future<PracticeSessionView> submit(String id) async {
     if (offline) throw const NetworkFailure();
     final s = _get(id);
@@ -140,9 +195,15 @@ class FakePracticeRepository implements PracticeRepository {
     int? timeSpentMs,
   }) async {
     final s = _get(sessionId);
+    timesSpent[position] = timeSpentMs;
     if (offline) return const AnswerOutcome.queued();
     _expire(s);
     if (s.submitted) throw const ServerFailure(statusCode: 409, code: 'session_closed');
+    if (s.sections.isNotEmpty &&
+        !(s.currentSection < s.sections.length &&
+            s.sections[s.currentSection].contains(position))) {
+      throw const ServerFailure(statusCode: 409, code: 'section_closed');
+    }
     final answered = s.answers[position] != null || s.typed.containsKey(position);
     final locked = s.mode == SessionMode.practice && answered;
     if (!locked) {
@@ -188,6 +249,19 @@ class FakePracticeRepository implements PracticeRepository {
   ];
 
   void _expire(_FakeSession s) {
+    // Sections close in order as their time runs out (same rule as the server).
+    while (!s.submitted && s.sections.isNotEmpty && s.currentSection < s.sections.length) {
+      final ends = s.sectionStartedAt!.add(Duration(minutes: s.sections[s.currentSection].minutes));
+      if (serverNow().isBefore(ends)) break;
+      s
+        ..currentSection += 1
+        ..sectionStartedAt = ends;
+      if (s.currentSection >= s.sections.length) {
+        s
+          ..submitted = true
+          ..submitReason = 'time_up';
+      }
+    }
     if (!s.submitted && s.deadline != null && !serverNow().isBefore(s.deadline!)) {
       s
         ..submitted = true
@@ -271,6 +345,11 @@ class FakePracticeRepository implements PracticeRepository {
             feedback: _feedback(s, i + 1, q),
           ),
       ],
+      sections: s.sections,
+      currentSection: s.sections.isEmpty ? null : s.currentSection,
+      sectionDeadlineAt: s.sections.isEmpty || s.submitted
+          ? null
+          : s.sectionStartedAt!.add(Duration(minutes: s.sections[s.currentSection].minutes)),
       result: s.submitted
           ? SessionResultView(
               total: TallyView(
@@ -285,9 +364,12 @@ class FakePracticeRepository implements PracticeRepository {
                     'Correct $correct × 1.00 = $correct.00; Total $correct.00 of ${s.questions.length}.00',
               ),
               timeTakenSeconds: serverNow().difference(s.startedAt).inSeconds,
-              markingNote: s.mode == SessionMode.practice
-                  ? 'Practice: 1 point per correct answer, no negative marking.'
-                  : 'SSC CHSL 2026 Tier-I. Wrong answer: -0.50.',
+              markingNote: switch (s.mode) {
+                SessionMode.practice =>
+                  'Practice: 1 point per correct answer, no negative marking.',
+                SessionMode.diagnostic => 'Starter check: 1 point per correct answer.',
+                SessionMode.mock => 'SSC CHSL 2026 Tier-I. Wrong answer: -0.50.',
+              },
               sections: const [],
               topics: const [],
             )

@@ -11,6 +11,7 @@ cffi==2.1.1
 charset-normalizer==3.5.2
 click==8.5.0
 colorama==0.4.6
+cryptography==47.0.0
 docstring_parser==0.18.0
 fastapi==0.143.0
 h11==0.16.0

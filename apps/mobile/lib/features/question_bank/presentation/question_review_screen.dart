@@ -15,6 +15,9 @@ import '../application/question_bank_providers.dart';
 import '../data/questions_repository.dart';
 import '../domain/question.dart';
 import 'figure_view.dart';
+import 'mark_figure_screen.dart';
+import 'question_history_widgets.dart';
+import 'shared_report.dart';
 import 'question_widgets.dart';
 
 class QuestionReviewScreen extends ConsumerWidget {
@@ -47,14 +50,15 @@ class QuestionReviewScreen extends ConsumerWidget {
   }
 }
 
-/// A shared-bank question (another account's paper): shown as published, nothing to edit.
-class _SharedQuestionView extends StatelessWidget {
+/// A shared-bank question (another account's paper): shown as published, nothing to edit;
+/// it can be reported to the PrepLoop team.
+class _SharedQuestionView extends ConsumerWidget {
   const _SharedQuestionView({required this.question});
 
   final BankQuestion question;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final q = question;
@@ -68,7 +72,14 @@ class _SharedQuestionView extends StatelessWidget {
         title: Text(
           q.sourceNumber == null ? l10n.questionTitle : l10n.questionNumberLabel(q.sourceNumber!),
         ),
-        actions: [WebSearchAction(query: q.stem)],
+        actions: [
+          WebSearchAction(query: q.stem),
+          IconButton(
+            tooltip: l10n.sharedReportTitle,
+            icon: const Icon(Icons.flag_outlined),
+            onPressed: () => reportSharedContent(context, ref, q.id),
+          ),
+        ],
       ),
       body: Align(
         alignment: Alignment.topCenter,
@@ -137,6 +148,7 @@ class _SharedQuestionView extends StatelessWidget {
                 Text('${l10n.fieldTypedAnswer}: ${q.typedAnswer}')
               else if (correct != null)
                 Text(l10n.sessionCorrectAnswer(correct.label)),
+              AnswerOriginNote(question: q),
               if (q.explanation != null && q.explanation!.trim().isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),
                 Text(l10n.questionExplanationTitle, style: theme.textTheme.titleSmall),
@@ -279,6 +291,7 @@ class _EditorState extends ConsumerState<_Editor> {
       if (!mounted) return;
       setState(() => _load(updated));
       ref.invalidate(questionListProvider);
+      ref.invalidate(questionRevisionsProvider(updated.id));
       if (updated.documentId != null) ref.invalidate(parseSummaryProvider(updated.documentId!));
       messenger.showSnackBar(
         SnackBar(
@@ -301,6 +314,39 @@ class _EditorState extends ConsumerState<_Editor> {
       messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
     } on Object catch (error, stack) {
       logError('Saving question failed', error, stack);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// The reviewer marks a figure on the question's page (e.g. a scanned diagram).
+  Future<void> _markFigure() async {
+    final q = _question;
+    final region = await Navigator.of(context).push<FigureRegion>(
+      MaterialPageRoute(
+        builder: (_) => MarkFigureScreen(documentId: q.documentId!, pages: q.sourcePages),
+      ),
+    );
+    if (region == null || !mounted) return;
+    await _changeFigures(
+      () => ref.read(questionsRepositoryProvider).addFigure(q.id, region.page, region.box),
+    );
+  }
+
+  Future<void> _deleteFigure(String figureId) => _changeFigures(
+    () => ref.read(questionsRepositoryProvider).deleteFigure(_question.id, figureId),
+  );
+
+  Future<void> _changeFigures(Future<BankQuestion> Function() change) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final updated = await change();
+      if (mounted) setState(() => _question = updated);
+      ref.invalidate(questionProvider(updated.id));
+    } on AppFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -397,6 +443,27 @@ class _EditorState extends ConsumerState<_Editor> {
           Text(l10n.figuresFromPaper, style: Theme.of(context).textTheme.titleSmall),
           QuestionFigures(questionId: q.id, figures: q.figures),
         ],
+        for (final figure in q.figures.where((f) => f.byReviewer))
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            leading: const Icon(Icons.crop),
+            title: Text(l10n.figureMarkedByYou(figure.pageNumber)),
+            trailing: IconButton(
+              tooltip: l10n.figureRemove,
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _busy ? null : () => _deleteFigure(figure.id),
+            ),
+          ),
+        if (q.documentId != null && q.sourcePages.isNotEmpty)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              icon: const Icon(Icons.crop),
+              label: Text(l10n.markFigureAction),
+              onPressed: _busy ? null : _markFigure,
+            ),
+          ),
         const SizedBox(height: AppSpacing.md),
         Text(l10n.fieldAnswerType, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: AppSpacing.sm),
@@ -488,6 +555,11 @@ class _EditorState extends ConsumerState<_Editor> {
             ],
           ),
         ],
+        AnswerOriginNote(question: q),
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
+          child: Text(l10n.approveIsNotOfficial, style: Theme.of(context).textTheme.bodySmall),
+        ),
         const SizedBox(height: AppSpacing.md),
         _TopicPicker(
           examCode: q.examCode,
@@ -519,6 +591,8 @@ class _EditorState extends ConsumerState<_Editor> {
           minLines: 2,
           maxLines: 8,
         ),
+        const SizedBox(height: AppSpacing.md),
+        QuestionHistoryTile(questionId: q.id),
         const SizedBox(height: 96),
       ],
     );

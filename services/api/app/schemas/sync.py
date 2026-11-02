@@ -6,6 +6,8 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
+from app.schemas.language import Language
+
 Short = Annotated[str, StringConstraints(max_length=100)]
 Label = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 ItemId = Annotated[
@@ -24,7 +26,7 @@ class ConceptData(_Payload):
     subject: Label
     topic: Label
     subtopic: Short | None = None
-    language: Literal["en", "hi"]
+    language: Language
     tags: list[Annotated[str, StringConstraints(max_length=50)]] = Field(default=[], max_length=20)
     source_reference: Annotated[str, StringConstraints(max_length=500)] | None = None
     archived_at: datetime | None = None
@@ -93,6 +95,15 @@ FIXED_IDS: dict[str, set[str]] = {
 
 EntityName = Literal["concept", "study_profile", "revision_card", "card_review", "setting"]
 
+# How a change to a record that changed elsewhere since the device last saw it is handled
+# (docs/accounts-sync.md "Conflicts"):
+# - concepts: the server keeps its version and returns it as a conflict; the device keeps
+#   its own as a separate copy, so neither edit is lost.
+# - card reviews: append-only events; an existing review is never rewritten.
+# - everything else: last writer wins.
+CONFLICT_CHECKED: frozenset[str] = frozenset({"concept"})
+APPEND_ONLY: frozenset[str] = frozenset({"card_review"})
+
 
 class Change(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -102,6 +113,9 @@ class Change(BaseModel):
     deleted: bool = False
     # Required unless deleted; validated against the entity's schema by the service.
     data: dict[str, Any] | None = None
+    # The server sequence number of the record as this device last saw it (from a pull or
+    # an earlier push); null for a new record or an app that doesn't track versions.
+    base_seq: int | None = Field(default=None, ge=0)
 
     @field_validator("data")
     @classmethod
@@ -117,14 +131,6 @@ class PushRequest(BaseModel):
     changes: list[Change] = Field(max_length=500)
 
 
-class PushResult(BaseModel):
-    accepted: int
-    # Records the server will not change because they were deleted (tombstones win).
-    ignored_deleted: list[str]
-    # Records rejected by validation, with the reason ("entity:id": message).
-    rejected: dict[str, str]
-
-
 class ServerChange(BaseModel):
     entity: EntityName
     id: str
@@ -132,6 +138,19 @@ class ServerChange(BaseModel):
     data: dict[str, Any] | None
     seq: int
     updated_at: datetime
+
+
+class PushResult(BaseModel):
+    accepted: int
+    # Records the server will not change because they were deleted (tombstones win).
+    ignored_deleted: list[str]
+    # Records rejected by validation, with the reason ("entity:id": message).
+    rejected: dict[str, str]
+    # The server version ("entity:id": seq) of each accepted record, to send as base_seq.
+    seqs: dict[str, int] = {}
+    # Records changed elsewhere since the device's base_seq: not overwritten; the server's
+    # version is returned so the device can keep both.
+    conflicts: list[ServerChange] = []
 
 
 class PullResult(BaseModel):

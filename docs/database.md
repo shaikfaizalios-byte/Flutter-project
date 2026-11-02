@@ -55,7 +55,7 @@ Sections, tiers and marking schemes are **not** stored yet. They will be added a
 | notes | text | Default `''`; the API caps it at 20,000 characters |
 | subject, topic | varchar(100) | Free text for now; a managed taxonomy comes later |
 | subtopic | varchar(100) null | |
-| language | varchar(8) | Check: `en` or `hi` |
+| language | varchar(8) | FK → `languages.code` (global Phase 10; was a CHECK `en`/`hi`) |
 | tags | varchar(50)[] | Lower-cased and de-duplicated; GIN index |
 | source_reference | varchar(500) null | e.g. book or page |
 | archived_at | timestamptz null | Archive is reversible; delete is permanent and explicit |
@@ -67,7 +67,16 @@ Indexes: `(exam_code, archived_at)` and a GIN index on `tags`.
 
 ### Schema (revision `0002`): documents
 
-**`documents`**: one row per uploaded PDF. It has an `exam_code` foreign key (RESTRICT) and `language` (CHECK `en`/`hi`).
+**`documents`**: one row per uploaded PDF. It has an `exam_code` foreign key (RESTRICT) and `language` (FK → `languages`).
+
+**`languages`** (global Phase 10, migration 0037): the supported content languages — `code` (ISO 639,
+PK), `english_name`, `native_name`, `script` (ISO 15924), `direction` (`ltr`/`rtl`). Seeded `en`, `hi`; the same
+list as `app/domain/languages.py` (`tests/test_languages.py` compares them). `documents`, `questions`, `concepts` and
+`ai_explanations` reference it instead of CHECK constraints. `exams.languages` (text[], empty = not recorded) holds
+the languages an exam's paper is offered in (any ISO 639 code; RRB NTPC has 15 from its notice), set
+only from the official notice with `python -m app.cli.exam_formats exam CODE --languages en,hi`.
+`exam_formats.section_counts_indicative` (migration 0038): the notice calls its section split
+indicative.
 - `original_filename` is sanitised display text. `storage_key` is internal and unique (`documents/<uuid>.pdf`).
 - `size_bytes`, `sha256` (indexed) and `page_count` are recorded at upload.
 - `status` is one of queued, processing, completed or failed (CHECK). `pages_processed` and `needs_review_count` track progress.
@@ -180,7 +189,7 @@ Defined in `apps/mobile/lib/core/database/`.
 | Table | Purpose |
 |---|---|
 | `concepts` | Same fields as the server table, with a client-generated UUID `id`. Tags are a JSON array; datetimes are ISO-8601 text in UTC. |
-| `app_settings` | Key/value device settings: `language`, `theme_mode`, `revision_day_offsets` (e.g. `1,4,7`), `reminders_enabled`, `reminder_scheduled_plan` (fingerprint of the scheduled reminder) |
+| `app_settings` | Key/value device settings: `language`, `theme_mode`, `content_language` / `ai_language` (absent = same as the app's language), `revision_day_offsets` (e.g. `1,4,7`), `reminders_enabled`, `reminder_scheduled_plan` (fingerprint of the scheduled reminder) |
 | `study_profiles` (v2) | A single row (`id = 1`, enforced by CHECK) with the onboarding answers: `exam_codes` (JSON array), `target_exam_date` (`yyyy-MM-dd` text, so it never shifts with the timezone), `daily_study_minutes` (5–720), `reminder_minutes` (minutes after local midnight), `onboarding_completed_at`, `updated_at`. Unknown exam codes and out-of-range values are ignored when reading. |
 
 Schema history: **v1** has concepts and app_settings. **v2** adds study_profiles (migration `from1To2`
@@ -235,7 +244,7 @@ is a server sequence number rather than `updated_at` + `id`, because it is monot
 
 1. **Identity:** the client generates UUIDs, and the server accepts them, so no ID remapping is needed.
 2. **Direction:** each device pushes its local changes, then pulls server changes made since its last sync cursor (server `updated_at` plus `id` as tiebreaker).
-3. **Conflicts:** last-writer-wins per record using server-assigned `updated_at`. Archive and unarchive are ordinary field updates. Deletes become tombstones that win over concurrent edits.
+3. **Conflicts:** see docs/accounts-sync.md "Conflicts" (notes: both versions kept; reviews append-only; the rest last-writer-wins per record). Archive and unarchive are ordinary field updates. Deletes become tombstones that win over concurrent edits.
 4. **Ownership:** sync endpoints only ever return the authenticated user's rows.
 5. **Offline:** all reads and writes go to the local database first, so the UI never waits for the network.
 6. **Before enabling sync:** add `owner_id` and tombstones on the server, sync metadata (`dirty`, `server_updated_at`) on the device, and tests for each conflict case.

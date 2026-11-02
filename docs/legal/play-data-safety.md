@@ -26,7 +26,8 @@ for the Play listing.
 | App activity → App interactions | Yes | No | Required | App functionality, analytics (own progress only) | Practice results and revision ratings, shown back to the learner; no third-party analytics |
 | App activity → Other actions (Repeat Radar counts) | Yes, only if the learner opts in | No: only aggregated, agreed counts with no identifiers are shown to other users | Optional | App functionality | Topic / question-type counts per confirmed exam shift; published only when at least 2 accounts agree; read live, removed when sharing is turned off |
 | App info and performance → Diagnostics | No | — | — | — | No crash reporting or analytics SDK in the app |
-| Location, contacts, photos, audio, health, finance, messages, calendar, device ids | No | — | — | — | Not accessed |
+| Financial info → Purchase history | Yes, only for learners who buy Plus | No | Optional | App functionality | Google Play subscription state, product, expiry and purchase token, to give Plus; payment details stay with Google Play |
+| Location, contacts, photos, audio, health, other finance, messages, calendar, device ids | No | — | — | — | Not accessed |
 
 **AI assistance:** when a learner uses it, the question text or the chosen concept notes are sent to
 the AI provider to produce a result for that learner. This is processing by a service provider on
@@ -39,4 +40,5 @@ our behalf, not sharing. It's optional and off unless the server is configured.
 | `INTERNET` | Sync, papers, practice |
 | `POST_NOTIFICATIONS` | Daily study reminder, asked for only when the learner turns it on |
 | `RECEIVE_BOOT_COMPLETED` | Restores the reminder after a restart |
+| `com.android.vending.BILLING` | Added by Google Play Billing (`in_app_purchase`): buying PrepLoop Plus |
 | (none for exact alarms, location, contacts, storage) | Inexact alarms; the PDF picker uses the system document picker |

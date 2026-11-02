@@ -12,6 +12,7 @@ import secrets
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import jwt
 from argon2 import PasswordHasher
@@ -52,16 +53,32 @@ def hash_refresh_token(token: str) -> str:
 
 
 @dataclass(frozen=True, slots=True)
+class AccessClaims:
+    user_id: uuid.UUID
+    session_id: uuid.UUID | None  # refresh-token family = one signed-in device
+
+
+@dataclass(frozen=True, slots=True)
 class TokenSigner:
     """Signs and checks access tokens with the server secret."""
 
     secret: str
     access_minutes: int
 
-    def access_token(self, user_id: uuid.UUID, *, now: datetime | None = None) -> str:
+    def access_token(
+        self,
+        user_id: uuid.UUID,
+        *,
+        session_id: uuid.UUID | None = None,
+        now: datetime | None = None,
+    ) -> str:
+        """``session_id`` is the refresh-token family (the signed-in device); signing that
+        device out then ends its access tokens at once instead of when they expire."""
         issued = now or datetime.now(UTC)
+        claims: dict[str, Any] = {"sid": str(session_id)} if session_id else {}
         return jwt.encode(
             {
+                **claims,
                 "sub": str(user_id),
                 "type": "access",
                 "iss": ISSUER,
@@ -76,6 +93,11 @@ class TokenSigner:
 
     def user_id(self, token: str) -> uuid.UUID:
         """The user of a valid access token; raises ``UnauthorizedError`` otherwise."""
+        return self.claims(token).user_id
+
+    def claims(self, token: str) -> AccessClaims:
+        """User and device session of a valid access token; ``UnauthorizedError`` otherwise.
+        Tokens issued before sessions were recorded carry no session (``session_id`` None)."""
         try:
             claims = jwt.decode(
                 token,
@@ -92,6 +114,8 @@ class TokenSigner:
         if claims.get("type") != "access":
             raise UnauthorizedError("Invalid access token.")
         try:
-            return uuid.UUID(str(claims["sub"]))
+            user_id = uuid.UUID(str(claims["sub"]))
+            session_id = uuid.UUID(str(claims["sid"])) if "sid" in claims else None
         except ValueError as exc:
             raise UnauthorizedError("Invalid access token.") from exc
+        return AccessClaims(user_id=user_id, session_id=session_id)

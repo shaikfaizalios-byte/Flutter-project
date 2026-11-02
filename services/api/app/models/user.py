@@ -40,7 +40,14 @@ class RefreshToken(Base):
     a token that was already replaced (theft or replay) revokes the whole family."""
 
     __tablename__ = "refresh_tokens"
-    __table_args__ = (Index("ix_refresh_tokens_family", "family_id"),)
+    __table_args__ = (
+        Index("ix_refresh_tokens_family", "family_id"),
+        CheckConstraint(
+            "platform IS NULL"
+            " OR platform IN ('android', 'ios', 'web', 'windows', 'macos', 'linux')",
+            name="platform_valid",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -52,6 +59,9 @@ class RefreshToken(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # The kind of device the family was signed in on, as the app reports it (no device name or
+    # model is collected); copied to each rotated token. NULL for sign-ins before 0029.
+    platform: Mapped[str | None] = mapped_column(String(8))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

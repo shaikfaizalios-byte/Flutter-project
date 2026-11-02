@@ -5,6 +5,8 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
+from app.domain import languages
+
 DEVANAGARI = re.compile(r"[ऀ-ॿ]")
 LETTER = re.compile(r"[^\W\d_]", re.UNICODE)
 REPLACEMENT_CHAR = "�"
@@ -24,6 +26,9 @@ class ReviewReason:
     OCR_EMPTY = "ocr_found_no_text"
     OCR_FAILED = "ocr_failed"
     OCR_UNAVAILABLE = "ocr_unavailable"
+    # Global Phase 8 (app/domain/page_analysis.py):
+    TWO_COLUMNS = "two_columns"  # check the question order on this page
+    DEVANAGARI_IN_ENGLISH = "devanagari_in_english_document"  # read as English: check it
 
 
 def normalize_text(text: str) -> str:
@@ -68,5 +73,6 @@ def assess_text_layer(
 
 
 def ocr_languages(document_language: str) -> str:
-    """Tesseract language set. Hindi papers routinely mix in English, digits and symbols."""
-    return "hin+eng" if document_language == "hi" else "eng"
+    """Tesseract language set. Papers in other languages routinely mix in English, digits and
+    symbols, so English is added (see app/domain/languages.py)."""
+    return languages.ocr_languages(document_language)

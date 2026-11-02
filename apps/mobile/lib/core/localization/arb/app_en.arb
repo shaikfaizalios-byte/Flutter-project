@@ -531,6 +531,7 @@
     }
   },
   "mockStart": "Start mock test",
+  "mockFormatIncomplete": "This exam format is missing official details (marks, negative marking or time), so this mock is not available yet.",
   "mockUnavailable": "Not enough reviewed questions yet:",
   "mockSectionShort": "{subject}: {available} of {needed}",
   "@mockSectionShort": {
@@ -1284,6 +1285,228 @@
     }
   },
   "syncFailed": "Could not sync. It will be retried.",
+  "accountDevices": "Signed-in devices",
+  "devicesTitle": "Signed-in devices",
+  "devicesIntro": "Your account is signed in on these devices. Sign out any you don't recognise; they will need your password to sign in again. Only the kind of device is recorded, not its name.",
+  "devicesThisDevice": "This device",
+  "devicesLastActive": "Last active {date}",
+  "@devicesLastActive": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesSignedInAt": "Signed in {date}",
+  "@devicesSignedInAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devicePlatformAndroid": "Android phone or tablet",
+  "devicePlatformIos": "iPhone or iPad",
+  "devicePlatformWeb": "Web browser",
+  "devicePlatformWindows": "Windows computer",
+  "devicePlatformMacos": "Mac",
+  "devicePlatformLinux": "Linux computer",
+  "devicePlatformUnknown": "Device signed in before this list existed",
+  "devicesSignOut": "Sign out",
+  "devicesSignOutTitle": "Sign out {device}?",
+  "@devicesSignOutTitle": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesSignOutMessage": "It is signed out straight away. Study data on that device stays there until someone signs in again.",
+  "devicesSignOutOthers": "Sign out all other devices",
+  "devicesSignOutOthersTitle": "Sign out other devices?",
+  "devicesSignOutOthersMessage": "{count, plural, =1{1 other device will be signed out straight away.} other{{count} other devices will be signed out straight away.}}",
+  "@devicesSignOutOthersMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesSignedOut": "{count, plural, =0{No other devices were signed in.} =1{1 device signed out.} other{{count} devices signed out.}}",
+  "@devicesSignedOut": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesLoadFailed": "Could not load your devices",
+  "answerOriginPaperKey": "Answer from the paper's answer key, as PrepLoop read it.",
+  "answerOriginPaperInline": "Answer printed with the question in the paper, as PrepLoop read it.",
+  "answerOriginAi": "Answer written by AI with the question. Check it before approving.",
+  "answerOriginReviewerPaperSaid": "You set this answer. The paper said {answer}.",
+  "@answerOriginReviewerPaperSaid": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "answerOriginReviewerPaperNone": "You set this answer. The paper gave none.",
+  "answerOriginReviewerUnknown": "You set or changed this answer. What the paper said was not recorded (read before history was kept).",
+  "approveIsNotOfficial": "Approving means you checked this question. It is not an official answer key.",
+  "questionHistoryTitle": "Edit history",
+  "questionHistoryFailed": "Could not load the history",
+  "questionHistoryNone": "No history recorded for this question.",
+  "historyReadByRules": "Read from the paper by PrepLoop",
+  "historyReadByAi": "Read from the paper by AI",
+  "historyGenerated": "Written by AI",
+  "historyBaseline": "History starts here (read before history was kept)",
+  "historyEdited": "Changed in review: {fields}",
+  "@historyEdited": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "historyFieldWording": "wording",
+  "historyFieldOptions": "options",
+  "historyFieldAnswer": "answer",
+  "historyFieldExplanation": "explanation",
+  "historyAnswer": "Answer: {answer}",
+  "@historyAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "historyNoAnswer": "No answer",
+  "syncConflictsKept": "{count, plural, =1{1 note was changed on two devices; both versions were kept.} other{{count} notes were changed on two devices; both versions were kept.}}",
+  "@syncConflictsKept": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "conceptSyncConflictTitle": "Changed on two devices",
+  "conceptSyncConflictMessage": "Two devices changed this note before they synced. This copy holds one device's version; the note with the same title holds the other. Keep what you need, delete the other note, then remove the sync-conflict tag here.",
+  "plusPlayLabel": "Bought with Google Play.",
+  "plusManageInPlay": "Manage or cancel in Google Play",
+  "plusSubscribe": "Subscribe",
+  "plusRestore": "Restore purchases",
+  "plusPlayTerms": "Google Play takes the payment and renews the subscription until you cancel it in Google Play. Plus starts once PrepLoop has checked the purchase with Google.",
+  "plusPlayOnly": "Plus can be bought in the Android app from Google Play.",
+  "plusPlayUnavailable": "Google Play could not be reached. Try again later.",
+  "plusPurchasePending": "Google Play is waiting for your payment. Plus starts when it is complete.",
+  "plusPurchaseAdded": "Thank you! PrepLoop Plus is on.",
+  "plusPurchaseRefused": "Google Play did not confirm this purchase for this account. If you bought Plus with another PrepLoop account, sign in with that one.",
+  "plusPurchaseFailed": "The purchase couldn't be checked right now. It will be checked again; you won't be charged twice.",
+  "sessionSectionOf": "Section {index} of {count}: {name}",
+  "@sessionSectionOf": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionSectionHint": "This section has its own {minutes}-minute timer. When it ends, or when you finish it, the next section opens; you can't come back to it.",
+  "@sessionSectionHint": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionFinishSection": "Finish section",
+  "sessionFinishSectionTitle": "Finish this section?",
+  "sessionFinishSectionMessage": "{count, plural, =0{Every question in this section is answered.} =1{1 question in this section is unanswered.} other{{count} questions in this section are unanswered.}} You can't come back to this section.",
+  "@sessionFinishSectionMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionSectionTimeUp": "Time's up for that section. The next section is open.",
+  "topicCanonicalSuggested": "Same as the shared topic \"{topic}\" ({subject})?",
+  "@topicCanonicalSuggested": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      },
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "topicCanonicalLinked": "Counts as the shared topic \"{topic}\" ({subject})",
+  "@topicCanonicalLinked": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      },
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "topicCanonicalYes": "Yes, same",
+  "topicCanonicalNo": "No",
+  "starterCheckTitle": "Starter check",
+  "starterCheckHint": "A few questions from each subject, with no timer, to see where to start. Answers and explanations come after you submit.",
+  "starterCheckStart": "Take a starter check ({count} questions)",
+  "@starterCheckStart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "starterCheckDoneTitle": "Where to start",
+  "starterCheckDoneMessage": "The subject and topic results below show where to begin. Your study plan on Home now uses these answers. This is a starting point, not an exam score.",
+  "sharedReportTitle": "Report this shared paper",
+  "sharedReportIntro": "This question comes from a paper PrepLoop shares with every learner. Tell the PrepLoop team what's wrong; they review every report.",
+  "sharedReportRights": "It shouldn't be shared (copyright or permission)",
+  "sharedReportError": "Something in it is wrong",
+  "sharedReportOther": "Something else",
+  "sharedReportText": "What's the problem?",
+  "sharedReportTextHelp": "At least 10 characters. Don't include personal details.",
+  "sharedReportSent": "Thanks. The PrepLoop team will review it.",
+  "sharedReportTooMany": "You've sent 10 reports today. Please try again tomorrow.",
+  "sharedReportFailed": "The report couldn't be sent. Please try again.",
+  "markFigureAction": "Mark a figure on the page",
+  "markFigureTitle": "Mark the figure",
+  "markFigureHint": "Drag a box around the figure on the paper's page. PrepLoop keeps that part of the page with the question, as printed.",
+  "markFigureKeep": "Keep",
+  "markFigurePage": "Page {page}",
+  "@markFigurePage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "markFigurePreviousPage": "Previous page",
+  "markFigureNextPage": "Next page",
+  "markFigurePageFailed": "The page couldn't be loaded.",
+  "figureMarkedByYou": "Figure you marked (page {page})",
+  "@figureMarkedByYou": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "figureRemove": "Remove this figure",
   "accountExport": "Copy my data",
   "accountExported": "Your data was copied as JSON. Paste it into a file to keep it.",
   "accountSignOut": "Sign out",
@@ -2306,5 +2529,43 @@
   "@paperSolveUnmarked": {"placeholders": {"count": {"type": "int"}}},
   "paperSolveNoOptions": "This question's options weren't read from your PDF, so it can't be answered here. Fix it on the paper's review screen.",
   "paperSolveAiNoFigures": "This question depends on a figure, so AI can't check the answer.",
-  "conceptAiLabelKept": "Made from an AI lesson: it always stays labelled as AI-generated."
+  "conceptAiLabelKept": "Made from an AI lesson: it always stays labelled as AI-generated.",
+  "topicSecondsPerAnswer": "{seconds} s per answer",
+  "@topicSecondsPerAnswer": {"placeholders": {"seconds": {"type": "String"}}},
+  "topicRepeatedMistakes": "{count, plural, =1{1 question wrong more than once} other{{count} questions wrong more than once}}",
+  "@topicRepeatedMistakes": {"placeholders": {"count": {"type": "int"}}},
+  "reasonOftenForgotten": "often forgotten",
+  "reasonRepeatedMistakes": "the same mistakes again",
+  "reasonSlower": "slower than your usual pace",
+  "planRefreshTitle": "Refresh {topic}",
+  "@planRefreshTitle": {"placeholders": {"topic": {"type": "String"}}},
+  "reasonNotPractisedFor": "Not practised for {days} days",
+  "@reasonNotPractisedFor": {"placeholders": {"days": {"type": "int"}}},
+  "progressRulesMore": "A topic is also weak with {mistakes} or more questions answered wrong in two sessions, or when its answers take {factor} times your usual time (after {timed} timed answers). A topic not practised for {days} days is suggested for a refresh.",
+  "@progressRulesMore": {"placeholders": {"mistakes": {"type": "int"}, "factor": {"type": "String"}, "timed": {"type": "int"}, "days": {"type": "int"}}},
+  "readinessTitle": "Readiness",
+  "readinessCoverage": "{practised} of {topics} syllabus topics practised",
+  "@readinessCoverage": {"placeholders": {"practised": {"type": "int"}, "topics": {"type": "int"}}},
+  "readinessStrong": "{strong} strong or mastered",
+  "@readinessStrong": {"placeholders": {"strong": {"type": "int"}}},
+  "readinessSubject": "{practised}/{topics} practised · {strong} strong",
+  "@readinessSubject": {"placeholders": {"practised": {"type": "int"}, "topics": {"type": "int"}, "strong": {"type": "int"}}},
+  "readinessNoSyllabus": "Add your syllabus topics to see how much of the syllabus you have covered.",
+  "readinessEvidenceTitle": "Evidence so far",
+  "readinessRecent": "{answers} answers in the last {days} days, {percent} correct",
+  "@readinessRecent": {"placeholders": {"answers": {"type": "int"}, "days": {"type": "int"}, "percent": {"type": "String"}}},
+  "readinessNoRecent": "No practice answers in the last {days} days.",
+  "@readinessNoRecent": {"placeholders": {"days": {"type": "int"}}},
+  "readinessOffline": "Practice evidence needs a connection.",
+  "readinessMocks": "{count, plural, =1{1 mock test} other{{count} mock tests}} in the last {days} days; latest: {score} of {max} on {date}",
+  "@readinessMocks": {"placeholders": {"count": {"type": "int"}, "days": {"type": "int"}, "score": {"type": "String"}, "max": {"type": "String"}, "date": {"type": "String"}}},
+  "readinessNoMock": "No mock test submitted yet.",
+  "readinessNotPrediction": "This shows what you have covered and what your answers show so far. It is not a prediction of your result.",
+  "settingsAppLanguage": "App",
+  "settingsContentLanguage": "Papers, syllabus and notes",
+  "settingsContentLanguageHint": "Chosen first when you add a paper, syllabus or note; you can still pick another each time.",
+  "settingsAiLanguage": "AI lessons and checks",
+  "settingsAiLanguageHint": "AI explanations are written in their question's language.",
+  "languageSameAsApp": "Same as app",
+  "mockSectionsIndicative": "the notice gives this section split as indicative; real papers may vary"
 }

@@ -35,6 +35,7 @@ import 'app_shell.dart';
 import 'app_features.dart';
 import 'routes.dart';
 import '../features/feedback/presentation/suggestions_screen.dart';
+import '../features/auth/presentation/devices_screen.dart';
 import '../features/plus/presentation/plus_screen.dart';
 import '../features/ai/data/ai_repository.dart';
 import '../features/learn/presentation/topic_lesson_screen.dart';
@@ -107,6 +108,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.myExams, builder: (context, state) => const MyExamsScreen()),
       GoRoute(path: AppRoutes.suggestions, builder: (context, state) => const SuggestionsScreen()),
       GoRoute(path: AppRoutes.plus, builder: (context, state) => const PlusScreen()),
+      GoRoute(path: AppRoutes.devices, builder: (context, state) => const DevicesScreen()),
       GoRoute(
         path: '/profile/exams/:code',
         builder: (context, state) => ExamTopicsScreen(

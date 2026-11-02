@@ -228,3 +228,44 @@ def test_counts_can_be_split_by_exam(
     only_cgl = overview(api, exam="SSC_CGL")
     assert (only_cgl["answered"], only_cgl["correct"]) == (2, 2)
     assert [s["name"] for s in only_cgl["subjects"]] == ["English Language"]
+
+
+def test_topics_carry_time_recency_and_repeated_mistakes(
+    api: TestClient, db_session: Session, document: Document, clock: Clock
+) -> None:
+    """Global Phase 9: raw counts for the diagnosis (speed, staleness, repeated errors)."""
+    ratio = topic(db_session, "Quantitative Aptitude", "Analytics Ratio")
+    for _ in range(2):
+        make_question(db_session, document, topic=ratio)
+    owner = topic_row_owner(db_session, ratio)
+    service = PracticeService(db_session, owner_id=owner, now=clock)
+    for day, spent in ((0, 30_000), (2, None)):
+        clock.now = LATE_EVENING_UTC + timedelta(days=day)
+        session = service.start_practice(PracticeCreate(topic_id=ratio.id, count=2))
+        for position in (1, 2):  # both wrong (option 1 is right)
+            service.answer(
+                session.id,
+                position,
+                AnswerUpdate(selected_position=2, client_seq=position, time_spent_ms=spent),
+            )
+
+    data = overview(api)
+    row = next(t for t in data["topics"] if t["name"] == "Analytics Ratio")
+    assert (row["answered"], row["correct"]) == (4, 0)
+    assert (row["timed_answered"], row["time_spent_ms"]) == (2, 60_000)  # untimed not counted
+    assert row["last_answered_on"] == "2026-10-15"  # local day in India
+    assert row["repeated_mistakes"] == 2  # each question wrong in two sessions
+    assert (data["timed_answered"], data["time_spent_ms"]) == (2, 60_000)
+
+
+def test_one_wrong_answer_is_not_a_repeated_mistake(
+    api: TestClient, db_session: Session, document: Document, clock: Clock
+) -> None:
+    pct = topic(db_session, "Quantitative Aptitude", "Analytics Once")
+    make_question(db_session, document, topic=pct)
+    practise(db_session, clock, pct, [2])
+    practise(db_session, clock, pct, [1])
+
+    row = next(t for t in overview(api)["topics"] if t["name"] == "Analytics Once")
+    assert row["repeated_mistakes"] == 0
+    assert row["timed_answered"] == 0

@@ -12,6 +12,7 @@ import '../../ai/presentation/ai_widgets.dart';
 import '../../question_bank/domain/question.dart';
 import '../../question_bank/presentation/figure_view.dart';
 import '../../question_bank/presentation/question_widgets.dart';
+import '../../question_bank/presentation/shared_report.dart';
 import '../application/practice_providers.dart';
 import '../domain/practice_models.dart';
 import 'result_view.dart';
@@ -89,13 +90,51 @@ class _SessionBody extends ConsumerWidget {
     }
   }
 
+  Future<void> _finishSection(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final section = state.session.openSection;
+    if (section == null) return;
+    final unanswered = [
+      for (final i in state.session.items)
+        if (section.contains(i.position) && !i.answered) i,
+    ].length;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.sessionFinishSectionTitle),
+        content: Text(l10n.sessionFinishSectionMessage(unanswered)),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(l10n.cancel)),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.sessionFinishSection),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await _controller(ref).finishSection();
+    } on Object {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.sessionSubmitFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final session = state.session;
     final item = state.item;
     final isMock = session.mode == SessionMode.mock;
+    // Mocks and the starter check: answers can change and are marked after submitting.
+    final testLike = session.mode.testLike;
     final last = state.current == session.items.length - 1;
+    final open = session.openSection;
+    final canGoBack =
+        state.current > 0 && session.isOpen(session.items[state.current - 1].position);
+    // The open section's last question (another section follows): finish it to move on.
+    final endOfSection = open != null && !last && item.position == open.lastPosition;
 
     return Scaffold(
       appBar: AppBar(
@@ -108,11 +147,13 @@ class _SessionBody extends ConsumerWidget {
               icon: Icon(item.bookmarked ? Icons.bookmark : Icons.bookmark_border),
               onPressed: () => _controller(ref).toggleBookmark(),
             ),
-          if (item.questionId != null && !item.shared && !session.offline)
+          if (item.questionId != null && !session.offline)
             IconButton(
-              tooltip: l10n.reportTitle,
+              tooltip: item.shared ? l10n.sharedReportTitle : l10n.reportTitle,
               icon: const Icon(Icons.flag_outlined),
-              onPressed: () => reportQuestion(context, ref, item.questionId!),
+              onPressed: () => item.shared
+                  ? reportSharedContent(context, ref, item.questionId!)
+                  : reportQuestion(context, ref, item.questionId!),
             ),
           if (isMock)
             IconButton(
@@ -122,7 +163,7 @@ class _SessionBody extends ConsumerWidget {
             ),
           TextButton(
             onPressed: state.submitting ? null : () => _submit(context, ref),
-            child: Text(isMock ? l10n.sessionSubmit : l10n.sessionFinish),
+            child: Text(testLike ? l10n.sessionSubmit : l10n.sessionFinish),
           ),
         ],
       ),
@@ -133,6 +174,36 @@ class _SessionBody extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.md),
             children: [
+              if (open != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Card(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    child: ListTile(
+                      leading: const Icon(Icons.timer_outlined),
+                      title: Text(
+                        l10n.sessionSectionOf(
+                          session.currentSection! + 1,
+                          session.sections.length,
+                          open.name,
+                        ),
+                      ),
+                      subtitle: Text(l10n.sessionSectionHint(open.minutes)),
+                    ),
+                  ),
+                ),
+              if (session.mode == SessionMode.diagnostic)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Card(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    child: ListTile(
+                      leading: const Icon(Icons.flag_outlined),
+                      title: Text(l10n.starterCheckTitle),
+                      subtitle: Text(l10n.starterCheckHint),
+                    ),
+                  ),
+                ),
               if (session.offline)
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -190,7 +261,7 @@ class _SessionBody extends ConsumerWidget {
                 _TypedAnswerBox(
                   key: ValueKey('typed-${item.position}'),
                   item: item,
-                  locked: !isMock && item.answered,
+                  locked: !testLike && item.answered,
                   onSubmit: (text) => _controller(ref).submitTyped(text),
                 ),
               for (final option in item.options)
@@ -219,7 +290,9 @@ class _SessionBody extends ConsumerWidget {
                     const Icon(Icons.cloud_upload_outlined, size: 18),
                     const SizedBox(width: AppSpacing.xs),
                     Expanded(
-                      child: Text(isMock ? l10n.sessionSavedOffline : l10n.sessionFeedbackOffline),
+                      child: Text(
+                        testLike ? l10n.sessionSavedOffline : l10n.sessionFeedbackOffline,
+                      ),
                     ),
                   ],
                 ),
@@ -235,16 +308,19 @@ class _SessionBody extends ConsumerWidget {
           child: Row(
             children: [
               OutlinedButton(
-                onPressed: state.current == 0
-                    ? null
-                    : () => _controller(ref).goTo(state.current - 1),
+                onPressed: canGoBack ? () => _controller(ref).goTo(state.current - 1) : null,
                 child: Text(l10n.sessionPrevious),
               ),
               const Spacer(),
-              if (last)
+              if (endOfSection)
+                FilledButton(
+                  onPressed: state.submitting ? null : () => _finishSection(context, ref),
+                  child: Text(l10n.sessionFinishSection),
+                )
+              else if (last)
                 FilledButton(
                   onPressed: state.submitting ? null : () => _submit(context, ref),
-                  child: Text(isMock ? l10n.sessionSubmit : l10n.sessionFinish),
+                  child: Text(testLike ? l10n.sessionSubmit : l10n.sessionFinish),
                 )
               else
                 FilledButton(
@@ -277,14 +353,15 @@ class _SessionBody extends ConsumerWidget {
                 runSpacing: AppSpacing.xs,
                 children: [
                   for (final (index, item) in state.session.items.indexed)
-                    ChoiceChip(
-                      label: Text('${index + 1}'),
-                      selected: item.selectedPosition != null,
-                      onSelected: (_) {
-                        Navigator.of(sheetContext).pop();
-                        _controller(ref).goTo(index);
-                      },
-                    ),
+                    if (state.session.isOpen(item.position))
+                      ChoiceChip(
+                        label: Text('${index + 1}'),
+                        selected: item.selectedPosition != null,
+                        onSelected: (_) {
+                          Navigator.of(sheetContext).pop();
+                          _controller(ref).goTo(index);
+                        },
+                      ),
                 ],
               ),
             ],
@@ -495,8 +572,23 @@ class _CountdownState extends ConsumerState<_Countdown> {
     final now = DateTime.now();
     if (left == 0 && !_submitting && (_retryAfter == null || now.isAfter(_retryAfter!))) {
       _submitting = true;
-      _submitOnTimeUp();
+      final lastSection =
+          widget.state.session.currentSection == widget.state.session.sections.length - 1;
+      widget.state.session.sectional && !lastSection ? _nextSection() : _submitOnTimeUp();
     }
+  }
+
+  /// A section's time is up: the server opened the next one; load it.
+  Future<void> _nextSection() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(sessionControllerProvider(widget.sessionId).notifier).refresh();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.sessionSectionTimeUp)));
+    } on Object {
+      _retryAfter = DateTime.now().add(const Duration(seconds: 15));
+    }
+    _submitting = false;
   }
 
   Future<void> _submitOnTimeUp() async {

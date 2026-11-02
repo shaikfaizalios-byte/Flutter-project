@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/widgets/adaptive_action.dart';
@@ -9,6 +10,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
+import '../../mastery/presentation/readiness_card.dart';
 import '../../revision/application/revision_providers.dart';
 import '../../study_plan/presentation/study_profile_widgets.dart';
 import '../application/analytics_providers.dart';
@@ -50,6 +52,8 @@ class ProgressScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
+                const ReadinessCard(),
+                const SizedBox(height: AppSpacing.md),
                 switch (practice) {
                   AsyncData(:final value) => _PracticeSections(stats: value),
                   _ => Card(
@@ -75,6 +79,15 @@ class ProgressScreen extends ConsumerWidget {
                     formatPercent(context, AnalyticsRules.weakForgetRate),
                     AnalyticsRules.minReviews,
                     AnalyticsRules.recentDays,
+                  ),
+                ),
+                MutedLine(
+                  l10n.progressRulesMore(
+                    AnalyticsRules.minRepeatedMistakes,
+                    NumberFormat.decimalPattern(Localizations.localeOf(context).toLanguageTag())
+                        .format(AnalyticsRules.slowFactor),
+                    AnalyticsRules.minTimedAnswers,
+                    AnalyticsRules.refreshAfterDays,
                   ),
                 ),
               ],

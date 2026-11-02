@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.api.v1.endpoints.plus import get_plus_service
 from app.cli import plus as plus_cli
 from app.core.config import Settings
+from app.domain import ai_content
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
 from app.models.ai import AIGeneration
@@ -76,7 +77,7 @@ def log_ai(db: Session, user: User, outcome: str, at: datetime) -> None:
             task="quick_answer",
             provider="fake",
             model="fake-model-1",
-            prompt_version="p9.5",
+            prompt_version=ai_content.PROMPT_VERSION,
             outcome=outcome,
             detail="",
             input_tokens=1,
@@ -109,6 +110,8 @@ def test_status_counts_this_months_successful_ai_requests(
         "period_resets_at": "2026-11-01T00:00:00Z",
         "test_mode": False,
         "purchases_available": False,
+        "play_product_ids": [],
+        "play_account_id": None,
     }
 
 

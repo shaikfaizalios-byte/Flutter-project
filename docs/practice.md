@@ -32,10 +32,30 @@ review edits to a question therefore never change a session that has already sta
   count per section, duration and negative marks all come from the format row.
   - Marks per question = section `max_marks` ÷ section `questions`.
   - Wrong answer = −`negative_marks_per_wrong`.
+  - Nothing is filled in with a default. The pure `app/domain/exam_format.py` `format_problems()`
+    lists every missing fact (a section without subject, question count or `max_marks`; counts that
+    don't add up to `total_questions`; no duration; negative marking not stated — `0` means "none",
+    `NULL` means "not verified"). A format with problems is listed with `available: false` and
+    `format_problems` (English details; the app shows a localised "missing official details" line),
+    and starting it returns `422 format_incomplete`. `tests/test_exam_format.py` also checks that
+    every seeded format is complete.
 - `GET /practice/mock-tests` lists each format with `available` and per-section `needed` / `available`
   counts. If any section lacks enough verified questions, starting it returns
   `422 not_enough_questions`, and the message says which sections are short. Sections are matched by subject name,
   never by position.
+- **Sectional timers** (global Phase 5, migration 0033): a format with `sectional_timing` (SSC CGL
+  2026 Tier-I: 4 × 15 min, fixed order) gives the mock a section plan copied into
+  `selection.sections` (name, first/last position, minutes) plus `current_section` /
+  `section_started_at`. Pure rules in `app/domain/sections.py`: a section closes when its own time is
+  up (the next opens at that moment) or when the learner finishes it early
+  (`POST /practice/sessions/{id}/next-section` with `from_section`, harmless when retried); a closed
+  section can't be reopened; closing the last one submits (`time_up` at the last section's end, or
+  `user`). Answers outside the open section → `409 section_closed`; questions of sections not open yet
+  come without content. `SessionRead` adds `sections`, `current_section`, `section_deadline_at`. The
+  app shows "Section x of n", the section's own countdown, Finish section (no way back), and loads the
+  next section when the time is up. Finishing a section early is this mock's choice; the official
+  notice records the timers, not whether a section can be left early. Mocks started before 0033 keep
+  one overall timer. Formats without sectional timing (CHSL) are unchanged.
 - Questions are sampled with a recorded random seed (`selection.seed`) for reproducibility.
 - Answers can be changed until submission. **No feedback** is shown until the test is submitted.
 

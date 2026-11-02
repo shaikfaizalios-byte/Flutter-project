@@ -63,6 +63,12 @@ final mockTestsProvider = FutureProvider.autoDispose<List<MockTestView>>((ref) a
   ];
 }, retry: _noRetry);
 
+/// How many questions a starter check would ask for [examCode] (0: none available yet).
+final starterCheckSizeProvider = FutureProvider.autoDispose.family<int, String>(
+  (ref, examCode) => ref.watch(practiceRepositoryProvider).starterCheckSize(examCode),
+  retry: _noRetry,
+);
+
 final sessionHistoryProvider = FutureProvider.autoDispose<List<SessionSummaryView>>((ref) async {
   final exam = ref.watch(activeExamProvider);
   final sessions = await ref.watch(practiceRepositoryProvider).history();
@@ -129,14 +135,39 @@ class SessionState {
     submitting: submitting ?? this.submitting,
   );
 
-  /// Seconds left on a mock test, from the server deadline (null when untimed).
+  /// Seconds left on a mock test, from the server deadline (null when untimed). In a
+  /// sectionally timed mock this is the open section's time.
   int? remainingSeconds(DateTime deviceNow) {
-    final deadline = session.deadlineAt;
+    final deadline = session.sectional ? session.sectionDeadlineAt : session.deadlineAt;
     if (deadline == null || session.submitted) return null;
     final serverNow = deviceNow.add(clockOffset);
     final left = deadline.difference(serverNow).inSeconds;
     return left < 0 ? 0 : left;
   }
+}
+
+/// Where to start in [session]: the first unanswered question that can be answered now.
+int _startIndex(PracticeSessionView session) {
+  if (session.submitted) return 0;
+  final open = [
+    for (final (i, item) in session.items.indexed)
+      if (session.isOpen(item.position)) i,
+  ];
+  if (open.isEmpty) return 0;
+  return open.firstWhere((i) => !session.items[i].answered, orElse: () => open.first);
+}
+
+/// Time on a question (from when it was last shown until it was answered) above this is not
+/// recorded: the learner probably left the screen. Used for the speed signal (docs/analytics.md).
+const maxTimedAnswer = Duration(minutes: 10);
+
+/// Milliseconds between [shownAt] and [answeredAt], or null when unknown or too long to be
+/// time spent on the question.
+int? timeOnQuestion(DateTime? shownAt, DateTime answeredAt) {
+  if (shownAt == null) return null;
+  final spent = answeredAt.difference(shownAt);
+  if (spent.isNegative || spent > maxTimedAnswer) return null;
+  return spent.inMilliseconds;
 }
 
 /// Drives one session screen. The server is the source of truth; answers go through the
@@ -148,22 +179,70 @@ class SessionController extends AsyncNotifier<SessionState> {
 
   PracticeRepository get _repo => ref.read(practiceRepositoryProvider);
 
+  /// When the current question was shown (for the time spent on it).
+  DateTime? _shownAt;
+
+  DateTime _now() => ref.read(clockProvider)();
+
+  int? _timeSpent() => timeOnQuestion(_shownAt, _now());
+
   @override
   Future<SessionState> build() async {
     final fetchedAt = ref.read(clockProvider)();
     final session = await _repo.session(sessionId);
-    final current = session.items.indexWhere((i) => !i.answered);
+    _shownAt = _now();
     return SessionState(
       session: session,
       clockOffset: session.serverNow.difference(fetchedAt),
-      current: session.submitted || current < 0 ? 0 : current,
+      current: _startIndex(session),
     );
   }
 
   void goTo(int index) {
     final value = state.value;
     if (value == null || index < 0 || index >= value.session.items.length) return;
+    if (!value.session.isOpen(value.session.items[index].position)) return;
+    _shownAt = _now();
     state = AsyncData(value.copyWith(current: index));
+  }
+
+  /// Closes the open section early in a sectionally timed mock; the next one opens (the
+  /// last one submits the test).
+  Future<void> finishSection() async {
+    final value = state.value;
+    final section = value?.session.currentSection;
+    if (value == null || section == null || value.session.submitted || value.submitting) return;
+    state = AsyncData(value.copyWith(submitting: true));
+    try {
+      final updated = await _repo.finishSection(sessionId, section);
+      _replace(updated, value.clockOffset);
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Finishing a section failed', error, stack);
+      state = AsyncData(value.copyWith(submitting: false));
+      rethrow;
+    }
+  }
+
+  /// Reloads the session from the server (a section's time ran out: the server opens the
+  /// next one, or submits after the last).
+  Future<void> refresh() async {
+    final value = state.value;
+    if (value == null) return;
+    final fetchedAt = ref.read(clockProvider)();
+    final updated = await _repo.session(sessionId);
+    _replace(updated, updated.serverNow.difference(fetchedAt));
+  }
+
+  void _replace(PracticeSessionView session, Duration clockOffset) {
+    _shownAt = _now();
+    state = AsyncData(
+      SessionState(session: session, clockOffset: clockOffset, current: _startIndex(session)),
+    );
+    if (session.submitted) {
+      ref
+        ..invalidate(sessionHistoryProvider)
+        ..invalidate(incorrectQuestionsProvider);
+    }
   }
 
   /// Returns false when the answer could not be saved (e.g. the session closed).
@@ -173,7 +252,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     final item = value.item;
     // Practice answers are final once given.
     if (value.session.mode == SessionMode.practice && item.answered) return false;
-    final next = value.session.mode == SessionMode.mock && item.selectedPosition == optionPosition
+    final next = value.session.mode.testLike && item.selectedPosition == optionPosition
         ? null // tapping the chosen option again clears it in a mock
         : optionPosition;
 
@@ -181,7 +260,12 @@ class SessionController extends AsyncNotifier<SessionState> {
       value.copyWith(session: value.session.withItem(item.copyWith(selectedPosition: () => next))),
     );
     try {
-      final outcome = await _repo.answer(sessionId, item.position, next);
+      final outcome = await _repo.answer(
+        sessionId,
+        item.position,
+        next,
+        timeSpentMs: next == null ? null : _timeSpent(),
+      );
       final latest = state.value!;
       final queued = {...latest.queuedPositions};
       outcome.queued ? queued.add(item.position) : queued.remove(item.position);
@@ -197,8 +281,8 @@ class SessionController extends AsyncNotifier<SessionState> {
       );
       return true;
     } on ServerFailure catch (failure) {
-      if (failure.code == 'session_closed') {
-        ref.invalidateSelf(); // reload the submitted session and its result
+      if (failure.code == 'session_closed' || failure.code == 'section_closed') {
+        ref.invalidateSelf(); // reload: the session was submitted or its section closed
       }
       return false;
     } on Object catch (error, stack) {
@@ -219,7 +303,13 @@ class SessionController extends AsyncNotifier<SessionState> {
       value.copyWith(session: value.session.withItem(item.copyWith(typedAnswer: () => answer))),
     );
     try {
-      final outcome = await _repo.answer(sessionId, item.position, null, typedAnswer: answer);
+      final outcome = await _repo.answer(
+        sessionId,
+        item.position,
+        null,
+        typedAnswer: answer,
+        timeSpentMs: _timeSpent(),
+      );
       final latest = state.value!;
       final queued = {...latest.queuedPositions};
       outcome.queued ? queued.add(item.position) : queued.remove(item.position);
@@ -235,7 +325,9 @@ class SessionController extends AsyncNotifier<SessionState> {
       );
       return true;
     } on ServerFailure catch (failure) {
-      if (failure.code == 'session_closed') ref.invalidateSelf();
+      if (failure.code == 'session_closed' || failure.code == 'section_closed') {
+        ref.invalidateSelf();
+      }
       return false;
     } on Object catch (error, stack) {
       logError('Saving typed answer failed', error, stack);

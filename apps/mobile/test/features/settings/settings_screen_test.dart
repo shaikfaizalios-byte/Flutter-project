@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:preploop/core/localization/content_language.dart';
+import 'package:preploop/features/settings/application/app_preferences.dart';
+import 'package:preploop/features/settings/presentation/settings_screen.dart';
+
 import '../../helpers/pump_app.dart';
 
 Future<void> openProfile(WidgetTester tester) async {
@@ -38,13 +43,43 @@ void main() {
     await pumpPrepLoopApp(tester, db);
     await openProfile(tester);
 
-    await scrollTo(tester, find.text('हिन्दी'));
-    await tester.tap(find.text('हिन्दी'));
+    // The first Hindi button is the app's language (the others are content languages).
+    final appHindi = find
+        .descendant(of: find.byType(SettingsScreen), matching: find.text('हिन्दी'))
+        .first;
+    await scrollWithin(tester, SettingsScreen, find.text('Papers, syllabus and notes'));
+    await tester.ensureVisible(appHindi);
+    await tester.pumpAndSettle();
+    await tester.tap(appHindi);
     await tester.pumpAndSettle();
 
     expect(find.text('प्रोफ़ाइल और सेटिंग्स'), findsOneWidget);
     expect(find.text('होम'), findsOneWidget);
     expect(find.text('Home'), findsNothing);
+  });
+
+  testAppWidgets('papers and AI lessons can have their own language', (tester, db) async {
+    await pumpPrepLoopApp(tester, db);
+    await openProfile(tester);
+    await scrollTo(tester, find.text('AI lessons and checks'));
+    expect(find.text('Same as app'), findsNWidgets(2));
+
+    // Papers, syllabus and notes in Hindi while the app stays in English.
+    final papersHindi = find
+        .descendant(of: find.byType(SettingsScreen), matching: find.text('हिन्दी'))
+        .at(1);
+    await scrollWithin(tester, SettingsScreen, find.text('Papers, syllabus and notes'));
+    await tester.ensureVisible(papersHindi);
+    await tester.pumpAndSettle();
+    await tester.tap(papersHindi);
+    await tester.pumpAndSettle();
+
+    final prefs = ProviderScope.containerOf(tester.element(find.byType(SettingsScreen)))
+        .read(appPreferencesProvider);
+    expect(prefs.contentLanguage, ContentLanguage.hindi);
+    expect(prefs.aiLanguage, isNull);
+    expect(find.text('Home'), findsOneWidget); // the interface language is unchanged
+    expect(find.textContaining("in their question's language"), findsOneWidget);
   });
 
   testAppWidgets('follows a Hindi device locale by default', (tester, db) async {

@@ -131,6 +131,62 @@ class FakeAuthApi implements AuthApi {
     verificationCode = '654321';
   }
 
+  /// Signed-in devices the fake server reports (this one first).
+  List<SignedInDevice> deviceList = [
+    SignedInDevice(
+      id: 'device-here',
+      platform: 'android',
+      signedInAt: DateTime.utc(2026, 10, 1, 9),
+      lastActiveAt: DateTime.utc(2026, 11, 1, 9),
+      current: true,
+    ),
+  ];
+  final signedOutDevices = <String>[];
+
+  /// When true, device calls fail with 401 once (an expired access token).
+  bool devicesNeedRefresh = false;
+
+  void _fresh() {
+    if (devicesNeedRefresh) {
+      devicesNeedRefresh = false;
+      throw const ServerFailure(statusCode: 401, code: 'unauthorized');
+    }
+  }
+
+  @override
+  Future<List<SignedInDevice>> devices(String accessToken) async {
+    _online();
+    _fresh();
+    return List.of(deviceList);
+  }
+
+  @override
+  Future<void> signOutDevice(String accessToken, String deviceId) async {
+    _online();
+    _fresh();
+    signedOutDevices.add(deviceId);
+    deviceList = [
+      for (final d in deviceList)
+        if (d.id != deviceId) d,
+    ];
+  }
+
+  @override
+  Future<int> signOutOtherDevices(String accessToken) async {
+    _online();
+    _fresh();
+    final others = [
+      for (final d in deviceList)
+        if (!d.current) d.id,
+    ];
+    signedOutDevices.addAll(others);
+    deviceList = [
+      for (final d in deviceList)
+        if (d.current) d,
+    ];
+    return others.length;
+  }
+
   @override
   Future<AuthUser> confirmVerification(String accessToken, String code) async {
     _online();

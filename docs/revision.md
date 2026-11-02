@@ -43,6 +43,25 @@ The review screen fixes today's due list when it opens. The learner sees the fro
 A summary shows the counts per rating. The dashboard's "What should I study today?" shows the cards due (and
 overdue), or the next review date. It is still not a generated study plan (Phase 8).
 
+## FSRS check (global Phase 9, operator only)
+
+The ladder stays the scheduler. Before FSRS could ever become the default, the operator checks it against the
+learners' real history: `python -m app.cli.fsrs_eval` replays every synced `card_review` (learners who use sync)
+per card and prints aggregate numbers only (no account, card or text):
+
+- `reviews_scored`, `recall_rate`; FSRS's log loss and RMSE against a constant guess (the overall recall rate,
+  computed in-sample, which favours the guess);
+- calibration (predicted vs actual recall in 10 bins) and recall at the ladder's gaps (1, 2-3, 4-7, 8-14, 15-30,
+  31+ days), which shows whether the ladder's gaps are too short or too long;
+- `verdict`: `insufficient_data` (under 1 000 scored reviews or 100 cards), `fsrs_fits_better` (log loss at least
+  5 % lower than the guess) or `no_clear_gain`.
+
+Model: FSRS-4.5 formulas with its published default weights (`app/domain/fsrs.py`), not fitted to PrepLoop data;
+check them against the reference implementation before relying on a result. The first review of a card only sets
+its state; same-day repeats are not scored; days are UTC calendar days. Changing the default needs a positive
+verdict on real data, an in-app option that keeps the ladder, and a privacy-policy check (nothing new leaves the
+device: card reviews are already synced).
+
 ## Daily reminder (`features/reminders`)
 
 - **Packages** (added in Phase 7):
