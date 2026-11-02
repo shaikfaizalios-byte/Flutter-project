@@ -19,6 +19,7 @@ missing mark, count, timer or source cannot be published.
 
 import argparse
 import json
+import re
 import sys
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -30,7 +31,6 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.database.session import build_engine, build_sessionmaker
-from app.domain.languages import CODES, is_supported
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
 from app.models.question import ExamFormat, FormatStatus
 from app.services.content import audit
@@ -64,12 +64,17 @@ class FormatFile(BaseModel):
     duration_minutes: int | None = None
     negative_marks_per_wrong: float | None = None
     sectional_timing: bool = False
+    # True when the notice says its section-wise question counts are only indicative.
+    section_counts_indicative: bool = False
     question_types: list[str] = ["choice"]
     effective_from: date | None = None
     effective_to: date | None = None
     supersedes: str | None = None
     source: _Source
     review_notes: Annotated[str, StringConstraints(max_length=500)] | None = None
+
+
+ISO_639 = re.compile(r"[a-z]{2,3}")
 
 
 def import_format(session: Session, data: dict[str, Any]) -> tuple[ExamFormat, list[str]]:
@@ -96,6 +101,7 @@ def import_format(session: Session, data: dict[str, Any]) -> tuple[ExamFormat, l
         duration_minutes=spec.duration_minutes,
         negative_marks_per_wrong=spec.negative_marks_per_wrong,
         sectional_timing=spec.sectional_timing,
+        section_counts_indicative=spec.section_counts_indicative,
         question_types=spec.question_types,
         effective_from=spec.effective_from,
         effective_to=spec.effective_to,
@@ -186,10 +192,12 @@ def set_exam(
     if aliases is not None:
         exam.aliases = [a.strip()[:60] for a in aliases if a.strip()]
     if languages is not None:
-        unknown = [code for code in languages if not is_supported(code)]
-        if unknown:
+        # The exam's own languages, as the notice states them: any ISO 639 code, whether or not
+        # PrepLoop supports content in it (app/domain/languages.py is about PrepLoop's content).
+        invalid = [code for code in languages if not ISO_639.fullmatch(code)]
+        if invalid:
             raise ValueError(
-                f"Unsupported language {', '.join(unknown)}; supported: {', '.join(CODES)}."
+                f"Not an ISO 639 language code: {', '.join(invalid)} (use e.g. en, hi, kok)."
             )
         exam.languages = list(dict.fromkeys(languages))
     return exam

@@ -262,6 +262,8 @@ class MockAvailability(BaseModel):
     duration_minutes: int | None
     negative_marks_per_wrong: float | None
     sections: list[SectionAvailability]
+    # The notice gives the section split as only indicative: real papers may vary.
+    section_counts_indicative: bool = False
 
 
 class QuestionHistory(BaseModel):

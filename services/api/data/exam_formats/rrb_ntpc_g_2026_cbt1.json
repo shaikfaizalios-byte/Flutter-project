@@ -1,0 +1,42 @@
+{
+  "code": "RRB_NTPC_G_2026_CBT1",
+  "exam_code": "RRB_NTPC",
+  "tier": "Graduate 1st Stage CBT",
+  "name": "RRB NTPC Graduate 2026 1st Stage CBT (CEN 06/2026)",
+  "sections": [
+    {
+      "part": "1",
+      "subject": "General Awareness",
+      "questions": 40,
+      "max_marks": 40
+    },
+    {
+      "part": "2",
+      "subject": "Mathematics",
+      "questions": 30,
+      "max_marks": 30
+    },
+    {
+      "part": "3",
+      "subject": "General Intelligence and Reasoning",
+      "questions": 30,
+      "max_marks": 30
+    }
+  ],
+  "sections_in_fixed_order": false,
+  "total_questions": 100,
+  "duration_minutes": 90,
+  "negative_marks_per_wrong": 0.3333333333333333,
+  "sectional_timing": false,
+  "section_counts_indicative": true,
+  "question_types": [
+    "choice"
+  ],
+  "source": {
+    "title": "RRB Centralised Employment Notice CEN No. 06/2026, Non-Technical Popular Categories (Graduate)",
+    "url": "https://rrb.indianrailways.gov.in",
+    "reference": "CEN No. 06/2026 para 13.1 (duration, questions of 1 mark each, section split given as only indicative, 1/3 mark deducted per wrong answer)",
+    "published_on": "2026-09-26"
+  },
+  "review_notes": "published_on = date of the indicative notice in Employment News (the detailed CEN states no other date). The notice states no section order: sections_in_fixed_order is false. The 120-minute duration applies only to eligible PwBD candidates with a scribe; mocks use the standard 90 minutes."
+}

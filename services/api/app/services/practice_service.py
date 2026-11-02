@@ -558,6 +558,7 @@ class PracticeService:
             duration_minutes=exam_format.duration_minutes,
             negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
             sections=sections,
+            section_counts_indicative=exam_format.section_counts_indicative,
         )
         return availability, pools
 
@@ -739,11 +740,17 @@ class PracticeService:
             )
         else:
             sectional = ""
+        indicative = (
+            " The notice gives this section split as only indicative: real papers may vary."
+            if exam_format.section_counts_indicative
+            else ""
+        )
         return (
             f"{exam_format.name}. "
             + "; ".join(parts)
             + (f". Wrong answer: -{negative:.2f}." if negative else ". No negative marking.")
             + sectional
+            + indicative
             + f" Source: {exam_format.source_reference}."
         )
 

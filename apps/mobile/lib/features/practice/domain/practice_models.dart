@@ -430,6 +430,7 @@ class MockTestView {
     this.durationMinutes,
     this.negativeMarks,
     this.formatComplete = true,
+    this.sectionCountsIndicative = false,
   });
 
   factory MockTestView.fromJson(Map<String, dynamic> json) => MockTestView(
@@ -441,6 +442,7 @@ class MockTestView {
     durationMinutes: json['duration_minutes'] as int?,
     negativeMarks: (json['negative_marks_per_wrong'] as num?)?.toDouble(),
     formatComplete: (json['format_problems'] as List<dynamic>? ?? const []).isEmpty,
+    sectionCountsIndicative: json['section_counts_indicative'] as bool? ?? false,
     sections: [
       for (final s in json['sections'] as List<dynamic>)
         SectionAvailabilityView(
@@ -465,6 +467,10 @@ class MockTestView {
   /// duration). The server then refuses to start it; nothing is filled in with a default.
   final bool formatComplete;
   final List<SectionAvailabilityView> sections;
+
+  /// The official notice gives its section-wise question counts as only indicative: the mock
+  /// uses them, real papers may vary (shown on the mock).
+  final bool sectionCountsIndicative;
 }
 
 /// What to practise. No filters = mixed practice.

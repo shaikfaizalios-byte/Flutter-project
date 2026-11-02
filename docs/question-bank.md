@@ -109,7 +109,34 @@ Published formats are never edited; a new notice becomes a new row, so past atte
 - Catalog exams by configuration: `exam CODE --name --short-name --category --country --authority
   --alias`. `exams.country_code` (ISO alpha-2, CHECK), `authority`, `aliases`; returned by `/exams`.
   The 0012 catalog exams got country IN (all Indian exams); authorities are left for the operator to
-  set from official sources.
+  set from official sources. `--languages en,hi,...` records the languages the paper is offered in
+  (`exams.languages`, any ISO 639 code as the notice states, not only PrepLoop's content languages).
+- `section_counts_indicative` (migration 0038): the notice gives its section-wise counts as only
+  indicative. Mocks still use those counts, and say so on the mock card and in the marking note.
+
+### RRB NTPC (global Phase 10, CEN 06/2026 and 07/2026)
+
+From the official Centralised Employment Notices CEN No. 06/2026 (NTPC Graduate) and 07/2026 (NTPC
+Under Graduate), Railway Recruitment Boards (indicative notice in Employment News 26.09.2026):
+
+| Format (draft file in `services/api/data/exam_formats/`) | Duration | Questions (GA / Maths / GI&R) | Source |
+|---|---|---|---|
+| `RRB_NTPC_G_2026_CBT1`, `RRB_NTPC_UG_2026_CBT1` | 90 min | 100 (40 / 30 / 30) | para 13.1 |
+| `RRB_NTPC_G_2026_CBT2`, `RRB_NTPC_UG_2026_CBT2` | 90 min | 120 (50 / 35 / 35) | para 13.2.1 |
+
+Each question is 1 mark; 1/3 mark is deducted per wrong answer; the section split is "only
+indicative"; no sectional timers; no section order stated (`sections_in_fixed_order` false). The
+120-minute duration applies only to eligible PwBD candidates with a scribe (mocks use 90). The files
+are **drafts**: the operator imports each (`import`), checks it against the notice and publishes it
+under their own name (`publish --reviewer`); until then no RRB mock is offered.
+
+Migration 0038 also records RRB NTPC's authority and its 15 languages (para 14.3 d), adds
+"Mathematics" as an alias of the canonical subject "Quantitative Aptitude" (mock sections named
+"Mathematics" find those questions; "General Intelligence and Reasoning" already matches "General
+Intelligence" by name), and adds the 25 syllabus items of para 13.1 that no shared topic covered
+(e.g. Elementary Statistics, Data Sufficiency, Flagship Government Programs) as shared topics for
+RRB_NTPC only, each with its own confirmed canonical topic. RRB Group D has no notice yet: nothing
+is recorded for it.
 
 A document is linked to a format at upload (`exam_format_code`) or later
 (`PUT /documents/{id}/exam-format`). Re-run segmentation to apply a newly linked format.

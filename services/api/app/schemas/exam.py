@@ -23,7 +23,8 @@ class ExamRead(BaseModel):
     country_code: str | None = None
     authority: str | None = None
     aliases: list[str] = []
-    # Languages the exam's paper is offered in, from its official notice (empty = not recorded).
+    # Languages the exam's paper is offered in, from its official notice (ISO 639 codes, any
+    # language, not only those PrepLoop supports for content; empty = not recorded).
     languages: list[str] = []
 
 

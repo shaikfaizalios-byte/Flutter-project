@@ -4505,4 +4505,8 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get languageSameAsApp => 'ऐप जैसी';
+
+  @override
+  String get mockSectionsIndicative =>
+      'सूचना में यह खंड-विभाजन केवल सांकेतिक है; असली पेपर अलग हो सकते हैं';
 }

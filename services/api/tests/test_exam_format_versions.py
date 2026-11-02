@@ -197,8 +197,14 @@ def test_catalog_exams_are_added_and_described_by_configuration(
     # Global Phase 10: an exam's languages come from its notice; none is guessed.
     assert exams["TEST_EXAM"]["languages"] == ["en", "hi"]
     assert exams["SSC_CGL"]["languages"] == []
-    with pytest.raises(ValueError, match="Unsupported language xx"):
-        _set(db_session, "TEST_EXAM", languages=["xx"])
+    with pytest.raises(ValueError, match="Not an ISO 639 language code: English"):
+        _set(db_session, "TEST_EXAM", languages=["English"])
+    # An exam's languages may include ones PrepLoop has no content support for.
+    assert _set(db_session, "TEST_EXAM", languages=["en", "kok", "mni"]).languages == [
+        "en",
+        "kok",
+        "mni",
+    ]
     with pytest.raises(ValueError, match="ISO 3166"):
         _set(db_session, "TEST_EXAM", country="India")
     with pytest.raises(ValueError, match="needs --name"):

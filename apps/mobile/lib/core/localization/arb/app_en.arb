@@ -2566,5 +2566,6 @@
   "settingsContentLanguageHint": "Chosen first when you add a paper, syllabus or note; you can still pick another each time.",
   "settingsAiLanguage": "AI lessons and checks",
   "settingsAiLanguageHint": "AI explanations are written in their question's language.",
-  "languageSameAsApp": "Same as app"
+  "languageSameAsApp": "Same as app",
+  "mockSectionsIndicative": "the notice gives this section split as indicative; real papers may vary"
 }

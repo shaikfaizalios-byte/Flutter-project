@@ -339,6 +339,7 @@ class _MockTile extends ConsumerWidget {
         l10n.mockTestDetails(mock.totalQuestions, mock.durationMinutes!),
       if (mock.negativeMarks != null && mock.negativeMarks! > 0)
         l10n.mockNegative(mock.negativeMarks!.toStringAsFixed(2)),
+      if (mock.sectionCountsIndicative) l10n.mockSectionsIndicative,
     ].join(' · ');
     final short = mock.formatComplete
         ? mock.sections.where((s) => s.available < s.needed).toList()

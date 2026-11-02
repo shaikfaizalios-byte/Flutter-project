@@ -1181,5 +1181,6 @@
   "settingsContentLanguageHint": "पेपर, सिलेबस या नोट जोड़ते समय यही पहले चुनी रहती है; हर बार दूसरी भाषा भी चुन सकते हैं।",
   "settingsAiLanguage": "AI पाठ और जाँच",
   "settingsAiLanguageHint": "AI व्याख्याएँ उसी भाषा में लिखी जाती हैं जिसमें प्रश्न है।",
-  "languageSameAsApp": "ऐप जैसी"
+  "languageSameAsApp": "ऐप जैसी",
+  "mockSectionsIndicative": "सूचना में यह खंड-विभाजन केवल सांकेतिक है; असली पेपर अलग हो सकते हैं"
 }

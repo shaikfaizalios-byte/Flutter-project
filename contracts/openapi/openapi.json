@@ -1876,6 +1876,11 @@
             "title": "Question Types",
             "type": "array"
           },
+          "section_counts_indicative": {
+            "default": false,
+            "title": "Section Counts Indicative",
+            "type": "boolean"
+          },
           "sectional_timing": {
             "default": false,
             "title": "Sectional Timing",
@@ -2613,6 +2618,11 @@
               }
             ],
             "title": "Negative Marks Per Wrong"
+          },
+          "section_counts_indicative": {
+            "default": false,
+            "title": "Section Counts Indicative",
+            "type": "boolean"
           },
           "sections": {
             "items": {

@@ -75,6 +75,7 @@ void main() {
           available: false,
           totalQuestions: 100,
           durationMinutes: 60,
+          sectionCountsIndicative: true,
           sections: [
             SectionAvailabilityView(subject: 'General Awareness', needed: 25, available: 3),
           ],
@@ -86,6 +87,8 @@ void main() {
     expect(find.text('SSC CHSL 2026 Tier-I'), findsOneWidget);
     expect(find.textContaining('100 questions · 60 min · −0.50 per wrong answer'), findsOneWidget);
     expect(find.textContaining('General Awareness: 3 of 25'), findsOneWidget);
+    // Only the format whose notice calls its split indicative says so.
+    expect(find.textContaining('section split as indicative'), findsOneWidget);
     await scrollTo(tester, find.text('Questions to revisit'));
     expect(find.text('Bookmarks'), findsOneWidget);
     expect(find.text('Questions to revisit'), findsOneWidget);
@@ -103,6 +106,11 @@ void main() {
     expect(MockTestView.fromJson(json(['No marks.'])).formatComplete, isFalse);
     expect(MockTestView.fromJson(json([])).formatComplete, isTrue);
     expect(MockTestView.fromJson(json()).formatComplete, isTrue);
+    expect(MockTestView.fromJson(json()).sectionCountsIndicative, isFalse);
+    expect(
+      MockTestView.fromJson({...json(), 'section_counts_indicative': true}).sectionCountsIndicative,
+      isTrue,
+    );
   });
 
   testAppWidgets('an incomplete format says so and cannot be started', (tester, db) async {

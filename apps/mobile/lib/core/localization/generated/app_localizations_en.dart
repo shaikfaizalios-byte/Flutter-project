@@ -4505,4 +4505,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSameAsApp => 'Same as app';
+
+  @override
+  String get mockSectionsIndicative =>
+      'the notice gives this section split as indicative; real papers may vary';
 }

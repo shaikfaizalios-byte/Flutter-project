@@ -73,8 +73,10 @@ Indexes: `(exam_code, archived_at)` and a GIN index on `tags`.
 PK), `english_name`, `native_name`, `script` (ISO 15924), `direction` (`ltr`/`rtl`). Seeded `en`, `hi`; the same
 list as `app/domain/languages.py` (`tests/test_languages.py` compares them). `documents`, `questions`, `concepts` and
 `ai_explanations` reference it instead of CHECK constraints. `exams.languages` (text[], empty = not recorded) holds
-the languages an exam's paper is offered in, set only from the official notice with
-`python -m app.cli.exam_formats exam CODE --languages en,hi`.
+the languages an exam's paper is offered in (any ISO 639 code; RRB NTPC has 15 from its notice), set
+only from the official notice with `python -m app.cli.exam_formats exam CODE --languages en,hi`.
+`exam_formats.section_counts_indicative` (migration 0038): the notice calls its section split
+indicative.
 - `original_filename` is sanitised display text. `storage_key` is internal and unique (`documents/<uuid>.pdf`).
 - `size_bytes`, `sha256` (indexed) and `page_count` are recorded at upload.
 - `status` is one of queued, processing, completed or failed (CHECK). `pages_processed` and `needs_review_count` track progress.

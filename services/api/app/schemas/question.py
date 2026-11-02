@@ -60,6 +60,8 @@ class ExamFormatRead(BaseModel):
     question_types: list[str] = ["choice"]
     # Each section has its own timer and sections are taken in order (mocks enforce it).
     sectional_timing: bool = False
+    # The notice says its section-wise question counts are only indicative.
+    section_counts_indicative: bool = False
 
 
 class OptionRead(BaseModel):

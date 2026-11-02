@@ -67,7 +67,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   ISO 15924 script, direction, Tesseract data, prompt name, `review_ai_text`) + the `languages` table (migration 0037)
   that `documents`/`questions`/`concepts`/`ai_explanations.language` reference (no more `en|hi` CHECKs); schemas use
   `app/schemas/language.py` `Language` (OpenAPI enum from the list). `exams.languages` = languages the paper is
-  offered in, only from the notice (`exam_formats exam --languages`); empty for every exam so far. App:
+  offered in (any ISO 639 code), only from the notice (`exam_formats exam --languages`); set for RRB NTPC only. App:
   `core/localization/content_language.dart` `ContentLanguage` is a code value (unknown codes kept, never turned
   into English; `contentLanguageSegments`); Settings → Language has the app language plus "Papers, syllabus and
   notes" (`AppPreferences.contentLanguage`, preselected on upload/syllabus/notes) and "AI lessons and checks"
@@ -392,7 +392,12 @@ Known limitations right now:
 - The old `/api/v1/concepts` REST API is a separate server store (deprecated); the app syncs concepts via `/sync`.
 - Verified exam formats: SSC CHSL 2026 Tier-I (migration 0003) and SSC CGL 2026 Tier-I (migration 0018, F. No.
   HQ-C11018/1/2026-C-1 para 13.8). CGL mocks enforce its 15-minute sectional timers (global Phase 5, migration
-  0033, `app/domain/sections.py`): sections in order, each with its own timer, finishable early, no way back. **Every other catalog exam has none** — add only after verifying the
+  0033, `app/domain/sections.py`): sections in order, each with its own timer, finishable early, no way back.
+  RRB NTPC (global Phase 10, CEN 06/2026 + 07/2026): four DRAFT formats in `services/api/data/exam_formats/`
+  (Graduate/Under Graduate × 1st/2nd stage CBT; 90 min, 100 or 120 questions, −1/3, section split "only
+  indicative" → `exam_formats.section_counts_indicative`, shown on the mock), published only by a named reviewer;
+  migration 0038 adds its authority, 15 languages, the "Mathematics" alias of Quantitative Aptitude and the
+  notice's missing syllabus topics (RRB_NTPC only). **Every other catalog exam has none** — add only after verifying the
   current official notice (record source in a migration). Without a format: practice, repeats and Radar work;
   timed mocks and count checks don't. A format that leaves out any scoring fact (pure
   `app/domain/exam_format.py` `format_problems()`) is listed as incomplete and can't start a mock (`422

@@ -7184,6 +7184,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Same as app'**
   String get languageSameAsApp;
+
+  /// No description provided for @mockSectionsIndicative.
+  ///
+  /// In en, this message translates to:
+  /// **'the notice gives this section split as indicative; real papers may vary'**
+  String get mockSectionsIndicative;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
