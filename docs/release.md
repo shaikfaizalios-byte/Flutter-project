@@ -69,12 +69,12 @@ Follow [deployment.md](deployment.md). The production settings refuse to start w
    - [ ] **Try R8**: set `isMinifyEnabled = true` and `isShrinkResources = true`, add keep rules if
      flutter_local_notifications needs them (scheduled notifications use Gson), then repeat the reminder checks.
 7. **(you)** Play Console:
-   - store listing (EN and HI)
+   - store listing (EN and HI): draft in [store/play-listing.md](store/play-listing.md)
    - content rating
    - target audience (adults preparing for SSC exams)
    - data safety, using [legal/play-data-safety.md](legal/play-data-safety.md)
    - privacy policy URL
-   - internal testing track first
+   - internal testing track first, then the closed test: [store/closed-test-guide.md](store/closed-test-guide.md)
 
 ## 4. iOS (needs macOS + Xcode)
 
