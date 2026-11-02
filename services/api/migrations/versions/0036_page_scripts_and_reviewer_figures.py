@@ -32,7 +32,9 @@ def upgrade() -> None:
         sa.Column("source", sa.String(length=10), server_default="pdf", nullable=False),
     )
     op.create_check_constraint(
-        op.f("ck_question_figures_source_valid"), "question_figures", "source IN ('pdf', 'reviewer')"
+        op.f("ck_question_figures_source_valid"),
+        "question_figures",
+        "source IN ('pdf', 'reviewer')",
     )
 
 
