@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/localization/generated/app_localizations.dart';
 import '../core/widgets/empty_state.dart';
+import '../features/ai/presentation/paper_summary_screen.dart';
 import '../features/analytics/presentation/progress_screen.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/auth/presentation/forgot_password_screen.dart';
@@ -161,6 +162,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                             builder: (context, state) => PaperSolveScreen(
                               documentId: state.pathParameters['id']!,
                               name: state.uri.queryParameters['name'] ?? '',
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'summary',
+                            parentNavigatorKey: _rootNavigatorKey,
+                            builder: (context, state) => PaperSummaryScreen(
+                              documentId: state.pathParameters['id']!,
+                              name: state.uri.queryParameters['name'] ?? '',
+                              examCode: state.uri.queryParameters['exam'] ?? '',
                             ),
                           ),
                           GoRoute(

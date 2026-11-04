@@ -11,13 +11,15 @@ Rules (see docs/ai.md):
 
 import logging
 import uuid
+from collections.abc import Sequence
 from datetime import UTC, datetime
+from typing import Literal
 
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
-from app.domain import ai_content, languages, rag
+from app.domain import ai_content, languages, rag, study_requests
 from app.domain.errors import (
     AIDisabledError,
     AIUnavailableError,
@@ -26,10 +28,12 @@ from app.domain.errors import (
     NotEligibleError,
     NotFoundError,
 )
+from app.domain.rag import RagSource
 from app.domain.segmentation import same_subject
+from app.domain.study_requests import StudyRequest
 from app.integrations.ai import AIProvider, AIProviderError, AIResult
 from app.models.ai import AIExplanation, AIGeneration, DraftStatus
-from app.models.document import Document
+from app.models.document import Document, DocumentStatus
 from app.models.exam import Exam
 from app.models.question import (
     Question,
@@ -50,6 +54,7 @@ from app.schemas.ai import (
     ExplanationReview,
     GenerateQuestionsRequest,
     GenerateQuestionsResult,
+    PaperChoice,
     PaperTopicsResult,
     QuickAnswer,
     QuickAnswerRequest,
@@ -57,6 +62,7 @@ from app.schemas.ai import (
     SearchAnswer,
     SearchAnswerRequest,
     SearchAnswerSource,
+    StudyItemRead,
     TopicDraft,
     TopicLessonRead,
     TopicQuizRead,
@@ -75,6 +81,11 @@ from app.services.topic_service import topic_scope, visible_topics
 
 MIN_TAXONOMY_QUESTIONS = 5
 logger = logging.getLogger(__name__)
+
+# A list of topics or a summary is longer than an ordinary answer, more so in Hindi.
+STUDY_MAX_TOKENS = 8000
+MAX_PAPER_CHOICES = 20
+SOURCE_SNIPPET_CHARS = 300
 
 # Issue raised on AI text in a language whose AI text needs a check (Hindi; see
 # app/domain/languages.py) so a reviewer checks the language (like OCR text).
@@ -743,11 +754,26 @@ class AIService:
 
     def search_answer(self, request: SearchAnswerRequest) -> SearchAnswer:
         """Retrieve the best-matching material, let the AI answer only from it, and check every
-        citation. No matching material: "not found" without an AI call (nothing is spent)."""
+        citation. No matching material: "not found" without an AI call (nothing is spent).
+
+        A search that asks for a list of topics or for a summary is answered as one
+        (app/domain/study_requests.py)."""
         provider = self._require_provider()
         exam = ExamRepository(self._session).get_visible(request.exam_code, self._owner_id)
         if exam is None:
             raise InvalidReferenceError(f"Unknown exam '{request.exam_code}'.")
+        language = request.language or ai_content.query_language(request.text)
+        if request.document_id is not None:
+            return self._summary(provider, self._document(request.document_id), language)
+        study = study_requests.parse_study_request(request.text)
+        if study is not None and study.kind == "topics":
+            return self._topics(provider, study, exam, language)
+        if study is not None:
+            papers = self._papers_named(study.paper, request.exam_code)
+            if papers is not None:
+                if len(papers) == 1:
+                    return self._summary(provider, papers[0], language)
+                return self._choose_paper(papers)
         # 1. RETRIEVE
         sources = RagRetriever(self._session, self._owner_id).retrieve(
             rag.query_terms(request.text), request.exam_code
@@ -813,6 +839,231 @@ class AIService:
             prompt_version=ai_content.PROMPT_VERSION,
         )
 
+    # --- topic lists and summaries (app/domain/study_requests.py) -----------------------------
+
+    def _topics(
+        self, provider: AIProvider, study: StudyRequest, exam: Exam, language: str
+    ) -> SearchAnswer:
+        """The most covered topics across the learner's papers, each with its answer."""
+        terms = rag.query_terms(study.subject) if study.subject else []
+        # The subject may be the exam itself ("iOS" in an iOS exam): then pages needn't name it.
+        about_exam = bool(terms) and set(terms) <= set(rag.query_terms(exam.name))
+        sources = RagRetriever(self._session, self._owner_id).retrieve_broad(
+            terms, exam.code, top_up=about_exam
+        )
+        if not sources:
+            return self._empty(kind="topics", requested=study.count)
+        result = self._call(
+            provider,
+            task="study_topics",
+            question_id=None,
+            prompt=study_requests.topics_prompt(
+                request=study, exam_name=exam.name, sources=sources, language=language
+            ),
+            schema=study_requests.STUDY_SCHEMA,
+            system=study_requests.TOPICS_SYSTEM,
+            max_tokens=STUDY_MAX_TOKENS,
+        )
+        checked = study_requests.validate_study(
+            result.data, [s.key for s in sources], limit=study.count, titled=True
+        )
+        self._record_study(provider, "study_topics", result, checked, f"{len(sources)} sources")
+        self._session.commit()
+        if checked is None:
+            raise AIUnavailableError("The AI answer did not cite your material correctly.")
+        if not checked.found:
+            return self._empty(kind="topics", requested=study.count)
+        return self._study_answer(provider, "topics", checked, sources, requested=study.count)
+
+    def _summary(self, provider: AIProvider, document: Document, language: str) -> SearchAnswer:
+        """The whole paper in simple points: each batch of pages, then one merge."""
+        pages = RagRetriever(self._session, self._owner_id).paper_pages(document)
+        name = document.original_filename
+        if not pages:
+            return self._empty(kind="summary", document_name=name)
+        batches, pages_read = study_requests.page_batches(pages)
+        keys = [p.key for p in pages]
+        points: list[study_requests.StudyItem] = []
+        confident = True
+        for number, batch in enumerate(batches, start=1):
+            part = (number, len(batches)) if len(batches) > 1 else None
+            checked = self._summary_call(
+                provider,
+                study_requests.summary_prompt(
+                    filename=name, pages=batch, language=language, part=part
+                ),
+                keys,
+                f"batch {number} of {len(batches)}, {len(batch)} pages",
+            )
+            confident = confident and checked.confident
+            points.extend(checked.items)
+        if len(batches) > 1 and points:
+            merged = self._summary_call(
+                provider,
+                study_requests.merge_prompt(filename=name, points=points, language=language),
+                keys,
+                f"merge of {len(points)} points",
+            )
+            confident = confident and merged.confident
+            points = list(merged.items)
+        if not points:
+            return self._empty(kind="summary", document_name=name)
+        return self._study_answer(
+            provider,
+            "summary",
+            study_requests.StudyResult(found=True, items=tuple(points), confident=confident),
+            pages,
+            document_name=name,
+            pages_read=pages_read,
+            pages_total=len(pages),
+        )
+
+    def _summary_call(
+        self, provider: AIProvider, prompt: str, keys: list[str], detail: str
+    ) -> study_requests.StudyResult:
+        result = self._call(
+            provider,
+            task="paper_summary",
+            question_id=None,
+            prompt=prompt,
+            schema=study_requests.STUDY_SCHEMA,
+            system=study_requests.SUMMARY_SYSTEM,
+            max_tokens=STUDY_MAX_TOKENS,
+        )
+        checked = study_requests.validate_study(
+            result.data, keys, limit=study_requests.MAX_SUMMARY_POINTS
+        )
+        self._record_study(provider, "paper_summary", result, checked, detail)
+        self._session.commit()
+        if checked is None:
+            raise AIUnavailableError("The AI summary did not cite your paper correctly.")
+        return checked
+
+    def _record_study(
+        self,
+        provider: AIProvider,
+        task: str,
+        result: AIResult,
+        checked: study_requests.StudyResult | None,
+        detail: str,
+    ) -> None:
+        self._record(
+            provider,
+            task,
+            "invalid" if checked is None else "ok",
+            result,
+            None,
+            detail,
+            created=0 if checked is None else len(checked.items),
+            rejected=1 if checked is None else 0,
+        )
+
+    def _document(self, document_id: uuid.UUID) -> Document:
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        return document
+
+    def _papers_named(self, hint: str, exam_code: str) -> list[Document] | None:
+        """The papers a summary request means, newest first: those matching [hint], or with no
+        hint ("this pdf") all of this exam's. None: the words name no paper, so it's an ordinary
+        search ("summary of the constitution")."""
+        papers = list(
+            self._session.scalars(
+                select(Document)
+                .where(
+                    Document.owner_id == self._owner_id,
+                    Document.exam_code == exam_code,
+                    Document.status == DocumentStatus.COMPLETED,
+                )
+                .order_by(Document.created_at.desc())
+            )
+        )
+        if not hint:
+            return papers
+        named = [p for p in papers if study_requests.matches_paper(hint, p.original_filename)]
+        return named or None
+
+    @staticmethod
+    def _choose_paper(papers: list[Document]) -> SearchAnswer:
+        return SearchAnswer(
+            kind="choose_paper",
+            found=False,
+            answer=None,
+            confident=True,
+            sources=[],
+            model=None,
+            prompt_version=ai_content.PROMPT_VERSION,
+            papers=[
+                PaperChoice(id=p.id, name=p.original_filename) for p in papers[:MAX_PAPER_CHOICES]
+            ],
+        )
+
+    @staticmethod
+    def _empty(
+        *,
+        kind: Literal["topics", "summary"],
+        requested: int | None = None,
+        document_name: str | None = None,
+    ) -> SearchAnswer:
+        return SearchAnswer(
+            kind=kind,
+            found=False,
+            answer=None,
+            confident=True,
+            sources=[],
+            model=None,
+            prompt_version=ai_content.PROMPT_VERSION,
+            requested=requested,
+            document_name=document_name,
+        )
+
+    @staticmethod
+    def _study_answer(
+        provider: AIProvider,
+        kind: Literal["topics", "summary"],
+        result: study_requests.StudyResult,
+        sources: Sequence[RagSource],
+        *,
+        requested: int | None = None,
+        document_name: str | None = None,
+        pages_read: int | None = None,
+        pages_total: int | None = None,
+    ) -> SearchAnswer:
+        cited = {key for item in result.items for key in item.cited}
+        return SearchAnswer(
+            kind=kind,
+            found=True,
+            answer=None,
+            confident=result.confident,
+            # Only what the items cite: a summary's other pages would be a lot of text to send.
+            sources=[
+                SearchAnswerSource(
+                    key=s.key,
+                    kind=s.kind,
+                    label=s.label,
+                    snippet=s.text[:SOURCE_SNIPPET_CHARS],
+                    verified=s.verified,
+                    cited=True,
+                    document_id=uuid.UUID(s.document_id) if s.document_id else None,
+                    page_number=s.page_number,
+                    question_id=uuid.UUID(s.question_id) if s.question_id else None,
+                    concept_id=s.concept_id,
+                )
+                for s in sources
+                if s.key in cited
+            ],
+            model=provider.model,
+            prompt_version=ai_content.PROMPT_VERSION,
+            items=[
+                StudyItemRead(title=i.title, text=i.text, cited=list(i.cited)) for i in result.items
+            ],
+            requested=requested,
+            document_name=document_name,
+            pages_read=pages_read,
+            pages_total=pages_total,
+        )
+
     # --- helpers --------------------------------------------------------------------------
 
     def _require_provider(self) -> AIProvider:
@@ -859,13 +1110,14 @@ class AIService:
         prompt: str,
         schema: dict[str, object],
         system: str = ai_content.SYSTEM,
+        max_tokens: int | None = None,
     ) -> AIResult:
         try:
             return provider.complete_json(
                 system=system,
                 prompt=prompt,
                 schema=dict(schema),
-                max_tokens=self._settings.ai_max_output_tokens,
+                max_tokens=max_tokens or self._settings.ai_max_output_tokens,
             )
         except AIProviderError as exc:
             logger.warning("AI %s call failed: %s", task, exc.reason)

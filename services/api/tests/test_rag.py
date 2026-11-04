@@ -213,9 +213,10 @@ def test_no_matching_material_is_answered_without_an_ai_call(
         "/api/v1/ai/search-answer", json={"text": "kotlin coroutines", "exam_code": "SSC_CHSL"}
     )
     assert response.json() == {
-        "found": False, "answer": None, "simple": None, "confident": True, "sources": [],
-        "model": None,
-        "prompt_version": ai_content.PROMPT_VERSION,
+        "kind": "answer", "found": False, "answer": None, "simple": None, "confident": True,
+        "sources": [], "model": None, "prompt_version": ai_content.PROMPT_VERSION, "items": [],
+        "requested": None, "papers": [], "document_name": None, "pages_read": None,
+        "pages_total": None,
     }  # fmt: skip
     assert ai.calls == []  # nothing spent
 

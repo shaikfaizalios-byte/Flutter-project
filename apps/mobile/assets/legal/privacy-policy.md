@@ -45,6 +45,9 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
   the search, the search alone is sent for a general answer. It is off until you tap "Ask AI",
   and you can stop it at any time. Answers are not stored, and other learners' material is never
   sent with yours.
+- If you ask for a summary of a paper, the text of that whole paper is sent to our AI provider.
+  If you ask for the important topics in your papers, your request and many excerpts from your
+  papers and notes for that exam are sent. Nothing from these requests is stored by PrepLoop.
 - We keep a record that an AI request happened (type, model, outcome, size) but not its text.
 
 **Repeat Radar** (only if you turn on "Share my counts with the Repeat Radar"; off by default)

@@ -75,7 +75,7 @@ def best_window(text: str, terms: Sequence[str], size: int = SNIPPET_CHARS) -> s
     lowered = text.casefold()
     hits = sorted(m.start() for t in terms for m in re.finditer(re.escape(t), lowered))
     if not hits:
-        return text[:size].strip()
+        return text[:size].strip()  # nothing to centre on (also the overview of a page)
     best_begin, best_count = 0, -1
     for hit in hits:
         begin = max(0, min(hit - size // 4, len(text) - size))  # a little context before

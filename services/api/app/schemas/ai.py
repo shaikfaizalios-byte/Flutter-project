@@ -166,6 +166,10 @@ class SearchAnswerRequest(BaseModel):
         StringConstraints(strip_whitespace=True, min_length=2, max_length=QUICK_ANSWER_MAX_QUERY),
     ]
     exam_code: str
+    # Summarise this paper (the learner chose it); the search text is then not read.
+    document_id: uuid.UUID | None = None
+    # Language to write a topic list or summary in; default: the language of the search.
+    language: Language | None = None
 
 
 class SearchAnswerSource(BaseModel):
@@ -183,10 +187,30 @@ class SearchAnswerSource(BaseModel):
     concept_id: str | None = None
 
 
+class StudyItemRead(BaseModel):
+    """One topic with its answer, or one point of a summary, from the learner's material."""
+
+    title: str  # the topic; empty for a summary point
+    text: str
+    cited: list[str]  # keys of ``sources``
+
+
+class PaperChoice(BaseModel):
+    """A paper the learner can choose to summarise."""
+
+    id: uuid.UUID
+    name: str
+
+
 class SearchAnswer(BaseModel):
     """An answer written only from the learner's material (RAG), with its sources.
-    found=false: nothing in the material answers the search (answer is null)."""
+    found=false: nothing in the material answers the search (answer is null).
 
+    kind: "answer" = one answer (``answer``/``simple``); "topics" and "summary" = a list in
+    ``items`` (app/domain/study_requests.py); "choose_paper" = which paper to summarise, from
+    ``papers`` (empty: there is no paper yet); no AI was asked."""
+
+    kind: Literal["answer", "topics", "summary", "choose_paper"] = "answer"
     found: bool
     answer: str | None  # what the material says, with [S#] markers
     simple: str | None = None  # the same in simple words (AI; may use general knowledge)
@@ -194,6 +218,14 @@ class SearchAnswer(BaseModel):
     sources: list[SearchAnswerSource]
     model: str | None  # null when no AI call was needed (no matching material)
     prompt_version: str
+    items: list[StudyItemRead] = []
+    # Topics asked for: fewer items means the material covers fewer.
+    requested: int | None = None
+    papers: list[PaperChoice] = []
+    # Summary: the paper, and how many of its readable pages were read.
+    document_name: str | None = None
+    pages_read: int | None = None
+    pages_total: int | None = None
 
 
 class TopicRequest(BaseModel):

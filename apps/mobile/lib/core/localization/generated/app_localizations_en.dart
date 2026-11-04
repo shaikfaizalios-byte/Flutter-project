@@ -3215,7 +3215,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickAnswerOffer =>
-      'Get a short AI answer from your own papers and notes. Your search and the matching parts of your material are sent to the AI service.';
+      'Get AI answers from your own papers and notes, like \"10 important topics in history\" or \"summarize this pdf\". Your search and the matching parts of your material are sent to the AI service; a summary sends the whole paper.';
 
   @override
   String get quickAnswerAsk => 'Ask AI';
@@ -4509,4 +4509,73 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mockSectionsIndicative =>
       'the notice gives this section split as indicative; real papers may vary';
+
+  @override
+  String studyTopicsHeading(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count topics from your papers',
+      one: '1 topic from your papers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studyTopicsFewer(int found, int requested) {
+    return 'Your papers cover $found of the $requested topics you asked for.';
+  }
+
+  @override
+  String get studyTopicsNote =>
+      'Ordered by how much your papers cover each topic. This is not a prediction of the exam.';
+
+  @override
+  String get studyNotConfident =>
+      'The AI wasn\'t sure about parts of this: the text may be unclear or the papers may disagree.';
+
+  @override
+  String studyCaution(String model) {
+    return 'Written by AI ($model) from your papers. It can still be wrong: open a source to check it.';
+  }
+
+  @override
+  String studySourcePage(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get studyChoosePaper => 'Which paper should be summarised?';
+
+  @override
+  String get studyNoPapers => 'Import a paper first, then ask for its summary.';
+
+  @override
+  String paperSummaryHeading(String name) {
+    return 'Summary of $name';
+  }
+
+  @override
+  String paperSummaryTitle(String name) {
+    return 'Summary: $name';
+  }
+
+  @override
+  String paperSummaryPartial(int read, int total) {
+    return 'This paper is too long to read in full: this covers its first $read of $total pages with text.';
+  }
+
+  @override
+  String get paperSummaryLoading => 'Reading the whole paper. This can take a minute…';
+
+  @override
+  String get paperSummaryNoText =>
+      'No readable text was found in this paper, so it can\'t be summarised.';
+
+  @override
+  String get paperSummarize => 'Summarize this paper';
+
+  @override
+  String get paperSummarizeHint =>
+      'The whole paper in 10-15 simple points. Its text is sent to the AI service.';
 }

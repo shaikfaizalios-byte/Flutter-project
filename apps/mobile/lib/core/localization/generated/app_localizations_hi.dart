@@ -3220,7 +3220,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get quickAnswerOffer =>
-      'अपने पेपरों और नोट्स से AI का छोटा उत्तर पाएँ। आपकी खोज और आपकी सामग्री के मिलते हुए हिस्से AI सेवा को भेजे जाते हैं।';
+      'अपने पेपरों और नोट्स से AI उत्तर पाएँ, जैसे \"इतिहास के 10 महत्वपूर्ण टॉपिक\" या \"इस पेपर का सारांश\"। आपकी खोज और आपकी सामग्री के मिलते हुए हिस्से AI सेवा को भेजे जाते हैं; सारांश में पूरा पेपर भेजा जाता है।';
 
   @override
   String get quickAnswerAsk => 'AI से पूछें';
@@ -4509,4 +4509,73 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get mockSectionsIndicative =>
       'सूचना में यह खंड-विभाजन केवल सांकेतिक है; असली पेपर अलग हो सकते हैं';
+
+  @override
+  String studyTopicsHeading(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'आपके पेपरों से $count टॉपिक',
+      one: 'आपके पेपरों से 1 टॉपिक',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studyTopicsFewer(int found, int requested) {
+    return 'आपके पेपर आपके पूछे $requested में से $found टॉपिक ही बताते हैं।';
+  }
+
+  @override
+  String get studyTopicsNote =>
+      'क्रम इस पर है कि आपके पेपर हर टॉपिक को कितना बताते हैं। यह परीक्षा का अनुमान नहीं है।';
+
+  @override
+  String get studyNotConfident =>
+      'AI को इसके कुछ हिस्सों पर भरोसा नहीं था: पाठ अस्पष्ट हो सकता है या पेपर अलग बात कह सकते हैं।';
+
+  @override
+  String studyCaution(String model) {
+    return 'AI ($model) ने आपके पेपरों से लिखा। यह फिर भी गलत हो सकता है: जाँचने के लिए स्रोत खोलें।';
+  }
+
+  @override
+  String studySourcePage(int page) {
+    return 'पेज $page';
+  }
+
+  @override
+  String get studyChoosePaper => 'किस पेपर का सारांश चाहिए?';
+
+  @override
+  String get studyNoPapers => 'पहले कोई पेपर जोड़ें, फिर उसका सारांश माँगें।';
+
+  @override
+  String paperSummaryHeading(String name) {
+    return '$name का सारांश';
+  }
+
+  @override
+  String paperSummaryTitle(String name) {
+    return 'सारांश: $name';
+  }
+
+  @override
+  String paperSummaryPartial(int read, int total) {
+    return 'यह पेपर पूरा पढ़ने के लिए बहुत लंबा है: यह पाठ वाले $total में से पहले $read पेज बताता है।';
+  }
+
+  @override
+  String get paperSummaryLoading => 'पूरा पेपर पढ़ा जा रहा है। इसमें एक मिनट लग सकता है…';
+
+  @override
+  String get paperSummaryNoText =>
+      'इस पेपर में पढ़ने योग्य पाठ नहीं मिला, इसलिए सारांश नहीं बन सकता।';
+
+  @override
+  String get paperSummarize => 'इस पेपर का सारांश';
+
+  @override
+  String get paperSummarizeHint =>
+      'पूरा पेपर 10-15 सरल बिंदुओं में। इसका पाठ AI सेवा को भेजा जाता है।';
 }

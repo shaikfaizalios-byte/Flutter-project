@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
 
+import '../../ai/application/ai_providers.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
@@ -318,6 +319,7 @@ class _DocumentTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final language = contentLanguageName(l10n, document.language);
+    final canSummarize = ref.watch(aiStatusProvider).value?.enabled ?? false;
 
     final statusText = importStatusText(l10n, document);
     final statusColor = switch (document.status) {
@@ -331,7 +333,7 @@ class _DocumentTile extends ConsumerWidget {
     return ListTile(
       onTap: document.status == DocumentStatus.failed
           ? null
-          : () => showPaperActions(context, document),
+          : () => showPaperActions(context, document, canSummarize: canSummarize),
       leading: Icon(
         document.status == DocumentStatus.failed ? Icons.error_outline : Icons.picture_as_pdf,
         color: statusColor,
@@ -407,7 +409,11 @@ class _DocumentTile extends ConsumerWidget {
 }
 
 /// What to do with a paper: solve its questions, read it as uploaded, or review what was read.
-Future<void> showPaperActions(BuildContext context, ImportedDocument document) {
+Future<void> showPaperActions(
+  BuildContext context,
+  ImportedDocument document, {
+  required bool canSummarize,
+}) {
   final l10n = AppLocalizations.of(context);
   final router = GoRouter.of(context);
   final canSolve =
@@ -422,9 +428,8 @@ Future<void> showPaperActions(BuildContext context, ImportedDocument document) {
       }
 
       return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          shrinkWrap: true, // scrolls on short screens
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
@@ -450,6 +455,15 @@ Future<void> showPaperActions(BuildContext context, ImportedDocument document) {
               onTap: () =>
                   open(AppRoutes.paperRead(document.id, document.filename, document.pageCount)),
             ),
+            if (canSummarize)
+              ListTile(
+                leading: const Icon(Icons.summarize_outlined),
+                title: Text(l10n.paperSummarize),
+                subtitle: Text(l10n.paperSummarizeHint),
+                enabled: document.canReview,
+                onTap: () =>
+                    open(AppRoutes.paperSummary(document.id, document.filename, document.examCode)),
+              ),
             ListTile(
               leading: const Icon(Icons.fact_check_outlined),
               title: Text(l10n.paperReview),
