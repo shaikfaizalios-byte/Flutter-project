@@ -5244,7 +5244,7 @@ abstract class AppLocalizations {
   /// No description provided for @quickAnswerOffer.
   ///
   /// In en, this message translates to:
-  /// **'Get a short AI answer from your own papers and notes. Your search and the matching parts of your material are sent to the AI service.'**
+  /// **'Get AI answers from your own papers and notes, like \"10 important topics in history\" or \"summarize this pdf\". Your search and the matching parts of your material are sent to the AI service; a summary sends the whole paper.'**
   String get quickAnswerOffer;
 
   /// No description provided for @quickAnswerAsk.
@@ -7190,6 +7190,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'the notice gives this section split as indicative; real papers may vary'**
   String get mockSectionsIndicative;
+
+  /// No description provided for @studyTopicsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 topic from your papers} other{{count} topics from your papers}}'**
+  String studyTopicsHeading(int count);
+
+  /// No description provided for @studyTopicsFewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your papers cover {found} of the {requested} topics you asked for.'**
+  String studyTopicsFewer(int found, int requested);
+
+  /// No description provided for @studyTopicsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered by how much your papers cover each topic. This is not a prediction of the exam.'**
+  String get studyTopicsNote;
+
+  /// No description provided for @studyNotConfident.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI wasn\'t sure about parts of this: the text may be unclear or the papers may disagree.'**
+  String get studyNotConfident;
+
+  /// No description provided for @studyCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI ({model}) from your papers. It can still be wrong: open a source to check it.'**
+  String studyCaution(String model);
+
+  /// No description provided for @studySourcePage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String studySourcePage(int page);
+
+  /// No description provided for @studyChoosePaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Which paper should be summarised?'**
+  String get studyChoosePaper;
+
+  /// No description provided for @studyNoPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a paper first, then ask for its summary.'**
+  String get studyNoPapers;
+
+  /// No description provided for @paperSummaryHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary of {name}'**
+  String paperSummaryHeading(String name);
+
+  /// No description provided for @paperSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary: {name}'**
+  String paperSummaryTitle(String name);
+
+  /// No description provided for @paperSummaryPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'This paper is too long to read in full: this covers its first {read} of {total} pages with text.'**
+  String paperSummaryPartial(int read, int total);
+
+  /// No description provided for @paperSummaryLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the whole paper. This can take a minute…'**
+  String get paperSummaryLoading;
+
+  /// No description provided for @paperSummaryNoText.
+  ///
+  /// In en, this message translates to:
+  /// **'No readable text was found in this paper, so it can\'t be summarised.'**
+  String get paperSummaryNoText;
+
+  /// No description provided for @paperSummarize.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize this paper'**
+  String get paperSummarize;
+
+  /// No description provided for @paperSummarizeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole paper in 10-15 simple points. Its text is sent to the AI service.'**
+  String get paperSummarizeHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

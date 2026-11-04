@@ -109,6 +109,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   own pages + visible source questions + synced concepts of one exam, scoped by owner BEFORE ranking; pure
   `app/domain/rag.py` (terms, snippets, S1..Sn prompt, `validate_rag`: unknown [S#] → reject). No sources →
   found=false, no AI call. Not found → general `QuickAnswerPanel`. Task `rag_answer` (migration 0024).
+  Topic lists + summaries (docs/ai.md, same endpoint): pure `app/domain/study_requests.py` recognises "10 important
+  topics in X" and "summarize this pdf" by word lists. Topics: `retrieve_broad` (24 excerpts, turns between papers),
+  items with `cited`, never padded, "important" = covered most by the material, never a prediction. Summary: every
+  page in batches (`page_batches`, ≤ 4 × 90 000 chars, then a merge), 10-15 points; several papers → `choose_paper`
+  (no AI). Tasks `study_topics`/`paper_summary` (migration 0039), nothing stored. App: `StudyAnswerView`,
+  `ChoosePaperList`, `PaperSummaryScreen` (`/study/documents/:id/summary`, paper action "Summarize this paper",
+  `paperSummaryProvider` kept once read); these calls wait up to 3 minutes.
 - PrepLoop Plus (docs/plus.md): `subscriptions` (migration 0023, one row per account, source
   test|operator|play|web, `active_until`); `GET /me/plus` (status + AI requests used this UTC month from
   `ai_generations` ok/partial vs `PREPLOOP_PLUS_AI_MONTHLY_ALLOWANCE`, default 300); free test subscriptions
@@ -429,7 +436,8 @@ Known limitations right now:
 - Hindi OCR quality depends on scan quality; low-confidence pages are flagged, never corrected.
 - Mock tests need enough *verified* questions per section (CHSL: 25 × 4); with only a few reviewed papers
   the hub shows the shortfall (the shared bank counts toward it). Mocks never use AI questions (by design).
-- AI: no real provider call made yet (needs a key); answer/Hindi quality, latency and cost unmeasured.
+- AI: only a small sample of the topic and summary prompts has been run on the real model (English and Hindi, made-up
+  text); answer/Hindi quality on real papers, latency and cost are unmeasured.
   AI rate limit is per process. Review Anthropic's data-retention terms before production use.
 - Practice has no analytics UI beyond the session summary (Phase 8); no resume-list of unfinished sessions
   other than history.

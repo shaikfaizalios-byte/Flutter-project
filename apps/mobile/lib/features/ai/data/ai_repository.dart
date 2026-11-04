@@ -141,6 +141,37 @@ class SearchAnswerSource {
   final String? conceptId;
 }
 
+/// What a search got: one answer, a list of topics, a paper's summary, or the question which
+/// paper to summarise.
+enum SearchAnswerKind { answer, topics, summary, choosePaper }
+
+/// One topic with its answer, or one point of a summary ([title] is then empty).
+@immutable
+class StudyItem {
+  const StudyItem({required this.title, required this.text, required this.cited});
+
+  factory StudyItem.fromJson(Map<String, dynamic> json) => StudyItem(
+    title: json['title'] as String,
+    text: json['text'] as String,
+    cited: (json['cited'] as List<dynamic>).cast<String>(),
+  );
+
+  final String title;
+  final String text;
+
+  /// Keys of the sources it comes from.
+  final List<String> cited;
+}
+
+/// A paper the learner can choose to summarise.
+@immutable
+class PaperChoice {
+  const PaperChoice({required this.id, required this.name});
+
+  final String id;
+  final String name;
+}
+
 /// An AI answer written only from the learner's own material (RAG), with its sources.
 /// [found] is false when the material doesn't answer the search ([answer] is then null).
 @immutable
@@ -152,6 +183,13 @@ class SearchAnswer {
     this.answer,
     this.simple,
     this.model,
+    this.kind = SearchAnswerKind.answer,
+    this.items = const [],
+    this.requested,
+    this.papers = const [],
+    this.documentName,
+    this.pagesRead,
+    this.pagesTotal,
   });
 
   factory SearchAnswer.fromJson(Map<String, dynamic> json) => SearchAnswer(
@@ -164,6 +202,24 @@ class SearchAnswer {
         SearchAnswerSource.fromJson(s as Map<String, dynamic>),
     ],
     model: json['model'] as String?,
+    kind: switch (json['kind']) {
+      'topics' => SearchAnswerKind.topics,
+      'summary' => SearchAnswerKind.summary,
+      'choose_paper' => SearchAnswerKind.choosePaper,
+      _ => SearchAnswerKind.answer,
+    },
+    items: [
+      for (final i in json['items'] as List<dynamic>? ?? const [])
+        StudyItem.fromJson(i as Map<String, dynamic>),
+    ],
+    requested: json['requested'] as int?,
+    papers: [
+      for (final p in json['papers'] as List<dynamic>? ?? const [])
+        PaperChoice(id: (p as Map<String, dynamic>)['id'] as String, name: p['name'] as String),
+    ],
+    documentName: json['document_name'] as String?,
+    pagesRead: json['pages_read'] as int?,
+    pagesTotal: json['pages_total'] as int?,
   );
 
   static const notFound = SearchAnswer(found: false, confident: true, sources: []);
@@ -181,9 +237,30 @@ class SearchAnswer {
   /// Null when no AI call was needed (nothing in the material matched).
   final String? model;
 
+  final SearchAnswerKind kind;
+
+  /// The topics or summary points.
+  final List<StudyItem> items;
+
+  /// Topics asked for: fewer [items] means the material covers fewer.
+  final int? requested;
+
+  /// [SearchAnswerKind.choosePaper]: the papers to choose from (empty: none imported yet).
+  final List<PaperChoice> papers;
+  final String? documentName;
+
+  /// Readable pages of the paper, and how many were read for its summary.
+  final int? pagesRead;
+  final int? pagesTotal;
+
   List<SearchAnswerSource> get cited => [
     for (final s in sources)
       if (s.cited) s,
+  ];
+
+  /// The sources of one item, in the order it names them.
+  List<SearchAnswerSource> sourcesOf(StudyItem item) => [
+    for (final key in item.cited) ...sources.where((s) => s.key == key),
   ];
 }
 
@@ -394,6 +471,14 @@ abstract interface class AiRepository {
   /// to the AI provider (only after the learner switched AI answers on).
   Future<SearchAnswer> searchAnswer(String text, {required String examCode});
 
+  /// A whole paper in simple points: the paper's text goes to the AI provider; nothing is
+  /// stored.
+  Future<SearchAnswer> paperSummary(
+    String documentId, {
+    required String examCode,
+    required ContentLanguage language,
+  });
+
   /// A lesson on the topic (the topic name goes to the AI provider; nothing is stored).
   Future<TopicLesson> topicLesson(
     TopicChoice choice, {
@@ -419,6 +504,9 @@ class RemoteAiRepository implements AiRepository {
 
   final Dio _dio;
   static const _base = '/api/v1';
+
+  /// A topic list or a long paper's summary takes several AI calls, far over the usual wait.
+  static final _studyOptions = Options(receiveTimeout: const Duration(minutes: 3));
 
   @override
   Future<AiStatus> status() => _guard(() async {
@@ -544,6 +632,27 @@ class RemoteAiRepository implements AiRepository {
       (await _dio.post<Map<String, dynamic>>(
         '$_base/ai/search-answer',
         data: {'text': text, 'exam_code': examCode},
+        options: _studyOptions,
+      )).data!,
+    ),
+  );
+
+  @override
+  Future<SearchAnswer> paperSummary(
+    String documentId, {
+    required String examCode,
+    required ContentLanguage language,
+  }) => _guard(
+    () async => SearchAnswer.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '$_base/ai/search-answer',
+        data: {
+          'text': 'summary',
+          'exam_code': examCode,
+          'document_id': documentId,
+          'language': language.code,
+        },
+        options: _studyOptions,
       )).data!,
     ),
   );

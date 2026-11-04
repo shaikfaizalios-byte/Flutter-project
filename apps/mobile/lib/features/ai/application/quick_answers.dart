@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/localization/content_language.dart';
 import '../../../core/utils/app_log.dart';
 import '../../exams/application/active_exam.dart';
 import '../data/ai_repository.dart';
@@ -73,4 +74,20 @@ final searchAnswerProvider = FutureProvider.autoDispose.family<SearchAnswer?, St
   await Future<void>.delayed(quickAnswerSettle);
   if (!ref.mounted) return null;
   return ref.read(aiRepositoryProvider).searchAnswer(text, examCode: exam);
+}, retry: (_, _) => null);
+
+/// Which paper to summarise, for whom, in which language.
+typedef PaperSummaryKey = ({String documentId, String examCode, ContentLanguage language});
+
+/// A whole paper in simple points. Kept once read, so going back and forth doesn't spend AI
+/// requests again.
+final paperSummaryProvider = FutureProvider.autoDispose.family<SearchAnswer, PaperSummaryKey>((
+  ref,
+  key,
+) async {
+  final summary = await ref
+      .read(aiRepositoryProvider)
+      .paperSummary(key.documentId, examCode: key.examCode, language: key.language);
+  ref.keepAlive();
+  return summary;
 }, retry: (_, _) => null);

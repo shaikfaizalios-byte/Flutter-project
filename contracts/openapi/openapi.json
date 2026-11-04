@@ -3426,6 +3426,26 @@
         "title": "PaperAnswerRead",
         "type": "object"
       },
+      "PaperChoice": {
+        "description": "A paper the learner can choose to summarise.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PaperChoice",
+        "type": "object"
+      },
       "PaperDateRead": {
         "properties": {
           "exam_date": {
@@ -5620,7 +5640,7 @@
         "type": "object"
       },
       "SearchAnswer": {
-        "description": "An answer written only from the learner's material (RAG), with its sources.\nfound=false: nothing in the material answers the search (answer is null).",
+        "description": "An answer written only from the learner's material (RAG), with its sources.\nfound=false: nothing in the material answers the search (answer is null).\n\nkind: \"answer\" = one answer (``answer``/``simple``); \"topics\" and \"summary\" = a list in\n``items`` (app/domain/study_requests.py); \"choose_paper\" = which paper to summarise, from\n``papers`` (empty: there is no paper yet); no AI was asked.",
         "properties": {
           "answer": {
             "anyOf": [
@@ -5637,9 +5657,39 @@
             "title": "Confident",
             "type": "boolean"
           },
+          "document_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Name"
+          },
           "found": {
             "title": "Found",
             "type": "boolean"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/StudyItemRead"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "kind": {
+            "default": "answer",
+            "enum": [
+              "answer",
+              "topics",
+              "summary",
+              "choose_paper"
+            ],
+            "title": "Kind",
+            "type": "string"
           },
           "model": {
             "anyOf": [
@@ -5652,9 +5702,50 @@
             ],
             "title": "Model"
           },
+          "pages_read": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pages Read"
+          },
+          "pages_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pages Total"
+          },
+          "papers": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PaperChoice"
+            },
+            "title": "Papers",
+            "type": "array"
+          },
           "prompt_version": {
             "title": "Prompt Version",
             "type": "string"
+          },
+          "requested": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested"
           },
           "simple": {
             "anyOf": [
@@ -5689,9 +5780,36 @@
       "SearchAnswerRequest": {
         "additionalProperties": false,
         "properties": {
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
           "exam_code": {
             "title": "Exam Code",
             "type": "string"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "enum": [
+                  "en",
+                  "hi"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
           },
           "text": {
             "maxLength": 300,
@@ -6745,6 +6863,33 @@
           "exam_code"
         ],
         "title": "StarterCheckCreate",
+        "type": "object"
+      },
+      "StudyItemRead": {
+        "description": "One topic with its answer, or one point of a summary, from the learner's material.",
+        "properties": {
+          "cited": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Cited",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "text",
+          "cited"
+        ],
+        "title": "StudyItemRead",
         "type": "object"
       },
       "SubjectStats": {

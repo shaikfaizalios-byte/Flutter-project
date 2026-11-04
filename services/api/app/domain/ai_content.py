@@ -13,7 +13,7 @@ from typing import Any
 from app.domain.languages import LANGUAGES
 from app.domain.untrusted import UNTRUSTED_RULE, material
 
-PROMPT_VERSION = "p10"
+PROMPT_VERSION = "p11"
 OPTIONS_PER_QUESTION = 4  # SSC CGL/CHSL objective questions have four options
 MAX_GENERATED = 5
 

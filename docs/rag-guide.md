@@ -67,6 +67,18 @@ tokens, less distraction, lower cost.
   concept → the concept; unchecked sources say so. Not found → general `QuickAnswerPanel`,
   then Google.
 
+## 6b. Longer requests: `app/domain/study_requests.py`
+
+A top-6 retrieval answers a question; it can't list ten topics or cover a whole PDF. Two requests
+get their own path, recognised by word lists before retrieval (`parse_study_request`):
+
+- **Topics:** `RagRetriever.retrieve_broad` + `spread_sources` (turns between papers) feed one call.
+- **Summary:** `paper_pages` sends every page, keyed by page number (S7 = page 7) so a page keeps
+  its key across batches; `page_batches` splits them, and `merge_prompt` joins the batches.
+
+The same trust rule holds: `validate_study` rejects the whole result if any item cites a source we
+didn't send. Tests: `tests/test_study_requests.py`.
+
 ## 7. Tests that teach
 
 - `services/api/tests/test_rag.py`: pure parts; retrieval ranking; **another account's and

@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../exams/application/active_exam.dart';
 import '../application/ai_providers.dart';
 import '../application/quick_answers.dart';
 import '../data/ai_repository.dart';
 import 'ai_widgets.dart';
 import 'quick_answer_panel.dart';
+import 'study_answer_view.dart';
 import '../../plus/presentation/plus_prompt.dart';
 
 /// The Study search's AI answer from the learner's own material (RAG): the answer, then the
 /// sources it cites, each opening the page, question or concept so the learner can check it.
 /// When the material doesn't cover the search, a general AI answer ([QuickAnswerPanel]) follows.
+/// A search for a list of topics or a summary gets that instead ([StudyAnswerView]).
 /// Nothing is sent before the learner taps "Ask AI" once. Shown only when the server has AI.
 class SearchAnswerPanel extends ConsumerWidget {
   const SearchAnswerPanel({super.key, required this.query});
@@ -47,6 +49,24 @@ class SearchAnswerPanel extends ConsumerWidget {
       );
     } else {
       body = switch (ref.watch(searchAnswerProvider(query))) {
+        AsyncData(value: final a?) when a.kind == SearchAnswerKind.choosePaper => ChoosePaperList(
+          papers: a.papers,
+          examCode: ref.watch(activeExamProvider) ?? '',
+        ),
+        AsyncData(value: final a?) when a.found && a.items.isNotEmpty => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StudyAnswerView(answer: a),
+            TextButton(
+              onPressed: () => ref.read(quickAnswersOnProvider.notifier).set(on: false),
+              child: Text(l10n.quickAnswerTurnOff),
+            ),
+          ],
+        ),
+        AsyncData(value: final a?) when a.kind == SearchAnswerKind.summary => Text(
+          l10n.paperSummaryNoText,
+          style: theme.textTheme.bodySmall,
+        ),
         AsyncData(value: final a?) when a.found && a.answer != null => _Found(answer: a),
         AsyncData(value: _?) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,21 +209,10 @@ class _SourceTile extends StatelessWidget {
 
   final SearchAnswerSource source;
 
-  String? get _route => switch (source.kind) {
-    SearchSourceKind.page when source.documentId != null => AppRoutes.documentReview(
-      source.documentId!,
-    ),
-    SearchSourceKind.question when source.questionId != null => AppRoutes.question(
-      source.questionId!,
-    ),
-    SearchSourceKind.concept when source.conceptId != null => AppRoutes.concept(source.conceptId!),
-    _ => null,
-  };
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final route = _route;
+    final route = searchSourceRoute(source);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,

@@ -187,6 +187,20 @@ class FakeAiRepository implements AiRepository {
     return searchAnswerResult;
   }
 
+  /// What the next paper summaries return.
+  SearchAnswer paperSummaryResult = SearchAnswer.notFound;
+
+  @override
+  Future<SearchAnswer> paperSummary(
+    String documentId, {
+    required String examCode,
+    required ContentLanguage language,
+  }) async {
+    calls.add('summary:$documentId:$examCode:${language.code}');
+    _maybeFail();
+    return paperSummaryResult;
+  }
+
   /// Questions of the next knowledge checks (each one's answer is option 2, "B").
   int quizCount = 3;
 

@@ -24,7 +24,8 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.domain.rag import SOURCES_PER_ANSWER, RagSource, best_window, ts_query
+from app.domain.rag import SNIPPET_CHARS, SOURCES_PER_ANSWER, RagSource, best_window, ts_query
+from app.domain.study_requests import BROAD_SNIPPET_CHARS, BROAD_SOURCES, spread_sources
 from app.models.document import Document, DocumentPage
 from app.models.question import Question, QuestionOption, QuestionOrigin, VerificationStatus
 from app.models.sync import SyncItem
@@ -60,11 +61,103 @@ class RagRetriever:
             *self._concepts(terms, exam_code),
         ]
         found.sort(key=lambda s: s.rank, reverse=True)
-        return [replace(s, key=f"S{i}") for i, s in enumerate(found[:limit], start=1)]
+        return _numbered(found[:limit])
+
+    def retrieve_broad(
+        self, terms: Sequence[str], exam_code: str, *, top_up: bool
+    ) -> list[RagSource]:
+        """Much more of the material, spread over the papers, for a list of topics: the pages,
+        questions and concepts that match [terms], then (no terms, or [top_up]) an even sample
+        of every paper's pages for what the words didn't reach."""
+        found: list[RagSource] = []
+        if terms:
+            found = [
+                *self._pages(terms, exam_code, limit=BROAD_SOURCES * 2, size=BROAD_SNIPPET_CHARS),
+                *self._questions(terms, exam_code, limit=BROAD_SOURCES),
+                *self._concepts(terms, exam_code, limit=BROAD_SOURCES),
+            ]
+            found.sort(key=lambda s: s.rank, reverse=True)
+        if not terms or (top_up and len(found) < BROAD_SOURCES):
+            have = {(s.document_id, s.page_number) for s in found}
+            found += [
+                s
+                for s in self._sample_pages(exam_code)
+                if (s.document_id, s.page_number) not in have
+            ]
+        return _numbered(spread_sources(found, BROAD_SOURCES))
+
+    def paper_pages(self, document: Document) -> list[RagSource]:
+        """Every page of one paper that has text, in order, keyed by page number (S7 = page 7)
+        so the same page keeps its key across batches. The caller checked the owner."""
+        pages = self._session.scalars(
+            select(DocumentPage)
+            .where(DocumentPage.document_id == document.id, func.length(DocumentPage.text) > 0)
+            .order_by(DocumentPage.page_number)
+        ).all()
+        return [
+            RagSource(
+                key=f"S{page.page_number}",
+                kind="page",
+                label=f"{document.original_filename}, page {page.page_number}",
+                text=page.text,
+                verified=False,
+                rank=0.0,
+                document_id=str(document.id),
+                page_number=page.page_number,
+            )
+            for page in pages
+        ]
 
     # --- PDF pages ---------------------------------------------------------------------------
 
-    def _pages(self, terms: Sequence[str], exam_code: str) -> list[RagSource]:
+    def _sample_pages(self, exam_code: str) -> list[RagSource]:
+        """Evenly spaced pages of each of the learner's papers for this exam."""
+        rows = self._session.execute(
+            select(DocumentPage.document_id, DocumentPage.page_number, Document.original_filename)
+            .join(Document, Document.id == DocumentPage.document_id)
+            .where(
+                Document.owner_id == self._owner_id,
+                Document.exam_code == exam_code,
+                func.length(DocumentPage.text) > 0,
+            )
+            .order_by(DocumentPage.document_id, DocumentPage.page_number)
+        ).all()
+        papers: dict[uuid.UUID, list[tuple[int, str]]] = {}
+        for document_id, number, filename in rows:
+            papers.setdefault(document_id, []).append((number, filename))
+        wanted: list[tuple[uuid.UUID, int, str]] = []
+        for document_id, pages in papers.items():
+            step = max(1, len(pages) // BROAD_SOURCES)
+            wanted += [(document_id, number, name) for number, name in pages[::step]]
+        sources = []
+        for document_id, number, filename in wanted[: BROAD_SOURCES * 4]:
+            text = self._session.scalar(
+                select(DocumentPage.text).where(
+                    DocumentPage.document_id == document_id, DocumentPage.page_number == number
+                )
+            )
+            sources.append(
+                RagSource(
+                    key="",
+                    kind="page",
+                    label=f"{filename}, page {number}",
+                    text=best_window(text or "", [], BROAD_SNIPPET_CHARS),
+                    verified=False,
+                    rank=0.0,
+                    document_id=str(document_id),
+                    page_number=number,
+                )
+            )
+        return sources
+
+    def _pages(
+        self,
+        terms: Sequence[str],
+        exam_code: str,
+        *,
+        limit: int = CANDIDATES_PER_KIND,
+        size: int = SNIPPET_CHARS,
+    ) -> list[RagSource]:
         matches, rank = _match(DocumentPage.text, terms)
         rows = self._session.execute(
             select(DocumentPage, Document.original_filename, rank.label("rank"))
@@ -75,14 +168,14 @@ class RagRetriever:
                 matches,
             )
             .order_by(rank.desc())
-            .limit(CANDIDATES_PER_KIND)
+            .limit(limit)
         ).all()
         return [
             RagSource(
                 key="",
                 kind="page",
                 label=f"{filename}, page {page.page_number}",
-                text=best_window(page.text, terms),
+                text=best_window(page.text, terms, size),
                 verified=False,  # extracted text (maybe OCR); nobody reviewed it
                 rank=float(score),
                 document_id=str(page.document_id),
@@ -93,7 +186,9 @@ class RagRetriever:
 
     # --- questions ---------------------------------------------------------------------------
 
-    def _questions(self, terms: Sequence[str], exam_code: str) -> list[RagSource]:
+    def _questions(
+        self, terms: Sequence[str], exam_code: str, *, limit: int = CANDIDATES_PER_KIND
+    ) -> list[RagSource]:
         # Search the stem together with its options and explanation (one text per question).
         options = (
             select(func.string_agg(QuestionOption.text, " "))
@@ -116,7 +211,7 @@ class RagRetriever:
                 matches,
             )
             .order_by(rank.desc())
-            .limit(CANDIDATES_PER_KIND)
+            .limit(limit)
         ).all()
         sources = []
         for question, filename, score in rows:
@@ -138,7 +233,9 @@ class RagRetriever:
 
     # --- concepts ----------------------------------------------------------------------------
 
-    def _concepts(self, terms: Sequence[str], exam_code: str) -> list[RagSource]:
+    def _concepts(
+        self, terms: Sequence[str], exam_code: str, *, limit: int = CANDIDATES_PER_KIND
+    ) -> list[RagSource]:
         data = SyncItem.data
         searchable = func.concat_ws(
             " ",
@@ -159,7 +256,7 @@ class RagRetriever:
                 matches,
             )
             .order_by(rank.desc())
-            .limit(CANDIDATES_PER_KIND)
+            .limit(limit)
         ).all()
         sources = []
         for item, score in rows:
@@ -178,6 +275,10 @@ class RagRetriever:
                 )
             )
         return sources
+
+
+def _numbered(sources: Sequence[RagSource]) -> list[RagSource]:
+    return [replace(s, key=f"S{i}") for i, s in enumerate(sources, start=1)]
 
 
 def _question_text(question: Question) -> str:
