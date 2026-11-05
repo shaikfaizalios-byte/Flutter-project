@@ -2529,6 +2529,382 @@
         "title": "ItemSource",
         "type": "object"
       },
+      "LadderAnswer": {
+        "additionalProperties": false,
+        "properties": {
+          "selected_index": {
+            "maximum": 9.0,
+            "minimum": 0.0,
+            "title": "Selected Index",
+            "type": "integer"
+          },
+          "time_spent_ms": {
+            "anyOf": [
+              {
+                "maximum": 86400000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Spent Ms"
+          }
+        },
+        "required": [
+          "selected_index"
+        ],
+        "title": "LadderAnswer",
+        "type": "object"
+      },
+      "LadderBest": {
+        "properties": {
+          "step": {
+            "title": "Step",
+            "type": "integer"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "step",
+          "topic_name"
+        ],
+        "title": "LadderBest",
+        "type": "object"
+      },
+      "LadderOverview": {
+        "description": "Topics for the exam, most repeated first; ``best`` is the learner's own best climb.",
+        "properties": {
+          "best": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LadderBest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/LadderTopic"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "topics",
+          "best"
+        ],
+        "title": "LadderOverview",
+        "type": "object"
+      },
+      "LadderResult": {
+        "description": "What the learner sees once they have answered.",
+        "properties": {
+          "answer_index": {
+            "title": "Answer Index",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "boolean"
+          },
+          "selected_index": {
+            "title": "Selected Index",
+            "type": "integer"
+          },
+          "shortcut": {
+            "title": "Shortcut",
+            "type": "string"
+          },
+          "solution": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Solution",
+            "type": "array"
+          },
+          "time_spent_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Spent Ms"
+          }
+        },
+        "required": [
+          "selected_index",
+          "correct",
+          "answer_index",
+          "solution",
+          "shortcut",
+          "time_spent_ms"
+        ],
+        "title": "LadderResult",
+        "type": "object"
+      },
+      "LadderRoundRead": {
+        "properties": {
+          "round_number": {
+            "title": "Round Number",
+            "type": "integer"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "source_mix": {
+            "enum": [
+              "papers",
+              "web_main",
+              "web_only"
+            ],
+            "title": "Source Mix",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/LadderStepRead"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "round_number",
+          "topic_name",
+          "subject",
+          "source_mix",
+          "steps"
+        ],
+        "title": "LadderRoundRead",
+        "type": "object"
+      },
+      "LadderStart": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "enum": [
+              "en",
+              "hi"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "topic_id"
+        ],
+        "title": "LadderStart",
+        "type": "object"
+      },
+      "LadderStepRead": {
+        "properties": {
+          "basis_papers": {
+            "title": "Basis Papers",
+            "type": "integer"
+          },
+          "basis_web": {
+            "title": "Basis Web",
+            "type": "boolean"
+          },
+          "difficulty": {
+            "enum": [
+              "easy",
+              "medium",
+              "medium_hard",
+              "hard",
+              "extreme_hard"
+            ],
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Name"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "paper_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paper Label"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LadderResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "round_number": {
+            "title": "Round Number",
+            "type": "integer"
+          },
+          "second_model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Second Model Name"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ai",
+                  "paper"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          },
+          "step": {
+            "title": "Step",
+            "type": "integer"
+          },
+          "time_target_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Target Seconds"
+          }
+        },
+        "required": [
+          "round_number",
+          "step",
+          "difficulty",
+          "model_name",
+          "second_model_name",
+          "ready",
+          "source",
+          "basis_papers",
+          "basis_web",
+          "paper_label",
+          "stem",
+          "options",
+          "time_target_seconds",
+          "result"
+        ],
+        "title": "LadderStepRead",
+        "type": "object"
+      },
+      "LadderTopic": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "papers": {
+            "title": "Papers",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "subject",
+          "papers"
+        ],
+        "title": "LadderTopic",
+        "type": "object"
+      },
       "LoginRequest": {
         "additionalProperties": false,
         "properties": {
@@ -12559,6 +12935,504 @@
         "summary": "Starter papers: shared papers and verified questions per exam",
         "tags": [
           "insights"
+        ]
+      }
+    },
+    "/api/v1/ladder/overview": {
+      "get": {
+        "operationId": "overview_api_v1_ladder_overview_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LadderOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Topics for an exam, most repeated first, and the learner's own best climb",
+        "tags": [
+          "ladder"
+        ]
+      }
+    },
+    "/api/v1/ladder/sessions": {
+      "post": {
+        "operationId": "start_api_v1_ladder_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LadderStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LadderRoundRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start a ladder on a topic: plans round 1 (questions come step by step)",
+        "tags": [
+          "ladder"
+        ]
+      }
+    },
+    "/api/v1/ladder/sessions/{session_id}/rounds": {
+      "post": {
+        "operationId": "next_round_api_v1_ladder_sessions__session_id__rounds_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LadderRoundRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Test me more: plans the next, harder round",
+        "tags": [
+          "ladder"
+        ]
+      }
+    },
+    "/api/v1/ladder/sessions/{session_id}/rounds/{round_number}": {
+      "get": {
+        "operationId": "read_round_api_v1_ladder_sessions__session_id__rounds__round_number__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "round_number",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Round Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LadderRoundRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A round with its steps (answers only for answered steps)",
+        "tags": [
+          "ladder"
+        ]
+      }
+    },
+    "/api/v1/ladder/sessions/{session_id}/rounds/{round_number}/steps/{step}/answer": {
+      "post": {
+        "operationId": "answer_api_v1_ladder_sessions__session_id__rounds__round_number__steps__step__answer_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "round_number",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Round Number",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "step",
+            "required": true,
+            "schema": {
+              "maximum": 5,
+              "minimum": 1,
+              "title": "Step",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LadderAnswer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LadderStepRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Answer a step: returns whether it was right, with the solution",
+        "tags": [
+          "ladder"
+        ]
+      }
+    },
+    "/api/v1/ladder/sessions/{session_id}/rounds/{round_number}/steps/{step}/generate": {
+      "post": {
+        "operationId": "generate_api_v1_ladder_sessions__session_id__rounds__round_number__steps__step__generate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "round_number",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Round Number",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "step",
+            "required": true,
+            "schema": {
+              "maximum": 5,
+              "minimum": 1,
+              "title": "Step",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LadderStepRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Write and check one step's question (paper text and web excerpts go to the AI)",
+        "tags": [
+          "ladder"
         ]
       }
     },

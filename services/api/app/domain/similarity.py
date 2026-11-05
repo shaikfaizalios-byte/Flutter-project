@@ -33,9 +33,10 @@ class StemItem:
     stem: str
 
 
-def normalise(stem: str) -> list[str]:
+def normalise(stem: str, *, mask_numbers: bool = True) -> list[str]:
     text = unicodedata.normalize("NFKC", stem).casefold()
-    text = _NUMBER.sub(" # ", text)
+    if mask_numbers:
+        text = _NUMBER.sub(" # ", text)
     return _TOKEN.findall(text)
 
 
@@ -50,6 +51,19 @@ def _cosine(a: Counter[str], b: Counter[str], norm_a: float, norm_b: float) -> f
         a, b = b, a
     dot = sum(count * b[gram] for gram, count in a.items() if gram in b)
     return dot / (norm_a * norm_b)
+
+
+def stem_similarity(a: str, b: str, *, mask_numbers: bool = True) -> float:
+    """How alike two stems are (0-1), by the same measure as the groups below."""
+    va, vb = (
+        _vector(normalise(a, mask_numbers=mask_numbers)),
+        _vector(normalise(b, mask_numbers=mask_numbers)),
+    )
+    if not va or not vb:
+        return 0.0
+    norm_a = math.sqrt(sum(c * c for c in va.values()))
+    norm_b = math.sqrt(sum(c * c for c in vb.values()))
+    return _cosine(va, vb, norm_a, norm_b)
 
 
 def similar_groups(items: Sequence[StemItem], threshold: float = THRESHOLD) -> list[list[Hashable]]:

@@ -6,6 +6,7 @@ from app.models.content import AuditEvent, ContentReport, ContentRights
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
+from app.models.ladder import LadderSession, LadderStep
 from app.models.language import LanguageRow
 from app.models.ops import RateLimitCounter
 from app.models.plus import BillingEvent, PlayPurchase, Subscription
@@ -41,6 +42,8 @@ __all__ = [
     "DocumentPage",
     "Exam",
     "ExamFormat",
+    "LadderSession",
+    "LadderStep",
     "LanguageRow",
     "Passage",
     "PlayPurchase",

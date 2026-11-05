@@ -4,7 +4,7 @@ from typing import Any
 
 from PIL import Image
 
-from app.integrations.ai import AIProviderError, AIResult
+from app.integrations.ai import AIProviderError, AIResult, WebSearchHit
 from app.integrations.email import OutgoingEmail
 from app.integrations.ocr import OcrFailedError, OcrResult, OcrUnavailableError
 
@@ -45,6 +45,9 @@ class FakeAIProvider:
 
     responses: list[dict[str, Any] | AIProviderError] = field(default_factory=list)
     calls: list[AICall] = field(default_factory=list)
+    # What web searches return (nothing by default), or the error they raise.
+    web_hits: list[WebSearchHit] | AIProviderError = field(default_factory=list)
+    searches: list[str] = field(default_factory=list)
     name: str = "fake"
     model: str = "fake-model-1"
 
@@ -64,6 +67,12 @@ class FakeAIProvider:
         if isinstance(response, AIProviderError):
             raise response
         return AIResult(data=response, input_tokens=120, output_tokens=80)
+
+    def search_web(self, *, query: str, max_results: int) -> list[WebSearchHit]:
+        self.searches.append(query)
+        if isinstance(self.web_hits, AIProviderError):
+            raise self.web_hits
+        return self.web_hits[:max_results]
 
 
 @dataclass

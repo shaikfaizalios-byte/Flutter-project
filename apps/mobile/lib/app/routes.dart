@@ -51,6 +51,11 @@ abstract final class AppRoutes {
     path: '/study/documents/$id/summary',
     queryParameters: {'name': name, 'exam': examCode},
   ).toString();
+  static const ladderTopics = '/ladder/topics';
+
+  /// Challenge Ladder on a topic.
+  static String ladderRun(String topicId, String name) =>
+      Uri(path: '/ladder/run', queryParameters: {'topic': topicId, 'name': name}).toString();
   static String question(String id) => '/questions/$id';
   static String practiceSession(String id) => '/practice/sessions/$id';
 

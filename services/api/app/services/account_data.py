@@ -20,6 +20,7 @@ from app.models.content import ContentReport, ContentRights
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
+from app.models.ladder import LadderSession, LadderStep
 from app.models.plus import PlayPurchase, Subscription
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
 from app.models.progress import TopicCompletion
@@ -54,6 +55,7 @@ class ChildData:
 # and shared topics have no owner and are reference data.
 OWNED_DATA: tuple[type[Any], ...] = (
     Exam,
+    LadderSession,
     Topic,
     SyllabusImport,
     TopicCompletion,
@@ -71,6 +73,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
 
 # In order: a parent is always listed before its children.
 CHILD_DATA: tuple[ChildData, ...] = (
+    ChildData(LadderStep, (("session_id", "ladder_sessions"),)),
     ChildData(QuestionPattern, (("topic_id", "topics"),)),
     ChildData(TopicTaxonomyLink, (("topic_id", "topics"),)),
     ChildData(DocumentPage, (("document_id", "documents"),)),

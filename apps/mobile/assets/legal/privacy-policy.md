@@ -48,6 +48,10 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
 - If you ask for a summary of a paper, the text of that whole paper is sent to our AI provider.
   If you ask for the important topics in your papers, your request and many excerpts from your
   papers and notes for that exam are sent. Nothing from these requests is stored by PrepLoop.
+- If you use the Challenge Ladder, up to three questions from your own reviewed papers per step
+  are sent to our AI provider to write practice questions, and the exam, topic and question-type
+  names are used in a web search run by that provider. Your ladder questions, answers and times
+  are stored in your account, can be exported, and are deleted with it.
 - We keep a record that an AI request happened (type, model, outcome, size) but not its text.
 
 **Repeat Radar** (only if you turn on "Share my counts with the Repeat Radar"; off by default)

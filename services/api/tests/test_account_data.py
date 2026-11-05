@@ -15,6 +15,7 @@ from app.models.content import ContentReport, ContentRights
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
+from app.models.ladder import LadderSession, LadderStep
 from app.models.plus import PlayPurchase, Subscription
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
 from app.models.progress import TopicCompletion
@@ -153,6 +154,18 @@ def _fill_account(db: Session, user: User) -> None:
     )
     passage = Passage(document_id=document.id, text="Read this.", source_pages=[1])
     db.add_all([DocumentPage(document_id=document.id, page_number=1, method="text"), passage])
+    db.flush()
+    ladder = LadderSession(
+        owner_id=user.id,
+        exam_code=code,
+        topic_name="Topic",
+        subject="Subject",
+        language="en",
+        source_mix="papers",
+    )
+    db.add(ladder)
+    db.flush()
+    db.add(LadderStep(session_id=ladder.id, round_number=1, step=1, difficulty="easy"))
     db.flush()
     question = Question(
         owner_id=user.id,

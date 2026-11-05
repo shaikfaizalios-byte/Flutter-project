@@ -7280,6 +7280,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The whole paper in 10-15 simple points. Its text is sent to the AI service.'**
   String get paperSummarizeHint;
+
+  /// No description provided for @ladderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge Ladder'**
+  String get ladderTitle;
+
+  /// No description provided for @ladderTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'5 questions. Each one harder. How high can you climb?'**
+  String get ladderTagline;
+
+  /// No description provided for @ladderBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Your best: step {step} in {topic}'**
+  String ladderBest(int step, String topic);
+
+  /// No description provided for @ladderAnyTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Any topic'**
+  String get ladderAnyTopic;
+
+  /// No description provided for @ladderPickTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a topic'**
+  String get ladderPickTopic;
+
+  /// No description provided for @ladderSearchTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Search topics'**
+  String get ladderSearchTopics;
+
+  /// No description provided for @ladderTopicPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{in 1 of your papers} other{in {count} of your papers}}'**
+  String ladderTopicPapers(int count);
+
+  /// No description provided for @ladderHonestNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice questions written by AI from the patterns in your papers. Not past-paper questions, and not a prediction of the exam.'**
+  String get ladderHonestNote;
+
+  /// No description provided for @ladderWebOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no reviewed questions on this topic yet, so these questions will come from web references only.'**
+  String get ladderWebOnly;
+
+  /// No description provided for @ladderStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start climbing'**
+  String get ladderStart;
+
+  /// No description provided for @ladderConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you start'**
+  String get ladderConsentTitle;
+
+  /// No description provided for @ladderConsentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions from your imported papers are sent to an AI service to create practice questions. The topic name is also used in a web search.'**
+  String get ladderConsentBody;
+
+  /// No description provided for @ladderConsentYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get ladderConsentYes;
+
+  /// No description provided for @ladderConsentNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get ladderConsentNo;
+
+  /// No description provided for @ladderWriting.
+  ///
+  /// In en, this message translates to:
+  /// **'Building your ladder…'**
+  String get ladderWriting;
+
+  /// No description provided for @ladderWritingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each question is written, then solved separately to check its answer.'**
+  String get ladderWritingHint;
+
+  /// No description provided for @ladderStepLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} · {difficulty}'**
+  String ladderStepLabel(int step, String difficulty);
+
+  /// No description provided for @ladderStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {total} · {difficulty}'**
+  String ladderStepOf(int step, int total, String difficulty);
+
+  /// No description provided for @ladderEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get ladderEasy;
+
+  /// No description provided for @ladderMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get ladderMedium;
+
+  /// No description provided for @ladderMediumHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium-hard'**
+  String get ladderMediumHard;
+
+  /// No description provided for @ladderHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get ladderHard;
+
+  /// No description provided for @ladderExtremeHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme hard'**
+  String get ladderExtremeHard;
+
+  /// No description provided for @ladderBasisPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Pattern seen in 1 of your papers} other{Pattern seen in {count} of your papers}}'**
+  String ladderBasisPapers(int count);
+
+  /// No description provided for @ladderBasisWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern from web references'**
+  String get ladderBasisWeb;
+
+  /// No description provided for @ladderBasisBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Pattern seen in 1 of your papers and web references} other{Pattern seen in {count} of your papers and web references}}'**
+  String ladderBasisBoth(int count);
+
+  /// No description provided for @ladderFromPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'From your papers · {paper}'**
+  String ladderFromPapers(String paper);
+
+  /// No description provided for @ladderTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer (target {seconds} s)'**
+  String ladderTimer(int seconds);
+
+  /// No description provided for @ladderTimerRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'{elapsed} s of {seconds} s'**
+  String ladderTimerRunning(int elapsed, int seconds);
+
+  /// No description provided for @ladderRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Right'**
+  String get ladderRight;
+
+  /// No description provided for @ladderWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong'**
+  String get ladderWrong;
+
+  /// No description provided for @ladderSolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Solution'**
+  String get ladderSolution;
+
+  /// No description provided for @ladderShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortcut'**
+  String get ladderShortcut;
+
+  /// No description provided for @ladderNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next step'**
+  String get ladderNext;
+
+  /// No description provided for @ladderSeeResults.
+  ///
+  /// In en, this message translates to:
+  /// **'See results'**
+  String get ladderSeeResults;
+
+  /// No description provided for @ladderResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your climb'**
+  String get ladderResultsTitle;
+
+  /// No description provided for @ladderScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} of {total} right'**
+  String ladderScore(int correct, int total);
+
+  /// No description provided for @ladderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: {minutes} min {seconds} s'**
+  String ladderTime(int minutes, int seconds);
+
+  /// No description provided for @ladderCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared'**
+  String get ladderCleared;
+
+  /// No description provided for @ladderMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get ladderMissed;
+
+  /// No description provided for @ladderByModel.
+  ///
+  /// In en, this message translates to:
+  /// **'By question type'**
+  String get ladderByModel;
+
+  /// No description provided for @ladderModelScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {right} of {all}'**
+  String ladderModelScore(String name, int right, int all);
+
+  /// No description provided for @ladderMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Test me more'**
+  String get ladderMore;
+
+  /// No description provided for @ladderAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another topic'**
+  String get ladderAnother;
+
+  /// No description provided for @ladderPlusMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge Ladder is part of PrepLoop Plus.'**
+  String get ladderPlusMessage;
+
+  /// No description provided for @ladderAiOff.
+  ///
+  /// In en, this message translates to:
+  /// **'AI isn\'t available right now, so a ladder can\'t be built.'**
+  String get ladderAiOff;
+
+  /// No description provided for @ladderNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'You seem to be offline, or the AI service can\'t be reached.'**
+  String get ladderNoConnection;
+
+  /// No description provided for @ladderPractiseReal.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise real questions from your papers'**
+  String get ladderPractiseReal;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

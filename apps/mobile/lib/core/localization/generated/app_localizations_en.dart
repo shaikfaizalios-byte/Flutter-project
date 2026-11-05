@@ -4578,4 +4578,194 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paperSummarizeHint =>
       'The whole paper in 10-15 simple points. Its text is sent to the AI service.';
+
+  @override
+  String get ladderTitle => 'Challenge Ladder';
+
+  @override
+  String get ladderTagline => '5 questions. Each one harder. How high can you climb?';
+
+  @override
+  String ladderBest(int step, String topic) {
+    return 'Your best: step $step in $topic';
+  }
+
+  @override
+  String get ladderAnyTopic => 'Any topic';
+
+  @override
+  String get ladderPickTopic => 'Choose a topic';
+
+  @override
+  String get ladderSearchTopics => 'Search topics';
+
+  @override
+  String ladderTopicPapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'in $count of your papers',
+      one: 'in 1 of your papers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ladderHonestNote =>
+      'Practice questions written by AI from the patterns in your papers. Not past-paper questions, and not a prediction of the exam.';
+
+  @override
+  String get ladderWebOnly =>
+      'You have no reviewed questions on this topic yet, so these questions will come from web references only.';
+
+  @override
+  String get ladderStart => 'Start climbing';
+
+  @override
+  String get ladderConsentTitle => 'Before you start';
+
+  @override
+  String get ladderConsentBody =>
+      'Questions from your imported papers are sent to an AI service to create practice questions. The topic name is also used in a web search.';
+
+  @override
+  String get ladderConsentYes => 'Continue';
+
+  @override
+  String get ladderConsentNo => 'Not now';
+
+  @override
+  String get ladderWriting => 'Building your ladder…';
+
+  @override
+  String get ladderWritingHint =>
+      'Each question is written, then solved separately to check its answer.';
+
+  @override
+  String ladderStepLabel(int step, String difficulty) {
+    return 'Step $step · $difficulty';
+  }
+
+  @override
+  String ladderStepOf(int step, int total, String difficulty) {
+    return 'Step $step of $total · $difficulty';
+  }
+
+  @override
+  String get ladderEasy => 'Easy';
+
+  @override
+  String get ladderMedium => 'Medium';
+
+  @override
+  String get ladderMediumHard => 'Medium-hard';
+
+  @override
+  String get ladderHard => 'Hard';
+
+  @override
+  String get ladderExtremeHard => 'Extreme hard';
+
+  @override
+  String ladderBasisPapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pattern seen in $count of your papers',
+      one: 'Pattern seen in 1 of your papers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ladderBasisWeb => 'Pattern from web references';
+
+  @override
+  String ladderBasisBoth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pattern seen in $count of your papers and web references',
+      one: 'Pattern seen in 1 of your papers and web references',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ladderFromPapers(String paper) {
+    return 'From your papers · $paper';
+  }
+
+  @override
+  String ladderTimer(int seconds) {
+    return 'Timer (target $seconds s)';
+  }
+
+  @override
+  String ladderTimerRunning(int elapsed, int seconds) {
+    return '$elapsed s of $seconds s';
+  }
+
+  @override
+  String get ladderRight => 'Right';
+
+  @override
+  String get ladderWrong => 'Wrong';
+
+  @override
+  String get ladderSolution => 'Solution';
+
+  @override
+  String get ladderShortcut => 'Shortcut';
+
+  @override
+  String get ladderNext => 'Next step';
+
+  @override
+  String get ladderSeeResults => 'See results';
+
+  @override
+  String get ladderResultsTitle => 'Your climb';
+
+  @override
+  String ladderScore(int correct, int total) {
+    return '$correct of $total right';
+  }
+
+  @override
+  String ladderTime(int minutes, int seconds) {
+    return 'Time: $minutes min $seconds s';
+  }
+
+  @override
+  String get ladderCleared => 'Cleared';
+
+  @override
+  String get ladderMissed => 'Missed';
+
+  @override
+  String get ladderByModel => 'By question type';
+
+  @override
+  String ladderModelScore(String name, int right, int all) {
+    return '$name: $right of $all';
+  }
+
+  @override
+  String get ladderMore => 'Test me more';
+
+  @override
+  String get ladderAnother => 'Try another topic';
+
+  @override
+  String get ladderPlusMessage => 'Challenge Ladder is part of PrepLoop Plus.';
+
+  @override
+  String get ladderAiOff => 'AI isn\'t available right now, so a ladder can\'t be built.';
+
+  @override
+  String get ladderNoConnection => 'You seem to be offline, or the AI service can\'t be reached.';
+
+  @override
+  String get ladderPractiseReal => 'Practise real questions from your papers';
 }
