@@ -4578,4 +4578,194 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get paperSummarizeHint =>
       'पूरा पेपर 10-15 सरल बिंदुओं में। इसका पाठ AI सेवा को भेजा जाता है।';
+
+  @override
+  String get ladderTitle => 'चैलेंज लैडर';
+
+  @override
+  String get ladderTagline => '5 प्रश्न। हर अगला और कठिन। आप कितना ऊपर चढ़ सकते हैं?';
+
+  @override
+  String ladderBest(int step, String topic) {
+    return 'आपका सर्वश्रेष्ठ: $topic में चरण $step';
+  }
+
+  @override
+  String get ladderAnyTopic => 'कोई भी टॉपिक';
+
+  @override
+  String get ladderPickTopic => 'टॉपिक चुनें';
+
+  @override
+  String get ladderSearchTopics => 'टॉपिक खोजें';
+
+  @override
+  String ladderTopicPapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'आपके $count पेपरों में',
+      one: 'आपके 1 पेपर में',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ladderHonestNote =>
+      'आपके पेपरों के पैटर्न से AI द्वारा लिखे अभ्यास प्रश्न। ये पिछले पेपरों के प्रश्न नहीं हैं, और न ही परीक्षा का अनुमान।';
+
+  @override
+  String get ladderWebOnly =>
+      'इस टॉपिक पर आपके पास अभी जाँचे हुए प्रश्न नहीं हैं, इसलिए ये प्रश्न केवल वेब संदर्भों से बनेंगे।';
+
+  @override
+  String get ladderStart => 'चढ़ना शुरू करें';
+
+  @override
+  String get ladderConsentTitle => 'शुरू करने से पहले';
+
+  @override
+  String get ladderConsentBody =>
+      'अभ्यास प्रश्न बनाने के लिए आपके जोड़े गए पेपरों के प्रश्न AI सेवा को भेजे जाते हैं। टॉपिक का नाम वेब खोज में भी उपयोग होता है।';
+
+  @override
+  String get ladderConsentYes => 'आगे बढ़ें';
+
+  @override
+  String get ladderConsentNo => 'अभी नहीं';
+
+  @override
+  String get ladderWriting => 'आपकी लैडर बन रही है…';
+
+  @override
+  String get ladderWritingHint =>
+      'हर प्रश्न लिखा जाता है, फिर उसके उत्तर की जाँच के लिए अलग से हल किया जाता है।';
+
+  @override
+  String ladderStepLabel(int step, String difficulty) {
+    return 'चरण $step · $difficulty';
+  }
+
+  @override
+  String ladderStepOf(int step, int total, String difficulty) {
+    return 'चरण $step/$total · $difficulty';
+  }
+
+  @override
+  String get ladderEasy => 'आसान';
+
+  @override
+  String get ladderMedium => 'मध्यम';
+
+  @override
+  String get ladderMediumHard => 'मध्यम-कठिन';
+
+  @override
+  String get ladderHard => 'कठिन';
+
+  @override
+  String get ladderExtremeHard => 'अत्यंत कठिन';
+
+  @override
+  String ladderBasisPapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'पैटर्न आपके $count पेपरों में मिला',
+      one: 'पैटर्न आपके 1 पेपर में मिला',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ladderBasisWeb => 'पैटर्न वेब संदर्भों से';
+
+  @override
+  String ladderBasisBoth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'पैटर्न आपके $count पेपरों और वेब संदर्भों में मिला',
+      one: 'पैटर्न आपके 1 पेपर और वेब संदर्भों में मिला',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ladderFromPapers(String paper) {
+    return 'आपके पेपरों से · $paper';
+  }
+
+  @override
+  String ladderTimer(int seconds) {
+    return 'टाइमर (लक्ष्य $seconds सेकंड)';
+  }
+
+  @override
+  String ladderTimerRunning(int elapsed, int seconds) {
+    return '$seconds में से $elapsed सेकंड';
+  }
+
+  @override
+  String get ladderRight => 'सही';
+
+  @override
+  String get ladderWrong => 'गलत';
+
+  @override
+  String get ladderSolution => 'हल';
+
+  @override
+  String get ladderShortcut => 'शॉर्टकट';
+
+  @override
+  String get ladderNext => 'अगला चरण';
+
+  @override
+  String get ladderSeeResults => 'परिणाम देखें';
+
+  @override
+  String get ladderResultsTitle => 'आपकी चढ़ाई';
+
+  @override
+  String ladderScore(int correct, int total) {
+    return '$total में से $correct सही';
+  }
+
+  @override
+  String ladderTime(int minutes, int seconds) {
+    return 'समय: $minutes मिनट $seconds सेकंड';
+  }
+
+  @override
+  String get ladderCleared => 'पार किया';
+
+  @override
+  String get ladderMissed => 'छूटा';
+
+  @override
+  String get ladderByModel => 'प्रश्न-प्रकार के अनुसार';
+
+  @override
+  String ladderModelScore(String name, int right, int all) {
+    return '$name: $all में से $right';
+  }
+
+  @override
+  String get ladderMore => 'और परखें';
+
+  @override
+  String get ladderAnother => 'दूसरा टॉपिक लें';
+
+  @override
+  String get ladderPlusMessage => 'चैलेंज लैडर PrepLoop Plus का हिस्सा है।';
+
+  @override
+  String get ladderAiOff => 'अभी AI उपलब्ध नहीं है, इसलिए लैडर नहीं बन सकती।';
+
+  @override
+  String get ladderNoConnection => 'आप ऑफ़लाइन लगते हैं, या AI सेवा तक नहीं पहुँचा जा सका।';
+
+  @override
+  String get ladderPractiseReal => 'अपने पेपरों के असली प्रश्नों का अभ्यास करें';
 }

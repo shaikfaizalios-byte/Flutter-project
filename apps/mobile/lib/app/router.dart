@@ -39,6 +39,8 @@ import '../features/feedback/presentation/suggestions_screen.dart';
 import '../features/auth/presentation/devices_screen.dart';
 import '../features/plus/presentation/plus_screen.dart';
 import '../features/ai/data/ai_repository.dart';
+import '../features/ladder/presentation/ladder_screen.dart';
+import '../features/ladder/presentation/ladder_topics_screen.dart';
 import '../features/learn/presentation/topic_lesson_screen.dart';
 import '../features/learn/presentation/topic_quiz_screen.dart';
 
@@ -118,6 +120,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       // Lessons and knowledge checks stay unreachable (even by link) while the feature is hidden.
+      GoRoute(
+        path: '/ladder/topics',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const LadderTopicsScreen(),
+      ),
+      GoRoute(
+        path: '/ladder/run',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => LadderScreen(
+          topicId: state.uri.queryParameters['topic'] ?? '',
+          topicName: state.uri.queryParameters['name'] ?? '',
+        ),
+      ),
       GoRoute(
         path: '/learn/lesson',
         redirect: (context, state) =>

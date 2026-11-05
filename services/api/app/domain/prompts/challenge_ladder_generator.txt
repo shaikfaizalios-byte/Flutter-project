@@ -1,0 +1,28 @@
+Write ONE original multiple-choice practice question for a learner preparing for {{exam}}.
+
+Topic: {{topic}} (subject: {{subject}})
+Question type: {{model}}
+Difficulty: {{difficulty}}. {{difficulty_rule}}
+Language: {{language}}
+
+Questions from the learner's own reviewed papers, as examples of this pattern:
+{{seeds}}
+
+Web references on the same topic, as a secondary source:
+{{web_references}}
+
+{{source_rule}}
+
+Questions already used in this session, which yours must not resemble:
+{{avoid}}
+
+Rules:
+- Keep the pattern of the examples, but write a new question: new numbers, names and wording. Never copy a paper or web reference.
+- Match the stated difficulty, even if the examples are easier or harder than it.
+- Make it clearly different from the questions already used: ask for a different unknown, or use a different setup or sub-pattern of this type, not the same sentence with new numbers.
+- It must be fully answerable from its own text: no figures, no "see the passage", no outside data.
+- Exactly 4 different options, with exactly one correct. Work the answer out yourself before writing the options, and make the wrong options come from realistic mistakes.
+- solution: the working, one short step per item, ending at the correct option.
+- shortcut: a faster method if there is a real one, else an empty string.
+- time_target_seconds: how long a well-prepared learner needs at this difficulty.
+- answer_index: the position of the correct option, counting from 0.

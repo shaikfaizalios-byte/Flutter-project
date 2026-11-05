@@ -28,6 +28,7 @@ import '../../analytics/domain/study_plan.dart';
 import '../../documents/presentation/import_progress.dart';
 import '../../../app/app_features.dart';
 import '../../weekly_review/application/weekly_review_providers.dart';
+import '../../ladder/presentation/ladder_card.dart';
 import '../../learn/presentation/start_options_card.dart';
 
 /// Dashboard. Answers the three core questions from real local data only;
@@ -88,6 +89,8 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               // One card answers "what do I do today": the plan, then focus time and streak.
               _TodayCard(profile: profile),
+              const SizedBox(height: AppSpacing.sm),
+              const LadderCard(),
               if (ref.watch(appFeaturesProvider).quotes) ...[
                 const SizedBox(height: AppSpacing.sm),
                 const QuoteCard(),

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:preploop/features/ladder/data/ladder_repository.dart';
+import 'package:preploop/features/ladder/presentation/ladder_icon.dart';
 import 'package:preploop/app/app.dart';
 import 'package:preploop/core/config/app_config.dart';
 import 'package:preploop/core/database/app_database.dart';
@@ -31,6 +33,7 @@ import 'package:preploop/features/question_bank/data/questions_repository.dart';
 import 'package:preploop/features/reminders/application/reminder_controller.dart';
 
 import 'fake_ai.dart';
+import 'fake_ladder.dart';
 import 'fake_auth.dart';
 import 'fake_exams.dart';
 import 'fake_insights.dart';
@@ -41,6 +44,7 @@ import 'fake_questions.dart';
 import 'fake_reminders.dart';
 
 export 'fake_ai.dart';
+export 'fake_ladder.dart';
 export 'fake_auth.dart';
 export 'fake_exams.dart';
 export 'fake_insights.dart';
@@ -133,6 +137,7 @@ Future<void> pumpPrepLoopApp(
   FakeReminderScheduler? reminders,
   FakeAnalyticsRepository? analytics,
   FakeAiRepository? ai,
+  FakeLadderRepository? ladder,
   FakeInsightsRepository? insights,
   FakeExamsRepository? exams,
   FakeFeedbackRepository? feedback,
@@ -164,6 +169,8 @@ Future<void> pumpPrepLoopApp(
     analyticsRepositoryProvider.overrideWithValue(analytics ?? FakeAnalyticsRepository()),
     localTimezoneProvider.overrideWith((ref) async => 'Asia/Kolkata'),
     aiRepositoryProvider.overrideWithValue(ai ?? FakeAiRepository()),
+    ladderRepositoryProvider.overrideWithValue(ladder ?? FakeLadderRepository()),
+    ladderIconMotionProvider.overrideWithValue(false),
     insightsRepositoryProvider.overrideWithValue(insights ?? FakeInsightsRepository()),
     examsRepositoryProvider.overrideWithValue(exams ?? FakeExamsRepository()),
     feedbackRepositoryProvider.overrideWithValue(feedback ?? FakeFeedbackRepository()),
