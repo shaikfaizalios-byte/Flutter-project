@@ -69,6 +69,7 @@ def test_material_cannot_close_its_own_block() -> None:
             topic=None,
             language="en",
             count=2,
+            option_count=4,
         ),
         ai_content.questions_from_notes_prompt(
             title="Ratios",
@@ -78,6 +79,7 @@ def test_material_cannot_close_its_own_block() -> None:
             language="en",
             count=2,
             exam_name="SSC CGL",
+            option_count=4,
         ),
         ai_content.topic_prompt(stem=INJECTION, subject="Maths", topics=["Ratios"]),
         ai_content.paper_topics_prompt(
@@ -89,7 +91,12 @@ def test_material_cannot_close_its_own_block() -> None:
             topic=INJECTION, subject=None, exam_name=None, language="en"
         ),
         ai_content.topic_quiz_prompt(
-            topic=INJECTION, subject=None, exam_name=None, language="en", count=3
+            topic=INJECTION,
+            subject=None,
+            exam_name=None,
+            language="en",
+            count=3,
+            option_count=4,
         ),
         ai_content.answer_check_prompt(
             stem=INJECTION, passage=INJECTION, paper_answer=INJECTION, answer="x", language="en"

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
@@ -7,6 +7,18 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Subject = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Keyword = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=60)]
+
+
+class ExamProfileRead(BaseModel):
+    """What sets the exam apart; the app reads its rules from here."""
+
+    kind: str
+    options_per_question: int | None  # null: differs from paper to paper
+    repeat_share: float
+    min_papers: int
+    reliable_papers: int
+    counting_unit: str
+    exam_dates: list[date] = []
 
 
 class ExamRead(BaseModel):
@@ -26,6 +38,7 @@ class ExamRead(BaseModel):
     # Languages the exam's paper is offered in, from its official notice (ISO 639 codes, any
     # language, not only those PrepLoop supports for content; empty = not recorded).
     languages: list[str] = []
+    profile: ExamProfileRead
 
 
 class CustomExamCreate(BaseModel):

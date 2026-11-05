@@ -72,6 +72,7 @@ from app.schemas.ai import (
 )
 from app.schemas.document import DocumentRead
 from app.schemas.question import AIExplanationRead
+from app.services.exam_profiles import profile_for, profile_of
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.plus_service import PlusService
 from app.services.question_history import add_first_revision
@@ -219,6 +220,7 @@ class AIService:
             self._require_verified_source(source)
             exam_code, subject, section = source.exam_code, source.subject, source.section
             topic = source.topic
+            option_count = profile_for(self._session, exam_code).expected_options
             prompt = ai_content.questions_from_question_prompt(
                 stem=source.stem,
                 options=[o.text for o in source.options],
@@ -227,6 +229,7 @@ class AIService:
                 topic=topic.name if topic else None,
                 language=request.language,
                 count=request.count,
+                option_count=option_count,
             )
             note = None
         else:
@@ -243,6 +246,7 @@ class AIService:
                     func.lower(Topic.name) == concept.topic.lower(),
                 )
             ).first()
+            option_count = profile_of(exam).expected_options
             prompt = ai_content.questions_from_notes_prompt(
                 title=concept.title,
                 notes=concept.notes,
@@ -251,6 +255,7 @@ class AIService:
                 language=request.language,
                 count=request.count,
                 exam_name=exam.name,
+                option_count=option_count,
             )
             note = f"Concept: {concept.title}"[:300]
 
@@ -267,7 +272,9 @@ class AIService:
         reasons: list[str] = []
         avoid = [source.stem] if source else []
         for item in items[: request.count]:
-            valid, problems = ai_content.validate_generated(item, avoid_stems=avoid)
+            valid, problems = ai_content.validate_generated(
+                item, option_count=option_count, avoid_stems=avoid
+            )
             if valid is None:
                 reasons.extend(problems)
                 continue
@@ -618,6 +625,7 @@ class AIService:
         or progress."""
         provider = self._require_provider()
         exam = self._visible_exam(request.exam_code)
+        option_count = profile_of(exam).expected_options
         result = self._call(
             provider,
             task="topic_quiz",
@@ -628,6 +636,7 @@ class AIService:
                 exam_name=exam.name,
                 language=request.language,
                 count=request.count,
+                option_count=option_count,
             ),
             schema=ai_content.QUESTIONS_SCHEMA,
             system=ai_content.TOPIC_SYSTEM,
@@ -638,7 +647,9 @@ class AIService:
         reasons: set[str] = set()
         stems: list[str] = []
         for item in items:
-            valid, problems = ai_content.validate_generated(item, avoid_stems=stems)
+            valid, problems = ai_content.validate_generated(
+                item, option_count=option_count, avoid_stems=stems
+            )
             if valid is None:
                 reasons.update(problems)
                 continue

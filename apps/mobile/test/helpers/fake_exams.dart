@@ -6,16 +6,16 @@ import 'package:preploop/features/documents/domain/imported_document.dart';
 import 'package:preploop/features/exams/domain/exam_topics.dart';
 
 /// A small catalog for app tests: the two SSC exams (featured) plus a few others.
-const testCatalog = <ExamOption>[
+final testCatalog = <ExamOption>[
   ...builtInExams,
-  ExamOption(code: 'IBPS_PO', shortName: 'IBPS PO', category: 'Banking'),
-  ExamOption(code: 'NEET_UG', shortName: 'NEET UG', category: 'Entrance'),
+  const ExamOption(code: 'IBPS_PO', shortName: 'IBPS PO', category: 'Banking'),
+  const ExamOption(code: 'NEET_UG', shortName: 'NEET UG', category: 'Entrance'),
 ];
 
 /// In-memory exams and topics that follow the server's rules (own exams are private,
 /// duplicates refused, an exam in use can't be deleted).
 class FakeExamsRepository implements ExamsRepository {
-  FakeExamsRepository({List<ExamOption> catalog = testCatalog}) : catalog = [...catalog];
+  FakeExamsRepository({List<ExamOption>? catalog}) : catalog = [...(catalog ?? testCatalog)];
 
   final List<ExamOption> catalog;
   final topicsByExam = <String, List<ExamTopic>>{};

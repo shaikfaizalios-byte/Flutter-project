@@ -326,7 +326,7 @@ class PracticeSessionView {
   /// when back online.
   final bool offline;
 
-  /// Sectionally timed mock (e.g. SSC CGL): sections are taken in order, each with its own
+  /// Sectionally timed mock: sections are taken in order, each with its own
   /// timer from the verified format. Empty for everything else.
   final List<TimedSectionView> sections;
 
@@ -455,7 +455,7 @@ class MockTestView {
 
   final String code;
 
-  /// The exam the format belongs to (e.g. `SSC_CHSL`).
+  /// The exam the format belongs to.
   final String? examCode;
   final String name;
   final bool available;

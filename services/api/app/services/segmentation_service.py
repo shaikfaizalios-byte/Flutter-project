@@ -29,7 +29,6 @@ from app.domain.figures import (
 from app.domain.paper_date import suggest_paper_date
 from app.domain.qa_notes import WrittenQuestion, read_qa_notes
 from app.domain.segmentation import (
-    EXPECTED_OPTIONS,
     Issue,
     IssueCode,
     PageText,
@@ -54,6 +53,7 @@ from app.models.question import (
     TopicStatus,
     VerificationStatus,
 )
+from app.services.exam_profiles import profile_for
 from app.services.page_layout import PdfRenderer, read_layouts
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.question_history import add_first_revision
@@ -106,12 +106,13 @@ class SegmentationService:
             a.layout.number: normalize_text(a.text()) for a in analyses if a.figure_lines
         }
         exam_topics = visible_topics(self._session, document.owner_id, document.exam_code)
+        expected_options = profile_for(self._session, document.exam_code).expected_options
         result = segment(
             [
                 PageText(p.page_number, figure_text.get(p.page_number, p.text), p.needs_review)
                 for p in pages
             ],
-            expected_options=EXPECTED_OPTIONS,
+            expected_options=expected_options,
             # The exam's own subjects are recognised as section headings too.
             extra_headings=sorted({t.subject for t in exam_topics}),
         )
@@ -212,7 +213,9 @@ class SegmentationService:
                 question = self._build_question(
                     document, exam_format, parsed, passage_rows, topics, subjects
                 )
-                _apply_figures(question, parsed, figures, unreadable_chars, renderer)
+                _apply_figures(
+                    question, parsed, figures, unreadable_chars, renderer, expected_options
+                )
                 refresh_pattern(question, patterns)
                 self._session.add(question)
                 created += 1
@@ -286,7 +289,9 @@ class SegmentationService:
                 *content_issues(
                     option_texts=[],
                     answer_position=None,
-                    expected_options=EXPECTED_OPTIONS,
+                    expected_options=profile_for(
+                        self._session, document.exam_code
+                    ).expected_options,
                     answer_type="written",
                     model_answer=item.answer,
                 ),
@@ -436,6 +441,7 @@ def _apply_figures(
     figures: QuestionFigures,
     unreadable_chars: int,
     renderer: PdfRenderer | None,
+    expected_options: int,
 ) -> None:
     """Store figure crops on ``question`` and adjust its issues and image flag."""
     rows: list[QuestionFigure] = []
@@ -471,7 +477,7 @@ def _apply_figures(
         for i in content_issues(
             option_texts=[o.text for o in parsed.options],
             answer_position=parsed.answer_position,
-            expected_options=EXPECTED_OPTIONS,
+            expected_options=expected_options,
             option_figures=option_figures,
             answer_type=parsed.answer_type,
             typed_answer=parsed.typed_answer,

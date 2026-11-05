@@ -13,7 +13,7 @@ from sqlalchemy.sql.base import ExecutableOption
 from app.domain import ai_reading, question_history, typed_answers
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.figures import figure_box_problem, page_box
-from app.domain.segmentation import EXPECTED_OPTIONS, Issue, IssueCode, content_issues
+from app.domain.segmentation import Issue, IssueCode, content_issues
 from app.integrations.storage import DocumentStorage
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
@@ -50,6 +50,7 @@ from app.schemas.question import (
     TopicRead,
 )
 from app.services.exam_formats import published_formats
+from app.services.exam_profiles import profile_for
 from app.services.page_layout import PdfRenderer
 from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
 from app.services.question_history import (
@@ -482,7 +483,7 @@ class QuestionService:
         found = content_issues(
             option_texts=[o.text for o in question.options],
             answer_position=question.correct_option_position,
-            expected_options=EXPECTED_OPTIONS,
+            expected_options=profile_for(self._session, question.exam_code).expected_options,
             option_figures={f.option_position for f in question.figures if f.option_position},
             answer_type=question.answer_type,
             typed_answer=question.typed_answer,

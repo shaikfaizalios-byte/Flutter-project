@@ -13,10 +13,10 @@ FOLDER holds the PDFs and a ``manifest.json``::
       "operator": "papers@example.com",
       "papers": [
         {
-          "file": "ssc-chsl-2024-07-01-shift-1.pdf",
-          "exam": "SSC_CHSL",
+          "file": "paper-2024-07-01-shift-1.pdf",
+          "exam": "EXAM_CODE",
           "language": "en",
-          "source": "SSC CHSL 2024 Tier-I, 1 July 2024, shift 1 (official paper, ssc.gov.in, ...)",
+          "source": "Exam name, 1 July 2024, shift 1 (official paper, official site, ...)",
           "rights": "Published by the exam body for candidates; ...",
           "exam_date": "2024-07-01",
           "shift": 1,

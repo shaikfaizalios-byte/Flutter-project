@@ -20,6 +20,7 @@ RUN pip install --no-deps -r requirements.runtime.lock.txt
 
 COPY pyproject.toml alembic.ini ./
 COPY app ./app
+COPY data ./data
 COPY migrations ./migrations
 RUN pip install --no-deps .
 

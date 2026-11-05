@@ -12,6 +12,7 @@ types for any exam they can see. Shared taxonomy and catalog exams are read-only
 import secrets
 import uuid
 from collections.abc import Sequence
+from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import Any
 
@@ -30,6 +31,7 @@ from app.schemas.exam import (
     CanonicalTopicRead,
     CustomExamCreate,
     CustomExamUpdate,
+    ExamProfileRead,
     ExamRead,
     OwnTopicRead,
     PatternCreate,
@@ -39,6 +41,7 @@ from app.schemas.exam import (
     TopicUpdate,
 )
 from app.schemas.question import PatternRead
+from app.services.exam_profiles import profile_of
 from app.services.taxonomy_service import (
     canonical_for,
     decide,
@@ -82,6 +85,7 @@ def exam_read(exam: Exam) -> ExamRead:
         authority=exam.authority,
         aliases=list(exam.aliases or []),
         languages=list(exam.languages or []),
+        profile=ExamProfileRead(**asdict(profile_of(exam)), exam_dates=list(exam.exam_dates or [])),
     )
 
 

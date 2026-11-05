@@ -127,7 +127,7 @@ def _is_subject_word(word: str) -> bool:
 
 
 def matches_paper(hint: str, filename: str) -> bool:
-    """Every word of [hint] starts a word of the file name ("chsl 2024" ~ "CHSL-2024-paper.pdf")."""
+    """Every word of [hint] starts a word of the file name ("maths 2024" ~ "Maths-2024.pdf")."""
     names = [w.casefold() for w in _words(filename)]
     wanted = [w.casefold() for w in _words(hint)]
     return bool(wanted) and all(any(n.startswith(w) for n in names) for w in wanted)

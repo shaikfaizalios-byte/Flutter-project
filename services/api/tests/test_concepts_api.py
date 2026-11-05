@@ -45,6 +45,15 @@ def test_list_exams_returns_seeded_reference_data(db_client: TestClient) -> None
         "authority": None,  # set by the operator from the notice, never guessed
         "aliases": [],
         "languages": [],
+        "profile": {
+            "kind": "mcq",
+            "options_per_question": 4,
+            "repeat_share": 0.5,
+            "min_papers": 3,
+            "reliable_papers": 5,
+            "counting_unit": "paper",
+            "exam_dates": [],
+        },
     }
     assert all(not e["custom"] for e in exams)  # nobody's own exams in the public catalog
 

@@ -231,7 +231,9 @@ def test_an_exams_own_subjects_are_recognised_as_section_headings() -> None:
         "Biology\nQ.1 Which organelle makes ATP?\n"
         "(1) Nucleus (2) Mitochondria (3) Ribosome (4) Golgi"
     )
-    plain = segment([PageText(1, text)])
+    plain = segment([PageText(1, text)], expected_options=4)
     assert plain.questions[0].section is None
-    with_exam = segment([PageText(1, text)], extra_headings=["Biology", "Physics"])
+    with_exam = segment(
+        [PageText(1, text)], expected_options=4, extra_headings=["Biology", "Physics"]
+    )
     assert with_exam.questions[0].section == "Biology"

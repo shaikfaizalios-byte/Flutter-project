@@ -4,7 +4,7 @@ topic is suggested.
 
 Scoring: every keyword found in the stem scores its number of words (phrases are more
 specific than single words), three times as much when it appears in the question's first
-sentence, which is where SSC questions state what is asked ("Select the correct passive
+sentence, which is where questions usually state what is asked ("Select the correct passive
 form ...", "Given below are four jumbled sentences ..."). A keyword also matches when its first
 letters were lost as an unreadable PDF glyph (ligatures like "fi").
 """

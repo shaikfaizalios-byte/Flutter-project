@@ -14,6 +14,7 @@ import '../../practice/application/practice_providers.dart';
 import '../../practice/domain/practice_models.dart';
 import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
 import '../data/insights_repository.dart';
+import '../../exams/application/exam_catalog_controller.dart';
 import '../domain/radar.dart';
 import '../domain/repeats.dart';
 import 'radar_sharing_card.dart';
@@ -22,6 +23,11 @@ import '../../concepts/application/concepts_providers.dart';
 
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
 /// Every number states its basis; reviewed counts are kept apart from suggestions.
+/// The rules of the exam being shown.
+final repeatRulesProvider = Provider<RepeatRules>(
+  (ref) => RepeatRules.of(ref.watch(examProfileProvider(ref.watch(activeExamProvider)))),
+);
+
 class RepeatsScreen extends ConsumerStatefulWidget {
   const RepeatsScreen({super.key, this.initialView = 'mine'});
 
@@ -128,6 +134,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   List<Widget> _radarContent(BuildContext context, RadarReport report) {
     final l10n = AppLocalizations.of(context);
     final small = Theme.of(context).textTheme.bodySmall;
+    final rules = ref.watch(repeatRulesProvider);
     final basis = report.basis;
     if (basis.shifts == 0) {
       return [
@@ -151,10 +158,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
           children: [
             Text(l10n.radarHowCounted(basis.minAccounts), style: small),
             if (basis.withheld > 0) Text(l10n.radarWithheld(basis.withheld), style: small),
-            Text(
-              l10n.radarMostRule((RepeatRules.share * 100).round(), RepeatRules.minPapers),
-              style: small,
-            ),
+            Text(l10n.radarMostRule((rules.share * 100).round(), rules.minPapers), style: small),
           ],
         ),
       ),
@@ -235,7 +239,11 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
         .where((t) => t.confirmed.questions == 0 && t.unreviewed > 0)
         .toList();
     return [
-      _BasisCard(basis: report.papers, shared: _view == 'shared'),
+      _BasisCard(
+        basis: report.papers,
+        rules: ref.watch(repeatRulesProvider),
+        shared: _view == 'shared',
+      ),
       const SizedBox(height: AppSpacing.md),
       if (reviewed.isEmpty && unreviewedOnly.isNotEmpty)
         Padding(
@@ -286,7 +294,11 @@ extension on _RepeatsScreenState {
     }
 
     return [
-      _BasisCard(basis: report.papers, shared: _view == 'shared'),
+      _BasisCard(
+        basis: report.papers,
+        rules: ref.watch(repeatRulesProvider),
+        shared: _view == 'shared',
+      ),
       const SizedBox(height: AppSpacing.md),
       SectionCard(
         icon: Icons.info_outline,
@@ -393,9 +405,10 @@ extension on _RepeatsScreenState {
 }
 
 class _BasisCard extends StatelessWidget {
-  const _BasisCard({required this.basis, this.shared = false});
+  const _BasisCard({required this.basis, required this.rules, this.shared = false});
 
   final PapersBasis basis;
+  final RepeatRules rules;
 
   /// Counting the shared bank rather than the learner's own papers.
   final bool shared;
@@ -417,15 +430,15 @@ class _BasisCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpacing.xs,
         children: [
-          if (RepeatRules.isSmallSample(basis))
+          if (rules.isSmallSample(basis))
             Text(
-              l10n.repeatsSmallSample(basis.total, RepeatRules.reliablePapers),
+              l10n.repeatsSmallSample(basis.total, rules.reliablePapers),
               style: small?.copyWith(color: Theme.of(context).colorScheme.tertiary),
             ),
           if (basis.undated > 0) Text(l10n.repeatsUndated(basis.undated), style: small),
           Text(l10n.repeatsReviewedNote, style: small),
           Text(
-            l10n.repeatsMostPapersRule((RepeatRules.share * 100).round(), RepeatRules.minPapers),
+            l10n.repeatsMostPapersRule((rules.share * 100).round(), rules.minPapers),
             style: small,
           ),
         ],
@@ -451,7 +464,7 @@ class _TopicCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final small = theme.textTheme.bodySmall;
-    final most = RepeatRules.seenInMostPapers(topic.confirmed, basis);
+    final most = ref.watch(repeatRulesProvider).seenInMostPapers(topic.confirmed, basis);
     final subtitle = [
       if (topic.confirmed.questions > 0) _counts(l10n, topic.confirmed, basis),
       if (topic.unreviewed > 0) l10n.repeatsUnreviewed(topic.unreviewed),
@@ -591,9 +604,9 @@ class _RadarTopicCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final small = theme.textTheme.bodySmall;
+    final rules = ref.watch(repeatRulesProvider);
     final most =
-        basis.shifts >= RepeatRules.minPapers &&
-        topic.counts.shifts / basis.shifts >= RepeatRules.share;
+        basis.shifts >= rules.minPapers && topic.counts.shifts / basis.shifts >= rules.share;
     String years(List<RadarYear> ys) => ys.map((y) => '${y.year}: ${y.shifts}').join(' · ');
 
     return Card(

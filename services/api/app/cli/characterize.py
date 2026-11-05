@@ -23,8 +23,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.database.session import build_engine, build_sessionmaker
-from app.domain.segmentation import EXPECTED_OPTIONS, PageText, segment
+from app.domain.segmentation import PageText, segment
 from app.models.document import Document, DocumentPage
+from app.services.exam_profiles import profile_for
 from app.services.insights_service import InsightsService
 from app.services.topic_service import visible_topics
 
@@ -44,7 +45,7 @@ def _parsed(session: Session, document: Document) -> dict[str, Any]:
     ).all()
     result = segment(
         [PageText(p.page_number, p.text, p.needs_review) for p in pages],
-        expected_options=EXPECTED_OPTIONS,
+        expected_options=profile_for(session, document.exam_code).expected_options,
         extra_headings=sorted(
             {t.subject for t in visible_topics(session, document.owner_id, document.exam_code)}
         ),

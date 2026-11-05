@@ -2008,6 +2008,61 @@
         "title": "ExamFormatSection",
         "type": "object"
       },
+      "ExamProfileRead": {
+        "description": "What sets the exam apart; the app reads its rules from here.",
+        "properties": {
+          "counting_unit": {
+            "title": "Counting Unit",
+            "type": "string"
+          },
+          "exam_dates": {
+            "default": [],
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Exam Dates",
+            "type": "array"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "min_papers": {
+            "title": "Min Papers",
+            "type": "integer"
+          },
+          "options_per_question": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options Per Question"
+          },
+          "reliable_papers": {
+            "title": "Reliable Papers",
+            "type": "integer"
+          },
+          "repeat_share": {
+            "title": "Repeat Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "kind",
+          "options_per_question",
+          "repeat_share",
+          "min_papers",
+          "reliable_papers",
+          "counting_unit"
+        ],
+        "title": "ExamProfileRead",
+        "type": "object"
+      },
       "ExamRead": {
         "properties": {
           "aliases": {
@@ -2077,6 +2132,9 @@
             "title": "Name",
             "type": "string"
           },
+          "profile": {
+            "$ref": "#/components/schemas/ExamProfileRead"
+          },
           "short_name": {
             "default": "",
             "title": "Short Name",
@@ -2085,7 +2143,8 @@
         },
         "required": [
           "code",
-          "name"
+          "name",
+          "profile"
         ],
         "title": "ExamRead",
         "type": "object"
@@ -9855,7 +9914,7 @@
             }
           },
           {
-            "description": "Only this exam (e.g. SSC_CHSL); all if omitted",
+            "description": "Only this exam; all if omitted",
             "in": "query",
             "name": "exam",
             "required": false,
@@ -9869,7 +9928,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Only this exam (e.g. SSC_CHSL); all if omitted",
+              "description": "Only this exam; all if omitted",
               "title": "Exam"
             }
           }
@@ -12819,7 +12878,7 @@
         "operationId": "repeats_api_v1_insights_repeats_get",
         "parameters": [
           {
-            "description": "Exam code, e.g. SSC_CHSL",
+            "description": "Exam code",
             "in": "query",
             "name": "exam",
             "required": false,
@@ -12833,7 +12892,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Exam code, e.g. SSC_CHSL",
+              "description": "Exam code",
               "title": "Exam"
             }
           },
@@ -15871,7 +15930,7 @@
         "operationId": "radar_api_v1_radar_get",
         "parameters": [
           {
-            "description": "Exam code, e.g. SSC_CHSL",
+            "description": "Exam code",
             "in": "query",
             "name": "exam",
             "required": false,
@@ -15885,7 +15944,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Exam code, e.g. SSC_CHSL",
+              "description": "Exam code",
               "title": "Exam"
             }
           }

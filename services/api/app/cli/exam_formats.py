@@ -1,14 +1,14 @@
 """Exam catalog and exam formats (operator tool; docs/question-bank.md "Exam formats").
 
-    python -m app.cli.exam_formats exam SSC_CGL --country IN --authority "<from the notice>"
-    python -m app.cli.exam_formats exam SSC_CGL --languages en,hi   # as the notice states
+    python -m app.cli.exam_formats exam EXAM_CODE --country IN --authority "<from the notice>"
+    python -m app.cli.exam_formats exam EXAM_CODE --languages en,hi   # as the notice states
     python -m app.cli.exam_formats exam NEW_EXAM --name "<official name>" \\
         --short-name "<short>" --category "<group>" --country IN
-    python -m app.cli.exam_formats list [--exam SSC_CGL] [--drafts]
+    python -m app.cli.exam_formats list [--exam EXAM_CODE] [--drafts]
     python -m app.cli.exam_formats import format.json      # creates a draft
-    python -m app.cli.exam_formats check SSC_CGL_2027_TIER1
-    python -m app.cli.exam_formats publish SSC_CGL_2027_TIER1 --reviewer "A. Reviewer"
-    python -m app.cli.exam_formats retire SSC_CGL_2026_TIER1 --on 2027-03-31
+    python -m app.cli.exam_formats check FORMAT_CODE
+    python -m app.cli.exam_formats publish FORMAT_CODE --reviewer "A. Reviewer"
+    python -m app.cli.exam_formats retire FORMAT_CODE --on 2027-03-31
 
 A format is a version: it is never edited once published. A new official notice is imported as
 a new draft (``"supersedes": "<old code>"``), checked against the notice, and published by a

@@ -1,0 +1,47 @@
+{
+  "code": "SSC_CGL_2026_TIER1",
+  "exam_code": "SSC_CGL",
+  "stage": "Tier-I",
+  "name": "SSC CGL 2026 Tier-I (Computer Based Examination)",
+  "sections": [
+    {
+      "part": "A",
+      "subject": "General Intelligence and Reasoning",
+      "questions": 25,
+      "max_marks": 50,
+      "timer_minutes": 15
+    },
+    {
+      "part": "B",
+      "subject": "General Awareness",
+      "questions": 25,
+      "max_marks": 50,
+      "timer_minutes": 15
+    },
+    {
+      "part": "C",
+      "subject": "Quantitative Aptitude",
+      "questions": 25,
+      "max_marks": 50,
+      "timer_minutes": 15
+    },
+    {
+      "part": "D",
+      "subject": "English Comprehension",
+      "questions": 25,
+      "max_marks": 50,
+      "timer_minutes": 15
+    }
+  ],
+  "sections_in_fixed_order": true,
+  "total_questions": 100,
+  "duration_minutes": 60,
+  "negative_marks_per_wrong": 0.5,
+  "source": {
+    "title": "SSC Notice: Combined Graduate Level Examination, 2026",
+    "url": "https://ssc.gov.in/api/attachment/uploads/masterData/NoticeBoards/Notice_of_adv_cgl_2025.pdf",
+    "reference": "F. No. HQ-C11018/1/2026-C-1, para 13.8 (scheme of Tier-I) and 13.8.2 (negative marking)",
+    "published_on": "2026-05-21"
+  },
+  "sectional_timing": true
+}

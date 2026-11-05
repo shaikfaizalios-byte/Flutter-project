@@ -1,0 +1,9 @@
+{
+  "_about": "What an exam uses until its own profile says otherwise. Product choices, not exam facts.",
+  "kind": "mcq",
+  "options_per_question": 4,
+  "repeat_share": 0.5,
+  "min_papers": 3,
+  "reliable_papers": 5,
+  "counting_unit": "paper"
+}

@@ -41,7 +41,7 @@ def overview(
     ] = 14,
     exam: Annotated[
         str | None,
-        Query(max_length=32, description="Only this exam (e.g. SSC_CHSL); all if omitted"),
+        Query(max_length=32, description="Only this exam; all if omitted"),
     ] = None,
 ) -> AnalyticsOverview:
     return service.overview(timezone=timezone, days=days, recent_days=recent_days, exam=exam)

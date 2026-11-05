@@ -21,7 +21,8 @@ def run(*pages: str, flagged: set[int] | None = None) -> SegmentationResult:
         [
             PageText(i + 1, dedent(text).strip(), needs_review=(i + 1) in (flagged or set()))
             for i, text in enumerate(pages)
-        ]
+        ],
+        expected_options=4,
     )
 
 
@@ -559,7 +560,7 @@ def test_answer_key_table_drawn_as_a_grid_in_a_real_pdf(tmp_path: Path) -> None:
     document = pdfium.PdfDocument(path)
     text = normalize_text(document[0].get_textpage().get_text_bounded())
     document.close()
-    result = segment([PageText(1, text, needs_review=False)])
+    result = segment([PageText(1, text, needs_review=False)], expected_options=4)
     assert _answers(result) == [2, 3, 1, 4, 2]
     assert result.document_issues == []
 

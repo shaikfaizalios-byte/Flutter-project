@@ -46,7 +46,7 @@ def run(
 ) -> tuple[list[Any], list[Any], list[Any]]:
     keys = decorations(layouts)
     analyses = [analyse_page(layout, keys) for layout in layouts]
-    result = segment([PageText(a.layout.number, a.text()) for a in analyses])
+    result = segment([PageText(a.layout.number, a.text()) for a in analyses], expected_options=4)
     located = locate_figures(
         result.questions,
         analyses,

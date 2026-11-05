@@ -1,0 +1,42 @@
+{
+  "code": "SSC_CHSL_2026_TIER1",
+  "exam_code": "SSC_CHSL",
+  "stage": "Tier-I",
+  "name": "SSC CHSL 2026 Tier-I (Computer Based Examination)",
+  "sections": [
+    {
+      "part": "I",
+      "subject": "English Language (Basic Knowledge)",
+      "questions": 25,
+      "max_marks": 50
+    },
+    {
+      "part": "II",
+      "subject": "General Intelligence",
+      "questions": 25,
+      "max_marks": 50
+    },
+    {
+      "part": "III",
+      "subject": "Quantitative Aptitude (Basic Arithmetic Skill)",
+      "questions": 25,
+      "max_marks": 50
+    },
+    {
+      "part": "IV",
+      "subject": "General Awareness",
+      "questions": 25,
+      "max_marks": 50
+    }
+  ],
+  "sections_in_fixed_order": false,
+  "total_questions": 100,
+  "duration_minutes": 60,
+  "negative_marks_per_wrong": 0.5,
+  "source": {
+    "title": "SSC Notice: Combined Higher Secondary (10+2) Level Examination, 2026",
+    "url": "https://ssc.gov.in/api/attachment/uploads/masterData/NoticeBoards/Notice_of_adv_chsl_2026.pdf",
+    "reference": "F. No. HQ-C1102/5/2026-C-1, para 13.8 (scheme of Tier-I) and 13.8.2 (negative marking)",
+    "published_on": "2026-09-07"
+  }
+}

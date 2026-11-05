@@ -12,7 +12,7 @@ import '../domain/exam_topics.dart';
 /// names show offline. Erased with the learner's other device data.
 const examCatalogCacheKey = 'exam_catalog';
 
-/// Loaded at start-up from the cache (built-in SSC exams until the first refresh).
+/// Loaded at start-up from the cache (the built-in exams until the first refresh).
 final initialExamCatalogProvider = Provider<List<ExamOption>>((ref) => builtInExams);
 
 Future<List<ExamOption>> loadCachedExamCatalog(AppDatabase db) async {
@@ -79,6 +79,13 @@ class ExamCatalogController extends Notifier<List<ExamOption>> {
 
 final examCatalogProvider = NotifierProvider<ExamCatalogController, List<ExamOption>>(
   ExamCatalogController.new,
+);
+
+/// The profile of an exam (the defaults until the catalog knows it).
+final examProfileProvider = Provider.family<ExamProfile, String?>(
+  (ref, code) =>
+      ref.watch(examCatalogProvider).where((e) => e.code == code).firstOrNull?.profile ??
+      defaultExamProfile,
 );
 
 /// Display name of an exam (the code until the catalog knows it).

@@ -28,7 +28,6 @@ from dataclasses import dataclass, field
 from app.domain import typed_answers
 from app.domain.text_quality import UNREADABLE_CHARS
 
-EXPECTED_OPTIONS = 4  # SSC objective papers; formats with other counts can pass their own.
 _DASHES = "-" + chr(0x2013) + chr(0x2014)  # hyphen, en dash, em dash
 _DASH = f"[{_DASHES}]"
 
@@ -409,7 +408,7 @@ def _resolve_typed(question: ParsedQuestion) -> None:
 def segment(
     pages: Sequence[PageText],
     *,
-    expected_options: int = EXPECTED_OPTIONS,
+    expected_options: int,
     extra_headings: Sequence[str] = (),
 ) -> SegmentationResult:
     lines = _lines(pages)
@@ -1092,7 +1091,7 @@ def check_against_format(
     sections: Iterable[tuple[str, int]],
 ) -> list[Issue]:
     """Compare found questions with a *verified* exam format. Sections are matched by name
-    only, never by position (SSC notices list parts "not in sequence")."""
+    only, never by position (notices can list parts "not in sequence")."""
     issues: list[Issue] = []
     found = len({(q.section, q.number) for q in result.questions})
     if found != total_questions:

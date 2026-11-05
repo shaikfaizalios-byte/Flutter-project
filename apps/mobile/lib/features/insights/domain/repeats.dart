@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/exams/exam_catalog.dart';
+
 /// Questions of something per confirmed paper year.
 @immutable
 class YearCount {
@@ -280,19 +282,25 @@ class RepeatsReport {
   ];
 }
 
-/// Named, shown-in-the-app rule for calling something "seen in most papers". A product
-/// choice, not research: at least [minPapers] papers imported and present in at least
-/// [share] of them.
-abstract final class RepeatRules {
-  static const minPapers = 3;
-  static const share = 0.5;
+/// Named, shown-in-the-app rule for calling something "seen in most papers": at least
+/// [minPapers] papers imported and present in at least [share] of them. Below [reliablePapers]
+/// counts are a small sample (a topic seen 2-3 times can be chance). The numbers come from the
+/// exam's profile; they are product choices, not research or a statistical test.
+class RepeatRules {
+  const RepeatRules({required this.share, required this.minPapers, required this.reliablePapers});
 
-  /// Below this many papers, counts are a small sample (a topic seen 2-3 times can be
-  /// chance). A product choice, shown in the UI, not a statistical test.
-  static const reliablePapers = 5;
+  factory RepeatRules.of(ExamProfile profile) => RepeatRules(
+    share: profile.repeatShare,
+    minPapers: profile.minPapers,
+    reliablePapers: profile.reliablePapers,
+  );
 
-  static bool isSmallSample(PapersBasis basis) => basis.total > 0 && basis.total < reliablePapers;
+  final double share;
+  final int minPapers;
+  final int reliablePapers;
 
-  static bool seenInMostPapers(RepeatCounts counts, PapersBasis basis) =>
+  bool isSmallSample(PapersBasis basis) => basis.total > 0 && basis.total < reliablePapers;
+
+  bool seenInMostPapers(RepeatCounts counts, PapersBasis basis) =>
       basis.total >= minPapers && counts.papers / basis.total >= share;
 }

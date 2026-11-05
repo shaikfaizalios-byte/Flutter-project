@@ -1,0 +1,55 @@
+{
+  "code": "SSC_CGL",
+  "status": "verified",
+  "name": "SSC Combined Graduate Level",
+  "short_name": "SSC CGL",
+  "category": "Staff Selection",
+  "featured": true,
+  "sort_order": 10,
+  "kind": "mcq",
+  "options_per_question": 4,
+  "languages": [],
+  "exam_dates": [],
+  "repeat_share": 0.5,
+  "min_papers": 3,
+  "reliable_papers": 5,
+  "counting_unit": "paper",
+  "formats": [
+    "SSC_CGL_2026_TIER1"
+  ],
+  "sources": {
+    "kind": {
+      "source": "SSC Notice: Combined Graduate Level Examination, 2026 (F. No. HQ-C11018/1/2026-C-1, para 13.8 (scheme of Tier-I) and 13.8.2 (negative marking))",
+      "url": "https://ssc.gov.in/api/attachment/uploads/masterData/NoticeBoards/Notice_of_adv_cgl_2025.pdf"
+    },
+    "formats": {
+      "source": "SSC Notice: Combined Graduate Level Examination, 2026 (F. No. HQ-C11018/1/2026-C-1, para 13.8 (scheme of Tier-I) and 13.8.2 (negative marking))",
+      "url": "https://ssc.gov.in/api/attachment/uploads/masterData/NoticeBoards/Notice_of_adv_cgl_2025.pdf"
+    },
+    "options_per_question": {
+      "source": "PrepLoop's behaviour before exam profiles",
+      "uncertain": true,
+      "note": "Kept so nothing changes for learners; not yet checked against the notice's wording."
+    },
+    "languages": {
+      "source": "Not recorded yet",
+      "uncertain": true
+    },
+    "exam_dates": {
+      "source": "Not recorded yet",
+      "uncertain": true
+    },
+    "repeat_share": {
+      "source": "PrepLoop product choice, not an exam fact"
+    },
+    "min_papers": {
+      "source": "PrepLoop product choice, not an exam fact"
+    },
+    "reliable_papers": {
+      "source": "PrepLoop product choice, not an exam fact"
+    },
+    "counting_unit": {
+      "source": "PrepLoop product choice, not an exam fact"
+    }
+  }
+}
