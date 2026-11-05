@@ -1914,6 +1914,10 @@
             "title": "Source Url",
             "type": "string"
           },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
           "status": {
             "default": "verified",
             "enum": [
@@ -1921,10 +1925,6 @@
               "retired"
             ],
             "title": "Status",
-            "type": "string"
-          },
-          "tier": {
-            "title": "Tier",
             "type": "string"
           },
           "total_questions": {
@@ -1947,7 +1947,7 @@
         "required": [
           "code",
           "exam_code",
-          "tier",
+          "stage",
           "name",
           "sections",
           "sections_in_fixed_order",

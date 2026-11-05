@@ -41,7 +41,7 @@ class ExamFormatRead(BaseModel):
 
     code: str
     exam_code: str
-    tier: str
+    stage: str
     name: str
     sections: list[ExamFormatSection]
     sections_in_fixed_order: bool

@@ -81,7 +81,7 @@ def draft_data(**changes: Any) -> dict[str, Any]:
     data: dict[str, Any] = {
         "code": "SSC_CHSL_2027_TIER1",
         "exam_code": "SSC_CHSL",
-        "tier": "Tier-I",
+        "stage": "Tier-I",
         "name": "SSC CHSL 2027 Tier-I",
         "sections": [{"part": "I", "subject": "General Awareness", "questions": 1, "max_marks": 2}],
         "sections_in_fixed_order": False,

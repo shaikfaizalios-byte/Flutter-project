@@ -316,7 +316,7 @@ def test_seeded_exams_syllabus_models_and_formats_are_unchanged(
             "formats": [
                 {
                     "code": f.code,
-                    "stage": f.tier,
+                    "stage": f.stage,
                     "sections": f.sections,
                     "fixed_order": f.sections_in_fixed_order,
                     "total_questions": f.total_questions,

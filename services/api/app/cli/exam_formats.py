@@ -56,7 +56,7 @@ class FormatFile(BaseModel):
 
     code: Annotated[str, StringConstraints(pattern=r"^[A-Z0-9_]{3,64}$")]
     exam_code: Annotated[str, StringConstraints(min_length=1, max_length=32)]
-    tier: Annotated[str, StringConstraints(strip_whitespace=True, max_length=32)]
+    stage: Annotated[str, StringConstraints(strip_whitespace=True, max_length=32)]
     name: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)]
     sections: list[dict[str, Any]]
     sections_in_fixed_order: bool
@@ -93,7 +93,7 @@ def import_format(session: Session, data: dict[str, Any]) -> tuple[ExamFormat, l
     draft = ExamFormat(
         code=spec.code,
         exam_code=spec.exam_code,
-        tier=spec.tier,
+        stage=spec.stage,
         name=spec.name,
         sections=spec.sections,
         sections_in_fixed_order=spec.sections_in_fixed_order,

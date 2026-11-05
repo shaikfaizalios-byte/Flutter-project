@@ -73,7 +73,7 @@ class ExamFormat(Base):
     exam_code: Mapped[str] = mapped_column(
         String(32), ForeignKey("exams.code", ondelete="RESTRICT")
     )
-    tier: Mapped[str] = mapped_column(String(32))
+    stage: Mapped[str] = mapped_column(String(32))
     name: Mapped[str] = mapped_column(String(200))
     # [{"part": "I", "subject": "...", "questions": 25, "max_marks": 50}, ...]
     sections: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
