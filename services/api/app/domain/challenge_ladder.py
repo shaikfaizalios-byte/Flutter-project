@@ -43,18 +43,6 @@ MAX_SOLUTION_STEPS = 12
 MAX_SOLUTION_STEP = 500
 MAX_SHORTCUT = 500
 
-DIFFICULTY_RULES: dict[str, str] = {
-    "easy": "One direct step, numbers that work out cleanly.",
-    "medium": "Two or three steps, with one thing to set up before calculating.",
-    "medium_hard": "Three or four steps, with a detail that is easy to overlook.",
-    "hard": "Several linked steps, with the key idea not stated directly.",
-    "extreme_hard": (
-        "The hardest level this exam's style allows: several ideas combined in one question, "
-        "still solvable by hand within the time target."
-    ),
-}
-
-
 # --- planning --------------------------------------------------------------------------------
 
 
@@ -158,14 +146,29 @@ LADDER_SYSTEM = (
 GENERATED_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "stem": {"type": "string"},
+        "step": {"type": "integer"},
+        "difficulty": {"type": "string"},
+        "model": {"type": "string"},
+        "basis": {"type": "string"},
+        "question": {"type": "string"},
         "options": {"type": "array", "items": {"type": "string"}},
         "answer_index": {"type": "integer"},
-        "solution": {"type": "array", "items": {"type": "string"}},
+        "solution": {"type": "string"},
         "shortcut": {"type": "string"},
         "time_target_seconds": {"type": "integer"},
     },
-    "required": ["stem", "options", "answer_index", "solution", "shortcut", "time_target_seconds"],
+    "required": [
+        "step",
+        "difficulty",
+        "model",
+        "basis",
+        "question",
+        "options",
+        "answer_index",
+        "solution",
+        "shortcut",
+        "time_target_seconds",
+    ],
     "additionalProperties": False,
 }
 
@@ -214,43 +217,56 @@ def _web_text(references: Sequence[WebReference]) -> str:
     return "\n\n".join(f"{r.url}\n{material(f'{r.title}: {r.snippet}')}" for r in references)
 
 
+def _model_text(step: PlannedStep, topic: str) -> str:
+    if step.model is None:
+        return f"any type within {topic}"
+    if step.second is not None:
+        return f"{step.model.name} combined with {step.second.name}"
+    return step.model.name
+
+
 def generator_prompt(
     *,
     exam_name: str,
     topic: str,
-    subject: str,
-    step: PlannedStep,
+    round_number: int,
+    plan: Sequence[PlannedStep],
+    number: int,
     seeds: Sequence[Seed],
     web: Sequence[WebReference],
     avoid: Sequence[str],
+    missed: Sequence[str],
     language: str,
 ) -> str:
-    if step.model is None:
-        model = f"any type within {topic}"
-    elif step.second is not None:
-        model = f"one question combining {step.model.name} with {step.second.name}"
-    else:
-        model = step.model.name
+    """The prompt for step [number] of [plan]: one question per request, so a failed question
+    is rewritten alone and the app can show the steps filling in."""
     if not seeds:
-        source = "The learner has no papers on this topic: base the question on the web references."
+        source = "The student has no papers on this topic: use the web references."
     elif len(seeds) < MIN_SEEDS:
-        source = "Few paper examples exist: rely mainly on the web references."
+        source = "There are few seed questions: rely mainly on the web references."
     else:
-        source = "Base the question on the paper examples; web references only add ideas."
+        source = "Web references only add ideas to the seed questions."
+    step_plan = "\n".join(
+        f"Step {index} ({step.difficulty.replace('_', ' ')}): {_model_text(step, topic)}"
+        for index, step in enumerate(plan, start=1)
+    )
     return fill_template(
         _TEMPLATE_PATH.read_text(encoding="utf-8"),
         {
             "exam": exam_name,
             "topic": topic,
-            "subject": subject,
-            "model": model,
-            "difficulty": step.difficulty.replace("_", " "),
-            "difficulty_rule": DIFFICULTY_RULES[step.difficulty],
+            "round": str(round_number),
             "language": LANGUAGE_NAMES[language],
-            "seeds": _seed_text(seeds),
-            "web_references": _web_text(web),
+            "step_plan": step_plan,
+            "step": str(number),
+            "difficulty": plan[number - 1].difficulty.replace("_", " "),
+            "paper_seeds": _seed_text(seeds),
+            "web_refs": _web_text(web),
             "source_rule": source,
-            "avoid": material("\n".join(f"- {a}" for a in avoid)) if avoid else "(none yet)",
+            "previous_questions": (
+                material("\n".join(f"- {a}" for a in avoid)) if avoid else "(none yet)"
+            ),
+            "missed_models": ", ".join(missed) if missed else "(none)",
         },
     )
 
@@ -287,14 +303,15 @@ def _clean(text: str) -> str:
 
 def validate_generated(data: dict[str, Any]) -> GeneratedQuestion | None:
     """The question, or None unless it has exactly 4 different options, an answer index between
-    0 and 3 and a solution."""
-    stem, options, index = data.get("stem"), data.get("options"), data.get("answer_index")
+    0 and 3 and a solution. The step, difficulty, model and basis it states are ignored: they
+    come from the plan and from what was really sent."""
+    stem, options, index = data.get("question"), data.get("options"), data.get("answer_index")
     solution, shortcut, target = (
         data.get("solution"),
         data.get("shortcut"),
         data.get("time_target_seconds"),
     )
-    if not isinstance(stem, str) or not isinstance(options, list) or not isinstance(solution, list):
+    if not isinstance(stem, str) or not isinstance(options, list) or not isinstance(solution, str):
         return None
     if isinstance(index, bool) or not isinstance(index, int) or not 0 <= index <= 3:
         return None
@@ -305,7 +322,7 @@ def validate_generated(data: dict[str, Any]) -> GeneratedQuestion | None:
         0 < len(o) <= MAX_OPTION for o in cleaned
     ):
         return None
-    steps = tuple(_clean(s) for s in solution if isinstance(s, str) and s.strip())
+    steps = tuple(_clean(line) for line in solution.splitlines() if line.strip())
     if not steps or len(steps) > MAX_SOLUTION_STEPS:
         return None
     if any(len(s) > MAX_SOLUTION_STEP for s in steps):

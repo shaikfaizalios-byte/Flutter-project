@@ -73,7 +73,8 @@ provenance, and reviewed before learners rely on it. AI never produces previous-
 
 ## Challenge Ladder
 
-Pure rules in `app/domain/challenge_ladder.py`, prompt in `app/domain/prompts/challenge_ladder_generator.txt`,
+Pure rules in `app/domain/challenge_ladder.py`, prompt in `app/domain/prompts/challenge_ladder_generator.txt`
+(the product owner's prompt, asking for one step's question at a time, with the whole step plan as context),
 service `app/services/ladder_service.py`, app `lib/features/ladder`.
 
 - **Rounds.** Round 1: easy, easy, medium, hard, extreme hard. Later rounds ("Test me more"): medium-hard twice, hard

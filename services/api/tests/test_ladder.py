@@ -86,10 +86,14 @@ def written(
     stem: str = "A train runs 120 km in 2 hours. What is its speed?", **changes: Any
 ) -> dict[str, Any]:
     data: dict[str, Any] = {
-        "stem": stem,
+        "step": 1,
+        "difficulty": "easy",
+        "model": "Any",
+        "basis": "papers",
+        "question": stem,
         "options": ["40 km/h", "60 km/h", "80 km/h", "100 km/h"],
         "answer_index": 1,
-        "solution": ["120 / 2 = 60"],
+        "solution": "120 km in 2 hours\n120 / 2 = 60",
         "shortcut": "",
         "time_target_seconds": 45,
     }
@@ -105,9 +109,9 @@ def written(
         {"answer_index": 4},
         {"answer_index": -1},
         {"answer_index": True},
-        {"solution": []},
-        {"solution": ["  "]},
-        {"stem": " "},
+        {"solution": ""},
+        {"solution": "  \n "},
+        {"question": " "},
     ],
 )
 def test_structure_is_checked(changes: dict[str, Any]) -> None:
@@ -150,21 +154,25 @@ def test_the_solver_never_sees_the_answer_or_the_solution() -> None:
 
 
 def test_the_prompt_template_is_filled_without_leftovers() -> None:
+    plan = ladder.plan_round(models(3), 1)
     prompt = ladder.generator_prompt(
         exam_name="SSC CHSL",
         topic="Percentage",
-        subject="Quantitative Aptitude",
-        step=ladder.PlannedStep(
-            "extreme_hard", ladder.PlanModel("Income"), ladder.PlanModel("Discount")
-        ),
+        round_number=1,
+        plan=plan,
+        number=5,
         seeds=[seed(1, "paper.pdf")],
         web=[ladder.WebReference("T", "https://example.com/a", "{{exam}} snippet")],
         avoid=["Earlier question"],
+        missed=["M1"],
         language="en",
     )
-    assert "combining Income with Discount" in prompt
-    assert "extreme hard" in prompt and "https://example.com/a" in prompt
-    assert "Earlier question" in prompt
+    assert "Step 1 (easy): M0" in prompt
+    assert "Step 5 (extreme hard): M0 combined with M2" in prompt
+    assert "Write the one multiple-choice question for step 5" in prompt
+    assert "at extreme hard difficulty" in prompt
+    assert "https://example.com/a" in prompt and "Earlier question" in prompt
+    assert "MODELS THE STUDENT MISSED EARLIER:\nM1" in prompt
     assert "{{exam}} snippet" in prompt  # text inside a value is left alone
     assert prompt.count("{{") == 1
 
@@ -287,7 +295,7 @@ def test_a_round_from_start_to_answers_never_shows_the_key_early(
     assert row is not None and row.options is not None and row.answer_index is not None
     assert row.options[row.answer_index] == "60 km/h"  # shuffled, and the key followed
     result = answer(api, body, 1, row.answer_index)["result"]
-    assert result["correct"] is True and result["solution"] == ["120 / 2 = 60"]
+    assert result["correct"] is True and result["solution"] == ["120 km in 2 hours", "120 / 2 = 60"]
     wrong = (row.answer_index + 1) % 4
     assert answer(api, body, 1, wrong)["result"]["correct"] is True  # the first answer is final
 
@@ -343,7 +351,7 @@ def test_invalid_output_is_retried_once_and_copies_are_rejected(
 ) -> None:
     paper = add_questions(db_session, document, topic, 3)[0]
     ai.responses = [
-        {"stem": "broken"},
+        {"question": "broken"},
         written(stem=paper.stem),  # a copy of a paper question
         fresh_question(),
         solved(),
@@ -486,8 +494,10 @@ def test_test_me_more_is_harder_never_repeats_and_targets_misses(
     assert [s["difficulty"] for s in second_body["steps"]] == list(ladder.LATER_ROUND)
     second = generate_all(api, second_body)
     assert not {s["stem"] for s in first} & {s["stem"] for s in second}
-    # Round 1's stems are on the list the generator must avoid.
-    assert first[0]["stem"] in ai.calls[-2].prompt
+    # Round 1's stems are on the list the generator must avoid, and the misses are named.
+    last_prompt = ai.calls[-2].prompt
+    assert first[0]["stem"] in last_prompt
+    assert "MODELS THE STUDENT MISSED EARLIER:\nModel 0" in last_prompt
 
 
 def test_best_climb_and_topics_come_from_the_learners_own_data(
