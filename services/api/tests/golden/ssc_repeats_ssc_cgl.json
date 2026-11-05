@@ -1,0 +1,610 @@
+{
+ "not_repeated": {
+  "models": [
+   [
+    "Active and Passive Voice",
+    "Passive to active"
+   ],
+   [
+    "Analogy",
+    "Letter-cluster analogy"
+   ],
+   [
+    "Analogy",
+    "Number analogy"
+   ],
+   [
+    "Analogy",
+    "Word analogy"
+   ],
+   [
+    "Classification (Odd One Out)",
+    "Odd letter-cluster"
+   ],
+   [
+    "Classification (Odd One Out)",
+    "Odd number or number pair"
+   ],
+   [
+    "Classification (Odd One Out)",
+    "Odd word"
+   ],
+   [
+    "Coding-Decoding",
+    "Sentence code language"
+   ],
+   [
+    "Coding-Decoding",
+    "Word written as another word"
+   ],
+   [
+    "Percentage",
+    "Population and depreciation"
+   ],
+   [
+    "Percentage",
+    "Price change and consumption"
+   ],
+   [
+    "Percentage",
+    "Votes and marks"
+   ],
+   [
+    "Polity",
+    "Amendments"
+   ],
+   [
+    "Polity",
+    "Parliament and offices"
+   ],
+   [
+    "Profit and Loss",
+    "False weights"
+   ],
+   [
+    "Profit and Loss",
+    "Two articles at the same price"
+   ],
+   [
+    "Synonyms",
+    "Word in a sentence"
+   ],
+   [
+    "Venn Diagrams",
+    "Reading a given diagram"
+   ]
+  ],
+  "questions_without_topic": 0,
+  "topics": [
+   [
+    "English Language",
+    "Antonyms"
+   ],
+   [
+    "English Language",
+    "Cloze Test"
+   ],
+   [
+    "English Language",
+    "Direct and Indirect Speech"
+   ],
+   [
+    "English Language",
+    "Error Spotting"
+   ],
+   [
+    "English Language",
+    "Fill in the Blanks"
+   ],
+   [
+    "English Language",
+    "Idioms and Phrases"
+   ],
+   [
+    "English Language",
+    "One Word Substitution"
+   ],
+   [
+    "English Language",
+    "Para Jumbles"
+   ],
+   [
+    "English Language",
+    "Reading Comprehension"
+   ],
+   [
+    "English Language",
+    "Sentence Improvement"
+   ],
+   [
+    "English Language",
+    "Spelling"
+   ],
+   [
+    "General Awareness",
+    "Art and Culture"
+   ],
+   [
+    "General Awareness",
+    "Awards and Honours"
+   ],
+   [
+    "General Awareness",
+    "Books and Authors"
+   ],
+   [
+    "General Awareness",
+    "Computer Awareness"
+   ],
+   [
+    "General Awareness",
+    "Current Affairs"
+   ],
+   [
+    "General Awareness",
+    "Economy"
+   ],
+   [
+    "General Awareness",
+    "General Science"
+   ],
+   [
+    "General Awareness",
+    "Geography"
+   ],
+   [
+    "General Awareness",
+    "Important Days"
+   ],
+   [
+    "General Awareness",
+    "Sports"
+   ],
+   [
+    "General Intelligence",
+    "Blood Relations"
+   ],
+   [
+    "General Intelligence",
+    "Counting Figures"
+   ],
+   [
+    "General Intelligence",
+    "Dice and Cubes"
+   ],
+   [
+    "General Intelligence",
+    "Direction and Distance"
+   ],
+   [
+    "General Intelligence",
+    "Embedded Figures"
+   ],
+   [
+    "General Intelligence",
+    "Figure Series"
+   ],
+   [
+    "General Intelligence",
+    "Letter Series"
+   ],
+   [
+    "General Intelligence",
+    "Mathematical Operations"
+   ],
+   [
+    "General Intelligence",
+    "Mirror and Water Images"
+   ],
+   [
+    "General Intelligence",
+    "Order and Ranking"
+   ],
+   [
+    "General Intelligence",
+    "Paper Folding and Cutting"
+   ],
+   [
+    "General Intelligence",
+    "Series"
+   ],
+   [
+    "General Intelligence",
+    "Syllogism"
+   ],
+   [
+    "General Intelligence",
+    "Word Arrangement"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Algebra"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Average"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Data Interpretation"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Discount"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Geometry"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Mensuration"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Mixture and Alligation"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Number System"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Partnership"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Ratio and Proportion"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Simple and Compound Interest"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Simplification"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Time and Work"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Time, Speed and Distance"
+   ],
+   [
+    "Quantitative Aptitude",
+    "Trigonometry"
+   ]
+  ]
+ },
+ "papers": {
+  "dated": 2,
+  "total": 2,
+  "undated": 0,
+  "years": [
+   2021,
+   2022
+  ]
+ },
+ "similarity_threshold": 0.8,
+ "topics": [
+  {
+   "models": [
+    {
+     "name": "Active to passive",
+     "papers": 2,
+     "questions": 2,
+     "unreviewed": 0,
+     "years": {
+      "2021": 1,
+      "2022": 1
+     }
+    }
+   ],
+   "name": "Active and Passive Voice",
+   "papers": 2,
+   "questions": 2,
+   "subject": "English Language",
+   "unreviewed": 0,
+   "without_model": 0,
+   "years": {
+    "2021": 1,
+    "2022": 1
+   }
+  },
+  {
+   "models": [
+    {
+     "name": "Word coded as numbers",
+     "papers": 2,
+     "questions": 2,
+     "unreviewed": 0,
+     "years": {
+      "2021": 1,
+      "2022": 1
+     }
+    }
+   ],
+   "name": "Coding-Decoding",
+   "papers": 2,
+   "questions": 2,
+   "subject": "General Intelligence",
+   "unreviewed": 0,
+   "without_model": 0,
+   "years": {
+    "2021": 1,
+    "2022": 1
+   }
+  },
+  {
+   "models": [],
+   "name": "History",
+   "papers": 2,
+   "questions": 2,
+   "subject": "General Awareness",
+   "unreviewed": 0,
+   "without_model": 2,
+   "years": {
+    "2021": 1,
+    "2022": 1
+   }
+  },
+  {
+   "models": [
+    {
+     "name": "Cost and selling price",
+     "papers": 2,
+     "questions": 2,
+     "unreviewed": 0,
+     "years": {
+      "2021": 1,
+      "2022": 1
+     }
+    }
+   ],
+   "name": "Profit and Loss",
+   "papers": 2,
+   "questions": 2,
+   "subject": "Quantitative Aptitude",
+   "unreviewed": 0,
+   "without_model": 0,
+   "years": {
+    "2021": 1,
+    "2022": 1
+   }
+  },
+  {
+   "models": [
+    {
+     "name": "Single word",
+     "papers": 2,
+     "questions": 2,
+     "unreviewed": 0,
+     "years": {
+      "2021": 1,
+      "2022": 1
+     }
+    }
+   ],
+   "name": "Synonyms",
+   "papers": 2,
+   "questions": 2,
+   "subject": "English Language",
+   "unreviewed": 0,
+   "without_model": 0,
+   "years": {
+    "2021": 1,
+    "2022": 1
+   }
+  },
+  {
+   "models": [
+    {
+     "name": "Relationship between classes",
+     "papers": 2,
+     "questions": 2,
+     "unreviewed": 0,
+     "years": {
+      "2021": 1,
+      "2022": 1
+     }
+    }
+   ],
+   "name": "Venn Diagrams",
+   "papers": 2,
+   "questions": 2,
+   "subject": "General Intelligence",
+   "unreviewed": 0,
+   "without_model": 0,
+   "years": {
+    "2021": 1,
+    "2022": 1
+   }
+  },
+  {
+   "models": [],
+   "name": "Analogy",
+   "papers": 1,
+   "questions": 1,
+   "subject": "General Intelligence",
+   "unreviewed": 0,
+   "without_model": 1,
+   "years": {
+    "2021": 1
+   }
+  },
+  {
+   "models": [],
+   "name": "Classification (Odd One Out)",
+   "papers": 1,
+   "questions": 1,
+   "subject": "General Intelligence",
+   "unreviewed": 0,
+   "without_model": 1,
+   "years": {
+    "2022": 1
+   }
+  },
+  {
+   "models": [
+    {
+     "name": "Income, expenditure and savings",
+     "papers": 1,
+     "questions": 1,
+     "unreviewed": 0,
+     "years": {
+      "2021": 1
+     }
+    }
+   ],
+   "name": "Percentage",
+   "papers": 1,
+   "questions": 1,
+   "subject": "Quantitative Aptitude",
+   "unreviewed": 0,
+   "without_model": 0,
+   "years": {
+    "2021": 1
+   }
+  },
+  {
+   "models": [
+    {
+     "name": "Constitution articles and schedules",
+     "papers": 1,
+     "questions": 1,
+     "unreviewed": 0,
+     "years": {
+      "2022": 1
+     }
+    }
+   ],
+   "name": "Polity",
+   "papers": 1,
+   "questions": 1,
+   "subject": "General Awareness",
+   "unreviewed": 0,
+   "without_model": 0,
+   "years": {
+    "2022": 1
+   }
+  }
+ ],
+ "worded_alike": [
+  {
+   "papers": 2,
+   "questions": [
+    [
+     "cgl-2021-shift-1.pdf",
+     1
+    ],
+    [
+     "cgl-2022-shift-2.pdf",
+     1
+    ]
+   ],
+   "subject": "General Intelligence",
+   "topic": "Venn Diagrams",
+   "years": [
+    2021,
+    2022
+   ]
+  },
+  {
+   "papers": 2,
+   "questions": [
+    [
+     "cgl-2021-shift-1.pdf",
+     3
+    ],
+    [
+     "cgl-2022-shift-2.pdf",
+     2
+    ]
+   ],
+   "subject": "General Intelligence",
+   "topic": "Coding-Decoding",
+   "years": [
+    2021,
+    2022
+   ]
+  },
+  {
+   "papers": 2,
+   "questions": [
+    [
+     "cgl-2021-shift-1.pdf",
+     5
+    ],
+    [
+     "cgl-2022-shift-2.pdf",
+     4
+    ]
+   ],
+   "subject": "Quantitative Aptitude",
+   "topic": "Profit and Loss",
+   "years": [
+    2021,
+    2022
+   ]
+  },
+  {
+   "papers": 2,
+   "questions": [
+    [
+     "cgl-2021-shift-1.pdf",
+     6
+    ],
+    [
+     "cgl-2022-shift-2.pdf",
+     5
+    ]
+   ],
+   "subject": "English Language",
+   "topic": "Synonyms",
+   "years": [
+    2021,
+    2022
+   ]
+  },
+  {
+   "papers": 2,
+   "questions": [
+    [
+     "cgl-2021-shift-1.pdf",
+     7
+    ],
+    [
+     "cgl-2022-shift-2.pdf",
+     6
+    ]
+   ],
+   "subject": "English Language",
+   "topic": "Active and Passive Voice",
+   "years": [
+    2021,
+    2022
+   ]
+  },
+  {
+   "papers": 2,
+   "questions": [
+    [
+     "cgl-2021-shift-1.pdf",
+     8
+    ],
+    [
+     "cgl-2022-shift-2.pdf",
+     7
+    ]
+   ],
+   "subject": "General Awareness",
+   "topic": "History",
+   "years": [
+    2021,
+    2022
+   ]
+  }
+ ]
+}
