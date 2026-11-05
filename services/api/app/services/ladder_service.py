@@ -246,7 +246,9 @@ class LadderService:
             raise AIUnavailableError("No references could be found for this topic.")
         others = [s.stem for s in steps if s.stem]
         sources = [q.stem for q, _ in topic_questions] + [r.snippet for r in web]
-        question = self._written_question(provider, practice, step, seeds, web, others, sources)
+        question = self._written_question(
+            provider, practice, step, steps, seeds, web, others, sources
+        )
         if question is not None:
             shown = ladder.shuffled(question, self._rng)
             step.source = "ai"
@@ -268,25 +270,25 @@ class LadderService:
         provider: AIProvider,
         practice: LadderSession,
         step: LadderStep,
+        all_steps: Sequence[LadderStep],
         seeds: Sequence[ladder.Seed],
         web: Sequence[ladder.WebReference],
         others: Sequence[str],
         sources: Sequence[str],
     ) -> ladder.GeneratedQuestion | None:
         """A question that passed the checks, or None when the attempts ran out."""
-        planned = ladder.PlannedStep(
-            cast("ladder.Difficulty", step.difficulty),
-            ladder.PlanModel(step.model_name) if step.model_name else None,
-            ladder.PlanModel(step.second_model_name) if step.second_model_name else None,
-        )
+        rounds = [x for x in all_steps if x.round_number == step.round_number]
+        missed = Counter(x.model_name for x in all_steps if x.correct is False and x.model_name)
         prompt = ladder.generator_prompt(
             exam_name=self._exam(practice.exam_code).name,
             topic=practice.topic_name,
-            subject=practice.subject,
-            step=planned,
+            round_number=step.round_number,
+            plan=[_planned(x) for x in rounds],
+            number=step.step,
             seeds=seeds,
             web=web,
             avoid=others,
+            missed=[name for name, _ in missed.most_common()],
             language=practice.language,
         )
         regenerations = invalid = 0
@@ -527,6 +529,14 @@ class LadderService:
             )
         )
         self._session.flush()
+
+
+def _planned(step: LadderStep) -> ladder.PlannedStep:
+    return ladder.PlannedStep(
+        cast("ladder.Difficulty", step.difficulty),
+        ladder.PlanModel(step.model_name) if step.model_name else None,
+        ladder.PlanModel(step.second_model_name) if step.second_model_name else None,
+    )
 
 
 def _pattern_id(model: ladder.PlanModel | None) -> uuid.UUID | None:
