@@ -1294,5 +1294,11 @@
   "syllabusDelete": "यह पाठ्यक्रम हटाएँ",
   "syllabusAcrossExams": "आपकी परीक्षाओं में समान विषय",
   "syllabusAcrossAll": "सभी परीक्षाएँ: {answered} में से {correct} सही",
-  "syllabusAcrossCount": "{answered} में से {correct} सही"
+  "syllabusAcrossCount": "{answered} में से {correct} सही",
+  "sessionChooseAllThatApply": "सभी सही विकल्प चुनें।",
+  "sessionMatchChoose": "चुनें",
+  "sessionOrderHelp": "इन्हें सही क्रम में रखें।",
+  "sessionOrderUp": "ऊपर ले जाएँ",
+  "sessionOrderDown": "नीचे ले जाएँ",
+  "resultYourFullAnswer": "आपने उत्तर दिया"
 }

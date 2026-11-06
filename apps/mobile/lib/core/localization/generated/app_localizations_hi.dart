@@ -4926,4 +4926,22 @@ class AppLocalizationsHi extends AppLocalizations {
   String syllabusAcrossCount(int correct, int answered) {
     return '$answered में से $correct सही';
   }
+
+  @override
+  String get sessionChooseAllThatApply => 'सभी सही विकल्प चुनें।';
+
+  @override
+  String get sessionMatchChoose => 'चुनें';
+
+  @override
+  String get sessionOrderHelp => 'इन्हें सही क्रम में रखें।';
+
+  @override
+  String get sessionOrderUp => 'ऊपर ले जाएँ';
+
+  @override
+  String get sessionOrderDown => 'नीचे ले जाएँ';
+
+  @override
+  String get resultYourFullAnswer => 'आपने उत्तर दिया';
 }

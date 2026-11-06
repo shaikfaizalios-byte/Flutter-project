@@ -15,6 +15,7 @@ import '../../question_bank/presentation/question_widgets.dart';
 import '../../question_bank/presentation/shared_report.dart';
 import '../application/practice_providers.dart';
 import '../domain/practice_models.dart';
+import 'format_answers.dart';
 import 'result_view.dart';
 
 /// A practice session or mock test. Shows the result once the session is submitted.
@@ -264,25 +265,33 @@ class _SessionBody extends ConsumerWidget {
                   locked: !testLike && item.answered,
                   onSubmit: (text) => _controller(ref).submitTyped(text),
                 ),
-              for (final option in item.options)
-                _OptionTile(
-                  label: option.label,
-                  text: option.text,
-                  figure: item.questionId == null
-                      ? null
-                      : switch (optionFigure(item.figures, option.position)) {
-                          final f? => QuestionFigureView(
-                            questionId: item.questionId!,
-                            figure: f,
-                            zoomable: false,
-                          ),
-                          null => null,
-                        },
-                  selected: item.selectedPosition == option.position,
-                  correct: item.feedback?.correctPosition == option.position,
-                  showFeedback: item.feedback != null,
-                  onTap: () => _controller(ref).select(option.position),
+              if (item.takesResponse)
+                ResponseAnswer(
+                  key: ValueKey('response-${item.position}'),
+                  item: item,
+                  locked: !testLike && item.answered,
+                  onSubmit: (response) => _controller(ref).submitResponse(response),
                 ),
+              if (!item.takesResponse)
+                for (final option in item.options)
+                  _OptionTile(
+                    label: option.label,
+                    text: option.text,
+                    figure: item.questionId == null
+                        ? null
+                        : switch (optionFigure(item.figures, option.position)) {
+                            final f? => QuestionFigureView(
+                              questionId: item.questionId!,
+                              figure: f,
+                              zoomable: false,
+                            ),
+                            null => null,
+                          },
+                    selected: item.selectedPosition == option.position,
+                    correct: item.feedback?.correctPosition == option.position,
+                    showFeedback: item.feedback != null,
+                    onTap: () => _controller(ref).select(option.position),
+                  ),
               if (state.queuedPositions.contains(item.position)) ...[
                 const SizedBox(height: AppSpacing.sm),
                 Row(
@@ -526,11 +535,13 @@ class _FeedbackPanel extends StatelessWidget {
                       : Theme.of(context).colorScheme.error,
                 ),
               ),
-            Text(
-              feedback.correctTypedAnswer != null
-                  ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
-                  : l10n.sessionCorrectAnswer(correctLabel),
-            ),
+            Text(switch (correctAnswerText(item, feedback)) {
+              final String words => l10n.sessionCorrectTypedAnswer(words),
+              null =>
+                feedback.correctTypedAnswer != null
+                    ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
+                    : l10n.sessionCorrectAnswer(correctLabel),
+            }),
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),

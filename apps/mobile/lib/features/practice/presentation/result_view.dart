@@ -149,7 +149,9 @@ class _AnswerReview extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        item.isTyped
+        item.takesResponse
+            ? (item.response == null ? l10n.resultNotAnswered : l10n.resultYourFullAnswer)
+            : item.isTyped
             ? (item.typedAnswer == null
                   ? l10n.resultNotAnswered
                   : l10n.resultYourTypedAnswer(item.typedAnswer!))

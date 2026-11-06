@@ -37,6 +37,9 @@ class _FakeSession {
 /// answers are final with immediate feedback; mock answers can change, have no feedback
 /// until submission, and the deadline is fixed by the "server" clock.
 class FakePracticeRepository implements PracticeRepository {
+  @override
+  final bool newFormats = false;
+
   FakePracticeRepository({required this.serverNow, List<BankQuestion>? pool})
     : pool =
           pool ?? [bankQuestion(), bankQuestion(id: 'q2', number: 2, stem: 'Second?', answer: 3)];
@@ -192,6 +195,7 @@ class FakePracticeRepository implements PracticeRepository {
     int position,
     int? selectedPosition, {
     String? typedAnswer,
+    Map<String, dynamic>? response,
     int? timeSpentMs,
   }) async {
     final s = _get(sessionId);

@@ -14,6 +14,7 @@ import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
 import 'generated/schema_v7.dart' as v7;
 import 'generated/schema_v8.dart' as v8;
+import 'generated/schema_v9.dart' as v9;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -226,4 +227,35 @@ void main() {
       );
     },
   );
+
+  // v8 -> v9: answers can carry a JSON response. Answers waiting to be sent must survive.
+  test('migration from v8 to v9 keeps queued answers', () async {
+    await verifier.testWithDataIntegrity(
+      oldVersion: 8,
+      newVersion: 9,
+      createOld: v8.DatabaseAtV8.new,
+      createNew: v9.DatabaseAtV9.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insert(
+          oldDb.pendingAnswers,
+          const v8.PendingAnswersData(
+            sessionId: 's1',
+            position: 3,
+            selectedPosition: 2,
+            clientSeq: 7,
+            createdAt: '2026-11-06T09:00:00.000Z',
+          ),
+        );
+      },
+      validateItems: (newDb) async {
+        final row = (await newDb.select(newDb.pendingAnswers).get()).single;
+        expect(
+          (row.sessionId, row.position, row.selectedPosition),
+          ('s1', 3, 2),
+        );
+        expect(row.responseJson == null, isTrue);
+      },
+    );
+  });
 }

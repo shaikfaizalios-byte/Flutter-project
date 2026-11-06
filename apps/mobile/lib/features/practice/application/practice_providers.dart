@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/app_features.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/network/api_client.dart';
@@ -16,6 +17,7 @@ final practiceRepositoryProvider = Provider<PracticeRepository>(
     ref.watch(dioProvider),
     ref.watch(appDatabaseProvider),
     clock: ref.watch(clockProvider),
+    newFormats: ref.watch(appFeaturesProvider).examProfiles,
   ),
 );
 
@@ -331,6 +333,49 @@ class SessionController extends AsyncNotifier<SessionState> {
       return false;
     } on Object catch (error, stack) {
       logError('Saving typed answer failed', error, stack);
+      return false;
+    }
+  }
+
+  /// Saves the answer of a format that takes more than one tap. False when refused.
+  Future<bool> submitResponse(Map<String, dynamic> response) async {
+    final value = state.value;
+    if (value == null || value.session.submitted) return false;
+    final item = value.item;
+    if (!item.takesResponse) return false;
+    if (value.session.mode == SessionMode.practice && item.answered) return false;
+    state = AsyncData(
+      value.copyWith(session: value.session.withItem(item.copyWith(response: () => response))),
+    );
+    try {
+      final outcome = await _repo.answer(
+        sessionId,
+        item.position,
+        null,
+        response: response,
+        timeSpentMs: _timeSpent(),
+      );
+      final latest = state.value!;
+      final queued = {...latest.queuedPositions};
+      outcome.queued ? queued.add(item.position) : queued.remove(item.position);
+      var updated = latest.session.items.firstWhere((i) => i.position == item.position);
+      if (!outcome.queued) {
+        updated = updated.copyWith(
+          response: () => outcome.applied ? response : outcome.response ?? response,
+          feedback: () => outcome.feedback,
+        );
+      }
+      state = AsyncData(
+        latest.copyWith(session: latest.session.withItem(updated), queuedPositions: queued),
+      );
+      return true;
+    } on ServerFailure catch (failure) {
+      if (failure.code == 'session_closed' || failure.code == 'section_closed') {
+        ref.invalidateSelf();
+      }
+      return false;
+    } on Object catch (error, stack) {
+      logError('Saving an answer failed', error, stack);
       return false;
     }
   }

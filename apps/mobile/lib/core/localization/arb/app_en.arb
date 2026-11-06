@@ -2702,5 +2702,11 @@
   "syllabusAcrossAll": "All exams: {correct} of {answered} correct",
   "@syllabusAcrossAll": {"placeholders": {"correct": {"type": "int"}, "answered": {"type": "int"}}},
   "syllabusAcrossCount": "{correct} of {answered} correct",
-  "@syllabusAcrossCount": {"placeholders": {"correct": {"type": "int"}, "answered": {"type": "int"}}}
+  "@syllabusAcrossCount": {"placeholders": {"correct": {"type": "int"}, "answered": {"type": "int"}}},
+  "sessionChooseAllThatApply": "Choose every correct option.",
+  "sessionMatchChoose": "Choose",
+  "sessionOrderHelp": "Put these in the right order.",
+  "sessionOrderUp": "Move up",
+  "sessionOrderDown": "Move down",
+  "resultYourFullAnswer": "You answered"
 }

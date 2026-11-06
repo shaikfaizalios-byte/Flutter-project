@@ -24,6 +24,7 @@ class AnswerFeedback {
   const AnswerFeedback({
     this.correctPosition,
     this.correctTypedAnswer,
+    this.correctSpec,
     this.isCorrect,
     this.explanation,
     this.explanationByAi = false,
@@ -32,6 +33,7 @@ class AnswerFeedback {
   factory AnswerFeedback.fromJson(Map<String, dynamic> json) => AnswerFeedback(
     correctPosition: json['correct_position'] as int?,
     correctTypedAnswer: json['correct_typed_answer'] as String?,
+    correctSpec: json['correct_spec'] as Map<String, dynamic>?,
     isCorrect: json['is_correct'] as bool?,
     explanation: json['explanation'] as String?,
     explanationByAi: json['explanation_origin'] == 'ai',
@@ -39,6 +41,7 @@ class AnswerFeedback {
 
   final int? correctPosition; // null for a typed-in question
   final String? correctTypedAnswer; // the expected answer of a typed-in question
+  final Map<String, dynamic>? correctSpec; // the answer of a format with its own
   final bool? isCorrect; // null = not attempted
   final String? explanation;
 
@@ -69,6 +72,9 @@ class SessionItemView {
     this.typedAnswerNumeric = false,
     this.shared = false,
     this.sharedSource,
+    this.format = 'single_correct',
+    this.formatData,
+    this.response,
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -98,6 +104,11 @@ class SessionItemView {
       answerType: json['answer_type'] as String? ?? 'choice',
       typedAnswer: json['typed_answer'] as String?,
       typedAnswerNumeric: json['typed_answer_numeric'] as bool? ?? false,
+      format: json['format'] as String? ?? 'single_correct',
+      formatData: (json['format_data'] as Map<String, dynamic>?)?.map(
+        (key, value) => MapEntry(key, (value as List<dynamic>).cast<String>()),
+      ),
+      response: json['response'] as Map<String, dynamic>?,
       feedback: json['feedback'] == null
           ? null
           : AnswerFeedback.fromJson(json['feedback'] as Map<String, dynamic>),
@@ -133,6 +144,15 @@ class SessionItemView {
   /// The expected answer is a number: show a number keyboard.
   final bool typedAnswerNumeric;
 
+  /// How it is answered (the server's question formats).
+  final String format;
+
+  /// What the format lists for the learner: match and ordering items, never the answer.
+  final Map<String, List<String>>? formatData;
+
+  /// The answer of a format that takes more than one tap.
+  final Map<String, dynamic>? response;
+
   /// From the shared bank (a paper the PrepLoop team shared): read-only, not bookmarkable.
   final bool shared;
 
@@ -140,11 +160,13 @@ class SessionItemView {
   final String? sharedSource;
 
   bool get isTyped => answerType == 'typed';
-  bool get answered => selectedPosition != null || typedAnswer != null;
+  bool get takesResponse => const {'multiple_correct', 'match', 'ordering'}.contains(format);
+  bool get answered => selectedPosition != null || typedAnswer != null || response != null;
 
   SessionItemView copyWith({
     int? Function()? selectedPosition,
     String? Function()? typedAnswer,
+    Map<String, dynamic>? Function()? response,
     AnswerFeedback? Function()? feedback,
     bool? bookmarked,
   }) => SessionItemView(
@@ -167,8 +189,44 @@ class SessionItemView {
     typedAnswerNumeric: typedAnswerNumeric,
     shared: shared,
     sharedSource: sharedSource,
+    format: format,
+    formatData: formatData,
+    response: response != null ? response() : this.response,
     feedback: feedback != null ? feedback() : this.feedback,
   );
+}
+
+/// The correct answer of a format with its own, in words. Null for the others.
+String? correctAnswerText(SessionItemView item, AnswerFeedback feedback) {
+  final spec = feedback.correctSpec;
+  if (spec == null) return null;
+  switch (item.format) {
+    case 'multiple_correct':
+      final positions = (spec['correct_positions'] as List<dynamic>).cast<int>();
+      return [
+        for (final p in positions)
+          item.options.where((o) => o.position == p).firstOrNull?.label ?? '$p',
+      ].join(', ');
+    case 'numeric':
+      if (spec['value'] case final Object value) {
+        final tolerance = spec['tolerance'];
+        return tolerance == null ? '$value' : '$value ± $tolerance';
+      }
+      return '${spec['min']} – ${spec['max']}';
+    case 'fill_blank':
+      return (spec['accepted'] as List<dynamic>).join(' / ');
+    case 'match':
+      final left = item.formatData?['left'] ?? const [];
+      final right = item.formatData?['right'] ?? const [];
+      return [
+        for (final pair in spec['pairs'] as List<dynamic>)
+          '${left[(pair as List<dynamic>)[0] as int]} → ${right[pair[1] as int]}',
+      ].join(', ');
+    case 'ordering':
+      final items = item.formatData?['items'] ?? const [];
+      return [for (final i in spec['order'] as List<dynamic>) items[i as int]].join(', ');
+  }
+  return null;
 }
 
 @immutable
@@ -522,6 +580,7 @@ class AnswerOutcome {
     required this.applied,
     this.selectedPosition,
     this.typedAnswer,
+    this.response,
   }) : queued = false;
 
   const AnswerOutcome.queued()
@@ -529,8 +588,10 @@ class AnswerOutcome {
       applied = false,
       selectedPosition = null,
       typedAnswer = null,
+      response = null,
       queued = true;
 
+  final Map<String, dynamic>? response;
   final bool queued;
   final bool applied;
   final int? selectedPosition;

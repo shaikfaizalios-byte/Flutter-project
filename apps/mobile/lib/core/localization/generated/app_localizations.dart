@@ -7862,6 +7862,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{correct} of {answered} correct'**
   String syllabusAcrossCount(int correct, int answered);
+
+  /// No description provided for @sessionChooseAllThatApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose every correct option.'**
+  String get sessionChooseAllThatApply;
+
+  /// No description provided for @sessionMatchChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get sessionMatchChoose;
+
+  /// No description provided for @sessionOrderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Put these in the right order.'**
+  String get sessionOrderHelp;
+
+  /// No description provided for @sessionOrderUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get sessionOrderUp;
+
+  /// No description provided for @sessionOrderDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get sessionOrderDown;
+
+  /// No description provided for @resultYourFullAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'You answered'**
+  String get resultYourFullAnswer;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
