@@ -75,6 +75,13 @@ def ladder_times() -> LadderTimes:
 
 
 @cache
+def descriptive_settings() -> dict[str, Any]:
+    """Descriptive practice settings. Product choices, kept with the other defaults."""
+    settings: dict[str, Any] = _defaults()["descriptive"]
+    return settings
+
+
+@cache
 def _defaults() -> dict[str, Any]:
     data: dict[str, Any] = json.loads((TEMPLATES_DIR / DEFAULTS_FILE).read_text(encoding="utf-8"))
     return data

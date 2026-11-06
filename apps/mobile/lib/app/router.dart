@@ -42,6 +42,8 @@ import '../features/feedback/presentation/suggestions_screen.dart';
 import '../features/auth/presentation/devices_screen.dart';
 import '../features/plus/presentation/plus_screen.dart';
 import '../features/ai/data/ai_repository.dart';
+import '../features/descriptive/presentation/descriptive_card.dart';
+import '../features/descriptive/presentation/descriptive_screen.dart';
 import '../features/ladder/presentation/ladder_screen.dart';
 import '../features/ladder/presentation/ladder_topics_screen.dart';
 import '../features/learn/presentation/topic_lesson_screen.dart';
@@ -136,6 +138,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       // Lessons and knowledge checks stay unreachable (even by link) while the feature is hidden.
+      GoRoute(
+        path: '/descriptive/topics',
+        parentNavigatorKey: _rootNavigatorKey,
+        redirect: (context, state) =>
+            ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+        builder: (context, state) => const DescriptiveTopicsScreen(),
+      ),
+      GoRoute(
+        path: '/descriptive/run',
+        parentNavigatorKey: _rootNavigatorKey,
+        redirect: (context, state) =>
+            ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+        builder: (context, state) => DescriptiveScreen(
+          topicId: state.uri.queryParameters['topic'] ?? '',
+          topicName: state.uri.queryParameters['name'] ?? '',
+        ),
+      ),
       GoRoute(
         path: '/ladder/topics',
         parentNavigatorKey: _rootNavigatorKey,

@@ -53,6 +53,11 @@ abstract final class AppRoutes {
     path: '/study/documents/$id/summary',
     queryParameters: {'name': name, 'exam': examCode},
   ).toString();
+  static const descriptiveTopics = '/descriptive/topics';
+
+  /// Written practice on a topic.
+  static String descriptiveRun(String topicId, String name) =>
+      Uri(path: '/descriptive/run', queryParameters: {'topic': topicId, 'name': name}).toString();
   static const ladderTopics = '/ladder/topics';
 
   /// Challenge Ladder on a topic.

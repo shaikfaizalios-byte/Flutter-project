@@ -4749,6 +4749,130 @@ class AppLocalizationsHi extends AppLocalizations {
   String get ladderCorrectAnswer => 'सही उत्तर';
 
   @override
+  String get descriptiveTitle => 'लिखित उत्तर';
+
+  @override
+  String get descriptiveTagline =>
+      'एक विषय पर पाँच प्रश्न, हर अगला अधिक माँगता है, अनुमानित अंकों के साथ।';
+
+  @override
+  String get descriptiveNoTopics => 'पहले इस परीक्षा में विषय जोड़ें।';
+
+  @override
+  String get descriptiveIntro =>
+      'आप पाँच अभ्यास प्रश्नों के उत्तर देंगे, छोटी परिभाषा से लेकर केस या आलोचनात्मक मूल्यांकन तक। हर प्रश्न AI लिखता है और उसके अंक-बिंदुओं से जाँचता है।';
+
+  @override
+  String get descriptivePrivacy =>
+      'आपके उत्तर, आपकी जोड़ी गई फ़ोटो और आपके पेपरों के उदाहरण प्रश्न AI सेवा को भेजे जाते हैं। फ़ोटो सहेजी नहीं जातीं।';
+
+  @override
+  String get descriptiveEstimateLabel => 'AI प्रतिक्रिया से अनुमानित अंक, आधिकारिक ग्रेड नहीं।';
+
+  @override
+  String get descriptiveStart => 'लिखना शुरू करें';
+
+  @override
+  String get descriptiveWriting => 'प्रश्न लिखा जा रहा है और अंक-बिंदु जाँचे जा रहे हैं…';
+
+  @override
+  String get descriptiveMarking =>
+      'आपका उत्तर जाँचा जा रहा है। इसे एक से अधिक बार जाँचा जाता है, इसलिए एक मिनट लग सकता है।';
+
+  @override
+  String descriptiveStepOf(int step, int total, String level) {
+    return 'प्रश्न $total में से $step: $level';
+  }
+
+  @override
+  String descriptiveMarksAndLength(String marks, int words) {
+    return '$marks अंक · लगभग $words शब्द (PrepLoop का सुझाव, परीक्षा का नियम नहीं)';
+  }
+
+  @override
+  String get descriptiveAiQuestion => 'AI से बना अभ्यास प्रश्न, किसी आधिकारिक पेपर से नहीं।';
+
+  @override
+  String get descriptiveYourAnswer => 'आपका उत्तर';
+
+  @override
+  String get descriptiveFromPhoto => 'फ़ोटो से पढ़ें';
+
+  @override
+  String get descriptiveReadingPhoto => 'फ़ोटो पढ़ी जा रही है…';
+
+  @override
+  String get descriptiveCheckPhoto =>
+      'इसे अपने पन्ने से मिलाएँ और भेजने से पहले सुधारें। सुधारा हुआ पाठ ही जाँचा जाएगा।';
+
+  @override
+  String get descriptivePhotoUnclear =>
+      'कुछ लिखावट पढ़ना कठिन था। [?] वह जगह दिखाता है जो पढ़ी नहीं जा सकी।';
+
+  @override
+  String get descriptiveSubmit => 'मेरा उत्तर जाँचें';
+
+  @override
+  String descriptiveMarks(String marks, String possible) {
+    return '$possible में से $marks अंक';
+  }
+
+  @override
+  String descriptiveRange(String low, String high) {
+    return 'जाँच में अंतर रहा, $low से $high तक। यह बीच वाली है।';
+  }
+
+  @override
+  String descriptiveWordCount(int words) {
+    return 'आपका उत्तर: $words शब्द';
+  }
+
+  @override
+  String get descriptiveByPoint => 'बिंदु के अनुसार अंक';
+
+  @override
+  String get descriptiveMissing => 'क्या छूट गया';
+
+  @override
+  String descriptiveStructure(String text) {
+    return 'संरचना: $text';
+  }
+
+  @override
+  String descriptiveRelevance(String text) {
+    return 'प्रासंगिकता: $text';
+  }
+
+  @override
+  String descriptiveLength(String text) {
+    return 'लंबाई: $text';
+  }
+
+  @override
+  String get descriptiveModelAnswer => 'आदर्श उत्तर (AI से बना)';
+
+  @override
+  String get descriptiveTryAgain => 'फिर कोशिश करें';
+
+  @override
+  String get descriptivePlusMessage => 'लिखित उत्तर PrepLoop Plus का हिस्सा हैं।';
+
+  @override
+  String get descriptiveLevelDefine => 'परिभाषा या सूची';
+
+  @override
+  String get descriptiveLevelShort => 'संक्षिप्त व्याख्या';
+
+  @override
+  String get descriptiveLevelFull => 'पूर्ण व्याख्या';
+
+  @override
+  String get descriptiveLevelAnalyse => 'विश्लेषण या तुलना';
+
+  @override
+  String get descriptiveLevelCase => 'केस स्टडी या आलोचनात्मक मूल्यांकन';
+
+  @override
   String get ladderCleared => 'पार किया';
 
   @override

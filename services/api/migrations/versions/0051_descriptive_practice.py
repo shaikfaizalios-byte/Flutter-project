@@ -27,7 +27,7 @@ TASKS_AFTER = (
     "task IN ('explanation', 'questions', 'topic', 'taxonomy', 'quick_answer', 'rag_answer', "
     "'paper_read', 'topic_lesson', 'topic_quiz', 'answer_check', 'study_topics', "
     "'paper_summary', 'ladder_search', 'ladder_question', 'ladder_solve', "
-    "'descriptive_question', 'descriptive_mark', 'descriptive_read')"
+    "'written_question', 'written_mark', 'written_read')"
 )
 
 
@@ -108,7 +108,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.execute(
         "DELETE FROM ai_generations "
-        "WHERE task IN ('descriptive_question', 'descriptive_mark', 'descriptive_read')"
+        "WHERE task IN ('written_question', 'written_mark', 'written_read')"
     )
     op.drop_constraint(op.f("ck_ai_generations_task_valid"), "ai_generations", type_="check")
     op.create_check_constraint(op.f("ck_ai_generations_task_valid"), "ai_generations", TASKS_BEFORE)

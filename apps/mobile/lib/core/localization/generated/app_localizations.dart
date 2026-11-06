@@ -7527,6 +7527,210 @@ abstract class AppLocalizations {
   /// **'Correct answer'**
   String get ladderCorrectAnswer;
 
+  /// No description provided for @descriptiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answers'**
+  String get descriptiveTitle;
+
+  /// No description provided for @descriptiveTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Five questions on a topic, each asking for more, with estimated marks.'**
+  String get descriptiveTagline;
+
+  /// No description provided for @descriptiveNoTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Add topics to this exam first.'**
+  String get descriptiveNoTopics;
+
+  /// No description provided for @descriptiveIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll answer five practice questions, from a short definition up to a case or critical evaluation. Each one is written by AI and checked against its own marking points.'**
+  String get descriptiveIntro;
+
+  /// No description provided for @descriptivePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers, any photo you add and example questions from your papers go to the AI service. Photos aren\'t stored.'**
+  String get descriptivePrivacy;
+
+  /// No description provided for @descriptiveEstimateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated marks from AI feedback, not an official grade.'**
+  String get descriptiveEstimateLabel;
+
+  /// No description provided for @descriptiveStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start writing'**
+  String get descriptiveStart;
+
+  /// No description provided for @descriptiveWriting.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing the question and checking its marking points…'**
+  String get descriptiveWriting;
+
+  /// No description provided for @descriptiveMarking.
+  ///
+  /// In en, this message translates to:
+  /// **'Marking your answer. It\'s marked more than once, so this can take a minute.'**
+  String get descriptiveMarking;
+
+  /// No description provided for @descriptiveStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {step} of {total}: {level}'**
+  String descriptiveStepOf(int step, int total, String level);
+
+  /// No description provided for @descriptiveMarksAndLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{marks} marks · about {words} words (PrepLoop\'s suggestion, not an exam rule)'**
+  String descriptiveMarksAndLength(String marks, int words);
+
+  /// No description provided for @descriptiveAiQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated practice question, not from an official paper.'**
+  String get descriptiveAiQuestion;
+
+  /// No description provided for @descriptiveYourAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get descriptiveYourAnswer;
+
+  /// No description provided for @descriptiveFromPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from a photo'**
+  String get descriptiveFromPhoto;
+
+  /// No description provided for @descriptiveReadingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the photo…'**
+  String get descriptiveReadingPhoto;
+
+  /// No description provided for @descriptiveCheckPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this against your page and correct it before sending. Your corrected text is what gets marked.'**
+  String get descriptiveCheckPhoto;
+
+  /// No description provided for @descriptivePhotoUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of the writing was hard to read. [?] marks what couldn\'t be read.'**
+  String get descriptivePhotoUnclear;
+
+  /// No description provided for @descriptiveSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark my answer'**
+  String get descriptiveSubmit;
+
+  /// No description provided for @descriptiveMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'{marks} of {possible} marks'**
+  String descriptiveMarks(String marks, String possible);
+
+  /// No description provided for @descriptiveRange.
+  ///
+  /// In en, this message translates to:
+  /// **'The markings differed, from {low} to {high}. This is the middle one.'**
+  String descriptiveRange(String low, String high);
+
+  /// No description provided for @descriptiveWordCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer: {words} words'**
+  String descriptiveWordCount(int words);
+
+  /// No description provided for @descriptiveByPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks by point'**
+  String get descriptiveByPoint;
+
+  /// No description provided for @descriptiveMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'What was missing'**
+  String get descriptiveMissing;
+
+  /// No description provided for @descriptiveStructure.
+  ///
+  /// In en, this message translates to:
+  /// **'Structure: {text}'**
+  String descriptiveStructure(String text);
+
+  /// No description provided for @descriptiveRelevance.
+  ///
+  /// In en, this message translates to:
+  /// **'Relevance: {text}'**
+  String descriptiveRelevance(String text);
+
+  /// No description provided for @descriptiveLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Length: {text}'**
+  String descriptiveLength(String text);
+
+  /// No description provided for @descriptiveModelAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Model answer (AI-generated)'**
+  String get descriptiveModelAnswer;
+
+  /// No description provided for @descriptiveTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get descriptiveTryAgain;
+
+  /// No description provided for @descriptivePlusMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answers are part of PrepLoop Plus.'**
+  String get descriptivePlusMessage;
+
+  /// No description provided for @descriptiveLevelDefine.
+  ///
+  /// In en, this message translates to:
+  /// **'Define or list'**
+  String get descriptiveLevelDefine;
+
+  /// No description provided for @descriptiveLevelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short explanation'**
+  String get descriptiveLevelShort;
+
+  /// No description provided for @descriptiveLevelFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full explanation'**
+  String get descriptiveLevelFull;
+
+  /// No description provided for @descriptiveLevelAnalyse.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyse or compare'**
+  String get descriptiveLevelAnalyse;
+
+  /// No description provided for @descriptiveLevelCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Case study or critical evaluation'**
+  String get descriptiveLevelCase;
+
   /// No description provided for @ladderCleared.
   ///
   /// In en, this message translates to:

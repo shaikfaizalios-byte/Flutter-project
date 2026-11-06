@@ -640,6 +640,21 @@
         "title": "AnswerUpdate",
         "type": "object"
       },
+      "Body_read_photo_api_v1_descriptive_read_photo_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "JPEG or PNG photo",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_read_photo_api_v1_descriptive_read_photo_post",
+        "type": "object"
+      },
       "Body_read_syllabus_api_v1_exams__code__syllabus_post": {
         "properties": {
           "file": {
@@ -1766,6 +1781,344 @@
           "password"
         ],
         "title": "DeleteAccountRequest",
+        "type": "object"
+      },
+      "DescriptiveAnswer": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "default": "typed",
+            "enum": [
+              "typed",
+              "photo"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "DescriptiveAnswer",
+        "type": "object"
+      },
+      "DescriptiveOverview": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/DescriptiveTopic"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "topics",
+          "available"
+        ],
+        "title": "DescriptiveOverview",
+        "type": "object"
+      },
+      "DescriptivePhotoRead": {
+        "description": "What the AI read from a photo, for the learner to correct. Nothing is stored.",
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "unclear": {
+            "title": "Unclear",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "text",
+          "unclear"
+        ],
+        "title": "DescriptivePhotoRead",
+        "type": "object"
+      },
+      "DescriptivePointRead": {
+        "properties": {
+          "awarded": {
+            "title": "Awarded",
+            "type": "number"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "point": {
+            "title": "Point",
+            "type": "string"
+          }
+        },
+        "required": [
+          "point",
+          "marks",
+          "awarded",
+          "comment"
+        ],
+        "title": "DescriptivePointRead",
+        "type": "object"
+      },
+      "DescriptiveResult": {
+        "description": "Estimated marks from AI feedback, not an official grade.",
+        "properties": {
+          "answer_text": {
+            "title": "Answer Text",
+            "type": "string"
+          },
+          "high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High"
+          },
+          "length": {
+            "title": "Length",
+            "type": "string"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "marks_possible": {
+            "title": "Marks Possible",
+            "type": "number"
+          },
+          "missing_points": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Points",
+            "type": "array"
+          },
+          "model_answer": {
+            "title": "Model Answer",
+            "type": "string"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/DescriptivePointRead"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "relevance": {
+            "title": "Relevance",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "structure": {
+            "title": "Structure",
+            "type": "string"
+          },
+          "word_count": {
+            "title": "Word Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "marks",
+          "marks_possible",
+          "low",
+          "high",
+          "runs",
+          "points",
+          "missing_points",
+          "structure",
+          "relevance",
+          "length",
+          "word_count",
+          "answer_text",
+          "model_answer"
+        ],
+        "title": "DescriptiveResult",
+        "type": "object"
+      },
+      "DescriptiveSessionRead": {
+        "properties": {
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/DescriptiveStepRead"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "topic_name",
+          "subject",
+          "steps"
+        ],
+        "title": "DescriptiveSessionRead",
+        "type": "object"
+      },
+      "DescriptiveStart": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "enum": [
+              "en",
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "topic_id"
+        ],
+        "title": "DescriptiveStart",
+        "type": "object"
+      },
+      "DescriptiveStepRead": {
+        "properties": {
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DescriptiveResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          },
+          "step": {
+            "title": "Step",
+            "type": "integer"
+          },
+          "word_limit": {
+            "title": "Word Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "step",
+          "level",
+          "marks",
+          "word_limit",
+          "ready",
+          "stem",
+          "result"
+        ],
+        "title": "DescriptiveStepRead",
+        "type": "object"
+      },
+      "DescriptiveTopic": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "subject"
+        ],
+        "title": "DescriptiveTopic",
         "type": "object"
       },
       "DeviceSession": {
@@ -13494,6 +13847,522 @@
         "summary": "Report a shared paper or question (rights problem, error, other)",
         "tags": [
           "content"
+        ]
+      }
+    },
+    "/api/v1/descriptive/overview": {
+      "get": {
+        "operationId": "overview_api_v1_descriptive_overview_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Whether an exam has written practice, and its topics",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/read-photo": {
+      "post": {
+        "operationId": "read_photo_api_v1_descriptive_read_photo_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_read_photo_api_v1_descriptive_read_photo_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptivePhotoRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read a handwritten answer from a photo for correcting (nothing is stored)",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions": {
+      "post": {
+        "operationId": "start_api_v1_descriptive_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescriptiveStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveSessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start written practice on a topic: plans the levels (questions come one by one)",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions/{session_id}": {
+      "get": {
+        "operationId": "read_api_v1_descriptive_sessions__session_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveSessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read a written practice session",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions/{session_id}/steps/{number}/answer": {
+      "post": {
+        "operationId": "answer_api_v1_descriptive_sessions__session_id__steps__number__answer_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescriptiveAnswer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveStepRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mark an answer against the rubric: estimated marks, not an official grade",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions/{session_id}/steps/{number}/generate": {
+      "post": {
+        "operationId": "generate_api_v1_descriptive_sessions__session_id__steps__number__generate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveStepRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Write one level's question and rubric, and check them",
+        "tags": [
+          "descriptive"
         ]
       }
     },

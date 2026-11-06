@@ -28,6 +28,7 @@ import '../../analytics/domain/study_plan.dart';
 import '../../documents/presentation/import_progress.dart';
 import '../../../app/app_features.dart';
 import '../../weekly_review/application/weekly_review_providers.dart';
+import '../../descriptive/presentation/descriptive_card.dart';
 import '../../ladder/presentation/ladder_card.dart';
 import '../../learn/presentation/start_options_card.dart';
 
@@ -91,6 +92,7 @@ class HomeScreen extends ConsumerWidget {
               _TodayCard(profile: profile),
               const SizedBox(height: AppSpacing.sm),
               const LadderCard(),
+              const DescriptiveCard(),
               if (ref.watch(appFeaturesProvider).quotes) ...[
                 const SizedBox(height: AppSpacing.sm),
                 const QuoteCard(),

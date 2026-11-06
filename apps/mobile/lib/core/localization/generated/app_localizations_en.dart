@@ -4749,6 +4749,130 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ladderCorrectAnswer => 'Correct answer';
 
   @override
+  String get descriptiveTitle => 'Written answers';
+
+  @override
+  String get descriptiveTagline =>
+      'Five questions on a topic, each asking for more, with estimated marks.';
+
+  @override
+  String get descriptiveNoTopics => 'Add topics to this exam first.';
+
+  @override
+  String get descriptiveIntro =>
+      'You\'ll answer five practice questions, from a short definition up to a case or critical evaluation. Each one is written by AI and checked against its own marking points.';
+
+  @override
+  String get descriptivePrivacy =>
+      'Your answers, any photo you add and example questions from your papers go to the AI service. Photos aren\'t stored.';
+
+  @override
+  String get descriptiveEstimateLabel => 'Estimated marks from AI feedback, not an official grade.';
+
+  @override
+  String get descriptiveStart => 'Start writing';
+
+  @override
+  String get descriptiveWriting => 'Writing the question and checking its marking points…';
+
+  @override
+  String get descriptiveMarking =>
+      'Marking your answer. It\'s marked more than once, so this can take a minute.';
+
+  @override
+  String descriptiveStepOf(int step, int total, String level) {
+    return 'Question $step of $total: $level';
+  }
+
+  @override
+  String descriptiveMarksAndLength(String marks, int words) {
+    return '$marks marks · about $words words (PrepLoop\'s suggestion, not an exam rule)';
+  }
+
+  @override
+  String get descriptiveAiQuestion => 'AI-generated practice question, not from an official paper.';
+
+  @override
+  String get descriptiveYourAnswer => 'Your answer';
+
+  @override
+  String get descriptiveFromPhoto => 'Read from a photo';
+
+  @override
+  String get descriptiveReadingPhoto => 'Reading the photo…';
+
+  @override
+  String get descriptiveCheckPhoto =>
+      'Check this against your page and correct it before sending. Your corrected text is what gets marked.';
+
+  @override
+  String get descriptivePhotoUnclear =>
+      'Some of the writing was hard to read. [?] marks what couldn\'t be read.';
+
+  @override
+  String get descriptiveSubmit => 'Mark my answer';
+
+  @override
+  String descriptiveMarks(String marks, String possible) {
+    return '$marks of $possible marks';
+  }
+
+  @override
+  String descriptiveRange(String low, String high) {
+    return 'The markings differed, from $low to $high. This is the middle one.';
+  }
+
+  @override
+  String descriptiveWordCount(int words) {
+    return 'Your answer: $words words';
+  }
+
+  @override
+  String get descriptiveByPoint => 'Marks by point';
+
+  @override
+  String get descriptiveMissing => 'What was missing';
+
+  @override
+  String descriptiveStructure(String text) {
+    return 'Structure: $text';
+  }
+
+  @override
+  String descriptiveRelevance(String text) {
+    return 'Relevance: $text';
+  }
+
+  @override
+  String descriptiveLength(String text) {
+    return 'Length: $text';
+  }
+
+  @override
+  String get descriptiveModelAnswer => 'Model answer (AI-generated)';
+
+  @override
+  String get descriptiveTryAgain => 'Try again';
+
+  @override
+  String get descriptivePlusMessage => 'Written answers are part of PrepLoop Plus.';
+
+  @override
+  String get descriptiveLevelDefine => 'Define or list';
+
+  @override
+  String get descriptiveLevelShort => 'Short explanation';
+
+  @override
+  String get descriptiveLevelFull => 'Full explanation';
+
+  @override
+  String get descriptiveLevelAnalyse => 'Analyse or compare';
+
+  @override
+  String get descriptiveLevelCase => 'Case study or critical evaluation';
+
+  @override
   String get ladderCleared => 'Cleared';
 
   @override

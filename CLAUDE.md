@@ -92,6 +92,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `GENERATED_FORMATS`; none = 409 `ladder_no_format`. Without `include_new_formats` (app: flag) always single_correct. Time targets
   are the server's: `time_target`, factors in `defaults.json` `ladder`. `solver_agrees` per format. `ladder.mark` uses mock scoring;
   steps snapshot marks, null = none stated. Descriptive exams: `available` false, start refused (until Phase 7).
+- Written practice (any-exam Phase 7, migration 0051): exams of kind descriptive|mixed. Pure `app/domain/descriptive.py`,
+  `descriptive_service.py`, `/descriptive/*`, settings in `defaults.json` `descriptive`. Five levels; marks = share of the exam's
+  question marks (`exam_context`), else the default. Each question has a rubric (must add up) and a model answer, which must earn
+  `model_answer_share` of its own rubric. Answers are marked twice; a gap over `disagreement_share` of the marks runs a third, the
+  middle one is shown with the range. `POST /descriptive/read-photo`: the AI copies handwriting, nothing stored, learner corrects.
+  Own tables, never `questions`. App `features/descriptive` behind `examProfiles`; always labelled as estimated marks.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

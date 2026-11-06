@@ -106,6 +106,24 @@ service `app/services/ladder_service.py`, app `lib/features/ladder`.
 - **Cost.** A clean step is 2 AI requests, so a round is about 11 with the search; rejected attempts add more. Each counts
   toward the Plus monthly allowance (default 300), and each step counts once toward the hourly AI rate limit.
 
+## Written practice
+
+Pure rules in `app/domain/descriptive.py`, service `app/services/descriptive_service.py`, app `lib/features/descriptive`, settings
+in `data/exam_templates/defaults.json`. For exams of kind descriptive or mixed.
+
+- **Levels.** Define or list, short explanation, full explanation, analyse or compare, case study or critical evaluation. Marks are
+  a share of the marks of the exam's question; with none stated, the default.
+- **Questions.** `.../steps/{n}/generate` writes one with a rubric and a model answer. The rubric must add up to the marks, the
+  question must be unlike the others, and the model answer must earn nearly all of its own rubric. Failing that it is rewritten,
+  then 502. There is no fallback question: a real one would have no rubric.
+- **Marking.** Two separate requests; over the set gap, a third, and the middle one is shown with the range. Agreeing markings are
+  averaged point by point. The answer goes into the prompt as `<material>`. A failed marking saves nothing.
+- **Photos.** `POST /descriptive/read-photo`: JPEG or PNG up to 10 MB, turned upright and reduced, copied by the AI without
+  correcting, never stored. The learner corrects the text before it is marked.
+- **Separate storage.** `descriptive_sessions` and `descriptive_steps`, never `questions`. Tasks `written_question`, `written_mark`,
+  `written_read` (migration 0051).
+- **Label.** "Estimated marks from AI feedback, not an official grade." wherever marks are shown.
+
 ## Where AI content can appear
 
 - **Practice:** only when the learner turns on *Include AI-generated questions* (`include_ai`). Unverified ones also need
