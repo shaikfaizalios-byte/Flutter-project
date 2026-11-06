@@ -16,7 +16,13 @@ from app.domain.segmentation import IssueCode
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
 from app.models.document import Document, DocumentStatus
-from app.models.question import QuestionIssue, Topic, TopicStatus, VerificationStatus
+from app.models.question import (
+    QuestionIssue,
+    QuestionPattern,
+    Topic,
+    TopicStatus,
+    VerificationStatus,
+)
 from app.models.user import User
 from app.services import shared_bank
 from tests.conftest import auth_headers, make_user
