@@ -103,6 +103,8 @@ class InsightsService:
             .where(
                 Question.origin == QuestionOrigin.SOURCE,
                 Question.verification_status != VerificationStatus.REJECTED,
+                Question.translation_of_id.is_(None),
+                Document.duplicate_of_id.is_(None),
             )
         )
         mine = and_(Question.owner_id == self._owner_id, Document.owner_id == self._owner_id)

@@ -450,6 +450,37 @@ class QuestionService:
         self._session.commit()
         return self.get(question_id)
 
+    def set_translation(self, question_id: uuid.UUID, of: uuid.UUID | None) -> QuestionRead:
+        """This question is ``of`` in another language, and counts once. Null unlinks it."""
+        question = self._get_or_404(question_id)
+        if of is not None:
+            target = self._get_or_404(of)
+            if (
+                target.id == question.id
+                or target.language == question.language
+                or target.exam_code != question.exam_code
+                or target.translation_of_id is not None
+            ):
+                raise InvalidReferenceError("That can't be a translation of this question.")
+        question.translation_of_id = of
+        self._session.commit()
+        return self.get(question_id)
+
+    def set_passage_kind(self, passage_id: uuid.UUID, kind: str) -> PassageRead:
+        passage = self._session.get(Passage, passage_id)
+        owner = (
+            self._session.scalar(
+                select(Document.owner_id).where(Document.id == passage.document_id)
+            )
+            if passage is not None
+            else None
+        )
+        if passage is None or owner != self._owner_id:
+            raise NotFoundError("Passage not found.")
+        passage.kind = kind
+        self._session.commit()
+        return PassageRead.model_validate(passage)
+
     def _verify(self, question: Question) -> None:
         blocking = [
             i.code for i in question.issues if not i.resolved and i.code in CONTENT_ISSUE_CODES
@@ -828,6 +859,11 @@ class QuestionService:
             answer_type=question.answer_type,
             format=question.format,
             answer_spec=question.answer_spec,
+            translation_of_id=question.translation_of_id,
+            marks=question.marks,
+            word_limit=question.word_limit,
+            sub_parts=question.sub_parts,
+            choice_group=question.choice_group,
             typed_answer=question.typed_answer,
             model_answer=question.model_answer,
             typed_answer_numeric=bool(question.typed_answer)

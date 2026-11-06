@@ -46,6 +46,16 @@ def _comparable(value: Any) -> Any:
     return value
 
 
+def _report_digest(report: dict[str, Any]) -> str:
+    """Worded-alike groups tie on papers and size, and ties follow the database's row order,
+    which isn't defined: both the groups and their members go in a fixed order first."""
+    data = _comparable(report)
+    for group in data["similar_groups"]:
+        group["questions"].sort(key=lambda q: q["question_id"])
+    data["similar_groups"].sort(key=lambda g: g["questions"][0]["question_id"])
+    return _digest(data)
+
+
 def _parsed(session: Session, document: Document) -> dict[str, Any]:
     pages = session.scalars(
         select(DocumentPage)
@@ -81,7 +91,7 @@ def snapshot(session: Session, exams: list[str]) -> dict[str, Any]:
                 "models": sum(len(t.patterns) for t in report.topics),
                 "worded_alike": len(report.similar_groups),
                 "not_seen": len(report.not_repeated.not_seen),
-                "report": _digest(_comparable(report.model_dump(mode="json"))),
+                "report": _report_digest(report.model_dump(mode="json")),
             }
         for document in documents:
             result[f"{exam}/paper/{_digest(str(document.id))}"] = _parsed(session, document)

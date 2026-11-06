@@ -111,10 +111,31 @@ class IssueRead(BaseModel):
     resolved: bool
 
 
+class SubPart(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    label: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10)]
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
+    marks: float | None = Field(default=None, ge=0, le=1000)
+
+
+class TranslationLink(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    question_id: uuid.UUID | None
+
+
+class PassageKindUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["passage", "chart", "table", "case"]
+
+
 class PassageRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    kind: str = "passage"
     text: str
     first_question: int | None
     last_question: int | None
@@ -193,6 +214,11 @@ class QuestionRead(BaseModel):
     answer_type: Literal["choice", "typed", "written"]
     format: str
     answer_spec: dict[str, Any] | None
+    translation_of_id: uuid.UUID | None = None
+    marks: float | None = None
+    word_limit: int | None = None
+    sub_parts: list[dict[str, Any]] | None = None
+    choice_group: str | None = None
     typed_answer: str | None
     # Whether typed_answer is a number (the app shows a number keyboard).
     typed_answer_numeric: bool
@@ -294,6 +320,12 @@ class QuestionUpdate(BaseModel):
     # How it is answered, and the answer of a format that keeps its own (question_formats.py).
     format: str | None = None
     answer_spec: dict[str, Any] | None = None
+    marks: float | None = Field(default=None, ge=0, le=1000)
+    word_limit: int | None = Field(default=None, ge=1, le=20_000)
+    sub_parts: list[SubPart] | None = Field(default=None, max_length=30)
+    choice_group: Annotated[str, StringConstraints(strip_whitespace=True, max_length=20)] | None = (
+        None
+    )
     typed_answer: (
         Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
         | None

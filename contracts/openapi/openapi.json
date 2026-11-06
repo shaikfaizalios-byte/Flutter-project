@@ -1781,6 +1781,18 @@
             "title": "Created At",
             "type": "string"
           },
+          "duplicate_of_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Id"
+          },
           "error_code": {
             "anyOf": [
               {
@@ -1841,6 +1853,14 @@
               }
             ],
             "title": "Exam Year"
+          },
+          "extra_languages": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Extra Languages",
+            "type": "array"
           },
           "extraction_summary": {
             "anyOf": [
@@ -1950,6 +1970,28 @@
             "title": "Segmentation Status",
             "type": "string"
           },
+          "session_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Label"
+          },
+          "set_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Set Code"
+          },
           "sha256": {
             "title": "Sha256",
             "type": "string"
@@ -1957,6 +1999,17 @@
           "size_bytes": {
             "title": "Size Bytes",
             "type": "integer"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
           },
           "status": {
             "enum": [
@@ -2046,6 +2099,42 @@
           "keywords"
         ],
         "title": "DraftTopicRead",
+        "type": "object"
+      },
+      "DuplicateSuggestion": {
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "set_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Set Code"
+          },
+          "shared_share": {
+            "title": "Shared Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "document_id",
+          "filename",
+          "set_code",
+          "shared_share"
+        ],
+        "title": "DuplicateSuggestion",
         "type": "object"
       },
       "ErrorBody": {
@@ -4495,6 +4584,72 @@
         "title": "PaperDateUpdate",
         "type": "object"
       },
+      "PaperDetailsUpdate": {
+        "additionalProperties": false,
+        "description": "Only what the request states changes. ``duplicate_of_id``: this paper is another set of\nthat one, and counts once.",
+        "properties": {
+          "duplicate_of_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Id"
+          },
+          "extra_languages": {
+            "default": [],
+            "items": {
+              "pattern": "^[a-z]{2,3}$",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Extra Languages",
+            "type": "array"
+          },
+          "session_label": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Label"
+          },
+          "set_code": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Set Code"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          }
+        },
+        "title": "PaperDetailsUpdate",
+        "type": "object"
+      },
       "PaperTopicsResult": {
         "properties": {
           "considered": {
@@ -4707,6 +4862,26 @@
         "title": "ParseSummary",
         "type": "object"
       },
+      "PassageKindUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "passage",
+              "chart",
+              "table",
+              "case"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "PassageKindUpdate",
+        "type": "object"
+      },
       "PassageRead": {
         "properties": {
           "first_question": {
@@ -4723,6 +4898,11 @@
           "id": {
             "format": "uuid",
             "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "default": "passage",
+            "title": "Kind",
             "type": "string"
           },
           "last_question": {
@@ -5390,6 +5570,17 @@
             "title": "Answer Type",
             "type": "string"
           },
+          "choice_group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choice Group"
+          },
           "correct_option_position": {
             "anyOf": [
               {
@@ -5486,6 +5677,17 @@
             ],
             "title": "Language",
             "type": "string"
+          },
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
           },
           "model_answer": {
             "anyOf": [
@@ -5616,6 +5818,21 @@
             "title": "Stem",
             "type": "string"
           },
+          "sub_parts": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Parts"
+          },
           "subject": {
             "anyOf": [
               {
@@ -5672,6 +5889,18 @@
             ],
             "title": "Topic Suggestion Reason"
           },
+          "translation_of_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Translation Of Id"
+          },
           "typed_answer": {
             "anyOf": [
               {
@@ -5712,6 +5941,17 @@
               }
             ],
             "title": "Verified At"
+          },
+          "word_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Word Limit"
           }
         },
         "required": [
@@ -5980,6 +6220,18 @@
             ],
             "title": "Answer Type"
           },
+          "choice_group": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choice Group"
+          },
           "correct_option_position": {
             "anyOf": [
               {
@@ -6026,6 +6278,19 @@
               }
             ],
             "title": "Image Dependent"
+          },
+          "marks": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
           },
           "model_answer": {
             "anyOf": [
@@ -6093,6 +6358,21 @@
             ],
             "title": "Stem"
           },
+          "sub_parts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SubPart"
+                },
+                "maxItems": 30,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Parts"
+          },
           "subject": {
             "anyOf": [
               {
@@ -6145,6 +6425,19 @@
               }
             ],
             "title": "Verification Status"
+          },
+          "word_limit": {
+            "anyOf": [
+              {
+                "maximum": 20000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Word Limit"
           }
         },
         "title": "QuestionUpdate",
@@ -8013,6 +8306,42 @@
         "title": "StudyItemRead",
         "type": "object"
       },
+      "SubPart": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "marks": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "text": {
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "text"
+        ],
+        "title": "SubPart",
+        "type": "object"
+      },
       "SubjectStats": {
         "properties": {
           "answered": {
@@ -9326,6 +9655,28 @@
           "deleted"
         ],
         "title": "TopicsDeleted",
+        "type": "object"
+      },
+      "TranslationLink": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          }
+        },
+        "required": [
+          "question_id"
+        ],
+        "title": "TranslationLink",
         "type": "object"
       },
       "UserRead": {
@@ -12838,6 +13189,156 @@
         ]
       }
     },
+    "/api/v1/documents/{document_id}/details": {
+      "put": {
+        "operationId": "set_details_api_v1_documents__document_id__details_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaperDetailsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stage, session, set and languages; mark the paper as another set of a paper",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/duplicate-suggestions": {
+      "get": {
+        "operationId": "duplicate_suggestions_api_v1_documents__document_id__duplicate_suggestions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DuplicateSuggestion"
+                  },
+                  "title": "Response Duplicate Suggestions Api V1 Documents  Document Id  Duplicate Suggestions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your papers that look like another set of this one (nothing changes until you say)",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/v1/documents/{document_id}/exam-format": {
       "put": {
         "operationId": "set_exam_format_api_v1_documents__document_id__exam_format_put",
@@ -15123,6 +15624,84 @@
         ]
       }
     },
+    "/api/v1/passages/{passage_id}/kind": {
+      "put": {
+        "operationId": "set_passage_kind_api_v1_passages__passage_id__kind_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "passage_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Passage Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassageKindUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassageRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Say what shared material is: text, chart, table or case",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
     "/api/v1/patterns": {
       "get": {
         "description": "Named question types within topics (taxonomy data).",
@@ -17163,6 +17742,84 @@
           }
         ],
         "summary": "The question's history: as read from its paper, then every edit (own questions)",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
+    "/api/v1/questions/{question_id}/translation-of": {
+      "put": {
+        "operationId": "set_translation_api_v1_questions__question_id__translation_of_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranslationLink"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Link this question as a translation of another, so they count once",
         "tags": [
           "questions"
         ]

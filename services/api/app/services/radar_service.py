@@ -59,6 +59,8 @@ def _eligible_questions() -> Any:  # a Select of the columns below
             Question.verification_status != VerificationStatus.REJECTED,
             Question.topic_status == TopicStatus.CONFIRMED,
             Question.topic_id.is_not(None),
+            Question.translation_of_id.is_(None),
+            Document.duplicate_of_id.is_(None),
         )
     )
 

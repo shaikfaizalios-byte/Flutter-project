@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Sequence
 from typing import Annotated, Any
 
 from fastapi import (
@@ -22,8 +23,10 @@ from app.schemas.document import (
     DocumentPageList,
     DocumentRead,
     DocumentStatusLiteral,
+    DuplicateSuggestion,
     PageList,
     PaperDateUpdate,
+    PaperDetailsUpdate,
 )
 from app.schemas.errors import ErrorResponse
 from app.schemas.language import Language
@@ -201,6 +204,28 @@ def set_exam_format(
     document_id: uuid.UUID, body: DocumentFormatUpdate, service: Service
 ) -> DocumentRead:
     return service.set_exam_format(document_id, body.exam_format_code)
+
+
+@router.put(
+    "/{document_id}/details",
+    response_model=DocumentRead,
+    responses=NOT_FOUND,
+    summary="Stage, session, set and languages; mark the paper as another set of a paper",
+)
+def set_details(document_id: uuid.UUID, body: PaperDetailsUpdate, service: Service) -> DocumentRead:
+    return service.set_details(document_id, body)
+
+
+@router.get(
+    "/{document_id}/duplicate-suggestions",
+    response_model=list[DuplicateSuggestion],
+    responses=NOT_FOUND,
+    summary="Your papers that look like another set of this one (nothing changes until you say)",
+)
+def duplicate_suggestions(
+    document_id: uuid.UUID, service: Service
+) -> Sequence[DuplicateSuggestion]:
+    return service.duplicate_suggestions(document_id)
 
 
 @router.put(
