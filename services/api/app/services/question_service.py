@@ -11,10 +11,17 @@ from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.domain import ai_reading, question_history, typed_answers
+from app.domain.answer_key import KeyQuestion, plan_key
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.figures import figure_box_problem, page_box
-from app.domain.question_formats import FORMATS, SPEC_FORMATS, answer_type_of, spec_problems
-from app.domain.segmentation import Issue, IssueCode, content_issues
+from app.domain.question_formats import (
+    FORMATS,
+    SINGLE_ANSWER,
+    SPEC_FORMATS,
+    answer_type_of,
+    spec_problems,
+)
+from app.domain.segmentation import AnswerKeyRead, Issue, IssueCode, content_issues
 from app.integrations.storage import DocumentStorage
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
@@ -31,6 +38,7 @@ from app.models.question import (
     TopicStatus,
     VerificationStatus,
 )
+from app.schemas.document import AnswerKeyResult
 from app.schemas.question import (
     AIExplanationRead,
     AIProvenance,
@@ -449,6 +457,62 @@ class QuestionService:
             question.verified_at = None
         self._session.commit()
         return self.get(question_id)
+
+    def apply_answer_key(
+        self, document_id: uuid.UUID, read: AnswerKeyRead, read_by: str
+    ) -> AnswerKeyResult:
+        """Fills in missing answers of one paper; see app/domain/answer_key.py."""
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        questions = self._session.scalars(
+            select(Question)
+            .where(
+                Question.document_id == document_id,
+                Question.origin == QuestionOrigin.SOURCE,
+                Question.format.in_(SINGLE_ANSWER),
+                Question.verification_status != VerificationStatus.REJECTED,
+            )
+            .options(*self._load_options())
+        ).all()
+        plan = plan_key(
+            [
+                KeyQuestion(
+                    q.id,
+                    q.source_question_number or 0,
+                    q.correct_option_position,
+                    len(q.options),
+                )
+                for q in questions
+            ],
+            read.entries,
+        )
+        for question in questions:
+            if question.id in plan.apply:
+                before = current_snapshot(question)
+                question.correct_option_position = plan.apply[question.id]
+                question.answer_source = "answer_key"
+                self._refresh_content_issues(question)
+                record_edit(self._session, question, before)
+            elif question.id in plan.conflicts:
+                question.issues.append(
+                    QuestionIssue(
+                        document_id=document_id,
+                        code=IssueCode.CONFLICTING_ANSWERS,
+                        detail=plan.conflicts[question.id][:500],
+                    )
+                )
+        self._session.commit()
+        return AnswerKeyResult(
+            read_by=read_by,
+            applied=len(plan.apply),
+            agreed=plan.agreed,
+            conflicts=len(plan.conflicts),
+            unmatched=plan.unmatched,
+            ambiguous=plan.ambiguous,
+            without_answer=sum(q.correct_option_position is None for q in questions),
+            problems=read.problems,
+        )
 
     def set_translation(self, question_id: uuid.UUID, of: uuid.UUID | None) -> QuestionRead:
         """This question is ``of`` in another language, and counts once. Null unlinks it."""

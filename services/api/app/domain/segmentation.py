@@ -933,6 +933,33 @@ def _flush_key_table(state: _State) -> None:
     state.key_numbers, state.key_answers = [], []
 
 
+@dataclass(frozen=True, slots=True)
+class AnswerKeyRead:
+    entries: list[tuple[int, str]]
+    problems: list[str]
+
+
+def read_answer_key(pages: Sequence[str]) -> AnswerKeyRead:
+    """The key of a file that holds only a key, read by the rules of a key inside a paper."""
+    state = _State(expected_options=0, strong_numbering=False)
+    for page in pages:
+        for raw in page.splitlines():
+            text = raw.strip()
+            if not text:
+                continue
+            if len(text) <= 60 and ANSWER_KEY_HEADING.match(text):
+                text = ANSWER_KEY_HEADING.sub("", text).strip(" :.-")
+                if not text:
+                    continue
+            pairs = _key_pairs(text)
+            if pairs:
+                state.key_entries.extend(pairs)
+            else:
+                _key_table_line(state, text)
+    _flush_key_table(state)
+    return AnswerKeyRead(state.key_entries, state.key_issues)
+
+
 def _attach_answer_key(
     questions: list[ParsedQuestion],
     entries: list[tuple[int, str]],

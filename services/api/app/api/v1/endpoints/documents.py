@@ -19,7 +19,10 @@ from app.api.deps import CurrentUser, client_key
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.domain.errors import UploadTooLargeError
+from app.domain.segmentation import read_answer_key
 from app.schemas.document import (
+    AnswerKeyResult,
+    AnswerKeyText,
     DocumentPageList,
     DocumentRead,
     DocumentStatusLiteral,
@@ -36,6 +39,7 @@ from app.schemas.question import (
     TopicAcceptResult,
     VerifyCleanResult,
 )
+from app.services.answer_key_file import read_key_pdf
 from app.services.document_service import DocumentService
 from app.services.question_service import QuestionService
 from app.services.segmentation_service import SegmentationService
@@ -204,6 +208,47 @@ def set_exam_format(
     document_id: uuid.UUID, body: DocumentFormatUpdate, service: Service
 ) -> DocumentRead:
     return service.set_exam_format(document_id, body.exam_format_code)
+
+
+@router.post(
+    "/{document_id}/answer-key",
+    response_model=AnswerKeyResult,
+    responses={**NOT_FOUND, **UPLOAD_ERRORS},
+    dependencies=[Depends(guard_upload)],
+    summary="Fill in missing answers from a separate answer-key PDF (the file isn't kept)",
+)
+def upload_answer_key(
+    document_id: uuid.UUID,
+    request: Request,
+    service: Service,
+    session: DbSession,
+    user: CurrentUser,
+    settings: Annotated[Settings, Depends(get_settings)],
+    file: Annotated[UploadFile, File(description="Answer-key PDF")],
+) -> AnswerKeyResult:
+    document = service.get(document_id)  # 404 before any work on someone else's paper
+    read, read_by = read_key_pdf(
+        file.file,
+        language=document.language,
+        settings=settings,
+        ocr=request.app.state.ocr_engine,
+        temp_dir=request.app.state.document_storage.temp_dir(),
+    )
+    return QuestionService(session, user.id).apply_answer_key(document_id, read, read_by)
+
+
+@router.post(
+    "/{document_id}/answer-key/text",
+    response_model=AnswerKeyResult,
+    responses=NOT_FOUND,
+    summary="Fill in missing answers from a typed or pasted answer key",
+)
+def type_answer_key(
+    document_id: uuid.UUID, body: AnswerKeyText, session: DbSession, user: CurrentUser
+) -> AnswerKeyResult:
+    return QuestionService(session, user.id).apply_answer_key(
+        document_id, read_answer_key([body.text]), "typed"
+    )
 
 
 @router.put(

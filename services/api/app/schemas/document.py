@@ -69,6 +69,23 @@ class PaperDetailsUpdate(BaseModel):
     duplicate_of_id: uuid.UUID | None = None
 
 
+class AnswerKeyText(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50_000)]
+
+
+class AnswerKeyResult(BaseModel):
+    read_by: str  # text, ocr, mixed, none or typed
+    applied: int
+    agreed: int  # already had the same answer
+    conflicts: int  # flagged for a person; nothing was overwritten
+    unmatched: list[int]  # key numbers with no such question
+    ambiguous: bool  # numbers repeat in the paper, so nothing could be matched
+    without_answer: int  # questions still without one
+    problems: list[str]
+
+
 class DuplicateSuggestion(BaseModel):
     document_id: uuid.UUID
     filename: str
