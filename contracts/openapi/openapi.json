@@ -3859,6 +3859,39 @@
         "title": "MockResult",
         "type": "object"
       },
+      "NameSuggestion": {
+        "description": "Questions worded alike across papers with no model yet. A prompt to name them: nothing\nis created until a person does.",
+        "properties": {
+          "papers": {
+            "title": "Papers",
+            "type": "integer"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/SimilarQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "topic_name",
+          "papers",
+          "questions"
+        ],
+        "title": "NameSuggestion",
+        "type": "object"
+      },
       "NotRepeated": {
         "description": "The other side of repeats, for one exam: what these papers did not ask. Not a\nprediction: a topic missing from a few papers can still be asked.",
         "properties": {
@@ -5100,6 +5133,40 @@
         "title": "PatternCreate",
         "type": "object"
       },
+      "PatternFromQuestions": {
+        "additionalProperties": false,
+        "description": "Names questions that look alike: a new private model, and the questions confirmed.",
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Question Ids",
+            "type": "array"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "question_ids"
+        ],
+        "title": "PatternFromQuestions",
+        "type": "object"
+      },
       "PatternGap": {
         "properties": {
           "name": {
@@ -5130,6 +5197,34 @@
         "title": "PatternGap",
         "type": "object"
       },
+      "PatternMerge": {
+        "additionalProperties": false,
+        "properties": {
+          "into_id": {
+            "format": "uuid",
+            "title": "Into Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "into_id"
+        ],
+        "title": "PatternMerge",
+        "type": "object"
+      },
+      "PatternMerged": {
+        "properties": {
+          "moved": {
+            "title": "Moved",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "moved"
+        ],
+        "title": "PatternMerged",
+        "type": "object"
+      },
       "PatternRead": {
         "description": "A named question type within a topic.",
         "properties": {
@@ -5141,6 +5236,11 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "own": {
+            "default": false,
+            "title": "Own",
+            "type": "boolean"
           },
           "topic_id": {
             "format": "uuid",
@@ -5154,6 +5254,22 @@
           "name"
         ],
         "title": "PatternRead",
+        "type": "object"
+      },
+      "PatternRename": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "PatternRename",
         "type": "object"
       },
       "PatternRepeat": {
@@ -6929,6 +7045,17 @@
       "RepeatCounts": {
         "description": "How often something appeared in the learner's own papers.",
         "properties": {
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
           "papers": {
             "title": "Papers",
             "type": "integer"
@@ -6955,6 +7082,11 @@
       },
       "RepeatsReport": {
         "properties": {
+          "counting_unit": {
+            "default": "paper",
+            "title": "Counting Unit",
+            "type": "string"
+          },
           "exam_code": {
             "anyOf": [
               {
@@ -6965,6 +7097,14 @@
               }
             ],
             "title": "Exam Code"
+          },
+          "name_suggestions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/NameSuggestion"
+            },
+            "title": "Name Suggestions",
+            "type": "array"
           },
           "not_repeated": {
             "$ref": "#/components/schemas/NotRepeated",
@@ -16107,6 +16247,82 @@
         ]
       }
     },
+    "/api/v1/patterns/from-questions": {
+      "post": {
+        "operationId": "pattern_from_questions_api_v1_patterns_from_questions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatternFromQuestions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatternRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Name questions that look alike: a new model, with the questions confirmed",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/api/v1/patterns/{pattern_id}": {
       "delete": {
         "operationId": "delete_pattern_api_v1_patterns__pattern_id__delete",
@@ -16163,6 +16379,170 @@
           }
         ],
         "summary": "Delete Pattern",
+        "tags": [
+          "exams"
+        ]
+      },
+      "patch": {
+        "operationId": "rename_pattern_api_v1_patterns__pattern_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pattern_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pattern Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatternRename"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatternRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Rename one of your own models",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/patterns/{pattern_id}/merge": {
+      "post": {
+        "operationId": "merge_pattern_api_v1_patterns__pattern_id__merge_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pattern_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pattern Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatternMerge"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatternMerged"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Move your questions to another model of the topic and remove this one",
         "tags": [
           "exams"
         ]
@@ -19219,6 +19599,78 @@
           }
         ],
         "summary": "Mark a topic as revised (or not) for you",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/default-models": {
+      "post": {
+        "operationId": "add_default_models_api_v1_topics__topic_id__default_models_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Topic Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PatternRead"
+                  },
+                  "title": "Response Add Default Models Api V1 Topics  Topic Id  Default Models Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add the answer-format models a topic doesn't have yet",
         "tags": [
           "exams"
         ]

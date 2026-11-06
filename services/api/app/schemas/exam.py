@@ -273,6 +273,35 @@ class SyllabusDraftRead(BaseModel):
     truncated: bool  # the PDF listed more topics than one draft holds
 
 
+ModelName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+
+
+class PatternRename(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: ModelName
+
+
+class PatternMerge(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    into_id: uuid.UUID
+
+
+class PatternMerged(BaseModel):
+    moved: int  # questions now under the other model
+
+
+class PatternFromQuestions(BaseModel):
+    """Names questions that look alike: a new private model, and the questions confirmed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    topic_id: uuid.UUID
+    name: ModelName
+    question_ids: list[uuid.UUID] = Field(min_length=1, max_length=200)
+
+
 class PatternCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

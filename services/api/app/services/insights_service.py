@@ -10,7 +10,7 @@ are reported separately as suggestions.
 
 import uuid
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Hashable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Literal
@@ -18,6 +18,7 @@ from typing import Literal
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
+from app.domain.counting import MIN_PAPERS_TO_NAME, unit_key
 from app.domain.similarity import THRESHOLD, StemItem, similar_groups
 from app.models.document import Document
 from app.models.question import (
@@ -29,6 +30,7 @@ from app.models.question import (
     VerificationStatus,
 )
 from app.schemas.insights import (
+    NameSuggestion,
     NotRepeated,
     PapersBasis,
     PatternGap,
@@ -41,6 +43,7 @@ from app.schemas.insights import (
     TopicRepeat,
     YearCount,
 )
+from app.services.exam_profiles import profile_for
 from app.services.patterns import visible_pattern
 from app.services.shared_bank import shared_question
 from app.services.syllabus_tree_service import syllabus_scope
@@ -64,14 +67,19 @@ class _Row:
     pattern_id: uuid.UUID | None
     pattern_status: str
     verified: bool
+    marks: float | None
 
 
-def _counts(rows: Iterable[_Row], years: dict[uuid.UUID, int]) -> RepeatCounts:
+def _counts(
+    rows: Iterable[_Row], years: dict[uuid.UUID, int], units: Mapping[uuid.UUID, Hashable]
+) -> RepeatCounts:
     rows = list(rows)
     per_year = Counter(years[r.document_id] for r in rows if r.document_id in years)
+    marks = [r.marks for r in rows if r.marks is not None]
     return RepeatCounts(
         questions=len(rows),
-        papers=len({r.document_id for r in rows}),
+        papers=len({units[r.document_id] for r in rows}),
+        marks=sum(marks) if marks else None,
         years=[YearCount(year=y, questions=n) for y, n in sorted(per_year.items())],
     )
 
@@ -99,6 +107,7 @@ class InsightsService:
                 Question.pattern_id,
                 Question.pattern_status,
                 Question.verification_status,
+                Question.marks,
             )
             .join(Document, Document.id == Question.document_id)
             .where(
@@ -129,6 +138,7 @@ class InsightsService:
                 pattern_id=r[7],
                 pattern_status=r[8],
                 verified=r[9] == VerificationStatus.VERIFIED,
+                marks=r[10],
             )
             for r in self._session.execute(stmt).all()
             if r[1] is not None
@@ -144,6 +154,20 @@ class InsightsService:
             for d in documents
             if d.paper_date_status == "confirmed" and d.exam_year is not None
         }
+        counting_unit = profile_for(self._session, exam_code).counting_unit
+        units: dict[uuid.UUID, Hashable] = {
+            d.id: unit_key(
+                counting_unit,
+                d.id,
+                confirmed=d.paper_date_status == "confirmed",
+                exam_date=d.exam_date,
+                exam_shift=d.exam_shift,
+                session_label=d.session_label,
+            )
+            for d in documents
+        }
+        counted = len(set(units.values()))
+        dated = len({units[paper] for paper in years})
         # Shared papers are named by their recorded source, never the publisher's file name.
         filenames = {
             d.id: d.original_filename if d.owner_id == self._owner_id else (d.shared_source or "")
@@ -161,17 +185,21 @@ class InsightsService:
             exam_code=exam_code,
             scope=scope,
             papers=PapersBasis(
-                total=len(paper_ids),
-                dated=len(years),
-                undated=len(paper_ids) - len(years),
+                total=counted,
+                dated=dated,
+                undated=counted - dated,
                 years=sorted(set(years.values())),
             ),
-            topics=self._topics(rows, years, topics, patterns),
+            topics=self._topics(rows, years, topics, patterns, units),
             similar_groups=self._similar(rows, years, filenames, topics),
             similarity_threshold=THRESHOLD,
             not_repeated=self._not_repeated(rows, exam_code, patterns, documents, years)
             if exam_code
             else NotRepeated(),
+            counting_unit=counting_unit,
+            name_suggestions=self._to_name(rows, years, filenames, topics)
+            if scope == "mine"
+            else [],
         )
 
     def _not_repeated(
@@ -240,6 +268,7 @@ class InsightsService:
         years: dict[uuid.UUID, int],
         topics: dict[uuid.UUID, Topic],
         patterns: dict[uuid.UUID, QuestionPattern],
+        units: Mapping[uuid.UUID, Hashable],
     ) -> list[TopicRepeat]:
         by_topic: dict[uuid.UUID, list[_Row]] = defaultdict(list)
         for row in rows:
@@ -269,7 +298,7 @@ class InsightsService:
                     PatternRepeat(
                         pattern_id=pattern_id,
                         name=patterns[pattern_id].name,
-                        confirmed=_counts(p_confirmed, years),
+                        confirmed=_counts(p_confirmed, years, units),
                         unreviewed=len(p_rows) - len(p_confirmed),
                     )
                 )
@@ -281,7 +310,7 @@ class InsightsService:
                     topic_id=topic_id,
                     subject=topic.subject,
                     name=topic.name,
-                    confirmed=_counts(confirmed, years),
+                    confirmed=_counts(confirmed, years, units),
                     unreviewed=unreviewed,
                     patterns=pattern_items,
                     without_pattern=sum(r.id not in patterned for r in confirmed),
@@ -291,6 +320,51 @@ class InsightsService:
             key=lambda t: (-t.confirmed.papers, -t.confirmed.questions, -t.unreviewed, t.name)
         )
         return result
+
+    @staticmethod
+    def _to_name(
+        rows: list[_Row],
+        years: dict[uuid.UUID, int],
+        filenames: dict[uuid.UUID, str],
+        topics: dict[uuid.UUID, Topic],
+    ) -> list[NameSuggestion]:
+        """Alike questions in enough papers with a confirmed topic and no confirmed model."""
+        open_rows = [
+            r
+            for r in rows
+            if r.topic_id in topics
+            and r.topic_status == TopicStatus.CONFIRMED
+            and r.pattern_status != TopicStatus.CONFIRMED
+        ]
+        by_id = {r.id: r for r in open_rows}
+        items = [StemItem(r.id, r.document_id, r.topic_id, r.stem) for r in open_rows]
+        found = []
+        for ids in similar_groups(items):
+            members = [by_id[i] for i in ids]  # type: ignore[index]
+            papers = len({m.document_id for m in members})
+            if papers < MIN_PAPERS_TO_NAME:
+                continue
+            topic = topics[members[0].topic_id]  # type: ignore[index]
+            found.append(
+                NameSuggestion(
+                    topic_id=topic.id,
+                    topic_name=topic.name,
+                    papers=papers,
+                    questions=[
+                        SimilarQuestion(
+                            question_id=m.id,
+                            document_id=m.document_id,
+                            document_filename=filenames.get(m.document_id, ""),
+                            exam_year=years.get(m.document_id),
+                            question_number=m.number,
+                            stem_excerpt=_excerpt(m.stem),
+                            verified=m.verified,
+                        )
+                        for m in members
+                    ],
+                )
+            )
+        return found[:MAX_SIMILAR_GROUPS]
 
     @staticmethod
     def _similar(

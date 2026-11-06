@@ -112,6 +112,25 @@ def test_publishing_needs_rights_verified_questions_and_shared_topics(
     assert [d.id for d in shared_bank.shared_documents(db_session)] == [paper.id]
 
 
+def test_a_private_model_on_a_shared_topic_stops_publishing(
+    db_session: Session, publisher: User, shared_topic: Topic
+) -> None:
+    private = QuestionPattern(
+        topic_id=shared_topic.id, owner_id=publisher.id, name="My Own Model", keywords=[]
+    )
+    db_session.add(private)
+    db_session.flush()
+    document = make_document(db_session, publisher, "with-model.pdf")
+    question = make_question(db_session, document, topic=shared_topic)
+    question.pattern_id = private.id
+    question.pattern_status = TopicStatus.CONFIRMED
+    db_session.flush()
+    with pytest.raises(ConflictError) as hidden:
+        shared_bank.publish(db_session, document.id, rights_basis=RIGHTS, source=SOURCE)
+    assert hidden.value.code == "private_topics"
+    assert "My Own Model" in str(hidden.value)
+
+
 def test_learners_see_only_verified_shared_questions_read_only(
     api: TestClient, db_session: Session, paper: Document
 ) -> None:

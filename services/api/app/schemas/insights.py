@@ -13,7 +13,9 @@ class RepeatCounts(BaseModel):
     """How often something appeared in the learner's own papers."""
 
     questions: int
-    papers: int  # distinct papers it appeared in
+    papers: int  # distinct papers it appeared in (sittings, if the exam counts those)
+    # Marks of the questions that state them; null when none does.
+    marks: float | None = None
     # Only papers with a confirmed date; questions from undated papers count above but not here.
     years: list[YearCount]
 
@@ -54,6 +56,16 @@ class SimilarGroup(BaseModel):
     topic_name: str | None
     papers: int
     years: list[int]
+    questions: list[SimilarQuestion]
+
+
+class NameSuggestion(BaseModel):
+    """Questions worded alike across papers with no model yet. A prompt to name them: nothing
+    is created until a person does."""
+
+    topic_id: uuid.UUID
+    topic_name: str
+    papers: int
     questions: list[SimilarQuestion]
 
 
@@ -100,6 +112,9 @@ class RepeatsReport(BaseModel):
     similar_groups: list[SimilarGroup]
     similarity_threshold: float
     not_repeated: NotRepeated = NotRepeated()
+    # "paper", or "session": papers of one sitting then count once.
+    counting_unit: str = "paper"
+    name_suggestions: list[NameSuggestion] = []
 
 
 class SharedBankExam(BaseModel):

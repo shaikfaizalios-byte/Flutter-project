@@ -25,6 +25,7 @@ class PatternRead(BaseModel):
     id: uuid.UUID
     topic_id: uuid.UUID
     name: str
+    own: bool = False  # the learner's own, not the shared list
 
 
 class ExamFormatSection(BaseModel):

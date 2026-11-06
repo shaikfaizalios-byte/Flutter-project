@@ -254,7 +254,10 @@ class QuestionService:
         )
         if topic_id:
             stmt = stmt.where(QuestionPattern.topic_id == topic_id)
-        return [PatternRead.model_validate(p) for p in self._session.scalars(stmt).all()]
+        return [
+            PatternRead(id=p.id, topic_id=p.topic_id, name=p.name, own=p.owner_id is not None)
+            for p in self._session.scalars(stmt).all()
+        ]
 
     def exam_formats(self, exam_code: str | None) -> list[ExamFormatRead]:
         """Published formats (verified and retired, with their status); never drafts."""

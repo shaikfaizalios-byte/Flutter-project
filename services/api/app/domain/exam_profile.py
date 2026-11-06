@@ -43,6 +43,14 @@ class ExamProfile:
 
 
 @cache
+def descriptive_models() -> list[dict[str, Any]]:
+    """Answer formats (define, compare, ...) offered as models for descriptive questions."""
+    path = DATA_DIR / "model_lists" / "descriptive_defaults.json"
+    models: list[dict[str, Any]] = json.loads(path.read_text(encoding="utf-8"))["models"]
+    return models
+
+
+@cache
 def _defaults() -> dict[str, Any]:
     data: dict[str, Any] = json.loads((TEMPLATES_DIR / DEFAULTS_FILE).read_text(encoding="utf-8"))
     return data

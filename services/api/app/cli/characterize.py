@@ -37,10 +37,23 @@ def _digest(value: Any) -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
+# Fields added after the first baselines, at the value that changes nothing.
+_ADDED_DEFAULTS: dict[str, Any] = {
+    "dropped": False,
+    "marks": None,
+    "counting_unit": "paper",
+    "name_suggestions": [],
+}
+
+
 def _comparable(value: Any) -> Any:
-    """Leaves out ``dropped: false``, added after the first baselines. A true one still counts."""
+    """Leaves out new fields at their neutral value. Any other value still counts."""
     if isinstance(value, dict):
-        return {k: _comparable(v) for k, v in value.items() if not (k == "dropped" and v is False)}
+        return {
+            k: _comparable(v)
+            for k, v in value.items()
+            if not (k in _ADDED_DEFAULTS and v == _ADDED_DEFAULTS[k])
+        }
     if isinstance(value, list):
         return [_comparable(v) for v in value]
     return value

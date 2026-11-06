@@ -16,11 +16,11 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import exists, func, or_, select, update
+from sqlalchemy import exists, func, or_, select, true, update
 from sqlalchemy.orm import Session
 
 from app.domain.errors import ConflictError, InvalidReferenceError, NotFoundError
-from app.domain.exam_profile import VARIABLE_OPTIONS
+from app.domain.exam_profile import VARIABLE_OPTIONS, descriptive_models
 from app.models.concept import Concept
 from app.models.document import Document
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
@@ -46,6 +46,7 @@ from app.schemas.exam import (
     MarkingSchemeRead,
     OwnTopicRead,
     PatternCreate,
+    PatternFromQuestions,
     StageSectionRead,
     SyllabusImportRead,
     SyllabusSource,
@@ -55,6 +56,7 @@ from app.schemas.exam import (
 from app.schemas.question import PatternRead
 from app.services.exam_formats import published_formats
 from app.services.exam_profiles import profile_of
+from app.services.patterns import visible_pattern
 from app.services.taxonomy_service import (
     canonical_for,
     decide,
@@ -481,16 +483,44 @@ class TopicService:
 
     # --- patterns (question types) under own topics ------------------------------------
 
-    def create_pattern(self, data: PatternCreate) -> PatternRead:
-        topic = self._own_topic(data.topic_id)
+    def _visible_topic(self, topic_id: uuid.UUID) -> Topic:
+        topic = self._session.scalar(
+            select(Topic).where(Topic.id == topic_id, *topic_scope(self._owner_id, None))
+        )
+        if topic is None:
+            raise NotFoundError("Topic not found.")
+        return topic
+
+    def _own_pattern(self, pattern_id: uuid.UUID) -> QuestionPattern:
+        """A learner changes only their own models; the shared list looks missing."""
+        pattern = self._session.get(QuestionPattern, pattern_id)
+        if pattern is None or pattern.owner_id != self._owner_id:
+            raise NotFoundError("Question type not found.")
+        return pattern
+
+    def _name_clash(self, topic_id: uuid.UUID, name: str, skip: uuid.UUID | None = None) -> None:
         clash = self._session.scalar(
             select(QuestionPattern.id).where(
-                QuestionPattern.topic_id == topic.id,
-                func.lower(QuestionPattern.name) == data.name.casefold(),
+                QuestionPattern.topic_id == topic_id,
+                func.lower(QuestionPattern.name) == name.casefold(),
+                visible_pattern(self._owner_id),
+                QuestionPattern.id != skip if skip else true(),
             )
         )
         if clash is not None:
             raise ConflictError("pattern_exists", "This topic already has that question type.")
+
+    def _pattern_read(self, pattern: QuestionPattern) -> PatternRead:
+        return PatternRead(
+            id=pattern.id,
+            topic_id=pattern.topic_id,
+            name=pattern.name,
+            own=pattern.owner_id is not None,
+        )
+
+    def create_pattern(self, data: PatternCreate) -> PatternRead:
+        topic = self._visible_topic(data.topic_id)
+        self._name_clash(topic.id, data.name)
         pattern = QuestionPattern(
             topic_id=topic.id,
             owner_id=self._owner_id,
@@ -499,13 +529,90 @@ class TopicService:
         )
         self._session.add(pattern)
         self._session.commit()
-        return PatternRead.model_validate(pattern)
+        return self._pattern_read(pattern)
+
+    def rename_pattern(self, pattern_id: uuid.UUID, name: str) -> PatternRead:
+        pattern = self._own_pattern(pattern_id)
+        self._name_clash(pattern.topic_id, name, skip=pattern.id)
+        pattern.name = name
+        self._session.commit()
+        return self._pattern_read(pattern)
+
+    def merge_pattern(self, pattern_id: uuid.UUID, into_id: uuid.UUID) -> int:
+        """The learner's questions move to the other model of the topic; this one goes."""
+        pattern = self._own_pattern(pattern_id)
+        target = self._session.get(QuestionPattern, into_id)
+        if (
+            target is None
+            or target.id == pattern.id
+            or target.topic_id != pattern.topic_id
+            or target.owner_id not in (None, self._owner_id)
+        ):
+            raise InvalidReferenceError("Choose another question type of the same topic.")
+        questions = self._session.scalars(
+            select(Question).where(Question.pattern_id == pattern.id)
+        ).all()
+        for question in questions:
+            question.pattern_id = target.id
+        self._session.flush()
+        self._session.delete(pattern)
+        self._session.commit()
+        return len(questions)
+
+    def pattern_from_questions(self, data: PatternFromQuestions) -> PatternRead:
+        topic = self._visible_topic(data.topic_id)
+        self._name_clash(topic.id, data.name)
+        questions = self._session.scalars(
+            select(Question).where(
+                Question.id.in_(data.question_ids),
+                Question.owner_id == self._owner_id,
+                Question.topic_id == topic.id,
+            )
+        ).all()
+        if len(questions) != len(set(data.question_ids)):
+            raise InvalidReferenceError("These questions aren't all yours, under this topic.")
+        pattern = QuestionPattern(
+            topic_id=topic.id,
+            owner_id=self._owner_id,
+            name=data.name,
+            keywords=_clean_keywords([], data.name),
+        )
+        self._session.add(pattern)
+        self._session.flush()
+        for question in questions:
+            question.pattern_id = pattern.id
+            question.pattern_status = TopicStatus.CONFIRMED
+            question.pattern_suggestion_reason = None
+        self._session.commit()
+        return self._pattern_read(pattern)
+
+    def add_default_models(self, topic_id: uuid.UUID) -> list[PatternRead]:
+        """The answer-format models a topic doesn't have yet, as the learner's own."""
+        topic = self._visible_topic(topic_id)
+        have = {
+            name.casefold()
+            for name in self._session.scalars(
+                select(QuestionPattern.name).where(
+                    QuestionPattern.topic_id == topic.id, visible_pattern(self._owner_id)
+                )
+            )
+        }
+        added = [
+            QuestionPattern(
+                topic_id=topic.id,
+                owner_id=self._owner_id,
+                name=item["name"],
+                keywords=item["keywords"],
+            )
+            for item in descriptive_models()
+            if item["name"].casefold() not in have
+        ]
+        self._session.add_all(added)
+        self._session.commit()
+        return [self._pattern_read(p) for p in added]
 
     def delete_pattern(self, pattern_id: uuid.UUID) -> None:
-        pattern = self._session.get(QuestionPattern, pattern_id)
-        if pattern is None:
-            raise NotFoundError("Question type not found.")
-        self._own_topic(pattern.topic_id)  # only under the learner's own topics
+        pattern = self._own_pattern(pattern_id)
         self._session.execute(
             update(Question)
             .where(Question.pattern_id == pattern.id)

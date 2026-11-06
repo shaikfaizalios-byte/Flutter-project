@@ -18,6 +18,10 @@ from app.schemas.exam import (
     ExamStageRead,
     OwnTopicRead,
     PatternCreate,
+    PatternFromQuestions,
+    PatternMerge,
+    PatternMerged,
+    PatternRename,
     SyllabusDraftRead,
     SyllabusImportRead,
     SyllabusText,
@@ -280,6 +284,47 @@ def taxonomy(session: DbSession, user: CurrentUser) -> list[TaxonomySubjectRead]
 def delete_topic(topic_id: uuid.UUID, service: Service) -> Response:
     service.delete_topic(topic_id)
     return Response(status_code=204)
+
+
+@router.post(
+    "/patterns/from-questions",
+    response_model=PatternRead,
+    status_code=201,
+    responses={**NOT_FOUND, **CONFLICT},
+    summary="Name questions that look alike: a new model, with the questions confirmed",
+)
+def pattern_from_questions(body: PatternFromQuestions, service: Service) -> PatternRead:
+    return service.pattern_from_questions(body)
+
+
+@router.post(
+    "/topics/{topic_id}/default-models",
+    response_model=list[PatternRead],
+    responses=NOT_FOUND,
+    summary="Add the answer-format models a topic doesn't have yet",
+)
+def add_default_models(topic_id: uuid.UUID, service: Service) -> list[PatternRead]:
+    return service.add_default_models(topic_id)
+
+
+@router.patch(
+    "/patterns/{pattern_id}",
+    response_model=PatternRead,
+    responses={**NOT_FOUND, **CONFLICT},
+    summary="Rename one of your own models",
+)
+def rename_pattern(pattern_id: uuid.UUID, body: PatternRename, service: Service) -> PatternRead:
+    return service.rename_pattern(pattern_id, body.name)
+
+
+@router.post(
+    "/patterns/{pattern_id}/merge",
+    response_model=PatternMerged,
+    responses=NOT_FOUND,
+    summary="Move your questions to another model of the topic and remove this one",
+)
+def merge_pattern(pattern_id: uuid.UUID, body: PatternMerge, service: Service) -> PatternMerged:
+    return PatternMerged(moved=service.merge_pattern(pattern_id, body.into_id))
 
 
 @router.post("/patterns", response_model=PatternRead, status_code=201, responses=CONFLICT)
