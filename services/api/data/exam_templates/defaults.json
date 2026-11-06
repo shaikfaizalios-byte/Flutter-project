@@ -19,5 +19,39 @@
     "round_to_seconds": 5,
     "min_seconds": 15,
     "max_seconds": 600
+  },
+  "descriptive": {
+    "_about": "Descriptive practice. A level's marks are its share of the marks of the exam's question, or of default_question_marks when the exam states none. Lengths are PrepLoop's suggestions. Product choices, not exam facts.",
+    "default_question_marks": 10,
+    "levels": [
+      {
+        "key": "define_list",
+        "share": 0.2,
+        "task": "Ask the learner to define a term or list items."
+      },
+      {
+        "key": "short_explanation",
+        "share": 0.4,
+        "task": "Ask for a short explanation of one idea."
+      },
+      {
+        "key": "full_explanation",
+        "share": 0.6,
+        "task": "Ask for a full explanation with its reasons or steps."
+      },
+      {
+        "key": "analyse_compare",
+        "share": 0.8,
+        "task": "Ask the learner to analyse something or compare two things."
+      },
+      {
+        "key": "case_evaluate",
+        "share": 1,
+        "task": "Give a short case to work through, or ask for a critical evaluation."
+      }
+    ],
+    "words_per_mark": 20,
+    "disagreement_share": 0.2,
+    "model_answer_share": 0.8
   }
 }

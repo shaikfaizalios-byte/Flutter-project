@@ -3,6 +3,7 @@
 from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
 from app.models.content import AuditEvent, ContentReport, ContentRights
+from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
@@ -39,6 +40,8 @@ __all__ = [
     "Concept",
     "ContentReport",
     "ContentRights",
+    "DescriptiveSession",
+    "DescriptiveStep",
     "Document",
     "DocumentPage",
     "Exam",

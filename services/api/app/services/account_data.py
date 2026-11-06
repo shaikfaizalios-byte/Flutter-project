@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
 from app.models.content import ContentReport, ContentRights
+from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
@@ -56,6 +57,7 @@ class ChildData:
 # and shared topics have no owner and are reference data.
 OWNED_DATA: tuple[type[Any], ...] = (
     Exam,
+    DescriptiveSession,
     LadderSession,
     Topic,
     QuestionPattern,
@@ -76,6 +78,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
 
 # In order: a parent is always listed before its children.
 CHILD_DATA: tuple[ChildData, ...] = (
+    ChildData(DescriptiveStep, (("session_id", "descriptive_sessions"),)),
     ChildData(LadderStep, (("session_id", "ladder_sessions"),)),
     ChildData(SyllabusNode, (("version_id", "syllabus_versions"),)),
     ChildData(TopicTaxonomyLink, (("topic_id", "topics"),)),

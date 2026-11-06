@@ -12,6 +12,7 @@ from app.database.base import Base
 from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
 from app.models.content import ContentReport, ContentRights
+from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
@@ -172,6 +173,14 @@ def _fill_account(db: Session, user: User) -> None:
     db.add(ladder)
     db.flush()
     db.add(LadderStep(session_id=ladder.id, round_number=1, step=1, difficulty="easy"))
+    written = DescriptiveSession(
+        owner_id=user.id, exam_code=code, topic_name="T", subject="S", language="en"
+    )
+    db.add(written)
+    db.flush()
+    db.add(
+        DescriptiveStep(session_id=written.id, step=1, level="define_list", marks=2, word_limit=40)
+    )
     db.flush()
     question = Question(
         owner_id=user.id,
