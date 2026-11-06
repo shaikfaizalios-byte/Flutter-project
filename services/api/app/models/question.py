@@ -230,6 +230,12 @@ class Question(Base):
             "answer_type = 'written' OR model_answer IS NULL", name="model_answer_only_written"
         ),
         CheckConstraint("extracted_by IN ('rules', 'ai')", name="extracted_by_valid"),
+        CheckConstraint(
+            "format IN ('single_correct', 'assertion_reason', 'statement', 'true_false', "
+            "'typed_in', 'descriptive', 'multiple_correct', 'match', 'ordering', 'numeric', "
+            "'fill_blank')",
+            name="format_valid",
+        ),
         # A typed question has no option answer, and only typed questions have a typed answer.
         CheckConstraint(
             "answer_type = 'choice' OR correct_option_position IS NULL",
@@ -275,6 +281,12 @@ class Question(Base):
     # "choice": pick an option; "typed": type the answer in (TITA), compared by typed_answers.
     answer_type: Mapped[str] = mapped_column(String(8), default="choice", server_default="choice")
     typed_answer: Mapped[str | None] = mapped_column(String(100))
+    # How it is answered and marked (app/domain/question_formats.py). Formats beyond one option
+    # or a typed text keep their answer in answer_spec.
+    format: Mapped[str] = mapped_column(
+        String(20), default="single_correct", server_default="single_correct"
+    )
+    answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     # "written": the answer as written in the notes (no options; revised as a flashcard).
     model_answer: Mapped[str | None] = mapped_column(Text)
     # "answer_key" | "inline" | "manual" — where the answer came from.
