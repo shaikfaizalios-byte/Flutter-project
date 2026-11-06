@@ -1928,6 +1928,11 @@
             "title": "Model Answer",
             "type": "string"
           },
+          "model_answer_from_paper": {
+            "default": false,
+            "title": "Model Answer From Paper",
+            "type": "boolean"
+          },
           "points": {
             "items": {
               "$ref": "#/components/schemas/DescriptivePointRead"
@@ -2028,6 +2033,15 @@
             "title": "Language",
             "type": "string"
           },
+          "source": {
+            "default": "ai",
+            "enum": [
+              "ai",
+              "papers"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
           "topic_id": {
             "format": "uuid",
             "title": "Topic Id",
@@ -2051,6 +2065,17 @@
             "title": "Marks",
             "type": "number"
           },
+          "paper_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paper Label"
+          },
           "ready": {
             "title": "Ready",
             "type": "boolean"
@@ -2064,6 +2089,15 @@
                 "type": "null"
               }
             ]
+          },
+          "source": {
+            "default": "ai",
+            "enum": [
+              "ai",
+              "paper"
+            ],
+            "title": "Source",
+            "type": "string"
           },
           "stem": {
             "anyOf": [
@@ -2102,6 +2136,11 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "paper_questions": {
+            "default": 0,
+            "title": "Paper Questions",
+            "type": "integer"
           },
           "subject": {
             "title": "Subject",

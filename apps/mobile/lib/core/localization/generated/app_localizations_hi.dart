@@ -4873,6 +4873,32 @@ class AppLocalizationsHi extends AppLocalizations {
   String get descriptiveLevelCase => 'केस स्टडी या आलोचनात्मक मूल्यांकन';
 
   @override
+  String descriptiveUsePapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'मेरे पेपरों के प्रश्न लें ($count)',
+      one: 'मेरे पेपरों का 1 प्रश्न लें',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String descriptiveFromPaper(String paper) {
+    return 'आपके पेपर से: $paper';
+  }
+
+  @override
+  String get descriptiveLevelPaper => 'आपके पेपर से';
+
+  @override
+  String get descriptiveAnswerFromPaper => 'आपके पेपर में छपा उत्तर';
+
+  @override
+  String get descriptiveRubricNote =>
+      'अंक-बिंदु AI ने बनाए हैं, यह परीक्षा की आधिकारिक योजना नहीं है।';
+
+  @override
   String get ladderCleared => 'पार किया';
 
   @override

@@ -15,6 +15,8 @@ class DescriptiveStart(BaseModel):
     exam_code: str
     topic_id: uuid.UUID
     language: Language = "en"
+    # ai: written for this session; papers: the learner's own reviewed written questions.
+    source: Literal["ai", "papers"] = "ai"
 
 
 class DescriptiveAnswer(BaseModel):
@@ -56,6 +58,7 @@ class DescriptiveResult(BaseModel):
     word_count: int
     answer_text: str
     model_answer: str
+    model_answer_from_paper: bool = False  # printed in the paper, not written by AI
 
 
 class DescriptiveStepRead(BaseModel):
@@ -65,6 +68,8 @@ class DescriptiveStepRead(BaseModel):
     word_limit: int  # PrepLoop's suggestion, not an exam rule
     ready: bool
     stem: str | None
+    source: Literal["ai", "paper"] = "ai"
+    paper_label: str | None = None
     result: DescriptiveResult | None
 
 
@@ -79,6 +84,7 @@ class DescriptiveTopic(BaseModel):
     topic_id: uuid.UUID
     name: str
     subject: str
+    paper_questions: int = 0  # the learner's reviewed written questions on it
 
 
 class DescriptiveOverview(BaseModel):

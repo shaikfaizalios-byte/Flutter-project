@@ -72,18 +72,23 @@ class DescriptiveRun extends Notifier<DescriptiveRunState> {
 
   final DescriptiveKey key;
 
+  /// Real questions from the learner's papers, not AI-written ones.
+  bool _fromPapers = false;
+
   DescriptiveRepository get _repo => ref.read(descriptiveRepositoryProvider);
 
   @override
   DescriptiveRunState build() => const DescriptiveRunState();
 
-  Future<void> start() async {
+  Future<void> start({bool fromPapers = false}) async {
+    _fromPapers = fromPapers;
     state = state.copyWith(stage: DescriptiveStage.writing, failure: () => null);
     try {
       final session = await _repo.start(
         examCode: key.examCode,
         topicId: key.topicId,
         language: key.language,
+        fromPapers: fromPapers,
       );
       await _write(session, 0);
     } on Object catch (error, stack) {
@@ -139,7 +144,7 @@ class DescriptiveRun extends Notifier<DescriptiveRunState> {
   /// After a failure: writes the question that failed, or starts again.
   Future<void> retry() async {
     final session = state.session;
-    if (session == null) return start();
+    if (session == null) return start(fromPapers: _fromPapers);
     state = state.copyWith(failure: () => null);
     try {
       await _write(session, state.current);

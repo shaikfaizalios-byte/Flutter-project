@@ -29,6 +29,7 @@ MAX_COMMENT = 500
 MAX_MISSING = 12
 MAX_ANSWER = 20000
 MAX_INVALID_RETRIES = 1
+PAPER_LEVEL = "paper"  # the level of a real question from the learner's papers
 
 
 @dataclass(frozen=True, slots=True)
@@ -171,6 +172,61 @@ def validate_question(data: Mapping[str, Any], marks: float) -> WrittenQuestion 
         return None
     stem, model_answer = _clean(stem), _clean(model_answer)
     if not 0 < len(stem) <= MAX_STEM or not 0 < len(model_answer) <= MAX_MODEL_ANSWER:
+        return None
+    rubric = _rubric(data.get("rubric"), marks)
+    return None if rubric is None else WrittenQuestion(stem, rubric, model_answer)
+
+
+# --- a rubric for a real question ------------------------------------------------------------
+
+RUBRIC_SYSTEM = (
+    "You draft marking rubrics for real exam questions. You never change the question, and you "
+    "never claim that a rubric is the exam's official marking scheme." + UNTRUSTED_RULE
+)
+
+RUBRIC_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "rubric": QUESTION_SCHEMA["properties"]["rubric"],
+        "model_answer": {"type": "string"},
+    },
+    "required": ["rubric", "model_answer"],
+    "additionalProperties": False,
+}
+
+
+def rubric_prompt(
+    *, stem: str, marks: float, words: int, paper_answer: str | None, language: str
+) -> str:
+    """For a question from the learner's paper. With the paper's own answer the rubric follows
+    it and no model answer is needed."""
+    if paper_answer:
+        basis = (
+            f"THE ANSWER PRINTED IN THE PAPER:\n{material(paper_answer)}\n\n"
+            "Base the rubric on this answer. Leave model_answer empty."
+        )
+    else:
+        basis = (
+            "The paper gives no answer. Write a model answer that earns full marks under the "
+            f"rubric, of about {words} words."
+        )
+    return (
+        f"Draft a marking rubric for this question from a real exam paper.\n\n"
+        f"QUESTION:\n{material(stem)}\n\n"
+        f"LANGUAGE: {LANGUAGE_NAMES[language]}\nMARKS: {marks:g}\n\n{basis}\n\n"
+        "The rubric lists what a good answer must contain, one point per item. The marks of its "
+        f"points must add up to exactly {marks:g}.\n\n"
+        'Return JSON only: {"rubric": [{"point": "...", "marks": 1}], "model_answer": "..."}'
+    )
+
+
+def validate_rubric(
+    data: Mapping[str, Any], stem: str, marks: float, paper_answer: str | None
+) -> WrittenQuestion | None:
+    """The rubric for [stem], which stays as printed. The paper's own answer always wins."""
+    written = data.get("model_answer")
+    model_answer = paper_answer or (_clean(written) if isinstance(written, str) else "")
+    if not len(model_answer) > 0 or (not paper_answer and len(model_answer) > MAX_MODEL_ANSWER):
         return None
     rubric = _rubric(data.get("rubric"), marks)
     return None if rubric is None else WrittenQuestion(stem, rubric, model_answer)

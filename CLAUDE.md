@@ -98,6 +98,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `model_answer_share` of its own rubric. Answers are marked twice; a gap over `disagreement_share` of the marks runs a third, the
   middle one is shown with the range. `POST /descriptive/read-photo`: the AI copies handwriting, nothing stored, learner corrects.
   Own tables, never `questions`. App `features/descriptive` behind `examProfiles`; always labelled as estimated marks.
+  Real questions (migration 0052): `DescriptiveStart.source` papers = the learner's own reviewed written questions as printed (never
+  the shared bank, translations, duplicates, figures), unanswered first, up to 5; marks printed, else the exam's. Rubric drafted by
+  AI and reused while wording, marks and the paper's answer are unchanged (`_earlier_rubric`); the paper's answer wins over the AI's.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

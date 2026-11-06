@@ -52,8 +52,8 @@ Operator: [Operator name and address]. Contact for privacy questions: [privacy c
   are sent to our AI provider to write practice questions, and the exam, topic and question-type
   names are used in a web search run by that provider. Your ladder questions, answers and times
   are stored in your account, can be exported, and are deleted with it.
-- If you use written answers, your answers, any photo of your handwriting and up to three written
-  questions from your own reviewed papers are sent to our AI provider. Photos are not stored by
+- If you use written answers, your answers, any photo of your handwriting and written questions
+  from your own reviewed papers, with any answers printed in them, are sent to our AI provider. Photos are not stored by
   PrepLoop. Your written questions, answers and estimated marks are stored in your account, can be
   exported, and are deleted with it.
 - We keep a record that an AI request happened (type, model, outcome, size) but not its text.

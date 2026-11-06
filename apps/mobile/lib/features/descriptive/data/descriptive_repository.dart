@@ -10,11 +10,12 @@ import '../domain/descriptive_models.dart';
 abstract interface class DescriptiveRepository {
   Future<DescriptiveOverview> overview(String examCode);
 
-  /// Plans the levels (no AI yet).
+  /// Plans the steps (no AI yet): AI-written levels, or real questions from the learner's papers.
   Future<DescriptiveSession> start({
     required String examCode,
     required String topicId,
     required ContentLanguage language,
+    bool fromPapers = false,
   });
 
   /// Writes and checks one level's question and rubric.
@@ -56,10 +57,16 @@ class RemoteDescriptiveRepository implements DescriptiveRepository {
     required String examCode,
     required String topicId,
     required ContentLanguage language,
+    bool fromPapers = false,
   }) => _guard(() async {
     final reply = await _dio.post<Map<String, dynamic>>(
       '$_base/sessions',
-      data: {'exam_code': examCode, 'topic_id': topicId, 'language': language.code},
+      data: {
+        'exam_code': examCode,
+        'topic_id': topicId,
+        'language': language.code,
+        'source': fromPapers ? 'papers' : 'ai',
+      },
     );
     return DescriptiveSession.fromJson(reply.data!);
   });

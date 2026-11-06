@@ -39,6 +39,7 @@ class DescriptiveResult {
     this.length = '',
     this.wordCount = 0,
     this.answerText = '',
+    this.modelAnswerFromPaper = false,
   });
 
   factory DescriptiveResult.fromJson(Map<String, dynamic> json) => DescriptiveResult(
@@ -57,6 +58,7 @@ class DescriptiveResult {
     wordCount: json['word_count'] as int,
     answerText: json['answer_text'] as String,
     modelAnswer: json['model_answer'] as String,
+    modelAnswerFromPaper: json['model_answer_from_paper'] as bool? ?? false,
   );
 
   final double marks;
@@ -73,6 +75,9 @@ class DescriptiveResult {
   final int wordCount;
   final String answerText;
   final String modelAnswer;
+
+  /// Printed in the paper, not written by AI.
+  final bool modelAnswerFromPaper;
 }
 
 /// One level: planned, then [ready] with its question, then marked.
@@ -85,6 +90,8 @@ class DescriptiveStep {
     required this.wordLimit,
     required this.ready,
     this.stem,
+    this.fromPaper = false,
+    this.paperLabel,
     this.result,
   });
 
@@ -95,6 +102,8 @@ class DescriptiveStep {
     wordLimit: json['word_limit'] as int,
     ready: json['ready'] as bool,
     stem: json['stem'] as String?,
+    fromPaper: json['source'] == 'paper',
+    paperLabel: json['paper_label'] as String?,
     result: json['result'] == null
         ? null
         : DescriptiveResult.fromJson(json['result'] as Map<String, dynamic>),
@@ -108,6 +117,10 @@ class DescriptiveStep {
   final int wordLimit;
   final bool ready;
   final String? stem;
+
+  /// A real question from the learner's paper, as printed.
+  final bool fromPaper;
+  final String? paperLabel;
   final DescriptiveResult? result;
 }
 
@@ -147,17 +160,26 @@ class DescriptiveSession {
 
 @immutable
 class DescriptiveTopic {
-  const DescriptiveTopic({required this.topicId, required this.name, required this.subject});
+  const DescriptiveTopic({
+    required this.topicId,
+    required this.name,
+    required this.subject,
+    this.paperQuestions = 0,
+  });
 
   factory DescriptiveTopic.fromJson(Map<String, dynamic> json) => DescriptiveTopic(
     topicId: json['topic_id'] as String,
     name: json['name'] as String,
     subject: json['subject'] as String,
+    paperQuestions: json['paper_questions'] as int? ?? 0,
   );
 
   final String topicId;
   final String name;
   final String subject;
+
+  /// The learner's reviewed written questions on it.
+  final int paperQuestions;
 }
 
 @immutable

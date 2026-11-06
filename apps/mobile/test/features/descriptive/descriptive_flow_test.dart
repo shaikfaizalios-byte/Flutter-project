@@ -17,9 +17,11 @@ final profilesOn = appFeaturesProvider.overrideWithValue(const AppFeatures(examP
 
 /// Stand-in for the server: two levels, and the second marking can disagree.
 class FakeDescriptive implements DescriptiveRepository {
-  FakeDescriptive({this.available = true});
+  FakeDescriptive({this.available = true, this.paperQuestions = 0});
 
   final bool available;
+  final int paperQuestions;
+  bool fromPapers = false;
   final calls = <String>[];
   double? low;
   double? high;
@@ -38,7 +40,14 @@ class FakeDescriptive implements DescriptiveRepository {
   @override
   Future<DescriptiveOverview> overview(String examCode) async => DescriptiveOverview(
     available: available,
-    topics: const [DescriptiveTopic(topicId: 't1', name: 'Contracts', subject: 'Law')],
+    topics: [
+      DescriptiveTopic(
+        topicId: 't1',
+        name: 'Contracts',
+        subject: 'Law',
+        paperQuestions: paperQuestions,
+      ),
+    ],
   );
 
   @override
@@ -46,7 +55,11 @@ class FakeDescriptive implements DescriptiveRepository {
     required String examCode,
     required String topicId,
     required ContentLanguage language,
-  }) async => DescriptiveSession(sessionId: 's1', steps: [planned(1), planned(2)]);
+    bool fromPapers = false,
+  }) async {
+    this.fromPapers = fromPapers;
+    return DescriptiveSession(sessionId: 's1', steps: [planned(1), planned(2)]);
+  }
 
   @override
   Future<DescriptiveStep> generate(String sessionId, int step) async {
@@ -59,6 +72,8 @@ class FakeDescriptive implements DescriptiveRepository {
       wordLimit: plan.wordLimit,
       ready: true,
       stem: 'Question $step?',
+      fromPaper: fromPapers,
+      paperLabel: fromPapers ? 'law-2024.pdf' : null,
     );
   }
 
@@ -81,6 +96,7 @@ class FakeDescriptive implements DescriptiveRepository {
       wordLimit: plan.wordLimit,
       ready: true,
       stem: 'Question $step?',
+      fromPaper: fromPapers,
       result: DescriptiveResult(
         marks: 1.5,
         marksPossible: plan.marks,
@@ -92,6 +108,7 @@ class FakeDescriptive implements DescriptiveRepository {
         missingPoints: const ['An example'],
         structure: 'Clear',
         modelAnswer: 'The model answer.',
+        modelAnswerFromPaper: fromPapers,
         wordCount: 3,
       ),
     );
@@ -109,8 +126,9 @@ Future<FakeDescriptive> pumpCard(
   AppDatabase db, {
   bool available = true,
   bool flag = true,
+  int paperQuestions = 0,
 }) async {
-  final repository = FakeDescriptive(available: available);
+  final repository = FakeDescriptive(available: available, paperQuestions: paperQuestions);
   await pumpPrepLoopApp(
     tester,
     db,
@@ -133,10 +151,14 @@ Future<void> tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> openFirstQuestion(WidgetTester tester) async {
+Future<void> openTopic(WidgetTester tester) async {
   await scrollTo(tester, find.byType(DescriptiveCard));
   await tapText(tester, 'Written answers');
   await tapText(tester, 'Contracts');
+}
+
+Future<void> openFirstQuestion(WidgetTester tester) async {
+  await openTopic(tester);
   await tapText(tester, 'Start writing');
 }
 
@@ -227,6 +249,32 @@ void main() {
     }
     expect(find.text('3 of 12 marks'), findsOneWidget);
     expect(find.text(estimate), findsOneWidget);
+  });
+
+  testAppWidgets('a real question says where it came from and what marked it', (tester, db) async {
+    final repository = await pumpCard(tester, db, paperQuestions: 3);
+    await openTopic(tester);
+    await tapText(tester, 'Use questions from my papers (3)');
+
+    expect(repository.fromPapers, isTrue);
+    expect(find.text('From your paper: law-2024.pdf'), findsOneWidget);
+    expect(find.textContaining('AI-generated practice question'), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'My answer');
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Mark my answer');
+
+    expect(find.text(estimate), findsOneWidget);
+    expect(find.textContaining('not the exam\'s official scheme'), findsOneWidget);
+    expect(find.text('Answer printed in your paper'), findsOneWidget);
+    expect(find.text('Model answer (AI-generated)'), findsNothing);
+  });
+
+  testAppWidgets('a topic with no written questions offers only AI ones', (tester, db) async {
+    await pumpCard(tester, db);
+    await openTopic(tester);
+    expect(find.text('Start writing'), findsOneWidget);
+    expect(find.textContaining('from my papers'), findsNothing);
   });
 
   testAppWidgets('a multiple-choice exam shows no card', (tester, db) async {

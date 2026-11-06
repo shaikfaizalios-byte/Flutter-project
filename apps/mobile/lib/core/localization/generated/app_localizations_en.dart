@@ -4873,6 +4873,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get descriptiveLevelCase => 'Case study or critical evaluation';
 
   @override
+  String descriptiveUsePapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use questions from my papers ($count)',
+      one: 'Use 1 question from my papers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String descriptiveFromPaper(String paper) {
+    return 'From your paper: $paper';
+  }
+
+  @override
+  String get descriptiveLevelPaper => 'From your paper';
+
+  @override
+  String get descriptiveAnswerFromPaper => 'Answer printed in your paper';
+
+  @override
+  String get descriptiveRubricNote =>
+      'Marking points drafted by AI, not the exam\'s official scheme.';
+
+  @override
   String get ladderCleared => 'Cleared';
 
   @override
