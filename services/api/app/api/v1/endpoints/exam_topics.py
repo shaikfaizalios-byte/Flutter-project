@@ -31,7 +31,9 @@ from app.schemas.exam import (
 )
 from app.schemas.language import Language
 from app.schemas.question import PatternRead
+from app.schemas.syllabus import SyllabusVersionCreate, SyllabusVersionRead
 from app.services.syllabus_service import SyllabusService
+from app.services.syllabus_tree_service import SyllabusTreeService
 from app.services.taxonomy_service import canonical_tree
 from app.services.topic_service import TopicService
 
@@ -64,6 +66,42 @@ def my_exams(service: Service) -> list[ExamRead]:
 )
 def create_exam(body: CustomExamCreate, service: Service) -> ExamRead:
     return service.create_exam(body)
+
+
+def get_syllabus_service(session: DbSession, user: CurrentUser) -> SyllabusTreeService:
+    return SyllabusTreeService(session, user.id)
+
+
+Syllabus = Annotated[SyllabusTreeService, Depends(get_syllabus_service)]
+
+
+@router.get(
+    "/exams/{code}/syllabus-versions",
+    response_model=list[SyllabusVersionRead],
+    responses=NOT_FOUND,
+    summary="The exam's syllabus versions, as trees",
+)
+def syllabus_versions(code: str, service: Syllabus) -> list[SyllabusVersionRead]:
+    return service.versions(code)
+
+
+@router.post(
+    "/exams/{code}/syllabus-versions",
+    response_model=SyllabusVersionRead,
+    status_code=201,
+    responses={**NOT_FOUND, **CONFLICT},
+    summary="Add your own syllabus for the exam, built by hand or reviewed from a PDF",
+)
+def create_syllabus_version(
+    code: str, body: SyllabusVersionCreate, service: Syllabus
+) -> SyllabusVersionRead:
+    return service.create(code, body)
+
+
+@router.delete("/syllabus-versions/{version_id}", status_code=204, responses=NOT_FOUND)
+def delete_syllabus_version(version_id: uuid.UUID, service: Syllabus) -> Response:
+    service.delete(version_id)
+    return Response(status_code=204)
 
 
 @router.get(

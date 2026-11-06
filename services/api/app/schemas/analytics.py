@@ -30,6 +30,22 @@ class TimedCounts(BaseModel):
     time_spent_ms: int = 0
 
 
+class ExamCounts(BaseModel):
+    exam_code: str
+    answered: int
+    correct: int
+
+
+class CanonicalTopicStats(BaseModel):
+    """One canonical topic: ``answered`` and ``correct`` are all the exams together."""
+
+    key: str
+    name: str
+    answered: int
+    correct: int
+    exams: list[ExamCounts]
+
+
 class TopicStats(AnswerCounts, TimedCounts):
     topic_id: uuid.UUID
     name: str

@@ -344,6 +344,7 @@ extension on _RepeatsScreenState {
                         contentPadding: EdgeInsets.zero,
                         dense: true,
                         title: Text(topic.name),
+                        subtitle: topic.dropped ? Text(l10n.notRepeatedDropped) : null,
                         trailing: TextButton(
                           onPressed: () => study(topic),
                           child: Text(l10n.notRepeatedStudy),

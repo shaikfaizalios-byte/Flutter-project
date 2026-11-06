@@ -54,6 +54,14 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `RepeatRules.of(profile)` via `repeatRulesProvider`. Builder + new onboarding wording behind `AppFeatures.examProfiles`.
   Exam names must not appear in `app/` or `lib/` (test). SSC is pinned: `tests/test_ssc_characterization.py` + `tests/golden`
   (must pass unchanged every phase), and `python -m app.cli.characterize save|compare` for real papers (hashes only).
+- Syllabus versions (any-exam Phase 2, migration 0044): `syllabus_versions` (exam, owner NULL = shared, effective_year NULL =
+  from the start, nobody recorded it) + `syllabus_nodes` (any depth, level_label, keywords, aliases) sit OVER `topics`: a leaf
+  points to the topic questions use, reused across versions so history stays. Pure `app/domain/syllabus_tree.py`
+  (`in_force`, `scope_for`); with one version nothing changes. Not repeated uses the version in force for the counted papers
+  (`TopicRef.dropped`), suggestions use today's (`active_topics`). `GET/POST /exams/{code}/syllabus-versions`,
+  `DELETE /syllabus-versions/{id}`; shared versions: `python -m app.cli.syllabus import FILE --reviewer NAME` (needs a source
+  and year); built-in lists are in `data/syllabi`. Combined stats: `GET /analytics/canonical?exam=A&exam=B` (confirmed links
+  only). App: `SyllabusTreeScreen` behind `AppFeatures.examProfiles`, outline builder `parseOutline`.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

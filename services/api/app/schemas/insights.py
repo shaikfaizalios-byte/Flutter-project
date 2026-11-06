@@ -68,6 +68,8 @@ class TopicRef(BaseModel):
     topic_id: uuid.UUID
     subject: str
     name: str
+    # In the syllabus of the counted papers, but not in the current one.
+    dropped: bool = False
 
 
 class PatternGap(BaseModel):

@@ -669,6 +669,43 @@
         "title": "CanonicalTopicRead",
         "type": "object"
       },
+      "CanonicalTopicStats": {
+        "description": "One canonical topic: ``answered`` and ``correct`` are all the exams together.",
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "exams": {
+            "items": {
+              "$ref": "#/components/schemas/ExamCounts"
+            },
+            "title": "Exams",
+            "type": "array"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "answered",
+          "correct",
+          "exams"
+        ],
+        "title": "CanonicalTopicStats",
+        "type": "object"
+      },
       "Change": {
         "additionalProperties": false,
         "properties": {
@@ -2052,6 +2089,29 @@
           "error"
         ],
         "title": "ErrorResponse",
+        "type": "object"
+      },
+      "ExamCounts": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "answered",
+          "correct"
+        ],
+        "title": "ExamCounts",
         "type": "object"
       },
       "ExamFormatRead": {
@@ -8021,6 +8081,133 @@
         "title": "SyllabusImportRead",
         "type": "object"
       },
+      "SyllabusNodeInput": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Aliases",
+            "type": "array"
+          },
+          "children": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeInput"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "keywords": {
+            "default": [],
+            "items": {
+              "maxLength": 60,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 60,
+            "title": "Keywords",
+            "type": "array"
+          },
+          "level_label": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level Label"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "SyllabusNodeInput",
+        "type": "object"
+      },
+      "SyllabusNodeRead": {
+        "properties": {
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "children": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeRead"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "level_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level Label"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "level_label",
+          "keywords",
+          "aliases",
+          "topic_id"
+        ],
+        "title": "SyllabusNodeRead",
+        "type": "object"
+      },
       "SyllabusSource": {
         "additionalProperties": false,
         "description": "Where a saved draft came from: its topics form one section that can be removed.",
@@ -8082,6 +8269,137 @@
           "text"
         ],
         "title": "SyllabusText",
+        "type": "object"
+      },
+      "SyllabusVersionCreate": {
+        "additionalProperties": false,
+        "description": "A learner's own syllabus: built by hand, or reviewed from a PDF.",
+        "properties": {
+          "effective_year": {
+            "anyOf": [
+              {
+                "maximum": 2100.0,
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Year"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "source_kind": {
+            "default": "manual",
+            "enum": [
+              "pdf",
+              "manual"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "tree": {
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeInput"
+            },
+            "minItems": 1,
+            "title": "Tree",
+            "type": "array"
+          }
+        },
+        "required": [
+          "tree",
+          "name"
+        ],
+        "title": "SyllabusVersionCreate",
+        "type": "object"
+      },
+      "SyllabusVersionRead": {
+        "properties": {
+          "effective_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Year"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "in_force": {
+            "title": "In Force",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "own": {
+            "title": "Own",
+            "type": "boolean"
+          },
+          "source_kind": {
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Title"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "tree": {
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeRead"
+            },
+            "title": "Tree",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "exam_code",
+          "effective_year",
+          "name",
+          "source_kind",
+          "source_title",
+          "source_url",
+          "own",
+          "in_force",
+          "tree"
+        ],
+        "title": "SyllabusVersionRead",
         "type": "object"
       },
       "TaxonomySubjectRead": {
@@ -8490,6 +8808,11 @@
       },
       "TopicRef": {
         "properties": {
+          "dropped": {
+            "default": false,
+            "title": "Dropped",
+            "type": "boolean"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -10358,6 +10681,73 @@
         "summary": "AI questions to check a topic the learner already knows (nothing is saved)",
         "tags": [
           "ai"
+        ]
+      }
+    },
+    "/api/v1/analytics/canonical": {
+      "get": {
+        "operationId": "canonical_api_v1_analytics_canonical_get",
+        "parameters": [
+          {
+            "description": "Exams to compare",
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "description": "Exams to compare",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 20,
+              "title": "Exam",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CanonicalTopicStats"
+                  },
+                  "title": "Response Canonical Api V1 Analytics Canonical Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Answers on topics that mean the same across exams, per exam and combined",
+        "tags": [
+          "analytics"
         ]
       }
     },
@@ -13181,6 +13571,162 @@
           }
         ],
         "summary": "Your syllabus imports for an exam (each groups the topics it added)",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/exams/{code}/syllabus-versions": {
+      "get": {
+        "operationId": "syllabus_versions_api_v1_exams__code__syllabus_versions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SyllabusVersionRead"
+                  },
+                  "title": "Response Syllabus Versions Api V1 Exams  Code  Syllabus Versions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "The exam's syllabus versions, as trees",
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "create_syllabus_version_api_v1_exams__code__syllabus_versions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyllabusVersionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyllabusVersionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add your own syllabus for the exam, built by hand or reviewed from a PDF",
         "tags": [
           "exams"
         ]
@@ -16813,6 +17359,67 @@
           }
         ],
         "summary": "Remove a syllabus import and all its topics",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/syllabus-versions/{version_id}": {
+      "delete": {
+        "operationId": "delete_syllabus_version_api_v1_syllabus_versions__version_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "version_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Version Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Syllabus Version",
         "tags": [
           "exams"
         ]

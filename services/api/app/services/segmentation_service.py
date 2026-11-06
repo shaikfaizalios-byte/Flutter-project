@@ -57,7 +57,7 @@ from app.services.exam_profiles import profile_for
 from app.services.page_layout import PdfRenderer, read_layouts
 from app.services.patterns import pattern_candidates, refresh_pattern
 from app.services.question_history import add_first_revision
-from app.services.topic_service import visible_topics
+from app.services.syllabus_tree_service import active_topics
 
 logger = logging.getLogger("app.segmentation")
 
@@ -105,7 +105,7 @@ class SegmentationService:
         figure_text = {
             a.layout.number: normalize_text(a.text()) for a in analyses if a.figure_lines
         }
-        exam_topics = visible_topics(self._session, document.owner_id, document.exam_code)
+        exam_topics = active_topics(self._session, document.owner_id, document.exam_code)
         expected_options = profile_for(self._session, document.exam_code).expected_options
         result = segment(
             [

@@ -4862,4 +4862,68 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get examBuilderSave => 'परीक्षा बनाएँ';
+
+  @override
+  String get notRepeatedDropped => 'मौजूदा पाठ्यक्रम से हटाया गया';
+
+  @override
+  String syllabusTreeTitle(String exam) {
+    return '$exam पाठ्यक्रम';
+  }
+
+  @override
+  String get syllabusTreeTooltip => 'पाठ्यक्रम की संरचना';
+
+  @override
+  String syllabusFromYear(String year) {
+    return '$year से';
+  }
+
+  @override
+  String get syllabusInForce => 'लागू';
+
+  @override
+  String get syllabusYours => 'आपका';
+
+  @override
+  String get syllabusBuiltIn => 'पहले से मौजूद';
+
+  @override
+  String get syllabusEmpty =>
+      'इस परीक्षा का अभी कोई पाठ्यक्रम नहीं है। इसे खुद बनाएँ, या विषय स्क्रीन पर PDF से विषय जोड़ें।';
+
+  @override
+  String get syllabusNoConnection => 'अभी पाठ्यक्रम लोड नहीं हो पा रहा है।';
+
+  @override
+  String get syllabusBuild => 'पाठ्यक्रम बनाएँ';
+
+  @override
+  String get syllabusBuildName => 'नाम';
+
+  @override
+  String get syllabusBuildYear => 'लागू होने का वर्ष (वैकल्पिक)';
+
+  @override
+  String get syllabusBuildOutline => 'रूपरेखा';
+
+  @override
+  String get syllabusBuildHint =>
+      'हर पंक्ति में एक विषय। किसी को ऊपर वाले के नीचे रखने के लिए पंक्ति दो और स्पेस से शुरू करें।';
+
+  @override
+  String get syllabusDelete => 'यह पाठ्यक्रम हटाएँ';
+
+  @override
+  String get syllabusAcrossExams => 'आपकी परीक्षाओं में समान विषय';
+
+  @override
+  String syllabusAcrossAll(int correct, int answered) {
+    return 'सभी परीक्षाएँ: $answered में से $correct सही';
+  }
+
+  @override
+  String syllabusAcrossCount(int correct, int answered) {
+    return '$answered में से $correct सही';
+  }
 }

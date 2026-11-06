@@ -37,6 +37,15 @@ def _digest(value: Any) -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
+def _comparable(value: Any) -> Any:
+    """Leaves out ``dropped: false``, added after the first baselines. A true one still counts."""
+    if isinstance(value, dict):
+        return {k: _comparable(v) for k, v in value.items() if not (k == "dropped" and v is False)}
+    if isinstance(value, list):
+        return [_comparable(v) for v in value]
+    return value
+
+
 def _parsed(session: Session, document: Document) -> dict[str, Any]:
     pages = session.scalars(
         select(DocumentPage)
@@ -72,7 +81,7 @@ def snapshot(session: Session, exams: list[str]) -> dict[str, Any]:
                 "models": sum(len(t.patterns) for t in report.topics),
                 "worded_alike": len(report.similar_groups),
                 "not_seen": len(report.not_repeated.not_seen),
-                "report": _digest(report.model_dump(mode="json")),
+                "report": _digest(_comparable(report.model_dump(mode="json"))),
             }
         for document in documents:
             result[f"{exam}/paper/{_digest(str(document.id))}"] = _parsed(session, document)

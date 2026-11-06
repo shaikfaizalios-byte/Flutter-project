@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
-from app.schemas.analytics import AnalyticsOverview
+from app.schemas.analytics import AnalyticsOverview, CanonicalTopicStats
 from app.schemas.errors import ErrorResponse
 from app.services.analytics_service import AnalyticsService
 
@@ -19,6 +19,18 @@ def get_analytics_service(session: DbSession, user: CurrentUser) -> AnalyticsSer
 
 
 Service = Annotated[AnalyticsService, Depends(get_analytics_service)]
+
+
+@router.get(
+    "/analytics/canonical",
+    response_model=list[CanonicalTopicStats],
+    summary="Answers on topics that mean the same across exams, per exam and combined",
+)
+def canonical(
+    service: Service,
+    exam: Annotated[list[str], Query(max_length=20, description="Exams to compare")],
+) -> list[CanonicalTopicStats]:
+    return service.canonical(exam)
 
 
 @router.get(

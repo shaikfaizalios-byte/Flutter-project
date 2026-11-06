@@ -7754,6 +7754,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create exam'**
   String get examBuilderSave;
+
+  /// No description provided for @notRepeatedDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped from the current syllabus'**
+  String get notRepeatedDropped;
+
+  /// No description provided for @syllabusTreeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{exam} syllabus'**
+  String syllabusTreeTitle(String exam);
+
+  /// No description provided for @syllabusTreeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllabus tree'**
+  String get syllabusTreeTooltip;
+
+  /// No description provided for @syllabusFromYear.
+  ///
+  /// In en, this message translates to:
+  /// **'from {year}'**
+  String syllabusFromYear(String year);
+
+  /// No description provided for @syllabusInForce.
+  ///
+  /// In en, this message translates to:
+  /// **'In force'**
+  String get syllabusInForce;
+
+  /// No description provided for @syllabusYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Yours'**
+  String get syllabusYours;
+
+  /// No description provided for @syllabusBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get syllabusBuiltIn;
+
+  /// No description provided for @syllabusEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam has no syllabus yet. Build one by hand, or add topics from a PDF on the topics screen.'**
+  String get syllabusEmpty;
+
+  /// No description provided for @syllabusNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'The syllabus can\'t be loaded right now.'**
+  String get syllabusNoConnection;
+
+  /// No description provided for @syllabusBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Build a syllabus'**
+  String get syllabusBuild;
+
+  /// No description provided for @syllabusBuildName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get syllabusBuildName;
+
+  /// No description provided for @syllabusBuildYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective year (optional)'**
+  String get syllabusBuildYear;
+
+  /// No description provided for @syllabusBuildOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'Outline'**
+  String get syllabusBuildOutline;
+
+  /// No description provided for @syllabusBuildHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One item per line. Start a line with two more spaces to put it under the one above.'**
+  String get syllabusBuildHint;
+
+  /// No description provided for @syllabusDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this syllabus'**
+  String get syllabusDelete;
+
+  /// No description provided for @syllabusAcrossExams.
+  ///
+  /// In en, this message translates to:
+  /// **'Same topics across your exams'**
+  String get syllabusAcrossExams;
+
+  /// No description provided for @syllabusAcrossAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All exams: {correct} of {answered} correct'**
+  String syllabusAcrossAll(int correct, int answered);
+
+  /// No description provided for @syllabusAcrossCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} of {answered} correct'**
+  String syllabusAcrossCount(int correct, int answered);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

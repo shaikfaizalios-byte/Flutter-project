@@ -46,7 +46,8 @@ def _lines(
                 SyllabusNode.topic_id.is_not(None),
             )
         ):
-            topics[version_id].add(topic_id)
+            if topic_id is not None:
+                topics[version_id].add(topic_id)
     shared: list[VersionRef] = []
     own: list[VersionRef] = []
     for v in versions:
@@ -63,9 +64,7 @@ def syllabus_scope(
     return scope_for(lines, years, datetime.now(UTC).year)
 
 
-def active_topics(
-    session: Session, owner_id: uuid.UUID | None, exam_code: str
-) -> Sequence[Topic]:
+def active_topics(session: Session, owner_id: uuid.UUID | None, exam_code: str) -> Sequence[Topic]:
     """The topics suggestions may use: the exam's, within the syllabus in force today."""
     out = syllabus_scope(session, owner_id, exam_code, ()).out_of_scope
     return [t for t in visible_topics(session, owner_id, exam_code) if t.id not in out]
@@ -129,8 +128,8 @@ def _tree(session: Session, version_id: uuid.UUID) -> list[SyllabusNodeRead]:
         .where(SyllabusNode.version_id == version_id)
         .order_by(SyllabusNode.position)
     ).all()
-    by_parent: dict[uuid.UUID | None, list[tuple[SyllabusNode, list[str] | None]]] = (
-        defaultdict(list)
+    by_parent: dict[uuid.UUID | None, list[tuple[SyllabusNode, list[str] | None]]] = defaultdict(
+        list
     )
     for node, keywords in rows:
         by_parent[node.parent_id].append((node, keywords))

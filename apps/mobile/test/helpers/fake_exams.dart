@@ -5,6 +5,7 @@ import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/documents/domain/imported_document.dart';
 import 'package:preploop/features/exams/domain/exam_topics.dart';
 import 'package:preploop/features/exams/domain/new_exam.dart';
+import 'package:preploop/features/exams/domain/syllabus_tree.dart';
 
 /// A small catalog for app tests: the two SSC exams (featured) plus a few others.
 final testCatalog = <ExamOption>[
@@ -36,6 +37,35 @@ class FakeExamsRepository implements ExamsRepository {
     catalog.add(exam);
     return exam;
   }
+
+  List<SyllabusVersion> versions = const [];
+  List<CanonicalStats> stats = const [];
+  String? builtName;
+  int? builtYear;
+  List<SyllabusNode>? builtTree;
+
+  @override
+  Future<List<SyllabusVersion>> syllabusVersions(String examCode) async => versions;
+
+  @override
+  Future<void> createSyllabusVersion(
+    String examCode, {
+    required String name,
+    required int? effectiveYear,
+    required List<SyllabusNode> tree,
+  }) async {
+    builtName = name;
+    builtYear = effectiveYear;
+    builtTree = tree;
+  }
+
+  @override
+  Future<void> deleteSyllabusVersion(String id) async {
+    versions = versions.where((v) => v.id != id).toList();
+  }
+
+  @override
+  Future<List<CanonicalStats>> canonicalStats(List<String> examCodes) async => stats;
 
   /// What the custom exam builder sent.
   final created = <NewExam>[];

@@ -189,17 +189,26 @@ class SharedBankExam {
 /// A topic of the exam (name only).
 @immutable
 class TopicRef {
-  const TopicRef({required this.topicId, required this.subject, required this.name});
+  const TopicRef({
+    required this.topicId,
+    required this.subject,
+    required this.name,
+    this.dropped = false,
+  });
 
   factory TopicRef.fromJson(Map<String, dynamic> json) => TopicRef(
     topicId: json['topic_id'] as String,
     subject: json['subject'] as String,
     name: json['name'] as String,
+    dropped: json['dropped'] as bool? ?? false,
   );
 
   final String topicId;
   final String subject;
   final String name;
+
+  /// In the syllabus of the counted papers, but not in the current one.
+  final bool dropped;
 }
 
 /// A question type of a topic that appeared, never seen in these papers.

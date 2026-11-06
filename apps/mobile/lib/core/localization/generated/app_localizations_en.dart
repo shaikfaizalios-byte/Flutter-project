@@ -4862,4 +4862,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get examBuilderSave => 'Create exam';
+
+  @override
+  String get notRepeatedDropped => 'Dropped from the current syllabus';
+
+  @override
+  String syllabusTreeTitle(String exam) {
+    return '$exam syllabus';
+  }
+
+  @override
+  String get syllabusTreeTooltip => 'Syllabus tree';
+
+  @override
+  String syllabusFromYear(String year) {
+    return 'from $year';
+  }
+
+  @override
+  String get syllabusInForce => 'In force';
+
+  @override
+  String get syllabusYours => 'Yours';
+
+  @override
+  String get syllabusBuiltIn => 'Built-in';
+
+  @override
+  String get syllabusEmpty =>
+      'This exam has no syllabus yet. Build one by hand, or add topics from a PDF on the topics screen.';
+
+  @override
+  String get syllabusNoConnection => 'The syllabus can\'t be loaded right now.';
+
+  @override
+  String get syllabusBuild => 'Build a syllabus';
+
+  @override
+  String get syllabusBuildName => 'Name';
+
+  @override
+  String get syllabusBuildYear => 'Effective year (optional)';
+
+  @override
+  String get syllabusBuildOutline => 'Outline';
+
+  @override
+  String get syllabusBuildHint =>
+      'One item per line. Start a line with two more spaces to put it under the one above.';
+
+  @override
+  String get syllabusDelete => 'Delete this syllabus';
+
+  @override
+  String get syllabusAcrossExams => 'Same topics across your exams';
+
+  @override
+  String syllabusAcrossAll(int correct, int answered) {
+    return 'All exams: $correct of $answered correct';
+  }
+
+  @override
+  String syllabusAcrossCount(int correct, int answered) {
+    return '$correct of $answered correct';
+  }
 }

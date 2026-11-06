@@ -10,8 +10,9 @@ are reported separately as suggestions.
 
 import uuid
 from collections import Counter, defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Literal
 
 from sqlalchemy import and_, or_, select
@@ -41,6 +42,7 @@ from app.schemas.insights import (
     YearCount,
 )
 from app.services.shared_bank import shared_question
+from app.services.syllabus_tree_service import syllabus_scope
 from app.services.topic_service import visible_topics
 
 MAX_SIMILAR_GROUPS = 50
@@ -159,7 +161,7 @@ class InsightsService:
             topics=self._topics(rows, years, topics, patterns),
             similar_groups=self._similar(rows, years, filenames, topics),
             similarity_threshold=THRESHOLD,
-            not_repeated=self._not_repeated(rows, exam_code, patterns)
+            not_repeated=self._not_repeated(rows, exam_code, patterns, documents, years)
             if exam_code
             else NotRepeated(),
         )
@@ -169,9 +171,12 @@ class InsightsService:
         rows: list[_Row],
         exam_code: str,
         patterns: dict[uuid.UUID, QuestionPattern],
+        documents: Sequence[Document],
+        years: dict[uuid.UUID, int],
     ) -> NotRepeated:
         """Topics of the exam that no question in these papers has (confirmed or suggested),
-        and question types of the topics that did appear which none has."""
+        and question types of the topics that did appear which none has. The syllabus is the
+        one in force for those papers; its topics since removed are marked dropped."""
         if not rows:
             return NotRepeated()
         seen_topics = {
@@ -186,11 +191,20 @@ class InsightsService:
         }
         exam_topics = visible_topics(self._session, self._owner_id, exam_code)
         names = {t.id: t.name for t in exam_topics}
+        this_year = datetime.now(UTC).year
+        scope = syllabus_scope(
+            self._session,
+            self._owner_id,
+            exam_code,
+            {years.get(d.id, this_year) for d in documents},
+        )
         return NotRepeated(
             not_seen=[
-                TopicRef(topic_id=t.id, subject=t.subject, name=t.name)
+                TopicRef(
+                    topic_id=t.id, subject=t.subject, name=t.name, dropped=t.id in scope.dropped
+                )
                 for t in exam_topics
-                if t.id not in seen_topics
+                if t.id not in seen_topics and t.id not in scope.out_of_scope
             ],
             patterns_not_seen=sorted(
                 (
