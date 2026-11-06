@@ -361,6 +361,18 @@
             "title": "Position",
             "type": "integer"
           },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
           "selected_position": {
             "anyOf": [
               {
@@ -489,6 +501,18 @@
             "minimum": 0.0,
             "title": "Client Seq",
             "type": "integer"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
           },
           "selected_position": {
             "anyOf": [
@@ -2598,6 +2622,18 @@
               }
             ],
             "title": "Correct Position"
+          },
+          "correct_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Spec"
           },
           "correct_typed_answer": {
             "anyOf": [
@@ -5039,6 +5075,11 @@
             "title": "Include Ai",
             "type": "boolean"
           },
+          "include_new_formats": {
+            "default": false,
+            "title": "Include New Formats",
+            "type": "boolean"
+          },
           "include_shared": {
             "default": true,
             "title": "Include Shared",
@@ -5328,6 +5369,18 @@
             ],
             "title": "Answer Source"
           },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
           "answer_type": {
             "enum": [
               "choice",
@@ -5405,6 +5458,10 @@
             },
             "title": "Figures",
             "type": "array"
+          },
+          "format": {
+            "title": "Format",
+            "type": "string"
           },
           "id": {
             "format": "uuid",
@@ -5680,6 +5737,8 @@
           "options",
           "correct_option_position",
           "answer_type",
+          "format",
+          "answer_spec",
           "typed_answer",
           "typed_answer_numeric",
           "answer_source",
@@ -5794,6 +5853,18 @@
             ],
             "title": "Answer Source"
           },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
           "answer_type": {
             "enum": [
               "choice",
@@ -5824,6 +5895,11 @@
               }
             ],
             "title": "Explanation"
+          },
+          "format": {
+            "default": "single_correct",
+            "title": "Format",
+            "type": "string"
           },
           "model_answer": {
             "anyOf": [
@@ -5876,6 +5952,18 @@
         "additionalProperties": false,
         "description": "Reviewer edits. Only fields present are changed; null clears nullable fields.",
         "properties": {
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
           "answer_type": {
             "anyOf": [
               {
@@ -5916,6 +6004,17 @@
               }
             ],
             "title": "Explanation"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
           },
           "image_dependent": {
             "anyOf": [
@@ -7024,6 +7123,28 @@
             "title": "Figures",
             "type": "array"
           },
+          "format": {
+            "default": "single_correct",
+            "title": "Format",
+            "type": "string"
+          },
+          "format_data": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format Data"
+          },
           "options": {
             "items": {
               "$ref": "#/components/schemas/OptionRead"
@@ -7071,6 +7192,18 @@
               }
             ],
             "title": "Question Id"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
           },
           "section": {
             "anyOf": [

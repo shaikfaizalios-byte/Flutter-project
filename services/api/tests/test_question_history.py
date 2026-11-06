@@ -24,6 +24,8 @@ SNAP = question_history.snapshot(
     model_answer=None,
     answer_source="answer_key",
     explanation=None,
+    format_name="single_correct",
+    answer_spec=None,
 )
 
 

@@ -20,8 +20,19 @@ TRACKED_FIELDS = (
     "model_answer",
     "answer_source",
     "explanation",
+    "format",
+    "answer_spec",
 )
-ANSWER_FIELDS = ("answer_type", "correct_option_position", "typed_answer", "model_answer")
+ANSWER_FIELDS = (
+    "answer_type",
+    "correct_option_position",
+    "typed_answer",
+    "model_answer",
+    "format",
+    "answer_spec",
+)
+# The fields that hold an answer. ``answer_type`` and ``format`` always have a value.
+ANSWER_VALUES = ("correct_option_position", "typed_answer", "model_answer", "answer_spec")
 
 # extracted: read from the paper (by PrepLoop's rules or by AI); generated: an AI question;
 # baseline: the state when history began (questions read before it; earlier edits unknown);
@@ -43,6 +54,8 @@ def snapshot(
     model_answer: str | None,
     answer_source: str | None,
     explanation: str | None,
+    format_name: str,
+    answer_spec: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
     return {
         "stem": stem,
@@ -53,6 +66,8 @@ def snapshot(
         "model_answer": model_answer,
         "answer_source": answer_source,
         "explanation": explanation,
+        "format": format_name,
+        "answer_spec": answer_spec,
     }
 
 
@@ -64,7 +79,7 @@ def changed_fields(before: Mapping[str, Any] | None, after: Mapping[str, Any]) -
 
 
 def has_answer(snap: Mapping[str, Any]) -> bool:
-    return any(snap.get(f) is not None for f in ANSWER_FIELDS[1:])
+    return any(snap.get(f) is not None for f in ANSWER_VALUES)
 
 
 def answer_origin(*, origin: str, answer_source: str | None, answered: bool) -> AnswerOrigin:

@@ -86,9 +86,7 @@ def _pairs(value: object) -> set[tuple[int, int]] | None:
     return pairs
 
 
-def spec_problems(
-    format_name: str, spec: Mapping[str, Any] | None, option_count: int
-) -> list[str]:
+def spec_problems(format_name: str, spec: Mapping[str, Any] | None, option_count: int) -> list[str]:
     """Why ``spec`` can't mark this format (empty: it can)."""
     if format_name not in FORMATS:
         return ["unknown format"]
@@ -176,7 +174,7 @@ def is_correct(format_name: str, spec: Mapping[str, Any], answer: object) -> boo
     if format_name == "match":
         return _pairs(answer.get("pairs")) == _pairs(spec["pairs"])
     if format_name == "ordering":
-        return answer.get("order") == spec["order"]
+        return bool(answer.get("order") == spec["order"])
     raise ValueError(f"{format_name} isn't marked by its answer_spec")
 
 
@@ -191,7 +189,9 @@ def _numeric_correct(spec: Mapping[str, Any], answer: object) -> bool:
     return low is not None and high is not None and low <= given <= high
 
 
-def public_data(format_name: str, spec: Mapping[str, Any] | None) -> dict[str, Sequence[str]] | None:
+def public_data(
+    format_name: str, spec: Mapping[str, Any] | None
+) -> dict[str, Sequence[str]] | None:
     """What a learner sees before answering: the lists, never the answer."""
     if spec is None or format_name not in OWN_ITEMS:
         return None

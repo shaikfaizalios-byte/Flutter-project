@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
@@ -191,6 +191,8 @@ class QuestionRead(BaseModel):
     correct_option_position: int | None
     # "choice": pick an option; "typed": type the answer in (TITA), see typed_answer.
     answer_type: Literal["choice", "typed", "written"]
+    format: str
+    answer_spec: dict[str, Any] | None
     typed_answer: str | None
     # Whether typed_answer is a number (the app shows a number keyboard).
     typed_answer_numeric: bool
@@ -234,6 +236,9 @@ class QuestionSnapshotRead(BaseModel):
     stem: str
     options: list[SnapshotOption]
     answer_type: Literal["choice", "typed", "written"]
+    # Snapshots from before formats have neither.
+    format: str = "single_correct"
+    answer_spec: dict[str, Any] | None = None
     correct_option_position: int | None
     typed_answer: str | None
     model_answer: str | None
@@ -286,6 +291,9 @@ class QuestionUpdate(BaseModel):
     options: list[OptionInput] | None = Field(default=None, min_length=2, max_length=6)
     correct_option_position: int | None = Field(default=None, ge=1, le=6)
     answer_type: Literal["choice", "typed", "written"] | None = None
+    # How it is answered, and the answer of a format that keeps its own (question_formats.py).
+    format: str | None = None
+    answer_spec: dict[str, Any] | None = None
     typed_answer: (
         Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
         | None

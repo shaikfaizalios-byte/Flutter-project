@@ -24,7 +24,15 @@ from sqlalchemy.orm import Session, selectinload
 from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
 from app.domain.exam_format import format_problems
-from app.domain.scoring import ScoredItem, is_correct, score_session, tally_json, to_decimal
+from app.domain.question_formats import (
+    RESPONSE_FORMATS,
+    SINGLE_ANSWER,
+    SPEC_FORMATS,
+    TYPED_IN,
+    public_data,
+    valid_response,
+)
+from app.domain.scoring import Answer, ScoredItem, is_correct, score_session, tally_json, to_decimal
 from app.domain.sections import (
     PlannedSection,
     SectionClock,
@@ -117,12 +125,16 @@ class InvalidAnswerError(DomainError):
 
 def _answered(answer: SessionAnswer | None) -> bool:
     return answer is not None and (
-        answer.selected_position is not None or answer.typed_answer is not None
+        answer.selected_position is not None
+        or answer.typed_answer is not None
+        or answer.response is not None
     )
 
 
 ANSWERED = or_(
-    SessionAnswer.selected_position.is_not(None), SessionAnswer.typed_answer.is_not(None)
+    SessionAnswer.selected_position.is_not(None),
+    SessionAnswer.typed_answer.is_not(None),
+    SessionAnswer.response.is_not(None),
 )
 
 
@@ -143,11 +155,16 @@ def _canonical(labels: dict[uuid.UUID, list[str]], question: Question) -> list[s
 
 
 def _eligible(
-    include_unverified: bool, include_ai: bool = False, include_typed: bool = True
+    include_unverified: bool,
+    include_ai: bool = False,
+    include_typed: bool = True,
+    include_new_formats: bool = False,
 ) -> Select[Question]:
     """Questions fit for practice: from a source document (AI questions only on request),
     answer known, at least two options, never rejected (unverified only on request), and
-    not image-dependent unless the figure was cropped from the paper (then it is shown)."""
+    not image-dependent unless the figure was cropped from the paper (then it is shown).
+    Formats marked by an answer_spec only reach apps that ask for them: older ones can't show
+    them, and neither mocks nor offline packs use them yet."""
     option_count = (
         select(func.count())
         .select_from(QuestionOption)
@@ -169,15 +186,18 @@ def _eligible(
         ),
         or_(
             and_(
-                Question.answer_type == "choice",
+                Question.format.in_(SINGLE_ANSWER),
                 Question.correct_option_position.is_not(None),
                 option_count >= 2,
                 Question.correct_option_position <= option_count,
             ),
             # Typed-in questions need their answer; mocks leave them out (their marking
             # isn't part of any verified format yet).
-            and_(Question.answer_type == "typed", Question.typed_answer.is_not(None))
+            and_(Question.format == TYPED_IN, Question.typed_answer.is_not(None))
             if include_typed
+            else false(),
+            and_(Question.format.in_(SPEC_FORMATS), Question.answer_spec.is_not(None))
+            if include_new_formats
             else false(),
         ),
     )
@@ -197,6 +217,8 @@ def _scored(item: SessionItem) -> ScoredItem:
         marks_correct=to_decimal(item.marks_correct),
         marks_wrong=to_decimal(item.marks_wrong),
         typed_answer=item.typed_answer if item.answer_type == "typed" else None,
+        format=item.format,
+        answer_spec=item.answer_spec,
     )
 
 
@@ -215,9 +237,11 @@ class PracticeService:
     # --- creating sessions ----------------------------------------------------------
 
     def start_practice(self, request: PracticeCreate) -> SessionRead:
-        stmt = _eligible(request.include_unverified, request.include_ai).where(
-            visible_question(self._owner_id, include_shared=request.include_shared)
-        )
+        stmt = _eligible(
+            request.include_unverified,
+            request.include_ai,
+            include_new_formats=request.include_new_formats,
+        ).where(visible_question(self._owner_id, include_shared=request.include_shared))
         if request.exam_code:
             stmt = stmt.where(Question.exam_code == request.exam_code)
         if request.subject:
@@ -577,6 +601,8 @@ class PracticeService:
             option_count=0 if typed else len(question.options),
             answer_type=question.answer_type,
             typed_answer=question.typed_answer if typed else None,
+            format=question.format,
+            answer_spec=question.answer_spec,
             marks_correct=marks_correct,
             marks_wrong=marks_wrong,
             question_verified=question.verification_status == VerificationStatus.VERIFIED,
@@ -598,6 +624,16 @@ class PracticeService:
                 "section_closed", "This question's section is not open (sections are timed)."
             )
         typed = item.answer_type == "typed"
+        by_response = item.format in RESPONSE_FORMATS
+        if by_response and (update.selected_position or update.typed_answer):
+            raise InvalidAnswerError("This question takes a fuller answer.")
+        if update.response is not None and (
+            not by_response
+            or not valid_response(
+                item.format, item.answer_spec or {}, update.response, item.option_count
+            )
+        ):
+            raise InvalidAnswerError("That answer doesn't fit this question.")
         if typed and update.selected_position is not None:
             raise InvalidAnswerError("This question takes a typed answer.")
         if not typed and update.typed_answer is not None:
@@ -617,7 +653,14 @@ class PracticeService:
             existing.typed_answer = (
                 typed_answers.clean(update.typed_answer) if update.typed_answer else None
             )
-            given: int | str | None = existing.typed_answer if typed else existing.selected_position
+            existing.response = update.response
+            given: Answer | None = (
+                update.response
+                if by_response
+                else existing.typed_answer
+                if typed
+                else existing.selected_position
+            )
             existing.is_correct = None if given is None else is_correct(_scored(item), given)
             existing.client_seq = update.client_seq
             existing.time_spent_ms = update.time_spent_ms
@@ -628,6 +671,7 @@ class PracticeService:
             position=position,
             selected_position=existing.selected_position,
             typed_answer=existing.typed_answer,
+            response=existing.response,
             applied=applied,
             feedback=self._feedback(practice, item, existing),
         )
@@ -687,8 +731,12 @@ class PracticeService:
         now = at or self._now()
         if reason == "time_up" and practice.deadline_at is not None:
             now = min(now, practice.deadline_at)
-        selections: dict[int, int | str | None] = {
-            a.position: a.typed_answer if a.typed_answer is not None else a.selected_position
+        selections: dict[int, Answer | None] = {
+            a.position: a.response
+            if a.response is not None
+            else a.typed_answer
+            if a.typed_answer is not None
+            else a.selected_position
             for a in practice.answers
         }
         items = [_scored(i) for i in practice.items]
@@ -801,6 +849,8 @@ class PracticeService:
                     options=[OptionRead.model_validate(o) for o in question.options]
                     if question and item.answer_type != "typed"
                     else [],
+                    format=item.format,
+                    format_data=public_data(item.format, item.answer_spec),
                     figures=[FigureRead.model_validate(f) for f in question.figures]
                     if question
                     else [],
@@ -826,8 +876,12 @@ class PracticeService:
                     selected_position=answer.selected_position if answer else None,
                     answer_type=item.answer_type,
                     typed_answer=answer.typed_answer if answer else None,
-                    typed_answer_numeric=bool(item.typed_answer)
-                    and typed_answers.is_numeric(item.typed_answer or ""),
+                    response=answer.response if answer else None,
+                    typed_answer_numeric=item.format == "numeric"
+                    or (
+                        bool(item.typed_answer)
+                        and typed_answers.is_numeric(item.typed_answer or "")
+                    ),
                     feedback=self._feedback(practice, item, answer, question),
                 )
             )
@@ -1033,6 +1087,7 @@ class PracticeService:
         return Feedback(
             correct_position=item.correct_position,
             correct_typed_answer=item.typed_answer,
+            correct_spec=item.answer_spec,
             is_correct=answer.is_correct if answer else None,
             explanation=explanation,
             explanation_origin=origin,

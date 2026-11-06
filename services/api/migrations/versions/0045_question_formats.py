@@ -37,7 +37,7 @@ def upgrade() -> None:
         op.add_column(
             table, sa.Column("answer_spec", postgresql.JSONB(astext_type=sa.Text()), nullable=True)
         )
-        op.execute(f"UPDATE {table} SET format = 'typed_in' WHERE answer_type = 'typed'")
+        op.execute(f"UPDATE {table} SET format = 'typed_in' WHERE answer_type = 'typed'")  # noqa: S608
     op.execute("UPDATE questions SET format = 'descriptive' WHERE answer_type = 'written'")
     op.create_check_constraint("ck_questions_format_valid", "questions", f"format IN ({FORMATS})")
     op.add_column(

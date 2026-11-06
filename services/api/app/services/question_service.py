@@ -13,6 +13,7 @@ from sqlalchemy.sql.base import ExecutableOption
 from app.domain import ai_reading, question_history, typed_answers
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.figures import figure_box_problem, page_box
+from app.domain.question_formats import FORMATS, SPEC_FORMATS, answer_type_of, spec_problems
 from app.domain.segmentation import Issue, IssueCode, content_issues
 from app.integrations.storage import DocumentStorage
 from app.models.ai import AIExplanation, DraftStatus
@@ -112,6 +113,8 @@ def _clean(question: Question) -> bool:
         return False
     if any(not i.resolved and i.code in REVIEW_FIRST_CODES for i in question.issues):
         return False  # read by AI and not confirmed by the page text: a person must look
+    if question.format in SPEC_FORMATS:
+        return not spec_problems(question.format, question.answer_spec, len(question.options))
     if question.answer_type == "typed":
         return bool(question.typed_answer)
     if question.answer_type == "written":
@@ -282,7 +285,9 @@ class QuestionService:
             rejected=sum(q.verification_status == VerificationStatus.REJECTED for q in questions),
             with_open_issues=sum(any(not i.resolved for i in q.issues) for q in questions),
             missing_answers=sum(
-                (q.typed_answer is None)
+                (q.answer_spec is None)
+                if q.format in SPEC_FORMATS
+                else (q.typed_answer is None)
                 if q.answer_type == "typed"
                 else (q.correct_option_position is None)
                 for q in questions
@@ -342,6 +347,7 @@ class QuestionService:
                 QuestionOption(position=i + 1, label=o["label"], text=o["text"])
                 for i, o in enumerate(changes.pop("options"))
             ]
+        self._change_format(question, changes)
         if "answer_type" in changes:
             answer_type = changes.pop("answer_type")
             if answer_type is not None and answer_type != question.answer_type:
@@ -478,8 +484,38 @@ class QuestionService:
             question.topic_suggested_by = None
             question.topic_suggestion_reason = None
 
+    @staticmethod
+    def _change_format(question: Question, changes: dict[str, Any]) -> None:
+        """A reviewer sets the format and, for formats that need it, its answer."""
+        name = changes.pop("format", None) or question.format
+        if name not in FORMATS:
+            raise InvalidReferenceError("Unknown question format.")
+        spec_given = "answer_spec" in changes
+        spec = changes.pop("answer_spec", None) if spec_given else question.answer_spec
+        if name == question.format and not spec_given:
+            return
+        if name not in SPEC_FORMATS:
+            spec = None
+        options = changes.get("options", question.options)
+        problems = spec_problems(name, spec, len(options)) if name in SPEC_FORMATS else []
+        if problems and spec is not None:
+            raise InvalidReferenceError(problems[0])
+        target = answer_type_of(name)
+        if target != question.answer_type:
+            question.format = "single_correct"  # lets answer_type follow, then is set below
+            changes["answer_type"] = target
+        question.format = name
+        question.answer_spec = spec
+        question.answer_source = "manual" if spec is not None else question.answer_source
+
     def _refresh_content_issues(self, question: Question) -> None:
         question.issues = [i for i in question.issues if i.code not in CONTENT_ISSUE_CODES]
+        if question.format in SPEC_FORMATS:
+            if question.answer_spec is None:
+                question.issues.append(
+                    QuestionIssue(document_id=question.document_id, code=IssueCode.MISSING_ANSWER)
+                )
+            return
         found = content_issues(
             option_texts=[o.text for o in question.options],
             answer_position=question.correct_option_position,
@@ -790,6 +826,8 @@ class QuestionService:
             options=[OptionRead.model_validate(o) for o in question.options],
             correct_option_position=question.correct_option_position,
             answer_type=question.answer_type,
+            format=question.format,
+            answer_spec=question.answer_spec,
             typed_answer=question.typed_answer,
             model_answer=question.model_answer,
             typed_answer_numeric=bool(question.typed_answer)

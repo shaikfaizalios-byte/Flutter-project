@@ -19,7 +19,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database.base import Base
 
@@ -287,6 +287,16 @@ class Question(Base):
         String(20), default="single_correct", server_default="single_correct"
     )
     answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+
+    @validates("answer_type")
+    def _format_follows(self, _key: str, value: str) -> str:
+        """Whoever sets only ``answer_type`` gets its plain format; a chosen format stays."""
+        if self.format in (None, "single_correct", "typed_in", "descriptive"):
+            self.format = {"typed": "typed_in", "written": "descriptive"}.get(
+                value, "single_correct"
+            )
+        return value
+
     # "written": the answer as written in the notes (no options; revised as a flashcard).
     model_answer: Mapped[str | None] = mapped_column(Text)
     # "answer_key" | "inline" | "manual" — where the answer came from.

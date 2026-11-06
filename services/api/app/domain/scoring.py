@@ -11,8 +11,11 @@ exactly how the score was computed.
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
+from typing import Any
 
-from app.domain import typed_answers
+from app.domain import question_formats, typed_answers
+
+Answer = int | str | Mapping[str, Any]
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +27,8 @@ class ScoredItem:
     marks_correct: Decimal
     marks_wrong: Decimal  # deducted for a wrong answer (>= 0)
     typed_answer: str | None = None  # expected answer of a typed-in question
+    format: str = "single_correct"
+    answer_spec: Mapping[str, Any] | None = None
 
 
 @dataclass(slots=True)
@@ -59,17 +64,19 @@ def to_decimal(value: float) -> Decimal:
     return Decimal(str(value))
 
 
-def is_correct(item: ScoredItem, answer: int | str) -> bool:
+def is_correct(item: ScoredItem, answer: Answer) -> bool:
+    if item.answer_spec is not None:
+        return question_formats.is_correct(item.format, item.answer_spec, answer)
     if item.typed_answer is not None:
         return isinstance(answer, str) and typed_answers.matches(item.typed_answer, answer)
     return answer == item.correct_position
 
 
 def score_session(
-    items: Sequence[ScoredItem], selections: Mapping[int, int | str | None]
+    items: Sequence[ScoredItem], selections: Mapping[int, Answer | None]
 ) -> ScoreResult:
-    """``selections`` maps item position to the chosen option position, or the typed answer
-    of a typed-in question (None/missing = unattempted)."""
+    """``selections`` maps item position to the chosen option position, the typed answer of a
+    typed-in question, or the response of a format with its own (None/missing = unattempted)."""
     total = Tally()
     sections: dict[str, Tally] = {}
     topics: dict[str, Tally] = {}

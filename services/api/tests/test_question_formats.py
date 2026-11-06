@@ -92,7 +92,7 @@ def test_numeric_tolerance_includes_its_edges_and_nothing_is_rounded() -> None:
 
 def test_numeric_without_tolerance_is_by_value() -> None:
     assert is_correct("numeric", {"value": "15"}, "15.0")
-    assert is_correct("numeric", {"value": "-15"}, "−15")  # the PDF minus sign
+    assert is_correct("numeric", {"value": "-15"}, chr(0x2212) + "15")  # the PDF minus sign
     assert not is_correct("numeric", {"value": "15"}, "15.01")
 
 
