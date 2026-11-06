@@ -13,7 +13,7 @@ from typing import Any
 from app.domain.languages import LANGUAGES
 from app.domain.untrusted import UNTRUSTED_RULE, material
 
-PROMPT_VERSION = "p11"
+PROMPT_VERSION = "p12"
 MAX_GENERATED = 5
 
 # How each content language is named in prompts (from the reference list).

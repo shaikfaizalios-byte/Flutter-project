@@ -17,29 +17,50 @@ enum LadderSourceMix { papers, webMain, webOnly }
 @immutable
 class LadderResult {
   const LadderResult({
-    required this.selectedIndex,
     required this.correct,
-    required this.answerIndex,
     required this.solution,
     required this.shortcut,
+    this.selectedIndex,
+    this.answerIndex,
     this.timeSpentMs,
+    this.response,
+    this.answerLines = const [],
+    this.partlyRight = false,
+    this.marks,
+    this.marksPossible,
   });
 
   factory LadderResult.fromJson(Map<String, dynamic> json) => LadderResult(
-    selectedIndex: json['selected_index'] as int,
+    selectedIndex: json['selected_index'] as int?,
     correct: json['correct'] as bool,
-    answerIndex: json['answer_index'] as int,
+    answerIndex: json['answer_index'] as int?,
     solution: (json['solution'] as List<dynamic>).cast<String>(),
     shortcut: json['shortcut'] as String,
     timeSpentMs: json['time_spent_ms'] as int?,
+    response: json['response'] as Map<String, dynamic>?,
+    answerLines: (json['answer_lines'] as List<dynamic>? ?? const []).cast<String>(),
+    partlyRight: json['partly_right'] as bool? ?? false,
+    marks: (json['marks'] as num?)?.toDouble(),
+    marksPossible: (json['marks_possible'] as num?)?.toDouble(),
   );
 
-  final int selectedIndex;
+  final int? selectedIndex;
   final bool correct;
-  final int answerIndex;
+  final int? answerIndex;
   final List<String> solution;
   final String shortcut;
   final int? timeSpentMs;
+  final Map<String, dynamic>? response;
+
+  /// The right answer in words, when no single option shows it.
+  final List<String> answerLines;
+
+  /// Not correct, but earned marks under the exam's rule.
+  final bool partlyRight;
+
+  /// Null: the exam states no marks for this subject.
+  final double? marks;
+  final double? marksPossible;
 }
 
 /// One step of a round: planned, then [ready] with a checked question, then answered.
@@ -59,6 +80,8 @@ class LadderStep {
     this.stem,
     this.options = const [],
     this.timeTargetSeconds,
+    this.format = 'single_correct',
+    this.formatData,
     this.result,
   });
 
@@ -76,6 +99,10 @@ class LadderStep {
     stem: json['stem'] as String?,
     options: (json['options'] as List<dynamic>? ?? const []).cast<String>(),
     timeTargetSeconds: json['time_target_seconds'] as int?,
+    format: json['format'] as String? ?? 'single_correct',
+    formatData: (json['format_data'] as Map<String, dynamic>?)?.map(
+      (key, value) => MapEntry(key, (value as List<dynamic>).cast<String>()),
+    ),
     result: json['result'] == null
         ? null
         : LadderResult.fromJson(json['result'] as Map<String, dynamic>),
@@ -96,9 +123,21 @@ class LadderStep {
   final String? stem;
   final List<String> options;
   final int? timeTargetSeconds;
+
+  /// How it is answered; see the server's question formats.
+  final String format;
+
+  /// A match question's lists.
+  final Map<String, List<String>>? formatData;
   final LadderResult? result;
 
   bool get answered => result != null;
+
+  /// Answered with a number instead of an option.
+  bool get typed => format == 'numeric';
+
+  /// Answered by more than one tap.
+  bool get takesResponse => format == 'multiple_correct' || format == 'match';
 }
 
 @immutable
@@ -182,7 +221,7 @@ class LadderBest {
 /// Topics of the exam, most repeated first, and the learner's own best climb.
 @immutable
 class LadderOverview {
-  const LadderOverview({this.topics = const [], this.best});
+  const LadderOverview({this.topics = const [], this.best, this.available = true});
 
   factory LadderOverview.fromJson(Map<String, dynamic> json) {
     final best = json['best'] as Map<String, dynamic>?;
@@ -194,11 +233,15 @@ class LadderOverview {
       best: best == null
           ? null
           : LadderBest(step: best['step'] as int, topicName: best['topic_name'] as String),
+      available: json['available'] as bool? ?? true,
     );
   }
 
   final List<LadderTopic> topics;
   final LadderBest? best;
+
+  /// False for an exam with no multiple-choice paper.
+  final bool available;
 
   /// Up to 3 topics seen in the learner's papers, for a one-tap start.
   List<LadderTopic> get repeated => topics.where((t) => t.papers > 0).take(3).toList();
@@ -212,17 +255,25 @@ class LadderSummary {
     required this.total,
     required this.timeSpent,
     required this.byModel,
+    this.marks,
+    this.marksPossible,
   });
 
   factory LadderSummary.of(LadderRound round) {
     final byModel = <String, (int, int)>{};
     var correct = 0;
     var milliseconds = 0;
+    double? marks;
+    double? possible;
     for (final step in round.steps) {
       final result = step.result;
       if (result == null) continue;
       if (result.correct) correct++;
       milliseconds += result.timeSpentMs ?? 0;
+      if (result.marks != null && result.marksPossible != null) {
+        marks = (marks ?? 0) + result.marks!;
+        possible = (possible ?? 0) + result.marksPossible!;
+      }
       final name = step.modelName;
       if (name != null) {
         final (right, all) = byModel[name] ?? (0, 0);
@@ -234,6 +285,8 @@ class LadderSummary {
       total: round.steps.length,
       timeSpent: Duration(milliseconds: milliseconds),
       byModel: byModel,
+      marks: marks,
+      marksPossible: possible,
     );
   }
 
@@ -243,4 +296,8 @@ class LadderSummary {
 
   /// Question type → (right, answered).
   final Map<String, (int, int)> byModel;
+
+  /// Null when the exam states no marks.
+  final double? marks;
+  final double? marksPossible;
 }

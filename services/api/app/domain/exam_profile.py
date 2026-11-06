@@ -6,6 +6,7 @@ its versioned formats (app/domain/exam_format.py).
 """
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
@@ -48,6 +49,29 @@ def descriptive_models() -> list[dict[str, Any]]:
     path = DATA_DIR / "model_lists" / "descriptive_defaults.json"
     models: list[dict[str, Any]] = json.loads(path.read_text(encoding="utf-8"))["models"]
     return models
+
+
+@dataclass(frozen=True, slots=True)
+class LadderTimes:
+    """Challenge Ladder time settings. Product choices, kept with the other defaults."""
+
+    base_time_seconds: float  # for an exam that states no stage
+    factors: Mapping[str, float]
+    round_to: int
+    min_seconds: int
+    max_seconds: int
+
+
+@cache
+def ladder_times() -> LadderTimes:
+    data = _defaults()["ladder"]
+    return LadderTimes(
+        base_time_seconds=float(data["base_time_seconds"]),
+        factors={level: float(factor) for level, factor in data["time_factors"].items()},
+        round_to=int(data["round_to_seconds"]),
+        min_seconds=int(data["min_seconds"]),
+        max_seconds=int(data["max_seconds"]),
+    )
 
 
 @cache

@@ -4738,6 +4738,17 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get ladderPartlyRight => 'आंशिक रूप से सही';
+
+  @override
+  String ladderMarks(String marks, String possible) {
+    return 'अंक: $possible में से $marks';
+  }
+
+  @override
+  String get ladderCorrectAnswer => 'सही उत्तर';
+
+  @override
   String get ladderCleared => 'पार किया';
 
   @override

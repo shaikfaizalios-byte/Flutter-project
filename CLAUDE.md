@@ -86,6 +86,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   mocks need `include_new_formats`. Sessions snapshot marks, rule, limits and cutoffs. Reference list adds 10 Indic languages
   (no Urdu: RTL), fonts in `assets/fonts/noto_indic`; `ContentLanguage.known` stays en/hi, `.all` adds regional (flag only).
   `SessionItemRead.translations`, translations are never eligible on their own (`_eligible`); app `shownLanguageProvider`.
+- Ladder for any exam (any-exam Phase 5, migration 0050): `app/services/ladder_exam.py` `exam_context` builds pure
+  `ExamContext` (first stage, next stage, formats, options, marking, base time) from verified formats in effect or `custom_stages`.
+  `allowed_formats`: a section's `formats`, else `question_types` ("choice" = single_correct, "typed" = numeric); only
+  `GENERATED_FORMATS`; none = 409 `ladder_no_format`. Without `include_new_formats` (app: flag) always single_correct. Time targets
+  are the server's: `time_target`, factors in `defaults.json` `ladder`. `solver_agrees` per format. `ladder.mark` uses mock scoring;
+  steps snapshot marks, null = none stated. Descriptive exams: `available` false, start refused (until Phase 7).
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

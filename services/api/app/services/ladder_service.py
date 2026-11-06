@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
 from app.domain import challenge_ladder as ladder
+from app.domain import question_formats
 from app.domain.ai_content import PROMPT_VERSION
 from app.domain.errors import (
     AIDisabledError,
@@ -31,6 +32,7 @@ from app.domain.errors import (
     InvalidReferenceError,
     NotFoundError,
 )
+from app.domain.scoring import Answer
 from app.domain.similarity import StemItem, similar_groups
 from app.integrations.ai import AIProvider, AIProviderError, AIResult
 from app.models.ai import AIGeneration
@@ -50,7 +52,9 @@ from app.schemas.ladder import (
     LadderStepRead,
     LadderTopic,
 )
+from app.services.exam_profiles import profile_of
 from app.services.insights_service import InsightsService
+from app.services.ladder_exam import exam_context
 from app.services.patterns import visible_pattern
 from app.services.topic_service import visible_topics
 
@@ -83,7 +87,9 @@ class LadderService:
     # --- overview ----------------------------------------------------------------------------
 
     def overview(self, exam_code: str) -> LadderOverview:
-        self._exam(exam_code)
+        exam = self._exam(exam_code)
+        if profile_of(exam).kind == "descriptive":
+            return LadderOverview(topics=[], best=None, available=False)
         report = self._repeats(exam_code)
         papers = {t.topic_id: t.confirmed.papers for t in report.topics}
         order = {t.topic_id: index for index, t in enumerate(report.topics)}
@@ -128,7 +134,9 @@ class LadderService:
     def start(self, request: LadderStart) -> LadderRoundRead:
         """Plans round 1. No AI call yet."""
         self._require_provider()
-        self._exam(request.exam_code)
+        exam = self._exam(request.exam_code)
+        if profile_of(exam).kind == "descriptive":
+            raise ConflictError("ladder_mcq_only", "The ladder is for multiple-choice exams.")
         topic = next(
             (
                 t
@@ -147,12 +155,18 @@ class LadderService:
             topic_name=topic.name,
             subject=topic.subject,
             language=request.language,
+            new_formats=request.include_new_formats,
             source_mix=(
                 "web_only" if seeds == 0 else "web_main" if seeds < ladder.MIN_SEEDS else "papers"
             ),
         )
         self._session.add(practice)
         self._session.flush()
+        if not self._context(practice).formats:
+            self._session.rollback()
+            raise ConflictError(
+                "ladder_no_format", "The ladder can't write this exam's question formats yet."
+            )
         steps = self._plan(practice, 1, {})
         self._session.commit()
         return self._round(practice, 1, steps)
@@ -247,8 +261,13 @@ class LadderService:
             raise AIUnavailableError("No references could be found for this topic.")
         others = [s.stem for s in steps if s.stem]
         sources = [q.stem for q, _ in topic_questions] + [r.snippet for r in web]
+        exam = self._context(practice)
+        if exam.marking is not None:
+            step.marks_correct = exam.marking.marks_correct
+            step.marks_wrong = exam.marking.marks_wrong
+            step.partial_rule = dict(exam.marking.partial) if exam.marking.partial else None
         question = self._written_question(
-            provider, practice, step, steps, seeds, web, others, sources
+            provider, exam, practice, step, steps, seeds, web, others, sources
         )
         if question is not None:
             shown = ladder.shuffled(question, self._rng)
@@ -259,6 +278,8 @@ class LadderService:
             step.solution = list(shown.solution)
             step.shortcut = shown.shortcut
             step.time_target_seconds = shown.time_target_seconds
+            step.format = shown.format
+            step.answer_spec = dict(shown.answer_spec) if shown.answer_spec else None
             step.basis_papers = max(step.basis_papers, len({s.paper_id for s in seeds}))
             step.basis_web = bool(web)
         else:
@@ -269,6 +290,7 @@ class LadderService:
     def _written_question(
         self,
         provider: AIProvider,
+        exam: ladder.ExamContext,
         practice: LadderSession,
         step: LadderStep,
         all_steps: Sequence[LadderStep],
@@ -281,7 +303,7 @@ class LadderService:
         rounds = [x for x in all_steps if x.round_number == step.round_number]
         missed = Counter(x.model_name for x in all_steps if x.correct is False and x.model_name)
         prompt = ladder.generator_prompt(
-            exam_name=self._exam(practice.exam_code).name,
+            exam=exam,
             topic=practice.topic_name,
             round_number=step.round_number,
             plan=[_planned(x) for x in rounds],
@@ -299,7 +321,8 @@ class LadderService:
             )
             if result is None:
                 return None  # the AI service failed: a real question takes the step
-            question = ladder.validate_generated(result.data)
+            difficulty = cast("ladder.Difficulty", step.difficulty)
+            question = ladder.validate_generated(result.data, exam, difficulty)
             if question is None:
                 invalid += 1
                 self._log(provider, QUESTION_TASK, "invalid", result, "schema")
@@ -317,8 +340,13 @@ class LadderService:
                 provider,
                 SOLVE_TASK,
                 ladder.SOLVE_SYSTEM,
-                ladder.solve_prompt(stem=question.stem, options=question.options),
-                ladder.SOLVE_SCHEMA,
+                ladder.solve_prompt(
+                    stem=question.stem,
+                    options=question.options,
+                    format_name=question.format,
+                    spec=question.answer_spec,
+                ),
+                ladder.solve_schema(question.format),
             )
             if solved is None:
                 return None
@@ -410,6 +438,7 @@ class LadderService:
             query = ladder.web_query(
                 exam_name=self._exam(practice.exam_code).short_name
                 or self._exam(practice.exam_code).name,
+                stage=self._context(practice).stage,
                 topic=practice.topic_name,
                 models=names,
             )
@@ -439,13 +468,19 @@ class LadderService:
         step = self._session.get(LadderStep, (session_id, round_number, number))
         if step is None:
             raise NotFoundError("Step not found.")
-        if step.answer_index is None or not step.options:
+        if step.source is None:
             raise ConflictError("step_not_ready", "This question isn't ready yet.")
         if step.correct is None:
-            if body.selected_index >= len(step.options):
-                raise InvalidReferenceError("That option doesn't exist.")
+            answer = _answer_of(step, body)
             step.selected_index = body.selected_index
-            step.correct = body.selected_index == step.answer_index
+            step.response = {"text": body.typed_answer} if body.typed_answer else body.response
+            step.correct, step.marks_awarded = ladder.mark(
+                format_name=step.format,
+                spec=step.answer_spec,
+                answer_index=step.answer_index,
+                answer=answer,
+                marking=_marking(step),
+            )
             step.time_spent_ms = body.time_spent_ms
             step.answered_at = self._now()
             self._session.commit()
@@ -457,6 +492,16 @@ class LadderService:
         if self._provider is None:
             raise AIDisabledError("AI assistance is not configured on this server.")
         return self._provider
+
+    def _context(self, practice: LadderSession) -> ladder.ExamContext:
+        return exam_context(
+            self._session,
+            self._exam(practice.exam_code),
+            subject=practice.subject,
+            topic_id=practice.topic_id,
+            new_formats=practice.new_formats,
+            today=self._now().date(),
+        )
 
     def _exam(self, code: str) -> Exam:
         exam = ExamRepository(self._session).get_visible(code, self._owner_id)
@@ -532,6 +577,29 @@ class LadderService:
         self._session.flush()
 
 
+def _marking(step: LadderStep) -> tuple[float, float, dict[str, Any] | None] | None:
+    if step.marks_correct is None or step.marks_wrong is None:
+        return None
+    return step.marks_correct, step.marks_wrong, step.partial_rule
+
+
+def _answer_of(step: LadderStep, body: LadderAnswer) -> Answer:
+    """The answer in the shape its format takes, or an error when it can't be one."""
+    if step.format in question_formats.TYPED_SPEC_FORMATS:
+        if body.typed_answer is None:
+            raise InvalidReferenceError("Type your answer.")
+        return body.typed_answer
+    if step.format in question_formats.RESPONSE_FORMATS:
+        spec = step.answer_spec or {}
+        count = len(step.options or [])
+        if not question_formats.valid_response(step.format, spec, body.response, count):
+            raise InvalidReferenceError("That answer doesn't fit this question.")
+        return body.response or {}
+    if body.selected_index is None or body.selected_index >= len(step.options or []):
+        raise InvalidReferenceError("That option doesn't exist.")
+    return body.selected_index
+
+
 def _planned(step: LadderStep) -> ladder.PlannedStep:
     return ladder.PlannedStep(
         cast("ladder.Difficulty", step.difficulty),
@@ -551,7 +619,8 @@ def _paper_label(document: Document) -> str:
 
 def _step_read(step: LadderStep) -> LadderStepRead:
     """The answer and solution appear only once the learner has answered."""
-    answered = step.correct is not None and step.selected_index is not None
+    answered = step.correct is not None
+    marks = step.marks_awarded
     return LadderStepRead(
         round_number=step.round_number,
         step=step.step,
@@ -566,13 +635,23 @@ def _step_read(step: LadderStep) -> LadderStepRead:
         stem=step.stem,
         options=step.options,
         time_target_seconds=step.time_target_seconds,
+        format=step.format,
+        format_data=cast(
+            "dict[str, list[str]] | None",
+            question_formats.public_data(step.format, step.answer_spec),
+        ),
         result=LadderResult(
-            selected_index=step.selected_index or 0,
+            selected_index=step.selected_index,
             correct=step.correct is True,
-            answer_index=step.answer_index or 0,
+            answer_index=step.answer_index,
             solution=step.solution or [],
             shortcut=step.shortcut or "",
             time_spent_ms=step.time_spent_ms,
+            response=step.response,
+            answer_lines=ladder.answer_lines(step.format, step.answer_spec, step.options or []),
+            partly_right=step.correct is False and marks is not None and marks > 0,
+            marks=marks,
+            marks_possible=step.marks_correct,
         )
         if answered
         else None,

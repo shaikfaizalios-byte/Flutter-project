@@ -4738,6 +4738,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get ladderPartlyRight => 'Partly right';
+
+  @override
+  String ladderMarks(String marks, String possible) {
+    return 'Marks: $marks of $possible';
+  }
+
+  @override
+  String get ladderCorrectAnswer => 'Correct answer';
+
+  @override
   String get ladderCleared => 'Cleared';
 
   @override

@@ -7509,6 +7509,24 @@ abstract class AppLocalizations {
   /// **'Time: {minutes} min {seconds} s'**
   String ladderTime(int minutes, int seconds);
 
+  /// No description provided for @ladderPartlyRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly right'**
+  String get ladderPartlyRight;
+
+  /// No description provided for @ladderMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks: {marks} of {possible}'**
+  String ladderMarks(String marks, String possible);
+
+  /// No description provided for @ladderCorrectAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct answer'**
+  String get ladderCorrectAnswer;
+
   /// No description provided for @ladderCleared.
   ///
   /// In en, this message translates to:

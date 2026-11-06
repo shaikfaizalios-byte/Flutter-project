@@ -85,11 +85,20 @@ service `app/services/ladder_service.py`, app `lib/features/ladder`.
   Shared-bank papers are never sent: their rights cover practice, not an AI service. Web references: Claude's server-side
   `web_search_20250305` through `AIProvider.search_web`, once per session, with URLs checked against the real results;
   a failed search continues with papers only. Under 3 paper questions, web references lead; with none, only the web.
-- **Checks before a question shows** (`generate`): the schema (4 different options, index 0-3, a solution; one retry); not
+- **Exam facts.** `app/services/ladder_exam.py` reads the first stage: verified formats in effect, or the stage a learner entered.
+  The prompt gets the exam, stage, allowed formats, option count, marking and base time; none of it is in the template. Without a
+  stage, marks stay unstated. The next stage, if any, sets extreme hard.
+- **Formats.** single_correct, statement, assertion_reason, multiple_correct, numeric, match, as the stage allows, and only with
+  `include_new_formats`; otherwise single_correct. No format the ladder can write: 409 `ladder_no_format`. Descriptive exams have
+  no ladder yet.
+- **Time targets** are set by the server: seconds per question in the stage x the level's factor, from `defaults.json` `ladder`.
+- **Marks.** Each step snapshots its section's marks and is scored like a mock, with penalties and partial marks. None stated: right
+  or wrong only.
+- **Checks before a question shows** (`generate`): the schema (an allowed format, the exam's option count, a solution; one retry); not
   a copy (95 % with numbers kept, or found inside a web snippet); unlike the session's questions (the existing 80 %
-  numbers-hidden measure); an independent solve that sees only the question and options must reach the key (up to 2
-  regenerations). Still failing, or the AI service down: a real reviewed question of the same type, labelled "From your
-  papers"; with none left, 502. Options are shuffled and the key follows.
+  numbers-hidden measure); an independent solve that sees only what a learner sees must reach the key: the same option or
+  set of options, a number within the tolerance, or exactly the same pairs (up to 2 regenerations). Still failing, or the AI service down: a real reviewed question of the same type, labelled "From your
+  papers"; with none left, 502. Options (or a match question's right list) are shuffled and the key follows.
 - **Answers stay on the server** until the learner has answered (`LadderStepRead`); the first answer is final.
 - **Separate storage.** `ladder_sessions` and `ladder_steps`, never `questions`, so nothing can reach the repeat counts
   (`tests/test_ladder.py`). Attempts (topic, type, difficulty, correct, time) are kept for weak-topic tracking later; they

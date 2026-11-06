@@ -3325,11 +3325,30 @@
       "LadderAnswer": {
         "additionalProperties": false,
         "properties": {
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
           "selected_index": {
-            "maximum": 9.0,
-            "minimum": 0.0,
-            "title": "Selected Index",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 9.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Index"
           },
           "time_spent_ms": {
             "anyOf": [
@@ -3343,11 +3362,21 @@
               }
             ],
             "title": "Time Spent Ms"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
           }
         },
-        "required": [
-          "selected_index"
-        ],
         "title": "LadderAnswer",
         "type": "object"
       },
@@ -3372,6 +3401,11 @@
       "LadderOverview": {
         "description": "Topics for the exam, most repeated first; ``best`` is the learner's own best climb.",
         "properties": {
+          "available": {
+            "default": true,
+            "title": "Available",
+            "type": "boolean"
+          },
           "best": {
             "anyOf": [
               {
@@ -3401,16 +3435,77 @@
         "description": "What the learner sees once they have answered.",
         "properties": {
           "answer_index": {
-            "title": "Answer Index",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Index"
+          },
+          "answer_lines": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Answer Lines",
+            "type": "array"
           },
           "correct": {
             "title": "Correct",
             "type": "boolean"
           },
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "marks_possible": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Possible"
+          },
+          "partly_right": {
+            "default": false,
+            "title": "Partly Right",
+            "type": "boolean"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
           "selected_index": {
-            "title": "Selected Index",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Index"
           },
           "shortcut": {
             "title": "Shortcut",
@@ -3500,6 +3595,11 @@
             "title": "Exam Code",
             "type": "string"
           },
+          "include_new_formats": {
+            "default": false,
+            "title": "Include New Formats",
+            "type": "boolean"
+          },
           "language": {
             "default": "en",
             "enum": [
@@ -3552,6 +3652,28 @@
             ],
             "title": "Difficulty",
             "type": "string"
+          },
+          "format": {
+            "default": "single_correct",
+            "title": "Format",
+            "type": "string"
+          },
+          "format_data": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format Data"
           },
           "model_name": {
             "anyOf": [
