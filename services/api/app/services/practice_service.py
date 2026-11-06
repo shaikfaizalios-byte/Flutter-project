@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
-from app.domain.exam_format import format_problems
+from app.domain.exam_format import format_problems, section_marking
 from app.domain.question_formats import (
     RESPONSE_FORMATS,
     SINGLE_ANSWER,
@@ -32,7 +32,15 @@ from app.domain.question_formats import (
     public_data,
     valid_response,
 )
-from app.domain.scoring import Answer, ScoredItem, is_correct, score_session, tally_json, to_decimal
+from app.domain.scoring import (
+    Answer,
+    ScoredItem,
+    Tally,
+    is_correct,
+    score_session,
+    tally_json,
+    to_decimal,
+)
 from app.domain.sections import (
     PlannedSection,
     SectionClock,
@@ -85,6 +93,7 @@ from app.schemas.practice import (
     SessionSummary,
     TallyRead,
     TopicResult,
+    TranslationRead,
 )
 from app.schemas.question import FigureRead, OptionRead, PassageRead
 from app.services.exam_formats import is_in_effect, mock_formats
@@ -180,6 +189,7 @@ def _eligible(
     return select(Question).where(
         Question.origin.in_(origins),
         Question.verification_status.in_(statuses),
+        Question.translation_of_id.is_(None),  # shown with its question, never asked apart
         or_(
             Question.image_dependent.is_(False),
             select(QuestionFigure.id).where(QuestionFigure.question_id == Question.id).exists(),
@@ -203,6 +213,34 @@ def _eligible(
     )
 
 
+def _allowed_formats(exam_format: ExamFormat) -> set[str]:
+    """The question formats a mock of this format may use, from what the format states."""
+    types = set(exam_format.question_types or [])
+    allowed = types & set(SPEC_FORMATS)
+    if "choice" in types:
+        allowed |= set(SINGLE_ANSWER)
+    if "typed" in types:
+        allowed.add(TYPED_IN)
+    return allowed
+
+
+def _needs_new_formats(exam_format: ExamFormat) -> bool:
+    return bool(set(exam_format.question_types or []) & set(SPEC_FORMATS))
+
+
+def _section_values(exam_format: ExamFormat, key: str) -> dict[str, Any]:
+    """What the format's sections state for ``key``, by section name."""
+    return {s["subject"]: s[key] for s in exam_format.sections if s.get(key) is not None}
+
+
+def _cutoff_fields(practice: PracticeSession, section: str, tally: Tally) -> dict[str, object]:
+    """A section's cutoff and whether this attempt reached it; nothing without a cutoff."""
+    cutoff = (practice.selection.get("cutoffs") or {}).get(section)
+    if cutoff is None:
+        return {}
+    return {"cutoff": float(cutoff), "cleared": float(tally.score) >= float(cutoff)}
+
+
 def _aware(value: datetime) -> datetime:
     """Device times without a zone are taken as UTC."""
     return value if value.tzinfo else value.replace(tzinfo=UTC)
@@ -219,6 +257,8 @@ def _scored(item: SessionItem) -> ScoredItem:
         typed_answer=item.typed_answer if item.answer_type == "typed" else None,
         format=item.format,
         answer_spec=item.answer_spec,
+        marks_unanswered=to_decimal(item.marks_unanswered),
+        partial_rule=item.partial_rule,
     )
 
 
@@ -471,6 +511,8 @@ class PracticeService:
         ).first()
         if exam_format is None or not is_in_effect(exam_format, self._now().date()):
             raise InvalidReferenceError(f"Unknown paper format '{request.exam_format_code}'.")
+        if _needs_new_formats(exam_format) and not request.include_new_formats:
+            raise InvalidReferenceError("This paper format needs a newer version of the app.")
         availability, pools = self._availability(exam_format)
         if availability.format_problems:
             raise FormatIncompleteError(
@@ -487,8 +529,7 @@ class PracticeService:
             )
         # format_problems() has checked these; nothing below falls back to a default.
         duration = exam_format.duration_minutes
-        negative = exam_format.negative_marks_per_wrong
-        if duration is None or negative is None:  # pragma: no cover - guarded above
+        if duration is None:  # pragma: no cover - guarded above
             raise FormatIncompleteError("This paper format is incomplete.")
 
         seed = random.SystemRandom().randrange(2**31)
@@ -509,13 +550,22 @@ class PracticeService:
         plan: list[PlannedSection] = []
         for section, pool in zip(exam_format.sections, pools, strict=True):
             needed = int(section["questions"])
-            per_question = float(section["max_marks"]) / needed
+            marking = section_marking(
+                section,
+                negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
+                penalty_fraction=exam_format.penalty_fraction,
+            )
             first = position + 1
             for question in rng.sample(pool, needed):
                 position += 1
                 item = self._item(
-                    position, question, marks_correct=per_question, marks_wrong=negative
+                    position,
+                    question,
+                    marks_correct=marking.marks_correct,
+                    marks_wrong=marking.marks_wrong,
                 )
+                item.marks_unanswered = marking.marks_unanswered
+                item.partial_rule = dict(marking.partial) if marking.partial else None
                 item.section = section["subject"]
                 items.append(item)
             if exam_format.sectional_timing:
@@ -528,6 +578,11 @@ class PracticeService:
                     )
                 )
         mock.items = items
+        limits = _section_values(exam_format, "attempt_limit")
+        cutoffs = _section_values(exam_format, "cutoff")
+        if limits or cutoffs:
+            # Copied into the attempt, like the marks.
+            mock.selection = {**mock.selection, "attempt_limits": limits, "cutoffs": cutoffs}
         if plan:
             # Copied into the attempt: later format changes never change it.
             mock.selection = {**mock.selection, "sections": [p.to_json() for p in plan]}
@@ -540,17 +595,27 @@ class PracticeService:
     def _availability(
         self, exam_format: ExamFormat
     ) -> tuple[MockAvailability, list[list[Question]]]:
-        candidates = self._session.scalars(
-            _eligible(include_unverified=False, include_typed=False).where(
-                Question.exam_code == exam_format.exam_code,
-                visible_question(self._owner_id),
-            )
-        ).all()
+        allowed = _allowed_formats(exam_format)
+        candidates = [
+            q
+            for q in self._session.scalars(
+                _eligible(
+                    include_unverified=False,
+                    include_typed=TYPED_IN in allowed,
+                    include_new_formats=_needs_new_formats(exam_format),
+                ).where(
+                    Question.exam_code == exam_format.exam_code,
+                    visible_question(self._owner_id),
+                )
+            ).all()
+            if q.format in allowed
+        ]
         problems = format_problems(
             sections=exam_format.sections,
             total_questions=exam_format.total_questions,
             duration_minutes=exam_format.duration_minutes,
             negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
+            penalty_fraction=exam_format.penalty_fraction,
         )
         canonical = subject_labels_by_topic(
             self._session, {q.topic_id for q in candidates if q.topic_id}
@@ -566,6 +631,8 @@ class PracticeService:
                 or same_subject(q.section or "", subject)
                 or any(same_subject(label, subject) for label in _canonical(canonical, q))
             ]
+            if section.get("formats"):
+                pool = [q for q in pool if q.format in section["formats"]]
             pools.append(pool)
             sections.append(
                 SectionAvailability(
@@ -581,6 +648,7 @@ class PracticeService:
             total_questions=exam_format.total_questions,
             duration_minutes=exam_format.duration_minutes,
             negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
+            penalty_fraction=exam_format.penalty_fraction,
             sections=sections,
             section_counts_indicative=exam_format.section_counts_indicative,
         )
@@ -605,6 +673,7 @@ class PracticeService:
             answer_spec=question.answer_spec,
             marks_correct=marks_correct,
             marks_wrong=marks_wrong,
+            marks_unanswered=0.0,
             question_verified=question.verification_status == VerificationStatus.VERIFIED,
         )
 
@@ -642,6 +711,7 @@ class PracticeService:
             raise InvalidAnswerError("That option does not exist for this question.")
 
         existing = next((a for a in practice.answers if a.position == position), None)
+        self._check_attempt_limit(practice, item, existing, update)
         locked = practice.mode == SessionMode.PRACTICE and _answered(existing)
         applied = not locked and (existing is None or update.client_seq > existing.client_seq)
         if applied:
@@ -725,6 +795,30 @@ class PracticeService:
             practice.current_section or 0, practice.section_started_at or practice.started_at
         )
 
+    @staticmethod
+    def _check_attempt_limit(
+        practice: PracticeSession,
+        item: SessionItem,
+        existing: SessionAnswer | None,
+        update: AnswerUpdate,
+    ) -> None:
+        """ "Attempt any n of these": a new answer past the limit is refused. Changing or
+        clearing an answer is always fine."""
+        limit = (practice.selection.get("attempt_limits") or {}).get(item.section or "")
+        clearing = (
+            update.selected_position is None
+            and update.typed_answer is None
+            and update.response is None
+        )
+        if limit is None or clearing or _answered(existing):
+            return
+        section = {i.position for i in practice.items if i.section == item.section}
+        attempted = sum(a.position in section and _answered(a) for a in practice.answers)
+        if attempted >= int(limit):
+            raise ConflictError(
+                "section_limit", f"Only {limit} questions can be attempted in this section."
+            )
+
     def _finalize(
         self, practice: PracticeSession, *, reason: str, at: datetime | None = None
     ) -> None:
@@ -749,7 +843,10 @@ class PracticeService:
         practice.max_score = float(scored.total.max_score)
         practice.result = {
             "total": tally_json(scored.total),
-            "sections": [{"name": name, **tally_json(t)} for name, t in scored.sections.items()],
+            "sections": [
+                {"name": name, **tally_json(t), **_cutoff_fields(practice, name, t)}
+                for name, t in scored.sections.items()
+            ],
             "topics": [
                 {"topic_id": tid, "name": topic_names.get(tid, ""), **tally_json(t)}
                 for tid, t in scored.topics.items()
@@ -772,6 +869,7 @@ class PracticeService:
             for s in exam_format.sections
         ]
         negative = exam_format.negative_marks_per_wrong
+        fraction = exam_format.penalty_fraction
         timers = {int(s["timer_minutes"]) for s in exam_format.sections if s.get("timer_minutes")}
         minutes = ", ".join(map(str, sorted(timers)))
         if _plan(practice):
@@ -796,7 +894,13 @@ class PracticeService:
         return (
             f"{exam_format.name}. "
             + "; ".join(parts)
-            + (f". Wrong answer: -{negative:.2f}." if negative else ". No negative marking.")
+            + (
+                f". Wrong answer: minus {fraction:.2f} of the question's marks."
+                if fraction
+                else f". Wrong answer: -{negative:.2f}."
+                if negative
+                else ". No negative marking."
+            )
             + sectional
             + indicative
             + f" Source: {exam_format.source_reference}."
@@ -809,6 +913,7 @@ class PracticeService:
         self._expire_if_due(practice)
         now = self._now()
         questions = self._questions({i.question_id for i in practice.items if i.question_id})
+        translations = self._translations(set(questions))
         filenames = self._filenames({q.document_id for q in questions.values() if q.document_id})
         sources = self._shared_sources(
             {
@@ -851,6 +956,7 @@ class PracticeService:
                     else [],
                     format=item.format,
                     format_data=public_data(item.format, item.answer_spec),
+                    translations=translations.get(item.question_id, []) if item.question_id else [],
                     figures=[FigureRead.model_validate(f) for f in question.figures]
                     if question
                     else [],
@@ -1107,6 +1213,28 @@ class PracticeService:
         ).all()
         return {q.id: q for q in rows}
 
+    def _translations(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, list[TranslationRead]]:
+        """Linked translations by question. No answers: a translation shares its question's."""
+        found: dict[uuid.UUID, list[TranslationRead]] = {}
+        if not ids:
+            return found
+        rows = self._session.scalars(
+            select(Question)
+            .where(Question.translation_of_id.in_(ids), visible_question(self._owner_id))
+            .options(selectinload(Question.options))
+            .order_by(Question.language)
+        ).all()
+        for row in rows:
+            if row.translation_of_id is not None:
+                found.setdefault(row.translation_of_id, []).append(
+                    TranslationRead(
+                        language=row.language,
+                        stem=row.stem,
+                        options=[o.text for o in row.options],
+                    )
+                )
+        return found
+
     def _filenames(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, str]:
         if not ids:
             return {}
@@ -1142,7 +1270,8 @@ class PracticeService:
     def _result(data: dict[str, Any]) -> SessionResult:
         total = data["total"]
         return SessionResult(
-            **{k: total[k] for k in TallyRead.model_fields},
+            # Results saved before a field existed leave it to its default.
+            **{k: total[k] for k in TallyRead.model_fields if k in total},
             time_taken_seconds=data["time_taken_seconds"],
             marking_note=data["marking_note"],
             sections=[SectionResult(**s) for s in data["sections"]],

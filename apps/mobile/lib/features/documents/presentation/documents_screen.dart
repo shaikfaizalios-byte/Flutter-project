@@ -286,11 +286,25 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
             const SizedBox(height: AppSpacing.md),
             Text(l10n.fieldContentLanguage, style: theme.textTheme.labelLarge),
             const SizedBox(height: AppSpacing.sm),
-            SegmentedButton<ContentLanguage>(
-              segments: contentLanguageSegments(l10n, current: _language),
-              selected: {_language!},
-              onSelectionChanged: (s) => setState(() => _language = s.first),
-            ),
+            if (ref.watch(appFeaturesProvider).examProfiles)
+              DropdownButton<ContentLanguage>(
+                isExpanded: true,
+                value: _language,
+                onChanged: (value) => setState(() => _language = value),
+                items: [
+                  for (final language in ContentLanguage.all)
+                    DropdownMenuItem(
+                      value: language,
+                      child: Text(contentLanguageName(l10n, language)),
+                    ),
+                ],
+              )
+            else
+              SegmentedButton<ContentLanguage>(
+                segments: contentLanguageSegments(l10n, current: _language),
+                selected: {_language!},
+                onSelectionChanged: (s) => setState(() => _language = s.first),
+              ),
             const SizedBox(height: AppSpacing.lg),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

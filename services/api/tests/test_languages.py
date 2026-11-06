@@ -28,11 +28,13 @@ def test_database_rows_match_the_reference_list(db_session: Session) -> None:
 
 
 def test_behaviour_reads_the_list() -> None:
-    assert languages.CODES == ("en", "hi")
+    assert languages.CODES[:2] == ("en", "hi")
     assert languages.ocr_languages("en") == "eng"
     assert languages.ocr_languages("hi") == "hin+eng"
-    assert LANGUAGE_NAMES == {"en": "English", "hi": "Hindi (Devanagari script)"}
-    assert [c for c, lang in languages.LANGUAGES.items() if lang.review_ai_text] == ["hi"]
+    assert LANGUAGE_NAMES["en"] == "English"
+    assert LANGUAGE_NAMES["hi"] == "Hindi (Devanagari script)"
+    assert not languages.language("en").review_ai_text
+    assert languages.language("hi").review_ai_text
     with pytest.raises(KeyError):
         languages.language("fr")
 
@@ -57,7 +59,7 @@ def test_an_unknown_language_cannot_be_stored(db_session: Session, user: User) -
 def test_the_api_lists_and_enforces_the_codes(settings: Settings) -> None:
     schema = create_app(settings).openapi()
     concept = schema["components"]["schemas"]["ConceptCreate"]["properties"]["language"]
-    assert concept["enum"] == ["en", "hi"]
+    assert concept["enum"] == list(languages.CODES)
 
 
 def test_requests_with_another_language_are_refused(db_client: TestClient) -> None:
@@ -65,4 +67,4 @@ def test_requests_with_another_language_are_refused(db_client: TestClient) -> No
         "/api/v1/ai/topic-lesson", json={"exam_code": "SSC_CGL", "topic": "Ratio", "language": "fr"}
     )
     assert response.status_code == 422
-    assert "language must be one of: en, hi" in response.text
+    assert "language must be one of: en, hi, as" in response.text

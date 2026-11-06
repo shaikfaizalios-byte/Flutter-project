@@ -2785,5 +2785,10 @@
   "modelsActions": "Model actions",
   "modelsEmpty": "This topic has no models yet.",
   "modelsDefaultsNote": "For written answers, add the usual answer formats: define, short note, compare and others.",
-  "modelsAddDefaults": "Add answer formats"
+  "modelsAddDefaults": "Add answer formats",
+  "sessionOriginalLanguage": "As printed",
+  "resultCutoffCleared": "Cutoff {cutoff}: reached",
+  "@resultCutoffCleared": {"placeholders": {"cutoff": {"type": "String"}}},
+  "resultCutoffMissed": "Cutoff {cutoff}: not reached",
+  "@resultCutoffMissed": {"placeholders": {"cutoff": {"type": "String"}}}
 }

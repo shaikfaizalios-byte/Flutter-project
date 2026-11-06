@@ -5169,4 +5169,17 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get modelsAddDefaults => 'उत्तर प्रारूप जोड़ें';
+
+  @override
+  String get sessionOriginalLanguage => 'जैसा छपा है';
+
+  @override
+  String resultCutoffCleared(String cutoff) {
+    return 'कटऑफ़ $cutoff: पूरा';
+  }
+
+  @override
+  String resultCutoffMissed(String cutoff) {
+    return 'कटऑफ़ $cutoff: पूरा नहीं';
+  }
 }

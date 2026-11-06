@@ -5170,4 +5170,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modelsAddDefaults => 'Add answer formats';
+
+  @override
+  String get sessionOriginalLanguage => 'As printed';
+
+  @override
+  String resultCutoffCleared(String cutoff) {
+    return 'Cutoff $cutoff: reached';
+  }
+
+  @override
+  String resultCutoffMissed(String cutoff) {
+    return 'Cutoff $cutoff: not reached';
+  }
 }

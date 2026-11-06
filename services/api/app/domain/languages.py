@@ -52,7 +52,112 @@ HINDI = Language(
     review_ai_text=True,
 )
 
-LANGUAGES: dict[str, Language] = {lang.code: lang for lang in (ENGLISH, HINDI)}
+# Regional languages. Urdu is left out: it runs right to left, which the app doesn't lay out yet.
+# Their OCR quality hasn't been checked, so AI text and scanned pages stay flagged for review.
+REGIONAL: tuple[Language, ...] = (
+    Language(
+        code="as",
+        english_name="Assamese",
+        native_name="অসমীয়া",
+        script="Beng",
+        direction="ltr",
+        ocr="asm",
+        prompt_name="Assamese (Bengali-Assamese script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="bn",
+        english_name="Bengali",
+        native_name="বাংলা",
+        script="Beng",
+        direction="ltr",
+        ocr="ben",
+        prompt_name="Bengali (Bengali script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="gu",
+        english_name="Gujarati",
+        native_name="ગુજરાતી",
+        script="Gujr",
+        direction="ltr",
+        ocr="guj",
+        prompt_name="Gujarati (Gujarati script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="kn",
+        english_name="Kannada",
+        native_name="ಕನ್ನಡ",
+        script="Knda",
+        direction="ltr",
+        ocr="kan",
+        prompt_name="Kannada (Kannada script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="ml",
+        english_name="Malayalam",
+        native_name="മലയാളം",
+        script="Mlym",
+        direction="ltr",
+        ocr="mal",
+        prompt_name="Malayalam (Malayalam script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="mr",
+        english_name="Marathi",
+        native_name="मराठी",
+        script="Deva",
+        direction="ltr",
+        ocr="mar",
+        prompt_name="Marathi (Devanagari script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="or",
+        english_name="Odia",
+        native_name="ଓଡ଼ିଆ",
+        script="Orya",
+        direction="ltr",
+        ocr="ori",
+        prompt_name="Odia (Odia script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="pa",
+        english_name="Punjabi",
+        native_name="ਪੰਜਾਬੀ",
+        script="Guru",
+        direction="ltr",
+        ocr="pan",
+        prompt_name="Punjabi (Gurmukhi script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="ta",
+        english_name="Tamil",
+        native_name="தமிழ்",
+        script="Taml",
+        direction="ltr",
+        ocr="tam",
+        prompt_name="Tamil (Tamil script)",
+        review_ai_text=True,
+    ),
+    Language(
+        code="te",
+        english_name="Telugu",
+        native_name="తెలుగు",
+        script="Telu",
+        direction="ltr",
+        ocr="tel",
+        prompt_name="Telugu (Telugu script)",
+        review_ai_text=True,
+    ),
+)
+
+LANGUAGES: dict[str, Language] = {lang.code: lang for lang in (ENGLISH, HINDI, *REGIONAL)}
 CODES: tuple[str, ...] = tuple(LANGUAGES)
 
 

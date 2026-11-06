@@ -15,6 +15,26 @@ class ContentLanguage {
   /// The languages this app version offers for new content, in the order shown.
   static const known = [english, hindi];
 
+  /// Regional languages papers can be in, by their own names. Their OCR needs language data on
+  /// the server, so they are offered only with the exam profiles feature.
+  static const regional = <String, String>{
+    'as': 'অসমীয়া',
+    'bn': 'বাংলা',
+    'gu': 'ગુજરાતી',
+    'kn': 'ಕನ್ನಡ',
+    'ml': 'മലയാളം',
+    'mr': 'मराठी',
+    'or': 'ଓଡ଼ିଆ',
+    'pa': 'ਪੰਜਾਬੀ',
+    'ta': 'தமிழ்',
+    'te': 'తెలుగు',
+  };
+
+  static List<ContentLanguage> get all => [
+    ...known,
+    for (final code in regional.keys) ContentLanguage(code),
+  ];
+
   final String code;
 
   static ContentLanguage fromCode(String code) => ContentLanguage(code);
@@ -37,7 +57,7 @@ String contentLanguageName(AppLocalizations l10n, ContentLanguage language) =>
     switch (language.code) {
       'en' => l10n.languageEnglish,
       'hi' => l10n.languageHindi,
-      _ => language.code,
+      _ => ContentLanguage.regional[language.code] ?? language.code,
     };
 
 /// A short badge for lists ("En", "हि"); an unknown code is shown in capitals.

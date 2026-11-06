@@ -79,6 +79,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `descriptive_defaults.json`). `RepeatsReport.name_suggestions` = alike questions in `MIN_PAPERS_TO_NAME` papers with no
   confirmed model (own papers). `counting_unit` session: pure `app/domain/counting.py` `unit_key`, confirmed date + shift + session
   = one; `RepeatCounts.marks`; app `byMarks`/`marksVary`, `TopicModelsScreen`. The embedding hint is NOT built (needs a decision).
+- Mock marking and languages (any-exam Phase 6, migrations 0048-0049): sections may state `marks_wrong`, `marks_unanswered`,
+  `cutoff`, `attempt_limit`, `partial`, `formats`; `exam_formats.penalty_fraction` = a share of the question's marks. Pure
+  `section_marking` (`app/domain/exam_format.py`): section, then fraction, then negative mark; none stated = incomplete.
+  `question_formats.partial_marks`; a partly right answer earns marks but isn't correct. `question_types` may name formats; such
+  mocks need `include_new_formats`. Sessions snapshot marks, rule, limits and cutoffs. Reference list adds 10 Indic languages
+  (no Urdu: RTL), fonts in `assets/fonts/noto_indic`; `ContentLanguage.known` stays en/hi, `.all` adds regional (flag only).
+  `SessionItemRead.translations`, translations are never eligible on their own (`_eligible`); app `shownLanguageProvider`.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

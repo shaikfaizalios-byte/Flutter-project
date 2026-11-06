@@ -35,6 +35,12 @@ class ExamFormatSection(BaseModel):
     max_marks: int | None = None
     # Sectional timer from the notice, when it sets one (mocks keep one overall timer).
     timer_minutes: int | None = None
+    # Stated only where the format differs from its general marking.
+    marks_wrong: float | None = None
+    marks_unanswered: float | None = None
+    cutoff: float | None = None
+    attempt_limit: int | None = None  # "attempt any n of these"
+    formats: list[str] | None = None  # the question formats of this section
 
 
 class ExamFormatRead(BaseModel):

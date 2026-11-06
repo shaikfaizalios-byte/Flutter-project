@@ -20,7 +20,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -885,7 +895,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -1058,7 +1078,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -1154,7 +1184,17 @@
               {
                 "enum": [
                   "en",
-                  "hi"
+                  "hi",
+                  "as",
+                  "bn",
+                  "gu",
+                  "kn",
+                  "ml",
+                  "mr",
+                  "or",
+                  "pa",
+                  "ta",
+                  "te"
                 ],
                 "type": "string"
               },
@@ -1972,7 +2012,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -2471,6 +2521,64 @@
       },
       "ExamFormatSection": {
         "properties": {
+          "attempt_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Limit"
+          },
+          "cutoff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
+          },
+          "formats": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formats"
+          },
+          "marks_unanswered": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Unanswered"
+          },
+          "marks_wrong": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Wrong"
+          },
           "max_marks": {
             "anyOf": [
               {
@@ -3024,7 +3132,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -3386,7 +3504,17 @@
             "default": "en",
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -3729,6 +3857,17 @@
             ],
             "title": "Negative Marks Per Wrong"
           },
+          "penalty_fraction": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Penalty Fraction"
+          },
           "section_counts_indicative": {
             "default": false,
             "title": "Section Counts Indicative",
@@ -3767,6 +3906,11 @@
             "minLength": 1,
             "title": "Exam Format Code",
             "type": "string"
+          },
+          "include_new_formats": {
+            "default": false,
+            "title": "Include New Formats",
+            "type": "boolean"
           }
         },
         "required": [
@@ -5874,7 +6018,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -7318,7 +7472,17 @@
               {
                 "enum": [
                   "en",
-                  "hi"
+                  "hi",
+                  "as",
+                  "bn",
+                  "gu",
+                  "kn",
+                  "ml",
+                  "mr",
+                  "or",
+                  "pa",
+                  "ta",
+                  "te"
                 ],
                 "type": "string"
               },
@@ -7513,9 +7677,31 @@
             ],
             "title": "Accuracy"
           },
+          "cleared": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cleared"
+          },
           "correct": {
             "title": "Correct",
             "type": "integer"
+          },
+          "cutoff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
           },
           "explanation": {
             "title": "Explanation",
@@ -7528,6 +7714,11 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "partial": {
+            "default": 0,
+            "title": "Partial",
+            "type": "integer"
           },
           "score": {
             "title": "Score",
@@ -7774,6 +7965,14 @@
               }
             ],
             "title": "Subject"
+          },
+          "translations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TranslationRead"
+            },
+            "title": "Translations",
+            "type": "array"
           },
           "typed_answer": {
             "anyOf": [
@@ -8047,6 +8246,11 @@
           "max_score": {
             "title": "Max Score",
             "type": "number"
+          },
+          "partial": {
+            "default": 0,
+            "title": "Partial",
+            "type": "integer"
           },
           "score": {
             "title": "Score",
@@ -9437,7 +9641,17 @@
             "default": "en",
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -9582,7 +9796,17 @@
             "default": "en",
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -9642,6 +9866,11 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "partial": {
+            "default": 0,
+            "title": "Partial",
+            "type": "integer"
           },
           "score": {
             "title": "Score",
@@ -9902,6 +10131,33 @@
           "question_id"
         ],
         "title": "TranslationLink",
+        "type": "object"
+      },
+      "TranslationRead": {
+        "description": "The question in another language, linked by a reviewer. Options keep their position.",
+        "properties": {
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "language",
+          "stem",
+          "options"
+        ],
+        "title": "TranslationRead",
         "type": "object"
       },
       "UserRead": {
@@ -12490,7 +12746,17 @@
                 {
                   "enum": [
                     "en",
-                    "hi"
+                    "hi",
+                    "as",
+                    "bn",
+                    "gu",
+                    "kn",
+                    "ml",
+                    "mr",
+                    "or",
+                    "pa",
+                    "ta",
+                    "te"
                   ],
                   "type": "string"
                 },
@@ -17526,7 +17792,17 @@
                 {
                   "enum": [
                     "en",
-                    "hi"
+                    "hi",
+                    "as",
+                    "bn",
+                    "gu",
+                    "kn",
+                    "ml",
+                    "mr",
+                    "or",
+                    "pa",
+                    "ta",
+                    "te"
                   ],
                   "type": "string"
                 },

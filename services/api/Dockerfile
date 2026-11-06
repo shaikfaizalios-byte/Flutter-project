@@ -7,9 +7,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Tesseract OCR with English + Hindi data (Apache-2.0). Nothing else from apt.
+# Tesseract OCR with English, Hindi and regional data (Apache-2.0). Nothing else from apt.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-hin \
+        tesseract-ocr-asm tesseract-ocr-ben tesseract-ocr-guj tesseract-ocr-kan tesseract-ocr-mal \
+        tesseract-ocr-mar tesseract-ocr-ori tesseract-ocr-pan tesseract-ocr-tam tesseract-ocr-tel \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

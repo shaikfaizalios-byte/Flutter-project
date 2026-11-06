@@ -8,12 +8,12 @@ void main() {
   final l10n = AppLocalizationsEn();
 
   test('a code this app does not know is kept, never turned into English', () {
-    final other = ContentLanguage.fromCode('ta');
-    expect(other.code, 'ta');
+    final other = ContentLanguage.fromCode('fr');
+    expect(other.code, 'fr');
     expect(other.isKnown, isFalse);
     expect(other == ContentLanguage.english, isFalse);
-    expect(contentLanguageName(l10n, other), 'ta');
-    expect(contentLanguageBadge(other), 'TA');
+    expect(contentLanguageName(l10n, other), 'fr');
+    expect(contentLanguageBadge(other), 'FR');
     expect(ContentLanguage.fromCode('hi'), ContentLanguage.hindi);
   });
 
@@ -23,7 +23,7 @@ void main() {
     ];
     expect(codes(null), ['en', 'hi']);
     expect(codes(ContentLanguage.hindi), ['en', 'hi']);
-    expect(codes(const ContentLanguage('ta')), ['en', 'hi', 'ta']);
+    expect(codes(const ContentLanguage('fr')), ['en', 'hi', 'fr']);
   });
 
   test('content and AI languages follow the interface unless chosen', () {

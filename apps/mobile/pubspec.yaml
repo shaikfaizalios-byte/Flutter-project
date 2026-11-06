@@ -60,6 +60,32 @@ flutter:
           weight: 700
     # Noto Sans Devanagari v2.007 (SIL OFL 1.1), from github.com/notofonts/devanagari.
     # Used as a fallback so Hindi renders offline everywhere, including web.
+    # Noto Sans for the other Indic scripts (SIL OFL 1.1), from github.com/notofonts. Bundled so regional
+    # papers render offline and the web app still loads no fonts from Google.
+    - family: NotoSansBengali
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansBengali-Regular.ttf
+    - family: NotoSansTamil
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansTamil-Regular.ttf
+    - family: NotoSansTelugu
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansTelugu-Regular.ttf
+    - family: NotoSansGujarati
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansGujarati-Regular.ttf
+    - family: NotoSansKannada
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansKannada-Regular.ttf
+    - family: NotoSansMalayalam
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansMalayalam-Regular.ttf
+    - family: NotoSansOriya
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansOriya-Regular.ttf
+    - family: NotoSansGurmukhi
+      fonts:
+        - asset: assets/fonts/noto_indic/NotoSansGurmukhi-Regular.ttf
     - family: NotoSansDevanagari
       fonts:
         - asset: assets/fonts/noto_sans_devanagari/NotoSansDevanagari-Regular.ttf

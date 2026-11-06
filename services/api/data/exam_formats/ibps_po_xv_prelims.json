@@ -29,7 +29,6 @@
   "sections_in_fixed_order": true,
   "total_questions": 100,
   "duration_minutes": 60,
-  "negative_marks_per_wrong": null,
   "sectional_timing": true,
   "source": {
     "title": "IBPS Notification CRP PO/MT-XV (Vacancies of 2026-27)",
@@ -37,5 +36,6 @@
     "reference": "D. Structure of Examination (a) and E. Penalty for Wrong Answers (third-party copy)",
     "published_on": "2025-07-01"
   },
-  "review_notes": "Penalty is one fourth of the marks assigned to the question, which differ by section: one number can't hold it (Phase 6). Section order is not stated. Date is the registration start."
+  "review_notes": "Penalty: one fourth of the marks assigned to the question, section E of the notification. Section order is not stated. Date is the registration start.",
+  "penalty_fraction": 0.25
 }

@@ -1366,5 +1366,8 @@
   "modelsActions": "मॉडल के विकल्प",
   "modelsEmpty": "इस विषय में अभी कोई मॉडल नहीं है।",
   "modelsDefaultsNote": "लिखित उत्तरों के लिए सामान्य उत्तर प्रारूप जोड़ें: परिभाषा, संक्षिप्त टिप्पणी, तुलना आदि।",
-  "modelsAddDefaults": "उत्तर प्रारूप जोड़ें"
+  "modelsAddDefaults": "उत्तर प्रारूप जोड़ें",
+  "sessionOriginalLanguage": "जैसा छपा है",
+  "resultCutoffCleared": "कटऑफ़ {cutoff}: पूरा",
+  "resultCutoffMissed": "कटऑफ़ {cutoff}: पूरा नहीं"
 }

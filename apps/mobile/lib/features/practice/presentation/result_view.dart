@@ -103,6 +103,7 @@ class _TallyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SectionCard(
       icon: icon,
       title: title,
@@ -115,6 +116,13 @@ class _TallyCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleSmall,
             ),
             Text(t.explanation, style: Theme.of(context).textTheme.bodySmall),
+            if (t.cutoff case final cutoff?)
+              Text(
+                t.cleared ?? false
+                    ? l10n.resultCutoffCleared(_fmt(cutoff))
+                    : l10n.resultCutoffMissed(_fmt(cutoff)),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             const SizedBox(height: AppSpacing.sm),
           ],
         ],

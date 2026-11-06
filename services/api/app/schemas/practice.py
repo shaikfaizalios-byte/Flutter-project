@@ -89,6 +89,8 @@ class MockCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     exam_format_code: Annotated[str, StringConstraints(min_length=1, max_length=64)]
+    # This app can show question formats beyond one option or a typed text.
+    include_new_formats: bool = False
 
 
 class AnswerUpdate(BaseModel):
@@ -126,6 +128,14 @@ class ItemSource(BaseModel):
     shared_source: str | None = None
 
 
+class TranslationRead(BaseModel):
+    """The question in another language, linked by a reviewer. Options keep their position."""
+
+    language: str
+    stem: str
+    options: list[str]
+
+
 class SessionItemRead(BaseModel):
     position: int
     question_id: uuid.UUID | None
@@ -136,6 +146,7 @@ class SessionItemRead(BaseModel):
     format: str = "single_correct"
     # What the format lists for the learner (never its answer): match and ordering items.
     format_data: dict[str, list[str]] | None = None
+    translations: list[TranslationRead] = []
     # Figures cropped from the source paper (fetch via /questions/{question_id}/figures/{id}).
     figures: list[FigureRead]
     passage: PassageRead | None
@@ -159,6 +170,7 @@ class TallyRead(BaseModel):
     correct: int
     wrong: int
     unattempted: int
+    partial: int = 0  # earned some marks under the exam's partial rule
     score: float
     max_score: float
     accuracy: float | None
@@ -167,6 +179,9 @@ class TallyRead(BaseModel):
 
 class SectionResult(TallyRead):
     name: str
+    # From the format, when it states one. The exam's own cutoffs may differ each year.
+    cutoff: float | None = None
+    cleared: bool | None = None
 
 
 class TopicResult(TallyRead):
@@ -271,6 +286,7 @@ class MockAvailability(BaseModel):
     total_questions: int
     duration_minutes: int | None
     negative_marks_per_wrong: float | None
+    penalty_fraction: float | None = None  # of the question's marks, instead of a fixed mark
     sections: list[SectionAvailability]
     # The notice gives the section split as only indicative: real papers may vary.
     section_counts_indicative: bool = False

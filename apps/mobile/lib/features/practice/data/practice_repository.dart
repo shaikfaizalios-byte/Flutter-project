@@ -195,7 +195,7 @@ class PracticeRepository {
     () async => _session(
       (await _dio.post<Map<String, dynamic>>(
         '$_base/mock-tests',
-        data: {'exam_format_code': formatCode},
+        data: {'exam_format_code': formatCode, if (newFormats) 'include_new_formats': true},
       )).data!,
     ),
   );

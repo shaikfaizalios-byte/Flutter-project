@@ -75,6 +75,7 @@ class SessionItemView {
     this.format = 'single_correct',
     this.formatData,
     this.response,
+    this.translations = const [],
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -109,6 +110,10 @@ class SessionItemView {
         (key, value) => MapEntry(key, (value as List<dynamic>).cast<String>()),
       ),
       response: json['response'] as Map<String, dynamic>?,
+      translations: [
+        for (final t in json['translations'] as List<dynamic>? ?? const [])
+          QuestionTranslation.fromJson(t as Map<String, dynamic>),
+      ],
       feedback: json['feedback'] == null
           ? null
           : AnswerFeedback.fromJson(json['feedback'] as Map<String, dynamic>),
@@ -153,6 +158,12 @@ class SessionItemView {
   /// The answer of a format that takes more than one tap.
   final Map<String, dynamic>? response;
 
+  /// This question in other languages, linked by a reviewer.
+  final List<QuestionTranslation> translations;
+
+  QuestionTranslation? translationIn(String? language) =>
+      translations.where((t) => t.language == language).firstOrNull;
+
   /// From the shared bank (a paper the PrepLoop team shared): read-only, not bookmarkable.
   final bool shared;
 
@@ -192,8 +203,29 @@ class SessionItemView {
     format: format,
     formatData: formatData,
     response: response != null ? response() : this.response,
+    translations: translations,
     feedback: feedback != null ? feedback() : this.feedback,
   );
+}
+
+/// A question in another language. Options keep their position, so answers stay the same.
+@immutable
+class QuestionTranslation {
+  const QuestionTranslation({required this.language, required this.stem, required this.options});
+
+  factory QuestionTranslation.fromJson(Map<String, dynamic> json) => QuestionTranslation(
+    language: json['language'] as String,
+    stem: json['stem'] as String,
+    options: (json['options'] as List<dynamic>).cast<String>(),
+  );
+
+  final String language;
+  final String stem;
+  final List<String> options;
+
+  /// The option at a 1-based position, if this translation has it.
+  String? option(int position) =>
+      position >= 1 && position <= options.length ? options[position - 1] : null;
 }
 
 /// The correct answer of a format with its own, in words. Null for the others.
@@ -240,6 +272,9 @@ class TallyView {
     required this.maxScore,
     required this.explanation,
     this.accuracy,
+    this.partial = 0,
+    this.cutoff,
+    this.cleared,
   });
 
   factory TallyView.fromJson(Map<String, dynamic> json, {String? name}) => TallyView(
@@ -251,6 +286,9 @@ class TallyView {
     maxScore: (json['max_score'] as num).toDouble(),
     accuracy: (json['accuracy'] as num?)?.toDouble(),
     explanation: json['explanation'] as String,
+    partial: json['partial'] as int? ?? 0,
+    cutoff: (json['cutoff'] as num?)?.toDouble(),
+    cleared: json['cleared'] as bool?,
   );
 
   final String name;
@@ -260,6 +298,13 @@ class TallyView {
   final double score;
   final double maxScore;
   final double? accuracy;
+
+  /// Earned some marks under the exam's partial rule.
+  final int partial;
+
+  /// The section's cutoff from the format, and whether this attempt reached it.
+  final double? cutoff;
+  final bool? cleared;
 
   /// Server-generated, e.g. "Correct 18 × 2.00 = 36.00; Wrong 4 × −0.50 = −2.00; ...".
   final String explanation;

@@ -319,7 +319,7 @@ class _ExamBuilderScreenState extends ConsumerState<ExamBuilderScreen> {
                 Wrap(
                   spacing: AppSpacing.sm,
                   children: [
-                    for (final language in ContentLanguage.known)
+                    for (final language in ContentLanguage.all)
                       FilterChip(
                         label: Text(contentLanguageName(l10n, language)),
                         selected: _languages.contains(language.code),

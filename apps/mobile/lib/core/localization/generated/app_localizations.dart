@@ -8294,6 +8294,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add answer formats'**
   String get modelsAddDefaults;
+
+  /// No description provided for @sessionOriginalLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'As printed'**
+  String get sessionOriginalLanguage;
+
+  /// No description provided for @resultCutoffCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutoff {cutoff}: reached'**
+  String resultCutoffCleared(String cutoff);
+
+  /// No description provided for @resultCutoffMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutoff {cutoff}: not reached'**
+  String resultCutoffMissed(String cutoff);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
