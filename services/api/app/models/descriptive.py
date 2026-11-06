@@ -7,7 +7,17 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import CheckConstraint, DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -16,6 +26,7 @@ from app.database.base import Base
 
 class DescriptiveSession(Base):
     __tablename__ = "descriptive_sessions"
+    __table_args__ = (CheckConstraint("source IN ('ai', 'papers')", name="source_valid"),)
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     owner_id: Mapped[uuid.UUID] = mapped_column(
@@ -27,6 +38,8 @@ class DescriptiveSession(Base):
     topic_name: Mapped[str] = mapped_column(String(100))
     subject: Mapped[str] = mapped_column(String(100))
     language: Mapped[str] = mapped_column(String(8), ForeignKey("languages.code"))
+    # ai: written for this session; papers: the learner's own reviewed written questions.
+    source: Mapped[str] = mapped_column(String(6), default="ai", server_default="ai")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -49,7 +62,15 @@ class DescriptiveStep(Base):
     marks: Mapped[float] = mapped_column(Float)
     # PrepLoop's suggested length, not an exam rule.
     word_limit: Mapped[int] = mapped_column(Integer)
-    # The question: null until written.
+    # Set for a real question from the learner's papers; its text is kept in ``stem`` so history
+    # reads the same if the paper is later removed.
+    question_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("questions.id", ondelete="SET NULL")
+    )
+    paper_label: Mapped[str | None] = mapped_column(String(300))
+    # The model answer is the one printed in the paper, not written by AI.
+    answer_from_paper: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    # The question: null until written. A paper question has it from the start.
     stem: Mapped[str | None] = mapped_column(Text)
     rubric: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB)
     model_answer: Mapped[str | None] = mapped_column(Text)
