@@ -4768,4 +4768,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ladderPractiseReal => 'Practise real questions from your papers';
+
+  @override
+  String get onboardingPreparingTitle => 'What are you preparing for?';
+
+  @override
+  String get onboardingPreparingHint => 'Choose one or more, or create your own.';
+
+  @override
+  String get onboardingCustomExam => 'Custom exam';
+
+  @override
+  String get examBuilderTitle => 'Custom exam';
+
+  @override
+  String get examBuilderIntro =>
+      'Only the name is needed. Add the rest from your exam\'s official notice. What you enter stays yours and is never shown as official.';
+
+  @override
+  String get examBuilderBody => 'Conducting body (optional)';
+
+  @override
+  String get examBuilderKind => 'Question style';
+
+  @override
+  String get examKindMcq => 'Multiple choice';
+
+  @override
+  String get examKindDescriptive => 'Written answers';
+
+  @override
+  String get examKindMixed => 'Both';
+
+  @override
+  String get examBuilderOptions => 'Options per question';
+
+  @override
+  String get examBuilderOptionsVary => 'Varies';
+
+  @override
+  String get examBuilderLanguages => 'Languages of the paper';
+
+  @override
+  String get examBuilderDates => 'Exam dates';
+
+  @override
+  String get examBuilderAddDate => 'Add a date';
+
+  @override
+  String get examBuilderStages => 'Stages';
+
+  @override
+  String get examBuilderStagesHint => 'For example, a preliminary and a main paper.';
+
+  @override
+  String get examBuilderAddStage => 'Add a stage';
+
+  @override
+  String get examBuilderStageName => 'Stage name';
+
+  @override
+  String get examBuilderMinutes => 'Minutes';
+
+  @override
+  String get examBuilderMinutesOptional => 'Minutes (optional)';
+
+  @override
+  String get examBuilderMarksCorrect => 'Marks for a correct answer';
+
+  @override
+  String get examBuilderMarksWrong => 'Marks off for a wrong answer';
+
+  @override
+  String get examBuilderSections => 'Sections';
+
+  @override
+  String get examBuilderSectionName => 'Section name';
+
+  @override
+  String get examBuilderQuestions => 'Questions';
+
+  @override
+  String get examBuilderCutoff => 'Cutoff (optional)';
+
+  @override
+  String get examBuilderAddSection => 'Add a section';
+
+  @override
+  String get examBuilderNeeded => 'Needed';
+
+  @override
+  String get examBuilderNumber => 'Enter a number';
+
+  @override
+  String get examBuilderSave => 'Create exam';
 }

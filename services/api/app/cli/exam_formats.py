@@ -5,6 +5,8 @@
     python -m app.cli.exam_formats exam NEW_EXAM --name "<official name>" \\
         --short-name "<short>" --category "<group>" --country IN
     python -m app.cli.exam_formats list [--exam EXAM_CODE] [--drafts]
+    python -m app.cli.exam_formats template data/exam_templates/FILE.json   # what's missing
+    python -m app.cli.exam_formats template FILE.json --apply --reviewer "A. Reviewer"
     python -m app.cli.exam_formats import format.json      # creates a draft
     python -m app.cli.exam_formats check FORMAT_CODE
     python -m app.cli.exam_formats publish FORMAT_CODE --reviewer "A. Reviewer"
@@ -23,7 +25,7 @@ import re
 import sys
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationError
 from sqlalchemy import select
@@ -31,6 +33,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.database.session import build_engine, build_sessionmaker
+from app.domain.exam_profile import VARIABLE_OPTIONS
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
 from app.models.question import ExamFormat, FormatStatus
 from app.services.content import audit
@@ -72,6 +75,91 @@ class FormatFile(BaseModel):
     supersedes: str | None = None
     source: _Source
     review_notes: Annotated[str, StringConstraints(max_length=500)] | None = None
+
+
+class TemplateFile(BaseModel):
+    """An exam's profile as the operator writes it (data/exam_templates). Facts the notice
+    doesn't state stay null; "example" files show the shape and claim no facts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: Annotated[str, StringConstraints(pattern=r"^[A-Z0-9_]{3,32}$")]
+    status: Literal["draft", "verified", "example"]
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+    short_name: Annotated[str, StringConstraints(strip_whitespace=True, max_length=40)]
+    category: Annotated[str, StringConstraints(strip_whitespace=True, max_length=40)] | None = None
+    authority: Annotated[str, StringConstraints(strip_whitespace=True, max_length=120)] | None = (
+        None
+    )
+    featured: bool = False
+    sort_order: int = 100
+    kind: Literal["mcq", "descriptive", "mixed"] | None = None
+    options_per_question: int | Literal["variable"] | None = None
+    languages: list[str] = []
+    exam_dates: list[date] = []
+    repeat_share: float | None = None
+    min_papers: int | None = None
+    reliable_papers: int | None = None
+    counting_unit: Literal["paper", "session"] | None = None
+    formats: list[str] = []
+    sources: dict[str, dict[str, Any]]
+    note: Annotated[str, StringConstraints(max_length=1000)] | None = None
+
+
+# Facts about the exam. The thresholds and counting unit are product choices.
+TEMPLATE_FACTS = ("kind", "options_per_question", "languages", "exam_dates", "formats")
+
+
+def template_problems(spec: TemplateFile) -> list[str]:
+    """What stops a template from being applied (empty: it can be)."""
+    problems = []
+    for fact in TEMPLATE_FACTS:
+        value = getattr(spec, fact)
+        if value not in (None, []) and not spec.sources.get(fact, {}).get("source"):
+            problems.append(f"{fact} has no source")
+    for fact in ("kind", "options_per_question"):
+        if getattr(spec, fact) is None:
+            problems.append(f"{fact} isn't stated")
+    uncertain = [k for k in ("kind", "formats") if spec.sources.get(k, {}).get("uncertain")]
+    problems += [f"{fact} is flagged uncertain" for fact in uncertain]
+    return problems
+
+
+def apply_template(session: Session, data: dict[str, Any], reviewer: str) -> Exam:
+    """Writes a checked template's profile to the catalog exam, creating it if needed."""
+    spec = TemplateFile.model_validate(data)
+    if spec.status == "example":
+        raise ValueError("An example claims no facts and can't be applied.")
+    if not reviewer.strip():
+        raise ValueError("Name the reviewer who checked it against the official source.")
+    problems = template_problems(spec)
+    if problems:
+        raise ValueError("Not applicable:\n- " + "\n- ".join(problems))
+    exam = set_exam(
+        session,
+        spec.code,
+        name=spec.name,
+        short_name=spec.short_name,
+        category=spec.category,
+        country=None,
+        authority=spec.authority,
+        aliases=None,
+        languages=spec.languages,
+    )
+    exam.kind = spec.kind
+    exam.options_per_question = (
+        VARIABLE_OPTIONS
+        if spec.options_per_question == "variable"
+        else cast(int, spec.options_per_question)
+    )
+    exam.exam_dates = spec.exam_dates
+    exam.repeat_share = spec.repeat_share
+    exam.min_papers = spec.min_papers
+    exam.reliable_papers = spec.reliable_papers
+    exam.counting_unit = spec.counting_unit
+    audit(session, reviewer, "template_applied", "exam", spec.code, f"status {spec.status}")
+    session.flush()
+    return exam
 
 
 ISO_639 = re.compile(r"[a-z]{2,3}")
@@ -239,6 +327,10 @@ def main(argv: list[str] | None = None) -> int:
         "--languages",
         help="comma-separated codes of the languages the notice offers the paper in, e.g. en,hi",
     )
+    tmpl = commands.add_parser("template", help="check or apply an exam template file")
+    tmpl.add_argument("file")
+    tmpl.add_argument("--apply", action="store_true")
+    tmpl.add_argument("--reviewer", default="")
     args = parser.parse_args(argv)
 
     engine = build_engine(get_settings())
@@ -269,6 +361,16 @@ def main(argv: list[str] | None = None) -> int:
                 if problems:
                     print("Before publishing:\n- " + "\n- ".join(problems))
                 return 0
+            if args.command == "template":
+                data = json.loads(Path(args.file).read_text(encoding="utf-8"))
+                if args.apply:
+                    applied = apply_template(session, data, args.reviewer)
+                    session.commit()
+                    print(f"{applied.code}: profile applied.")
+                    return 0
+                problems = template_problems(TemplateFile.model_validate(data))
+                print("Can be applied." if not problems else "- " + "\n- ".join(problems))
+                return 0 if not problems else 1
             if args.command == "publish":
                 published = publish(session, args.code, args.reviewer, today)
                 session.commit()

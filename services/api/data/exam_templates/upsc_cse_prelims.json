@@ -1,0 +1,19 @@
+{
+  "code": "UPSC_CSE_PRE",
+  "status": "draft",
+  "name": "UPSC Civil Services (Prelims)",
+  "short_name": "UPSC Civil Services (Prelims)",
+  "category": "Civil Services",
+  "sort_order": 310,
+  "kind": null,
+  "options_per_question": null,
+  "languages": [],
+  "exam_dates": [],
+  "repeat_share": null,
+  "min_papers": null,
+  "reliable_papers": null,
+  "counting_unit": null,
+  "formats": [],
+  "sources": {},
+  "note": "No facts yet. upsc.gov.in refused automated reading, so no notice was read. Fill this in from the official notice."
+}

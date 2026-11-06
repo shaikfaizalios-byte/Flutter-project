@@ -4,6 +4,7 @@ import 'package:preploop/features/exams/data/exams_repository.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/documents/domain/imported_document.dart';
 import 'package:preploop/features/exams/domain/exam_topics.dart';
+import 'package:preploop/features/exams/domain/new_exam.dart';
 
 /// A small catalog for app tests: the two SSC exams (featured) plus a few others.
 final testCatalog = <ExamOption>[
@@ -32,6 +33,17 @@ class FakeExamsRepository implements ExamsRepository {
   Future<ExamOption> createExam(String name) async {
     calls.add('create:$name');
     final exam = ExamOption(code: 'MY_${++_ids}', shortName: name, custom: true);
+    catalog.add(exam);
+    return exam;
+  }
+
+  /// What the custom exam builder sent.
+  final created = <NewExam>[];
+
+  @override
+  Future<ExamOption> createExamFrom(NewExam draft) async {
+    created.add(draft);
+    final exam = ExamOption(code: 'MY_${++_ids}', shortName: draft.name, custom: true);
     catalog.add(exam);
     return exam;
   }

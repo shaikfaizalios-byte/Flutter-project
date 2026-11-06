@@ -1,0 +1,19 @@
+{
+  "code": "JEE_MAIN",
+  "status": "draft",
+  "name": "JEE Main",
+  "short_name": "JEE Main",
+  "category": "Entrance",
+  "sort_order": 405,
+  "kind": null,
+  "options_per_question": null,
+  "languages": [],
+  "exam_dates": [],
+  "repeat_share": null,
+  "min_papers": null,
+  "reliable_papers": null,
+  "counting_unit": null,
+  "formats": [],
+  "sources": {},
+  "note": "No facts yet. No NTA bulletin could be read; only coaching sites were found. Fill this in from the official notice."
+}

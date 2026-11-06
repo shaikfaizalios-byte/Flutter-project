@@ -20,27 +20,40 @@ from sqlalchemy import exists, func, or_, select, update
 from sqlalchemy.orm import Session
 
 from app.domain.errors import ConflictError, InvalidReferenceError, NotFoundError
+from app.domain.exam_profile import VARIABLE_OPTIONS
 from app.models.concept import Concept
 from app.models.document import Document
 from app.models.exam import CUSTOM_EXAM_PREFIX, Exam
 from app.models.progress import TopicCompletion
-from app.models.question import Question, QuestionPattern, SyllabusImport, Topic, TopicStatus
+from app.models.question import (
+    ExamFormat,
+    Question,
+    QuestionPattern,
+    SyllabusImport,
+    Topic,
+    TopicStatus,
+)
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.exam import (
     CanonicalDecision,
     CanonicalTopicRead,
     CustomExamCreate,
+    CustomExamProfile,
     CustomExamUpdate,
     ExamProfileRead,
     ExamRead,
+    ExamStageRead,
+    MarkingSchemeRead,
     OwnTopicRead,
     PatternCreate,
+    StageSectionRead,
     SyllabusImportRead,
     SyllabusSource,
     TopicCreate,
     TopicUpdate,
 )
 from app.schemas.question import PatternRead
+from app.services.exam_formats import published_formats
 from app.services.exam_profiles import profile_of
 from app.services.taxonomy_service import (
     canonical_for,
@@ -89,6 +102,67 @@ def exam_read(exam: Exam) -> ExamRead:
     )
 
 
+def _apply_profile(exam: Exam, data: CustomExamProfile) -> None:
+    """Only what the request states changes, so renaming an exam leaves the rest alone."""
+    given = data.model_fields_set
+    if "conducting_body" in given:
+        exam.authority = data.conducting_body or None
+    if "options_per_question" in given:
+        exam.options_per_question = (
+            VARIABLE_OPTIONS if data.options_per_question is None else data.options_per_question
+        )
+    if "stages" in given:
+        exam.custom_stages = [s.model_dump() for s in data.stages] or None
+    for field in (
+        "kind",
+        "languages",
+        "exam_dates",
+        "repeat_share",
+        "min_papers",
+        "reliable_papers",
+        "counting_unit",
+    ):
+        if field in given:
+            setattr(exam, field, getattr(data, field))
+
+
+def _entered_stage(stage: dict[str, Any]) -> ExamStageRead:
+    return ExamStageRead(
+        name=stage["name"],
+        duration_minutes=stage["duration_minutes"],
+        sections=[StageSectionRead(**s) for s in stage["sections"]],
+        marking_scheme=MarkingSchemeRead(**stage["marking_scheme"]),
+        verified=False,
+    )
+
+
+def _format_stage(f: ExamFormat) -> ExamStageRead:
+    per_question = {float(s["max_marks"]) / int(s["questions"]) for s in f.sections}
+    uniform = len(per_question) == 1 and f.negative_marks_per_wrong is not None
+    return ExamStageRead(
+        name=f.stage,
+        duration_minutes=f.duration_minutes,
+        sections=[
+            StageSectionRead(
+                name=s["subject"],
+                question_count=int(s["questions"]),
+                duration_minutes=s.get("timer_minutes"),
+            )
+            for s in f.sections
+        ],
+        marking_scheme=(
+            MarkingSchemeRead(
+                marks_correct=next(iter(per_question)),
+                marks_wrong=float(f.negative_marks_per_wrong or 0),
+            )
+            if uniform
+            else None
+        ),
+        verified=True,
+        source=f.source_title,
+    )
+
+
 def _own_topic_read(
     topic: Topic, completed: bool = False, canonical: CanonicalTopicRead | None = None
 ) -> OwnTopicRead:
@@ -127,6 +201,7 @@ class TopicService:
             name=data.name,
             owner_id=self._owner_id,
         )
+        _apply_profile(exam, data)
         self._session.add(exam)
         self._session.commit()
         return exam_read(exam)
@@ -134,8 +209,18 @@ class TopicService:
     def rename_exam(self, code: str, data: CustomExamUpdate) -> ExamRead:
         exam = self._own_exam(code)
         exam.name = data.name
+        _apply_profile(exam, data)
         self._session.commit()
         return exam_read(exam)
+
+    def exam_stages(self, code: str) -> list[ExamStageRead]:
+        """The stages of an exam: reviewed formats, or what the learner entered for their own."""
+        exam = self._exams.get_visible(code, self._owner_id)
+        if exam is None:
+            raise NotFoundError(f"Exam '{code}' not found.")
+        if exam.owner_id is not None:
+            return [_entered_stage(stage) for stage in exam.custom_stages or []]
+        return [_format_stage(f) for f in published_formats(self._session, code)]
 
     def delete_exam(self, code: str) -> None:
         """Only an unused own exam can be deleted (papers and notes keep their exam)."""

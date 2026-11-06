@@ -7,6 +7,7 @@ import '../../../core/exams/exam_catalog.dart';
 import '../../../core/utils/app_log.dart';
 import '../data/exams_repository.dart';
 import '../domain/exam_topics.dart';
+import '../domain/new_exam.dart';
 
 /// Device cache of the last catalog (catalog + own exams of the signed-in learner), so exam
 /// names show offline. Erased with the learner's other device data.
@@ -62,6 +63,12 @@ class ExamCatalogController extends Notifier<List<ExamOption>> {
 
   Future<ExamOption> create(String name) async {
     final exam = await ref.read(examsRepositoryProvider).createExam(name);
+    await refresh();
+    return exam;
+  }
+
+  Future<ExamOption> createFrom(NewExam draft) async {
+    final exam = await ref.read(examsRepositoryProvider).createExamFrom(draft);
     await refresh();
     return exam;
   }

@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime
+from typing import Any
 
 from sqlalchemy import (
     Boolean,
@@ -13,7 +14,7 @@ from sqlalchemy import (
     String,
     func,
 )
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -85,4 +86,7 @@ class Exam(Base):
     counting_unit: Mapped[str | None] = mapped_column(String(8))
     # Official exam dates, from the notice; empty = not recorded.
     exam_dates: Mapped[list[date]] = mapped_column(ARRAY(Date), default=list, server_default="{}")
+    # A learner's own exam only: the stages they entered (never verified). Catalog exams keep
+    # their stages in exam_formats.
+    custom_stages: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

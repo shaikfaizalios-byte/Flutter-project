@@ -1,0 +1,47 @@
+{
+  "code": "IBPS_PO",
+  "status": "draft",
+  "name": "IBPS PO",
+  "short_name": "IBPS PO",
+  "category": "Banking",
+  "authority": "Institute of Banking Personnel Selection",
+  "sort_order": 110,
+  "kind": "mixed",
+  "options_per_question": null,
+  "languages": [
+    "en",
+    "hi"
+  ],
+  "exam_dates": [],
+  "repeat_share": null,
+  "min_papers": null,
+  "reliable_papers": null,
+  "counting_unit": null,
+  "formats": [
+    "IBPS_PO_XV_PRELIMS"
+  ],
+  "sources": {
+    "kind": {
+      "source": "IBPS, Notification CRP PO/MT-XV (Vacancies of 2026-27), D. Structure of Examination (read from a third-party copy)",
+      "url": "https://download.oliveboard.in/pdf/IBPS-PO-Notification.pdf",
+      "reference": "Main Examination (Objective and Descriptive)"
+    },
+    "options_per_question": {
+      "source": "Not stated in CRP PO/MT-XV",
+      "uncertain": true,
+      "note": "The notification gives no option count. Take it from an official sample paper or handout."
+    },
+    "languages": {
+      "source": "IBPS, Notification CRP PO/MT-XV (Vacancies of 2026-27), D. Structure of Examination (read from a third-party copy)",
+      "url": "https://download.oliveboard.in/pdf/IBPS-PO-Notification.pdf",
+      "reference": "Medium of Exam: English test in English; others in English and Hindi"
+    },
+    "formats": {
+      "source": "IBPS, Notification CRP PO/MT-XV (Vacancies of 2026-27), D. Structure of Examination (read from a third-party copy)",
+      "url": "https://download.oliveboard.in/pdf/IBPS-PO-Notification.pdf",
+      "uncertain": true,
+      "note": "CRP XV is the 2025 cycle; a newer notification may exist. Main stage not added yet."
+    }
+  },
+  "note": "Draft from the 2025 cycle. Check ibps.in for a newer notification."
+}

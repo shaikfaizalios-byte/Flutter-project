@@ -1264,11 +1264,135 @@
       "CustomExamCreate": {
         "additionalProperties": false,
         "properties": {
+          "conducting_body": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conducting Body"
+          },
+          "counting_unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "paper",
+                  "session"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counting Unit"
+          },
+          "exam_dates": {
+            "default": [],
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Exam Dates",
+            "type": "array"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mcq",
+                  "descriptive",
+                  "mixed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "languages": {
+            "default": [],
+            "items": {
+              "pattern": "^[a-z]{2,3}$",
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Languages",
+            "type": "array"
+          },
+          "min_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Papers"
+          },
           "name": {
             "maxLength": 100,
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "options_per_question": {
+            "anyOf": [
+              {
+                "maximum": 6.0,
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options Per Question"
+          },
+          "reliable_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reliable Papers"
+          },
+          "repeat_share": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repeat Share"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ExamStage"
+            },
+            "maxItems": 10,
+            "title": "Stages",
+            "type": "array"
           }
         },
         "required": [
@@ -1280,11 +1404,135 @@
       "CustomExamUpdate": {
         "additionalProperties": false,
         "properties": {
+          "conducting_body": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conducting Body"
+          },
+          "counting_unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "paper",
+                  "session"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counting Unit"
+          },
+          "exam_dates": {
+            "default": [],
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Exam Dates",
+            "type": "array"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mcq",
+                  "descriptive",
+                  "mixed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "languages": {
+            "default": [],
+            "items": {
+              "pattern": "^[a-z]{2,3}$",
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Languages",
+            "type": "array"
+          },
+          "min_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Papers"
+          },
           "name": {
             "maxLength": 100,
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "options_per_question": {
+            "anyOf": [
+              {
+                "maximum": 6.0,
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options Per Question"
+          },
+          "reliable_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reliable Papers"
+          },
+          "repeat_share": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repeat Share"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ExamStage"
+            },
+            "maxItems": 10,
+            "title": "Stages",
+            "type": "array"
           }
         },
         "required": [
@@ -2149,6 +2397,104 @@
         "title": "ExamRead",
         "type": "object"
       },
+      "ExamStage": {
+        "additionalProperties": false,
+        "description": "A stage as the learner enters it for their own exam.",
+        "properties": {
+          "duration_minutes": {
+            "maximum": 1440.0,
+            "minimum": 1.0,
+            "title": "Duration Minutes",
+            "type": "integer"
+          },
+          "marking_scheme": {
+            "$ref": "#/components/schemas/MarkingScheme"
+          },
+          "name": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/StageSection"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "duration_minutes",
+          "sections",
+          "marking_scheme"
+        ],
+        "title": "ExamStage",
+        "type": "object"
+      },
+      "ExamStageRead": {
+        "properties": {
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "marking_scheme": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarkingSchemeRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/StageSectionRead"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "duration_minutes",
+          "sections",
+          "marking_scheme",
+          "verified"
+        ],
+        "title": "ExamStageRead",
+        "type": "object"
+      },
       "ExplanationReview": {
         "additionalProperties": false,
         "properties": {
@@ -3004,6 +3350,65 @@
           "password"
         ],
         "title": "LoginRequest",
+        "type": "object"
+      },
+      "MarkingScheme": {
+        "additionalProperties": false,
+        "properties": {
+          "marks_correct": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1000.0,
+            "title": "Marks Correct",
+            "type": "number"
+          },
+          "marks_unanswered": {
+            "default": 0,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Marks Unanswered",
+            "type": "number"
+          },
+          "marks_wrong": {
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Marks Wrong",
+            "type": "number"
+          }
+        },
+        "required": [
+          "marks_correct",
+          "marks_wrong"
+        ],
+        "title": "MarkingScheme",
+        "type": "object"
+      },
+      "MarkingSchemeRead": {
+        "properties": {
+          "marks_correct": {
+            "title": "Marks Correct",
+            "type": "number"
+          },
+          "marks_unanswered": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Unanswered"
+          },
+          "marks_wrong": {
+            "title": "Marks Wrong",
+            "type": "number"
+          }
+        },
+        "required": [
+          "marks_correct",
+          "marks_wrong"
+        ],
+        "title": "MarkingSchemeRead",
         "type": "object"
       },
       "MockAvailability": {
@@ -7250,6 +7655,94 @@
           "text"
         ],
         "title": "SnapshotOption",
+        "type": "object"
+      },
+      "StageSection": {
+        "additionalProperties": false,
+        "properties": {
+          "cutoff": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "maximum": 1440.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "question_count": {
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Question Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "question_count"
+        ],
+        "title": "StageSection",
+        "type": "object"
+      },
+      "StageSectionRead": {
+        "properties": {
+          "cutoff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "question_count": {
+            "title": "Question Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "question_count"
+        ],
+        "title": "StageSectionRead",
         "type": "object"
       },
       "StarterCheckAvailability": {
@@ -13739,6 +14232,77 @@
           }
         ],
         "summary": "Rename Exam",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/me/exams/{code}/stages": {
+      "get": {
+        "operationId": "exam_stages_api_v1_me_exams__code__stages_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExamStageRead"
+                  },
+                  "title": "Response Exam Stages Api V1 Me Exams  Code  Stages Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "An exam's stages: reviewed formats, or what you entered for your own exam",
         "tags": [
           "exams"
         ]

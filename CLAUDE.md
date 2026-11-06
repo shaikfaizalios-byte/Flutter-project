@@ -44,6 +44,16 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   review, AI, uploads, notes. `/me/exams`, `/exams/{code}/topics`, `/topics` (+bulk), `/patterns`; optional
   `POST /ai/exams/{code}/topic-draft` (never saved). Mobile: `examCatalogProvider` (server list cached in
   `app_settings`, built-in SSC fallback), `features/exams` (selector + "More exams" search, My exams, topics).
+- Exam profiles (any-exam Phase 1, docs/any-exam, migrations 0041-0043): what sets an exam apart is data. `exams` has kind,
+  options_per_question (0 = varies), repeat_share, min_papers, reliable_papers, counting_unit, exam_dates (NULL = defaults in
+  `services/api/data/exam_templates/defaults.json`; pure `app/domain/exam_profile.py`, `profile_of`/`profile_for`). A stage
+  = one `exam_formats` row (`stage`, was `tier`); learners' own exams keep entered stages in `exams.custom_stages`, never
+  verified (`GET /me/exams/{code}/stages`). Templates: `data/exam_templates/*.json`, a source per fact, status
+  draft|verified|example, applied with `python -m app.cli.exam_formats template FILE --apply --reviewer NAME`. The app's
+  built-in exams and defaults are generated: `python scripts/export_exam_data.py` -> `core/exams/exam_data.g.dart`.
+  `RepeatRules.of(profile)` via `repeatRulesProvider`. Builder + new onboarding wording behind `AppFeatures.examProfiles`.
+  Exam names must not appear in `app/` or `lib/` (test). SSC is pinned: `tests/test_ssc_characterization.py` + `tests/golden`
+  (must pass unchanged every phase), and `python -m app.cli.characterize save|compare` for real papers (hashes only).
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry
@@ -361,6 +371,7 @@ docker compose -f infra/docker-compose.yml up --build   # full stack + Mailpit (
 services\api\.venv\Scripts\python.exe scripts\generate_app_icons.py  # launcher icons (Android/iOS/web)
 cd apps\mobile; flutter build appbundle --release --dart-define=FLAVOR=production --dart-define=API_BASE_URL=https://...
 cd services\api; .\.venv\Scripts\python.exe -m app.workers.document_worker  # standalone worker
+python scripts\export_exam_data.py   # refresh the app's exam data after changing data/exam_templates
 python website\build.py --out website\_site   # public website (GitHub Pages: .github/workflows/pages.yml)
 # Production backend: infra/production (VPS + docker compose + Caddy); steps in docs/deployment.md
 powershell -ExecutionPolicy Bypass -File scripts\tunnel.ps1   # public test tunnel to the PC API (updates deploy/public-api-url)

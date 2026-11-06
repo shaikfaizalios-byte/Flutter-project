@@ -1,0 +1,17 @@
+{
+  "code": "EXAMPLE_UNIVERSITY",
+  "status": "example",
+  "name": "Example university exam",
+  "short_name": "University exam",
+  "kind": "descriptive",
+  "options_per_question": "variable",
+  "languages": [],
+  "exam_dates": [],
+  "repeat_share": null,
+  "min_papers": null,
+  "reliable_papers": null,
+  "counting_unit": null,
+  "formats": [],
+  "sources": {},
+  "note": "Shape only, not a real exam: no university was chosen. Copy it for a real exam and its official scheme."
+}

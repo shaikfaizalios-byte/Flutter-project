@@ -4768,4 +4768,98 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get ladderPractiseReal => 'अपने पेपरों के असली प्रश्नों का अभ्यास करें';
+
+  @override
+  String get onboardingPreparingTitle => 'आप किसकी तैयारी कर रहे हैं?';
+
+  @override
+  String get onboardingPreparingHint => 'एक या अधिक चुनें, या अपनी परीक्षा बनाएँ।';
+
+  @override
+  String get onboardingCustomExam => 'अपनी परीक्षा';
+
+  @override
+  String get examBuilderTitle => 'अपनी परीक्षा';
+
+  @override
+  String get examBuilderIntro =>
+      'केवल नाम ज़रूरी है। बाकी जानकारी अपनी परीक्षा की आधिकारिक सूचना से जोड़ें। आपकी भरी जानकारी आपकी ही रहती है और कभी आधिकारिक नहीं दिखाई जाती।';
+
+  @override
+  String get examBuilderBody => 'परीक्षा कराने वाली संस्था (वैकल्पिक)';
+
+  @override
+  String get examBuilderKind => 'प्रश्नों का प्रकार';
+
+  @override
+  String get examKindMcq => 'बहुविकल्पीय';
+
+  @override
+  String get examKindDescriptive => 'लिखित उत्तर';
+
+  @override
+  String get examKindMixed => 'दोनों';
+
+  @override
+  String get examBuilderOptions => 'प्रति प्रश्न विकल्प';
+
+  @override
+  String get examBuilderOptionsVary => 'अलग-अलग';
+
+  @override
+  String get examBuilderLanguages => 'पेपर की भाषाएँ';
+
+  @override
+  String get examBuilderDates => 'परीक्षा की तिथियाँ';
+
+  @override
+  String get examBuilderAddDate => 'तिथि जोड़ें';
+
+  @override
+  String get examBuilderStages => 'चरण';
+
+  @override
+  String get examBuilderStagesHint => 'जैसे, प्रारंभिक और मुख्य पेपर।';
+
+  @override
+  String get examBuilderAddStage => 'चरण जोड़ें';
+
+  @override
+  String get examBuilderStageName => 'चरण का नाम';
+
+  @override
+  String get examBuilderMinutes => 'मिनट';
+
+  @override
+  String get examBuilderMinutesOptional => 'मिनट (वैकल्पिक)';
+
+  @override
+  String get examBuilderMarksCorrect => 'सही उत्तर के अंक';
+
+  @override
+  String get examBuilderMarksWrong => 'गलत उत्तर पर कटने वाले अंक';
+
+  @override
+  String get examBuilderSections => 'खंड';
+
+  @override
+  String get examBuilderSectionName => 'खंड का नाम';
+
+  @override
+  String get examBuilderQuestions => 'प्रश्न';
+
+  @override
+  String get examBuilderCutoff => 'कटऑफ़ (वैकल्पिक)';
+
+  @override
+  String get examBuilderAddSection => 'खंड जोड़ें';
+
+  @override
+  String get examBuilderNeeded => 'ज़रूरी है';
+
+  @override
+  String get examBuilderNumber => 'संख्या लिखें';
+
+  @override
+  String get examBuilderSave => 'परीक्षा बनाएँ';
 }

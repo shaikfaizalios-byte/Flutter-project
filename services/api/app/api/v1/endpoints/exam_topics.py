@@ -15,6 +15,7 @@ from app.schemas.exam import (
     CustomExamCreate,
     CustomExamUpdate,
     ExamRead,
+    ExamStageRead,
     OwnTopicRead,
     PatternCreate,
     SyllabusDraftRead,
@@ -63,6 +64,16 @@ def my_exams(service: Service) -> list[ExamRead]:
 )
 def create_exam(body: CustomExamCreate, service: Service) -> ExamRead:
     return service.create_exam(body)
+
+
+@router.get(
+    "/me/exams/{code}/stages",
+    response_model=list[ExamStageRead],
+    responses=NOT_FOUND,
+    summary="An exam's stages: reviewed formats, or what you entered for your own exam",
+)
+def exam_stages(code: str, service: Service) -> list[ExamStageRead]:
+    return service.exam_stages(code)
 
 
 @router.patch("/me/exams/{code}", response_model=ExamRead, responses=NOT_FOUND)

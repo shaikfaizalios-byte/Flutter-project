@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/exams/exam_catalog.dart';
@@ -10,6 +11,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../application/exam_catalog_controller.dart';
+import 'exam_builder_screen.dart';
 import '../../insights/data/insights_repository.dart';
 
 /// Multi-select exams: featured and chosen ones as chips, every other exam (and creating
@@ -100,6 +102,11 @@ class _ExamPickerSheetState extends ConsumerState<ExamPickerSheet> {
   bool _creating = false;
 
   Future<void> _createOwn() async {
+    if (ref.read(appFeaturesProvider).examProfiles) {
+      final exam = await createCustomExam(context, ref);
+      if (exam != null && mounted) setState(() => _selected = [..._selected, exam.code]);
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final name = await showDialog<String>(

@@ -7568,6 +7568,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Practise real questions from your papers'**
   String get ladderPractiseReal;
+
+  /// No description provided for @onboardingPreparingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you preparing for?'**
+  String get onboardingPreparingTitle;
+
+  /// No description provided for @onboardingPreparingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one or more, or create your own.'**
+  String get onboardingPreparingHint;
+
+  /// No description provided for @onboardingCustomExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom exam'**
+  String get onboardingCustomExam;
+
+  /// No description provided for @examBuilderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom exam'**
+  String get examBuilderTitle;
+
+  /// No description provided for @examBuilderIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the name is needed. Add the rest from your exam\'s official notice. What you enter stays yours and is never shown as official.'**
+  String get examBuilderIntro;
+
+  /// No description provided for @examBuilderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Conducting body (optional)'**
+  String get examBuilderBody;
+
+  /// No description provided for @examBuilderKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Question style'**
+  String get examBuilderKind;
+
+  /// No description provided for @examKindMcq.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple choice'**
+  String get examKindMcq;
+
+  /// No description provided for @examKindDescriptive.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answers'**
+  String get examKindDescriptive;
+
+  /// No description provided for @examKindMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get examKindMixed;
+
+  /// No description provided for @examBuilderOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options per question'**
+  String get examBuilderOptions;
+
+  /// No description provided for @examBuilderOptionsVary.
+  ///
+  /// In en, this message translates to:
+  /// **'Varies'**
+  String get examBuilderOptionsVary;
+
+  /// No description provided for @examBuilderLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages of the paper'**
+  String get examBuilderLanguages;
+
+  /// No description provided for @examBuilderDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam dates'**
+  String get examBuilderDates;
+
+  /// No description provided for @examBuilderAddDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a date'**
+  String get examBuilderAddDate;
+
+  /// No description provided for @examBuilderStages.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages'**
+  String get examBuilderStages;
+
+  /// No description provided for @examBuilderStagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, a preliminary and a main paper.'**
+  String get examBuilderStagesHint;
+
+  /// No description provided for @examBuilderAddStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a stage'**
+  String get examBuilderAddStage;
+
+  /// No description provided for @examBuilderStageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage name'**
+  String get examBuilderStageName;
+
+  /// No description provided for @examBuilderMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get examBuilderMinutes;
+
+  /// No description provided for @examBuilderMinutesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes (optional)'**
+  String get examBuilderMinutesOptional;
+
+  /// No description provided for @examBuilderMarksCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks for a correct answer'**
+  String get examBuilderMarksCorrect;
+
+  /// No description provided for @examBuilderMarksWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks off for a wrong answer'**
+  String get examBuilderMarksWrong;
+
+  /// No description provided for @examBuilderSections.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get examBuilderSections;
+
+  /// No description provided for @examBuilderSectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Section name'**
+  String get examBuilderSectionName;
+
+  /// No description provided for @examBuilderQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get examBuilderQuestions;
+
+  /// No description provided for @examBuilderCutoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutoff (optional)'**
+  String get examBuilderCutoff;
+
+  /// No description provided for @examBuilderAddSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a section'**
+  String get examBuilderAddSection;
+
+  /// No description provided for @examBuilderNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed'**
+  String get examBuilderNeeded;
+
+  /// No description provided for @examBuilderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get examBuilderNumber;
+
+  /// No description provided for @examBuilderSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Create exam'**
+  String get examBuilderSave;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

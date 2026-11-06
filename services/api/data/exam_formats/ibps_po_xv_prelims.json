@@ -1,0 +1,41 @@
+{
+  "code": "IBPS_PO_XV_PRELIMS",
+  "exam_code": "IBPS_PO",
+  "stage": "Preliminary",
+  "name": "IBPS PO CRP PO/MT-XV Preliminary Examination",
+  "sections": [
+    {
+      "part": "1",
+      "subject": "English Language",
+      "questions": 30,
+      "max_marks": 30,
+      "timer_minutes": 20
+    },
+    {
+      "part": "2",
+      "subject": "Quantitative Aptitude",
+      "questions": 35,
+      "max_marks": 30,
+      "timer_minutes": 20
+    },
+    {
+      "part": "3",
+      "subject": "Reasoning Ability",
+      "questions": 35,
+      "max_marks": 40,
+      "timer_minutes": 20
+    }
+  ],
+  "sections_in_fixed_order": true,
+  "total_questions": 100,
+  "duration_minutes": 60,
+  "negative_marks_per_wrong": null,
+  "sectional_timing": true,
+  "source": {
+    "title": "IBPS Notification CRP PO/MT-XV (Vacancies of 2026-27)",
+    "url": "https://download.oliveboard.in/pdf/IBPS-PO-Notification.pdf",
+    "reference": "D. Structure of Examination (a) and E. Penalty for Wrong Answers (third-party copy)",
+    "published_on": "2025-07-01"
+  },
+  "review_notes": "Penalty is one fourth of the marks assigned to the question, which differ by section: one number can't hold it (Phase 6). Section order is not stated. Date is the registration start."
+}

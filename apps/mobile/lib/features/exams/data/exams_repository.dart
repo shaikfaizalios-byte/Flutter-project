@@ -5,6 +5,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/exams/exam_catalog.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/exam_topics.dart';
+import '../domain/new_exam.dart';
 import '../../concepts/domain/concept.dart';
 import '../../documents/domain/imported_document.dart';
 
@@ -13,6 +14,9 @@ abstract interface class ExamsRepository {
   Future<List<ExamOption>> exams();
 
   Future<ExamOption> createExam(String name);
+
+  /// Creates an exam from the custom exam builder.
+  Future<ExamOption> createExamFrom(NewExam exam);
 
   Future<ExamOption> renameExam(String code, String name);
 
@@ -80,6 +84,12 @@ class RemoteExamsRepository implements ExamsRepository {
   @override
   Future<ExamOption> createExam(String name) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>('$_base/me/exams', data: {'name': name});
+    return ExamOption.fromJson(response.data!);
+  });
+
+  @override
+  Future<ExamOption> createExamFrom(NewExam exam) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>('$_base/me/exams', data: exam.toJson());
     return ExamOption.fromJson(response.data!);
   });
 
