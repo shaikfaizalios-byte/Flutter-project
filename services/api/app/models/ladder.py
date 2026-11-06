@@ -6,6 +6,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     String,
@@ -42,6 +43,8 @@ class LadderSession(Base):
     source_mix: Mapped[str] = mapped_column(String(10))
     # Fetched once per session; [] when the search failed or found nothing, null before.
     web_references: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB)
+    # The app can show formats beyond one correct option.
+    new_formats: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -87,8 +90,21 @@ class LadderStep(Base):
     solution: Mapped[list[str] | None] = mapped_column(JSONB)
     shortcut: Mapped[str | None] = mapped_column(Text)
     time_target_seconds: Mapped[int | None] = mapped_column(Integer)
+    # How it is answered (app/domain/question_formats.py). A format with an answer_spec has no
+    # answer_index.
+    format: Mapped[str] = mapped_column(
+        String(20), default="single_correct", server_default="single_correct"
+    )
+    answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    # The exam's marks for this step, kept so a later format never changes an attempt. Null: the
+    # exam states none for this subject.
+    marks_correct: Mapped[float | None] = mapped_column(Float)
+    marks_wrong: Mapped[float | None] = mapped_column(Float)
+    partial_rule: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     # The attempt.
     selected_index: Mapped[int | None] = mapped_column(Integer)
+    response: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     correct: Mapped[bool | None] = mapped_column(Boolean)
+    marks_awarded: Mapped[float | None] = mapped_column(Float)
     time_spent_ms: Mapped[int | None] = mapped_column(Integer)
     answered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
