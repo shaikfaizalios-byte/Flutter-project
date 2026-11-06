@@ -493,6 +493,7 @@ class TopicService:
             raise ConflictError("pattern_exists", "This topic already has that question type.")
         pattern = QuestionPattern(
             topic_id=topic.id,
+            owner_id=self._owner_id,
             name=data.name,
             keywords=_clean_keywords(data.keywords, data.name),
         )

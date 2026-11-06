@@ -1,0 +1,912 @@
+{
+ "note": "PrepLoop's starter models, seeded by migration 0010. They apply to these exams through the topics they sit on.",
+ "exam_codes": [
+  "IBPS_CLERK",
+  "IBPS_PO",
+  "RRB_GROUP_D",
+  "RRB_NTPC",
+  "SBI_CLERK",
+  "SBI_PO",
+  "SSC_CGL",
+  "SSC_CHSL",
+  "SSC_CPO",
+  "SSC_GD",
+  "SSC_MTS"
+ ],
+ "subjects": {
+  "English Language": {
+   "Active and Passive Voice": [
+    {
+     "name": "Active to passive",
+     "keywords": [
+      "passive voice",
+      "passive form"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Passive to active",
+     "keywords": [
+      "active voice",
+      "active form"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Antonyms": [
+    {
+     "name": "Word in a sentence",
+     "keywords": [
+      "underlined",
+      "in the given sentence",
+      "bold"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Single word",
+     "keywords": [
+      "antonym of the given word",
+      "antonym of"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Direct and Indirect Speech": [
+    {
+     "name": "Direct to indirect",
+     "keywords": [
+      "indirect speech",
+      "indirect narration",
+      "reported speech"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Indirect to direct",
+     "keywords": [
+      "direct speech",
+      "direct narration"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Idioms and Phrases": [
+    {
+     "name": "Meaning of the idiom",
+     "keywords": [
+      "meaning of the given idiom",
+      "meaning of the idiom"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Idiom in a sentence",
+     "keywords": [
+      "in the given sentence",
+      "substitute",
+      "underlined"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Para Jumbles": [
+    {
+     "name": "Parts of a sentence",
+     "keywords": [
+      "parts of a sentence",
+      "segments"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Sentences of a paragraph",
+     "keywords": [
+      "logical sequence",
+      "coherent paragraph",
+      "sentences"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Spelling": [
+    {
+     "name": "Find the misspelt word",
+     "keywords": [
+      "misspelt",
+      "incorrectly spelt"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Find the correct spelling",
+     "keywords": [
+      "correctly spelt",
+      "correct spelling"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Synonyms": [
+    {
+     "name": "Word in a sentence",
+     "keywords": [
+      "underlined",
+      "in the given sentence",
+      "bold"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Single word",
+     "keywords": [
+      "synonym of the given word",
+      "synonym of"
+     ],
+     "sort_order": 1
+    }
+   ]
+  },
+  "General Awareness": {
+   "General Science": [
+    {
+     "name": "Physics",
+     "keywords": [
+      "force",
+      "velocity",
+      "current",
+      "lens",
+      "energy",
+      "unit of"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Chemistry",
+     "keywords": [
+      "acid",
+      "element",
+      "compound",
+      "chemical",
+      "metal"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Biology",
+     "keywords": [
+      "cell",
+      "vitamin",
+      "disease",
+      "plant",
+      "blood",
+      "organ"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Polity": [
+    {
+     "name": "Constitution articles and schedules",
+     "keywords": [
+      "article",
+      "schedule"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Amendments",
+     "keywords": [
+      "amendment"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Parliament and offices",
+     "keywords": [
+      "lok sabha",
+      "rajya sabha",
+      "president",
+      "parliament",
+      "governor"
+     ],
+     "sort_order": 2
+    }
+   ]
+  },
+  "General Intelligence": {
+   "Analogy": [
+    {
+     "name": "Word analogy",
+     "keywords": [
+      "word pair",
+      "word-pair",
+      "words are related",
+      "third word"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Number analogy",
+     "keywords": [
+      "number pair",
+      "numbers are related",
+      "third number"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Letter-cluster analogy",
+     "keywords": [
+      "letter-cluster",
+      "letter cluster",
+      "letter pair",
+      "letter-pair"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Blood Relations": [
+    {
+     "name": "Coded relations",
+     "keywords": [
+      "a + b",
+      "a - b",
+      "a × b",
+      "a # b",
+      "a $ b",
+      "means"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Chain of statements",
+     "keywords": [
+      "is married to",
+      "is the son of",
+      "is the daughter of",
+      "is the father of"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Classification (Odd One Out)": [
+    {
+     "name": "Odd word",
+     "keywords": [
+      "odd word",
+      "words are alike"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Odd number or number pair",
+     "keywords": [
+      "odd number",
+      "numbers are alike",
+      "number pairs are alike",
+      "number-pair"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Odd letter-cluster",
+     "keywords": [
+      "letter-cluster",
+      "letter cluster",
+      "letter-clusters",
+      "letters are alike"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Coding-Decoding": [
+    {
+     "name": "Word written as another word",
+     "keywords": [
+      "is written as"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Word coded as numbers",
+     "keywords": [
+      "is coded as",
+      "coded as"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Sentence code language",
+     "keywords": [
+      "means",
+      "stands for"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Counting Figures": [
+    {
+     "name": "Triangles",
+     "keywords": [
+      "triangles"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Squares and rectangles",
+     "keywords": [
+      "squares",
+      "rectangles",
+      "quadrilaterals"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Dice and Cubes": [
+    {
+     "name": "Opposite faces of a dice",
+     "keywords": [
+      "opposite",
+      "dice",
+      "die"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Painted cube cut into pieces",
+     "keywords": [
+      "painted",
+      "smaller cubes",
+      "cut into"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Sheet folded into a cube",
+     "keywords": [
+      "folded to form a cube",
+      "sheet is folded"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Mathematical Operations": [
+    {
+     "name": "Interchanging signs",
+     "keywords": [
+      "interchanged",
+      "interchange",
+      "interchanging"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Symbols standing for operations",
+     "keywords": [
+      "means",
+      "stands for"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Signs to balance an equation",
+     "keywords": [
+      "balance",
+      "make the equation correct"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Mirror and Water Images": [
+    {
+     "name": "Mirror image",
+     "keywords": [
+      "mirror image",
+      "mirror is placed"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Water image",
+     "keywords": [
+      "water image",
+      "reflection in water"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Order and Ranking": [
+    {
+     "name": "Position in a row",
+     "keywords": [
+      "from the left",
+      "from the right",
+      "in a row",
+      "queue"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Rank in a class",
+     "keywords": [
+      "rank",
+      "ranked",
+      "from the top",
+      "from the bottom"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Paper Folding and Cutting": [
+    {
+     "name": "Fold, punch and unfold",
+     "keywords": [
+      "unfolded",
+      "folded and cut",
+      "punched"
+     ],
+     "sort_order": 0
+    }
+   ],
+   "Series": [
+    {
+     "name": "Number series",
+     "keywords": [
+      "number series",
+      "next number",
+      "missing number",
+      "replace the question mark"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Alphanumeric series",
+     "keywords": [
+      "alphanumeric",
+      "letter-number",
+      "letter number"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Venn Diagrams": [
+    {
+     "name": "Relationship between classes",
+     "keywords": [
+      "relationship between the following classes",
+      "best represents the relationship",
+      "best illustrates the relationship"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Reading a given diagram",
+     "keywords": [
+      "given diagram",
+      "study the given",
+      "in the given figure",
+      "represented by"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Word Arrangement": [
+    {
+     "name": "Dictionary order",
+     "keywords": [
+      "dictionary"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Logical order",
+     "keywords": [
+      "logical",
+      "meaningful order"
+     ],
+     "sort_order": 1
+    }
+   ]
+  },
+  "Quantitative Aptitude": {
+   "Algebra": [
+    {
+     "name": "x + 1/x type",
+     "keywords": [
+      "1/x",
+      "1/a",
+      "1/y"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Cube and square identities",
+     "keywords": [
+      "a³",
+      "x³",
+      "a^3",
+      "x^3",
+      "cube"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Average": [
+    {
+     "name": "Member joins, leaves or is replaced",
+     "keywords": [
+      "replaced",
+      "joins",
+      "leaves",
+      "excluded"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Consecutive numbers",
+     "keywords": [
+      "consecutive",
+      "natural numbers"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Runs and innings",
+     "keywords": [
+      "runs",
+      "innings",
+      "batsman"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Data Interpretation": [
+    {
+     "name": "Bar chart",
+     "keywords": [
+      "bar graph",
+      "bar chart"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Table",
+     "keywords": [
+      "table"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Pie chart",
+     "keywords": [
+      "pie chart"
+     ],
+     "sort_order": 2
+    },
+    {
+     "name": "Line graph",
+     "keywords": [
+      "line graph"
+     ],
+     "sort_order": 3
+    }
+   ],
+   "Discount": [
+    {
+     "name": "Successive discounts",
+     "keywords": [
+      "successive discounts",
+      "two successive"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Marked price above cost",
+     "keywords": [
+      "marked",
+      "above the cost price"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Geometry": [
+    {
+     "name": "Triangles",
+     "keywords": [
+      "triangle",
+      "centroid",
+      "orthocentre",
+      "incentre",
+      "circumcentre"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Circles",
+     "keywords": [
+      "circle",
+      "chord",
+      "tangent"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Polygons",
+     "keywords": [
+      "polygon",
+      "interior angle",
+      "exterior angle"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Mensuration": [
+    {
+     "name": "Area and perimeter",
+     "keywords": [
+      "area of",
+      "perimeter",
+      "rectangle",
+      "rhombus"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Volume and surface area",
+     "keywords": [
+      "volume",
+      "cylinder",
+      "cone",
+      "sphere",
+      "hemisphere",
+      "cuboid",
+      "surface area"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Mixture and Alligation": [
+    {
+     "name": "Replacement",
+     "keywords": [
+      "replaced",
+      "drawn off",
+      "taken out"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Mixing two kinds by price",
+     "keywords": [
+      "per kg",
+      "mixed"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Number System": [
+    {
+     "name": "Divisibility and remainders",
+     "keywords": [
+      "divisible",
+      "remainder",
+      "divided by"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Unit digit",
+     "keywords": [
+      "unit digit",
+      "unit's digit",
+      "units digit"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "HCF and LCM",
+     "keywords": [
+      "hcf",
+      "lcm",
+      "highest common factor",
+      "least common multiple"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Percentage": [
+    {
+     "name": "Income, expenditure and savings",
+     "keywords": [
+      "income",
+      "expenditure",
+      "spends",
+      "savings"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Population and depreciation",
+     "keywords": [
+      "population",
+      "depreciat"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Votes and marks",
+     "keywords": [
+      "votes",
+      "election",
+      "candidate",
+      "marks"
+     ],
+     "sort_order": 2
+    },
+    {
+     "name": "Price change and consumption",
+     "keywords": [
+      "consumption",
+      "price of"
+     ],
+     "sort_order": 3
+    }
+   ],
+   "Profit and Loss": [
+    {
+     "name": "Two articles at the same price",
+     "keywords": [
+      "two articles",
+      "sold two"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "False weights",
+     "keywords": [
+      "false weight",
+      "dishonest",
+      "instead of"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Cost and selling price",
+     "keywords": [
+      "cost price",
+      "selling price",
+      "profit percent"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Ratio and Proportion": [
+    {
+     "name": "Dividing an amount",
+     "keywords": [
+      "divided among",
+      "divided between",
+      "share"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Ages",
+     "keywords": [
+      "age",
+      "years ago",
+      "years hence"
+     ],
+     "sort_order": 1
+    }
+   ],
+   "Simple and Compound Interest": [
+    {
+     "name": "Difference between CI and SI",
+     "keywords": [
+      "difference between the compound interest",
+      "compound interest and simple"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Sum doubles or multiplies",
+     "keywords": [
+      "doubles itself",
+      "becomes double",
+      "times itself"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Compounded half-yearly or quarterly",
+     "keywords": [
+      "half-yearly",
+      "compounded half",
+      "quarterly"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Time and Work": [
+    {
+     "name": "Working together and alone",
+     "keywords": [
+      "together",
+      "alone"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Pipes and cisterns",
+     "keywords": [
+      "pipe",
+      "tank",
+      "cistern"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Wages",
+     "keywords": [
+      "wages",
+      "earn",
+      "paid"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Time, Speed and Distance": [
+    {
+     "name": "Trains",
+     "keywords": [
+      "train",
+      "platform",
+      "pole"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Boats and streams",
+     "keywords": [
+      "stream",
+      "upstream",
+      "downstream",
+      "boat"
+     ],
+     "sort_order": 1
+    },
+    {
+     "name": "Average speed",
+     "keywords": [
+      "average speed"
+     ],
+     "sort_order": 2
+    }
+   ],
+   "Trigonometry": [
+    {
+     "name": "Heights and distances",
+     "keywords": [
+      "angle of elevation",
+      "angle of depression",
+      "tower"
+     ],
+     "sort_order": 0
+    },
+    {
+     "name": "Identities and values",
+     "keywords": [
+      "sin²",
+      "cos²",
+      "sec",
+      "cosec",
+      "cot"
+     ],
+     "sort_order": 1
+    }
+   ]
+  }
+ }
+}

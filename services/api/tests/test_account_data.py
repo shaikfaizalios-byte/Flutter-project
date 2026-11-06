@@ -103,7 +103,7 @@ def _fill_account(db: Session, user: User) -> None:
     db.flush()
     db.add_all(
         [
-            QuestionPattern(topic_id=topic.id, name="Mixtures", keywords=[]),
+            QuestionPattern(topic_id=topic.id, owner_id=user.id, name="Mixtures", keywords=[]),
             TopicTaxonomyLink(
                 topic_id=topic.id,
                 node_id=db.scalars(

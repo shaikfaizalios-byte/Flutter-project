@@ -61,7 +61,12 @@ from app.schemas.question import (
 from app.services.exam_formats import published_formats
 from app.services.exam_profiles import profile_for
 from app.services.page_layout import PdfRenderer
-from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
+from app.services.patterns import (
+    clear_pattern,
+    pattern_candidates,
+    refresh_pattern,
+    visible_pattern,
+)
 from app.services.question_history import (
     current_snapshot,
     extracted_snapshots,
@@ -244,7 +249,7 @@ class QuestionService:
         stmt = (
             select(QuestionPattern)
             .join(Topic, Topic.id == QuestionPattern.topic_id)
-            .where(*topic_scope(self._owner_id, None))
+            .where(*topic_scope(self._owner_id, None), visible_pattern(self._owner_id))
             .order_by(QuestionPattern.topic_id, QuestionPattern.sort_order, QuestionPattern.name)
         )
         if topic_id:
@@ -414,7 +419,7 @@ class QuestionService:
         if pattern_change:
             self._set_pattern(question, pattern_id)
         elif data.model_fields_set & {"topic_id", "stem"}:
-            refresh_pattern(question, pattern_candidates(self._session))
+            refresh_pattern(question, pattern_candidates(self._session, self._owner_id))
 
         content_changed = bool(data.model_fields_set - {"verification_status"})
         self._refresh_content_issues(question)
@@ -569,7 +574,11 @@ class QuestionService:
             clear_pattern(question)
             return
         pattern = self._session.get(QuestionPattern, pattern_id)
-        if pattern is None or pattern.topic_id != question.topic_id:
+        if (
+            pattern is None
+            or pattern.topic_id != question.topic_id
+            or pattern.owner_id not in (None, self._owner_id)
+        ):
             raise InvalidReferenceError("Unknown pattern for this question's topic.")
         question.pattern_id = pattern.id
         question.pattern_status = TopicStatus.CONFIRMED

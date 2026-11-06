@@ -58,6 +58,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
     Exam,
     LadderSession,
     Topic,
+    QuestionPattern,
     SyllabusImport,
     SyllabusVersion,
     TopicCompletion,
@@ -77,7 +78,6 @@ OWNED_DATA: tuple[type[Any], ...] = (
 CHILD_DATA: tuple[ChildData, ...] = (
     ChildData(LadderStep, (("session_id", "ladder_sessions"),)),
     ChildData(SyllabusNode, (("version_id", "syllabus_versions"),)),
-    ChildData(QuestionPattern, (("topic_id", "topics"),)),
     ChildData(TopicTaxonomyLink, (("topic_id", "topics"),)),
     ChildData(DocumentPage, (("document_id", "documents"),)),
     ChildData(ContentRights, (("document_id", "documents"),)),

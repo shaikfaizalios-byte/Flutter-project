@@ -101,12 +101,12 @@ def publish(
         .where(Topic.owner_id.is_not(None))
         .distinct()
     ).all()
-    # A question type belongs to a topic; it is private when its topic is.
+    # A question type is private when it, or the topic it belongs to, is.
     private_patterns = session.scalars(
         select(QuestionPattern.name)
         .join(verified, verified.c.pattern_id == QuestionPattern.id)
         .join(Topic, Topic.id == QuestionPattern.topic_id)
-        .where(Topic.owner_id.is_not(None))
+        .where(or_(Topic.owner_id.is_not(None), QuestionPattern.owner_id.is_not(None)))
         .distinct()
     ).all()
     if private_topics or private_patterns:

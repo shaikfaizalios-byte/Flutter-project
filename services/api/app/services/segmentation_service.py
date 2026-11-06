@@ -197,7 +197,7 @@ class SegmentationService:
 
         topics = [TopicCandidate(t.id, t.subject, t.name, t.keywords) for t in exam_topics]
         subjects = sorted({t.subject for t in topics})
-        patterns = pattern_candidates(self._session)
+        patterns = pattern_candidates(self._session, document.owner_id)
         for question in kept:  # reviewed questions only gain a pattern suggestion
             if question.pattern_status == TopicStatus.UNASSIGNED:
                 refresh_pattern(question, patterns)
@@ -277,7 +277,7 @@ class SegmentationService:
         self._session.execute(stale)
 
         topics = [TopicCandidate(t.id, t.subject, t.name, t.keywords) for t in exam_topics]
-        patterns = pattern_candidates(self._session)
+        patterns = pattern_candidates(self._session, document.owner_id)
         _suggest_paper_date(document, pages)
         created = 0
         for item in written:

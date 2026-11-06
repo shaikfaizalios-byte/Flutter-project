@@ -209,7 +209,7 @@ class AiPaperReader:
         exam_topics = visible_topics(session, document.owner_id, document.exam_code)
         topics = [TopicCandidate(t.id, t.subject, t.name, t.keywords) for t in exam_topics]
         subjects = sorted({t.subject for t in topics})
-        patterns = pattern_candidates(session)
+        patterns = pattern_candidates(session, document.owner_id)
         passages: dict[str, Passage] = {}
         created = 0
         for read in found:

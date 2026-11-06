@@ -5,17 +5,24 @@ question's current topic is never touched; anything else is re-suggested from th
 (or cleared when nothing matches).
 """
 
-from sqlalchemy import select
+import uuid
+
+from sqlalchemy import ColumnElement, or_, select
 from sqlalchemy.orm import Session
 
 from app.domain.topics import PatternCandidate, suggest_pattern
 from app.models.question import Question, QuestionPattern, TopicStatus
 
 
-def pattern_candidates(session: Session) -> list[PatternCandidate]:
+def visible_pattern(owner_id: uuid.UUID | None) -> ColumnElement[bool]:
+    """The ONE rule for models: the shared list, plus the account's own."""
+    return or_(QuestionPattern.owner_id.is_(None), QuestionPattern.owner_id == owner_id)
+
+
+def pattern_candidates(session: Session, owner_id: uuid.UUID | None) -> list[PatternCandidate]:
     return [
         PatternCandidate(p.id, p.topic_id, p.name, p.keywords)
-        for p in session.scalars(select(QuestionPattern)).all()
+        for p in session.scalars(select(QuestionPattern).where(visible_pattern(owner_id))).all()
     ]
 
 

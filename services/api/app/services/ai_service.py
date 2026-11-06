@@ -377,7 +377,7 @@ class AIService:
             question.topic_id = topic.id
             question.topic_status = TopicStatus.SUGGESTED
             question.topic_suggested_by = "ai"
-            refresh_pattern(question, pattern_candidates(self._session))
+            refresh_pattern(question, pattern_candidates(self._session, self._owner_id))
         self._record(
             provider,
             "topic",
@@ -476,7 +476,7 @@ class AIService:
         exam = self._session.get(Exam, document.exam_code)
         exam_name = exam.name if exam else document.exam_code
 
-        patterns = pattern_candidates(self._session)
+        patterns = pattern_candidates(self._session, self._owner_id)
         size = ai_content.PAPER_TOPICS_BATCH
         batches = [pending[i : i + size] for i in range(0, len(pending), size)]
         considered = suggested = 0

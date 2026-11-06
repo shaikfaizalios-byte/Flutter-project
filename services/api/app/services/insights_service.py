@@ -41,6 +41,7 @@ from app.schemas.insights import (
     TopicRepeat,
     YearCount,
 )
+from app.services.patterns import visible_pattern
 from app.services.shared_bank import shared_question
 from app.services.syllabus_tree_service import syllabus_scope
 from app.services.topic_service import visible_topics
@@ -149,7 +150,12 @@ class InsightsService:
             for d in documents
         }
         topics = {t.id: t for t in self._session.scalars(select(Topic)).all()}
-        patterns = {p.id: p for p in self._session.scalars(select(QuestionPattern)).all()}
+        patterns = {
+            p.id: p
+            for p in self._session.scalars(
+                select(QuestionPattern).where(visible_pattern(self._owner_id))
+            ).all()
+        }
 
         return RepeatsReport(
             exam_code=exam_code,

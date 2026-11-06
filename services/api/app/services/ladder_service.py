@@ -51,6 +51,7 @@ from app.schemas.ladder import (
     LadderTopic,
 )
 from app.services.insights_service import InsightsService
+from app.services.patterns import visible_pattern
 from app.services.topic_service import visible_topics
 
 logger = logging.getLogger(__name__)
@@ -215,7 +216,7 @@ class LadderService:
         seen = {m.id for m in counted}
         rest = self._session.scalars(
             select(QuestionPattern)
-            .where(QuestionPattern.topic_id == practice.topic_id)
+            .where(QuestionPattern.topic_id == practice.topic_id, visible_pattern(self._owner_id))
             .order_by(QuestionPattern.sort_order, QuestionPattern.name)
         ).all()
         return counted + [ladder.PlanModel(p.name, 0, 0, p.id) for p in rest if p.id not in seen]

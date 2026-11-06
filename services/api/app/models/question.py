@@ -166,11 +166,23 @@ class QuestionPattern(Base):
     classes"). Editable taxonomy data; ``keywords`` drive pattern *suggestions* only."""
 
     __tablename__ = "question_patterns"
-    __table_args__ = (UniqueConstraint("topic_id", "name", name="uq_question_patterns_topic_name"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "topic_id",
+            "owner_id",
+            "name",
+            name="uq_question_patterns_topic_owner_name",
+            postgresql_nulls_not_distinct=True,
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     topic_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("topics.id", ondelete="CASCADE"), index=True
+    )
+    # NULL: the shared list. Otherwise private to that learner, even on a shared topic.
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
     name: Mapped[str] = mapped_column(String(120))
     keywords: Mapped[list[str]] = mapped_column(
