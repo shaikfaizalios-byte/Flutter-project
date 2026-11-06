@@ -35,6 +35,7 @@ from app.models.question import (
     Topic,
 )
 from app.models.question import Question as QuestionModel
+from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.sync import SyncItem
 from app.models.taxonomy import TopicTaxonomyLink
 
@@ -58,6 +59,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
     LadderSession,
     Topic,
     SyllabusImport,
+    SyllabusVersion,
     TopicCompletion,
     Concept,
     Document,
@@ -74,6 +76,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
 # In order: a parent is always listed before its children.
 CHILD_DATA: tuple[ChildData, ...] = (
     ChildData(LadderStep, (("session_id", "ladder_sessions"),)),
+    ChildData(SyllabusNode, (("version_id", "syllabus_versions"),)),
     ChildData(QuestionPattern, (("topic_id", "topics"),)),
     ChildData(TopicTaxonomyLink, (("topic_id", "topics"),)),
     ChildData(DocumentPage, (("document_id", "documents"),)),

@@ -1,0 +1,861 @@
+{
+ "exam_codes": [
+  "RRB_NTPC"
+ ],
+ "effective_year": null,
+ "name": "Built-in syllabus",
+ "note": "PrepLoop's starter list, seeded by migrations 0003, 0009 and 0038. Not an official syllabus unless a source is given.",
+ "source": null,
+ "tree": [
+  {
+   "name": "English Language",
+   "level_label": "Subject",
+   "children": [
+    {
+     "name": "Active and Passive Voice",
+     "level_label": "Topic",
+     "keywords": [
+      "passive",
+      "active voice",
+      "passive voice",
+      "active form"
+     ]
+    },
+    {
+     "name": "Antonyms",
+     "level_label": "Topic",
+     "keywords": [
+      "antonym",
+      "opposite in meaning"
+     ]
+    },
+    {
+     "name": "Cloze Test",
+     "level_label": "Topic",
+     "keywords": [
+      "for blank no",
+      "blank no",
+      "blank number",
+      "cloze"
+     ]
+    },
+    {
+     "name": "Direct and Indirect Speech",
+     "level_label": "Topic",
+     "keywords": [
+      "indirect speech",
+      "direct speech",
+      "indirect form",
+      "direct form",
+      "narration",
+      "reported speech"
+     ]
+    },
+    {
+     "name": "Error Spotting",
+     "level_label": "Topic",
+     "keywords": [
+      "error",
+      "incorrect part",
+      "grammatically",
+      "grammatical error",
+      "contains an error"
+     ]
+    },
+    {
+     "name": "Fill in the Blanks",
+     "level_label": "Topic",
+     "keywords": [
+      "fill in the blank",
+      "blank"
+     ]
+    },
+    {
+     "name": "Idioms and Phrases",
+     "level_label": "Topic",
+     "keywords": [
+      "idiom",
+      "phrase"
+     ]
+    },
+    {
+     "name": "One Word Substitution",
+     "level_label": "Topic",
+     "keywords": [
+      "group of words",
+      "one word",
+      "single word",
+      "substitute for the given"
+     ]
+    },
+    {
+     "name": "Para Jumbles",
+     "level_label": "Topic",
+     "keywords": [
+      "jumbled sentences",
+      "jumbled",
+      "correct order",
+      "logical sequence",
+      "rearrange"
+     ]
+    },
+    {
+     "name": "Reading Comprehension",
+     "level_label": "Topic",
+     "keywords": [
+      "passage",
+      "comprehension"
+     ]
+    },
+    {
+     "name": "Sentence Improvement",
+     "level_label": "Topic",
+     "keywords": [
+      "underlined segment",
+      "underlined part",
+      "no improvement",
+      "improve the"
+     ]
+    },
+    {
+     "name": "Spelling",
+     "level_label": "Topic",
+     "keywords": [
+      "spelling",
+      "correctly spelt",
+      "wrongly spelt",
+      "misspelt",
+      "spelt"
+     ]
+    },
+    {
+     "name": "Synonyms",
+     "level_label": "Topic",
+     "keywords": [
+      "synonym",
+      "similar in meaning",
+      "same meaning"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "General Awareness",
+   "level_label": "Subject",
+   "children": [
+    {
+     "name": "Art and Culture",
+     "level_label": "Topic",
+     "keywords": [
+      "festival",
+      "dance",
+      "classical",
+      "folk",
+      "music"
+     ]
+    },
+    {
+     "name": "Awards and Honours",
+     "level_label": "Topic",
+     "keywords": [
+      "award",
+      "prize",
+      "honoured",
+      "bharat ratna",
+      "padma"
+     ]
+    },
+    {
+     "name": "Books and Authors",
+     "level_label": "Topic",
+     "keywords": [
+      "author",
+      "novel",
+      "written by",
+      "autobiography",
+      "poet"
+     ]
+    },
+    {
+     "name": "Common Abbreviations",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Computer Awareness",
+     "level_label": "Topic",
+     "keywords": [
+      "computer",
+      "software",
+      "excel",
+      "pivot table",
+      "communication technology",
+      "internet",
+      "keyboard"
+     ]
+    },
+    {
+     "name": "Current Affairs",
+     "level_label": "Topic",
+     "keywords": [
+      "appointed",
+      "inaugurated",
+      "recently",
+      "launched",
+      "announced",
+      "elected to the board"
+     ]
+    },
+    {
+     "name": "Economy",
+     "level_label": "Topic",
+     "keywords": [
+      "gdp",
+      "inflation",
+      "bank",
+      "budget",
+      "rbi",
+      "financial",
+      "investment",
+      "tax",
+      "economy",
+      "अर्थव्यवस्था"
+     ]
+    },
+    {
+     "name": "Environmental Issues",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Famous Personalities of India and World",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Flagship Government Programs",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Flora and Fauna of India",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "General Science",
+     "level_label": "Topic",
+     "keywords": [
+      "physics",
+      "chemistry",
+      "biology",
+      "vitamin",
+      "si unit",
+      "acid",
+      "chemical",
+      "element",
+      "disease",
+      "nutrition",
+      "विज्ञान"
+     ]
+    },
+    {
+     "name": "Geography",
+     "level_label": "Topic",
+     "keywords": [
+      "river",
+      "mountain",
+      "climate",
+      "soil",
+      "lake",
+      "plateau",
+      "ocean",
+      "solar system",
+      "planet",
+      "himalaya",
+      "भूगोल"
+     ]
+    },
+    {
+     "name": "History",
+     "level_label": "Topic",
+     "keywords": [
+      "dynasty",
+      "empire",
+      "revolt",
+      "independence",
+      "freedom struggle",
+      "mughal",
+      "founded by",
+      "samaj",
+      "movement",
+      "battle of",
+      "इतिहास"
+     ]
+    },
+    {
+     "name": "Important Days",
+     "level_label": "Topic",
+     "keywords": [
+      "celebrated on",
+      "observed on",
+      "day is celebrated",
+      "world day"
+     ]
+    },
+    {
+     "name": "Important Government and Public Sector Organizations",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Indian Literature",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Monuments and Places of India",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Polity",
+     "level_label": "Topic",
+     "keywords": [
+      "constitution",
+      "article",
+      "parliament",
+      "president",
+      "lok sabha",
+      "rajya sabha",
+      "union territor",
+      "governor",
+      "amendment",
+      "fundamental rights",
+      "संविधान"
+     ]
+    },
+    {
+     "name": "Scientific and Technological Developments",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Sports",
+     "level_label": "Topic",
+     "keywords": [
+      "medal",
+      "world cup",
+      "tournament",
+      "olympic",
+      "championship",
+      "football",
+      "cricket",
+      "icc",
+      "trophy"
+     ]
+    },
+    {
+     "name": "Transport Systems in India",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "UN and Other Important World Organizations",
+     "level_label": "Topic",
+     "keywords": []
+    }
+   ]
+  },
+  {
+   "name": "General Intelligence",
+   "level_label": "Subject",
+   "children": [
+    {
+     "name": "Analogy",
+     "level_label": "Topic",
+     "keywords": [
+      "analogy",
+      "is related to",
+      "same way as",
+      "related in the same way",
+      "सादृश्य"
+     ]
+    },
+    {
+     "name": "Analytical Reasoning",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Blood Relations",
+     "level_label": "Topic",
+     "keywords": [
+      "brother",
+      "sister",
+      "father",
+      "mother",
+      "son of",
+      "daughter",
+      "married to",
+      "husband",
+      "wife",
+      "grandfather",
+      "blood relation"
+     ]
+    },
+    {
+     "name": "Classification (Odd One Out)",
+     "level_label": "Topic",
+     "keywords": [
+      "odd one out",
+      "does not belong",
+      "alike in a certain way",
+      "one is different",
+      "odd word",
+      "odd number",
+      "odd letters",
+      "विषम"
+     ]
+    },
+    {
+     "name": "Coding-Decoding",
+     "level_label": "Topic",
+     "keywords": [
+      "coded as",
+      "code language",
+      "is written as",
+      "कूट",
+      "कोड भाषा"
+     ]
+    },
+    {
+     "name": "Counting Figures",
+     "level_label": "Topic",
+     "keywords": [
+      "how many triangles",
+      "how many squares",
+      "how many rectangles",
+      "number of triangles",
+      "कितने त्रिभुज"
+     ]
+    },
+    {
+     "name": "Data Sufficiency",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Decision Making",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Dice and Cubes",
+     "level_label": "Topic",
+     "keywords": [
+      "dice",
+      "opposite to the face",
+      "faces of a cube",
+      "पासा"
+     ]
+    },
+    {
+     "name": "Direction and Distance",
+     "level_label": "Topic",
+     "keywords": [
+      "north",
+      "south",
+      "east",
+      "west",
+      "turns left",
+      "turns right",
+      "दिशा"
+     ]
+    },
+    {
+     "name": "Embedded Figures",
+     "level_label": "Topic",
+     "keywords": [
+      "embedded",
+      "is hidden",
+      "निहित"
+     ]
+    },
+    {
+     "name": "Figure Series",
+     "level_label": "Topic",
+     "keywords": [
+      "figure series",
+      "come next in the following figure"
+     ]
+    },
+    {
+     "name": "Interpretation of Graphs",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Jumbling",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Letter Series",
+     "level_label": "Topic",
+     "keywords": [
+      "sequentially placed",
+      "letter series",
+      "blanks of the given"
+     ]
+    },
+    {
+     "name": "Maps",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Mathematical Operations",
+     "level_label": "Topic",
+     "keywords": [
+      "interchanged",
+      "mathematical signs",
+      "balance the equation",
+      "equation correct",
+      "signs are interchanged"
+     ]
+    },
+    {
+     "name": "Mirror and Water Images",
+     "level_label": "Topic",
+     "keywords": [
+      "mirror image",
+      "water image",
+      "mirror is placed",
+      "दर्पण"
+     ]
+    },
+    {
+     "name": "Order and Ranking",
+     "level_label": "Topic",
+     "keywords": [
+      "rank",
+      "from the top",
+      "from the bottom",
+      "position from"
+     ]
+    },
+    {
+     "name": "Paper Folding and Cutting",
+     "level_label": "Topic",
+     "keywords": [
+      "paper is folded",
+      "folded and cut",
+      "is folded",
+      "unfolded",
+      "punched"
+     ]
+    },
+    {
+     "name": "Puzzle",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Relationships",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Series",
+     "level_label": "Topic",
+     "keywords": [
+      "series",
+      "next number",
+      "missing number",
+      "replace the question mark",
+      "श्रृंखला"
+     ]
+    },
+    {
+     "name": "Similarities and Differences",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Statement and Conclusion",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Statement and Courses of Action",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Syllogism",
+     "level_label": "Topic",
+     "keywords": [
+      "statements",
+      "conclusions",
+      "syllogism",
+      "follow from the statements",
+      "कथन",
+      "निष्कर्ष"
+     ]
+    },
+    {
+     "name": "Venn Diagrams",
+     "level_label": "Topic",
+     "keywords": [
+      "venn diagram",
+      "relationship between the following classes",
+      "वेन आरेख"
+     ]
+    },
+    {
+     "name": "Word Arrangement",
+     "level_label": "Topic",
+     "keywords": [
+      "logical and meaningful order",
+      "meaningful order",
+      "dictionary order",
+      "arrange the following words"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Quantitative Aptitude",
+   "level_label": "Subject",
+   "children": [
+    {
+     "name": "Algebra",
+     "level_label": "Topic",
+     "keywords": [
+      "x + 1/x",
+      "a + b + c",
+      "quadratic",
+      "polynomial",
+      "algebraic",
+      "value of x"
+     ]
+    },
+    {
+     "name": "Average",
+     "level_label": "Topic",
+     "keywords": [
+      "average",
+      "औसत"
+     ]
+    },
+    {
+     "name": "Data Interpretation",
+     "level_label": "Topic",
+     "keywords": [
+      "bar graph",
+      "pie chart",
+      "line graph",
+      "the given table",
+      "following table",
+      "the given graph",
+      "the given chart"
+     ]
+    },
+    {
+     "name": "Decimals and Fractions",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Discount",
+     "level_label": "Topic",
+     "keywords": [
+      "discount",
+      "marked price",
+      "list price",
+      "बट्टा"
+     ]
+    },
+    {
+     "name": "Elementary Statistics",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Geometry",
+     "level_label": "Topic",
+     "keywords": [
+      "triangle",
+      "circle",
+      "chord",
+      "tangent",
+      "angle",
+      "quadrilateral",
+      "parallel",
+      "median",
+      "bisector",
+      "inscribed",
+      "∆",
+      "त्रिभुज"
+     ]
+    },
+    {
+     "name": "LCM and HCF",
+     "level_label": "Topic",
+     "keywords": []
+    },
+    {
+     "name": "Mensuration",
+     "level_label": "Topic",
+     "keywords": [
+      "area",
+      "volume",
+      "perimeter",
+      "surface area",
+      "cylinder",
+      "cone",
+      "sphere",
+      "hemisphere",
+      "cuboid",
+      "radius",
+      "क्षेत्रफल",
+      "आयतन"
+     ]
+    },
+    {
+     "name": "Mixture and Alligation",
+     "level_label": "Topic",
+     "keywords": [
+      "mixture",
+      "alligation",
+      "milk and water"
+     ]
+    },
+    {
+     "name": "Number System",
+     "level_label": "Topic",
+     "keywords": [
+      "divisible",
+      "remainder",
+      "lcm",
+      "hcf",
+      "prime number",
+      "unit digit",
+      "unit's digit",
+      "factors",
+      "largest number",
+      "smallest number"
+     ]
+    },
+    {
+     "name": "Partnership",
+     "level_label": "Topic",
+     "keywords": [
+      "partnership",
+      "partners",
+      "invested"
+     ]
+    },
+    {
+     "name": "Percentage",
+     "level_label": "Topic",
+     "keywords": [
+      "percent",
+      "%",
+      "प्रतिशत"
+     ]
+    },
+    {
+     "name": "Profit and Loss",
+     "level_label": "Topic",
+     "keywords": [
+      "profit",
+      "loss",
+      "gain",
+      "gained",
+      "sold",
+      "cost price",
+      "selling price",
+      "लाभ",
+      "हानि"
+     ]
+    },
+    {
+     "name": "Ratio and Proportion",
+     "level_label": "Topic",
+     "keywords": [
+      "ratio",
+      "proportion",
+      "divided among",
+      "share",
+      "अनुपात"
+     ]
+    },
+    {
+     "name": "Simple and Compound Interest",
+     "level_label": "Topic",
+     "keywords": [
+      "simple interest",
+      "compound interest",
+      "interest",
+      "p.a.",
+      "per annum",
+      "ब्याज"
+     ]
+    },
+    {
+     "name": "Simplification",
+     "level_label": "Topic",
+     "keywords": [
+      "simplify",
+      "simplified value",
+      "simplification",
+      "सरल"
+     ]
+    },
+    {
+     "name": "Time and Work",
+     "level_label": "Topic",
+     "keywords": [
+      "work",
+      "days to complete",
+      "pipes",
+      "cistern",
+      "working together"
+     ]
+    },
+    {
+     "name": "Time, Speed and Distance",
+     "level_label": "Topic",
+     "keywords": [
+      "speed",
+      "km/h",
+      "km/hr",
+      "distance",
+      "train",
+      "boat",
+      "stream",
+      "चाल"
+     ]
+    },
+    {
+     "name": "Trigonometry",
+     "level_label": "Topic",
+     "keywords": [
+      "sin",
+      "cos",
+      "tan",
+      "cot",
+      "sec",
+      "cosec",
+      "θ",
+      "trigonometric",
+      "angle of elevation",
+      "angle of depression"
+     ]
+    }
+   ]
+  }
+ ]
+}

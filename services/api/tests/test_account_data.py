@@ -30,6 +30,7 @@ from app.models.question import (
     SyllabusImport,
     Topic,
 )
+from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.sync import SyncItem
 from app.models.taxonomy import TaxonomyNode, TopicTaxonomyLink
 from app.models.user import User
@@ -84,7 +85,12 @@ def _fill_account(db: Session, user: User) -> None:
     db.flush()
     imported = SyllabusImport(owner_id=user.id, exam_code=code, name="Typed syllabus", kind="typed")
     db.add(imported)
+    version = SyllabusVersion(
+        exam_code=code, owner_id=user.id, name="My syllabus", source_kind="manual"
+    )
+    db.add(version)
     db.flush()
+    db.add(SyllabusNode(version_id=version.id, position=1, name="Maths"))
     topic = Topic(
         subject="Maths",
         name="Ratios",

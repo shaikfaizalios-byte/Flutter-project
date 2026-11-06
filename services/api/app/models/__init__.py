@@ -24,6 +24,7 @@ from app.models.question import (
     SyllabusImport,
     Topic,
 )
+from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.sync import SyncItem
 from app.models.taxonomy import TaxonomyLabel, TaxonomyNode, TopicTaxonomyLink
 from app.models.user import AccountCode, RefreshToken, User
@@ -61,6 +62,8 @@ __all__ = [
     "Subscription",
     "Suggestion",
     "SyllabusImport",
+    "SyllabusNode",
+    "SyllabusVersion",
     "SyncItem",
     "TaxonomyLabel",
     "TaxonomyNode",
