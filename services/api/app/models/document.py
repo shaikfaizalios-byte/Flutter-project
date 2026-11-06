@@ -113,6 +113,18 @@ class Document(Base):
     exam_year: Mapped[int | None] = mapped_column(Integer)
     exam_date: Mapped[date | None] = mapped_column(Date)
     exam_shift: Mapped[int | None] = mapped_column(Integer)
+    # Details a reviewer gives: the exam's stage, the session ("January"), the set ("B").
+    stage: Mapped[str | None] = mapped_column(String(60))
+    session_label: Mapped[str | None] = mapped_column(String(40))
+    set_code: Mapped[str | None] = mapped_column(String(20))
+    # Languages of the paper beyond ``language``.
+    extra_languages: Mapped[list[str]] = mapped_column(
+        ARRAY(String(8)), default=list, server_default="{}"
+    )
+    # Another set of that paper, confirmed by a person: counts once, as that paper.
+    duplicate_of_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("documents.id", ondelete="SET NULL"), index=True
+    )
     paper_date_status: Mapped[str] = mapped_column(
         String(12), default="unknown", server_default="unknown"
     )

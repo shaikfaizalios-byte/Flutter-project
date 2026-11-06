@@ -181,9 +181,13 @@ class QuestionPattern(Base):
 
 
 class Passage(Base):
-    """Shared directions or a reading passage that governs several questions."""
+    """Shared directions or a reading passage that governs several questions. Each question
+    keeps its own topic and model."""
 
     __tablename__ = "passages"
+    __table_args__ = (
+        CheckConstraint("kind IN ('passage', 'chart', 'table', 'case')", name="kind_valid"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     document_id: Mapped[uuid.UUID] = mapped_column(
@@ -193,6 +197,8 @@ class Passage(Base):
     first_question: Mapped[int | None] = mapped_column(Integer)
     last_question: Mapped[int | None] = mapped_column(Integer)
     source_pages: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
+    # What the shared material is: text, or a chart, table or case the questions are about.
+    kind: Mapped[str] = mapped_column(String(8), default="passage", server_default="passage")
 
 
 class Question(Base):
@@ -287,6 +293,16 @@ class Question(Base):
         String(20), default="single_correct", server_default="single_correct"
     )
     answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+    # This question in another language, confirmed by a person: counts once, as that question.
+    translation_of_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("questions.id", ondelete="SET NULL"), index=True
+    )
+    # As the paper prints them, mostly for descriptive questions.
+    marks: Mapped[float | None] = mapped_column(Float)
+    word_limit: Mapped[int | None] = mapped_column(Integer)
+    sub_parts: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB(none_as_null=True))
+    # Questions of one group are alternatives ("answer any one"); the paper names the group.
+    choice_group: Mapped[str | None] = mapped_column(String(20))
 
     @validates("answer_type")
     def _format_follows(self, _key: str, value: str) -> str:
