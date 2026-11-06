@@ -38,6 +38,31 @@ class FakeExamsRepository implements ExamsRepository {
     return exam;
   }
 
+  List<TopicModel> models = const [];
+
+  @override
+  Future<List<TopicModel>> topicModels(String topicId) async => models;
+
+  @override
+  Future<void> createModel(String topicId, String name) async =>
+      calls.add('createModel:$topicId:$name');
+
+  @override
+  Future<void> renameModel(String id, String name) async => calls.add('renameModel:$id:$name');
+
+  @override
+  Future<void> mergeModel(String id, String intoId) async => calls.add('mergeModel:$id:$intoId');
+
+  @override
+  Future<void> deleteModel(String id) async => calls.add('deleteModel:$id');
+
+  @override
+  Future<void> nameModel(String topicId, String name, List<String> questionIds) async =>
+      calls.add('nameModel:$topicId:$name:${questionIds.length}');
+
+  @override
+  Future<void> addDefaultModels(String topicId) async => calls.add('addDefaultModels:$topicId');
+
   List<SyllabusVersion> versions = const [];
   List<CanonicalStats> stats = const [];
   String? builtName;

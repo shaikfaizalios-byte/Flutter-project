@@ -16,6 +16,20 @@ abstract interface class ExamsRepository {
 
   Future<ExamOption> createExam(String name);
 
+  Future<List<TopicModel>> topicModels(String topicId);
+  Future<void> createModel(String topicId, String name);
+  Future<void> renameModel(String id, String name);
+
+  /// The learner's questions move to [intoId], and this model goes.
+  Future<void> mergeModel(String id, String intoId);
+  Future<void> deleteModel(String id);
+
+  /// A new private model with these questions confirmed under it.
+  Future<void> nameModel(String topicId, String name, List<String> questionIds);
+
+  /// Adds the answer-format models the topic doesn't have yet.
+  Future<void> addDefaultModels(String topicId);
+
   /// The exam's syllabus versions, as trees.
   Future<List<SyllabusVersion>> syllabusVersions(String examCode);
 
@@ -102,6 +116,48 @@ class RemoteExamsRepository implements ExamsRepository {
   Future<ExamOption> createExam(String name) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>('$_base/me/exams', data: {'name': name});
     return ExamOption.fromJson(response.data!);
+  });
+
+  @override
+  Future<List<TopicModel>> topicModels(String topicId) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '$_base/patterns',
+      queryParameters: {'topic_id': topicId},
+    );
+    return [for (final m in response.data!) TopicModel.fromJson(m as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<void> createModel(String topicId, String name) => _guard(() async {
+    await _dio.post<void>('$_base/patterns', data: {'topic_id': topicId, 'name': name});
+  });
+
+  @override
+  Future<void> renameModel(String id, String name) => _guard(() async {
+    await _dio.patch<void>('$_base/patterns/$id', data: {'name': name});
+  });
+
+  @override
+  Future<void> mergeModel(String id, String intoId) => _guard(() async {
+    await _dio.post<void>('$_base/patterns/$id/merge', data: {'into_id': intoId});
+  });
+
+  @override
+  Future<void> deleteModel(String id) => _guard(() async {
+    await _dio.delete<void>('$_base/patterns/$id');
+  });
+
+  @override
+  Future<void> nameModel(String topicId, String name, List<String> questionIds) => _guard(() async {
+    await _dio.post<void>(
+      '$_base/patterns/from-questions',
+      data: {'topic_id': topicId, 'name': name, 'question_ids': questionIds},
+    );
+  });
+
+  @override
+  Future<void> addDefaultModels(String topicId) => _guard(() async {
+    await _dio.post<void>('$_base/topics/$topicId/default-models');
   });
 
   @override

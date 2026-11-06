@@ -5103,4 +5103,70 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get paperSolvePracticeOnly =>
       'इस तरह के प्रश्न का उत्तर अभ्यास में दिया जाता है, यहाँ नहीं।';
+
+  @override
+  String get repeatsNameTitle => 'ये एक जैसे लगते हैं। इस प्रकार को नाम दें?';
+
+  @override
+  String repeatsNameNote(int papers, String topic) {
+    return '$topic में $papers पेपरों में एक जैसे शब्द, अभी कोई मॉडल नहीं।';
+  }
+
+  @override
+  String get repeatsNameAction => 'नाम दें';
+
+  @override
+  String get repeatsByMarks => 'अंकों से क्रम';
+
+  @override
+  String repeatsMarks(String marks) {
+    return '$marks अंक';
+  }
+
+  @override
+  String repeatsInSessions(int sessions, int total, int questions) {
+    return '$total में से $sessions सत्रों में · $questions प्रश्न';
+  }
+
+  @override
+  String get repeatsSessionsNote =>
+      'यह परीक्षा सत्र से गिनी जाती है: एक ही बैठक के पेपर एक बार गिने जाते हैं।';
+
+  @override
+  String modelsTitle(String topic) {
+    return '$topic के मॉडल';
+  }
+
+  @override
+  String get modelsManage => 'मॉडल प्रबंधित करें';
+
+  @override
+  String get modelsAdd => 'मॉडल जोड़ें';
+
+  @override
+  String get modelsName => 'मॉडल का नाम';
+
+  @override
+  String get modelsRename => 'नाम बदलें';
+
+  @override
+  String get modelsMerge => 'मिलाएँ';
+
+  @override
+  String modelsMergeInto(String name) {
+    return '$name को इसमें मिलाएँ';
+  }
+
+  @override
+  String get modelsActions => 'मॉडल के विकल्प';
+
+  @override
+  String get modelsEmpty => 'इस विषय में अभी कोई मॉडल नहीं है।';
+
+  @override
+  String get modelsDefaultsNote =>
+      'लिखित उत्तरों के लिए सामान्य उत्तर प्रारूप जोड़ें: परिभाषा, संक्षिप्त टिप्पणी, तुलना आदि।';
+
+  @override
+  String get modelsAddDefaults => 'उत्तर प्रारूप जोड़ें';
 }

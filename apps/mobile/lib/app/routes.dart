@@ -72,6 +72,8 @@ abstract final class AppRoutes {
       Uri(path: path, queryParameters: {'topic': topic, 'subject': ?subject}).toString();
 
   static String examSyllabus(String code) => '/profile/exams/$code/syllabus';
+  static String topicModels(String id, String name) =>
+      Uri(path: '/profile/topics/$id/models', queryParameters: {'name': name}).toString();
   static String examTopics(String code, {bool importSyllabus = false}) =>
       '/profile/exams/$code${importSyllabus ? '?syllabus=1' : ''}';
 }

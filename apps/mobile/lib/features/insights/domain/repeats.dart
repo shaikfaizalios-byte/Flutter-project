@@ -17,11 +17,17 @@ class YearCount {
 /// How often something appeared in the learner's own papers (reviewed questions only).
 @immutable
 class RepeatCounts {
-  const RepeatCounts({required this.questions, required this.papers, this.years = const []});
+  const RepeatCounts({
+    required this.questions,
+    required this.papers,
+    this.years = const [],
+    this.marks,
+  });
 
   factory RepeatCounts.fromJson(Map<String, dynamic> json) => RepeatCounts(
     questions: json['questions'] as int,
     papers: json['papers'] as int,
+    marks: (json['marks'] as num?)?.toDouble(),
     years: [
       for (final y in json['years'] as List<dynamic>) YearCount.fromJson(y as Map<String, dynamic>),
     ],
@@ -29,6 +35,9 @@ class RepeatCounts {
 
   final int questions;
   final int papers;
+
+  /// Marks of the questions that state them; null when none does.
+  final double? marks;
 
   /// Only papers with a confirmed date.
   final List<YearCount> years;
@@ -262,6 +271,8 @@ class RepeatsReport {
     this.similarGroups = const [],
     this.examCode,
     this.notRepeated = const NotRepeated(),
+    this.countingUnit = 'paper',
+    this.nameSuggestions = const [],
   });
 
   factory RepeatsReport.fromJson(Map<String, dynamic> json) => RepeatsReport(
@@ -276,6 +287,11 @@ class RepeatsReport {
         SimilarGroup.fromJson(g as Map<String, dynamic>),
     ],
     notRepeated: NotRepeated.fromJson(json['not_repeated'] as Map<String, dynamic>?),
+    countingUnit: json['counting_unit'] as String? ?? 'paper',
+    nameSuggestions: [
+      for (final s in json['name_suggestions'] as List<dynamic>? ?? const [])
+        NameSuggestion.fromJson(s as Map<String, dynamic>),
+    ],
   );
 
   final String? examCode;
@@ -284,11 +300,59 @@ class RepeatsReport {
   final List<SimilarGroup> similarGroups;
   final NotRepeated notRepeated;
 
+  /// "paper", or "session" when papers of one sitting count once.
+  final String countingUnit;
+
+  /// Alike questions with no model yet, worth naming.
+  final List<NameSuggestion> nameSuggestions;
+
   /// Topics that came in exactly one of these papers (reviewed questions only).
   List<TopicRepeat> get seenOnce => [
     for (final t in topics)
       if (t.confirmed.papers == 1) t,
   ];
+}
+
+/// Questions worded alike across papers with no model yet. Nothing exists until someone names it.
+@immutable
+class NameSuggestion {
+  const NameSuggestion({
+    required this.topicId,
+    required this.topicName,
+    required this.papers,
+    required this.questions,
+  });
+
+  factory NameSuggestion.fromJson(Map<String, dynamic> json) => NameSuggestion(
+    topicId: json['topic_id'] as String,
+    topicName: json['topic_name'] as String,
+    papers: json['papers'] as int,
+    questions: [
+      for (final q in json['questions'] as List<dynamic>)
+        SimilarQuestion.fromJson(q as Map<String, dynamic>),
+    ],
+  );
+
+  final String topicId;
+  final String topicName;
+  final int papers;
+  final List<SimilarQuestion> questions;
+}
+
+/// Whether ranking by marks would say anything: the topics don't all carry the same marks.
+bool marksVary(List<TopicRepeat> topics) {
+  final marks = {for (final t in topics) t.confirmed.marks};
+  return marks.length > 1;
+}
+
+/// Most marks first; topics with no marks last. Ties keep the order they came in.
+List<TopicRepeat> byMarks(List<TopicRepeat> topics) {
+  final indexed = topics.indexed.toList();
+  indexed.sort((a, b) {
+    final difference = (b.$2.confirmed.marks ?? -1).compareTo(a.$2.confirmed.marks ?? -1);
+    return difference != 0 ? difference : a.$1.compareTo(b.$1);
+  });
+  return [for (final (_, topic) in indexed) topic];
 }
 
 /// Named, shown-in-the-app rule for calling something "seen in most papers": at least

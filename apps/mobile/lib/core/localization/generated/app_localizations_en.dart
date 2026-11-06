@@ -5104,4 +5104,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paperSolvePracticeOnly => 'This kind of question is answered in practice, not here.';
+
+  @override
+  String get repeatsNameTitle => 'These look alike. Name this type?';
+
+  @override
+  String repeatsNameNote(int papers, String topic) {
+    return 'Worded alike in $papers papers under $topic, with no model yet.';
+  }
+
+  @override
+  String get repeatsNameAction => 'Name it';
+
+  @override
+  String get repeatsByMarks => 'Rank by marks';
+
+  @override
+  String repeatsMarks(String marks) {
+    return '$marks marks';
+  }
+
+  @override
+  String repeatsInSessions(int sessions, int total, int questions) {
+    return 'In $sessions of $total sessions · $questions questions';
+  }
+
+  @override
+  String get repeatsSessionsNote =>
+      'This exam is counted by session: papers of the same sitting count once.';
+
+  @override
+  String modelsTitle(String topic) {
+    return 'Models in $topic';
+  }
+
+  @override
+  String get modelsManage => 'Manage models';
+
+  @override
+  String get modelsAdd => 'Add a model';
+
+  @override
+  String get modelsName => 'Model name';
+
+  @override
+  String get modelsRename => 'Rename';
+
+  @override
+  String get modelsMerge => 'Merge';
+
+  @override
+  String modelsMergeInto(String name) {
+    return 'Merge $name into';
+  }
+
+  @override
+  String get modelsActions => 'Model actions';
+
+  @override
+  String get modelsEmpty => 'This topic has no models yet.';
+
+  @override
+  String get modelsDefaultsNote =>
+      'For written answers, add the usual answer formats: define, short note, compare and others.';
+
+  @override
+  String get modelsAddDefaults => 'Add answer formats';
 }

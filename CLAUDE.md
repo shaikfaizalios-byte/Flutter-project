@@ -72,6 +72,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`paper_duplicates.py` only suggests). Answer key files: `POST /documents/{id}/answer-key[/text]`, pure `answer_key.py`, never
   overwrites. Text: `RichQuestionText` (`flutter_math_fork`, TeX + pipe tables, plain when the flag is off). Review:
   `FormatEditorCard`, `PaperDetailsScreen`. The parser doesn't detect formats yet; reviewers set them.
+- Models and counting (any-exam Phase 4, migration 0047): `question_patterns.owner_id` (NULL = shared list, else private, even on
+  a shared topic); ONE rule `visible_pattern` (`app/services/patterns.py`). `PATCH /patterns/{id}`, `POST /patterns/{id}/merge`,
+  `POST /patterns/from-questions`, `POST /topics/{id}/default-models`; learners change only their own. Radar names shared models
+  only; the shared bank refuses private ones. Lists: `data/model_lists` (`shared_aptitude.json` = the 91 seeded models,
+  `descriptive_defaults.json`). `RepeatsReport.name_suggestions` = alike questions in `MIN_PAPERS_TO_NAME` papers with no
+  confirmed model (own papers). `counting_unit` session: pure `app/domain/counting.py` `unit_key`, confirmed date + shift + session
+  = one; `RepeatCounts.marks`; app `byMarks`/`marksVary`, `TopicModelsScreen`. The embedding hint is NOT built (needs a decision).
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

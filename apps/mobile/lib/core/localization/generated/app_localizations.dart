@@ -8186,6 +8186,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This kind of question is answered in practice, not here.'**
   String get paperSolvePracticeOnly;
+
+  /// No description provided for @repeatsNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'These look alike. Name this type?'**
+  String get repeatsNameTitle;
+
+  /// No description provided for @repeatsNameNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Worded alike in {papers} papers under {topic}, with no model yet.'**
+  String repeatsNameNote(int papers, String topic);
+
+  /// No description provided for @repeatsNameAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Name it'**
+  String get repeatsNameAction;
+
+  /// No description provided for @repeatsByMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank by marks'**
+  String get repeatsByMarks;
+
+  /// No description provided for @repeatsMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'{marks} marks'**
+  String repeatsMarks(String marks);
+
+  /// No description provided for @repeatsInSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'In {sessions} of {total} sessions · {questions} questions'**
+  String repeatsInSessions(int sessions, int total, int questions);
+
+  /// No description provided for @repeatsSessionsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam is counted by session: papers of the same sitting count once.'**
+  String get repeatsSessionsNote;
+
+  /// No description provided for @modelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Models in {topic}'**
+  String modelsTitle(String topic);
+
+  /// No description provided for @modelsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage models'**
+  String get modelsManage;
+
+  /// No description provided for @modelsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a model'**
+  String get modelsAdd;
+
+  /// No description provided for @modelsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Model name'**
+  String get modelsName;
+
+  /// No description provided for @modelsRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get modelsRename;
+
+  /// No description provided for @modelsMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get modelsMerge;
+
+  /// No description provided for @modelsMergeInto.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {name} into'**
+  String modelsMergeInto(String name);
+
+  /// No description provided for @modelsActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Model actions'**
+  String get modelsActions;
+
+  /// No description provided for @modelsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This topic has no models yet.'**
+  String get modelsEmpty;
+
+  /// No description provided for @modelsDefaultsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For written answers, add the usual answer formats: define, short note, compare and others.'**
+  String get modelsDefaultsNote;
+
+  /// No description provided for @modelsAddDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Add answer formats'**
+  String get modelsAddDefaults;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

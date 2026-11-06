@@ -21,6 +21,7 @@ import '../features/documents/presentation/paper_solve_screen.dart';
 import '../features/exams/presentation/exam_topics_screen.dart';
 import '../features/exams/presentation/my_exams_screen.dart';
 import '../features/exams/presentation/syllabus_tree_screen.dart';
+import '../features/exams/presentation/topic_models_screen.dart';
 import '../features/insights/presentation/repeats_screen.dart';
 import '../features/legal/presentation/legal_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
@@ -114,6 +115,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.suggestions, builder: (context, state) => const SuggestionsScreen()),
       GoRoute(path: AppRoutes.plus, builder: (context, state) => const PlusScreen()),
       GoRoute(path: AppRoutes.devices, builder: (context, state) => const DevicesScreen()),
+      GoRoute(
+        path: '/profile/topics/:id/models',
+        redirect: (_, _) => ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+        builder: (context, state) => TopicModelsScreen(
+          topicId: state.pathParameters['id']!,
+          topicName: state.uri.queryParameters['name'] ?? '',
+        ),
+      ),
       GoRoute(
         path: '/profile/exams/:code/syllabus',
         redirect: (_, _) => ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.myExams,
