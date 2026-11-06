@@ -81,6 +81,8 @@ class ExamFormat(Base):
     total_questions: Mapped[int] = mapped_column(Integer)
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
     negative_marks_per_wrong: Mapped[float | None] = mapped_column(Float)
+    # A penalty stated as a share of the question's own marks, instead of a fixed number.
+    penalty_fraction: Mapped[float | None] = mapped_column(Float)
     source_title: Mapped[str] = mapped_column(String(300))
     source_url: Mapped[str] = mapped_column(String(500))
     source_reference: Mapped[str] = mapped_column(String(300))
@@ -95,9 +97,10 @@ class ExamFormat(Base):
     supersedes_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("exam_formats.id", ondelete="SET NULL")
     )
-    # Answer types the paper uses (choice, typed); mocks are built from these only.
+    # What the paper uses: choice, typed, or question formats (multiple_correct, numeric, ...).
+    # Mocks are built from these only.
     question_types: Mapped[list[str]] = mapped_column(
-        ARRAY(String(8)), default=lambda: ["choice"], server_default="{choice}"
+        ARRAY(String(20)), default=lambda: ["choice"], server_default="{choice}"
     )
     # Each section has its own timer (its timer_minutes) and sections are taken in order.
     sectional_timing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")

@@ -66,6 +66,7 @@ class FormatFile(BaseModel):
     total_questions: int = Field(ge=0)
     duration_minutes: int | None = None
     negative_marks_per_wrong: float | None = None
+    penalty_fraction: float | None = None
     sectional_timing: bool = False
     # True when the notice says its section-wise question counts are only indicative.
     section_counts_indicative: bool = False
@@ -188,6 +189,7 @@ def import_format(session: Session, data: dict[str, Any]) -> tuple[ExamFormat, l
         total_questions=spec.total_questions,
         duration_minutes=spec.duration_minutes,
         negative_marks_per_wrong=spec.negative_marks_per_wrong,
+        penalty_fraction=spec.penalty_fraction,
         sectional_timing=spec.sectional_timing,
         section_counts_indicative=spec.section_counts_indicative,
         question_types=spec.question_types,

@@ -178,6 +178,25 @@ def is_correct(format_name: str, spec: Mapping[str, Any], answer: object) -> boo
     raise ValueError(f"{format_name} isn't marked by its answer_spec")
 
 
+def partial_marks(
+    format_name: str,
+    spec: Mapping[str, Any],
+    answer: object,
+    rule: Mapping[str, Any],
+) -> Decimal | None:
+    """The marks of a partly right answer under the exam's rule, or None if it earns none.
+    Only ``{"per_correct": "1"}`` on multiple_correct exists so far: some correct options chosen
+    and no wrong one earn that much each."""
+    if format_name != "multiple_correct" or not isinstance(answer, Mapping):
+        return None
+    chosen = set(answer.get("positions") or [])
+    correct = set(spec["correct_positions"])
+    if not chosen or chosen - correct or chosen == correct:
+        return None
+    each = _decimal(rule.get("per_correct"))
+    return None if each is None else each * len(chosen)
+
+
 def _numeric_correct(spec: Mapping[str, Any], answer: object) -> bool:
     given = _decimal(answer) if isinstance(answer, str) else None
     if given is None:

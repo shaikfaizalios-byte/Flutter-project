@@ -112,6 +112,9 @@ class SessionItem(Base):
     option_count: Mapped[int] = mapped_column(Integer)
     marks_correct: Mapped[float] = mapped_column(Float)
     marks_wrong: Mapped[float] = mapped_column(Float)  # deducted for a wrong answer (>= 0)
+    marks_unanswered: Mapped[float] = mapped_column(Float, default=0, server_default="0")
+    # Partial credit from the format, snapshotted so a later change never touches this attempt.
+    partial_rule: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     question_verified: Mapped[bool] = mapped_column(Boolean)
 
 

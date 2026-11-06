@@ -29,6 +29,8 @@ class ScoredItem:
     typed_answer: str | None = None  # expected answer of a typed-in question
     format: str = "single_correct"
     answer_spec: Mapping[str, Any] | None = None
+    marks_unanswered: Decimal = Decimal(0)
+    partial_rule: Mapping[str, Any] | None = None
 
 
 @dataclass(slots=True)
@@ -36,15 +38,18 @@ class Tally:
     correct: int = 0
     wrong: int = 0
     unattempted: int = 0
+    partial: int = 0  # wrong as a whole, but earned some marks under the exam's rule
     score: Decimal = Decimal(0)
     max_score: Decimal = Decimal(0)
     # (count, marks each) per outcome, for the explanation; None when marks vary.
     correct_marks: set[Decimal] = field(default_factory=set)
     wrong_marks: set[Decimal] = field(default_factory=set)
+    unanswered_marks: Decimal = Decimal(0)  # total, usually none
+    partial_marks: Decimal = Decimal(0)  # total
 
     @property
     def attempted(self) -> int:
-        return self.correct + self.wrong
+        return self.correct + self.wrong + self.partial
 
     @property
     def accuracy(self) -> float | None:
@@ -72,6 +77,12 @@ def is_correct(item: ScoredItem, answer: Answer) -> bool:
     return answer == item.correct_position
 
 
+def _partly_right(item: ScoredItem, answer: Answer | None) -> Decimal | None:
+    if item.partial_rule is None or item.answer_spec is None:
+        return None
+    return question_formats.partial_marks(item.format, item.answer_spec, answer, item.partial_rule)
+
+
 def score_session(
     items: Sequence[ScoredItem], selections: Mapping[int, Answer | None]
 ) -> ScoreResult:
@@ -90,10 +101,17 @@ def score_session(
             tallies.append(sections.setdefault(item.section, Tally()))
         if item.topic_id:
             tallies.append(topics.setdefault(item.topic_id, Tally()))
+        partly = _partly_right(item, selected) if outcome is False else None
         for tally in tallies:
             tally.max_score += item.marks_correct
             if outcome is None:
                 tally.unattempted += 1
+                tally.score += item.marks_unanswered
+                tally.unanswered_marks += item.marks_unanswered
+            elif partly is not None:
+                tally.partial += 1
+                tally.score += partly
+                tally.partial_marks += partly
             elif outcome:
                 tally.correct += 1
                 tally.score += item.marks_correct
@@ -127,7 +145,16 @@ def explain(tally: Tally) -> str:
     pieces = [
         part("Correct", tally.correct, tally.correct_marks, ""),
         part("Wrong", tally.wrong, tally.wrong_marks, wrong_sign),
-        f"Unattempted {tally.unattempted} × 0 = 0",
+        *(
+            [f"Partly right {tally.partial} = {money(tally.partial_marks)}"]
+            if tally.partial
+            else []
+        ),
+        (
+            f"Unattempted {tally.unattempted} = {money(tally.unanswered_marks)}"
+            if tally.unanswered_marks
+            else f"Unattempted {tally.unattempted} × 0 = 0"
+        ),
         f"Total {money(tally.score)} of {money(tally.max_score)}",
     ]
     return "; ".join(pieces)
@@ -138,6 +165,7 @@ def tally_json(tally: Tally) -> dict[str, object]:
         "correct": tally.correct,
         "wrong": tally.wrong,
         "unattempted": tally.unattempted,
+        **({"partial": tally.partial} if tally.partial else {}),
         "score": float(tally.score),
         "max_score": float(tally.max_score),
         "accuracy": tally.accuracy,
