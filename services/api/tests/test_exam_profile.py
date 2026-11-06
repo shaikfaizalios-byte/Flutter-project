@@ -132,6 +132,18 @@ def test_the_apps_copy_of_the_exam_data_is_up_to_date() -> None:
     assert module.TARGET.read_text(encoding="utf-8") == module.render()
 
 
+def test_an_exam_whose_options_vary_accepts_any_count(db_session: Session) -> None:
+    db_session.add(Exam(code="VARIES", name="Varies", options_per_question=VARIABLE_OPTIONS))
+    db_session.flush()
+    profile = profile_for(db_session, "VARIES")
+    assert profile.parser_options is None
+    three = "1. A question with three options here?\n(1) a\n(2) b\n(3) c"
+    six = "2. A question with six options here?\n(1) a\n(2) b\n(3) c\n(4) d\n(5) e\n(6) f"
+    read = segment([PageText(1, f"{three}\n{six}")], expected_options=profile.parser_options)
+    assert [len(q.options) for q in read.questions] == [3, 6]
+    assert not any(i.code == "incomplete_options" for q in read.questions for i in q.issues)
+
+
 def test_exam_names_are_only_in_template_data() -> None:
     """Exam names and codes live in data/ and tests, never in app code."""
     roots = [(REPO / "services/api/app", "*.py"), (REPO / "services/api/app", "*.txt")]

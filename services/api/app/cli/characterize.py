@@ -64,7 +64,7 @@ def _parsed(session: Session, document: Document) -> dict[str, Any]:
     ).all()
     result = segment(
         [PageText(p.page_number, p.text, p.needs_review) for p in pages],
-        expected_options=profile_for(session, document.exam_code).expected_options,
+        expected_options=profile_for(session, document.exam_code).parser_options,
         extra_headings=sorted(
             {t.subject for t in visible_topics(session, document.owner_id, document.exam_code)}
         ),

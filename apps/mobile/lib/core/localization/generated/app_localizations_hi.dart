@@ -4944,4 +4944,163 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get resultYourFullAnswer => 'आपने उत्तर दिया';
+
+  @override
+  String get formatTitle => 'प्रश्न का प्रकार';
+
+  @override
+  String get formatSingleCorrect => 'एक सही विकल्प';
+
+  @override
+  String get formatAssertionReason => 'कथन और कारण';
+
+  @override
+  String get formatStatement => 'कथन आधारित';
+
+  @override
+  String get formatTrueFalse => 'सही या गलत';
+
+  @override
+  String get formatMultipleCorrect => 'कई सही विकल्प';
+
+  @override
+  String get formatNumeric => 'संख्यात्मक उत्तर';
+
+  @override
+  String get formatFillBlank => 'रिक्त स्थान भरें';
+
+  @override
+  String get formatMatch => 'सुमेलित करें';
+
+  @override
+  String get formatOrdering => 'क्रम में रखें';
+
+  @override
+  String get formatNumericHint => 'एक मान दें, पेपर अनुमति दे तो छूट के साथ, या एक सीमा दें।';
+
+  @override
+  String get formatValue => 'मान';
+
+  @override
+  String get formatTolerance => 'छूट';
+
+  @override
+  String get formatRangeFrom => 'से';
+
+  @override
+  String get formatRangeTo => 'तक';
+
+  @override
+  String get formatAccepted => 'स्वीकृत उत्तर';
+
+  @override
+  String get formatOnePerLine => 'हर पंक्ति में एक।';
+
+  @override
+  String get formatPairs => 'जोड़े';
+
+  @override
+  String get formatPairsHint => 'हर पंक्ति में एक जोड़ा, इस तरह: बायाँ = दायाँ';
+
+  @override
+  String get formatOrderItems => 'मदें';
+
+  @override
+  String get formatOrderHint => 'हर पंक्ति में एक, सही क्रम में।';
+
+  @override
+  String get formatMarks => 'अंक';
+
+  @override
+  String get formatWordLimit => 'शब्द सीमा';
+
+  @override
+  String get formatChoiceGroup => 'विकल्प समूह';
+
+  @override
+  String get formatIncomplete => 'पहले उत्तर भरें।';
+
+  @override
+  String get formatSave => 'प्रकार सहेजें';
+
+  @override
+  String get paperDetailsTitle => 'पेपर का विवरण और उत्तर कुंजी';
+
+  @override
+  String get paperDetailsHint => 'चरण, सत्र, सेट, या अलग कुंजी';
+
+  @override
+  String get paperStage => 'चरण';
+
+  @override
+  String get paperSession => 'सत्र';
+
+  @override
+  String get paperSetCode => 'सेट';
+
+  @override
+  String get paperOtherSetsTitle => 'यह वही पेपर हो सकता है';
+
+  @override
+  String get paperOtherSetsNote =>
+      'इनमें वही प्रश्न हैं। अगर कोई इस पेपर का दूसरा सेट है, तो उसे चिह्नित करें ताकि वह एक बार गिना जाए। आपके करने तक कुछ नहीं बदलता।';
+
+  @override
+  String paperOtherSetsShare(int percent) {
+    return '$percent% प्रश्न मेल खाते हैं';
+  }
+
+  @override
+  String get paperMarkAsSet => 'वही पेपर';
+
+  @override
+  String get paperMarkedAsSet => 'वही पेपर चिह्नित किया गया';
+
+  @override
+  String get paperKeyTitle => 'अलग उत्तर कुंजी';
+
+  @override
+  String get paperKeyNote => 'यह केवल छूटे उत्तर भरती है। पहले से दिया उत्तर नहीं बदलता।';
+
+  @override
+  String get paperKeyPaste => 'कुंजी चिपकाएँ';
+
+  @override
+  String get paperKeyApply => 'कुंजी लागू करें';
+
+  @override
+  String get paperKeyPdf => 'PDF चुनें';
+
+  @override
+  String paperKeyApplied(int count) {
+    return '$count उत्तर भरे गए';
+  }
+
+  @override
+  String paperKeyAgreed(int count) {
+    return '$count पहले से मेल खाते थे';
+  }
+
+  @override
+  String paperKeyConflicts(int count) {
+    return '$count पहले से दिए उत्तर से अलग हैं: चिह्नित किए, बदले नहीं';
+  }
+
+  @override
+  String paperKeyUnmatched(String numbers) {
+    return 'ऐसा कोई प्रश्न नहीं: $numbers';
+  }
+
+  @override
+  String get paperKeyAmbiguous =>
+      'इस पेपर में प्रश्न संख्याएँ दोहराई गई हैं, इसलिए कुंजी नहीं मिलाई जा सकती। ये उत्तर समीक्षा में दें।';
+
+  @override
+  String paperKeyWithoutAnswer(int count) {
+    return '$count प्रश्नों का अभी उत्तर नहीं है';
+  }
+
+  @override
+  String get paperSolvePracticeOnly =>
+      'इस तरह के प्रश्न का उत्तर अभ्यास में दिया जाता है, यहाँ नहीं।';
 }

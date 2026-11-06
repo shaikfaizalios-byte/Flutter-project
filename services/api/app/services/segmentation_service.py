@@ -106,7 +106,7 @@ class SegmentationService:
             a.layout.number: normalize_text(a.text()) for a in analyses if a.figure_lines
         }
         exam_topics = active_topics(self._session, document.owner_id, document.exam_code)
-        expected_options = profile_for(self._session, document.exam_code).expected_options
+        expected_options = profile_for(self._session, document.exam_code).parser_options
         result = segment(
             [
                 PageText(p.page_number, figure_text.get(p.page_number, p.text), p.needs_review)
@@ -441,7 +441,7 @@ def _apply_figures(
     figures: QuestionFigures,
     unreadable_chars: int,
     renderer: PdfRenderer | None,
-    expected_options: int,
+    expected_options: int | None,
 ) -> None:
     """Store figure crops on ``question`` and adjust its issues and image flag."""
     rows: list[QuestionFigure] = []

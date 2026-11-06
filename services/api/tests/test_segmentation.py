@@ -741,3 +741,17 @@ def test_explanations_start_after_the_key_even_without_their_heading() -> None:
     assert not any(
         i.code == IssueCode.CONFLICTING_ANSWERS for q in result.questions for i in q.issues
     )
+
+
+def test_sections_can_run_past_part_d() -> None:
+    result = run(
+        """
+        Part E: Biology
+        1. Which organ pumps blood through the body?
+        (1) Heart
+        (2) Lung
+        (3) Liver
+        (4) Skin
+        """
+    )
+    assert result.questions[0].section == "Biology"

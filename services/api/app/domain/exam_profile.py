@@ -32,6 +32,11 @@ class ExamProfile:
     counting_unit: str
 
     @property
+    def parser_options(self) -> int | None:
+        """The count to check a paper against; None when it varies, so any count is fine."""
+        return self.options_per_question
+
+    @property
     def expected_options(self) -> int:
         """The option count to check papers against and to write questions with."""
         return self.options_per_question or int(_defaults()["options_per_question"])

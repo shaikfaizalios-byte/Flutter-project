@@ -127,6 +127,8 @@ STRONG_QUESTION = re.compile(
 _LABEL_ROW = re.compile(r"^\s*(?:Q\s*\d{1,3}[\s,|/-]*){2,}$", re.IGNORECASE)
 # Fewer different strong numbers than this only count when the paper isn't plainly numbered.
 MIN_STRONG_NUMBERS = 3
+# How many options a question can have when its exam's count varies (labels run to 9 at most).
+OPTION_LIMIT = 9
 
 
 def strong_start(text: str) -> re.Match[str] | None:
@@ -152,7 +154,7 @@ WEAK_QUESTION = re.compile(r"^(\d{1,3})\s*[.):]\s+(.*)$")
 # A question number alone on its line ("4."), its text on the next lines.
 BARE_NUMBER = re.compile(r"^(\d{1,3})\s*[.)]$")
 SECTION_PREFIX = re.compile(
-    rf"^(?:section|part|खंड|भाग)\s*(?:{_DASH}|:)?\s*([A-D]|[IVX]{{1,4}}|\d{{1,2}})?\b\s*"
+    rf"^(?:section|part|खंड|भाग)\s*(?:{_DASH}|:)?\s*([A-H]|[IVX]{{1,4}}|\d{{1,2}})?\b\s*"
     rf"(?:{_DASH}|:|\.)?\s*(.*)$",
     re.IGNORECASE,
 )
@@ -332,7 +334,7 @@ def section_heading(line: str, extra: frozenset[str] = frozenset()) -> str | Non
 
 @dataclass(slots=True)
 class _State:
-    expected_options: int
+    expected_options: int  # the most a question can have: the exam's count, or OPTION_LIMIT
     strong_numbering: bool
     extra_headings: frozenset[str] = frozenset()
     questions: list[ParsedQuestion] = field(default_factory=list)
@@ -408,12 +410,12 @@ def _resolve_typed(question: ParsedQuestion) -> None:
 def segment(
     pages: Sequence[PageText],
     *,
-    expected_options: int,
+    expected_options: int | None,
     extra_headings: Sequence[str] = (),
 ) -> SegmentationResult:
     lines = _lines(pages)
     state = _State(
-        expected_options=expected_options,
+        expected_options=expected_options or OPTION_LIMIT,
         extra_headings=frozenset(h.strip().casefold() for h in extra_headings if h.strip()),
         strong_numbering=uses_strong_numbering([line.text for line in lines]),
     )
@@ -1022,7 +1024,7 @@ def _attach_explanations(
 def _validate(
     questions: list[ParsedQuestion],
     pages: Sequence[PageText],
-    expected_options: int,
+    expected_options: int | None,
     document_issues: list[Issue],
 ) -> None:
     if not questions:
@@ -1063,7 +1065,7 @@ def _validate(
 
 
 def validate_question_content(
-    question: ParsedQuestion, expected_options: int, option_figures: Collection[int] = ()
+    question: ParsedQuestion, expected_options: int | None, option_figures: Collection[int] = ()
 ) -> list[Issue]:
     """Checks that also apply after a reviewer edits a question."""
     return content_issues(
@@ -1080,7 +1082,7 @@ def content_issues(
     *,
     option_texts: Sequence[str],
     answer_position: int | None,
-    expected_options: int,
+    expected_options: int | None,
     option_figures: Collection[int] = (),
     answer_type: str = "choice",
     typed_answer: str | None = None,
@@ -1094,7 +1096,8 @@ def content_issues(
     if answer_type == "written":
         return [] if model_answer and model_answer.strip() else [Issue(IssueCode.MISSING_ANSWER)]
     issues: list[Issue] = []
-    if len(option_texts) != expected_options:
+    # None: the count differs from paper to paper, so any count is fine.
+    if expected_options is not None and len(option_texts) != expected_options:
         issues.append(
             Issue(
                 IssueCode.INCOMPLETE_OPTIONS,

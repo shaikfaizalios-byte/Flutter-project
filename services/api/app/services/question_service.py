@@ -614,7 +614,7 @@ class QuestionService:
         found = content_issues(
             option_texts=[o.text for o in question.options],
             answer_position=question.correct_option_position,
-            expected_options=profile_for(self._session, question.exam_code).expected_options,
+            expected_options=profile_for(self._session, question.exam_code).parser_options,
             option_figures={f.option_position for f in question.figures if f.option_position},
             answer_type=question.answer_type,
             typed_answer=question.typed_answer,

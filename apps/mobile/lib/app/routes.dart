@@ -47,6 +47,8 @@ abstract final class AppRoutes {
   ).toString();
 
   /// A whole paper in simple points (AI).
+  static String paperDetails(String id, String name) =>
+      Uri(path: '/study/documents/$id/details', queryParameters: {'name': name}).toString();
   static String paperSummary(String id, String name, String examCode) => Uri(
     path: '/study/documents/$id/summary',
     queryParameters: {'name': name, 'exam': examCode},

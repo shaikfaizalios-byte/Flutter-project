@@ -7898,6 +7898,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You answered'**
   String get resultYourFullAnswer;
+
+  /// No description provided for @formatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question format'**
+  String get formatTitle;
+
+  /// No description provided for @formatSingleCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'One correct option'**
+  String get formatSingleCorrect;
+
+  /// No description provided for @formatAssertionReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Assertion and reason'**
+  String get formatAssertionReason;
+
+  /// No description provided for @formatStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement based'**
+  String get formatStatement;
+
+  /// No description provided for @formatTrueFalse.
+  ///
+  /// In en, this message translates to:
+  /// **'True or false'**
+  String get formatTrueFalse;
+
+  /// No description provided for @formatMultipleCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Several correct options'**
+  String get formatMultipleCorrect;
+
+  /// No description provided for @formatNumeric.
+  ///
+  /// In en, this message translates to:
+  /// **'Numerical answer'**
+  String get formatNumeric;
+
+  /// No description provided for @formatFillBlank.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the blank'**
+  String get formatFillBlank;
+
+  /// No description provided for @formatMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the following'**
+  String get formatMatch;
+
+  /// No description provided for @formatOrdering.
+  ///
+  /// In en, this message translates to:
+  /// **'Put in order'**
+  String get formatOrdering;
+
+  /// No description provided for @formatNumericHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a value, with a tolerance if the paper allows one, or a range.'**
+  String get formatNumericHint;
+
+  /// No description provided for @formatValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get formatValue;
+
+  /// No description provided for @formatTolerance.
+  ///
+  /// In en, this message translates to:
+  /// **'Tolerance'**
+  String get formatTolerance;
+
+  /// No description provided for @formatRangeFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get formatRangeFrom;
+
+  /// No description provided for @formatRangeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get formatRangeTo;
+
+  /// No description provided for @formatAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted answers'**
+  String get formatAccepted;
+
+  /// No description provided for @formatOnePerLine.
+  ///
+  /// In en, this message translates to:
+  /// **'One per line.'**
+  String get formatOnePerLine;
+
+  /// No description provided for @formatPairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs'**
+  String get formatPairs;
+
+  /// No description provided for @formatPairsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One pair per line, written as: left = right'**
+  String get formatPairsHint;
+
+  /// No description provided for @formatOrderItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get formatOrderItems;
+
+  /// No description provided for @formatOrderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One per line, in the correct order.'**
+  String get formatOrderHint;
+
+  /// No description provided for @formatMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks'**
+  String get formatMarks;
+
+  /// No description provided for @formatWordLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Word limit'**
+  String get formatWordLimit;
+
+  /// No description provided for @formatChoiceGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice group'**
+  String get formatChoiceGroup;
+
+  /// No description provided for @formatIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the answer first.'**
+  String get formatIncomplete;
+
+  /// No description provided for @formatSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save format'**
+  String get formatSave;
+
+  /// No description provided for @paperDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper details and answer key'**
+  String get paperDetailsTitle;
+
+  /// No description provided for @paperDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage, session, set, or a separate key'**
+  String get paperDetailsHint;
+
+  /// No description provided for @paperStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get paperStage;
+
+  /// No description provided for @paperSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get paperSession;
+
+  /// No description provided for @paperSetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get paperSetCode;
+
+  /// No description provided for @paperOtherSetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could be the same paper'**
+  String get paperOtherSetsTitle;
+
+  /// No description provided for @paperOtherSetsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'These hold the same questions. If one is another set of this paper, mark it so it counts once. Nothing changes until you do.'**
+  String get paperOtherSetsNote;
+
+  /// No description provided for @paperOtherSetsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of the questions match'**
+  String paperOtherSetsShare(int percent);
+
+  /// No description provided for @paperMarkAsSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Same paper'**
+  String get paperMarkAsSet;
+
+  /// No description provided for @paperMarkedAsSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as the same paper'**
+  String get paperMarkedAsSet;
+
+  /// No description provided for @paperKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate answer key'**
+  String get paperKeyTitle;
+
+  /// No description provided for @paperKeyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This only fills in missing answers. An answer already set stays as it is.'**
+  String get paperKeyNote;
+
+  /// No description provided for @paperKeyPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the key'**
+  String get paperKeyPaste;
+
+  /// No description provided for @paperKeyApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply key'**
+  String get paperKeyApply;
+
+  /// No description provided for @paperKeyPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF'**
+  String get paperKeyPdf;
+
+  /// No description provided for @paperKeyApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} answers filled in'**
+  String paperKeyApplied(int count);
+
+  /// No description provided for @paperKeyAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} already matched'**
+  String paperKeyAgreed(int count);
+
+  /// No description provided for @paperKeyConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} differ from the answer already set: flagged, not changed'**
+  String paperKeyConflicts(int count);
+
+  /// No description provided for @paperKeyUnmatched.
+  ///
+  /// In en, this message translates to:
+  /// **'No such question: {numbers}'**
+  String paperKeyUnmatched(String numbers);
+
+  /// No description provided for @paperKeyAmbiguous.
+  ///
+  /// In en, this message translates to:
+  /// **'Question numbers repeat in this paper, so the key can\'t be matched. Set these answers in review.'**
+  String get paperKeyAmbiguous;
+
+  /// No description provided for @paperKeyWithoutAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions still have no answer'**
+  String paperKeyWithoutAnswer(int count);
+
+  /// No description provided for @paperSolvePracticeOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This kind of question is answered in practice, not here.'**
+  String get paperSolvePracticeOnly;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -223,6 +223,7 @@ void main() {
   test('unreadable options and figures are recognised', () {
     final noOptions = bankQuestion(id: 'n', options: const [], answer: null);
     expect(solveKind(noOptions), SolveKind.unreadable);
+    expect(solveKind(bankQuestion(format: 'multiple_correct')), SolveKind.practiceOnly);
     expect(hasFigure(bankQuestion(id: 'f', issues: const ['image_dependent'])), isTrue);
     expect(hasFigure(bankQuestion(id: 'p')), isFalse);
   });

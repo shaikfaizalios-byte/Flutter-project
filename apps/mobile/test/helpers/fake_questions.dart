@@ -34,6 +34,7 @@ BankQuestion bankQuestion({
   String? patternSuggestionReason,
   List<QuestionFigure> figures = const [],
   String answerType = 'choice',
+  String format = 'single_correct',
   String? modelAnswer,
   String? typedAnswer,
   String? sharedSource,
@@ -85,6 +86,7 @@ BankQuestion bankQuestion({
   patternSuggestionReason: patternSuggestionReason,
   figures: figures,
   answerType: answerType,
+  format: format,
   typedAnswer: typedAnswer,
   modelAnswer: modelAnswer,
 );

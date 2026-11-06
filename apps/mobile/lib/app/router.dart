@@ -15,6 +15,7 @@ import '../features/weekly_review/presentation/weekly_review_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
+import '../features/documents/presentation/paper_details_screen.dart';
 import '../features/documents/presentation/paper_read_screen.dart';
 import '../features/documents/presentation/paper_solve_screen.dart';
 import '../features/exams/presentation/exam_topics_screen.dart';
@@ -183,6 +184,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                             builder: (context, state) => PaperSolveScreen(
                               documentId: state.pathParameters['id']!,
                               name: state.uri.queryParameters['name'] ?? '',
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'details',
+                            parentNavigatorKey: _rootNavigatorKey,
+                            redirect: (_, _) =>
+                                ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+                            builder: (context, state) => PaperDetailsScreen(
+                              documentId: state.pathParameters['id']!,
+                              filename: state.uri.queryParameters['name'] ?? '',
                             ),
                           ),
                           GoRoute(

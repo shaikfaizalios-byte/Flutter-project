@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../exams/application/exam_catalog_controller.dart';
@@ -19,6 +20,7 @@ import 'mark_figure_screen.dart';
 import 'question_history_widgets.dart';
 import 'shared_report.dart';
 import 'question_widgets.dart';
+import 'format_editor_card.dart';
 
 class QuestionReviewScreen extends ConsumerWidget {
   const QuestionReviewScreen({super.key, required this.questionId});
@@ -279,6 +281,23 @@ class _EditorState extends ConsumerState<_Editor> {
     },
   );
 
+  /// Saves a question's format on its own: it needn't wait for the rest of the form.
+  Future<void> _saveFormat(QuestionEdit edit) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final updated = await ref.read(questionsRepositoryProvider).update(_question.id, edit);
+      if (!mounted) return;
+      setState(() => _load(updated));
+      ref.invalidate(questionRevisionsProvider(updated.id));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.saved)));
+    } on AppFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
+    } on Object catch (error, stack) {
+      logError('Saving the format failed', error, stack);
+    }
+  }
+
   Future<void> _submit({VerificationStatus? status}) async {
     if (_busy) return;
     final l10n = AppLocalizations.of(context);
@@ -522,6 +541,12 @@ class _EditorState extends ConsumerState<_Editor> {
                     QuestionFigureView(questionId: q.id, figure: figure),
                 ],
               ),
+            ),
+          if (ref.watch(appFeaturesProvider).examProfiles)
+            FormatEditorCard(
+              key: ValueKey('format-${_question.format}'),
+              question: _question,
+              onSave: _saveFormat,
             ),
           if (_options.length < 6)
             Align(

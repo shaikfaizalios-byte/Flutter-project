@@ -14,6 +14,7 @@ import '../../question_bank/presentation/figure_view.dart';
 import '../../question_bank/presentation/question_widgets.dart';
 import '../../question_bank/presentation/shared_report.dart';
 import '../application/practice_providers.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../domain/practice_models.dart';
 import 'format_answers.dart';
 import 'result_view.dart';
@@ -246,7 +247,7 @@ class _SessionBody extends ConsumerWidget {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
-                    child: SelectableText(item.passage!.text),
+                    child: RichQuestionText(item.passage!.text),
                   ),
                 ),
               ],
@@ -254,7 +255,7 @@ class _SessionBody extends ConsumerWidget {
               if (item.stem == null)
                 Text(l10n.sessionQuestionRemoved)
               else
-                SelectableText(item.stem!, style: Theme.of(context).textTheme.titleMedium),
+                RichQuestionText(item.stem!, style: Theme.of(context).textTheme.titleMedium),
               if (item.questionId != null)
                 QuestionFigures(questionId: item.questionId!, figures: item.figures),
               const SizedBox(height: AppSpacing.md),
@@ -490,11 +491,14 @@ class _OptionTile extends StatelessWidget {
                   Text('($label)  ', style: const TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
                     child: figure == null
-                        ? Text(text)
+                        ? RichQuestionText(text, selectable: false)
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: AppSpacing.xs,
-                            children: [if (text.isNotEmpty) Text(text), figure!],
+                            children: [
+                              if (text.isNotEmpty) RichQuestionText(text, selectable: false),
+                              figure!,
+                            ],
                           ),
                   ),
                 ],
@@ -545,7 +549,7 @@ class _FeedbackPanel extends StatelessWidget {
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),
-              SelectableText(feedback.explanation!),
+              RichQuestionText(feedback.explanation!),
             ],
           ],
         ),

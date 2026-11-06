@@ -62,6 +62,16 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `DELETE /syllabus-versions/{id}`; shared versions: `python -m app.cli.syllabus import FILE --reviewer NAME` (needs a source
   and year); built-in lists are in `data/syllabi`. Combined stats: `GET /analytics/canonical?exam=A&exam=B` (confirmed links
   only). App: `SyllabusTreeScreen` behind `AppFeatures.examProfiles`, outline builder `parseOutline`.
+- Question formats (any-exam Phase 3, migrations 0045-0046, Drift v9): `questions.format` + `answer_spec`, snapshotted on
+  `session_items`; `session_answers.response`. Plain formats (single_correct, assertion_reason, statement, true_false, typed_in,
+  descriptive) keep today's answer columns; multiple_correct, numeric, fill_blank, match, ordering are marked from `answer_spec`
+  by pure `app/domain/question_formats.py`. `Question.answer_type` set alone pulls its plain format (`@validates`). Practice
+  serves spec formats only with `include_new_formats` (app: `PracticeRepository.newFormats` from the flag); mocks and offline
+  packs never. Paper details: `PUT /documents/{id}/details` (stage, session, set, extra_languages, `duplicate_of_id`);
+  `questions.translation_of_id`. Both are excluded from repeats and Radar, only once a person confirms
+  (`paper_duplicates.py` only suggests). Answer key files: `POST /documents/{id}/answer-key[/text]`, pure `answer_key.py`, never
+  overwrites. Text: `RichQuestionText` (`flutter_math_fork`, TeX + pipe tables, plain when the flag is off). Review:
+  `FormatEditorCard`, `PaperDetailsScreen`. The parser doesn't detect formats yet; reviewers set them.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

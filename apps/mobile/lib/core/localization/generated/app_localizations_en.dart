@@ -4944,4 +4944,164 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resultYourFullAnswer => 'You answered';
+
+  @override
+  String get formatTitle => 'Question format';
+
+  @override
+  String get formatSingleCorrect => 'One correct option';
+
+  @override
+  String get formatAssertionReason => 'Assertion and reason';
+
+  @override
+  String get formatStatement => 'Statement based';
+
+  @override
+  String get formatTrueFalse => 'True or false';
+
+  @override
+  String get formatMultipleCorrect => 'Several correct options';
+
+  @override
+  String get formatNumeric => 'Numerical answer';
+
+  @override
+  String get formatFillBlank => 'Fill in the blank';
+
+  @override
+  String get formatMatch => 'Match the following';
+
+  @override
+  String get formatOrdering => 'Put in order';
+
+  @override
+  String get formatNumericHint =>
+      'Give a value, with a tolerance if the paper allows one, or a range.';
+
+  @override
+  String get formatValue => 'Value';
+
+  @override
+  String get formatTolerance => 'Tolerance';
+
+  @override
+  String get formatRangeFrom => 'From';
+
+  @override
+  String get formatRangeTo => 'To';
+
+  @override
+  String get formatAccepted => 'Accepted answers';
+
+  @override
+  String get formatOnePerLine => 'One per line.';
+
+  @override
+  String get formatPairs => 'Pairs';
+
+  @override
+  String get formatPairsHint => 'One pair per line, written as: left = right';
+
+  @override
+  String get formatOrderItems => 'Items';
+
+  @override
+  String get formatOrderHint => 'One per line, in the correct order.';
+
+  @override
+  String get formatMarks => 'Marks';
+
+  @override
+  String get formatWordLimit => 'Word limit';
+
+  @override
+  String get formatChoiceGroup => 'Choice group';
+
+  @override
+  String get formatIncomplete => 'Fill in the answer first.';
+
+  @override
+  String get formatSave => 'Save format';
+
+  @override
+  String get paperDetailsTitle => 'Paper details and answer key';
+
+  @override
+  String get paperDetailsHint => 'Stage, session, set, or a separate key';
+
+  @override
+  String get paperStage => 'Stage';
+
+  @override
+  String get paperSession => 'Session';
+
+  @override
+  String get paperSetCode => 'Set';
+
+  @override
+  String get paperOtherSetsTitle => 'Could be the same paper';
+
+  @override
+  String get paperOtherSetsNote =>
+      'These hold the same questions. If one is another set of this paper, mark it so it counts once. Nothing changes until you do.';
+
+  @override
+  String paperOtherSetsShare(int percent) {
+    return '$percent% of the questions match';
+  }
+
+  @override
+  String get paperMarkAsSet => 'Same paper';
+
+  @override
+  String get paperMarkedAsSet => 'Marked as the same paper';
+
+  @override
+  String get paperKeyTitle => 'Separate answer key';
+
+  @override
+  String get paperKeyNote =>
+      'This only fills in missing answers. An answer already set stays as it is.';
+
+  @override
+  String get paperKeyPaste => 'Paste the key';
+
+  @override
+  String get paperKeyApply => 'Apply key';
+
+  @override
+  String get paperKeyPdf => 'Choose a PDF';
+
+  @override
+  String paperKeyApplied(int count) {
+    return '$count answers filled in';
+  }
+
+  @override
+  String paperKeyAgreed(int count) {
+    return '$count already matched';
+  }
+
+  @override
+  String paperKeyConflicts(int count) {
+    return '$count differ from the answer already set: flagged, not changed';
+  }
+
+  @override
+  String paperKeyUnmatched(String numbers) {
+    return 'No such question: $numbers';
+  }
+
+  @override
+  String get paperKeyAmbiguous =>
+      'Question numbers repeat in this paper, so the key can\'t be matched. Set these answers in review.';
+
+  @override
+  String paperKeyWithoutAnswer(int count) {
+    return '$count questions still have no answer';
+  }
+
+  @override
+  String get paperSolvePracticeOnly => 'This kind of question is answered in practice, not here.';
 }
