@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     # Interactive docs (/docs, OpenAPI) outside production. Turn off when a development server
     # is reachable from the internet (e.g. through a tunnel).
     expose_docs: bool = True
+    # The content team's review page at /review-tool. It holds no data and needs a sign-in, but
+    # stays off in production unless turned on.
+    expose_review_tool: bool = False
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
     # Optional regex for allowed origins. Intended for local development only, where the
     # Flutter web dev server picks a random localhost port.
@@ -166,6 +169,10 @@ class Settings(BaseSettings):
         return bool(
             self.play_package_name and self.play_subscription_ids and self.play_service_account_file
         )
+
+    @property
+    def review_tool_enabled(self) -> bool:
+        return self.expose_review_tool or self.environment is not Environment.PRODUCTION
 
     @property
     def docs_enabled(self) -> bool:

@@ -406,6 +406,7 @@ class LadderService:
                 Question.origin == QuestionOrigin.SOURCE,
                 Question.verification_status == VerificationStatus.VERIFIED,
                 Question.image_dependent.is_(False),
+                Question.stem != "",  # printed as a picture: nothing to send or show as text
             )
             .order_by(Question.created_at, Question.id)
         ).all()

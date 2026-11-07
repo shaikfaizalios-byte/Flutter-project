@@ -189,3 +189,55 @@ def two_column_pdf(rows: int = 12) -> bytes:
     pdf.showPage()
     pdf.save()
     return buffer.getvalue()
+
+
+def official_paper_pdf(note: str = "") -> bytes:
+    """A paper printed the way papers with official IDs are: a text header per question, the
+    question and each option as images, each option labelled by its own ID. Five option questions
+    in Physics Section A, then one typed question in Section B."""
+
+    def picture(text: str) -> ImageReader:
+        image = Image.new("RGB", (240, 30), "white")
+        ImageDraw.Draw(image).text((4, 8), text, fill="black")
+        out = io.BytesIO()
+        image.save(out, format="PNG")
+        out.seek(0)
+        return ImageReader(out)
+
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=(595, 842))
+    y = 800
+    pdf.drawString(400, 20, note)  # another version of the paper is another file
+    pdf.drawString(40, y, "Physics Section A")
+    y -= 24
+    for number in range(1, 6):
+        if y < 240:
+            pdf.showPage()
+            y = 800
+        pdf.drawString(
+            40,
+            y,
+            f"Question Number : {number} Question Id : {7000000 + number} "
+            "Question Type : MCQ Option Shuffling : Yes",
+        )
+        y -= 40
+        pdf.drawImage(picture(f"Question {number}"), 60, y, 240, 30)
+        y -= 20
+        pdf.drawString(40, y, "Options :")
+        for option in range(1, 5):
+            y -= 34
+            pdf.drawString(40, y, f"{7100000 + number * 10 + option}. ")
+            pdf.drawImage(picture(f"Option {option}"), 120, y - 8, 120, 26)
+        y -= 34
+    pdf.showPage()
+    pdf.drawString(40, 800, "Physics Section B")
+    pdf.drawString(
+        40, 776, "Question Number : 6 Question Id : 7000006 Question Type : SA Display : Yes"
+    )
+    pdf.drawString(40, 756, "Response Type : Numeric")
+    pdf.drawImage(picture("Question 6"), 60, 700, 240, 30)
+    pdf.drawString(40, 680, "Possible Answers :")
+    pdf.drawString(40, 660, "1")
+    pdf.showPage()
+    pdf.save()
+    return buffer.getvalue()

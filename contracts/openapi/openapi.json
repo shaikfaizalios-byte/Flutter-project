@@ -820,6 +820,103 @@
         "title": "Body_upload_document_api_v1_documents_post",
         "type": "object"
       },
+      "Body_upload_official_key_api_v1_documents__document_id__official_key_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "Official answer-key PDF",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_official_key_api_v1_documents__document_id__official_key_post",
+        "type": "object"
+      },
+      "BulkAssign": {
+        "additionalProperties": false,
+        "properties": {
+          "pattern_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
+          },
+          "question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Question Ids",
+            "type": "array"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          },
+          "verification_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "unverified",
+                  "verified",
+                  "rejected"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Status"
+          }
+        },
+        "required": [
+          "question_ids"
+        ],
+        "title": "BulkAssign",
+        "type": "object"
+      },
+      "BulkAssignResult": {
+        "properties": {
+          "failed": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Failed",
+            "type": "array"
+          },
+          "updated": {
+            "title": "Updated",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "updated",
+          "failed"
+        ],
+        "title": "BulkAssignResult",
+        "type": "object"
+      },
       "CanonicalDecision": {
         "additionalProperties": false,
         "description": "The learner says whether their topic means this canonical topic.",
@@ -3760,6 +3857,35 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "ImportCheckRead": {
+        "properties": {
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "problems": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionCountRead"
+            },
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ok",
+          "sections",
+          "problems"
+        ],
+        "title": "ImportCheckRead",
+        "type": "object"
+      },
       "IssueRead": {
         "properties": {
           "code": {
@@ -4723,6 +4849,59 @@
           }
         },
         "title": "NotRepeated",
+        "type": "object"
+      },
+      "OfficialKeyResult": {
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "integer"
+          },
+          "dropped": {
+            "title": "Dropped",
+            "type": "integer"
+          },
+          "missing": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "problems": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "sessions_remarked": {
+            "title": "Sessions Remarked",
+            "type": "integer"
+          },
+          "several": {
+            "title": "Several",
+            "type": "integer"
+          },
+          "stage": {
+            "enum": [
+              "provisional",
+              "final"
+            ],
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "applied",
+          "several",
+          "dropped",
+          "missing",
+          "problems",
+          "sessions_remarked"
+        ],
+        "title": "OfficialKeyResult",
         "type": "object"
       },
       "OfflineAnswer": {
@@ -8338,6 +8517,29 @@
           "available"
         ],
         "title": "SectionAvailability",
+        "type": "object"
+      },
+      "SectionCountRead": {
+        "properties": {
+          "expected": {
+            "title": "Expected",
+            "type": "integer"
+          },
+          "found": {
+            "title": "Found",
+            "type": "integer"
+          },
+          "section": {
+            "title": "Section",
+            "type": "string"
+          }
+        },
+        "required": [
+          "section",
+          "expected",
+          "found"
+        ],
+        "title": "SectionCountRead",
         "type": "object"
       },
       "SectionRead": {
@@ -15335,6 +15537,192 @@
         ]
       }
     },
+    "/api/v1/documents/{document_id}/import-check": {
+      "get": {
+        "operationId": "import_check_api_v1_documents__document_id__import_check_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format_code",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "title": "Format Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCheckRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Compare an imported paper with a format: counts, keys and question formats",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/official-key": {
+      "post": {
+        "operationId": "upload_official_key_api_v1_documents__document_id__official_key_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_official_key_api_v1_documents__document_id__official_key_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfficialKeyResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "file_too_large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "unsupported_file_type (not a PDF)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "validation_error, invalid_reference, empty_file, invalid_pdf, encrypted_pdf, too_many_pages"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited (see Retry-After)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Match an official key file to this paper by question ID (the file isn't kept)",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/v1/documents/{document_id}/pages": {
       "get": {
         "operationId": "get_document_pages_api_v1_documents__document_id__pages_get",
@@ -19207,6 +19595,62 @@
           }
         ],
         "summary": "Search questions",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
+    "/api/v1/questions/bulk-assign": {
+      "post": {
+        "operationId": "bulk_assign_api_v1_questions_bulk_assign_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkAssign"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkAssignResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Set a topic, a model or a review state on many questions at once",
         "tags": [
           "questions"
         ]

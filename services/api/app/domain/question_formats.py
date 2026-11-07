@@ -8,7 +8,8 @@ The rest keep theirs in ``answer_spec``:
 - numeric: {"value": "2.5", "tolerance": "0.01"} or {"min": "2.4", "max": "2.6"}, as text so no
   precision is lost; compared as decimals. With "decimals": 2 the paper's rule applies: an answer
   counts if it is right as typed, truncated or rounded to that many places
-- integer: {"value": "7"}; a whole number, compared by value
+- integer: {"value": "7"}; a whole number, compared by value. {"also": ["8"]} adds any others the
+  key accepts
 - fill_blank: {"accepted": ["mitochondria"]}; any of them, ignoring case and spacing
 - match: {"left": [...], "right": [...], "pairs": [[0, 2], [1, 0]]}; exactly these pairs
 - ordering: {"items": [...], "order": [2, 0, 1]}; exactly this order
@@ -106,8 +107,8 @@ def spec_problems(format_name: str, spec: Mapping[str, Any] | None, option_count
     if format_name == "numeric":
         return _numeric_problems(spec)
     if format_name == "integer":
-        value = _decimal(spec.get("value"))
-        if value is None or value != value.to_integral_value():
+        values = [_decimal(v) for v in [spec.get("value"), *spec.get("also", [])]]
+        if not all(v is not None and v == v.to_integral_value() for v in values):
             return ["give a whole number"]
         return []
     if format_name == "fill_blank":
@@ -178,11 +179,9 @@ def is_correct(format_name: str, spec: Mapping[str, Any], answer: object) -> boo
     if format_name == "numeric":
         return _numeric_correct(spec, answer)
     if format_name == "integer":
-        given, value = (
-            _decimal(answer) if isinstance(answer, str) else None,
-            _decimal(spec["value"]),
-        )
-        return given is not None and given == value
+        given = _decimal(answer) if isinstance(answer, str) else None
+        accepted = [_decimal(v) for v in [spec["value"], *spec.get("also", [])]]
+        return given is not None and given in accepted
     if format_name == "fill_blank":
         return isinstance(answer, str) and _fold(answer) in {_fold(a) for a in spec["accepted"]}
     if not isinstance(answer, Mapping):

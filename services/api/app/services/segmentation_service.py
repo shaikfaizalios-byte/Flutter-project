@@ -16,7 +16,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.domain.figures import (
@@ -25,6 +25,12 @@ from app.domain.figures import (
     analyse_page,
     decorations,
     locate_figures,
+)
+from app.domain.official_paper import (
+    Crop,
+    OfficialQuestion,
+    is_official_paper,
+    read_official_paper,
 )
 from app.domain.paper_date import suggest_paper_date
 from app.domain.qa_notes import WrittenQuestion, read_qa_notes
@@ -101,6 +107,9 @@ class SegmentationService:
             .order_by(DocumentPage.page_number)
         ).all()
         pdf_path = self._pdf_path(document)
+        if pdf_path is not None and _prints_official_ids(pdf_path, pages):
+            self._save_official(document, pdf_path, pages)
+            return
         analyses, layout_issue = _analyse(pdf_path, pages)
         figure_text = {
             a.layout.number: normalize_text(a.text()) for a in analyses if a.figure_lines
@@ -243,6 +252,35 @@ class SegmentationService:
             },
         )
 
+    def _save_official(
+        self, document: Document, pdf_path: Path, pages: Sequence[DocumentPage]
+    ) -> None:
+        """A paper with official IDs: each question as printed, with no text read from its
+        pictures. Reviewed questions stay; only a first import adds questions."""
+        existing = self._session.scalar(
+            select(func.count()).select_from(Question).where(Question.document_id == document.id)
+        )
+        if not existing:
+            numbers = {p.page_number for p in pages}
+            parsed = read_official_paper(list(read_layouts(pdf_path, numbers)))
+            with PdfRenderer(pdf_path) as renderer:
+                for item in parsed:
+                    self._session.add(_official_question(document, item, renderer))
+            self._session.flush()
+            _link_language_versions(self._session, document)
+        document.segmentation_status = "completed"
+        document.questions_found = (
+            self._session.scalar(
+                select(func.count())
+                .select_from(Question)
+                .where(Question.document_id == document.id)
+            )
+            or 0
+        )
+        document.segmented_at = datetime.now(UTC)
+        _suggest_paper_date(document, pages)
+        self._session.commit()
+
     def _save_written(
         self,
         document: Document,
@@ -382,6 +420,98 @@ class SegmentationService:
         ]
         add_first_revision(question, "extracted", "rules")
         return question
+
+
+OFFICIAL_SAMPLE_PAGES = 5
+
+
+def _prints_official_ids(pdf_path: Path, pages: Sequence[DocumentPage]) -> bool:
+    """Read from the PDF's own text: a paper in another language may have gone to OCR, which
+    can't be relied on for its English headers."""
+    first = {p.page_number for p in pages[:OFFICIAL_SAMPLE_PAGES]}
+    return is_official_paper(
+        line.text for layout in read_layouts(pdf_path, first) for line in layout.lines
+    )
+
+
+def _figure(
+    renderer: PdfRenderer, crop: Crop, kind: str, order: int, position: int | None = None
+) -> QuestionFigure:
+    data, width, height = renderer.render(crop.page, crop.box)
+    return QuestionFigure(
+        kind=kind,
+        option_position=position,
+        sort_order=order,
+        page_number=crop.page,
+        box=crop.box.as_list(),
+        width=width,
+        height=height,
+        content_type="image/png",
+        data=data,
+    )
+
+
+def _official_question(
+    document: Document, item: OfficialQuestion, renderer: PdfRenderer
+) -> Question:
+    typed = not item.options
+    question = Question(
+        origin=QuestionOrigin.SOURCE,
+        owner_id=document.owner_id,
+        exam_code=document.exam_code,
+        section=item.section,
+        subject=item.subject,
+        stem=item.text,
+        language=document.language,
+        document_id=document.id,
+        source_question_number=item.number,
+        source_pages=[item.page],
+        external_id=item.external_id,
+        answer_type="typed" if typed else "choice",
+        format="integer" if typed else "single_correct",
+        image_dependent=True,
+        verification_status=VerificationStatus.UNVERIFIED,
+    )
+    question.options = [
+        QuestionOption(position=i, label=str(i), text=o.text, external_id=o.external_id)
+        for i, o in enumerate(item.options, start=1)
+    ]
+    figures = [_figure(renderer, c, "stem", i) for i, c in enumerate(item.crops)]
+    for position, option in enumerate(item.options, start=1):
+        figures += [
+            _figure(renderer, c, "option", len(figures) + i, position)
+            for i, c in enumerate(option.crops)
+        ]
+    question.figures = figures
+    add_first_revision(question, "extracted", "rules")
+    return question
+
+
+def _link_language_versions(session: Session, document: Document) -> None:
+    """The same official ID in another language is the same question: it counts once. An ID is
+    the paper's own statement of that, so no person needs to confirm it."""
+    mine = session.scalars(
+        select(Question).where(
+            Question.document_id == document.id, Question.external_id.is_not(None)
+        )
+    ).all()
+    first = {
+        q.external_id: q
+        for q in session.scalars(
+            select(Question).where(
+                Question.owner_id == document.owner_id,
+                Question.exam_code == document.exam_code,
+                Question.document_id != document.id,
+                Question.external_id.in_([q.external_id for q in mine]),
+                Question.language != document.language,
+                Question.translation_of_id.is_(None),
+            )
+        )
+    }
+    for question in mine:
+        other = first.get(question.external_id)
+        if other is not None:
+            question.translation_of_id = other.id
 
 
 def _unreadable_count(question: ParsedQuestion) -> int:

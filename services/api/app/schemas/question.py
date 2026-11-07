@@ -126,6 +126,42 @@ class SubPart(BaseModel):
     marks: float | None = Field(default=None, ge=0, le=1000)
 
 
+class OfficialKeyResult(BaseModel):
+    stage: Literal["provisional", "final"]
+    applied: int
+    several: int
+    dropped: int
+    missing: list[int]  # question numbers the key doesn't cover
+    problems: list[str]
+    sessions_remarked: int
+
+
+class SectionCountRead(BaseModel):
+    section: str
+    expected: int
+    found: int
+
+
+class ImportCheckRead(BaseModel):
+    ok: bool
+    sections: list[SectionCountRead]
+    problems: list[str]
+
+
+class BulkAssign(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    question_ids: list[uuid.UUID] = Field(min_length=1, max_length=500)
+    topic_id: uuid.UUID | None = None
+    pattern_id: uuid.UUID | None = None
+    verification_status: VerificationLiteral | None = None
+
+
+class BulkAssignResult(BaseModel):
+    updated: int
+    failed: list[uuid.UUID]
+
+
 class AnswerKeyUpdate(BaseModel):
     """The official key of one question. Left out: the answer stays as it is."""
 

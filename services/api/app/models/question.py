@@ -302,6 +302,8 @@ class Question(Base):
     source_question_number: Mapped[int | None] = mapped_column(Integer)
     # The ID the paper prints, where it has one: keys and language versions match on it.
     external_id: Mapped[str | None] = mapped_column(String(24), index=True)
+    # An AI reading of a question printed as a picture, for search only: never shown or marked.
+    transcript: Mapped[str | None] = mapped_column(Text)
     source_pages: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
     passage_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("passages.id", ondelete="SET NULL")
@@ -416,6 +418,8 @@ class QuestionOption(Base):
     position: Mapped[int] = mapped_column(Integer, primary_key=True)  # 1-based display order
     label: Mapped[str] = mapped_column(String(8))  # as printed: "1", "a", "A"
     text: Mapped[str] = mapped_column(Text)
+    # The ID the paper prints, where it has one.
+    external_id: Mapped[str | None] = mapped_column(String(24))
 
 
 class QuestionIssue(Base):

@@ -113,6 +113,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   key runs `apply_final_key` (practice_service): every attempt at the question, any account, is re-marked (`result.remarked`). Dropped:
   marks to all, never practised; offline packs take `one` only. Format `integer`; numeric `decimals` = right as typed, truncated or
   rounded. `RichQuestionText` is used for options and solutions too, parses `\\ce{}` (`ceToTex`) and caches parsed text.
+- Official papers (docs/jee-neet phase D, migration 0055): `app/domain/official_paper.py` reads papers printing "Question Id" headers,
+  with stem and options as images: crops as printed, no text read, `external_id` on questions and options. `official_key.py` +
+  `POST /documents/{id}/official-key`: keys by ID (option IDs, numbers, Dropped, "41 or 42"); may overwrite, unlike plain keys. Same ID
+  in another language links `translation_of_id`. `import_checks.py`, `GET /documents/{id}/import-check`. `questions.transcript` = AI
+  reading for search only, never shown (`app.cli.official_papers transcribe`). Internal tool: `/review-tool`
+  (`app/tools/review_tool.html`, off in production unless `PREPLOOP_EXPOSE_REVIEW_TOOL`), `POST /questions/bulk-assign`.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

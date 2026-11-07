@@ -1,10 +1,11 @@
 """Question bank queries and reviewer edits."""
 
 import uuid
+from collections import Counter
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal, cast
 
 from sqlalchemy import Select, and_, exists, func, or_, select
 from sqlalchemy.orm import Session, selectinload, undefer
@@ -15,6 +16,8 @@ from app.domain.answer_key import KeyQuestion, plan_key
 from app.domain.answer_keys import answer_changed, key_problems
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.figures import figure_box_problem, page_box
+from app.domain.import_checks import CheckedQuestion, check_import
+from app.domain.official_key import KeyTarget, plan_official_key, read_official_key
 from app.domain.question_formats import (
     FORMATS,
     SINGLE_ANSWER,
@@ -44,11 +47,15 @@ from app.schemas.question import (
     AIExplanationRead,
     AIProvenance,
     AnswerKeyUpdate,
+    BulkAssign,
+    BulkAssignResult,
     ExamFormatRead,
     FigureCreate,
     FigureRead,
+    ImportCheckRead,
     IssueRead,
     KeySaved,
+    OfficialKeyResult,
     OptionRead,
     PaperAnswerRead,
     PaperDateRead,
@@ -59,6 +66,7 @@ from app.schemas.question import (
     QuestionRead,
     QuestionRevisionRead,
     QuestionUpdate,
+    SectionCountRead,
     TopicRead,
 )
 from app.services.exam_formats import published_formats
@@ -158,6 +166,7 @@ def _text_conditions(query: str) -> list[Any]:
         conditions.append(
             or_(
                 Question.stem.ilike(like, escape="\\"),
+                Question.transcript.ilike(like, escape="\\"),
                 select(QuestionOption.position)
                 .where(
                     QuestionOption.question_id == Question.id,
@@ -572,6 +581,115 @@ class QuestionService:
         remarked = apply_final_key(self._session, question) if data.stage == "final" else 0
         self._session.commit()
         return KeySaved(question=self.get(question_id), sessions_remarked=remarked)
+
+    def apply_official_key(self, document_id: uuid.UUID, pages: list[str]) -> OfficialKeyResult:
+        """Matches a key file to a paper by official ID. Unlike a plain key it may overwrite: a
+        final key replaces the provisional one and re-marks attempts."""
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        key = read_official_key(pages)
+        if not key.entries:
+            raise InvalidReferenceError("No question IDs were found in this file.")
+        if key.stage is None:
+            raise InvalidReferenceError("This file doesn't say whether it is provisional or final.")
+        questions = self._session.scalars(
+            select(Question)
+            .where(Question.document_id == document_id, Question.external_id.is_not(None))
+            .options(*self._load_options())
+        ).all()
+        if not questions:
+            raise InvalidReferenceError("This paper has no official question IDs.")
+        plan = plan_official_key(
+            [
+                KeyTarget(
+                    q.external_id or "",
+                    q.source_question_number or 0,
+                    q.answer_type == "typed",
+                    {o.external_id: o.position for o in q.options if o.external_id},
+                )
+                for q in questions
+            ],
+            key,
+        )
+        by_id = {q.external_id: q for q in questions}
+        remarked = 0
+        for decision in plan.decisions:
+            saved = self.set_answer_key(
+                by_id[decision.external_id].id,
+                AnswerKeyUpdate(
+                    stage=cast("Literal['provisional', 'final']", key.stage),
+                    outcome=cast("Literal['one', 'several', 'dropped']", decision.outcome),
+                    accepted_positions=list(decision.accepted) if decision.accepted else None,
+                    correct_option_position=decision.position,
+                    answer_spec=dict(decision.spec) if decision.spec else None,
+                ),
+            )
+            remarked += saved.sessions_remarked
+        outcomes = Counter(d.outcome for d in plan.decisions)
+        return OfficialKeyResult(
+            stage=key.stage,
+            applied=len(plan.decisions),
+            several=outcomes["several"],
+            dropped=outcomes["dropped"],
+            missing=plan.missing,
+            problems=plan.problems,
+            sessions_remarked=remarked,
+        )
+
+    def import_check(self, document_id: uuid.UUID, format_code: str) -> ImportCheckRead:
+        """Looks at an imported paper against a format. Changes nothing."""
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        exam_format = self._session.scalar(
+            select(ExamFormat).where(
+                ExamFormat.code == format_code, ExamFormat.exam_code == document.exam_code
+            )
+        )
+        if exam_format is None:
+            raise InvalidReferenceError("That format isn't one of this exam's.")
+        questions = self._session.scalars(
+            select(Question).where(
+                Question.document_id == document_id,
+                Question.verification_status != VerificationStatus.REJECTED,
+                Question.translation_of_id.is_(None),
+            )
+        ).all()
+        check = check_import(
+            exam_format.sections or [],
+            [
+                CheckedQuestion(
+                    q.source_question_number or 0,
+                    q.section,
+                    q.format,
+                    q.key_outcome == "dropped"
+                    or q.correct_option_position is not None
+                    or q.answer_spec is not None
+                    or q.typed_answer is not None,
+                )
+                for q in questions
+            ],
+        )
+        return ImportCheckRead(
+            ok=check.ok,
+            sections=[SectionCountRead(**asdict(s)) for s in check.sections],
+            problems=list(check.problems),
+        )
+
+    def bulk_assign(self, data: BulkAssign) -> BulkAssignResult:
+        """Sets a topic, a model or a review state on many questions, each checked as if edited
+        alone. One that can't take it is reported, and the rest go on."""
+        changes = data.model_dump(exclude_unset=True, exclude={"question_ids"})
+        updated, failed = 0, []
+        for question_id in data.question_ids:
+            try:
+                self.update(question_id, QuestionUpdate.model_validate(changes))
+                updated += 1
+            except DomainError:
+                self._session.rollback()
+                failed.append(question_id)
+        return BulkAssignResult(updated=updated, failed=failed)
 
     def set_translation(self, question_id: uuid.UUID, of: uuid.UUID | None) -> QuestionRead:
         """This question is ``of`` in another language, and counts once. Null unlinks it."""

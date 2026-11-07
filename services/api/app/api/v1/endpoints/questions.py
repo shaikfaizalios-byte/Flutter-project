@@ -9,6 +9,8 @@ from app.schemas.errors import ErrorResponse
 from app.schemas.language import Language
 from app.schemas.question import (
     AnswerKeyUpdate,
+    BulkAssign,
+    BulkAssignResult,
     ExamFormatRead,
     FigureCreate,
     FigureRead,
@@ -82,6 +84,16 @@ def list_questions(
 )
 def get_question(question_id: uuid.UUID, service: Service) -> QuestionRead:
     return service.get(question_id)
+
+
+@router.post(
+    "/questions/bulk-assign",
+    response_model=BulkAssignResult,
+    tags=["questions"],
+    summary="Set a topic, a model or a review state on many questions at once",
+)
+def bulk_assign(body: BulkAssign, service: Service) -> BulkAssignResult:
+    return service.bulk_assign(body)
 
 
 @router.put(

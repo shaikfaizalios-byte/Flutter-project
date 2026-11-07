@@ -35,11 +35,13 @@ from app.schemas.errors import ErrorResponse
 from app.schemas.language import Language
 from app.schemas.question import (
     DocumentFormatUpdate,
+    ImportCheckRead,
+    OfficialKeyResult,
     ParseSummary,
     TopicAcceptResult,
     VerifyCleanResult,
 )
-from app.services.answer_key_file import read_key_pdf
+from app.services.answer_key_file import read_key_pages, read_key_pdf
 from app.services.document_service import DocumentService
 from app.services.question_service import QuestionService
 from app.services.segmentation_service import SegmentationService
@@ -235,6 +237,48 @@ def upload_answer_key(
         temp_dir=request.app.state.document_storage.temp_dir(),
     )
     return QuestionService(session, user.id).apply_answer_key(document_id, read, read_by)
+
+
+@router.post(
+    "/{document_id}/official-key",
+    response_model=OfficialKeyResult,
+    responses={**NOT_FOUND, **UPLOAD_ERRORS},
+    dependencies=[Depends(guard_upload)],
+    summary="Match an official key file to this paper by question ID (the file isn't kept)",
+)
+def upload_official_key(
+    document_id: uuid.UUID,
+    request: Request,
+    service: Service,
+    session: DbSession,
+    user: CurrentUser,
+    settings: Annotated[Settings, Depends(get_settings)],
+    file: Annotated[UploadFile, File(description="Official answer-key PDF")],
+) -> OfficialKeyResult:
+    document = service.get(document_id)  # 404 before any work on someone else's paper
+    pages, _ = read_key_pages(
+        file.file,
+        language=document.language,
+        settings=settings,
+        ocr=request.app.state.ocr_engine,
+        temp_dir=request.app.state.document_storage.temp_dir(),
+    )
+    return QuestionService(session, user.id).apply_official_key(document_id, pages)
+
+
+@router.get(
+    "/{document_id}/import-check",
+    response_model=ImportCheckRead,
+    responses=NOT_FOUND,
+    summary="Compare an imported paper with a format: counts, keys and question formats",
+)
+def import_check(
+    document_id: uuid.UUID,
+    format_code: Annotated[str, Query(max_length=64)],
+    session: DbSession,
+    user: CurrentUser,
+) -> ImportCheckRead:
+    return QuestionService(session, user.id).import_check(document_id, format_code)
 
 
 @router.post(

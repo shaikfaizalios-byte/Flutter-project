@@ -4,9 +4,11 @@ import logging
 import secrets
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from sqlalchemy import Engine
 
 from app.api.v1.endpoints.health import build_health
@@ -41,6 +43,9 @@ def _auth_secret(settings: Settings) -> str:
         "PREPLOOP_AUTH_SECRET is not set: using a random secret; sign-ins end on restart."
     )
     return secrets.token_urlsafe(48)
+
+
+REVIEW_TOOL = Path(__file__).parent / "tools" / "review_tool.html"
 
 
 def create_app(
@@ -152,6 +157,13 @@ def create_app(
         return build_health(settings)
 
     app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+    if settings.review_tool_enabled:
+
+        @app.get("/review-tool", include_in_schema=False)
+        def review_tool() -> HTMLResponse:
+            return HTMLResponse(REVIEW_TOOL.read_text(encoding="utf-8"))
+
     return app
 
 

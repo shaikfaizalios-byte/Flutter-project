@@ -21,10 +21,12 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     op.add_column("questions", sa.Column("external_id", sa.String(length=24), nullable=True))
     op.create_index(op.f("ix_questions_external_id"), "questions", ["external_id"])
+    op.add_column("questions", sa.Column("transcript", sa.Text(), nullable=True))
     op.add_column("question_options", sa.Column("external_id", sa.String(length=24), nullable=True))
 
 
 def downgrade() -> None:
     op.drop_column("question_options", "external_id")
+    op.drop_column("questions", "transcript")
     op.drop_index(op.f("ix_questions_external_id"), table_name="questions")
     op.drop_column("questions", "external_id")
