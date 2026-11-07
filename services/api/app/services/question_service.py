@@ -12,6 +12,7 @@ from sqlalchemy.sql.base import ExecutableOption
 
 from app.domain import ai_reading, question_history, typed_answers
 from app.domain.answer_key import KeyQuestion, plan_key
+from app.domain.answer_keys import answer_changed, key_problems
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.figures import figure_box_problem, page_box
 from app.domain.question_formats import (
@@ -42,10 +43,12 @@ from app.schemas.document import AnswerKeyResult
 from app.schemas.question import (
     AIExplanationRead,
     AIProvenance,
+    AnswerKeyUpdate,
     ExamFormatRead,
     FigureCreate,
     FigureRead,
     IssueRead,
+    KeySaved,
     OptionRead,
     PaperAnswerRead,
     PaperDateRead,
@@ -67,6 +70,7 @@ from app.services.patterns import (
     refresh_pattern,
     visible_pattern,
 )
+from app.services.practice_service import apply_final_key
 from app.services.question_history import (
     current_snapshot,
     extracted_snapshots,
@@ -184,6 +188,17 @@ def _escape_like(value: str) -> str:
 _OPEN_ISSUE = exists().where(
     and_(QuestionIssue.question_id == Question.id, QuestionIssue.resolved.is_(False))
 )
+
+
+def _key_of(question: Question) -> tuple[object, ...]:
+    """What a key decides, to tell whether the final one changed it."""
+    return (
+        question.correct_option_position,
+        question.typed_answer,
+        question.answer_spec,
+        question.key_outcome,
+        question.accepted_positions,
+    )
 
 
 class QuestionService:
@@ -521,6 +536,42 @@ class QuestionService:
             without_answer=sum(q.correct_option_position is None for q in questions),
             problems=read.problems,
         )
+
+    def set_answer_key(self, question_id: uuid.UUID, data: AnswerKeyUpdate) -> KeySaved:
+        """Records the official key. A final key re-marks every attempt at this question."""
+        question = self._get_or_404(question_id)
+        before = current_snapshot(question)
+        problems = key_problems(
+            format_name=question.format,
+            outcome=data.outcome,
+            accepted=data.accepted_positions,
+            option_count=len(question.options),
+        )
+        if data.answer_spec is not None:
+            problems += spec_problems(question.format, data.answer_spec, len(question.options))
+        if problems:
+            raise InvalidReferenceError("; ".join(problems))
+        was_provisional = question.key_stage == "provisional"
+        earlier = _key_of(question)
+        if data.correct_option_position is not None:
+            question.correct_option_position = data.correct_option_position
+        if data.typed_answer is not None:
+            question.typed_answer = data.typed_answer
+        if data.answer_spec is not None:
+            question.answer_spec = data.answer_spec
+        if data.outcome == "several" and data.accepted_positions:
+            question.correct_option_position = data.accepted_positions[0]
+        question.key_stage = data.stage
+        question.key_outcome = data.outcome
+        question.accepted_positions = data.accepted_positions
+        if was_provisional and answer_changed(earlier, _key_of(question), data.stage):
+            question.key_changed = True
+        question.answer_source = "answer_key"
+        record_edit(self._session, question, before)
+        self._session.flush()
+        remarked = apply_final_key(self._session, question) if data.stage == "final" else 0
+        self._session.commit()
+        return KeySaved(question=self.get(question_id), sessions_remarked=remarked)
 
     def set_translation(self, question_id: uuid.UUID, of: uuid.UUID | None) -> QuestionRead:
         """This question is ``of`` in another language, and counts once. Null unlinks it."""
@@ -935,6 +986,10 @@ class QuestionService:
             answer_type=question.answer_type,
             format=question.format,
             answer_spec=question.answer_spec,
+            key_stage=question.key_stage,
+            key_outcome=question.key_outcome,
+            accepted_positions=question.accepted_positions,
+            key_changed=question.key_changed,
             translation_of_id=question.translation_of_id,
             marks=question.marks,
             word_limit=question.word_limit,

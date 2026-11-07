@@ -221,6 +221,8 @@ def test_practice_feedback_is_immediate_and_answers_are_final(
         "is_correct": False,
         "explanation": "x = 3",
         "explanation_origin": "source",
+        "accepted_positions": None,
+        "key_note": None,
     }
 
     # A second try after seeing the feedback does not change the answer.

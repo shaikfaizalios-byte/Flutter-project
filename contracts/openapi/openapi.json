@@ -574,6 +574,94 @@
         "title": "AnswerKeyText",
         "type": "object"
       },
+      "AnswerKeyUpdate": {
+        "additionalProperties": false,
+        "description": "The official key of one question. Left out: the answer stays as it is.",
+        "properties": {
+          "accepted_positions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 10,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Positions"
+          },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
+          "correct_option_position": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option Position"
+          },
+          "outcome": {
+            "default": "one",
+            "enum": [
+              "one",
+              "several",
+              "dropped"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "provisional",
+                  "final"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          }
+        },
+        "required": [
+          "stage"
+        ],
+        "title": "AnswerKeyUpdate",
+        "type": "object"
+      },
       "AnswerUpdate": {
         "additionalProperties": false,
         "properties": {
@@ -3298,6 +3386,20 @@
       },
       "Feedback": {
         "properties": {
+          "accepted_positions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Positions"
+          },
           "correct_position": {
             "anyOf": [
               {
@@ -3368,6 +3470,22 @@
               }
             ],
             "title": "Is Correct"
+          },
+          "key_note": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dropped",
+                  "several",
+                  "changed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Note"
           }
         },
         "required": [
@@ -3724,6 +3842,23 @@
           "question_number"
         ],
         "title": "ItemSource",
+        "type": "object"
+      },
+      "KeySaved": {
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/QuestionRead"
+          },
+          "sessions_remarked": {
+            "title": "Sessions Remarked",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "question",
+          "sessions_remarked"
+        ],
+        "title": "KeySaved",
         "type": "object"
       },
       "LadderAnswer": {
@@ -6378,6 +6513,20 @@
       },
       "QuestionRead": {
         "properties": {
+          "accepted_positions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Positions"
+          },
           "ai": {
             "anyOf": [
               {
@@ -6540,6 +6689,36 @@
             },
             "title": "Issues",
             "type": "array"
+          },
+          "key_changed": {
+            "default": false,
+            "title": "Key Changed",
+            "type": "boolean"
+          },
+          "key_outcome": {
+            "default": "one",
+            "enum": [
+              "one",
+              "several",
+              "dropped"
+            ],
+            "title": "Key Outcome",
+            "type": "string"
+          },
+          "key_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "provisional",
+                  "final"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Stage"
           },
           "language": {
             "enum": [
@@ -8229,6 +8408,11 @@
             ],
             "title": "Cutoff"
           },
+          "dropped": {
+            "default": 0,
+            "title": "Dropped",
+            "type": "integer"
+          },
           "explanation": {
             "title": "Explanation",
             "type": "string"
@@ -8761,6 +8945,11 @@
             "title": "Correct",
             "type": "integer"
           },
+          "dropped": {
+            "default": 0,
+            "title": "Dropped",
+            "type": "integer"
+          },
           "explanation": {
             "title": "Explanation",
             "type": "string"
@@ -8777,6 +8966,11 @@
             "default": 0,
             "title": "Partial",
             "type": "integer"
+          },
+          "remarked": {
+            "default": false,
+            "title": "Remarked",
+            "type": "boolean"
           },
           "score": {
             "title": "Score",
@@ -10379,6 +10573,11 @@
           },
           "correct": {
             "title": "Correct",
+            "type": "integer"
+          },
+          "dropped": {
+            "default": 0,
+            "title": "Dropped",
             "type": "integer"
           },
           "explanation": {
@@ -19152,6 +19351,84 @@
           }
         ],
         "summary": "Review a question (edit, verify, reject)",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
+    "/api/v1/questions/{question_id}/answer-key": {
+      "put": {
+        "operationId": "set_answer_key_api_v1_questions__question_id__answer_key_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerKeyUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeySaved"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Record the official key: a final key re-marks every attempt at this question",
         "tags": [
           "questions"
         ]

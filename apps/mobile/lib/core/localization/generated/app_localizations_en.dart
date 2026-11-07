@@ -4912,6 +4912,77 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get formatInteger => 'Whole number';
+
+  @override
+  String get formatWholeNumber => 'The whole number';
+
+  @override
+  String get formatDecimals => 'Decimal places';
+
+  @override
+  String get formatDecimalsHint =>
+      'Only if the paper states it. Answers count if right when truncated or rounded to this many places.';
+
+  @override
+  String get answerKeyTitle => 'Official answer key';
+
+  @override
+  String get answerKeyNoStage => 'No official key';
+
+  @override
+  String get answerKeyProvisional => 'Provisional key';
+
+  @override
+  String get answerKeyFinal => 'Final key';
+
+  @override
+  String get answerKeyOne => 'One answer';
+
+  @override
+  String get answerKeySeveral => 'Several answers accepted';
+
+  @override
+  String get answerKeyDropped => 'Dropped: marks to everyone';
+
+  @override
+  String get answerKeyChooseOption => 'Choose the answer';
+
+  @override
+  String get answerKeyPickTwo => 'Choose at least two accepted answers.';
+
+  @override
+  String get answerKeyFinalNote => 'A final key marks every attempt at this question again.';
+
+  @override
+  String get answerKeySave => 'Save the key';
+
+  @override
+  String answerKeyRemarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Saved. $count attempts marked again.',
+      one: 'Saved. 1 attempt marked again.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionKeyDropped => 'Dropped in the official key: everyone gets the marks.';
+
+  @override
+  String sessionKeySeveral(String answers) {
+    return 'The official key accepts more than one answer: $answers.';
+  }
+
+  @override
+  String get sessionKeyChanged => 'This answer changed in the final key.';
+
+  @override
+  String get resultRemarked => 'Marked again with the final answer key.';
+
+  @override
   String get ladderCleared => 'Cleared';
 
   @override

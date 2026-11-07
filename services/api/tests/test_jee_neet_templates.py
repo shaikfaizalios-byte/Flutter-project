@@ -99,7 +99,7 @@ def marks_of(section: dict[str, Any], data: dict[str, Any]) -> tuple[float, floa
 def test_jee_main_marks_both_sections_plus_four_minus_one() -> None:
     data = fmt("jee_main_2027_paper1")
     assert {marks_of(s, data) for s in data["sections"]} == {(4, 1)}
-    assert {s["formats"][0] for s in data["sections"]} == {"single_correct", "numeric"}
+    assert {s["formats"][0] for s in data["sections"]} == {"single_correct", "integer"}
 
 
 def test_jee_main_lists_two_sessions_of_six_days_with_two_shifts() -> None:

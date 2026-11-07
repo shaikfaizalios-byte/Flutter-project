@@ -7779,6 +7779,126 @@ abstract class AppLocalizations {
   /// **'{correct} of {answered}'**
   String progressCombinedTotal(int correct, int answered);
 
+  /// No description provided for @formatInteger.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole number'**
+  String get formatInteger;
+
+  /// No description provided for @formatWholeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole number'**
+  String get formatWholeNumber;
+
+  /// No description provided for @formatDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal places'**
+  String get formatDecimals;
+
+  /// No description provided for @formatDecimalsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only if the paper states it. Answers count if right when truncated or rounded to this many places.'**
+  String get formatDecimalsHint;
+
+  /// No description provided for @answerKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Official answer key'**
+  String get answerKeyTitle;
+
+  /// No description provided for @answerKeyNoStage.
+  ///
+  /// In en, this message translates to:
+  /// **'No official key'**
+  String get answerKeyNoStage;
+
+  /// No description provided for @answerKeyProvisional.
+  ///
+  /// In en, this message translates to:
+  /// **'Provisional key'**
+  String get answerKeyProvisional;
+
+  /// No description provided for @answerKeyFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final key'**
+  String get answerKeyFinal;
+
+  /// No description provided for @answerKeyOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One answer'**
+  String get answerKeyOne;
+
+  /// No description provided for @answerKeySeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'Several answers accepted'**
+  String get answerKeySeveral;
+
+  /// No description provided for @answerKeyDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped: marks to everyone'**
+  String get answerKeyDropped;
+
+  /// No description provided for @answerKeyChooseOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the answer'**
+  String get answerKeyChooseOption;
+
+  /// No description provided for @answerKeyPickTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least two accepted answers.'**
+  String get answerKeyPickTwo;
+
+  /// No description provided for @answerKeyFinalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A final key marks every attempt at this question again.'**
+  String get answerKeyFinalNote;
+
+  /// No description provided for @answerKeySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the key'**
+  String get answerKeySave;
+
+  /// No description provided for @answerKeyRemarked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Saved. 1 attempt marked again.} other{Saved. {count} attempts marked again.}}'**
+  String answerKeyRemarked(int count);
+
+  /// No description provided for @sessionKeyDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped in the official key: everyone gets the marks.'**
+  String get sessionKeyDropped;
+
+  /// No description provided for @sessionKeySeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'The official key accepts more than one answer: {answers}.'**
+  String sessionKeySeveral(String answers);
+
+  /// No description provided for @sessionKeyChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'This answer changed in the final key.'**
+  String get sessionKeyChanged;
+
+  /// No description provided for @resultRemarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked again with the final answer key.'**
+  String get resultRemarked;
+
   /// No description provided for @ladderCleared.
   ///
   /// In en, this message translates to:

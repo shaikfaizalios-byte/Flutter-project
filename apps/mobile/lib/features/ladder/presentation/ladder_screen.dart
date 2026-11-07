@@ -319,7 +319,7 @@ class _QuestionState extends ConsumerState<_Question> {
                   ? theme.colorScheme.errorContainer
                   : null,
               child: ListTile(
-                title: Text(option),
+                title: RichQuestionText(option, selectable: false),
                 onTap: result == null ? () => widget.run.answer(index) : null,
               ),
             ),
@@ -348,12 +348,13 @@ class _QuestionState extends ConsumerState<_Question> {
           if (result.solution.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.ladderSolution, style: theme.textTheme.labelLarge),
-            for (final (index, line) in result.solution.indexed) Text('${index + 1}. $line'),
+            for (final (index, line) in result.solution.indexed)
+              RichQuestionText('${index + 1}. $line', selectable: false),
           ],
           if (result.shortcut.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.ladderShortcut, style: theme.textTheme.labelLarge),
-            Text(result.shortcut),
+            RichQuestionText(result.shortcut, selectable: false),
           ],
           const SizedBox(height: AppSpacing.md),
           FilledButton(

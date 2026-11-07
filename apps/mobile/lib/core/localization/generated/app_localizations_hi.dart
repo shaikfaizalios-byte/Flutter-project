@@ -4912,6 +4912,77 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get formatInteger => 'पूर्ण संख्या';
+
+  @override
+  String get formatWholeNumber => 'पूर्ण संख्या';
+
+  @override
+  String get formatDecimals => 'दशमलव स्थान';
+
+  @override
+  String get formatDecimalsHint =>
+      'केवल तभी जब पेपर में लिखा हो। उत्तर इतने स्थानों तक काटने या पूर्णांकित करने पर सही हो तो मान्य होगा।';
+
+  @override
+  String get answerKeyTitle => 'आधिकारिक उत्तर कुंजी';
+
+  @override
+  String get answerKeyNoStage => 'कोई आधिकारिक कुंजी नहीं';
+
+  @override
+  String get answerKeyProvisional => 'अनंतिम कुंजी';
+
+  @override
+  String get answerKeyFinal => 'अंतिम कुंजी';
+
+  @override
+  String get answerKeyOne => 'एक उत्तर';
+
+  @override
+  String get answerKeySeveral => 'कई उत्तर मान्य';
+
+  @override
+  String get answerKeyDropped => 'हटाया गया: सभी को अंक';
+
+  @override
+  String get answerKeyChooseOption => 'उत्तर चुनें';
+
+  @override
+  String get answerKeyPickTwo => 'कम से कम दो मान्य उत्तर चुनें।';
+
+  @override
+  String get answerKeyFinalNote => 'अंतिम कुंजी इस प्रश्न के हर प्रयास को फिर से जाँचती है।';
+
+  @override
+  String get answerKeySave => 'कुंजी सहेजें';
+
+  @override
+  String answerKeyRemarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'सहेजा गया। $count प्रयास फिर से जाँचे गए।',
+      one: 'सहेजा गया। 1 प्रयास फिर से जाँचा गया।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionKeyDropped => 'आधिकारिक कुंजी में हटाया गया: सभी को अंक मिलते हैं।';
+
+  @override
+  String sessionKeySeveral(String answers) {
+    return 'आधिकारिक कुंजी एक से अधिक उत्तर मानती है: $answers।';
+  }
+
+  @override
+  String get sessionKeyChanged => 'अंतिम कुंजी में यह उत्तर बदल गया।';
+
+  @override
+  String get resultRemarked => 'अंतिम उत्तर कुंजी से फिर से जाँचा गया।';
+
+  @override
   String get ladderCleared => 'पार किया';
 
   @override

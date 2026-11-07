@@ -8,9 +8,11 @@ from app.database.session import DbSession
 from app.schemas.errors import ErrorResponse
 from app.schemas.language import Language
 from app.schemas.question import (
+    AnswerKeyUpdate,
     ExamFormatRead,
     FigureCreate,
     FigureRead,
+    KeySaved,
     PassageKindUpdate,
     PassageRead,
     PatternRead,
@@ -80,6 +82,17 @@ def list_questions(
 )
 def get_question(question_id: uuid.UUID, service: Service) -> QuestionRead:
     return service.get(question_id)
+
+
+@router.put(
+    "/questions/{question_id}/answer-key",
+    response_model=KeySaved,
+    tags=["questions"],
+    responses=NOT_FOUND,
+    summary="Record the official key: a final key re-marks every attempt at this question",
+)
+def set_answer_key(question_id: uuid.UUID, body: AnswerKeyUpdate, service: Service) -> KeySaved:
+    return service.set_answer_key(question_id, body)
 
 
 @router.put(

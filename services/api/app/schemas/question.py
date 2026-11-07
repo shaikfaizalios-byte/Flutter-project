@@ -126,6 +126,24 @@ class SubPart(BaseModel):
     marks: float | None = Field(default=None, ge=0, le=1000)
 
 
+class AnswerKeyUpdate(BaseModel):
+    """The official key of one question. Left out: the answer stays as it is."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    stage: Literal["provisional", "final"] | None
+    outcome: Literal["one", "several", "dropped"] = "one"
+    accepted_positions: list[int] | None = Field(default=None, max_length=10)
+    correct_option_position: int | None = Field(default=None, ge=1, le=10)
+    typed_answer: Annotated[str, StringConstraints(max_length=100)] | None = None
+    answer_spec: dict[str, Any] | None = None
+
+
+class KeySaved(BaseModel):
+    question: "QuestionRead"
+    sessions_remarked: int
+
+
 class TranslationLink(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -238,6 +256,10 @@ class QuestionRead(BaseModel):
     image_dependent: bool
     figures: list[FigureRead]
     verification_status: VerificationLiteral
+    key_stage: Literal["provisional", "final"] | None = None
+    key_outcome: Literal["one", "several", "dropped"] = "one"
+    accepted_positions: list[int] | None = None
+    key_changed: bool = False  # the final key differs from the provisional one
     verified_at: datetime | None
     issues: list[IssueRead]
     open_issue_count: int
@@ -397,3 +419,6 @@ class DocumentFormatUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     exam_format_code: str | None
+
+
+KeySaved.model_rebuild()

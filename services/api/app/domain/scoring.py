@@ -31,6 +31,8 @@ class ScoredItem:
     answer_spec: Mapping[str, Any] | None = None
     marks_unanswered: Decimal = Decimal(0)
     partial_rule: Mapping[str, Any] | None = None
+    key_outcome: str = "one"  # app/domain/answer_keys.py
+    accepted_positions: Sequence[int] | None = None
 
 
 @dataclass(slots=True)
@@ -39,6 +41,7 @@ class Tally:
     wrong: int = 0
     unattempted: int = 0
     partial: int = 0  # wrong as a whole, but earned some marks under the exam's rule
+    dropped: int = 0  # the key dropped the question: marks to everyone, attempted or not
     score: Decimal = Decimal(0)
     max_score: Decimal = Decimal(0)
     # (count, marks each) per outcome, for the explanation; None when marks vary.
@@ -70,6 +73,8 @@ def to_decimal(value: float) -> Decimal:
 
 
 def is_correct(item: ScoredItem, answer: Answer) -> bool:
+    if item.accepted_positions:
+        return answer in item.accepted_positions
     if item.answer_spec is not None:
         return question_formats.is_correct(item.format, item.answer_spec, answer)
     if item.typed_answer is not None:
@@ -94,7 +99,8 @@ def score_session(
     outcomes: dict[int, bool | None] = {}
     for item in items:
         selected = selections.get(item.position)
-        outcome = None if selected is None else is_correct(item, selected)
+        dropped = item.key_outcome == "dropped"
+        outcome = None if selected is None or dropped else is_correct(item, selected)
         outcomes[item.position] = outcome
         tallies = [total]
         if item.section:
@@ -104,7 +110,10 @@ def score_session(
         partly = _partly_right(item, selected) if outcome is False else None
         for tally in tallies:
             tally.max_score += item.marks_correct
-            if outcome is None:
+            if dropped:
+                tally.dropped += 1
+                tally.score += item.marks_correct
+            elif outcome is None:
                 tally.unattempted += 1
                 tally.score += item.marks_unanswered
                 tally.unanswered_marks += item.marks_unanswered
@@ -150,6 +159,7 @@ def explain(tally: Tally) -> str:
             if tally.partial
             else []
         ),
+        *([f"Dropped by the key {tally.dropped}"] if tally.dropped else []),
         (
             f"Unattempted {tally.unattempted} = {money(tally.unanswered_marks)}"
             if tally.unanswered_marks
@@ -166,6 +176,7 @@ def tally_json(tally: Tally) -> dict[str, object]:
         "wrong": tally.wrong,
         "unattempted": tally.unattempted,
         **({"partial": tally.partial} if tally.partial else {}),
+        **({"dropped": tally.dropped} if tally.dropped else {}),
         "score": float(tally.score),
         "max_score": float(tally.max_score),
         "accuracy": tally.accuracy,

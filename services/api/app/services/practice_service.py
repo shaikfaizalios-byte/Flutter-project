@@ -16,7 +16,7 @@ import random
 import uuid
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from sqlalchemy import Select, and_, false, func, or_, select
 from sqlalchemy.orm import Session, selectinload
@@ -189,6 +189,7 @@ def _eligible(
     return select(Question).where(
         Question.origin.in_(origins),
         Question.verification_status.in_(statuses),
+        Question.key_outcome != "dropped",  # no answer left to practise
         Question.translation_of_id.is_(None),  # shown with its question, never asked apart
         or_(
             Question.image_dependent.is_(False),
@@ -259,7 +260,54 @@ def _scored(item: SessionItem) -> ScoredItem:
         answer_spec=item.answer_spec,
         marks_unanswered=to_decimal(item.marks_unanswered),
         partial_rule=item.partial_rule,
+        key_outcome=item.key_outcome,
+        accepted_positions=item.accepted_positions,
     )
+
+
+def _key_note(item: SessionItem) -> Literal["dropped", "several", "changed"] | None:
+    if item.key_outcome == "dropped":
+        return "dropped"
+    if item.key_outcome == "several":
+        return "several"
+    return "changed" if item.key_changed else None
+
+
+def _given(answer: SessionAnswer) -> Answer | None:
+    if answer.response is not None:
+        return answer.response
+    return answer.typed_answer if answer.typed_answer is not None else answer.selected_position
+
+
+def apply_final_key(session: Session, question: Question) -> int:
+    """Puts a question's final key on every attempt at it and re-marks them. Returns the sessions
+    re-marked. Attempts are the learners' own, so this reaches every account that took it."""
+    items = session.scalars(select(SessionItem).where(SessionItem.question_id == question.id)).all()
+    touched: set[uuid.UUID] = set()
+    for item in items:
+        typed = question.answer_type == "typed"
+        item.correct_position = None if typed else question.correct_option_position
+        item.typed_answer = question.typed_answer if typed else None
+        item.answer_spec = question.answer_spec
+        item.key_outcome = question.key_outcome
+        item.accepted_positions = question.accepted_positions
+        item.key_changed = question.key_changed
+        answer = session.get(SessionAnswer, (item.session_id, item.position))
+        if answer is not None:
+            given = _given(answer)
+            judged = given is not None and question.key_outcome != "dropped"
+            answer.is_correct = is_correct(_scored(item), given) if judged else None  # type: ignore[arg-type]
+        touched.add(item.session_id)
+    session.flush()
+    remarked = 0
+    for session_id in touched:
+        practice = session.get(PracticeSession, session_id)
+        if practice is not None and practice.status == SessionStatus.SUBMITTED:
+            session.refresh(practice)
+            owner = cast("uuid.UUID", practice.owner_id)  # a session from before accounts: unused
+            PracticeService(session, owner_id=owner).remark(practice)
+            remarked += 1
+    return remarked
 
 
 class PracticeService:
@@ -321,6 +369,7 @@ class PracticeService:
         learner (own + shared bank), without figures (images aren't stored offline)."""
         stmt = (
             _eligible(include_unverified=False)
+            .where(Question.key_outcome == "one")
             .where(
                 visible_question(self._owner_id),
                 ~select(QuestionFigure.id)
@@ -675,6 +724,9 @@ class PracticeService:
             marks_wrong=marks_wrong,
             marks_unanswered=0.0,
             question_verified=question.verification_status == VerificationStatus.VERIFIED,
+            key_outcome=question.key_outcome,
+            accepted_positions=question.accepted_positions,
+            key_changed=question.key_changed,
         )
 
     # --- answering & submitting -----------------------------------------------------
@@ -825,20 +877,24 @@ class PracticeService:
         now = at or self._now()
         if reason == "time_up" and practice.deadline_at is not None:
             now = min(now, practice.deadline_at)
-        selections: dict[int, Answer | None] = {
-            a.position: a.response
-            if a.response is not None
-            else a.typed_answer
-            if a.typed_answer is not None
-            else a.selected_position
-            for a in practice.answers
-        }
-        items = [_scored(i) for i in practice.items]
-        scored = score_session(items, selections)
-        topic_names = self._topic_names({i.topic_id for i in practice.items if i.topic_id})
         practice.status = SessionStatus.SUBMITTED
         practice.submitted_at = now
         practice.submit_reason = reason
+        self._write_result(practice, max(0, int((now - practice.started_at).total_seconds())))
+        self._session.commit()
+
+    def remark(self, practice: PracticeSession) -> None:
+        """Marks a finished session again after a final key, keeping its time. Doesn't commit."""
+        taken = (practice.result or {}).get("time_taken_seconds", 0)
+        self._write_result(practice, int(taken), remarked=True)
+
+    def _write_result(
+        self, practice: PracticeSession, seconds: int, *, remarked: bool = False
+    ) -> None:
+        selections = {a.position: _given(a) for a in practice.answers}
+        items = [_scored(i) for i in practice.items]
+        scored = score_session(items, selections)
+        topic_names = self._topic_names({i.topic_id for i in practice.items if i.topic_id})
         practice.score = float(scored.total.score)
         practice.max_score = float(scored.total.max_score)
         practice.result = {
@@ -851,10 +907,10 @@ class PracticeService:
                 {"topic_id": tid, "name": topic_names.get(tid, ""), **tally_json(t)}
                 for tid, t in scored.topics.items()
             ],
-            "time_taken_seconds": max(0, int((now - practice.started_at).total_seconds())),
+            "time_taken_seconds": seconds,
             "marking_note": self._marking_note(practice),
+            **({"remarked": True} if remarked else {}),
         }
-        self._session.commit()
 
     def _marking_note(self, practice: PracticeSession) -> str:
         if practice.mode == SessionMode.PRACTICE:
@@ -983,7 +1039,7 @@ class PracticeService:
                     answer_type=item.answer_type,
                     typed_answer=answer.typed_answer if answer else None,
                     response=answer.response if answer else None,
-                    typed_answer_numeric=item.format == "numeric"
+                    typed_answer_numeric=item.format in ("numeric", "integer")
                     or (
                         bool(item.typed_answer)
                         and typed_answers.is_numeric(item.typed_answer or "")
@@ -1197,6 +1253,8 @@ class PracticeService:
             is_correct=answer.is_correct if answer else None,
             explanation=explanation,
             explanation_origin=origin,
+            accepted_positions=item.accepted_positions,
+            key_note=_key_note(item),
         )
 
     def _questions(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, Question]:
@@ -1276,4 +1334,5 @@ class PracticeService:
             marking_note=data["marking_note"],
             sections=[SectionResult(**s) for s in data["sections"]],
             topics=[TopicResult(**t) for t in data["topics"]],
+            remarked=data.get("remarked", False),
         )

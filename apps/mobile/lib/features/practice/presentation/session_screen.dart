@@ -496,6 +496,18 @@ class _TypedAnswerBoxState extends State<_TypedAnswerBox> {
   }
 }
 
+/// What the official key said about this question, when it's more than one plain answer.
+String? keyNoteText(AppLocalizations l10n, SessionItemView item, AnswerFeedback feedback) {
+  String label(int position) =>
+      item.options.where((o) => o.position == position).firstOrNull?.label ?? '$position';
+  return switch (feedback.keyNote) {
+    'dropped' => l10n.sessionKeyDropped,
+    'several' => l10n.sessionKeySeveral(feedback.acceptedPositions.map(label).join(', ')),
+    'changed' => l10n.sessionKeyChanged,
+    _ => null,
+  };
+}
+
 class _OptionTile extends StatelessWidget {
   const _OptionTile({
     required this.label,
@@ -600,6 +612,7 @@ class _FeedbackPanel extends StatelessWidget {
                     ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
                     : l10n.sessionCorrectAnswer(correctLabel),
             }),
+            if (keyNoteText(l10n, item, feedback) case final String note) Text(note),
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),

@@ -22,7 +22,7 @@
       "max_marks": 20,
       "marks_wrong": 1,
       "formats": [
-        "numeric"
+        "integer"
       ],
       "numeric_rule": {
         "value": "integer",
@@ -48,7 +48,7 @@
       "max_marks": 20,
       "marks_wrong": 1,
       "formats": [
-        "numeric"
+        "integer"
       ],
       "numeric_rule": {
         "value": "integer",
@@ -74,7 +74,7 @@
       "max_marks": 20,
       "marks_wrong": 1,
       "formats": [
-        "numeric"
+        "integer"
       ],
       "numeric_rule": {
         "value": "integer",
@@ -89,7 +89,7 @@
   "negative_marks_per_wrong": 1,
   "question_types": [
     "choice",
-    "numeric"
+    "integer"
   ],
   "conduct": {
     "year": 2027,

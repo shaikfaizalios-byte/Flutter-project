@@ -109,6 +109,17 @@ class FakeQuestionsRepository implements QuestionsRepository {
 
   final Map<String, BankQuestion> questions;
   final queries = <QuestionQuery>[];
+  final keyEdits = <AnswerKeyEdit>[];
+
+  @override
+  Future<({BankQuestion question, int remarked})> setAnswerKey(
+    String id,
+    AnswerKeyEdit edit,
+  ) async {
+    keyEdits.add(edit);
+    return (question: questions[id]!, remarked: edit.stage == 'final' ? 2 : 0);
+  }
+
   final edits = <(String, Map<String, Object?>)>[];
   AppFailure? listFailure;
   int resegmentCalls = 0;

@@ -108,6 +108,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - JEE and NEET syllabi (docs/jee-neet): `data/syllabi/official/{jee_main_2027,jee_advanced_2026,neet_ug_2026}.json` from the official lists,
   Subject → (Section) → Unit → Topic, no chapter level because the sources have none. `canonical_jee_neet.json` proposes Physics and
   Chemistry links; `python -m app.cli.syllabus link FILE --reviewer NAME` confirms them. App `CombinedTopicsCard` on Progress (flag).
+- Answer keys and rendering (docs/jee-neet phase C, migration 0054): `questions.key_stage` provisional|final, `key_outcome`
+  one|several|dropped, `accepted_positions`, `key_changed`, snapshotted on `session_items`. `PUT /questions/{id}/answer-key`; a final
+  key runs `apply_final_key` (practice_service): every attempt at the question, any account, is re-marked (`result.remarked`). Dropped:
+  marks to all, never practised; offline packs take `one` only. Format `integer`; numeric `decimals` = right as typed, truncated or
+  rounded. `RichQuestionText` is used for options and solutions too, parses `\\ce{}` (`ceToTex`) and caches parsed text.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

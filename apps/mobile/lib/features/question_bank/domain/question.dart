@@ -353,6 +353,10 @@ class BankQuestion {
     this.answerType = 'choice',
     this.format = 'single_correct',
     this.answerSpec,
+    this.keyStage,
+    this.keyOutcome = 'one',
+    this.acceptedPositions = const [],
+    this.keyChanged = false,
     this.marks,
     this.wordLimit,
     this.choiceGroup,
@@ -414,6 +418,10 @@ class BankQuestion {
     correctPosition: json['correct_option_position'] as int?,
     answerType: json['answer_type'] as String? ?? 'choice',
     format: json['format'] as String? ?? 'single_correct',
+    keyStage: json['key_stage'] as String?,
+    keyOutcome: json['key_outcome'] as String? ?? 'one',
+    acceptedPositions: (json['accepted_positions'] as List<dynamic>? ?? const []).cast<int>(),
+    keyChanged: json['key_changed'] as bool? ?? false,
     answerSpec: json['answer_spec'] as Map<String, dynamic>?,
     marks: (json['marks'] as num?)?.toDouble(),
     wordLimit: json['word_limit'] as int?,
@@ -486,6 +494,16 @@ class BankQuestion {
   final String format;
   final Map<String, dynamic>? answerSpec;
 
+  /// `provisional` or `final`; null when no official key was entered.
+  final String? keyStage;
+
+  /// `one`, `several` or `dropped`.
+  final String keyOutcome;
+  final List<int> acceptedPositions;
+
+  /// The final key differs from the provisional one.
+  final bool keyChanged;
+
   /// As the paper prints them, mostly for descriptive questions.
   final double? marks;
   final int? wordLimit;
@@ -554,6 +572,10 @@ class BankQuestion {
     answerType: answerType,
     format: format,
     answerSpec: answerSpec,
+    keyStage: keyStage,
+    keyOutcome: keyOutcome,
+    acceptedPositions: acceptedPositions,
+    keyChanged: keyChanged,
     marks: marks,
     wordLimit: wordLimit,
     choiceGroup: choiceGroup,
@@ -826,5 +848,28 @@ class QuestionEdit {
     'image_dependent': ?imageDependent,
     'verification_status': ?status?.name,
     for (final field in clear) field: null,
+  };
+}
+
+/// The official key of a question, as a reviewer enters it.
+@immutable
+class AnswerKeyEdit {
+  const AnswerKeyEdit({
+    required this.stage,
+    required this.outcome,
+    this.acceptedPositions,
+    this.correctPosition,
+  });
+
+  final String? stage;
+  final String outcome;
+  final List<int>? acceptedPositions;
+  final int? correctPosition;
+
+  Map<String, dynamic> toJson() => {
+    'stage': stage,
+    'outcome': outcome,
+    'accepted_positions': ?acceptedPositions,
+    'correct_option_position': ?correctPosition,
   };
 }

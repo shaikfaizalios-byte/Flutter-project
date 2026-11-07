@@ -1,7 +1,7 @@
 /// Formats a reviewer can give a question. The first group has one correct option and needs
 /// nothing more; the others are saved with an answer built by [buildAnswerSpec].
 const singleAnswerFormats = ['single_correct', 'assertion_reason', 'statement', 'true_false'];
-const specFormats = ['multiple_correct', 'numeric', 'fill_blank', 'match', 'ordering'];
+const specFormats = ['multiple_correct', 'numeric', 'integer', 'fill_blank', 'match', 'ordering'];
 
 /// What a reviewer typed for a format's answer. One value per line where it takes several.
 class SpecInput {
@@ -9,6 +9,7 @@ class SpecInput {
     this.positions = const {},
     this.value = '',
     this.tolerance = '',
+    this.decimals = '',
     this.low = '',
     this.high = '',
     this.lines = '',
@@ -17,6 +18,9 @@ class SpecInput {
   final Set<int> positions;
   final String value;
   final String tolerance;
+
+  /// Decimal places from the paper's instructions, if it states them.
+  final String decimals;
   final String low;
   final String high;
   final String lines;
@@ -38,10 +42,17 @@ Map<String, dynamic>? buildAnswerSpec(String format, SpecInput input) {
         return {
           'value': input.value.trim(),
           if (input.tolerance.trim().isNotEmpty) 'tolerance': input.tolerance.trim(),
+          'decimals': ?int.tryParse(input.decimals.trim()),
         };
       }
       if (input.low.trim().isEmpty || input.high.trim().isEmpty) return null;
-      return {'min': input.low.trim(), 'max': input.high.trim()};
+      return {
+        'min': input.low.trim(),
+        'max': input.high.trim(),
+        'decimals': ?int.tryParse(input.decimals.trim()),
+      };
+    case 'integer':
+      return input.value.trim().isEmpty ? null : {'value': input.value.trim()};
     case 'fill_blank':
       final accepted = _lines(input.lines);
       return accepted.isEmpty ? null : {'accepted': accepted};
@@ -100,9 +111,12 @@ SpecInput specInputOf(String format, Map<String, dynamic>? spec) {
       return SpecInput(
         value: '${spec['value'] ?? ''}',
         tolerance: '${spec['tolerance'] ?? ''}',
+        decimals: '${spec['decimals'] ?? ''}',
         low: '${spec['min'] ?? ''}',
         high: '${spec['max'] ?? ''}',
       );
+    case 'integer':
+      return SpecInput(value: '${spec['value'] ?? ''}');
     case 'fill_blank':
       return SpecInput(lines: (spec['accepted'] as List<dynamic>).join('\n'));
     case 'match':

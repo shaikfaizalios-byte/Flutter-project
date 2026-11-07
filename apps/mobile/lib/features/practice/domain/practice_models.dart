@@ -28,6 +28,8 @@ class AnswerFeedback {
     this.isCorrect,
     this.explanation,
     this.explanationByAi = false,
+    this.acceptedPositions = const [],
+    this.keyNote,
   });
 
   factory AnswerFeedback.fromJson(Map<String, dynamic> json) => AnswerFeedback(
@@ -37,12 +39,20 @@ class AnswerFeedback {
     isCorrect: json['is_correct'] as bool?,
     explanation: json['explanation'] as String?,
     explanationByAi: json['explanation_origin'] == 'ai',
+    acceptedPositions: (json['accepted_positions'] as List<dynamic>? ?? const []).cast<int>(),
+    keyNote: json['key_note'] as String?,
   );
 
   final int? correctPosition; // null for a typed-in question
   final String? correctTypedAnswer; // the expected answer of a typed-in question
   final Map<String, dynamic>? correctSpec; // the answer of a format with its own
   final bool? isCorrect; // null = not attempted
+
+  /// Every answer the key accepts, when it accepts several.
+  final List<int> acceptedPositions;
+
+  /// `dropped`, `several` or `changed`.
+  final String? keyNote;
   final String? explanation;
 
   /// The explanation is AI-generated (labelled in the UI).
@@ -239,6 +249,8 @@ String? correctAnswerText(SessionItemView item, AnswerFeedback feedback) {
         for (final p in positions)
           item.options.where((o) => o.position == p).firstOrNull?.label ?? '$p',
       ].join(', ');
+    case 'integer':
+      return '${spec['value']}';
     case 'numeric':
       if (spec['value'] case final Object value) {
         final tolerance = spec['tolerance'];
@@ -318,6 +330,7 @@ class SessionResultView {
     required this.markingNote,
     required this.sections,
     required this.topics,
+    this.remarked = false,
   });
 
   factory SessionResultView.fromJson(Map<String, dynamic> json) => SessionResultView(
@@ -332,8 +345,11 @@ class SessionResultView {
       for (final t in json['topics'] as List<dynamic>)
         TallyView.fromJson(t as Map<String, dynamic>),
     ],
+    remarked: json['remarked'] as bool? ?? false,
   );
 
+  /// Marked again with the final answer key.
+  final bool remarked;
   final TallyView total;
   final int timeTakenSeconds;
   final String markingNote;

@@ -134,7 +134,7 @@ class LadderStep {
   bool get answered => result != null;
 
   /// Answered with a number instead of an option.
-  bool get typed => format == 'numeric';
+  bool get typed => format == 'numeric' || format == 'integer';
 
   /// Answered by more than one tap.
   bool get takesResponse => format == 'multiple_correct' || format == 'match';

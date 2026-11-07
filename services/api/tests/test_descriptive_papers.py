@@ -255,8 +255,7 @@ def test_questions_not_yet_answered_come_first(
     generate(api, first)
     submit(api, first)
     second = begin(api, topic)
-    assert answered not in [s["stem"] for s in second["steps"]]
-    assert rows[5].stem in [s["stem"] for s in second["steps"]]
+    assert {s["stem"] for s in second["steps"]} == {r.stem for r in rows} - {answered}
 
 
 def test_only_the_learners_own_reviewed_text_questions_are_used(

@@ -118,6 +118,8 @@ class Feedback(BaseModel):
     # "source": from the paper (or the reviewer); "ai": AI-generated (an AI question's own
     # explanation, or an approved AI explanation for a source question).
     explanation_origin: Literal["source", "ai"] | None
+    accepted_positions: list[int] | None = None  # the key accepts each of these
+    key_note: Literal["dropped", "several", "changed"] | None = None
 
 
 class ItemSource(BaseModel):
@@ -171,6 +173,7 @@ class TallyRead(BaseModel):
     wrong: int
     unattempted: int
     partial: int = 0  # earned some marks under the exam's partial rule
+    dropped: int = 0  # dropped by the key: marks to everyone
     score: float
     max_score: float
     accuracy: float | None
@@ -192,6 +195,7 @@ class TopicResult(TallyRead):
 class SessionResult(TallyRead):
     time_taken_seconds: int
     marking_note: str
+    remarked: bool = False  # marked again with the final key
     sections: list[SectionResult]
     topics: list[TopicResult]
 

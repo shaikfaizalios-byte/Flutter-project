@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../../../core/widgets/section_card.dart';
 import '../domain/practice_models.dart';
 import 'session_screen.dart' show formatClock;
@@ -65,6 +66,10 @@ class ResultView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   SelectableText(total.explanation),
+                  if (result.remarked) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(l10n.resultRemarked, style: theme.textTheme.bodySmall),
+                  ],
                 ],
               ),
             ),
@@ -174,14 +179,15 @@ class _AnswerReview extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final o in item.options) Text('(${o.label}) ${o.text}'),
+                for (final o in item.options)
+                  RichQuestionText('(${o.label}) ${o.text}', selectable: false),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   feedback.correctTypedAnswer != null
                       ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
                       : l10n.sessionCorrectAnswer(labelOf(feedback.correctPosition)),
                 ),
-                if (feedback.explanation != null) SelectableText(feedback.explanation!),
+                if (feedback.explanation != null) RichQuestionText(feedback.explanation!),
                 const SizedBox(height: AppSpacing.sm),
               ],
             ),

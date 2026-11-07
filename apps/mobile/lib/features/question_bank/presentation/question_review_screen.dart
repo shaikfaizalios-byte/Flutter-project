@@ -6,6 +6,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../exams/application/exam_catalog_controller.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_card.dart';
@@ -20,6 +21,7 @@ import 'mark_figure_screen.dart';
 import 'question_history_widgets.dart';
 import 'shared_report.dart';
 import 'question_widgets.dart';
+import 'answer_key_card.dart';
 import 'format_editor_card.dart';
 
 class QuestionReviewScreen extends ConsumerWidget {
@@ -131,7 +133,7 @@ class _SharedQuestionView extends ConsumerWidget {
                         : Icons.radio_button_unchecked,
                     color: o.position == q.correctPosition ? theme.colorScheme.primary : null,
                   ),
-                  title: Text('(${o.label}) ${o.text}'),
+                  title: RichQuestionText('(${o.label}) ${o.text}', selectable: false),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -155,7 +157,7 @@ class _SharedQuestionView extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
                 Text(l10n.questionExplanationTitle, style: theme.textTheme.titleSmall),
                 const SizedBox(height: AppSpacing.xs),
-                Text(q.explanation!),
+                RichQuestionText(q.explanation!),
               ],
             ],
           ),
@@ -282,6 +284,26 @@ class _EditorState extends ConsumerState<_Editor> {
   );
 
   /// Saves a question's format on its own: it needn't wait for the rest of the form.
+  Future<void> _saveKey(AnswerKeyEdit edit) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final saved = await ref.read(questionsRepositoryProvider).setAnswerKey(_question.id, edit);
+      if (!mounted) return;
+      setState(() => _load(saved.question));
+      ref.invalidate(questionRevisionsProvider(saved.question.id));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(saved.remarked > 0 ? l10n.answerKeyRemarked(saved.remarked) : l10n.saved),
+        ),
+      );
+    } on AppFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
+    } on Object catch (error, stack) {
+      logError('Saving the answer key failed', error, stack);
+    }
+  }
+
   Future<void> _saveFormat(QuestionEdit edit) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -547,6 +569,14 @@ class _EditorState extends ConsumerState<_Editor> {
               key: ValueKey('format-${_question.format}'),
               question: _question,
               onSave: _saveFormat,
+            ),
+          if (ref.watch(appFeaturesProvider).examProfiles)
+            AnswerKeyCard(
+              key: ValueKey(
+                'key-${_question.keyStage}-${_question.keyOutcome}-${_question.correctPosition}',
+              ),
+              question: _question,
+              onSave: _saveKey,
             ),
           if (_options.length < 6)
             Align(

@@ -43,7 +43,8 @@ MAX_INVALID_RETRIES = 1  # after output that doesn't fit the schema
 SINGLE_CORRECT = "single_correct"
 # Formats the ladder can write and check. The rest are never generated.
 ONE_OPTION = (SINGLE_CORRECT, "statement", "assertion_reason")
-GENERATED_FORMATS = (*ONE_OPTION, "multiple_correct", "numeric", "match")
+NUMBERS = ("numeric", "integer")
+GENERATED_FORMATS = (*ONE_OPTION, "multiple_correct", *NUMBERS, "match")
 MIN_STATEMENTS = 2
 MAX_STATEMENTS = 6
 MAX_STEM = 1500
@@ -245,6 +246,7 @@ SOLVE_SYSTEM = "You solve exam questions carefully." + UNTRUSTED_RULE
 _SOLVE_ANSWERS: dict[str, tuple[str, dict[str, Any]]] = {
     "multiple_correct": ("correct_indices", {"type": "array", "items": {"type": "integer"}}),
     "numeric": ("numeric_answer", {"type": "string"}),
+    "integer": ("numeric_answer", {"type": "string"}),
     "match": (
         "match_pairs",
         {"type": "array", "items": {"type": "array", "items": {"type": "integer"}}},
@@ -329,6 +331,7 @@ def _format_rules(exam: ExamContext) -> str:
             'numeric: no options. "numeric_answer" is the number, as text. "tolerance" is how '
             'far an answer may be from it, as text, "0" when it must be exact.'
         ),
+        "integer": 'integer: no options. "numeric_answer" is a whole number, as text.',
         "match": (
             'match: "match_left" and "match_right" are two lists. "match_pairs" gives each left '
             "item its right item as [left, right], counted from 0."
@@ -343,14 +346,15 @@ def _answer_fields(exam: ExamContext) -> str:
     lines: list[str] = []
     if "statement" in formats:
         lines.append('  "statements": ["...", "..."],')
-    if formats - {"numeric", "match"}:
+    if formats - {"numeric", "integer", "match"}:
         lines.append(f'  "options": [{options}],')
     if formats & set(ONE_OPTION):
         lines.append('  "answer_index": 0,')
     if "multiple_correct" in formats:
         lines.append('  "correct_indices": [0, 2],')
-    if "numeric" in formats:
+    if formats & set(NUMBERS):
         lines.append('  "numeric_answer": "2.5",')
+    if "numeric" in formats:
         lines.append('  "tolerance": "0.01",')
     if "match" in formats:
         lines.append('  "match_left": ["...", "..."],')
@@ -436,7 +440,7 @@ def solve_prompt(
 ) -> str:
     """Only what a learner would see: the solver must not see the key or the solution."""
     question = f"Question:\n{material(stem)}\n\n"
-    if format_name == "numeric":
+    if format_name in NUMBERS:
         return (
             f"{question}Solve this question. The answer is a number. Reply with JSON only: "
             '{"numeric_answer": "the number", "working": "..."}'
@@ -522,7 +526,9 @@ def _with_statements(stem: str, statements: object) -> str | None:
     return "\n".join([stem, *(f"{i}. {text}" for i, text in enumerate(cleaned, start=1))])
 
 
-def _numeric_spec(data: Mapping[str, Any]) -> dict[str, Any]:
+def _numeric_spec(format_name: str, data: Mapping[str, Any]) -> dict[str, Any]:
+    if format_name == "integer":
+        return {"value": _number_text(data.get("numeric_answer"))}
     return {
         "value": _number_text(data.get("numeric_answer")),
         "tolerance": _number_text(data.get("tolerance", "0")),
@@ -547,8 +553,8 @@ def _answer(
     format_name: str, data: Mapping[str, Any], count: int
 ) -> tuple[tuple[str, ...], int | None, dict[str, Any] | None] | None:
     """The question's options, answer index and answer_spec, or None when they don't fit."""
-    if format_name in ("numeric", "match"):
-        spec = _numeric_spec(data) if format_name == "numeric" else _match_spec(data)
+    if format_name in (*NUMBERS, "match"):
+        spec = _match_spec(data) if format_name == "match" else _numeric_spec(format_name, data)
         if spec is None or question_formats.spec_problems(format_name, spec, 0):
             return None
         return (), None, spec
@@ -614,9 +620,9 @@ def solver_agrees(data: dict[str, Any], question: GeneratedQuestion) -> bool:
     if spec is None:
         answer = data.get("answer_index")
         return not isinstance(answer, bool) and answer == question.answer_index
-    if question.format == "numeric":
+    if question.format in NUMBERS:
         number = _number_text(data.get("numeric_answer"))
-        return number is not None and question_formats.is_correct("numeric", spec, number)
+        return number is not None and question_formats.is_correct(question.format, spec, number)
     if question.format == "match":
         return question_formats.is_correct("match", spec, {"pairs": data.get("match_pairs")})
     indices = _int_list(data.get("correct_indices"))
@@ -698,6 +704,8 @@ def answer_lines(
         return []
     if format_name == "multiple_correct":
         return [options[p - 1] for p in spec["correct_positions"]]
+    if format_name == "integer":
+        return [str(spec["value"])]
     if format_name == "numeric":
         tolerance = Decimal(str(spec.get("tolerance") or "0"))
         return [f"{spec['value']} ± {spec['tolerance']}" if tolerance else str(spec["value"])]
