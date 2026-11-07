@@ -111,6 +111,8 @@ NOT_EXPORTED: dict[str, str] = {
     "library_entries": "PrepLoop's curated content, not the learner's; a deleted editor's links "
     "are cleared and their name stays as the credit",
     "library_versions": "history of PrepLoop's curated content, not the learner's",
+    "model_proposals": "proposed models from shared papers: reference data, not the learner's",
+    "concept_hints": "AI groupings of shared questions: reference data, not the learner's",
     "audit_events": "operator decisions about shared content (ids and reasons, no content)",
     "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
     "after deletion with the account link cleared; the purchases are in play_purchases",

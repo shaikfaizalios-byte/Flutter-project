@@ -26,6 +26,7 @@ from app.models.question import (
     SyllabusImport,
     Topic,
 )
+from app.models.repeat_analysis import ConceptHint, ModelProposal
 from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.sync import SyncItem
 from app.models.taxonomy import TaxonomyLabel, TaxonomyNode, TopicTaxonomyLink
@@ -39,6 +40,7 @@ __all__ = [
     "BillingEvent",
     "Bookmark",
     "Concept",
+    "ConceptHint",
     "ContentReport",
     "ContentRights",
     "DescriptiveSession",
@@ -52,6 +54,7 @@ __all__ = [
     "LanguageRow",
     "LibraryEntry",
     "LibraryVersion",
+    "ModelProposal",
     "Passage",
     "PlayPurchase",
     "PracticeSession",

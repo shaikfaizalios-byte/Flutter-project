@@ -51,7 +51,8 @@ class AIGeneration(Base):
             "task IN ('explanation', 'questions', 'topic', 'taxonomy', 'quick_answer', "
             "'rag_answer', 'paper_read', 'topic_lesson', 'topic_quiz', 'answer_check', "
             "'study_topics', 'paper_summary', 'ladder_search', 'ladder_question', "
-            "'ladder_solve', 'written_question', 'written_mark', 'written_read')",
+            "'ladder_solve', 'written_question', 'written_mark', 'written_read', "
+            "'concept_hint')",
             name="task_valid",
         ),
         CheckConstraint("outcome IN ('ok', 'partial', 'invalid', 'error')", name="outcome_valid"),
