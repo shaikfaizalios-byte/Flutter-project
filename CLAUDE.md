@@ -78,7 +78,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   only; the shared bank refuses private ones. Lists: `data/model_lists` (`shared_aptitude.json` = the 91 seeded models,
   `descriptive_defaults.json`). `RepeatsReport.name_suggestions` = alike questions in `MIN_PAPERS_TO_NAME` papers with no
   confirmed model (own papers). `counting_unit` session: pure `app/domain/counting.py` `unit_key`, confirmed date + shift + session
-  = one; `RepeatCounts.marks`; app `byMarks`/`marksVary`, `TopicModelsScreen`. The embedding hint is NOT built (needs a decision).
+  = one; `RepeatCounts.marks`; app `byMarks`/`marksVary`, `TopicModelsScreen`. Meaning hints: see repeat analysis below.
 - Mock marking and languages (any-exam Phase 6, migrations 0048-0049): sections may state `marks_wrong`, `marks_unanswered`,
   `cutoff`, `attempt_limit`, `partial`, `formats`; `exam_formats.penalty_fraction` = a share of the question's marks. Pure
   `section_marking` (`app/domain/exam_format.py`): section, then fraction, then negative mark; none stated = incomplete.
@@ -126,6 +126,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   make a version and run `apply_final_key`; past draft, plain edits are refused (`_refuse_if_curated`). `/library/search`, `/library/packs`
   (delta by `seq`; an emptied chapter stays listed). Pure `app/domain/library.py`; `python -m app.cli.library calibrate`, settings in
   `defaults.json` `library`. AI-written ones never reach mocks. App `features/library` behind `examProfiles`, `LibrarySourceChip`.
+- Repeat analysis by shift (docs/jee-neet/phase-f-report.md, migration 0057): apart from `/insights/repeats`, which stays pinned.
+  `app/services/repeat_analysis.py`, pure `app/domain/shift_counts.py`: `GET /insights/chapters` (X of Y shifts by year and session, reviewed
+  questions only, chapter = syllabus Unit via `chapter_map.py`), `/insights/shared-chapters` (confirmed links, topics named for the exam),
+  `/insights/concept-hints`. Curated = `counted_curated()`. `model_proposals`: clusters of curated questions, `python -m app.cli.library
+  propose EXAM`, a reviewer names and approves in `/review-tool`. `concept_hints`: AI groupings by meaning (`library hints EXAM`), own table,
+  read by no count, private papers never sent; chosen over embeddings. App `ChaptersScreen` behind `examProfiles`.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

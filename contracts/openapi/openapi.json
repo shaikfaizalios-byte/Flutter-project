@@ -1083,6 +1083,105 @@
         "title": "Change",
         "type": "object"
       },
+      "ChapterReport": {
+        "properties": {
+          "basis": {
+            "$ref": "#/components/schemas/ShiftBasis"
+          },
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/ChapterWeight"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "mine",
+              "shared",
+              "all"
+            ],
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "scope",
+          "basis",
+          "chapters"
+        ],
+        "title": "ChapterReport",
+        "type": "object"
+      },
+      "ChapterWeight": {
+        "description": "A chapter in the counted papers. Its weight in a year is its questions over the year's\nquestions in ``ShiftBasis``.",
+        "properties": {
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/SessionWeight"
+            },
+            "title": "Sessions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicWeight"
+            },
+            "title": "Topics",
+            "type": "array"
+          },
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/YearWeight"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "subject",
+          "name",
+          "questions",
+          "shifts",
+          "years",
+          "sessions",
+          "topics"
+        ],
+        "title": "ChapterWeight",
+        "type": "object"
+      },
       "ConceptCreate": {
         "additionalProperties": false,
         "properties": {
@@ -1177,6 +1276,94 @@
           "language"
         ],
         "title": "ConceptCreate",
+        "type": "object"
+      },
+      "ConceptHintQuestion": {
+        "properties": {
+          "excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Excerpt"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "question_id",
+          "year",
+          "number",
+          "excerpt"
+        ],
+        "title": "ConceptHintQuestion",
+        "type": "object"
+      },
+      "ConceptHintRead": {
+        "description": "Questions an AI read as testing one concept. A hint, outside every reviewed count.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/ConceptHintQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "topic_name",
+          "label",
+          "shifts",
+          "questions"
+        ],
+        "title": "ConceptHintRead",
         "type": "object"
       },
       "ConceptInput": {
@@ -2931,6 +3118,34 @@
           "error"
         ],
         "title": "ErrorResponse",
+        "type": "object"
+      },
+      "ExamChapter": {
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "total_shifts": {
+            "title": "Total Shifts",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "exam_code",
+          "questions",
+          "shifts",
+          "total_shifts"
+        ],
+        "title": "ExamChapter",
         "type": "object"
       },
       "ExamCounts": {
@@ -5561,6 +5776,120 @@
           "marking_note"
         ],
         "title": "MockResult",
+        "type": "object"
+      },
+      "ModelApproval": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 3,
+            "title": "Name",
+            "type": "string"
+          },
+          "question_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Ids"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "ModelApproval",
+        "type": "object"
+      },
+      "ModelApproved": {
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "questions"
+        ],
+        "title": "ModelApproved",
+        "type": "object"
+      },
+      "ModelProposalQuestion": {
+        "properties": {
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "text"
+        ],
+        "title": "ModelProposalQuestion",
+        "type": "object"
+      },
+      "ModelProposalRead": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/ModelProposalQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "topic_name",
+          "shifts",
+          "questions"
+        ],
+        "title": "ModelProposalRead",
+        "type": "object"
+      },
+      "ModelsProposed": {
+        "properties": {
+          "proposed": {
+            "title": "Proposed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "proposed"
+        ],
+        "title": "ModelsProposed",
         "type": "object"
       },
       "NameSuggestion": {
@@ -10467,6 +10796,29 @@
         "title": "SessionSummary",
         "type": "object"
       },
+      "SessionWeight": {
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "session": {
+            "title": "Session",
+            "type": "string"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "session",
+          "questions",
+          "shifts"
+        ],
+        "title": "SessionWeight",
+        "type": "object"
+      },
       "SharedBankExam": {
         "description": "Starter papers: what the shared bank holds for one exam (verified questions only).",
         "properties": {
@@ -10489,6 +10841,73 @@
           "questions"
         ],
         "title": "SharedBankExam",
+        "type": "object"
+      },
+      "SharedChapter": {
+        "description": "A chapter reviewers linked across exams.",
+        "properties": {
+          "exams": {
+            "items": {
+              "$ref": "#/components/schemas/ExamChapter"
+            },
+            "title": "Exams",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "name",
+          "exams"
+        ],
+        "title": "SharedChapter",
+        "type": "object"
+      },
+      "ShiftBasis": {
+        "description": "What was counted: every shift, and the reviewed questions in them.",
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/SessionWeight"
+            },
+            "title": "Sessions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "unreviewed": {
+            "title": "Unreviewed",
+            "type": "integer"
+          },
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/YearWeight"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "shifts",
+          "questions",
+          "unreviewed",
+          "years",
+          "sessions"
+        ],
+        "title": "ShiftBasis",
         "type": "object"
       },
       "SignedOut": {
@@ -12126,6 +12545,35 @@
         "title": "TopicUpdate",
         "type": "object"
       },
+      "TopicWeight": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "questions",
+          "shifts"
+        ],
+        "title": "TopicWeight",
+        "type": "object"
+      },
       "TopicsBulkCreate": {
         "additionalProperties": false,
         "description": "Saving an accepted (and edited) topic draft in one step.",
@@ -12376,6 +12824,40 @@
           "questions"
         ],
         "title": "YearCount",
+        "type": "object"
+      },
+      "YearWeight": {
+        "properties": {
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "questions",
+          "shifts"
+        ],
+        "title": "YearWeight",
         "type": "object"
       }
     },
@@ -18010,6 +18492,141 @@
         ]
       }
     },
+    "/api/v1/insights/chapters": {
+      "get": {
+        "operationId": "chapters_api_v1_insights_chapters_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "enum": [
+                "mine",
+                "shared",
+                "all"
+              ],
+              "title": "Scope",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChapterReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chapters by shift and year, from reviewed questions in the counted papers",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/insights/concept-hints": {
+      "get": {
+        "operationId": "concept_hints_api_v1_insights_concept_hints_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConceptHintRead"
+                  },
+                  "title": "Response Concept Hints Api V1 Insights Concept Hints Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "AI hints of questions testing one concept, outside every reviewed count",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
     "/api/v1/insights/repeats": {
       "get": {
         "operationId": "repeats_api_v1_insights_repeats_get",
@@ -18129,6 +18746,87 @@
           }
         ],
         "summary": "Starter papers: shared papers and verified questions per exam",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/insights/shared-chapters": {
+      "get": {
+        "operationId": "shared_chapters_api_v1_insights_shared_chapters_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 4,
+              "minItems": 2,
+              "title": "Exam",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "enum": [
+                "mine",
+                "shared",
+                "all"
+              ],
+              "title": "Scope",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SharedChapter"
+                  },
+                  "title": "Response Shared Chapters Api V1 Insights Shared Chapters Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chapters reviewers linked across these exams",
         "tags": [
           "insights"
         ]
@@ -19161,6 +19859,213 @@
           }
         ],
         "summary": "Take a question out of the library",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/model-proposals": {
+      "get": {
+        "operationId": "model_proposals_api_v1_library_model_proposals_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ModelProposalRead"
+                  },
+                  "title": "Response Model Proposals Api V1 Library Model Proposals Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Clusters of alike questions waiting for a subject reviewer",
+        "tags": [
+          "library"
+        ]
+      },
+      "post": {
+        "operationId": "run_proposals_api_v1_library_model_proposals_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsProposed"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Rebuild the proposals from curated papers",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/model-proposals/{proposal_id}/approve": {
+      "post": {
+        "operationId": "approve_model_api_v1_library_model_proposals__proposal_id__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelApproval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelApproved"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Name the model and confirm it on the questions kept",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/model-proposals/{proposal_id}/reject": {
+      "post": {
+        "operationId": "reject_model_api_v1_library_model_proposals__proposal_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryWithdraw"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reject a proposal: it won't be proposed again",
         "tags": [
           "library"
         ]

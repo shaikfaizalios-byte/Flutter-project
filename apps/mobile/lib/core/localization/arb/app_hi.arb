@@ -1475,5 +1475,22 @@
   "librarySourceOfficial": "पिछले वर्ष का प्रश्नपत्र",
   "librarySourceExpert": "PrepLoop के लिए लिखा गया",
   "librarySourceAi": "AI द्वारा लिखा, समीक्षकों ने जाँचा",
-  "sessionPercentRight": "{percent}% ने इसे सही किया"
+  "sessionPercentRight": "{percent}% ने इसे सही किया",
+  "chaptersTitle": "शिफ्ट के अनुसार अध्याय",
+  "chaptersOpen": "शिफ्ट के अनुसार अध्याय देखें",
+  "chaptersBasis": "{shifts} शिफ्ट गिनी गईं · {questions} जाँचे गए प्रश्न",
+  "chaptersNote": "इन प्रश्नपत्रों के जाँचे गए प्रश्नों से गिना गया। यह कोई भविष्यवाणी नहीं है।",
+  "chaptersSmallSample": "केवल {shifts} शिफ्ट गिनी गईं: यह छोटा नमूना है।",
+  "chaptersUnreviewed": "{count} प्रश्न अभी जाँचे नहीं गए, इसलिए छोड़े गए हैं।",
+  "chaptersEmpty": "गिनने के लिए अभी कोई जाँचा गया प्रश्न नहीं है।",
+  "chaptersFailed": "अध्याय लोड नहीं हो सके। कनेक्शन जाँचकर फिर कोशिश करें।",
+  "chaptersAppeared": "{total} में से {shifts} शिफ्ट में आया",
+  "chaptersYear": "{year}: {percent}% प्रश्न · {total} में से {shifts} शिफ्ट",
+  "chaptersSession": "{session}: {total} में से {shifts} शिफ्ट",
+  "chaptersSharedTitle": "आपकी परीक्षाओं के साझा अध्याय",
+  "chaptersSharedExam": "{exam}: {total} में से {shifts} शिफ्ट",
+  "chaptersHintsTitle": "शिफ्टों में एक जैसा विचार",
+  "chaptersHintsNote": "AI संकेत: जाँचा नहीं गया और यहाँ की किसी गिनती में शामिल नहीं।",
+  "chaptersHintShifts": "{topic} · {shifts} शिफ्ट",
+  "chaptersHintQuestion": "प्रश्न {number}"
 }

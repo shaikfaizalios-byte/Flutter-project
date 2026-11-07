@@ -1,4 +1,5 @@
 import 'package:preploop/features/insights/data/insights_repository.dart';
+import 'package:preploop/features/insights/domain/chapters.dart';
 import 'package:preploop/features/insights/domain/radar.dart';
 import 'package:preploop/features/insights/domain/repeats.dart';
 
@@ -29,6 +30,21 @@ class FakeInsightsRepository implements InsightsRepository {
     scopes.add(scope);
     return scope == 'shared' ? sharedReport : report;
   }
+
+  ChapterReport chapterReport = const ChapterReport(
+    basis: ShiftBasis(shifts: 0, questions: 0, unreviewed: 0),
+  );
+  List<SharedChapter> shared = const [];
+  List<ConceptHint> hints = const [];
+
+  @override
+  Future<ChapterReport> chapters(String examCode) async => chapterReport;
+
+  @override
+  Future<List<SharedChapter>> sharedChapters(List<String> examCodes) async => shared;
+
+  @override
+  Future<List<ConceptHint>> conceptHints(String examCode) async => hints;
 
   /// Starter papers per exam (the shared bank's summary); none by default.
   List<SharedBankExam> sharedSummary = const [];

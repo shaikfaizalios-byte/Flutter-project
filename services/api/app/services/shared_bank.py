@@ -42,6 +42,21 @@ def library_question() -> ColumnElement[bool]:
     )
 
 
+def counted_curated() -> ColumnElement[bool]:
+    """Curated paper questions repeat analysis may count: the shared bank, plus approved official
+    questions of the library. Original library questions were never in a paper."""
+    return or_(
+        shared_question(),
+        Question.id.in_(
+            select(LibraryEntry.question_id).where(
+                LibraryEntry.status == APPROVED,
+                LibraryEntry.rights_status.in_(VISIBLE_RIGHTS),
+                LibraryEntry.source_type == "official_pyq",
+            )
+        ),
+    )
+
+
 def shared_document_ids() -> Select[uuid.UUID]:
     return select(Document.id).where(Document.shared_at.is_not(None))
 

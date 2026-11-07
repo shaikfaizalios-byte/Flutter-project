@@ -34,7 +34,6 @@ from app.models.question import (
     TopicStatus,
     VerificationStatus,
 )
-from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.user import User
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.library import (
@@ -56,6 +55,7 @@ from app.schemas.library import (
     SolveResult,
 )
 from app.schemas.question import FigureRead, OptionRead, PassageRead
+from app.services.chapter_map import unit_topics
 from app.services.content import audit, resolve
 from app.services.exam_formats import mock_formats
 from app.services.practice_service import apply_final_key
@@ -67,7 +67,7 @@ OTHER_PACK = "other"
 PACK_FORMATS = ("single_correct", "statement", "assertion_reason", "true_false", "typed_in")
 
 
-def _bump(session: Session, entry: LibraryEntry) -> None:
+def bump_seq(session: Session, entry: LibraryEntry) -> None:
     """Devices pick up a change by this number rising."""
     entry.seq = session.scalar(select(LIBRARY_SEQ.next_value())) or entry.seq
 
@@ -239,7 +239,7 @@ class LibraryEditor:
         entry.approved_by_name = self._user.email
         question.verification_status = VerificationStatus.VERIFIED
         question.verified_at = datetime.now(UTC)
-        _bump(self._session, entry)
+        bump_seq(self._session, entry)
         audit(self._session, self._user.email, "library_approved", "question", question_id, "")
         self._session.commit()
         return _read(entry)
@@ -260,7 +260,7 @@ class LibraryEditor:
         entry = self._entry(question_id)
         entry.rights_status = data.rights_status
         entry.rights_note = data.rights_note
-        _bump(self._session, entry)
+        bump_seq(self._session, entry)
         audit(
             self._session,
             self._user.email,
@@ -275,7 +275,7 @@ class LibraryEditor:
     def withdraw(self, question_id: uuid.UUID, reason: str) -> LibraryEntryRead:
         entry = self._entry(question_id)
         entry.status = library.WITHDRAWN
-        _bump(self._session, entry)
+        bump_seq(self._session, entry)
         audit(self._session, self._user.email, "library_withdrawn", "question", question_id, reason)
         self._session.commit()
         return _read(entry)
@@ -308,7 +308,7 @@ class LibraryEditor:
         record_edit(self._session, question, before)
         entry.version += 1
         self._version(entry, question, data.reason)
-        _bump(self._session, entry)
+        bump_seq(self._session, entry)
         self._session.flush()
         remarked = apply_final_key(self._session, question)
         if data.report_id is not None:
@@ -363,30 +363,6 @@ def _matches(question: Question, data: LibrarySolve) -> bool:
     return False
 
 
-def _unit_topics(session: Session, exam_code: str) -> dict[uuid.UUID, tuple[str, str]]:
-    """Topic -> (unit, subject), from the exam's newest shared syllabus."""
-    version = session.scalar(
-        select(SyllabusVersion.id)
-        .where(SyllabusVersion.exam_code == exam_code, SyllabusVersion.owner_id.is_(None))
-        .order_by(SyllabusVersion.effective_year.desc().nulls_last())
-        .limit(1)
-    )
-    if version is None:
-        return {}
-    nodes = session.scalars(select(SyllabusNode).where(SyllabusNode.version_id == version)).all()
-    by_id = {n.id: n for n in nodes}
-    found: dict[uuid.UUID, tuple[str, str]] = {}
-    for node in nodes:
-        if node.topic_id is None:
-            continue
-        parent = by_id.get(node.parent_id) if node.parent_id else None
-        root = parent
-        while root is not None and root.parent_id is not None:
-            root = by_id.get(root.parent_id)
-        found[node.topic_id] = (parent.name if parent else node.name, root.name if root else "")
-    return found
-
-
 class LibraryReader:
     """What learners get: search, and chapter packs for offline use."""
 
@@ -413,7 +389,7 @@ class LibraryReader:
             Question.translation_of_id.is_(None),
         ]
         if unit:
-            units = _unit_topics(self._session, exam)
+            units = unit_topics(self._session, exam)
             conditions.append(Question.topic_id.in_([t for t, u in units.items() if u[0] == unit]))
         if topic_id:
             conditions.append(Question.topic_id == topic_id)
@@ -467,7 +443,7 @@ class LibraryReader:
     def packs(self, exam: str) -> list[PackRead]:
         """Every chapter that has held a public question. One left empty stays listed, with its
         number raised, so a device holding it learns its questions have gone."""
-        units = _unit_topics(self._session, exam)
+        units = unit_topics(self._session, exam)
 
         def place(topic_id: uuid.UUID | None) -> tuple[str, str]:
             return units.get(topic_id, (OTHER_PACK, "")) if topic_id else (OTHER_PACK, "")
@@ -501,7 +477,7 @@ class LibraryReader:
 
     def pack(self, exam: str, key: str, since: int) -> PackDelta:
         """What changed in a chapter after [since]: questions to save and ids to remove."""
-        units = _unit_topics(self._session, exam)
+        units = unit_topics(self._session, exam)
 
         def key_of(topic_id: uuid.UUID | None) -> str:
             unit, subject = units.get(topic_id, (OTHER_PACK, "")) if topic_id else (OTHER_PACK, "")

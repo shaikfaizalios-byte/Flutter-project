@@ -91,6 +91,14 @@ class PracticeHubScreen extends ConsumerWidget {
                         label: Text(l10n.repeatsOpen),
                         onPressed: () => context.push(AppRoutes.repeats),
                       ),
+                      if (ref.watch(appFeaturesProvider).examProfiles) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.bar_chart),
+                          label: Text(l10n.chaptersOpen),
+                          onPressed: () => context.push(AppRoutes.chapters),
+                        ),
+                      ],
                     ],
                   ),
                 ),

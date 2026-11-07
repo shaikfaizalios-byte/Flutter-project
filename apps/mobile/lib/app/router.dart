@@ -22,6 +22,7 @@ import '../features/exams/presentation/exam_topics_screen.dart';
 import '../features/exams/presentation/my_exams_screen.dart';
 import '../features/exams/presentation/syllabus_tree_screen.dart';
 import '../features/exams/presentation/topic_models_screen.dart';
+import '../features/insights/presentation/chapters_screen.dart';
 import '../features/insights/presentation/repeats_screen.dart';
 import '../features/library/presentation/library_screen.dart';
 import '../features/legal/presentation/legal_screen.dart';
@@ -315,6 +316,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) =>
                         const PracticeQuestionListScreen(kind: PracticeQuestionList.incorrect),
+                  ),
+                  GoRoute(
+                    path: 'chapters',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const ChaptersScreen(),
                   ),
                   GoRoute(
                     path: 'library',

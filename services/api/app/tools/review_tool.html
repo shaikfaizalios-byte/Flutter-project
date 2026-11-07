@@ -52,6 +52,9 @@
         <option>draft</option><option>solved</option><option>approved</option><option>withdrawn</option>
       </select>
       <button class="act" id="libReports">Reported mistakes</button>
+      <input id="propExam" placeholder="Exam code" aria-label="Exam code for proposals" size="14">
+      <button class="act" id="libModels">Proposed models</button>
+      <button class="act" id="libPropose">Rebuild proposals</button>
     </div>
     <div id="libList"></div>
     <section id="libQuestion"></section>
@@ -370,6 +373,51 @@ async function loadReports() {
   if (!reports.length) $("libList").replaceChildren(node("div", "No reports.", { className: "muted" }));
   $("libQuestion").replaceChildren();
 }
+
+// Proposed models: a cluster becomes a model only when a subject reviewer names it here.
+async function loadProposals() {
+  const exam = encodeURIComponent($("propExam").value.trim());
+  const rows = await json(`/library/model-proposals?exam=${exam}`);
+  $("libList").replaceChildren(...rows.map((row) => {
+    const card = node("div");
+    card.append(node("h3", `${row.topic_name} · ${row.shifts} shifts`));
+    const boxes = row.questions.map((q) => {
+      const box = node("input", undefined, { type: "checkbox", checked: true });
+      const label = node("label");
+      label.append(box, ` ${q.text}`);
+      card.append(label, node("br"));
+      return { box, id: q.question_id };
+    });
+    const name = node("input", undefined, { placeholder: "Model name" });
+    const reason = node("input", undefined, { placeholder: "Reason, if rejecting" });
+    card.append(name, action("Approve", async () => {
+      const kept = boxes.filter((b) => b.box.checked).map((b) => b.id);
+      const result = await json(`/library/model-proposals/${row.id}/approve`, {
+        method: "POST", json: { name: name.value, question_ids: kept },
+      });
+      say(`Model saved on ${result.questions} question(s).`);
+      await loadProposals();
+    }), reason, action("Reject", async () => {
+      await call(`/library/model-proposals/${row.id}/reject`, {
+        method: "POST", json: { reason: reason.value },
+      });
+      await loadProposals();
+    }));
+    return card;
+  }));
+  if (!rows.length) $("libList").replaceChildren(node("div", "No proposals.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+$("libModels").addEventListener("click", () => loadProposals().catch((error) => say(error.message)));
+$("libPropose").addEventListener("click", async () => {
+  try {
+    const exam = encodeURIComponent($("propExam").value.trim());
+    const result = await json(`/library/model-proposals?exam=${exam}`, { method: "POST" });
+    say(`${result.proposed} proposal(s) open.`);
+    await loadProposals();
+  } catch (error) { say(error.message); }
+});
 
 $("libraryToggle").addEventListener("click", () => {
   const show = $("library").hidden;

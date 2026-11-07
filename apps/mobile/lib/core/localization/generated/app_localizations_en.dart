@@ -5511,4 +5511,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String sessionPercentRight(int percent) {
     return '$percent% got this right';
   }
+
+  @override
+  String get chaptersTitle => 'Chapters by shift';
+
+  @override
+  String get chaptersOpen => 'See chapters by shift';
+
+  @override
+  String chaptersBasis(int shifts, int questions) {
+    return '$shifts shifts counted · $questions reviewed questions';
+  }
+
+  @override
+  String get chaptersNote => 'Counted from reviewed questions in these papers. Not a prediction.';
+
+  @override
+  String chaptersSmallSample(int shifts) {
+    return 'Only $shifts shifts counted: a small sample.';
+  }
+
+  @override
+  String chaptersUnreviewed(int count) {
+    return '$count questions not reviewed yet are left out.';
+  }
+
+  @override
+  String get chaptersEmpty => 'No reviewed questions to count yet.';
+
+  @override
+  String get chaptersFailed => 'Couldn\'t load the chapters. Check your connection and try again.';
+
+  @override
+  String chaptersAppeared(int shifts, int total) {
+    return 'Appeared in $shifts of $total shifts';
+  }
+
+  @override
+  String chaptersYear(String year, int percent, int shifts, int total) {
+    return '$year: $percent% of questions · $shifts of $total shifts';
+  }
+
+  @override
+  String chaptersSession(String session, int shifts, int total) {
+    return '$session: $shifts of $total shifts';
+  }
+
+  @override
+  String get chaptersSharedTitle => 'Chapters shared by your exams';
+
+  @override
+  String chaptersSharedExam(String exam, int shifts, int total) {
+    return '$exam: $shifts of $total shifts';
+  }
+
+  @override
+  String get chaptersHintsTitle => 'Same idea across shifts';
+
+  @override
+  String get chaptersHintsNote => 'AI hint: not checked, and not part of any count here.';
+
+  @override
+  String chaptersHintShifts(String topic, int shifts) {
+    return '$topic · $shifts shifts';
+  }
+
+  @override
+  String chaptersHintQuestion(int number) {
+    return 'Question $number';
+  }
 }

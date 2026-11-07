@@ -5510,4 +5510,74 @@ class AppLocalizationsHi extends AppLocalizations {
   String sessionPercentRight(int percent) {
     return '$percent% ने इसे सही किया';
   }
+
+  @override
+  String get chaptersTitle => 'शिफ्ट के अनुसार अध्याय';
+
+  @override
+  String get chaptersOpen => 'शिफ्ट के अनुसार अध्याय देखें';
+
+  @override
+  String chaptersBasis(int shifts, int questions) {
+    return '$shifts शिफ्ट गिनी गईं · $questions जाँचे गए प्रश्न';
+  }
+
+  @override
+  String get chaptersNote =>
+      'इन प्रश्नपत्रों के जाँचे गए प्रश्नों से गिना गया। यह कोई भविष्यवाणी नहीं है।';
+
+  @override
+  String chaptersSmallSample(int shifts) {
+    return 'केवल $shifts शिफ्ट गिनी गईं: यह छोटा नमूना है।';
+  }
+
+  @override
+  String chaptersUnreviewed(int count) {
+    return '$count प्रश्न अभी जाँचे नहीं गए, इसलिए छोड़े गए हैं।';
+  }
+
+  @override
+  String get chaptersEmpty => 'गिनने के लिए अभी कोई जाँचा गया प्रश्न नहीं है।';
+
+  @override
+  String get chaptersFailed => 'अध्याय लोड नहीं हो सके। कनेक्शन जाँचकर फिर कोशिश करें।';
+
+  @override
+  String chaptersAppeared(int shifts, int total) {
+    return '$total में से $shifts शिफ्ट में आया';
+  }
+
+  @override
+  String chaptersYear(String year, int percent, int shifts, int total) {
+    return '$year: $percent% प्रश्न · $total में से $shifts शिफ्ट';
+  }
+
+  @override
+  String chaptersSession(String session, int shifts, int total) {
+    return '$session: $total में से $shifts शिफ्ट';
+  }
+
+  @override
+  String get chaptersSharedTitle => 'आपकी परीक्षाओं के साझा अध्याय';
+
+  @override
+  String chaptersSharedExam(String exam, int shifts, int total) {
+    return '$exam: $total में से $shifts शिफ्ट';
+  }
+
+  @override
+  String get chaptersHintsTitle => 'शिफ्टों में एक जैसा विचार';
+
+  @override
+  String get chaptersHintsNote => 'AI संकेत: जाँचा नहीं गया और यहाँ की किसी गिनती में शामिल नहीं।';
+
+  @override
+  String chaptersHintShifts(String topic, int shifts) {
+    return '$topic · $shifts शिफ्ट';
+  }
+
+  @override
+  String chaptersHintQuestion(int number) {
+    return 'प्रश्न $number';
+  }
 }

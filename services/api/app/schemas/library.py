@@ -140,6 +140,34 @@ class LibraryReportRead(BaseModel):
     text: str
 
 
+class ModelProposalQuestion(BaseModel):
+    question_id: uuid.UUID
+    text: str
+
+
+class ModelProposalRead(BaseModel):
+    id: uuid.UUID
+    topic_id: uuid.UUID
+    topic_name: str
+    shifts: int
+    questions: list[ModelProposalQuestion]
+
+
+class ModelApproval(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=120)]
+    question_ids: list[uuid.UUID] | None = None  # the ones to keep; none = all
+
+
+class ModelsProposed(BaseModel):
+    proposed: int
+
+
+class ModelApproved(BaseModel):
+    questions: int
+
+
 class LibraryHit(BaseModel):
     question_id: uuid.UUID
     exam_code: str

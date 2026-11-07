@@ -19,11 +19,16 @@ from app.schemas.library import (
     LibrarySolve,
     LibraryVersionRead,
     LibraryWithdraw,
+    ModelApproval,
+    ModelApproved,
+    ModelProposalRead,
+    ModelsProposed,
     PackDelta,
     PackRead,
     SolveResult,
 )
 from app.services.library_service import LibraryEditor, LibraryReader
+from app.services.repeat_analysis import ModelReview, propose_models
 
 router = APIRouter(prefix="/library", tags=["library"])
 
@@ -176,6 +181,46 @@ def withdraw(question_id: uuid.UUID, body: LibraryWithdraw, service: Staff) -> L
 )
 def versions(question_id: uuid.UUID, service: Staff) -> list[LibraryVersionRead]:
     return service.versions(question_id)
+
+
+@router.get(
+    "/model-proposals",
+    response_model=list[ModelProposalRead],
+    summary="Clusters of alike questions waiting for a subject reviewer",
+)
+def model_proposals(session: DbSession, user: Editor, exam: Exam) -> list[ModelProposalRead]:
+    return ModelReview(session, user).listing(exam)
+
+
+@router.post(
+    "/model-proposals",
+    response_model=ModelsProposed,
+    summary="Rebuild the proposals from curated papers",
+)
+def run_proposals(session: DbSession, _: Editor, exam: Exam) -> ModelsProposed:
+    return ModelsProposed(proposed=propose_models(session, exam))
+
+
+@router.post(
+    "/model-proposals/{proposal_id}/approve",
+    response_model=ModelApproved,
+    summary="Name the model and confirm it on the questions kept",
+)
+def approve_model(
+    proposal_id: uuid.UUID, body: ModelApproval, session: DbSession, user: Editor
+) -> ModelApproved:
+    return ModelApproved(questions=ModelReview(session, user).approve(proposal_id, body))
+
+
+@router.post(
+    "/model-proposals/{proposal_id}/reject",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Reject a proposal: it won't be proposed again",
+)
+def reject_model(
+    proposal_id: uuid.UUID, body: LibraryWithdraw, session: DbSession, user: Editor
+) -> None:
+    ModelReview(session, user).reject(proposal_id, body.reason)
 
 
 @router.get("/reports", response_model=list[LibraryReportRead], summary="Reported mistakes")

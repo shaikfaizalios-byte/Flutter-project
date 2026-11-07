@@ -8858,6 +8858,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percent}% got this right'**
   String sessionPercentRight(int percent);
+
+  /// No description provided for @chaptersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters by shift'**
+  String get chaptersTitle;
+
+  /// No description provided for @chaptersOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'See chapters by shift'**
+  String get chaptersOpen;
+
+  /// No description provided for @chaptersBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'{shifts} shifts counted · {questions} reviewed questions'**
+  String chaptersBasis(int shifts, int questions);
+
+  /// No description provided for @chaptersNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted from reviewed questions in these papers. Not a prediction.'**
+  String get chaptersNote;
+
+  /// No description provided for @chaptersSmallSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {shifts} shifts counted: a small sample.'**
+  String chaptersSmallSample(int shifts);
+
+  /// No description provided for @chaptersUnreviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions not reviewed yet are left out.'**
+  String chaptersUnreviewed(int count);
+
+  /// No description provided for @chaptersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviewed questions to count yet.'**
+  String get chaptersEmpty;
+
+  /// No description provided for @chaptersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the chapters. Check your connection and try again.'**
+  String get chaptersFailed;
+
+  /// No description provided for @chaptersAppeared.
+  ///
+  /// In en, this message translates to:
+  /// **'Appeared in {shifts} of {total} shifts'**
+  String chaptersAppeared(int shifts, int total);
+
+  /// No description provided for @chaptersYear.
+  ///
+  /// In en, this message translates to:
+  /// **'{year}: {percent}% of questions · {shifts} of {total} shifts'**
+  String chaptersYear(String year, int percent, int shifts, int total);
+
+  /// No description provided for @chaptersSession.
+  ///
+  /// In en, this message translates to:
+  /// **'{session}: {shifts} of {total} shifts'**
+  String chaptersSession(String session, int shifts, int total);
+
+  /// No description provided for @chaptersSharedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters shared by your exams'**
+  String get chaptersSharedTitle;
+
+  /// No description provided for @chaptersSharedExam.
+  ///
+  /// In en, this message translates to:
+  /// **'{exam}: {shifts} of {total} shifts'**
+  String chaptersSharedExam(String exam, int shifts, int total);
+
+  /// No description provided for @chaptersHintsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Same idea across shifts'**
+  String get chaptersHintsTitle;
+
+  /// No description provided for @chaptersHintsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'AI hint: not checked, and not part of any count here.'**
+  String get chaptersHintsNote;
+
+  /// No description provided for @chaptersHintShifts.
+  ///
+  /// In en, this message translates to:
+  /// **'{topic} · {shifts} shifts'**
+  String chaptersHintShifts(String topic, int shifts);
+
+  /// No description provided for @chaptersHintQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number}'**
+  String chaptersHintQuestion(int number);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

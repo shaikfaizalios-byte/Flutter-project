@@ -117,6 +117,89 @@ class RepeatsReport(BaseModel):
     name_suggestions: list[NameSuggestion] = []
 
 
+class YearWeight(BaseModel):
+    year: int
+    questions: int  # reviewed questions
+    shifts: int
+    marks: float | None = None  # of the questions that state them
+
+
+class SessionWeight(BaseModel):
+    session: str
+    questions: int
+    shifts: int
+
+
+class TopicWeight(BaseModel):
+    topic_id: uuid.UUID
+    name: str
+    questions: int
+    shifts: int
+
+
+class ChapterWeight(BaseModel):
+    """A chapter in the counted papers. Its weight in a year is its questions over the year's
+    questions in ``ShiftBasis``."""
+
+    subject: str
+    name: str
+    questions: int
+    shifts: int  # shifts it appeared in
+    marks: float | None = None
+    years: list[YearWeight]
+    sessions: list[SessionWeight]
+    topics: list[TopicWeight]
+
+
+class ShiftBasis(BaseModel):
+    """What was counted: every shift, and the reviewed questions in them."""
+
+    shifts: int
+    questions: int
+    unreviewed: int  # questions without a confirmed topic: not counted in any chapter
+    years: list[YearWeight]
+    sessions: list[SessionWeight]
+
+
+class ChapterReport(BaseModel):
+    exam_code: str
+    scope: Literal["mine", "shared", "all"]
+    basis: ShiftBasis
+    chapters: list[ChapterWeight]
+
+
+class ExamChapter(BaseModel):
+    exam_code: str
+    questions: int
+    shifts: int
+    total_shifts: int
+
+
+class SharedChapter(BaseModel):
+    """A chapter reviewers linked across exams."""
+
+    subject: str
+    name: str
+    exams: list[ExamChapter]
+
+
+class ConceptHintQuestion(BaseModel):
+    question_id: uuid.UUID
+    year: int | None
+    number: int | None
+    excerpt: str | None  # none for a question printed as a picture
+
+
+class ConceptHintRead(BaseModel):
+    """Questions an AI read as testing one concept. A hint, outside every reviewed count."""
+
+    topic_id: uuid.UUID
+    topic_name: str
+    label: str
+    shifts: int
+    questions: list[ConceptHintQuestion]
+
+
 class SharedBankExam(BaseModel):
     """Starter papers: what the shared bank holds for one exam (verified questions only)."""
 
