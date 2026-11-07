@@ -137,6 +137,10 @@ def config_problems(
         problems.append(
             "Question types must be among: " + ", ".join(sorted(SUPPORTED_QUESTION_TYPES)) + "."
         )
+    subjects = [section.get("subject") for section in sections or []]
+    if len(set(subjects)) != len(subjects):
+        # Mocks keep marks and limits by subject, so these sections would mark as one.
+        problems.append("Sections repeat a subject, which mocks can't mark apart yet.")
     for section in sections or []:
         rule = section.get("partial")
         if rule is not None and not _positive_number(_number(rule.get("per_correct"))):

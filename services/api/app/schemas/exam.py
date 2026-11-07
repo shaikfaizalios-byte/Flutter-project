@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
@@ -97,6 +97,7 @@ class ExamStageRead(BaseModel):
     marking_scheme: MarkingSchemeRead | None  # null: marks differ between sections
     verified: bool  # from a reviewed format; false: entered by the learner
     source: str | None = None
+    conduct: dict[str, Any] | None = None  # this year's mode, sessions, shifts and languages
 
 
 class CustomExamProfile(BaseModel):

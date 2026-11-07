@@ -105,6 +105,8 @@ class ExamFormat(Base):
     # Each section has its own timer (its timer_minutes) and sections are taken in order.
     sectional_timing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     # The notice gives the section split as only indicative (real papers may vary); mocks say so.
+    # How this year's exam is conducted: mode, sessions, shifts, languages. See FormatFile.
+    conduct: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     section_counts_indicative: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false"
     )
