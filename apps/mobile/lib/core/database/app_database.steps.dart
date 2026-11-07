@@ -2269,6 +2269,265 @@ i1.GeneratedColumn<i2.Uint8List> _column_67(String aliasedName) =>
       type: i1.DriftSqlType.blob,
       $customConstraints: 'NOT NULL',
     );
+
+final class Schema11 extends i0.VersionedSchema {
+  Schema11({required super.database}) : super(version: 11);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    concepts,
+    appSettings,
+    studyProfiles,
+    pendingAnswers,
+    revisionCards,
+    cardReviews,
+    syncOutbox,
+    offlineQuestions,
+    offlineSessions,
+    libraryPacks,
+    offlineFigures,
+    cardReviewsSyncId,
+  ];
+  late final Shape11 concepts = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'concepts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_60,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 appSettings = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'app_settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [_column_13, _column_14],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 studyProfiles = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'study_profiles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_15,
+        _column_16,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_20,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 pendingAnswers = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'pending_answers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(session_id, position)'],
+      columns: [
+        _column_21,
+        _column_22,
+        _column_23,
+        _column_54,
+        _column_61,
+        _column_68,
+        _column_69,
+        _column_24,
+        _column_25,
+        _column_11,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 revisionCards = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'revision_cards',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_29,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_34,
+        _column_35,
+        _column_36,
+        _column_37,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_41,
+        _column_42,
+        _column_11,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 cardReviews = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'card_reviews',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_43,
+        _column_44,
+        _column_49,
+        _column_45,
+        _column_46,
+        _column_47,
+        _column_48,
+        _column_38,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape7 syncOutbox = Shape7(
+    source: i0.VersionedTable(
+      entityName: 'sync_outbox',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(entity, entity_id)'],
+      columns: [_column_50, _column_51, _column_52, _column_53],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 offlineQuestions = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'offline_questions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_34,
+        _column_55,
+        _column_56,
+        _column_62,
+        _column_57,
+        _column_58,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape10 offlineSessions = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'offline_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_57, _column_59, _column_11, _column_12],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 libraryPacks = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'library_packs',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(exam_code, pack_key)'],
+      columns: [_column_1, _column_63, _column_64, _column_65, _column_58],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape15 offlineFigures = Shape15(
+    source: i0.VersionedTable(
+      entityName: 'offline_figures',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_66, _column_67],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Index cardReviewsSyncId = i1.Index(
+    'card_reviews_sync_id',
+    'CREATE UNIQUE INDEX card_reviews_sync_id ON card_reviews (sync_id)',
+  );
+}
+
+class Shape16 extends i0.VersionedTable {
+  Shape16({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get sessionId =>
+      columnsByName['session_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get position =>
+      columnsByName['position']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get selectedPosition =>
+      columnsByName['selected_position']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get typedAnswer =>
+      columnsByName['typed_answer']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get responseJson =>
+      columnsByName['response_json']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get marked =>
+      columnsByName['marked']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get visit =>
+      columnsByName['visit']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get clientSeq =>
+      columnsByName['client_seq']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get timeSpentMs =>
+      columnsByName['time_spent_ms']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<int> _column_68(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'marked',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL CHECK (marked IN (0, 1))',
+    );
+i1.GeneratedColumn<int> _column_69(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'visit',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL DEFAULT 0 CHECK (visit IN (0, 1))',
+      defaultValue: const i1.CustomExpression('0'),
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -2279,6 +2538,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
   required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
   required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
+  required Future<void> Function(i1.Migrator m, Schema11 schema) from10To11,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -2327,6 +2587,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from9To10(migrator, schema);
         return 10;
+      case 10:
+        final schema = Schema11(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from10To11(migrator, schema);
+        return 11;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -2343,6 +2608,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
   required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
   required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
+  required Future<void> Function(i1.Migrator m, Schema11 schema) from10To11,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -2354,5 +2620,6 @@ i1.OnUpgrade stepByStep({
     from7To8: from7To8,
     from8To9: from8To9,
     from9To10: from9To10,
+    from10To11: from10To11,
   ),
 );

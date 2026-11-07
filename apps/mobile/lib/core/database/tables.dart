@@ -90,6 +90,12 @@ class PendingAnswers extends Table {
   /// JSON answer of a format that takes neither one option nor a text. Added in schema v9.
   TextColumn get responseJson => text().nullable()();
 
+  /// Marked for review in a computer-based mock; null leaves it as it was. Added in v11.
+  BoolColumn get marked => boolean().nullable()();
+
+  /// Seen without saving an answer: only the visit and its time count. Added in v11.
+  BoolColumn get visit => boolean().withDefault(const Constant(false))();
+
   /// Monotonic per device; the server ignores updates older than the one it has.
   IntColumn get clientSeq => integer()();
   IntColumn get timeSpentMs => integer().nullable()();

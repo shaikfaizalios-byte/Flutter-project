@@ -44,7 +44,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -95,6 +95,11 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(schema.offlineQuestions, schema.offlineQuestions.packKey);
         await m.createTable(schema.libraryPacks);
         await m.createTable(schema.offlineFigures);
+      },
+      // v11: mark for review and visits in computer-based mocks.
+      from10To11: (m, schema) async {
+        await m.addColumn(schema.pendingAnswers, schema.pendingAnswers.marked);
+        await m.addColumn(schema.pendingAnswers, schema.pendingAnswers.visit);
       },
     ),
     beforeOpen: (details) async {

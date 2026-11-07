@@ -140,6 +140,8 @@ class SessionAnswer(Base):
     # The answer of a format that takes neither one option nor a typed text.
     response: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     is_correct: Mapped[bool | None] = mapped_column(Boolean)
+    # In a computer-based mock: the learner wants to look at this question again.
+    marked_for_review: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     client_seq: Mapped[int] = mapped_column(BigInteger)
     time_spent_ms: Mapped[int | None] = mapped_column(Integer)
     answered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
