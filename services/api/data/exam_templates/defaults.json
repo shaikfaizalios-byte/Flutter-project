@@ -100,5 +100,9 @@
       }
     ],
     "slow_multiple": 1.5
+  },
+  "mock_analysis": {
+    "_about": "After a mock. A percentile needs this many accounts' first attempts. A product choice.",
+    "percentile_min_accounts": 100
   }
 }

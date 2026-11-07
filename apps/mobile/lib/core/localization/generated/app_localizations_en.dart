@@ -5593,4 +5593,85 @@ class AppLocalizationsEn extends AppLocalizations {
   String ladderCheckedRecalculated(int solves) {
     return 'Checked: $solves independent solves agreed and the answer was recalculated';
   }
+
+  @override
+  String get cbtSaveAndNext => 'Save & Next';
+
+  @override
+  String get cbtMarkAndNext => 'Mark for Review & Next';
+
+  @override
+  String get cbtClear => 'Clear Response';
+
+  @override
+  String get cbtNotVisited => 'Not visited';
+
+  @override
+  String get cbtNotAnswered => 'Not answered';
+
+  @override
+  String get cbtAnswered => 'Answered';
+
+  @override
+  String get cbtMarked => 'Marked for review';
+
+  @override
+  String get cbtAnsweredMarked => 'Answered and marked for review (will be evaluated)';
+
+  @override
+  String get cbtNotSaved => 'This answer couldn\'t be saved. Try again.';
+
+  @override
+  String cbtQuestionStatus(int number, String status) {
+    return 'Question $number, $status';
+  }
+
+  @override
+  String get mockSectional => 'Practise one section';
+
+  @override
+  String mockSectionalMessage(String section) {
+    return '$section only, on its share of the paper\'s time. This isn\'t how the exam is timed.';
+  }
+
+  @override
+  String get analysisTitle => 'How this test went';
+
+  @override
+  String get analysisHistory => 'Your attempts at this paper';
+
+  @override
+  String get analysisThisTest => 'this test';
+
+  @override
+  String get analysisChapters => 'By chapter';
+
+  @override
+  String analysisCounts(int correct, int wrong, int left) {
+    return '$correct right, $wrong wrong, $left left';
+  }
+
+  @override
+  String analysisAccuracy(int percent) {
+    return '$percent% of attempted';
+  }
+
+  @override
+  String get analysisTimes => 'Time and marks per question';
+
+  @override
+  String analysisQuestion(int number) {
+    return 'Question $number';
+  }
+
+  @override
+  String get analysisUnattempted => 'Not attempted';
+
+  @override
+  String get analysisDropped => 'Dropped';
+
+  @override
+  String analysisPercentile(int percent, int accounts) {
+    return 'Scored above $percent% of $accounts PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.';
+  }
 }

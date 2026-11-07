@@ -10,6 +10,7 @@ from app.schemas.errors import ErrorResponse
 from app.schemas.practice import (
     AnswerAck,
     AnswerUpdate,
+    MockAnalysis,
     MockAvailability,
     MockCreate,
     OfflinePack,
@@ -21,6 +22,7 @@ from app.schemas.practice import (
     SessionRead,
 )
 from app.schemas.question import QuestionList
+from app.services.mock_analysis import MockAnalysisService
 from app.services.practice_service import PracticeService
 from app.services.question_service import QuestionService
 
@@ -50,6 +52,15 @@ Service = Annotated[PracticeService, Depends(get_practice_service)]
 )
 def start_practice(body: PracticeCreate, service: Service) -> SessionRead:
     return service.start_practice(body)
+
+
+@router.get(
+    "/practice/sessions/{session_id}/analysis",
+    response_model=MockAnalysis,
+    summary="After a mock: marks and time per question, chapters, history, percentile",
+)
+def mock_analysis(session_id: uuid.UUID, session: DbSession, user: CurrentUser) -> MockAnalysis:
+    return MockAnalysisService(session, user.id).analysis(session_id)
 
 
 @router.get(

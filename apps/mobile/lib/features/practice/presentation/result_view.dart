@@ -5,6 +5,7 @@ import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/widgets/rich_question_text.dart';
 import '../../../core/widgets/section_card.dart';
 import '../domain/practice_models.dart';
+import 'mock_analysis_card.dart';
 import 'session_screen.dart' show formatClock;
 
 /// Submitted session: score, how it was computed, section/topic breakdown, and every
@@ -54,6 +55,8 @@ class ResultView extends StatelessWidget {
               ),
             ],
             const SizedBox(height: AppSpacing.md),
+            if (session.mode == SessionMode.mock && !session.offline)
+              MockAnalysisCard(sessionId: session.id),
             SectionCard(
               icon: Icons.calculate_outlined,
               title: l10n.resultHowScored,

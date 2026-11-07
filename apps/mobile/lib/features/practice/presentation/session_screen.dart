@@ -17,9 +17,12 @@ import '../../question_bank/presentation/shared_report.dart';
 import '../application/practice_providers.dart';
 import '../../../core/localization/content_language.dart';
 import '../../../core/widgets/rich_question_text.dart';
+import '../domain/cbt.dart';
 import '../domain/practice_models.dart';
 import 'format_answers.dart';
 import 'result_view.dart';
+
+part 'cbt_view.dart';
 
 /// A practice session or mock test. Shows the result once the session is submitted.
 class SessionScreen extends ConsumerWidget {
@@ -36,6 +39,9 @@ class SessionScreen extends ConsumerWidget {
         appBar: AppBar(title: Text(l10n.resultTitle)),
         body: ResultView(session: value.session),
       ),
+      AsyncData(:final value)
+          when value.session.cbt != null && ref.watch(appFeaturesProvider).examProfiles =>
+        _CbtView(sessionId: sessionId, state: value),
       AsyncData(:final value) => _SessionBody(sessionId: sessionId, state: value),
       AsyncError(:final error) => Scaffold(
         appBar: AppBar(),

@@ -670,6 +670,17 @@
             "title": "Client Seq",
             "type": "integer"
           },
+          "marked_for_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marked For Review"
+          },
           "response": {
             "anyOf": [
               {
@@ -720,6 +731,11 @@
               }
             ],
             "title": "Typed Answer"
+          },
+          "visit": {
+            "default": false,
+            "title": "Visit",
+            "type": "boolean"
           }
         },
         "required": [
@@ -1081,6 +1097,44 @@
           "id"
         ],
         "title": "Change",
+        "type": "object"
+      },
+      "ChapterAccuracy": {
+        "properties": {
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "time_ms": {
+            "title": "Time Ms",
+            "type": "integer"
+          },
+          "unattempted": {
+            "title": "Unattempted",
+            "type": "integer"
+          },
+          "wrong": {
+            "title": "Wrong",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "subject",
+          "name",
+          "correct",
+          "wrong",
+          "unattempted",
+          "time_ms"
+        ],
+        "title": "ChapterAccuracy",
         "type": "object"
       },
       "ChapterReport": {
@@ -5683,10 +5737,58 @@
         "title": "MarkingSchemeRead",
         "type": "object"
       },
+      "MockAnalysis": {
+        "properties": {
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/ChapterAccuracy"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/MockHistoryRow"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "percentile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PercentileRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionAnalysis"
+            },
+            "title": "Questions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "questions",
+          "chapters",
+          "history",
+          "percentile"
+        ],
+        "title": "MockAnalysis",
+        "type": "object"
+      },
       "MockAvailability": {
         "properties": {
           "available": {
             "title": "Available",
+            "type": "boolean"
+          },
+          "computer_based": {
+            "default": false,
+            "title": "Computer Based",
             "type": "boolean"
           },
           "duration_minutes": {
@@ -5747,6 +5849,11 @@
             "title": "Section Counts Indicative",
             "type": "boolean"
           },
+          "sectional_timing": {
+            "default": false,
+            "title": "Sectional Timing",
+            "type": "boolean"
+          },
           "sections": {
             "items": {
               "$ref": "#/components/schemas/SectionAvailability"
@@ -5785,12 +5892,67 @@
             "default": false,
             "title": "Include New Formats",
             "type": "boolean"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
           }
         },
         "required": [
           "exam_format_code"
         ],
         "title": "MockCreate",
+        "type": "object"
+      },
+      "MockHistoryRow": {
+        "properties": {
+          "current": {
+            "title": "Current",
+            "type": "boolean"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "number"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "required": [
+          "session_id",
+          "submitted_at",
+          "score",
+          "max_score",
+          "current"
+        ],
+        "title": "MockHistoryRow",
         "type": "object"
       },
       "MockResult": {
@@ -7829,6 +7991,25 @@
         "title": "PatternRepeat",
         "type": "object"
       },
+      "PercentileRead": {
+        "description": "From real PrepLoop attempts only: each account's first attempt at this paper.",
+        "properties": {
+          "accounts": {
+            "title": "Accounts",
+            "type": "integer"
+          },
+          "percent": {
+            "title": "Percent",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "percent",
+          "accounts"
+        ],
+        "title": "PercentileRead",
+        "type": "object"
+      },
       "PlayPurchaseVerify": {
         "additionalProperties": false,
         "description": "A Google Play purchase the app reports after buying or restoring.",
@@ -8139,6 +8320,76 @@
           "rejected"
         ],
         "title": "PushResult",
+        "type": "object"
+      },
+      "QuestionAnalysis": {
+        "properties": {
+          "marked": {
+            "title": "Marked",
+            "type": "boolean"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          },
+          "status": {
+            "enum": [
+              "correct",
+              "wrong",
+              "unattempted",
+              "dropped"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "time_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Ms"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "required": [
+          "position",
+          "section",
+          "topic",
+          "status",
+          "marks",
+          "time_ms",
+          "marked"
+        ],
+        "title": "QuestionAnalysis",
         "type": "object"
       },
       "QuestionHistory": {
@@ -10334,6 +10585,11 @@
             ],
             "title": "Library Source"
           },
+          "marked_for_review": {
+            "default": false,
+            "title": "Marked For Review",
+            "type": "boolean"
+          },
           "options": {
             "items": {
               "$ref": "#/components/schemas/OptionRead"
@@ -10474,6 +10730,11 @@
           "verified": {
             "title": "Verified",
             "type": "boolean"
+          },
+          "visited": {
+            "default": false,
+            "title": "Visited",
+            "type": "boolean"
           }
         },
         "required": [
@@ -10521,6 +10782,18 @@
           "answered_count": {
             "title": "Answered Count",
             "type": "integer"
+          },
+          "cbt": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cbt"
           },
           "current_section": {
             "anyOf": [
@@ -10623,6 +10896,17 @@
               }
             ],
             "title": "Section Deadline At"
+          },
+          "sectional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sectional"
           },
           "sections": {
             "default": [],
@@ -22162,6 +22446,64 @@
           }
         ],
         "summary": "Get Session",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/sessions/{session_id}/analysis": {
+      "get": {
+        "operationId": "mock_analysis_api_v1_practice_sessions__session_id__analysis_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MockAnalysis"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "After a mock: marks and time per question, chapters, history, percentile",
         "tags": [
           "practice"
         ]

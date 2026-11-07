@@ -5593,4 +5593,85 @@ class AppLocalizationsHi extends AppLocalizations {
   String ladderCheckedRecalculated(int solves) {
     return 'जाँचा गया: $solves स्वतंत्र हल सहमत रहे और उत्तर दोबारा गणना किया गया';
   }
+
+  @override
+  String get cbtSaveAndNext => 'सेव करें और आगे बढ़ें';
+
+  @override
+  String get cbtMarkAndNext => 'समीक्षा हेतु चिह्नित करें और आगे बढ़ें';
+
+  @override
+  String get cbtClear => 'उत्तर हटाएँ';
+
+  @override
+  String get cbtNotVisited => 'नहीं देखा गया';
+
+  @override
+  String get cbtNotAnswered => 'उत्तर नहीं दिया';
+
+  @override
+  String get cbtAnswered => 'उत्तर दिया';
+
+  @override
+  String get cbtMarked => 'समीक्षा हेतु चिह्नित';
+
+  @override
+  String get cbtAnsweredMarked => 'उत्तर दिया और समीक्षा हेतु चिह्नित (मूल्यांकन होगा)';
+
+  @override
+  String get cbtNotSaved => 'यह उत्तर सेव नहीं हो सका। फिर कोशिश करें।';
+
+  @override
+  String cbtQuestionStatus(int number, String status) {
+    return 'प्रश्न $number, $status';
+  }
+
+  @override
+  String get mockSectional => 'एक खंड का अभ्यास करें';
+
+  @override
+  String mockSectionalMessage(String section) {
+    return 'केवल $section, प्रश्नपत्र के समय के अपने हिस्से में। परीक्षा का समय ऐसे तय नहीं होता।';
+  }
+
+  @override
+  String get analysisTitle => 'यह टेस्ट कैसा रहा';
+
+  @override
+  String get analysisHistory => 'इस प्रश्नपत्र पर आपके प्रयास';
+
+  @override
+  String get analysisThisTest => 'यह टेस्ट';
+
+  @override
+  String get analysisChapters => 'अध्याय के अनुसार';
+
+  @override
+  String analysisCounts(int correct, int wrong, int left) {
+    return '$correct सही, $wrong गलत, $left छोड़े';
+  }
+
+  @override
+  String analysisAccuracy(int percent) {
+    return 'हल किए गए में $percent%';
+  }
+
+  @override
+  String get analysisTimes => 'प्रति प्रश्न समय और अंक';
+
+  @override
+  String analysisQuestion(int number) {
+    return 'प्रश्न $number';
+  }
+
+  @override
+  String get analysisUnattempted => 'हल नहीं किया';
+
+  @override
+  String get analysisDropped => 'हटाया गया';
+
+  @override
+  String analysisPercentile(int percent, int accounts) {
+    return 'इस प्रश्नपत्र पर $accounts PrepLoop खातों के पहले प्रयासों में से $percent% से अधिक अंक। यह वास्तविक PrepLoop प्रयासों से है; परीक्षा की रैंक नहीं।';
+  }
 }

@@ -10,7 +10,14 @@ import '../../../core/utils/clock.dart';
 import '../../exams/application/active_exam.dart';
 import '../../question_bank/domain/question.dart';
 import '../data/practice_repository.dart';
+import '../domain/cbt.dart';
 import '../domain/practice_models.dart';
+
+/// After a mock. Needs a connection; the result stands without it.
+final mockAnalysisProvider = FutureProvider.autoDispose.family<MockAnalysis, String>(
+  (ref, sessionId) => ref.watch(practiceRepositoryProvider).analysis(sessionId),
+  retry: (_, _) => null,
+);
 
 final practiceRepositoryProvider = Provider<PracticeRepository>(
   (ref) => PracticeRepository(
@@ -206,6 +213,87 @@ class SessionController extends AsyncNotifier<SessionState> {
     if (!value.session.isOpen(value.session.items[index].position)) return;
     _shownAt = _now();
     state = AsyncData(value.copyWith(current: index));
+  }
+
+  /// Computer-based mock: saves what is on the screen, with its review mark, and moves on.
+  /// False when it couldn't be saved; the learner stays on the question.
+  Future<bool> saveCbt(CbtDraft draft, {required bool marked}) async {
+    final value = state.value;
+    if (value == null || value.session.submitted) return false;
+    final item = value.item;
+    final ok = await _sendCbt(item, draft, marked: marked);
+    final latest = state.value;
+    if (!ok || latest == null) return false;
+    final next = latest.current + 1 < latest.session.items.length
+        ? latest.current + 1
+        : latest.current;
+    _shownAt = _now();
+    state = AsyncData(latest.copyWith(current: next));
+    return true;
+  }
+
+  /// Computer-based mock: removes the saved answer and its mark, and stays on the question.
+  Future<bool> clearCbt() async {
+    final value = state.value;
+    if (value == null || value.session.submitted) return false;
+    return _sendCbt(value.item, const CbtDraft(), marked: false);
+  }
+
+  /// Computer-based mock: goes to a question without saving. The time spent still counts.
+  Future<void> visitCbt(int index) async {
+    final value = state.value;
+    if (value == null || index < 0 || index >= value.session.items.length) return;
+    final item = value.item;
+    final spent = _timeSpent();
+    _shownAt = _now();
+    state = AsyncData(
+      value.copyWith(session: value.session.withItem(item.copyWith(visited: true)), current: index),
+    );
+    try {
+      await _repo.answer(sessionId, item.position, null, timeSpentMs: spent, visit: true);
+    } on ServerFailure catch (failure) {
+      if (failure.code == 'session_closed') ref.invalidateSelf();
+    } on Object catch (error, stack) {
+      logError('Recording a visit failed', error, stack);
+    }
+  }
+
+  Future<bool> _sendCbt(SessionItemView item, CbtDraft draft, {required bool marked}) async {
+    final spent = _timeSpent();
+    _shownAt = _now();
+    try {
+      final outcome = await _repo.answer(
+        sessionId,
+        item.position,
+        draft.selected,
+        typedAnswer: draft.typed,
+        response: draft.response,
+        timeSpentMs: spent,
+        marked: marked,
+      );
+      final latest = state.value!;
+      final queued = {...latest.queuedPositions};
+      outcome.queued ? queued.add(item.position) : queued.remove(item.position);
+      final updated = latest.session.items
+          .firstWhere((i) => i.position == item.position)
+          .copyWith(
+            selectedPosition: () => draft.selected,
+            typedAnswer: () => draft.typed,
+            response: () => draft.response,
+            marked: marked,
+            visited: true,
+          );
+      state = AsyncData(
+        latest.copyWith(session: latest.session.withItem(updated), queuedPositions: queued),
+      );
+      return true;
+    } on ServerFailure catch (failure) {
+      if (failure.code == 'session_closed') ref.invalidateSelf();
+      return false;
+    } on Object catch (error, stack) {
+      logError('Saving an answer failed', error, stack);
+      return false;
+    }
   }
 
   /// Closes the open section early in a sectionally timed mock; the next one opens (the

@@ -75,7 +75,17 @@
       "Botany and Zoology: the bulletin gives one Biology row of 90 questions, with no split between them.",
       "195 minutes includes formalities such as signing attendance sheets. The FAQ calls the extra 15 minutes time for formalities; no notice gives a writing time on its own.",
       "No notice restates question counts or marking. They are the bulletin's, carried over by the 15 May notice."
-    ]
+    ],
+    "cbt": {
+      "marked_with_answer_counts": true,
+      "marked_without_answer_counts": false,
+      "answer_needs_saving": true,
+      "free_navigation": true,
+      "ends_at_zero": true,
+      "language_switch": "paper",
+      "reference": "Information Bulletin JEE (Main) 2027, PDF pp.58-61 (NTA's published CBT instructions)",
+      "basis": "NTA has published no CBT instructions for NEET (UG). These are its JEE (Main) instructions, used for practice until it does."
+    }
   },
   "effective_from": "2026-05-15",
   "supersedes": "NEET_UG_2026",

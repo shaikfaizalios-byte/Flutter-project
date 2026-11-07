@@ -82,6 +82,13 @@ def ladder_strict_settings() -> dict[str, Any]:
 
 
 @cache
+def mock_analysis_settings() -> dict[str, Any]:
+    """After a mock. Product choices, kept with the other defaults."""
+    settings: dict[str, Any] = _defaults()["mock_analysis"]
+    return settings
+
+
+@cache
 def library_settings() -> dict[str, Any]:
     """Question library settings. Product choices, kept with the other defaults."""
     settings: dict[str, Any] = _defaults()["library"]

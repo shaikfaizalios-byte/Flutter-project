@@ -1,3 +1,5 @@
+import 'cbt.dart';
+
 import 'package:flutter/foundation.dart';
 
 import '../../question_bank/domain/question.dart';
@@ -92,6 +94,8 @@ class SessionItemView {
     this.response,
     this.translations = const [],
     this.librarySource,
+    this.marked = false,
+    this.visited = false,
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -111,6 +115,8 @@ class SessionItemView {
           : Passage.fromJson(json['passage'] as Map<String, dynamic>),
       origin: json['origin'] == null ? null : QuestionOrigin.fromCode(json['origin'] as String),
       librarySource: json['library_source'] as String?,
+      marked: json['marked_for_review'] as bool? ?? false,
+      visited: json['visited'] as bool? ?? false,
       verified: json['verified'] as bool,
       sourceFilename: source['document_filename'] as String?,
       sourcePage: source['page'] as int?,
@@ -143,6 +149,10 @@ class SessionItemView {
 
   /// `official_pyq`, `original_expert` or `original_ai_verified`, for a library question.
   final String? librarySource;
+
+  /// Computer-based mocks: marked for review, and seen at all.
+  final bool marked;
+  final bool visited;
 
   /// Null when the question was deleted after the session started.
   final String? stem;
@@ -200,6 +210,8 @@ class SessionItemView {
     Map<String, dynamic>? Function()? response,
     AnswerFeedback? Function()? feedback,
     bool? bookmarked,
+    bool? marked,
+    bool? visited,
   }) => SessionItemView(
     position: position,
     questionId: questionId,
@@ -225,6 +237,9 @@ class SessionItemView {
     response: response != null ? response() : this.response,
     translations: translations,
     feedback: feedback != null ? feedback() : this.feedback,
+    librarySource: librarySource,
+    marked: marked ?? this.marked,
+    visited: visited ?? this.visited,
   );
 }
 
@@ -410,6 +425,8 @@ class PracticeSessionView {
     this.sections = const [],
     this.currentSection,
     this.sectionDeadlineAt,
+    this.cbt,
+    this.sectionalOf,
   });
 
   factory PracticeSessionView.fromJson(Map<String, dynamic> json) => PracticeSessionView(
@@ -433,6 +450,8 @@ class PracticeSessionView {
         TimedSectionView.fromJson(s as Map<String, dynamic>),
     ],
     currentSection: json['current_section'] as int?,
+    cbt: json['cbt'] == null ? null : CbtRules.fromJson(json['cbt'] as Map<String, dynamic>),
+    sectionalOf: json['sectional'] as String?,
     sectionDeadlineAt: json['section_deadline_at'] == null
         ? null
         : DateTime.parse(json['section_deadline_at'] as String),
@@ -465,6 +484,12 @@ class PracticeSessionView {
   /// When the open section closes (server time).
   final DateTime? sectionDeadlineAt;
 
+  /// A computer-based mock's rules; null for every other session.
+  final CbtRules? cbt;
+
+  /// The one section of the paper this mock covers, if it isn't the whole paper.
+  final String? sectionalOf;
+
   bool get sectional => sections.isNotEmpty;
 
   TimedSectionView? get openSection {
@@ -492,6 +517,8 @@ class PracticeSessionView {
     sections: sections,
     currentSection: currentSection,
     sectionDeadlineAt: sectionDeadlineAt,
+    cbt: cbt,
+    sectionalOf: sectionalOf,
   );
 }
 
@@ -560,6 +587,8 @@ class MockTestView {
     this.negativeMarks,
     this.formatComplete = true,
     this.sectionCountsIndicative = false,
+    this.computerBased = false,
+    this.sectionalTiming = false,
   });
 
   factory MockTestView.fromJson(Map<String, dynamic> json) => MockTestView(
@@ -572,6 +601,8 @@ class MockTestView {
     negativeMarks: (json['negative_marks_per_wrong'] as num?)?.toDouble(),
     formatComplete: (json['format_problems'] as List<dynamic>? ?? const []).isEmpty,
     sectionCountsIndicative: json['section_counts_indicative'] as bool? ?? false,
+    computerBased: json['computer_based'] as bool? ?? false,
+    sectionalTiming: json['sectional_timing'] as bool? ?? false,
     sections: [
       for (final s in json['sections'] as List<dynamic>)
         SectionAvailabilityView(
@@ -582,6 +613,11 @@ class MockTestView {
     ],
   );
 
+  /// On the conventions of the official instructions.
+  final bool computerBased;
+
+  /// Sections have their own timers, so one can't be taken alone.
+  final bool sectionalTiming;
   final String code;
 
   /// The exam the format belongs to.

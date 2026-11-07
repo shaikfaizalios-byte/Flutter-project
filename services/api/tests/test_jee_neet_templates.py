@@ -18,7 +18,7 @@ from app.cli.exam_formats import (
     template_problems,
 )
 from app.domain import question_formats
-from app.domain.exam_format import config_problems, format_problems, section_marking
+from app.domain.exam_format import config_problems, format_problems, section_key, section_marking
 from app.domain.exam_profile import FORMATS_DIR, TEMPLATES_DIR
 from app.domain.scoring import ScoredItem, score_session
 from app.models.question import FormatStatus
@@ -211,7 +211,7 @@ def test_what_the_sources_leave_open_is_written_down() -> None:
         assert fmt(name)["conduct"]["not_stated"]
 
 
-def test_sections_repeating_a_subject_cant_be_published_until_mocks_mark_them_apart() -> None:
+def test_two_sections_need_different_subjects_or_parts() -> None:
     section = {"subject": "Physics", "questions": 1, "max_marks": 4}
     problems = config_problems(
         sections=[section, section],
@@ -225,7 +225,9 @@ def test_sections_repeating_a_subject_cant_be_published_until_mocks_mark_them_ap
         source_url="https://example.com",
         source_reference="r",
     )
-    assert problems == ["Sections repeat a subject, which mocks can't mark apart yet."]
+    assert problems == ["Two sections have the same subject and part."]
+    parts = [section | {"part": "A"}, section | {"part": "B"}]
+    assert section_key(parts[0], parts) == "Physics A"
 
 
 def test_templates_apply_and_formats_import_as_drafts(db_session: Session) -> None:
@@ -235,7 +237,7 @@ def test_templates_apply_and_formats_import_as_drafts(db_session: Session) -> No
     row, problems = import_format(db_session, fmt("jee_advanced_2026_paper1"))
     assert row.status == FormatStatus.DRAFT
     assert row.conduct is not None and row.conduct["mode"] == "cbt"
-    assert "Sections repeat a subject, which mocks can't mark apart yet." in problems
+    assert not any("subject and part" in problem for problem in problems)
     assert publish_problems(row) == problems
 
 

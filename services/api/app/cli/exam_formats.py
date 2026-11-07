@@ -66,6 +66,22 @@ class _Shift(BaseModel):
     ends: Annotated[str, StringConstraints(pattern=r"^\d\d:\d\d$")]
 
 
+class _Cbt(BaseModel):
+    """The computer-based test's rules, from the official instructions. ``basis`` says so when
+    they are another exam's, used for practice."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    marked_with_answer_counts: bool
+    marked_without_answer_counts: bool
+    answer_needs_saving: bool
+    free_navigation: bool
+    ends_at_zero: bool
+    language_switch: Literal["paper"]
+    reference: Text
+    basis: Text | None = None
+
+
 class _Conduct(BaseModel):
     """How one year's exam is conducted, with where each fact was read."""
 
@@ -78,6 +94,7 @@ class _Conduct(BaseModel):
     languages: list[str]
     references: dict[str, Text]
     not_stated: list[Text] = []  # what the official sources leave open
+    cbt: _Cbt | None = None
 
 
 class FormatFile(BaseModel):

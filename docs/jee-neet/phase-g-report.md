@@ -46,8 +46,8 @@ follow the format of the question (`ExamContext.marking_for`).
 
 ## Limits
 
-- JEE formats can't publish until mocks key marks by section (Phase H), so JEE ladders have no marks
-  yet. JEE exams join the catalog when their templates are applied.
+- JEE ladders have no marks until a named reviewer publishes their formats. JEE exams join the
+  catalog when their templates are applied.
 - Solves come from the same model as the generator, so they can share a mistake. The benchmark is what
   measures this; it has not run, because it needs your file.
 - None of this has run on the real model: cost and latency per question are unmeasured. A hard question

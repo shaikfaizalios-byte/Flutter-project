@@ -8978,6 +8978,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Checked: {solves} independent solves agreed and the answer was recalculated'**
   String ladderCheckedRecalculated(int solves);
+
+  /// No description provided for @cbtSaveAndNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & Next'**
+  String get cbtSaveAndNext;
+
+  /// No description provided for @cbtMarkAndNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark for Review & Next'**
+  String get cbtMarkAndNext;
+
+  /// No description provided for @cbtClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Response'**
+  String get cbtClear;
+
+  /// No description provided for @cbtNotVisited.
+  ///
+  /// In en, this message translates to:
+  /// **'Not visited'**
+  String get cbtNotVisited;
+
+  /// No description provided for @cbtNotAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered'**
+  String get cbtNotAnswered;
+
+  /// No description provided for @cbtAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered'**
+  String get cbtAnswered;
+
+  /// No description provided for @cbtMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked for review'**
+  String get cbtMarked;
+
+  /// No description provided for @cbtAnsweredMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered and marked for review (will be evaluated)'**
+  String get cbtAnsweredMarked;
+
+  /// No description provided for @cbtNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'This answer couldn\'t be saved. Try again.'**
+  String get cbtNotSaved;
+
+  /// No description provided for @cbtQuestionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number}, {status}'**
+  String cbtQuestionStatus(int number, String status);
+
+  /// No description provided for @mockSectional.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise one section'**
+  String get mockSectional;
+
+  /// No description provided for @mockSectionalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{section} only, on its share of the paper\'s time. This isn\'t how the exam is timed.'**
+  String mockSectionalMessage(String section);
+
+  /// No description provided for @analysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How this test went'**
+  String get analysisTitle;
+
+  /// No description provided for @analysisHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Your attempts at this paper'**
+  String get analysisHistory;
+
+  /// No description provided for @analysisThisTest.
+  ///
+  /// In en, this message translates to:
+  /// **'this test'**
+  String get analysisThisTest;
+
+  /// No description provided for @analysisChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'By chapter'**
+  String get analysisChapters;
+
+  /// No description provided for @analysisCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} right, {wrong} wrong, {left} left'**
+  String analysisCounts(int correct, int wrong, int left);
+
+  /// No description provided for @analysisAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of attempted'**
+  String analysisAccuracy(int percent);
+
+  /// No description provided for @analysisTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Time and marks per question'**
+  String get analysisTimes;
+
+  /// No description provided for @analysisQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number}'**
+  String analysisQuestion(int number);
+
+  /// No description provided for @analysisUnattempted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not attempted'**
+  String get analysisUnattempted;
+
+  /// No description provided for @analysisDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped'**
+  String get analysisDropped;
+
+  /// No description provided for @analysisPercentile.
+  ///
+  /// In en, this message translates to:
+  /// **'Scored above {percent}% of {accounts} PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.'**
+  String analysisPercentile(int percent, int accounts);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -104,7 +104,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - JEE and NEET templates (docs/jee-neet, migration 0053): `exam_formats.conduct` = a year's mode, sessions, shifts, languages,
   references and `not_stated`, returned by `/me/exams/{code}/stages`, so a new year needs no app release. Drafts in `data/exam_formats`:
   JEE Main 2027 Paper 1, JEE Advanced 2026 Papers 1 and 2, NEET 2026 and its re-exam. Sections state page references and `numeric_rule`.
-  `config_problems` refuses formats that repeat a subject, because mocks key marks by subject: JEE formats can't publish until then.
+  Mocks mark by section (`section_key`), so these can publish.
 - JEE and NEET syllabi (docs/jee-neet): `data/syllabi/official/{jee_main_2027,jee_advanced_2026,neet_ug_2026}.json` from the official lists,
   Subject → (Section) → Unit → Topic, no chapter level because the sources have none. `canonical_jee_neet.json` proposes Physics and
   Chemistry links; `python -m app.cli.syllabus link FILE --reviewer NAME` confirms them. App `CombinedTopicsCard` on Progress (flag).
@@ -138,6 +138,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   discards. Failing that, `_replace`: library question of the same chapter and level, then the learner's. Gated levels stay off per subject
   until `python -m app.cli.ladder_benchmark` passes the owner's threshold (`ladder_gates`, `subject_open`); totals only, never questions.
   Generated extreme-hard also go to `generated_reviews` (`/library/generated`, review tool); accepting makes a draft.
+- Computer-based mocks (docs/jee-neet/phase-h-report.md, migration 0059, Drift v11): `conduct.cbt` = the official rules with a reference
+  (`basis` when another exam's), copied to `selection.cbt`; `SessionRead.cbt`. `session_answers.marked_for_review`, `AnswerUpdate.visit`; time
+  adds up. `section_key` names repeated subjects, so sections mark apart. `MockCreate.section` = one section, pro-rata time.
+  `GET /practice/sessions/{id}/analysis` (`mock_analysis.py`); a percentile only from `percentile_min_accounts` first attempts, labelled,
+  no ranks. App `cbt_view.dart` (part of session_screen), `domain/cbt.dart`, `MockAnalysisCard`, behind `examProfiles`.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

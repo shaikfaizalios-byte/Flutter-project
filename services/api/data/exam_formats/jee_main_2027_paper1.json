@@ -156,7 +156,16 @@
     "not_stated": [
       "Which of the listed dates and shifts carry Paper 1. The bulletin lists the dates for all papers together.",
       "The bulletin says MCQ without giving the option count; four is read from a 2026 paper."
-    ]
+    ],
+    "cbt": {
+      "marked_with_answer_counts": true,
+      "marked_without_answer_counts": false,
+      "answer_needs_saving": true,
+      "free_navigation": true,
+      "ends_at_zero": true,
+      "language_switch": "paper",
+      "reference": "Information Bulletin 2027, PDF pp.58-61: General Instructions 2-5, Navigating 8, Answering 9-11, sections 12-14, instruction 21"
+    }
   },
   "effective_from": "2026-10-24",
   "source": {

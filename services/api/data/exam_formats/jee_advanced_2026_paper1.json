@@ -205,7 +205,16 @@
     "not_stated": [
       "Marking is stated only in the paper's own instructions, so a later year must be read from that year's paper.",
       "Section 3 and 4: the paper doesn't say how far a typed value may differ. Answer keys may state ranges; read them in Phase D."
-    ]
+    ],
+    "cbt": {
+      "marked_with_answer_counts": true,
+      "marked_without_answer_counts": false,
+      "answer_needs_saving": true,
+      "free_navigation": true,
+      "ends_at_zero": true,
+      "language_switch": "paper",
+      "reference": "Information Brochure 2026, PDF pp.39-41: para 18.1 b, d, f; para 18.2; para 18.3"
+    }
   },
   "effective_from": "2025-12-30",
   "source": {
