@@ -7,7 +7,13 @@ from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
-from app.models.ladder import LadderSession, LadderStep
+from app.models.ladder import (
+    GeneratedReview,
+    LadderBenchmarkRun,
+    LadderGate,
+    LadderSession,
+    LadderStep,
+)
 from app.models.language import LanguageRow
 from app.models.library import LibraryEntry, LibraryVersion
 from app.models.ops import RateLimitCounter
@@ -49,6 +55,9 @@ __all__ = [
     "DocumentPage",
     "Exam",
     "ExamFormat",
+    "GeneratedReview",
+    "LadderBenchmarkRun",
+    "LadderGate",
     "LadderSession",
     "LadderStep",
     "LanguageRow",

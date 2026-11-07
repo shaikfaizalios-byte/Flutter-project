@@ -77,7 +77,9 @@ class LadderStep(Base):
     )
     second_model_name: Mapped[str | None] = mapped_column(String(120))
     # The question: null until generated. ai = written and checked; paper = a real question.
-    source: Mapped[str | None] = mapped_column(String(5))
+    source: Mapped[str | None] = mapped_column(String(7))
+    # How it was checked: solves that agreed, and whether the answer was recalculated.
+    checks: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     basis_papers: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     basis_web: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     paper_label: Mapped[str | None] = mapped_column(String(300))
@@ -108,3 +110,66 @@ class LadderStep(Base):
     marks_awarded: Mapped[float | None] = mapped_column(Float)
     time_spent_ms: Mapped[int | None] = mapped_column(Integer)
     answered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class GeneratedReview(Base):
+    """A generated question waiting for a person before it can enter the library. It holds the
+    question only: nothing says which learner's ladder produced it."""
+
+    __tablename__ = "generated_reviews"
+    __table_args__ = (
+        CheckConstraint("status IN ('pending', 'accepted', 'rejected')", name="status_valid"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    exam_code: Mapped[str] = mapped_column(ForeignKey("exams.code"))
+    subject: Mapped[str] = mapped_column(String(100))
+    topic_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("topics.id", ondelete="SET NULL"))
+    topic_name: Mapped[str] = mapped_column(String(100))
+    difficulty: Mapped[str] = mapped_column(String(12))
+    format: Mapped[str] = mapped_column(String(20))
+    stem: Mapped[str] = mapped_column(Text)
+    options: Mapped[list[str]] = mapped_column(JSONB)
+    answer_index: Mapped[int | None] = mapped_column(Integer)
+    answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    solution: Mapped[list[str]] = mapped_column(JSONB)
+    status: Mapped[str] = mapped_column(
+        String(8), default="pending", server_default="pending", index=True
+    )
+    reviewed_by: Mapped[str | None] = mapped_column(String(320))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    review_note: Mapped[str | None] = mapped_column(String(500))
+    question_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("questions.id", ondelete="SET NULL")
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class LadderGate(Base):
+    """The accuracy a subject must reach on the benchmark, set by the owner. Without a row, the
+    subject stays off."""
+
+    __tablename__ = "ladder_gates"
+
+    exam_code: Mapped[str] = mapped_column(ForeignKey("exams.code"), primary_key=True)
+    subject: Mapped[str] = mapped_column(String(100), primary_key=True)
+    threshold: Mapped[float] = mapped_column(Float)
+    set_by: Mapped[str] = mapped_column(String(320))
+    set_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class LadderBenchmarkRun(Base):
+    """Totals of one benchmark run for a subject and format. Never a question."""
+
+    __tablename__ = "ladder_benchmark_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    run_id: Mapped[uuid.UUID] = mapped_column()
+    exam_code: Mapped[str] = mapped_column(ForeignKey("exams.code"), index=True)
+    subject: Mapped[str] = mapped_column(String(100))
+    format: Mapped[str] = mapped_column(String(20))
+    items: Mapped[int] = mapped_column(Integer)
+    accepted: Mapped[int] = mapped_column(Integer)  # passed every check
+    correct: Mapped[int] = mapped_column(Integer)  # of those, matched the known answer
+    model: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

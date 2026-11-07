@@ -30,6 +30,8 @@ dependencies = [
     # Accounts: Argon2id password hashing (MIT) and signed access tokens (MIT).
     "argon2-cffi>=25.1,<26.0",
     "PyJWT>=2.15,<3.0",
+    # Recalculates generated answers in the Challenge Ladder (BSD-3-Clause, with mpmath).
+    "sympy>=1.14,<2",
     # RS256 for Google Play: signs the service-account token and checks Google's push tokens
     # (Apache-2.0 OR BSD-3-Clause).
     "cryptography>=47,<48",

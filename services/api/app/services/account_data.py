@@ -113,6 +113,9 @@ NOT_EXPORTED: dict[str, str] = {
     "library_versions": "history of PrepLoop's curated content, not the learner's",
     "model_proposals": "proposed models from shared papers: reference data, not the learner's",
     "concept_hints": "AI groupings of shared questions: reference data, not the learner's",
+    "generated_reviews": "generated questions awaiting review: not linked to any learner",
+    "ladder_gates": "operator settings for generated questions, not the learner's",
+    "ladder_benchmark_runs": "totals of internal benchmark runs, not the learner's",
     "audit_events": "operator decisions about shared content (ids and reasons, no content)",
     "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
     "after deletion with the account link cleared; the purchases are in play_purchases",
