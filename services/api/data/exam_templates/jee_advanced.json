@@ -1,0 +1,53 @@
+{
+  "code": "JEE_ADVANCED",
+  "status": "draft",
+  "name": "JEE Advanced",
+  "short_name": "JEE Advanced",
+  "category": "Entrance",
+  "sort_order": 406,
+  "kind": "mcq",
+  "options_per_question": 4,
+  "languages": [
+    "en",
+    "hi"
+  ],
+  "exam_dates": [
+    "2026-05-17"
+  ],
+  "repeat_share": null,
+  "min_papers": null,
+  "reliable_papers": null,
+  "counting_unit": "session",
+  "formats": [
+    "JEE_ADVANCED_2026_PAPER1",
+    "JEE_ADVANCED_2026_PAPER2"
+  ],
+  "sources": {
+    "kind": {
+      "source": "JEE (Advanced) 2026 Paper 1",
+      "url": "https://jeeadv.ac.in/documents/p1_english.pdf",
+      "reference": "Section instructions, pp.1-7: option and numerical questions"
+    },
+    "options_per_question": {
+      "source": "JEE (Advanced) 2026 Paper 1",
+      "url": "https://jeeadv.ac.in/documents/p1_english.pdf",
+      "reference": "p.1: FOUR options (A), (B), (C) and (D)"
+    },
+    "languages": {
+      "source": "JEE (Advanced) 2026 Information Brochure",
+      "url": "https://jeeadv.ac.in/documents/IBEnglish_2026.pdf",
+      "reference": "PDF p.37, section 17"
+    },
+    "exam_dates": {
+      "source": "JEE (Advanced) 2026 Information Brochure",
+      "url": "https://jeeadv.ac.in/documents/IBEnglish_2026.pdf",
+      "reference": "PDF p.21"
+    },
+    "formats": {
+      "source": "JEE (Advanced) 2026 Paper 1 and Paper 2",
+      "url": "https://jeeadv.ac.in/documents/p1_english.pdf",
+      "reference": "Section instructions in each paper"
+    }
+  },
+  "note": "2026 is the latest year with official papers. No 2027 date or pattern was found. The organising institute changes every year (IIT Roorkee in 2026). Counting by session is a product choice from the brief."
+}

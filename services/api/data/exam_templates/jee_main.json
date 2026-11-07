@@ -4,16 +4,72 @@
   "name": "JEE Main",
   "short_name": "JEE Main",
   "category": "Entrance",
+  "authority": "National Testing Agency",
   "sort_order": 405,
-  "kind": null,
-  "options_per_question": null,
-  "languages": [],
-  "exam_dates": [],
+  "kind": "mcq",
+  "options_per_question": 4,
+  "languages": [
+    "en",
+    "hi",
+    "as",
+    "bn",
+    "gu",
+    "kn",
+    "ml",
+    "mr",
+    "or",
+    "pa",
+    "ta",
+    "te",
+    "ur"
+  ],
+  "exam_dates": [
+    "2027-01-20",
+    "2027-01-21",
+    "2027-01-22",
+    "2027-01-23",
+    "2027-01-24",
+    "2027-01-28",
+    "2027-04-02",
+    "2027-04-03",
+    "2027-04-04",
+    "2027-04-05",
+    "2027-04-06",
+    "2027-04-07"
+  ],
   "repeat_share": null,
   "min_papers": null,
   "reliable_papers": null,
-  "counting_unit": null,
-  "formats": [],
-  "sources": {},
-  "note": "No facts yet. No NTA bulletin could be read; only coaching sites were found. Fill this in from the official notice."
+  "counting_unit": "session",
+  "formats": [
+    "JEE_MAIN_2027_PAPER1"
+  ],
+  "sources": {
+    "kind": {
+      "source": "NTA, Information Bulletin JEE (Main) 2027, para 2.4",
+      "url": "https://cdnbbsr.s3waas.gov.in/s3f8e59f4b2fe7c5705bf878bbd494ccdf/uploads/2026/10/202610241890224107.pdf",
+      "reference": "PDF p.17: Section A MCQs, Section B numerical value"
+    },
+    "options_per_question": {
+      "source": "NTA, JEE (Main) 2026 paper, B Tech 2nd Apr 2026 Shift 1",
+      "url": "https://cdnbbsr.s3waas.gov.in/s3f8e59f4b2fe7c5705bf878bbd494ccdf/uploads/2026/04/202604092096865379.pdf",
+      "reference": "p.1: four options per MCQ. The 2027 bulletin doesn't state the count"
+    },
+    "languages": {
+      "source": "NTA, Information Bulletin JEE (Main) 2027, para 2.2",
+      "url": "https://cdnbbsr.s3waas.gov.in/s3f8e59f4b2fe7c5705bf878bbd494ccdf/uploads/2026/10/202610241890224107.pdf",
+      "reference": "PDF p.16: 13 languages"
+    },
+    "exam_dates": {
+      "source": "NTA, Information Bulletin JEE (Main) 2027",
+      "url": "https://cdnbbsr.s3waas.gov.in/s3f8e59f4b2fe7c5705bf878bbd494ccdf/uploads/2026/10/202610241890224107.pdf",
+      "reference": "PDF p.6: Dates of Examination for both sessions"
+    },
+    "formats": {
+      "source": "NTA, Information Bulletin JEE (Main) 2027",
+      "url": "https://cdnbbsr.s3waas.gov.in/s3f8e59f4b2fe7c5705bf878bbd494ccdf/uploads/2026/10/202610241890224107.pdf",
+      "reference": "Chapter 2"
+    }
+  },
+  "note": "Paper 1 only. Counting by session is a product choice from the brief, not an exam fact. Papers 2A and 2B aren't included."
 }

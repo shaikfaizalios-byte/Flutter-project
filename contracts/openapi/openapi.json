@@ -3195,6 +3195,18 @@
       },
       "ExamStageRead": {
         "properties": {
+          "conduct": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conduct"
+          },
           "duration_minutes": {
             "anyOf": [
               {

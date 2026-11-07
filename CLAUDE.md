@@ -101,6 +101,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   Real questions (migration 0052): `DescriptiveStart.source` papers = the learner's own reviewed written questions as printed (never
   the shared bank, translations, duplicates, figures), unanswered first, up to 5; marks printed, else the exam's. Rubric drafted by
   AI and reused while wording, marks and the paper's answer are unchanged (`_earlier_rubric`); the paper's answer wins over the AI's.
+- JEE and NEET templates (docs/jee-neet, migration 0053): `exam_formats.conduct` = a year's mode, sessions, shifts, languages,
+  references and `not_stated`, returned by `/me/exams/{code}/stages`, so a new year needs no app release. Drafts in `data/exam_formats`:
+  JEE Main 2027 Paper 1, JEE Advanced 2026 Papers 1 and 2, NEET 2026 and its re-exam. Sections state page references and `numeric_rule`.
+  `config_problems` refuses formats that repeat a subject, because mocks key marks by subject: JEE formats can't publish until then.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry
