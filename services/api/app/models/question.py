@@ -256,9 +256,13 @@ class Question(Base):
         CheckConstraint(
             "format IN ('single_correct', 'assertion_reason', 'statement', 'true_false', "
             "'typed_in', 'descriptive', 'multiple_correct', 'match', 'ordering', 'numeric', "
-            "'fill_blank')",
+            "'integer', 'fill_blank')",
             name="format_valid",
         ),
+        CheckConstraint(
+            "key_stage IS NULL OR key_stage IN ('provisional', 'final')", name="key_stage_valid"
+        ),
+        CheckConstraint("key_outcome IN ('one', 'several', 'dropped')", name="key_outcome_valid"),
         # A typed question has no option answer, and only typed questions have a typed answer.
         CheckConstraint(
             "answer_type = 'choice' OR correct_option_position IS NULL",
@@ -310,6 +314,13 @@ class Question(Base):
         String(20), default="single_correct", server_default="single_correct"
     )
     answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+    # The official key, when one was entered: null when the answer has no official key behind it.
+    key_stage: Mapped[str | None] = mapped_column(String(11))
+    # one; several (accepted_positions all count); dropped (marks to everyone).
+    key_outcome: Mapped[str] = mapped_column(String(7), default="one", server_default="one")
+    accepted_positions: Mapped[list[int] | None] = mapped_column(ARRAY(Integer))
+    # The final key differs from the provisional one.
+    key_changed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     # This question in another language, confirmed by a person: counts once, as that question.
     translation_of_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("questions.id", ondelete="SET NULL"), index=True
