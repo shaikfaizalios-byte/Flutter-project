@@ -17,6 +17,7 @@ import '../application/analytics_providers.dart';
 import '../domain/analytics_models.dart';
 import '../domain/weak_topics.dart';
 import 'analytics_widgets.dart';
+import 'combined_topics_card.dart';
 
 /// Progress tab: only recorded data — practice answers (server) and flashcard reviews
 /// (device). Every judgement states the data it is based on.
@@ -54,6 +55,7 @@ class ProgressScreen extends ConsumerWidget {
               children: [
                 const ReadinessCard(),
                 const SizedBox(height: AppSpacing.md),
+                const CombinedTopicsCard(),
                 switch (practice) {
                   AsyncData(:final value) => _PracticeSections(stats: value),
                   _ => Card(

@@ -7761,6 +7761,24 @@ abstract class AppLocalizations {
   /// **'Marking points drafted by AI, not the exam\'s official scheme.'**
   String get descriptiveRubricNote;
 
+  /// No description provided for @progressCombinedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Across your exams'**
+  String get progressCombinedTitle;
+
+  /// No description provided for @progressCombinedExam.
+  ///
+  /// In en, this message translates to:
+  /// **'{exam}: {correct} of {answered}'**
+  String progressCombinedExam(String exam, int correct, int answered);
+
+  /// No description provided for @progressCombinedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} of {answered}'**
+  String progressCombinedTotal(int correct, int answered);
+
   /// No description provided for @ladderCleared.
   ///
   /// In en, this message translates to:

@@ -4899,6 +4899,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Marking points drafted by AI, not the exam\'s official scheme.';
 
   @override
+  String get progressCombinedTitle => 'Across your exams';
+
+  @override
+  String progressCombinedExam(String exam, int correct, int answered) {
+    return '$exam: $correct of $answered';
+  }
+
+  @override
+  String progressCombinedTotal(int correct, int answered) {
+    return '$correct of $answered';
+  }
+
+  @override
   String get ladderCleared => 'Cleared';
 
   @override

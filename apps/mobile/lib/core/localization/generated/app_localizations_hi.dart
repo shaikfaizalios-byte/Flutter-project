@@ -4899,6 +4899,19 @@ class AppLocalizationsHi extends AppLocalizations {
       'अंक-बिंदु AI ने बनाए हैं, यह परीक्षा की आधिकारिक योजना नहीं है।';
 
   @override
+  String get progressCombinedTitle => 'आपकी सभी परीक्षाओं में';
+
+  @override
+  String progressCombinedExam(String exam, int correct, int answered) {
+    return '$exam: $answered में से $correct';
+  }
+
+  @override
+  String progressCombinedTotal(int correct, int answered) {
+    return '$answered में से $correct';
+  }
+
+  @override
   String get ladderCleared => 'पार किया';
 
   @override

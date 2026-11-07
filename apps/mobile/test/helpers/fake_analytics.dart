@@ -22,6 +22,16 @@ class FakeAnalyticsRepository implements AnalyticsRepository {
   final requestedTimezones = <String>[];
   final requestedExams = <String?>[];
 
+  /// What [canonical] returns, and the exams it was last asked for.
+  List<CanonicalTopic> canonicalTopics = const [];
+  List<String> canonicalExams = const [];
+
+  @override
+  Future<List<CanonicalTopic>> canonical(List<String> exams) async {
+    canonicalExams = exams;
+    return canonicalTopics;
+  }
+
   @override
   Future<PracticeAnalytics> overview({required String timezone, String? examCode}) async {
     requestedTimezones.add(timezone);

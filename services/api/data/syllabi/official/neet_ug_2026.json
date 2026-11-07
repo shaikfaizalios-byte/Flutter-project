@@ -1,0 +1,4651 @@
+{
+ "exam_codes": [
+  "NEET_UG"
+ ],
+ "effective_year": 2026,
+ "name": "NEET (UG) 2026 syllabus",
+ "note": "The official syllabus has no chapter level, so none is stored. Topics are the official phrases, split at semicolons and sentence ends. NMC's list has one Biology subject, not Botany and Zoology.",
+ "source": {
+  "title": "National Medical Commission, Updated syllabus for NEET(UG)-2026, letter U-14023/19/NEET (UG Exam)/UGMEB of 22-12-2025",
+  "url": "https://nta.ac.in/Download/Notice/Notice_20260108180635.pdf",
+  "reference": "Published by NTA as Syllabus for NEET UG-2026"
+ },
+ "tree": [
+  {
+   "name": "Physics",
+   "level_label": "Subject",
+   "children": [
+    {
+     "name": "Physics and Measurement",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Units of measurements, System of Units, S I Units, fundamental and derived units, least count",
+       "level_label": "Topic",
+       "keywords": [
+        "units of measurements",
+        "system of units",
+        "s i units",
+        "fundamental",
+        "derived units",
+        "least count"
+       ]
+      },
+      {
+       "name": "Significant figures, Errors in measurements, Dimensions of Physics quantities, dimensional analysis",
+       "level_label": "Topic",
+       "keywords": [
+        "significant figures",
+        "errors in measurements",
+        "dimensions of physics quantities",
+        "dimensional analysis"
+       ]
+      },
+      {
+       "name": "And its applications",
+       "level_label": "Topic",
+       "keywords": [
+        "and its applications"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Kinematics",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "The frame of reference, motion in a straight line, Position- time graph, speed and velocity",
+       "level_label": "Topic",
+       "keywords": [
+        "the frame of reference",
+        "motion in a straight line",
+        "position- time graph",
+        "speed",
+        "velocity"
+       ]
+      },
+      {
+       "name": "Uniform and non-uniform motion, average speed and instantaneous velocity",
+       "level_label": "Topic",
+       "keywords": [
+        "uniform",
+        "non-uniform motion",
+        "average speed",
+        "instantaneous velocity"
+       ]
+      },
+      {
+       "name": "Uniformly accelerated motion, velocity-time, position-time graph",
+       "level_label": "Topic",
+       "keywords": [
+        "uniformly accelerated motion",
+        "velocity-time",
+        "position-time graph"
+       ]
+      },
+      {
+       "name": "Relations for uniformly accelerated motion, Scalars and Vectors, Vector",
+       "level_label": "Topic",
+       "keywords": [
+        "relations for uniformly accelerated motion",
+        "scalars",
+        "vectors",
+        "vector"
+       ]
+      },
+      {
+       "name": "Addition and subtraction, scalar and vector products, Unit Vector, Resolution of a Vector",
+       "level_label": "Topic",
+       "keywords": [
+        "addition",
+        "subtraction",
+        "scalar",
+        "vector products",
+        "unit vector",
+        "resolution of a vector"
+       ]
+      },
+      {
+       "name": "Relative Velocity, Motion in a plane, Projectile Motion, Uniform Circular Motion",
+       "level_label": "Topic",
+       "keywords": [
+        "relative velocity",
+        "motion in a plane",
+        "projectile motion",
+        "uniform circular motion"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Laws of Motion",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Force and inertia, Newton’s First law of motion",
+       "level_label": "Topic",
+       "keywords": [
+        "force",
+        "inertia",
+        "newton’s first law of motion"
+       ]
+      },
+      {
+       "name": "Momentum, Newton’s Second Law of motion, Impulses",
+       "level_label": "Topic",
+       "keywords": [
+        "momentum",
+        "newton’s second law of motion",
+        "impulses"
+       ]
+      },
+      {
+       "name": "Newton’s Third Law of motion",
+       "level_label": "Topic",
+       "keywords": [
+        "newton’s third law of motion"
+       ]
+      },
+      {
+       "name": "Law of conservation of linear momentum and its applications",
+       "level_label": "Topic",
+       "keywords": [
+        "law of conservation of linear momentum",
+        "its applications"
+       ]
+      },
+      {
+       "name": "Equilibrium of concurrent forces",
+       "level_label": "Topic",
+       "keywords": [
+        "equilibrium of concurrent forces"
+       ]
+      },
+      {
+       "name": "Static and Kinetic friction, laws of friction, rolling friction",
+       "level_label": "Topic",
+       "keywords": [
+        "static",
+        "kinetic friction",
+        "laws of friction",
+        "rolling friction"
+       ]
+      },
+      {
+       "name": "Dynamics of uniform circular motion, centripetal force and its applications",
+       "level_label": "Topic",
+       "keywords": [
+        "dynamics of uniform circular motion",
+        "centripetal force",
+        "its applications"
+       ]
+      },
+      {
+       "name": "Vehicle on a level circular road, vehicle on a banked road",
+       "level_label": "Topic",
+       "keywords": [
+        "vehicle on a level circular road",
+        "vehicle on a banked road"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Work, Energy, and Power",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Work done by a constant force and a variable force",
+       "level_label": "Topic",
+       "keywords": [
+        "work done by a constant force",
+        "a variable force"
+       ]
+      },
+      {
+       "name": "Kinetic and potential energies, work-energy theorem, power",
+       "level_label": "Topic",
+       "keywords": [
+        "kinetic",
+        "potential energies",
+        "work-energy theorem",
+        "power"
+       ]
+      },
+      {
+       "name": "The potential energy of spring conservation of mechanical energy",
+       "level_label": "Topic",
+       "keywords": [
+        "the potential energy of spring conservation of mechanical en"
+       ]
+      },
+      {
+       "name": "Conservative and nonconservative forces",
+       "level_label": "Topic",
+       "keywords": [
+        "conservative",
+        "nonconservative forces"
+       ]
+      },
+      {
+       "name": "Motion in a vertical circle: Elastic and inelastic collisions in one and two dimensions",
+       "level_label": "Topic",
+       "keywords": [
+        "motion in a vertical circle: elastic",
+        "inelastic collisions in one",
+        "two dimensions"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Rotational Motion",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Centre of the mass of a two-particle system, Centre of the mass of a rigid body",
+       "level_label": "Topic",
+       "keywords": [
+        "centre of the mass of a two-particle system",
+        "centre of the mass of a rigid body"
+       ]
+      },
+      {
+       "name": "Basic concepts of rotational motion",
+       "level_label": "Topic",
+       "keywords": [
+        "basic concepts of rotational motion"
+       ]
+      },
+      {
+       "name": "Moment of a force",
+       "level_label": "Topic",
+       "keywords": [
+        "moment of a force"
+       ]
+      },
+      {
+       "name": "Torque, angular momentum, conservation of angular momentum and its applications",
+       "level_label": "Topic",
+       "keywords": [
+        "torque",
+        "angular momentum",
+        "conservation of angular momentum",
+        "its applications"
+       ]
+      },
+      {
+       "name": "The moment of inertia, the radius of gyration",
+       "level_label": "Topic",
+       "keywords": [
+        "the moment of inertia",
+        "the radius of gyration"
+       ]
+      },
+      {
+       "name": "Values of moments of inertia forsimple geometrical objects, parallel and perpendicular axes theorems",
+       "level_label": "Topic",
+       "keywords": [
+        "values of moments of inertia forsimple geometrical objects",
+        "parallel",
+        "perpendicular axes theorems"
+       ]
+      },
+      {
+       "name": "And their applications",
+       "level_label": "Topic",
+       "keywords": [
+        "and their applications"
+       ]
+      },
+      {
+       "name": "Equilibrium of rigid bodies, rigid body rotation and equations of rotational motion",
+       "level_label": "Topic",
+       "keywords": [
+        "equilibrium of rigid bodies",
+        "rigid body rotation",
+        "equations of rotational motion"
+       ]
+      },
+      {
+       "name": "Comparison of linear and rotational motions",
+       "level_label": "Topic",
+       "keywords": [
+        "comparison of linear",
+        "rotational motions"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Gravitation",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "The universal law of gravitation",
+       "level_label": "Topic",
+       "keywords": [
+        "the universal law of gravitation"
+       ]
+      },
+      {
+       "name": "Acceleration due to gravity and its variation with altitude and depth",
+       "level_label": "Topic",
+       "keywords": [
+        "acceleration due to gravity",
+        "its variation with altitude",
+        "depth"
+       ]
+      },
+      {
+       "name": "Kepler’s law of planetary motion",
+       "level_label": "Topic",
+       "keywords": [
+        "kepler’s law of planetary motion"
+       ]
+      },
+      {
+       "name": "Gravitational potential energy",
+       "level_label": "Topic",
+       "keywords": [
+        "gravitational potential energy"
+       ]
+      },
+      {
+       "name": "Gravitational potential",
+       "level_label": "Topic",
+       "keywords": [
+        "gravitational potential"
+       ]
+      },
+      {
+       "name": "Escape velocity, Motion of a satellite, orbital velocity, time period and energy of satellite",
+       "level_label": "Topic",
+       "keywords": [
+        "escape velocity",
+        "motion of a satellite",
+        "orbital velocity",
+        "time period",
+        "energy of satellite"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Properties of Solids and Liquids",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Elastic behaviour, Stress-strain relationship, Hooke's Law",
+       "level_label": "Topic",
+       "keywords": [
+        "elastic behaviour",
+        "stress-strain relationship",
+        "hooke's law"
+       ]
+      },
+      {
+       "name": "Young's modulus, bulk modulus, modulus of rigidity",
+       "level_label": "Topic",
+       "keywords": [
+        "young's modulus",
+        "bulk modulus",
+        "modulus of rigidity"
+       ]
+      },
+      {
+       "name": "Pressure due to a fluid column",
+       "level_label": "Topic",
+       "keywords": [
+        "pressure due to a fluid column"
+       ]
+      },
+      {
+       "name": "Pascal's law and its applications",
+       "level_label": "Topic",
+       "keywords": [
+        "pascal's law",
+        "its applications"
+       ]
+      },
+      {
+       "name": "Effect of gravity on fluid pressure",
+       "level_label": "Topic",
+       "keywords": [
+        "effect of gravity on fluid pressure"
+       ]
+      },
+      {
+       "name": "Viscosity",
+       "level_label": "Topic",
+       "keywords": [
+        "viscosity"
+       ]
+      },
+      {
+       "name": "Stokes' law. terminal velocity, streamline, and turbulent flow.critical velocity",
+       "level_label": "Topic",
+       "keywords": [
+        "stokes' law. terminal velocity",
+        "streamline",
+        "turbulent flow.critical velocity"
+       ]
+      },
+      {
+       "name": "Bernoulli's principle and its applications",
+       "level_label": "Topic",
+       "keywords": [
+        "bernoulli's principle",
+        "its applications"
+       ]
+      },
+      {
+       "name": "Surface energy and surface tension, angle of contact, excess of pressure across a curved surface",
+       "level_label": "Topic",
+       "keywords": [
+        "surface energy",
+        "surface tension",
+        "angle of contact",
+        "excess of pressure across a curved surface"
+       ]
+      },
+      {
+       "name": "Application of surface tension - drops, bubbles, and capillary rise",
+       "level_label": "Topic",
+       "keywords": [
+        "application of surface tension - drops",
+        "bubbles",
+        "capillary rise"
+       ]
+      },
+      {
+       "name": "Heat, temperature, thermal expansion",
+       "level_label": "Topic",
+       "keywords": [
+        "heat",
+        "temperature",
+        "thermal expansion"
+       ]
+      },
+      {
+       "name": "Specific heat capacity, calorimetry",
+       "level_label": "Topic",
+       "keywords": [
+        "specific heat capacity",
+        "calorimetry"
+       ]
+      },
+      {
+       "name": "Change of state, latent heat",
+       "level_label": "Topic",
+       "keywords": [
+        "change of state",
+        "latent heat"
+       ]
+      },
+      {
+       "name": "Heat transferconduction, convection, and radiation",
+       "level_label": "Topic",
+       "keywords": [
+        "heat transferconduction",
+        "convection",
+        "radiation"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Thermodynamics",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Thermal equilibrium, zeroth law of thermodynamics, the concept of temperature",
+       "level_label": "Topic",
+       "keywords": [
+        "thermal equilibrium",
+        "zeroth law of thermodynamics",
+        "the concept of temperature"
+       ]
+      },
+      {
+       "name": "Heat, work, and internal energy",
+       "level_label": "Topic",
+       "keywords": [
+        "heat",
+        "work",
+        "internal energy"
+       ]
+      },
+      {
+       "name": "The first law of thermodynamics, isothermal and adiabatic processes",
+       "level_label": "Topic",
+       "keywords": [
+        "the first law of thermodynamics",
+        "isothermal",
+        "adiabatic processes"
+       ]
+      },
+      {
+       "name": "The second law of thermodynamics: reversible and irreversible processes",
+       "level_label": "Topic",
+       "keywords": [
+        "the second law of thermodynamics: reversible",
+        "irreversible processes"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Kinetic Theory of Gases",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Equation of state of a perfect gas, work done on compressing a gas",
+       "level_label": "Topic",
+       "keywords": [
+        "equation of state of a perfect gas",
+        "work done on compressing a gas"
+       ]
+      },
+      {
+       "name": "Kinetic theory of gases - assumptions, the concept of pressure",
+       "level_label": "Topic",
+       "keywords": [
+        "kinetic theory of gases - assumptions",
+        "the concept of pressure"
+       ]
+      },
+      {
+       "name": "Kinetic interpretation of temperature: RMS speed of gas molecules: Degrees of freedom",
+       "level_label": "Topic",
+       "keywords": [
+        "kinetic interpretation of temperature: rms speed of gas mole"
+       ]
+      },
+      {
+       "name": "Law of equipartition of energy and applications to specific heat capacities of gases",
+       "level_label": "Topic",
+       "keywords": [
+        "law of equipartition of energy",
+        "applications to specific heat capacities of gases"
+       ]
+      },
+      {
+       "name": "Mean free path",
+       "level_label": "Topic",
+       "keywords": [
+        "mean free path"
+       ]
+      },
+      {
+       "name": "Avogadro's number",
+       "level_label": "Topic",
+       "keywords": [
+        "avogadro's number"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Oscillations and Waves",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Oscillations and periodic motion – time period, frequency, displacement as a function of time",
+       "level_label": "Topic",
+       "keywords": [
+        "oscillations",
+        "periodic motion – time period",
+        "frequency",
+        "displacement as a function of time"
+       ]
+      },
+      {
+       "name": "Periodic functions",
+       "level_label": "Topic",
+       "keywords": [
+        "periodic functions"
+       ]
+      },
+      {
+       "name": "Simple harmonic motion (S.H.M.) and its equation",
+       "level_label": "Topic",
+       "keywords": [
+        "simple harmonic motion (s.h.m.",
+        "its equation"
+       ]
+      },
+      {
+       "name": "Phase, oscillations of a spring -restoring force and force constant",
+       "level_label": "Topic",
+       "keywords": [
+        "phase",
+        "oscillations of a spring -restoring force",
+        "force constant"
+       ]
+      },
+      {
+       "name": "Energy in S.H.M. - Kinetic and potential energies",
+       "level_label": "Topic",
+       "keywords": [
+        "energy in s.h.m. - kinetic",
+        "potential energies"
+       ]
+      },
+      {
+       "name": "Simple pendulum - derivation of expression for its time period: Wave motion",
+       "level_label": "Topic",
+       "keywords": [
+        "simple pendulum - derivation of expression for its time peri"
+       ]
+      },
+      {
+       "name": "Longitudinal and transverse waves, speed of travelling wave",
+       "level_label": "Topic",
+       "keywords": [
+        "longitudinal",
+        "transverse waves",
+        "speed of travelling wave"
+       ]
+      },
+      {
+       "name": "Displacement relation for a progressive wave",
+       "level_label": "Topic",
+       "keywords": [
+        "displacement relation for a progressive wave"
+       ]
+      },
+      {
+       "name": "Principle of superposition of waves, reflection of waves",
+       "level_label": "Topic",
+       "keywords": [
+        "principle of superposition of waves",
+        "reflection of waves"
+       ]
+      },
+      {
+       "name": "Standing waves in strings and organ pipes, fundamental mode and harmonics",
+       "level_label": "Topic",
+       "keywords": [
+        "standing waves in strings",
+        "organ pipes",
+        "fundamental mode",
+        "harmonics"
+       ]
+      },
+      {
+       "name": "Beats",
+       "level_label": "Topic",
+       "keywords": [
+        "beats"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Electrostatics",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Electric charges: Conservation of charge",
+       "level_label": "Topic",
+       "keywords": [
+        "electric charges: conservation of charge"
+       ]
+      },
+      {
+       "name": "Coulomb's law forces between two point charges, forces between multiple charges",
+       "level_label": "Topic",
+       "keywords": [
+        "coulomb's law forces between two point charges",
+        "forces between multiple charges"
+       ]
+      },
+      {
+       "name": "Superposition principle and continuous charge distribution",
+       "level_label": "Topic",
+       "keywords": [
+        "superposition principle",
+        "continuous charge distribution"
+       ]
+      },
+      {
+       "name": "Electric field: Electric field due to a point charge, Electric field lines",
+       "level_label": "Topic",
+       "keywords": [
+        "electric field: electric field due to a point charge",
+        "electric field lines"
+       ]
+      },
+      {
+       "name": "Electric dipole, Electric field due to a dipole",
+       "level_label": "Topic",
+       "keywords": [
+        "electric dipole",
+        "electric field due to a dipole"
+       ]
+      },
+      {
+       "name": "Torque on a dipole in a uniform electric field",
+       "level_label": "Topic",
+       "keywords": [
+        "torque on a dipole in a uniform electric field"
+       ]
+      },
+      {
+       "name": "Electric flux",
+       "level_label": "Topic",
+       "keywords": [
+        "electric flux"
+       ]
+      },
+      {
+       "name": "Gauss's law and its applications to find field due",
+       "level_label": "Topic",
+       "keywords": [
+        "gauss's law",
+        "its applications to find field due"
+       ]
+      },
+      {
+       "name": "To infinitely long uniformly charged straight wire",
+       "level_label": "Topic",
+       "keywords": [
+        "to infinitely long uniformly charged straight wire"
+       ]
+      },
+      {
+       "name": "Uniformly charged infinite plane sheet, and uniformly charged thin spherical shell",
+       "level_label": "Topic",
+       "keywords": [
+        "uniformly charged infinite plane sheet",
+        "uniformly charged thin spherical shell"
+       ]
+      },
+      {
+       "name": "Electric potential and its calculation for a point charge, electric dipole and system of charges",
+       "level_label": "Topic",
+       "keywords": [
+        "electric potential",
+        "its calculation for a point charge",
+        "electric dipole",
+        "system of charges"
+       ]
+      },
+      {
+       "name": "Potential difference, Equipotential surfaces",
+       "level_label": "Topic",
+       "keywords": [
+        "potential difference",
+        "equipotential surfaces"
+       ]
+      },
+      {
+       "name": "Electrical potential energy of a system of two point charges",
+       "level_label": "Topic",
+       "keywords": [
+        "electrical potential energy of a system of two point charges"
+       ]
+      },
+      {
+       "name": "And of electric dipole in an electrostatic field",
+       "level_label": "Topic",
+       "keywords": [
+        "and of electric dipole in an electrostatic field"
+       ]
+      },
+      {
+       "name": "Conductors and insulators",
+       "level_label": "Topic",
+       "keywords": [
+        "conductors",
+        "insulators"
+       ]
+      },
+      {
+       "name": "Dielectrics and electric polarization, capacitors and capacitances",
+       "level_label": "Topic",
+       "keywords": [
+        "dielectrics",
+        "electric polarization",
+        "capacitors",
+        "capacitances"
+       ]
+      },
+      {
+       "name": "The combination of capacitors in series and parallel",
+       "level_label": "Topic",
+       "keywords": [
+        "the combination of capacitors in series",
+        "parallel"
+       ]
+      },
+      {
+       "name": "Capacitance of a parallel plate capacitor with and without dielectric medium between the plates",
+       "level_label": "Topic",
+       "keywords": [
+        "capacitance of a parallel plate capacitor with",
+        "without dielectric medium between the plates"
+       ]
+      },
+      {
+       "name": "Energy stored in a capacitor",
+       "level_label": "Topic",
+       "keywords": [
+        "energy stored in a capacitor"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Current Electricity",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Electric current",
+       "level_label": "Topic",
+       "keywords": [
+        "electric current"
+       ]
+      },
+      {
+       "name": "Drift velocity, mobility and their relation with electric current.. Ohm's law",
+       "level_label": "Topic",
+       "keywords": [
+        "drift velocity",
+        "mobility",
+        "their relation with electric current.. ohm's law"
+       ]
+      },
+      {
+       "name": "Electrical resistance.. V-l characteristics of Ohmic and non-ohmic conductors",
+       "level_label": "Topic",
+       "keywords": [
+        "electrical resistance.. v-l characteristics of ohmic",
+        "non-ohmic conductors"
+       ]
+      },
+      {
+       "name": "Electrical energy and power",
+       "level_label": "Topic",
+       "keywords": [
+        "electrical energy",
+        "power"
+       ]
+      },
+      {
+       "name": "Electrical resistivity and conductivity",
+       "level_label": "Topic",
+       "keywords": [
+        "electrical resistivity",
+        "conductivity"
+       ]
+      },
+      {
+       "name": "Series and parallel combinations of resistors",
+       "level_label": "Topic",
+       "keywords": [
+        "series",
+        "parallel combinations of resistors"
+       ]
+      },
+      {
+       "name": "Temperature dependence of resistance",
+       "level_label": "Topic",
+       "keywords": [
+        "temperature dependence of resistance"
+       ]
+      },
+      {
+       "name": "Internal resistance, potential difference and emf of a cell",
+       "level_label": "Topic",
+       "keywords": [
+        "internal resistance",
+        "potential difference",
+        "emf of a cell"
+       ]
+      },
+      {
+       "name": "A combination of cells in series and parallel",
+       "level_label": "Topic",
+       "keywords": [
+        "a combination of cells in series",
+        "parallel"
+       ]
+      },
+      {
+       "name": "Kirchhoff’s laws and their applications",
+       "level_label": "Topic",
+       "keywords": [
+        "kirchhoff’s laws",
+        "their applications"
+       ]
+      },
+      {
+       "name": "Wheatstone bridge",
+       "level_label": "Topic",
+       "keywords": [
+        "wheatstone bridge"
+       ]
+      },
+      {
+       "name": "Metre Bridge",
+       "level_label": "Topic",
+       "keywords": [
+        "metre bridge"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Magnetic Effects of Current and Magnetism",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Biot - Savart law and its application to current carrying circular loop",
+       "level_label": "Topic",
+       "keywords": [
+        "biot - savart law",
+        "its application to current carrying circular loop"
+       ]
+      },
+      {
+       "name": "Ampere's law and its applications to infinitely long current carrying straight wire and solenoid",
+       "level_label": "Topic",
+       "keywords": [
+        "ampere's law",
+        "its applications to infinitely long current carrying straigh",
+        "solenoid"
+       ]
+      },
+      {
+       "name": "Force on a moving charge in uniform magnetic and electric fields",
+       "level_label": "Topic",
+       "keywords": [
+        "force on a moving charge in uniform magnetic",
+        "electric fields"
+       ]
+      },
+      {
+       "name": "Force on a current-carrying conductor in a uniform magnetic field",
+       "level_label": "Topic",
+       "keywords": [
+        "force on a current-carrying conductor in a uniform magnetic "
+       ]
+      },
+      {
+       "name": "The force between two parallel currents carrying conductors-definition of ampere",
+       "level_label": "Topic",
+       "keywords": [
+        "the force between two parallel currents carrying conductors-"
+       ]
+      },
+      {
+       "name": "Torque experienced by a current loop in a uniform magnetic field, Moving coil galvanometer",
+       "level_label": "Topic",
+       "keywords": [
+        "torque experienced by a current loop in a uniform magnetic f",
+        "moving coil galvanometer"
+       ]
+      },
+      {
+       "name": "Its sensitivity, and conversion to ammeter and voltmeter",
+       "level_label": "Topic",
+       "keywords": [
+        "its sensitivity",
+        "conversion to ammeter",
+        "voltmeter"
+       ]
+      },
+      {
+       "name": "Current loop as a magnetic dipole and its magnetic dipole moment",
+       "level_label": "Topic",
+       "keywords": [
+        "current loop as a magnetic dipole",
+        "its magnetic dipole moment"
+       ]
+      },
+      {
+       "name": "Bar magnet as an equivalent solenoid, magnetic field lines",
+       "level_label": "Topic",
+       "keywords": [
+        "bar magnet as an equivalent solenoid",
+        "magnetic field lines"
+       ]
+      },
+      {
+       "name": "Magnetic field due to a magnetic dipole (bar magnet) along its axis and perpendicular to its axis",
+       "level_label": "Topic",
+       "keywords": [
+        "magnetic field due to a magnetic dipole (bar magnet) along i",
+        "perpendicular to its axis"
+       ]
+      },
+      {
+       "name": "Torque on a magnetic dipole in a uniform magnetic field",
+       "level_label": "Topic",
+       "keywords": [
+        "torque on a magnetic dipole in a uniform magnetic field"
+       ]
+      },
+      {
+       "name": "Para-, dia- and ferromagnetic substances with examples, effect of temperature on magnetic properties",
+       "level_label": "Topic",
+       "keywords": [
+        "para-",
+        "dia-",
+        "ferromagnetic substances with examples",
+        "effect of temperature on magnetic properties"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Electromagnetic Induction and Alternating Currents",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Electromagnetic induction: Faraday's law",
+       "level_label": "Topic",
+       "keywords": [
+        "electromagnetic induction: faraday's law"
+       ]
+      },
+      {
+       "name": "Induced emf and current: Lenz’s Law, Eddy currents",
+       "level_label": "Topic",
+       "keywords": [
+        "induced emf",
+        "current: lenz’s law",
+        "eddy currents"
+       ]
+      },
+      {
+       "name": "Self and mutual inductance",
+       "level_label": "Topic",
+       "keywords": [
+        "self",
+        "mutual inductance"
+       ]
+      },
+      {
+       "name": "Alternating currents, peak and RMS value of alternating current/ voltage, reactance and impedance",
+       "level_label": "Topic",
+       "keywords": [
+        "alternating currents",
+        "peak",
+        "rms value of alternating current/ voltage",
+        "reactance",
+        "impedance"
+       ]
+      },
+      {
+       "name": "LCR series circuit, resonance, power in AC circuits, wattless current",
+       "level_label": "Topic",
+       "keywords": [
+        "lcr series circuit",
+        "resonance",
+        "power in ac circuits",
+        "wattless current"
+       ]
+      },
+      {
+       "name": "AC generator and transformer",
+       "level_label": "Topic",
+       "keywords": [
+        "ac generator",
+        "transformer"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Electromagnetic Waves",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Displacement current",
+       "level_label": "Topic",
+       "keywords": [
+        "displacement current"
+       ]
+      },
+      {
+       "name": "Electromagnetic waves and their characteristics, Transverse nature of electromagnetic waves",
+       "level_label": "Topic",
+       "keywords": [
+        "electromagnetic waves",
+        "their characteristics",
+        "transverse nature of electromagnetic waves"
+       ]
+      },
+      {
+       "name": "Electromagnetic spectrum",
+       "level_label": "Topic",
+       "keywords": [
+        "electromagnetic spectrum",
+        "radio waves",
+        "microwaves",
+        "infrared",
+        "visible",
+        "ultraviolet. x-rays. gamma rays"
+       ]
+      },
+      {
+       "name": "Applications of e.m. waves",
+       "level_label": "Topic",
+       "keywords": [
+        "applications of e.m. waves"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Optics",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Reflection of light, spherical mirrors, morror formula",
+       "level_label": "Topic",
+       "keywords": [
+        "reflection of light",
+        "spherical mirrors",
+        "morror formula"
+       ]
+      },
+      {
+       "name": "Refraction of light at plane and spherical surfaces, thin lens formula and lens maker formula",
+       "level_label": "Topic",
+       "keywords": [
+        "refraction of light at plane",
+        "spherical surfaces",
+        "thin lens formula",
+        "lens maker formula"
+       ]
+      },
+      {
+       "name": "Total internal reflection and its applications.. Magnification",
+       "level_label": "Topic",
+       "keywords": [
+        "total internal reflection",
+        "its applications.. magnification"
+       ]
+      },
+      {
+       "name": "Power of a Lens",
+       "level_label": "Topic",
+       "keywords": [
+        "power of a lens"
+       ]
+      },
+      {
+       "name": "Combination of thin lenses in contact",
+       "level_label": "Topic",
+       "keywords": [
+        "combination of thin lenses in contact"
+       ]
+      },
+      {
+       "name": "Refraction of light through a prism",
+       "level_label": "Topic",
+       "keywords": [
+        "refraction of light through a prism"
+       ]
+      },
+      {
+       "name": "Microscope and Astronomical Telescope (reflecting and refracting ) and their magnifying powers",
+       "level_label": "Topic",
+       "keywords": [
+        "microscope",
+        "astronomical telescope (reflecting",
+        "refracting",
+        "their magnifying powers"
+       ]
+      },
+      {
+       "name": "Wave optics: wavefront and Huygens' principle",
+       "level_label": "Topic",
+       "keywords": [
+        "wave optics: wavefront",
+        "huygens' principle"
+       ]
+      },
+      {
+       "name": "Laws of reflection and refraction using Huygens principle",
+       "level_label": "Topic",
+       "keywords": [
+        "laws of reflection",
+        "refraction using huygens principle"
+       ]
+      },
+      {
+       "name": "Interference, Young's double-slit experiment and expression for fringe width, coherent sources",
+       "level_label": "Topic",
+       "keywords": [
+        "interference",
+        "young's double-slit experiment",
+        "expression for fringe width",
+        "coherent sources"
+       ]
+      },
+      {
+       "name": "And sustained interference of light",
+       "level_label": "Topic",
+       "keywords": [
+        "and sustained interference of light"
+       ]
+      },
+      {
+       "name": "Diffraction due to a single slit, width of central maximum.. Polarization, plane-polarized light",
+       "level_label": "Topic",
+       "keywords": [
+        "diffraction due to a single slit",
+        "width of central maximum.. polarization",
+        "plane-polarized light"
+       ]
+      },
+      {
+       "name": "Brewster's law, uses of plane-polarized light and Polaroid",
+       "level_label": "Topic",
+       "keywords": [
+        "brewster's law",
+        "uses of plane-polarized light",
+        "polaroid"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Dual Nature of Matter and Radiation",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Dual nature of radiation",
+       "level_label": "Topic",
+       "keywords": [
+        "dual nature of radiation"
+       ]
+      },
+      {
+       "name": "Photoelectric effect",
+       "level_label": "Topic",
+       "keywords": [
+        "photoelectric effect"
+       ]
+      },
+      {
+       "name": "Hertz and Lenard's observations",
+       "level_label": "Topic",
+       "keywords": [
+        "hertz",
+        "lenard's observations"
+       ]
+      },
+      {
+       "name": "Einstein's photoelectric equation: particle nature of light",
+       "level_label": "Topic",
+       "keywords": [
+        "einstein's photoelectric equation: particle nature of light"
+       ]
+      },
+      {
+       "name": "Matter waves-wave nature of particle, de Broglie relation",
+       "level_label": "Topic",
+       "keywords": [
+        "matter waves-wave nature of particle",
+        "de broglie relation"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Atoms and Nuclei",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Alpha-particle scattering experiment",
+       "level_label": "Topic",
+       "keywords": [
+        "alpha-particle scattering experiment"
+       ]
+      },
+      {
+       "name": "Rutherford's model of atom",
+       "level_label": "Topic",
+       "keywords": [
+        "rutherford's model of atom"
+       ]
+      },
+      {
+       "name": "Bohr model, energy levels, hydrogen spectrum",
+       "level_label": "Topic",
+       "keywords": [
+        "bohr model",
+        "energy levels",
+        "hydrogen spectrum"
+       ]
+      },
+      {
+       "name": "Composition and size of nucleus, atomic masses, Mass-energy relation, mass defect",
+       "level_label": "Topic",
+       "keywords": [
+        "composition",
+        "size of nucleus",
+        "atomic masses",
+        "mass-energy relation",
+        "mass defect"
+       ]
+      },
+      {
+       "name": "Binding energy per nucleon and its variation with mass number, nuclear fission, and fusion",
+       "level_label": "Topic",
+       "keywords": [
+        "binding energy per nucleon",
+        "its variation with mass number",
+        "nuclear fission",
+        "fusion"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Electronic Devices",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Semiconductors",
+       "level_label": "Topic",
+       "keywords": [
+        "semiconductors"
+       ]
+      },
+      {
+       "name": "Semiconductor diode: I-V characteristics in forward and reverse bias",
+       "level_label": "Topic",
+       "keywords": [
+        "semiconductor diode: i-v characteristics in forward",
+        "reverse bias"
+       ]
+      },
+      {
+       "name": "Diode as a rectifier",
+       "level_label": "Topic",
+       "keywords": [
+        "diode as a rectifier"
+       ]
+      },
+      {
+       "name": "I-V characteristics of LED. the photodiode, solar cell, and Zener diode",
+       "level_label": "Topic",
+       "keywords": [
+        "i-v characteristics of led. the photodiode",
+        "solar cell",
+        "zener diode"
+       ]
+      },
+      {
+       "name": "Zener diode as a voltage regulator.. Logic gates (OR. AND. NOT. NAND and NOR)",
+       "level_label": "Topic",
+       "keywords": [
+        "zener diode as a voltage regulator.. logic gates (or. and. n"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Experimental Skills",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Familiarity with the basic approach and observations of the experiments and activities",
+       "level_label": "Topic",
+       "keywords": [
+        "familiarity with the basic approach",
+        "observations of the experiments",
+        "activities"
+       ]
+      },
+      {
+       "name": "Vernier calipers-its use to measure the internal and external diameter and depth of a vessel",
+       "level_label": "Topic",
+       "keywords": [
+        "vernier calipers-its use to measure the internal",
+        "external diameter",
+        "depth of a vessel"
+       ]
+      },
+      {
+       "name": "Screw gauge-its use to determine thickness/ diameter of thin sheet/wire",
+       "level_label": "Topic",
+       "keywords": [
+        "screw gauge-its use to determine thickness/ diameter of thin"
+       ]
+      },
+      {
+       "name": "Simple Pendulum-dissipation of energy by plotting a graph between the square of amplitude and time",
+       "level_label": "Topic",
+       "keywords": [
+        "simple pendulum-dissipation of energy by plotting a graph be",
+        "time"
+       ]
+      },
+      {
+       "name": "Metre Scale - the mass of a given object by the principle of moments",
+       "level_label": "Topic",
+       "keywords": [
+        "metre scale - the mass of a given object by the principle of"
+       ]
+      },
+      {
+       "name": "Young's modulus of elasticity of the material of a metallic wire",
+       "level_label": "Topic",
+       "keywords": [
+        "young's modulus of elasticity of the material of a metallic "
+       ]
+      },
+      {
+       "name": "Surf ace tension of water by capillary rise and effect of detergents",
+       "level_label": "Topic",
+       "keywords": [
+        "surf ace tension of water by capillary rise",
+        "effect of detergents"
+       ]
+      },
+      {
+       "name": "Co-efficient of Viscosity of a given viscous liquid",
+       "level_label": "Topic",
+       "keywords": [
+        "co-efficient of viscosity of a given viscous liquid"
+       ]
+      },
+      {
+       "name": "By measuring terminal velocity of a given spherical body",
+       "level_label": "Topic",
+       "keywords": [
+        "by measuring terminal velocity of a given spherical body"
+       ]
+      },
+      {
+       "name": "Speed of sound in air at room temperature using a resonance tube",
+       "level_label": "Topic",
+       "keywords": [
+        "speed of sound in air at room temperature using a resonance "
+       ]
+      },
+      {
+       "name": "Specific heat capacity of a given (i) solid and (ii) liquid by method of mixtures",
+       "level_label": "Topic",
+       "keywords": [
+        "specific heat capacity of a given (i) solid",
+        "ii) liquid by method of mixtures"
+       ]
+      },
+      {
+       "name": "The resistivity of the material of a given wire using a metre bridge",
+       "level_label": "Topic",
+       "keywords": [
+        "the resistivity of the material of a given wire using a metr"
+       ]
+      },
+      {
+       "name": "The resistance of a given wire using Ohm's law",
+       "level_label": "Topic",
+       "keywords": [
+        "the resistance of a given wire using ohm's law"
+       ]
+      },
+      {
+       "name": "Resistance and figure of merit of a galvanometer by half deflection method",
+       "level_label": "Topic",
+       "keywords": [
+        "resistance",
+        "figure of merit of a galvanometer by half deflection method"
+       ]
+      },
+      {
+       "name": "The focal length of",
+       "level_label": "Topic",
+       "keywords": [
+        "the focal length of"
+       ]
+      },
+      {
+       "name": "(i) Convex mirror (ii) Concave mirror, and (ii) Convex lens, using the parallax method",
+       "level_label": "Topic",
+       "keywords": [
+        "i) convex mirror (ii) concave mirror",
+        "ii) convex lens",
+        "using the parallax method"
+       ]
+      },
+      {
+       "name": "The plot of the angle of deviation vs angle of incidence for a triangular prism",
+       "level_label": "Topic",
+       "keywords": [
+        "the plot of the angle of deviation vs angle of incidence for"
+       ]
+      },
+      {
+       "name": "Refractive index of a glass slab using a travelling microscope",
+       "level_label": "Topic",
+       "keywords": [
+        "refractive index of a glass slab using a travelling microsco"
+       ]
+      },
+      {
+       "name": "Characteristic curves of a p-n junction diode in forward and reverse bias",
+       "level_label": "Topic",
+       "keywords": [
+        "characteristic curves of a p-n junction diode in forward",
+        "reverse bias"
+       ]
+      },
+      {
+       "name": "Characteristic curves of a Zener diode and finding reverse break down voltage",
+       "level_label": "Topic",
+       "keywords": [
+        "characteristic curves of a zener diode",
+        "finding reverse break down voltage"
+       ]
+      },
+      {
+       "name": "Identification of Diode",
+       "level_label": "Topic",
+       "keywords": [
+        "identification of diode"
+       ]
+      },
+      {
+       "name": "LED,. Resistor",
+       "level_label": "Topic",
+       "keywords": [
+        ". resistor"
+       ]
+      },
+      {
+       "name": "A capacitor from a mixed collection of such items",
+       "level_label": "Topic",
+       "keywords": [
+        "a capacitor from a mixed collection of such items"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Chemistry",
+   "level_label": "Subject",
+   "children": [
+    {
+     "name": "Physical Chemistry",
+     "level_label": "Section",
+     "children": [
+      {
+       "name": "Some Basic Concepts in Chemistry",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Matter and its nature, Dalton's atomic theory, Concept of atom, molecule, element, and compound:",
+         "level_label": "Topic",
+         "keywords": [
+          "matter",
+          "its nature",
+          "dalton's atomic theory",
+          "concept of atom",
+          "molecule",
+          "element",
+          "compound:"
+         ]
+        },
+        {
+         "name": "Laws of chemical combination",
+         "level_label": "Topic",
+         "keywords": [
+          "laws of chemical combination"
+         ]
+        },
+        {
+         "name": "Atomic and molecular masses, mole concept, molar mass, percentage composition",
+         "level_label": "Topic",
+         "keywords": [
+          "atomic",
+          "molecular masses",
+          "mole concept",
+          "molar mass",
+          "percentage composition"
+         ]
+        },
+        {
+         "name": "Empirical and molecular formulae, Chemical equations and stoichiometry",
+         "level_label": "Topic",
+         "keywords": [
+          "empirical",
+          "molecular formulae",
+          "chemical equations",
+          "stoichiometry"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Atomic Structure",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Nature of electromagnetic radiation, photoelectric effect",
+         "level_label": "Topic",
+         "keywords": [
+          "nature of electromagnetic radiation",
+          "photoelectric effect"
+         ]
+        },
+        {
+         "name": "Spectrum of the hydrogen atom",
+         "level_label": "Topic",
+         "keywords": [
+          "spectrum of the hydrogen atom"
+         ]
+        },
+        {
+         "name": "Bohr model of a hydrogen atom - its postulates",
+         "level_label": "Topic",
+         "keywords": [
+          "bohr model of a hydrogen atom - its postulates"
+         ]
+        },
+        {
+         "name": "Derivation of the relations for the energy of the electron and radii of the different orbits",
+         "level_label": "Topic",
+         "keywords": [
+          "derivation of the relations for the energy of the electron",
+          "radii of the different orbits"
+         ]
+        },
+        {
+         "name": "Limitations of Bohr's model",
+         "level_label": "Topic",
+         "keywords": [
+          "limitations of bohr's model"
+         ]
+        },
+        {
+         "name": "Dual nature of matter, de Broglie's relationship",
+         "level_label": "Topic",
+         "keywords": [
+          "dual nature of matter",
+          "de broglie's relationship"
+         ]
+        },
+        {
+         "name": "Heisenberg uncertainty principle",
+         "level_label": "Topic",
+         "keywords": [
+          "heisenberg uncertainty principle"
+         ]
+        },
+        {
+         "name": "Elementary ideas of quantum mechanics, quantum mechanics, the quantum mechanical model of the atom",
+         "level_label": "Topic",
+         "keywords": [
+          "elementary ideas of quantum mechanics",
+          "quantum mechanics",
+          "the quantum mechanical model of the atom"
+         ]
+        },
+        {
+         "name": "Its important features",
+         "level_label": "Topic",
+         "keywords": [
+          "its important features"
+         ]
+        },
+        {
+         "name": "Concept of atomic orbitals as one-electron wave functions",
+         "level_label": "Topic",
+         "keywords": [
+          "concept of atomic orbitals as one-electron wave functions"
+         ]
+        },
+        {
+         "name": "Variation of  and 2 with r for 1s and 2s orbitals",
+         "level_label": "Topic",
+         "keywords": [
+          "variation of ",
+          "2 with r for 1s",
+          "2s orbitals"
+         ]
+        },
+        {
+         "name": "Various quantum numbers and their significance",
+         "level_label": "Topic",
+         "keywords": [
+          "various quantum numbers",
+          "their significance",
+          "principal",
+          "angular momentum",
+          "magnetic quantum numbers"
+         ]
+        },
+        {
+         "name": "Shapes of s, p, and d - orbitals, electron spin and spin quantum number",
+         "level_label": "Topic",
+         "keywords": [
+          "shapes of s",
+          "d - orbitals",
+          "electron spin",
+          "spin quantum number"
+         ]
+        },
+        {
+         "name": "Rules for filling electrons in orbitals – Aufbau principle",
+         "level_label": "Topic",
+         "keywords": [
+          "rules for filling electrons in orbitals – aufbau principle"
+         ]
+        },
+        {
+         "name": "Pauli's exclusion principle and Hund's rule, electronic configuration of elements",
+         "level_label": "Topic",
+         "keywords": [
+          "pauli's exclusion principle",
+          "hund's rule",
+          "electronic configuration of elements"
+         ]
+        },
+        {
+         "name": "Extra stability of half-filled and completely filled orbitals",
+         "level_label": "Topic",
+         "keywords": [
+          "extra stability of half-filled",
+          "completely filled orbitals"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Chemical Bonding and Molecular Structure",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Kossel - Lewis approach to chemical bond formation, the concept of ionic and covalent bonds",
+         "level_label": "Topic",
+         "keywords": [
+          "kossel - lewis approach to chemical bond formation",
+          "the concept of ionic",
+          "covalent bonds"
+         ]
+        },
+        {
+         "name": "Ionic Bonding: Formation of ionic bonds, factors affecting the formation of ionic bonds",
+         "level_label": "Topic",
+         "keywords": [
+          "ionic bonding: formation of ionic bonds",
+          "factors affecting the formation of ionic bonds"
+         ]
+        },
+        {
+         "name": "Calculation of lattice enthalpy",
+         "level_label": "Topic",
+         "keywords": [
+          "calculation of lattice enthalpy"
+         ]
+        },
+        {
+         "name": "Covalent Bonding: Concept of electronegativity",
+         "level_label": "Topic",
+         "keywords": [
+          "covalent bonding: concept of electronegativity"
+         ]
+        },
+        {
+         "name": "Fajan’s rule, dipole moment: Valence Shell Electron Pair Repulsion",
+         "level_label": "Topic",
+         "keywords": [
+          "fajan’s rule",
+          "dipole moment: valence shell electron pair repulsion",
+          "vsepr"
+         ]
+        },
+        {
+         "name": "Quantum mechanical approach to covalent bonding, Valence bond theory - its important features",
+         "level_label": "Topic",
+         "keywords": [
+          "quantum mechanical approach to covalent bonding",
+          "valence bond theory - its important features"
+         ]
+        },
+        {
+         "name": "The concept of hybridization involving s, p, and d orbitals",
+         "level_label": "Topic",
+         "keywords": [
+          "the concept of hybridization involving s",
+          "d orbitals"
+         ]
+        },
+        {
+         "name": "Resonance",
+         "level_label": "Topic",
+         "keywords": [
+          "resonance"
+         ]
+        },
+        {
+         "name": "Molecular Orbital Theory - Its important features",
+         "level_label": "Topic",
+         "keywords": [
+          "molecular orbital theory - its important features"
+         ]
+        },
+        {
+         "name": "LCAOs, types of molecular orbitals",
+         "level_label": "Topic",
+         "keywords": [
+          "lcaos",
+          "types of molecular orbitals",
+          "bonding",
+          "antibonding"
+         ]
+        },
+        {
+         "name": "Elementary idea of metallic bonding",
+         "level_label": "Topic",
+         "keywords": [
+          "elementary idea of metallic bonding"
+         ]
+        },
+        {
+         "name": "Hydrogen bonding and its applications",
+         "level_label": "Topic",
+         "keywords": [
+          "hydrogen bonding",
+          "its applications"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Chemical Thermodynamics",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Fundamentals of thermodynamics, System and surroundings, extensive and intensive properties",
+         "level_label": "Topic",
+         "keywords": [
+          "fundamentals of thermodynamics",
+          "system",
+          "surroundings",
+          "extensive",
+          "intensive properties"
+         ]
+        },
+        {
+         "name": "State functions, types of processes",
+         "level_label": "Topic",
+         "keywords": [
+          "state functions",
+          "types of processes"
+         ]
+        },
+        {
+         "name": "The first law of thermodynamics - Concept of work, heat internal energy and enthalpy, heat capacity",
+         "level_label": "Topic",
+         "keywords": [
+          "the first law of thermodynamics - concept of work",
+          "heat internal energy",
+          "enthalpy",
+          "heat capacity"
+         ]
+        },
+        {
+         "name": "Molar heat capacity",
+         "level_label": "Topic",
+         "keywords": [
+          "molar heat capacity"
+         ]
+        },
+        {
+         "name": "Hess’s law of constant heat summation",
+         "level_label": "Topic",
+         "keywords": [
+          "hess’s law of constant heat summation"
+         ]
+        },
+        {
+         "name": "Enthalpies of bond dissociation, combustion, formation, atomization, sublimation, phase transition",
+         "level_label": "Topic",
+         "keywords": [
+          "enthalpies of bond dissociation",
+          "combustion",
+          "formation",
+          "atomization",
+          "sublimation",
+          "phase transition"
+         ]
+        },
+        {
+         "name": "Hydration, ionization, and solution",
+         "level_label": "Topic",
+         "keywords": [
+          "hydration",
+          "ionization",
+          "solution"
+         ]
+        },
+        {
+         "name": "The second law of thermodynamics - Spontaneity of processes",
+         "level_label": "Topic",
+         "keywords": [
+          "the second law of thermodynamics - spontaneity of processes"
+         ]
+        },
+        {
+         "name": "S of the universe and G of the system as criteria for spontaneity. G and equilibrium constant",
+         "level_label": "Topic",
+         "keywords": [
+          "s of the universe",
+          "g of the system as criteria for spontaneity. g",
+          "equilibrium constant",
+          "standard gibbs energy change"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Solutions",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Different methods for expressing the concentration of solution - molality, molarity, mole fraction",
+         "level_label": "Topic",
+         "keywords": [
+          "different methods for expressing the concentration of soluti",
+          "molarity",
+          "mole fraction"
+         ]
+        },
+        {
+         "name": "Percentage (by volume and mass both)",
+         "level_label": "Topic",
+         "keywords": [
+          "percentage (by volume",
+          "mass both"
+         ]
+        },
+        {
+         "name": "The vapour pressure of solutions and Raoult's Law - Ideal and non-ideal solutions",
+         "level_label": "Topic",
+         "keywords": [
+          "the vapour pressure of solutions",
+          "raoult's law - ideal",
+          "non-ideal solutions"
+         ]
+        },
+        {
+         "name": "Vapour pressure - composition, plots for ideal and non-ideal solutions",
+         "level_label": "Topic",
+         "keywords": [
+          "vapour pressure - composition",
+          "plots for ideal",
+          "non-ideal solutions"
+         ]
+        },
+        {
+         "name": "Colligative properties of dilute solutions - a relative lowering of vapour pressure",
+         "level_label": "Topic",
+         "keywords": [
+          "colligative properties of dilute solutions - a relative lowe"
+         ]
+        },
+        {
+         "name": "Depression of freezing point, the elevation of boiling point and osmotic pressure",
+         "level_label": "Topic",
+         "keywords": [
+          "depression of freezing point",
+          "the elevation of boiling point",
+          "osmotic pressure"
+         ]
+        },
+        {
+         "name": "Determination of molecular mass using colligative properties",
+         "level_label": "Topic",
+         "keywords": [
+          "determination of molecular mass using colligative properties"
+         ]
+        },
+        {
+         "name": "Abnormal value of molar mass, van’t Hoff factor and its significance",
+         "level_label": "Topic",
+         "keywords": [
+          "abnormal value of molar mass",
+          "van’t hoff factor",
+          "its significance"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Equilibrium",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Meaning of equilibrium, the concept of dynamic equilibrium",
+         "level_label": "Topic",
+         "keywords": [
+          "meaning of equilibrium",
+          "the concept of dynamic equilibrium"
+         ]
+        },
+        {
+         "name": "Equilibria involving physical processes, Solid-liquid, liquid - gas and solid-gas equilibria",
+         "level_label": "Topic",
+         "keywords": [
+          "equilibria involving physical processes",
+          "solid-liquid",
+          "liquid - gas",
+          "solid-gas equilibria"
+         ]
+        },
+        {
+         "name": "Henry's law",
+         "level_label": "Topic",
+         "keywords": [
+          "henry's law"
+         ]
+        },
+        {
+         "name": "General characteristics of equilibrium involving physical processes",
+         "level_label": "Topic",
+         "keywords": [
+          "general characteristics of equilibrium involving physical pr"
+         ]
+        },
+        {
+         "name": "Equilibrium involving chemical processes: Law of chemical equilibrium, equilibrium constants",
+         "level_label": "Topic",
+         "keywords": [
+          "equilibrium involving chemical processes: law of chemical eq",
+          "equilibrium constants"
+         ]
+        },
+        {
+         "name": "Le Chatelier’s principle",
+         "level_label": "Topic",
+         "keywords": [
+          "le chatelier’s principle"
+         ]
+        },
+        {
+         "name": "Ionic equilibrium, Weak and strong electrolytes, ionization of electrolytes",
+         "level_label": "Topic",
+         "keywords": [
+          "ionic equilibrium",
+          "weak",
+          "strong electrolytes",
+          "ionization of electrolytes"
+         ]
+        },
+        {
+         "name": "Various concepts of acids and bases (Arrhenius. Bronsted - Lowry and Lewis) and their ionization",
+         "level_label": "Topic",
+         "keywords": [
+          "various concepts of acids",
+          "bases (arrhenius. bronsted - lowry",
+          "lewis",
+          "their ionization"
+         ]
+        },
+        {
+         "name": "Acid-base equilibria (including multistage ionization) and ionization constants",
+         "level_label": "Topic",
+         "keywords": [
+          "acid-base equilibria (including multistage ionization",
+          "ionization constants"
+         ]
+        },
+        {
+         "name": "Ionization of water. pH scale, common ion effect, hydrolysis of salts and pH of their solutions",
+         "level_label": "Topic",
+         "keywords": [
+          "ionization of water. ph scale",
+          "common ion effect",
+          "hydrolysis of salts",
+          "ph of their solutions"
+         ]
+        },
+        {
+         "name": "The solubility of sparingly soluble salts and solubility products, buffer solutions",
+         "level_label": "Topic",
+         "keywords": [
+          "the solubility of sparingly soluble salts",
+          "solubility products",
+          "buffer solutions"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Redox Reactions and Electrochemistry",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Electronic concepts of oxidation and reduction, redox reactions, oxidation number",
+         "level_label": "Topic",
+         "keywords": [
+          "electronic concepts of oxidation",
+          "reduction",
+          "redox reactions",
+          "oxidation number"
+         ]
+        },
+        {
+         "name": "Rules for assigning oxidation number, balancing of redox reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "rules for assigning oxidation number",
+          "balancing of redox reactions"
+         ]
+        },
+        {
+         "name": "Electrolytic and metallic conduction, conductance in electrolytic solutions",
+         "level_label": "Topic",
+         "keywords": [
+          "electrolytic",
+          "metallic conduction",
+          "conductance in electrolytic solutions"
+         ]
+        },
+        {
+         "name": "Molar conductivities and their variation with concentration, Kohlrausch’s law and its applications",
+         "level_label": "Topic",
+         "keywords": [
+          "molar conductivities",
+          "their variation with concentration",
+          "kohlrausch’s law",
+          "its applications"
+         ]
+        },
+        {
+         "name": "Electrochemical cells - Electrolytic and Galvanic cells, different types of electrodes",
+         "level_label": "Topic",
+         "keywords": [
+          "electrochemical cells - electrolytic",
+          "galvanic cells",
+          "different types of electrodes"
+         ]
+        },
+        {
+         "name": "Electrode potentials including standard electrode potential, half - cell and cell reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "electrode potentials including standard electrode potential",
+          "half - cell",
+          "cell reactions"
+         ]
+        },
+        {
+         "name": "Emf of a Galvanic cell and its measurement, Nernst equation and its applications",
+         "level_label": "Topic",
+         "keywords": [
+          "emf of a galvanic cell",
+          "its measurement",
+          "nernst equation",
+          "its applications"
+         ]
+        },
+        {
+         "name": "Relationship between cell potential and Gibbs' energy change: Dry cell and lead accumulator",
+         "level_label": "Topic",
+         "keywords": [
+          "relationship between cell potential",
+          "gibbs' energy change: dry cell",
+          "lead accumulator"
+         ]
+        },
+        {
+         "name": "Fuel cells",
+         "level_label": "Topic",
+         "keywords": [
+          "fuel cells"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Chemical Kinetics",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Rate of a chemical reaction, factors affecting the rate of reactions, concentration, temperature",
+         "level_label": "Topic",
+         "keywords": [
+          "rate of a chemical reaction",
+          "factors affecting the rate of reactions",
+          "concentration",
+          "temperature"
+         ]
+        },
+        {
+         "name": "Pressure, and catalyst",
+         "level_label": "Topic",
+         "keywords": [
+          "pressure",
+          "catalyst"
+         ]
+        },
+        {
+         "name": "Elementary and complex reactions, order and molecularity of reactions, rate law",
+         "level_label": "Topic",
+         "keywords": [
+          "elementary",
+          "complex reactions",
+          "order",
+          "molecularity of reactions",
+          "rate law"
+         ]
+        },
+        {
+         "name": "Rate constant and its units, differential and integral forms of zero and first-order reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "rate constant",
+          "its units",
+          "differential",
+          "integral forms of zero",
+          "first-order reactions"
+         ]
+        },
+        {
+         "name": "Their characteristics and half-lives, the effect of temperature on the rate of reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "their characteristics",
+          "half-lives",
+          "the effect of temperature on the rate of reactions"
+         ]
+        },
+        {
+         "name": "Arrhenius theory, activation energy and its calculation",
+         "level_label": "Topic",
+         "keywords": [
+          "arrhenius theory",
+          "activation energy",
+          "its calculation"
+         ]
+        },
+        {
+         "name": "Collision theory of bimolecular gaseous reactions (no derivation)",
+         "level_label": "Topic",
+         "keywords": [
+          "collision theory of bimolecular gaseous reactions (no deriva"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Inorganic Chemistry",
+     "level_label": "Section",
+     "children": [
+      {
+       "name": "Classification of Elements and Periodicity in Properties",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Modem periodic law and present form of the periodic table, s, p. d and f block elements",
+         "level_label": "Topic",
+         "keywords": [
+          "modem periodic law",
+          "present form of the periodic table",
+          "p. d",
+          "f block elements"
+         ]
+        },
+        {
+         "name": "Periodic trends in properties of elements atomic and ionic radii, ionization enthalpy",
+         "level_label": "Topic",
+         "keywords": [
+          "periodic trends in properties of elements atomic",
+          "ionic radii",
+          "ionization enthalpy"
+         ]
+        },
+        {
+         "name": "Electron gain enthalpy, valence, oxidation states, and chemical reactivity",
+         "level_label": "Topic",
+         "keywords": [
+          "electron gain enthalpy",
+          "valence",
+          "oxidation states",
+          "chemical reactivity"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "p-Block Elements",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Group -13 to Group 18 Elements General Introduction",
+         "level_label": "Topic",
+         "keywords": [
+          "group -13 to group 18 elements general introduction"
+         ]
+        },
+        {
+         "name": "Electronic configuration and general trends in physical",
+         "level_label": "Topic",
+         "keywords": [
+          "electronic configuration",
+          "general trends in physical"
+         ]
+        },
+        {
+         "name": "And chemical properties of elements across the periods and down the groups",
+         "level_label": "Topic",
+         "keywords": [
+          "and chemical properties of elements across the periods",
+          "down the groups"
+         ]
+        },
+        {
+         "name": "Unique behaviour of the first element in each group",
+         "level_label": "Topic",
+         "keywords": [
+          "unique behaviour of the first element in each group"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "d- and f-Block Elements",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Transition Elements General introduction, electronic configuration, occurrence and characteristics",
+         "level_label": "Topic",
+         "keywords": [
+          "transition elements general introduction",
+          "electronic configuration",
+          "occurrence",
+          "characteristics"
+         ]
+        },
+        {
+         "name": "General trends in properties of the first-row transition elements - physical properties",
+         "level_label": "Topic",
+         "keywords": [
+          "general trends in properties of the first-row transition ele"
+         ]
+        },
+        {
+         "name": "Ionization enthalpy, oxidation states, atomic radii, colour, catalytic behaviour",
+         "level_label": "Topic",
+         "keywords": [
+          "ionization enthalpy",
+          "oxidation states",
+          "atomic radii",
+          "colour",
+          "catalytic behaviour"
+         ]
+        },
+        {
+         "name": "Magnetic properties, complex formation, interstitial compounds, alloy formation",
+         "level_label": "Topic",
+         "keywords": [
+          "magnetic properties",
+          "complex formation",
+          "interstitial compounds",
+          "alloy formation"
+         ]
+        },
+        {
+         "name": "Preparation, properties, and uses of K2Cr2O7, and KMnO4",
+         "level_label": "Topic",
+         "keywords": [
+          "preparation",
+          "properties",
+          "uses of k2cr2o7",
+          "kmno4"
+         ]
+        },
+        {
+         "name": "Inner Transition Elements Lanthanoids - Electronic configuration, oxidation states",
+         "level_label": "Topic",
+         "keywords": [
+          "inner transition elements lanthanoids - electronic configura",
+          "oxidation states"
+         ]
+        },
+        {
+         "name": "And lanthanoid contraction",
+         "level_label": "Topic",
+         "keywords": [
+          "and lanthanoid contraction"
+         ]
+        },
+        {
+         "name": "Actinoids - Electronic configuration and oxidation states",
+         "level_label": "Topic",
+         "keywords": [
+          "actinoids - electronic configuration",
+          "oxidation states"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Coordination Compounds",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Introduction to coordination compounds",
+         "level_label": "Topic",
+         "keywords": [
+          "introduction to coordination compounds"
+         ]
+        },
+        {
+         "name": "Werner's theory",
+         "level_label": "Topic",
+         "keywords": [
+          "werner's theory"
+         ]
+        },
+        {
+         "name": "Ligands, coordination number, denticity. chelation",
+         "level_label": "Topic",
+         "keywords": [
+          "ligands",
+          "coordination number",
+          "denticity. chelation"
+         ]
+        },
+        {
+         "name": "IUPAC nomenclature of mononuclear co-ordination compounds, isomerism",
+         "level_label": "Topic",
+         "keywords": [
+          "iupac nomenclature of mononuclear co-ordination compounds",
+          "isomerism"
+         ]
+        },
+        {
+         "name": "Bonding-Valence bond approach and basic ideas of Crystal field theory",
+         "level_label": "Topic",
+         "keywords": [
+          "bonding-valence bond approach",
+          "basic ideas of crystal field theory"
+         ]
+        },
+        {
+         "name": "Colour and magnetic properties",
+         "level_label": "Topic",
+         "keywords": [
+          "colour",
+          "magnetic properties"
+         ]
+        },
+        {
+         "name": "Importance of co-ordination compounds",
+         "level_label": "Topic",
+         "keywords": [
+          "importance of co-ordination compounds",
+          "in qualitative analysis",
+          "extraction of metals",
+          "in biological systems"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Organic Chemistry",
+     "level_label": "Section",
+     "children": [
+      {
+       "name": "Purification and Characterisation of Organic Compounds",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Purification - Crystallization, sublimation, distillation, differential extraction",
+         "level_label": "Topic",
+         "keywords": [
+          "purification - crystallization",
+          "sublimation",
+          "distillation",
+          "differential extraction"
+         ]
+        },
+        {
+         "name": "And chromatography - principles and their applications",
+         "level_label": "Topic",
+         "keywords": [
+          "and chromatography - principles",
+          "their applications"
+         ]
+        },
+        {
+         "name": "Qualitative analysis - Detection of nitrogen, sulphur, phosphorus, and halogens",
+         "level_label": "Topic",
+         "keywords": [
+          "qualitative analysis - detection of nitrogen",
+          "sulphur",
+          "phosphorus",
+          "halogens"
+         ]
+        },
+        {
+         "name": "Quantitative analysis - Estimation of carbon, hydrogen, nitrogen, halogens, sulphur, phosphorus",
+         "level_label": "Topic",
+         "keywords": [
+          "quantitative analysis - estimation of carbon",
+          "hydrogen",
+          "nitrogen",
+          "halogens",
+          "sulphur",
+          "phosphorus",
+          "basic principles only"
+         ]
+        },
+        {
+         "name": "Calculations of empirical formulae and molecular formulae",
+         "level_label": "Topic",
+         "keywords": [
+          "calculations of empirical formulae",
+          "molecular formulae"
+         ]
+        },
+        {
+         "name": "Numerical problems in organic quantitative analysis",
+         "level_label": "Topic",
+         "keywords": [
+          "numerical problems in organic quantitative analysis"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Some Basic Principles of Organic Chemistry",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Tetravalency of carbon: Shapes of simple molecules - hybridization",
+         "level_label": "Topic",
+         "keywords": [
+          "tetravalency of carbon: shapes of simple molecules - hybridi"
+         ]
+        },
+        {
+         "name": "Homologous series: Isomerism - structural and stereoisomerism",
+         "level_label": "Topic",
+         "keywords": [
+          "homologous series: isomerism - structural",
+          "stereoisomerism"
+         ]
+        },
+        {
+         "name": "Nomenclature",
+         "level_label": "Topic",
+         "keywords": [
+          "nomenclature",
+          "trivial",
+          "iupac"
+         ]
+        },
+        {
+         "name": "Stability of carbocations and free radicals, electrophiles, and nucleophiles",
+         "level_label": "Topic",
+         "keywords": [
+          "stability of carbocations",
+          "free radicals",
+          "electrophiles",
+          "nucleophiles"
+         ]
+        },
+        {
+         "name": "Electronic displacement in a covalent bond - Inductive effect, electromeric effect, resonance",
+         "level_label": "Topic",
+         "keywords": [
+          "electronic displacement in a covalent bond - inductive effec",
+          "electromeric effect",
+          "resonance"
+         ]
+        },
+        {
+         "name": "And hyperconjugation",
+         "level_label": "Topic",
+         "keywords": [
+          "and hyperconjugation"
+         ]
+        },
+        {
+         "name": "Common types of organic reactions- Substitution, addition, elimination, and rearrangement",
+         "level_label": "Topic",
+         "keywords": [
+          "common types of organic reactions- substitution",
+          "addition",
+          "elimination",
+          "rearrangement"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Hydrocarbons",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Classification, isomerism, IUPAC nomenclature, general methods of preparation, properties",
+         "level_label": "Topic",
+         "keywords": [
+          "classification",
+          "isomerism",
+          "iupac nomenclature",
+          "general methods of preparation",
+          "properties"
+         ]
+        },
+        {
+         "name": "And reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "and reactions"
+         ]
+        },
+        {
+         "name": "Alkanes - Conformations: Sawhorse and Newman projections : Mechanism of halogenation of alkanes",
+         "level_label": "Topic",
+         "keywords": [
+          "alkanes - conformations: sawhorse",
+          "newman projections : mechanism of halogenation of alkanes",
+          "of ethane"
+         ]
+        },
+        {
+         "name": "Alkenes - Geometrical isomerism, Mechanism of electrophilic addition, addition of hydrogen, halogens",
+         "level_label": "Topic",
+         "keywords": [
+          "alkenes - geometrical isomerism",
+          "mechanism of electrophilic addition",
+          "addition of hydrogen",
+          "halogens"
+         ]
+        },
+        {
+         "name": "Water, hydrogen halides (Markownikoffs and peroxide effect), Ozonolysis and polymerization",
+         "level_label": "Topic",
+         "keywords": [
+          "water",
+          "hydrogen halides (markownikoffs",
+          "peroxide effect",
+          "ozonolysis",
+          "polymerization"
+         ]
+        },
+        {
+         "name": "Alkynes - Acidic character, Addition of hydrogen, halogens, water, and hydrogen halides",
+         "level_label": "Topic",
+         "keywords": [
+          "alkynes - acidic character",
+          "addition of hydrogen",
+          "halogens",
+          "water",
+          "hydrogen halides"
+         ]
+        },
+        {
+         "name": "Polymerization",
+         "level_label": "Topic",
+         "keywords": [
+          "polymerization"
+         ]
+        },
+        {
+         "name": "Aromatic hydrocarbons - Nomenclature, benzene - structure and aromaticity",
+         "level_label": "Topic",
+         "keywords": [
+          "aromatic hydrocarbons - nomenclature",
+          "benzene - structure",
+          "aromaticity"
+         ]
+        },
+        {
+         "name": "Mechanism of electrophilic substitution, halogenation, nitration",
+         "level_label": "Topic",
+         "keywords": [
+          "mechanism of electrophilic substitution",
+          "halogenation",
+          "nitration"
+         ]
+        },
+        {
+         "name": "Friedel - Craft's alkylation and acylation",
+         "level_label": "Topic",
+         "keywords": [
+          "friedel - craft's alkylation",
+          "acylation"
+         ]
+        },
+        {
+         "name": "Directive influence of the functional group in monosubstituted benzene",
+         "level_label": "Topic",
+         "keywords": [
+          "directive influence of the functional group in monosubstitut"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Organic Compounds Containing Halogens",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "General methods of preparation, properties, and reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "general methods of preparation",
+          "properties",
+          "reactions"
+         ]
+        },
+        {
+         "name": "Nature of C-X bond",
+         "level_label": "Topic",
+         "keywords": [
+          "nature of c-x bond"
+         ]
+        },
+        {
+         "name": "Mechanisms of substitution reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "mechanisms of substitution reactions"
+         ]
+        },
+        {
+         "name": "Uses",
+         "level_label": "Topic",
+         "keywords": [
+          "uses"
+         ]
+        },
+        {
+         "name": "Environmental effects of chloroform, iodoform freons, and DDT",
+         "level_label": "Topic",
+         "keywords": [
+          "environmental effects of chloroform",
+          "iodoform freons"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Organic Compounds Containing Oxygen",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "General methods of preparation, properties, reactions, and uses",
+         "level_label": "Topic",
+         "keywords": [
+          "general methods of preparation",
+          "properties",
+          "reactions",
+          "uses"
+         ]
+        },
+        {
+         "name": "ALCOHOLS,PHENOLS,ANDETHERS Alcohols, Identification of primary, secondary, and tertiary alcohols",
+         "level_label": "Topic",
+         "keywords": [
+          "alcohols",
+          "phenols",
+          "andethers alcohols",
+          "identification of primary",
+          "secondary",
+          "tertiary alcohols"
+         ]
+        },
+        {
+         "name": "Mechanism of dehydration",
+         "level_label": "Topic",
+         "keywords": [
+          "mechanism of dehydration"
+         ]
+        },
+        {
+         "name": "Phenols, Acidic nature, electrophilic substitution reactions",
+         "level_label": "Topic",
+         "keywords": [
+          "phenols",
+          "acidic nature",
+          "electrophilic substitution reactions"
+         ]
+        },
+        {
+         "name": "Halogenation. nitration and sulphonation",
+         "level_label": "Topic",
+         "keywords": [
+          "halogenation. nitration",
+          "sulphonation"
+         ]
+        },
+        {
+         "name": "Reimer - Tiemann reaction",
+         "level_label": "Topic",
+         "keywords": [
+          "reimer - tiemann reaction"
+         ]
+        },
+        {
+         "name": "Ethers: Structure",
+         "level_label": "Topic",
+         "keywords": [
+          "ethers: structure"
+         ]
+        },
+        {
+         "name": "Aldehyde and Ketones: Nature of carbonyl group",
+         "level_label": "Topic",
+         "keywords": [
+          "aldehyde",
+          "ketones: nature of carbonyl group"
+         ]
+        },
+        {
+         "name": "Nucleophilic addition to >C=O group, relative reactivities of aldehydes and ketones",
+         "level_label": "Topic",
+         "keywords": [
+          "nucleophilic addition to >c=o group",
+          "relative reactivities of aldehydes",
+          "ketones"
+         ]
+        },
+        {
+         "name": "Important reactions such as - Nucleophilic addition reactions , Grignard reagent",
+         "level_label": "Topic",
+         "keywords": [
+          "important reactions such as - nucleophilic addition reaction",
+          "grignard reagent",
+          "addition of hcn. nh3",
+          "its derivatives"
+         ]
+        },
+        {
+         "name": "Oxidation: reduction (Wolf Kishner and Clemmensen)",
+         "level_label": "Topic",
+         "keywords": [
+          "oxidation: reduction (wolf kishner",
+          "clemmensen"
+         ]
+        },
+        {
+         "name": "The acidity of -hydrogen. aldol condensation, Cannizzaro reaction",
+         "level_label": "Topic",
+         "keywords": [
+          "the acidity of -hydrogen. aldol condensation",
+          "cannizzaro reaction"
+         ]
+        },
+        {
+         "name": "Haloform reaction, Chemical tests to distinguish between aldehydes and Ketones",
+         "level_label": "Topic",
+         "keywords": [
+          "haloform reaction",
+          "chemical tests to distinguish between aldehydes",
+          "ketones"
+         ]
+        },
+        {
+         "name": "Carboxylic Acids Acidic strength and factors affecting it",
+         "level_label": "Topic",
+         "keywords": [
+          "carboxylic acids acidic strength",
+          "factors affecting it"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Organic Compounds Containing Nitrogen",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "General methods of preparation",
+         "level_label": "Topic",
+         "keywords": [
+          "general methods of preparation"
+         ]
+        },
+        {
+         "name": "Properties, reactions, and uses",
+         "level_label": "Topic",
+         "keywords": [
+          "properties",
+          "reactions",
+          "uses"
+         ]
+        },
+        {
+         "name": "Amines, Nomenclature, classification structure, basic character, and identification of primary",
+         "level_label": "Topic",
+         "keywords": [
+          "amines",
+          "nomenclature",
+          "classification structure",
+          "basic character",
+          "identification of primary"
+         ]
+        },
+        {
+         "name": "Secondary, and tertiary amines and their basic character",
+         "level_label": "Topic",
+         "keywords": [
+          "secondary",
+          "tertiary amines",
+          "their basic character"
+         ]
+        },
+        {
+         "name": "Diazonium Salts: Importance in synthetic organic chemistry",
+         "level_label": "Topic",
+         "keywords": [
+          "diazonium salts: importance in synthetic organic chemistry"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Biomolecules",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "General introduction and importance of biomolecules",
+         "level_label": "Topic",
+         "keywords": [
+          "general introduction",
+          "importance of biomolecules"
+         ]
+        },
+        {
+         "name": "CARBOHYDRATES - Classification",
+         "level_label": "Topic",
+         "keywords": [
+          "carbohydrates - classification"
+         ]
+        },
+        {
+         "name": "Aldoses and ketoses: monosaccharides",
+         "level_label": "Topic",
+         "keywords": [
+          "aldoses",
+          "ketoses: monosaccharides",
+          "glucose",
+          "fructose"
+         ]
+        },
+        {
+         "name": "PROTEINS - Elementary Idea of -amino acids, peptide bond, polypeptides",
+         "level_label": "Topic",
+         "keywords": [
+          "proteins - elementary idea of -amino acids",
+          "peptide bond",
+          "polypeptides"
+         ]
+        },
+        {
+         "name": "Proteins: primary, secondary, tertiary, and quaternary structure , denaturation of proteins, enzymes",
+         "level_label": "Topic",
+         "keywords": [
+          "proteins: primary",
+          "secondary",
+          "tertiary",
+          "quaternary structure",
+          "denaturation of proteins",
+          "enzymes",
+          "qualitative idea only"
+         ]
+        },
+        {
+         "name": "VITAMINS – Classification and functions",
+         "level_label": "Topic",
+         "keywords": [
+          "vitamins – classification",
+          "functions"
+         ]
+        },
+        {
+         "name": "NUCLEIC ACIDS – Chemical constitution of DNA and RNA. Biological functions of nucleic acids",
+         "level_label": "Topic",
+         "keywords": [
+          "nucleic acids – chemical constitution of dna",
+          "rna. biological functions of nucleic acids"
+         ]
+        },
+        {
+         "name": "Hormones (General introduction)",
+         "level_label": "Topic",
+         "keywords": [
+          "hormones (general introduction"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Principles Related to Practical Chemistry",
+       "level_label": "Unit",
+       "children": [
+        {
+         "name": "Detection of extra elements (Nitrogen, Sulphur, halogens) in organic compounds",
+         "level_label": "Topic",
+         "keywords": [
+          "detection of extra elements (nitrogen",
+          "sulphur",
+          "halogens) in organic compounds"
+         ]
+        },
+        {
+         "name": "Detection of the following functional groups",
+         "level_label": "Topic",
+         "keywords": [
+          "detection of the following functional groups"
+         ]
+        },
+        {
+         "name": "Hydroxyl , carbonyl (aldehyde and ketones) carboxyl, and amino groups in organic compounds",
+         "level_label": "Topic",
+         "keywords": [
+          "hydroxyl",
+          "carbonyl (aldehyde",
+          "ketones) carboxyl",
+          "amino groups in organic compounds",
+          "alcoholic",
+          "phenolic"
+         ]
+        },
+        {
+         "name": "The chemistry involved in the preparation of the following: Inorganic compounds",
+         "level_label": "Topic",
+         "keywords": [
+          "the chemistry involved in the preparation of the following: "
+         ]
+        },
+        {
+         "name": "Mohr’s salt, potash alum",
+         "level_label": "Topic",
+         "keywords": [
+          "mohr’s salt",
+          "potash alum"
+         ]
+        },
+        {
+         "name": "Organic compounds: Acetanilide, p-nitro acetanilide, aniline yellow, iodoform",
+         "level_label": "Topic",
+         "keywords": [
+          "organic compounds: acetanilide",
+          "p-nitro acetanilide",
+          "aniline yellow",
+          "iodoform"
+         ]
+        },
+        {
+         "name": "The chemistry involved in the titrimetric exercises – Acids, bases and the use of indicators",
+         "level_label": "Topic",
+         "keywords": [
+          "the chemistry involved in the titrimetric exercises – acids",
+          "bases",
+          "the use of indicators"
+         ]
+        },
+        {
+         "name": "Oxalicacid vs KMnO4, Mohr’s salt vs KMnO4",
+         "level_label": "Topic",
+         "keywords": [
+          "oxalicacid vs kmno4",
+          "mohr’s salt vs kmno4"
+         ]
+        },
+        {
+         "name": "Chemical principles involved in the qualitative salt analysis, Cations – Pb2+, Cu2+, Al3+, Fe3+",
+         "level_label": "Topic",
+         "keywords": [
+          "chemical principles involved in the qualitative salt analysi",
+          "cations – pb2+",
+          "cu2+",
+          "al3+",
+          "fe3+"
+         ]
+        },
+        {
+         "name": "Zn2+, Ni2+, Ca2+, Ba2+, Mg2+, NH+ Anions- CO2−, S 2-,SO2−, NO3-, NO2-, Cl-, Br-",
+         "level_label": "Topic",
+         "keywords": [
+          "zn2+",
+          "ni2+",
+          "ca2+",
+          "ba2+",
+          "mg2+",
+          "nh+ anions- co2−",
+          "s 2-",
+          "so2−",
+          "no3-",
+          "no2-"
+         ]
+        },
+        {
+         "name": "I - ( Insoluble salts excluded). 3 4 Chemical principles involved in the following experiments",
+         "level_label": "Topic",
+         "keywords": [
+          "i - ( insoluble salts excluded). 3 4 chemical principles inv"
+         ]
+        },
+        {
+         "name": "Enthalpy of solution of CuSO4",
+         "level_label": "Topic",
+         "keywords": [
+          "enthalpy of solution of cuso4"
+         ]
+        },
+        {
+         "name": "Enthalpy of neutralization of strong acid and strong base",
+         "level_label": "Topic",
+         "keywords": [
+          "enthalpy of neutralization of strong acid",
+          "strong base"
+         ]
+        },
+        {
+         "name": "Preparation of lyophilic and lyophobic sols",
+         "level_label": "Topic",
+         "keywords": [
+          "preparation of lyophilic",
+          "lyophobic sols"
+         ]
+        },
+        {
+         "name": "Kinetic study of the reaction of iodide ions with hydrogen peroxide at room temperature",
+         "level_label": "Topic",
+         "keywords": [
+          "kinetic study of the reaction of iodide ions with hydrogen p"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Biology",
+   "level_label": "Subject",
+   "children": [
+    {
+     "name": "Diversity in Living World",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "What is living?",
+       "level_label": "Topic",
+       "keywords": [
+        "what is living?"
+       ]
+      },
+      {
+       "name": "Biodiversity",
+       "level_label": "Topic",
+       "keywords": [
+        "biodiversity"
+       ]
+      },
+      {
+       "name": "Need for classification",
+       "level_label": "Topic",
+       "keywords": [
+        "need for classification"
+       ]
+      },
+      {
+       "name": "Taxonomy & Systematics",
+       "level_label": "Topic",
+       "keywords": [
+        "taxonomy & systematics"
+       ]
+      },
+      {
+       "name": "Concept of species and taxonomical hierarchy",
+       "level_label": "Topic",
+       "keywords": [
+        "concept of species",
+        "taxonomical hierarchy"
+       ]
+      },
+      {
+       "name": "Binomial nomenclature",
+       "level_label": "Topic",
+       "keywords": [
+        "binomial nomenclature"
+       ]
+      },
+      {
+       "name": "Five kingdom classification",
+       "level_label": "Topic",
+       "keywords": [
+        "five kingdom classification"
+       ]
+      },
+      {
+       "name": "Salient features and classification of Monera",
+       "level_label": "Topic",
+       "keywords": [
+        "salient features",
+        "classification of monera"
+       ]
+      },
+      {
+       "name": "Protista and Fungi into major groups",
+       "level_label": "Topic",
+       "keywords": [
+        "protista",
+        "fungi into major groups"
+       ]
+      },
+      {
+       "name": "Lichens",
+       "level_label": "Topic",
+       "keywords": [
+        "lichens"
+       ]
+      },
+      {
+       "name": "Viruses and Viroids",
+       "level_label": "Topic",
+       "keywords": [
+        "viruses",
+        "viroids"
+       ]
+      },
+      {
+       "name": "Salient features and classification of plants into major groups-Algae, Bryophytes, Pteridophytes",
+       "level_label": "Topic",
+       "keywords": [
+        "salient features",
+        "classification of plants into major groups-algae",
+        "bryophytes",
+        "pteridophytes"
+       ]
+      },
+      {
+       "name": "Gymnosperms",
+       "level_label": "Topic",
+       "keywords": [
+        "gymnosperms",
+        "three to five salient",
+        "distinguishing features",
+        "at least two examples of each category"
+       ]
+      },
+      {
+       "name": "Salient features and classification of animals-nonchordate up to phyla level",
+       "level_label": "Topic",
+       "keywords": [
+        "salient features",
+        "classification of animals-nonchordate up to phyla level"
+       ]
+      },
+      {
+       "name": "And chordate up to classes level (three to five salient features and at least two examples)",
+       "level_label": "Topic",
+       "keywords": [
+        "and chordate up to classes level (three to five salient feat",
+        "at least two examples"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Structural Organisation in Animals and Plants",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Morphology and modifications",
+       "level_label": "Topic",
+       "keywords": [
+        "morphology",
+        "modifications"
+       ]
+      },
+      {
+       "name": "Tissues",
+       "level_label": "Topic",
+       "keywords": [
+        "tissues"
+       ]
+      },
+      {
+       "name": "Anatomy and functions of different parts of flowering plants, Root, stem, leaf",
+       "level_label": "Topic",
+       "keywords": [
+        "anatomy",
+        "functions of different parts of flowering plants",
+        "root",
+        "stem",
+        "leaf"
+       ]
+      },
+      {
+       "name": "Inflorescence- cymose and recemose, flower",
+       "level_label": "Topic",
+       "keywords": [
+        "inflorescence- cymose",
+        "recemose",
+        "flower"
+       ]
+      },
+      {
+       "name": "Fruit and seed Family (malvaceae, Cruciferae, leguminoceae, compositae, graminae)",
+       "level_label": "Topic",
+       "keywords": [
+        "fruit",
+        "seed family (malvaceae",
+        "cruciferae",
+        "leguminoceae",
+        "compositae",
+        "graminae",
+        "to be dealt along with the relevant practical of the practic"
+       ]
+      },
+      {
+       "name": "Animal tissues",
+       "level_label": "Topic",
+       "keywords": [
+        "animal tissues"
+       ]
+      },
+      {
+       "name": "Morphology, anatomy and functions of different systems of an insect (Frog). (Brief account only)",
+       "level_label": "Topic",
+       "keywords": [
+        "morphology",
+        "anatomy",
+        "functions of different systems of an insect (frog). (brief a",
+        "digestive",
+        "circulatory",
+        "respiratory",
+        "nervous",
+        "reproductive"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cell Structure and Function",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Cell theory and cell as the basic unit of life",
+       "level_label": "Topic",
+       "keywords": [
+        "cell theory",
+        "cell as the basic unit of life"
+       ]
+      },
+      {
+       "name": "Structure of prokaryotic and eukaryotic cell",
+       "level_label": "Topic",
+       "keywords": [
+        "structure of prokaryotic",
+        "eukaryotic cell"
+       ]
+      },
+      {
+       "name": "Plant cell and animal cell",
+       "level_label": "Topic",
+       "keywords": [
+        "plant cell",
+        "animal cell"
+       ]
+      },
+      {
+       "name": "Cell envelope, cell membrane, cell wall",
+       "level_label": "Topic",
+       "keywords": [
+        "cell envelope",
+        "cell membrane",
+        "cell wall"
+       ]
+      },
+      {
+       "name": "Cell organellesstructure and function",
+       "level_label": "Topic",
+       "keywords": [
+        "cell organellesstructure",
+        "function"
+       ]
+      },
+      {
+       "name": "Endomembrane system-endoplasmic reticulum, Golgi bodies, lysosomes, vacuoles",
+       "level_label": "Topic",
+       "keywords": [
+        "endomembrane system-endoplasmic reticulum",
+        "golgi bodies",
+        "lysosomes",
+        "vacuoles"
+       ]
+      },
+      {
+       "name": "Mitochondria, ribosomes, plastids, micro bodies",
+       "level_label": "Topic",
+       "keywords": [
+        "mitochondria",
+        "ribosomes",
+        "plastids",
+        "micro bodies"
+       ]
+      },
+      {
+       "name": "Cytoskeleton, cilia, flagella, centrioles (ultra structure and function)",
+       "level_label": "Topic",
+       "keywords": [
+        "cytoskeleton",
+        "cilia",
+        "flagella",
+        "centrioles (ultra structure",
+        "function"
+       ]
+      },
+      {
+       "name": "Nucleus-nuclear membrane, chromatin, nucleolus",
+       "level_label": "Topic",
+       "keywords": [
+        "nucleus-nuclear membrane",
+        "chromatin",
+        "nucleolus"
+       ]
+      },
+      {
+       "name": "Chemical constituents of living cells, Biomolecules-structure and function of proteins",
+       "level_label": "Topic",
+       "keywords": [
+        "chemical constituents of living cells",
+        "biomolecules-structure",
+        "function of proteins"
+       ]
+      },
+      {
+       "name": "Carbodydrates, lipids, nucleic acids",
+       "level_label": "Topic",
+       "keywords": [
+        "carbodydrates",
+        "lipids",
+        "nucleic acids"
+       ]
+      },
+      {
+       "name": "Enzymes-types, properties, enzyme action, classification and nomenclature of anzymes",
+       "level_label": "Topic",
+       "keywords": [
+        "enzymes-types",
+        "properties",
+        "enzyme action",
+        "classification",
+        "nomenclature of anzymes"
+       ]
+      },
+      {
+       "name": "B Cell division: Cell cycle, mitosis, meiosis and their significance",
+       "level_label": "Topic",
+       "keywords": [
+        "b cell division: cell cycle",
+        "mitosis",
+        "meiosis",
+        "their significance"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Plant Physiology",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Photosynthesis: Photosynthesis as a means of Autotrophic nutrition",
+       "level_label": "Topic",
+       "keywords": [
+        "photosynthesis: photosynthesis as a means of autotrophic nut"
+       ]
+      },
+      {
+       "name": "Site of photosynthesis take place",
+       "level_label": "Topic",
+       "keywords": [
+        "site of photosynthesis take place"
+       ]
+      },
+      {
+       "name": "Pigments involved in Photosynthesis (Elementary idea)",
+       "level_label": "Topic",
+       "keywords": [
+        "pigments involved in photosynthesis (elementary idea"
+       ]
+      },
+      {
+       "name": "Photochemical and biosynthetic phases of photosynthesis",
+       "level_label": "Topic",
+       "keywords": [
+        "photochemical",
+        "biosynthetic phases of photosynthesis"
+       ]
+      },
+      {
+       "name": "Cyclic and non cyclic and photophosphorylation",
+       "level_label": "Topic",
+       "keywords": [
+        "cyclic",
+        "non cyclic",
+        "photophosphorylation"
+       ]
+      },
+      {
+       "name": "Chemiosmotic hypothesis",
+       "level_label": "Topic",
+       "keywords": [
+        "chemiosmotic hypothesis"
+       ]
+      },
+      {
+       "name": "Photorespiration C3 and C4 pathways",
+       "level_label": "Topic",
+       "keywords": [
+        "photorespiration c3",
+        "c4 pathways"
+       ]
+      },
+      {
+       "name": "Factors affecting photosynthesis",
+       "level_label": "Topic",
+       "keywords": [
+        "factors affecting photosynthesis"
+       ]
+      },
+      {
+       "name": "Respiration: Exchange gases",
+       "level_label": "Topic",
+       "keywords": [
+        "respiration: exchange gases"
+       ]
+      },
+      {
+       "name": "Cellular respiration-glycolysis, fermentation , TCA cycle and electron transport system (aerobic)",
+       "level_label": "Topic",
+       "keywords": [
+        "cellular respiration-glycolysis",
+        "fermentation",
+        "tca cycle",
+        "electron transport system (aerobic",
+        "anaerobic"
+       ]
+      },
+      {
+       "name": "Energy relations- Number of ATP molecules generated",
+       "level_label": "Topic",
+       "keywords": [
+        "energy relations- number of atp molecules generated"
+       ]
+      },
+      {
+       "name": "Amphibolic pathways",
+       "level_label": "Topic",
+       "keywords": [
+        "amphibolic pathways"
+       ]
+      },
+      {
+       "name": "Respiratory quotient",
+       "level_label": "Topic",
+       "keywords": [
+        "respiratory quotient"
+       ]
+      },
+      {
+       "name": "Plant growth and development: Seed germination",
+       "level_label": "Topic",
+       "keywords": [
+        "plant growth",
+        "development: seed germination"
+       ]
+      },
+      {
+       "name": "Phases of Plant growth and plant growth rate",
+       "level_label": "Topic",
+       "keywords": [
+        "phases of plant growth",
+        "plant growth rate"
+       ]
+      },
+      {
+       "name": "Conditions of growth",
+       "level_label": "Topic",
+       "keywords": [
+        "conditions of growth"
+       ]
+      },
+      {
+       "name": "Differentiation, dedifferentiation and redifferentiation",
+       "level_label": "Topic",
+       "keywords": [
+        "differentiation",
+        "dedifferentiation",
+        "redifferentiation"
+       ]
+      },
+      {
+       "name": "Sequence of developmental process in a plant cell",
+       "level_label": "Topic",
+       "keywords": [
+        "sequence of developmental process in a plant cell"
+       ]
+      },
+      {
+       "name": "Growth regulatorsauxin, gibberellin, cytokinin, ethylene, ABA",
+       "level_label": "Topic",
+       "keywords": [
+        "growth regulatorsauxin",
+        "gibberellin",
+        "cytokinin",
+        "ethylene"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Human Physiology",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Breathing and Respiration: Respiratory organs in animals (recall only)",
+       "level_label": "Topic",
+       "keywords": [
+        "breathing",
+        "respiration: respiratory organs in animals (recall only"
+       ]
+      },
+      {
+       "name": "Respiratory system in humans",
+       "level_label": "Topic",
+       "keywords": [
+        "respiratory system in humans"
+       ]
+      },
+      {
+       "name": "Mechanism of breathing and its regulation in humans-Exchange of gases",
+       "level_label": "Topic",
+       "keywords": [
+        "mechanism of breathing",
+        "its regulation in humans-exchange of gases"
+       ]
+      },
+      {
+       "name": "Transport of gases and regulation of respiration Respiratory volumes",
+       "level_label": "Topic",
+       "keywords": [
+        "transport of gases",
+        "regulation of respiration respiratory volumes"
+       ]
+      },
+      {
+       "name": "Disorders related to respiration-Asthma, Emphysema, Occupational respiratory disorders",
+       "level_label": "Topic",
+       "keywords": [
+        "disorders related to respiration-asthma",
+        "emphysema",
+        "occupational respiratory disorders"
+       ]
+      },
+      {
+       "name": "Body fluids and circulation: Composition of blood, blood groups, coagulation of blood",
+       "level_label": "Topic",
+       "keywords": [
+        "body fluids",
+        "circulation: composition of blood",
+        "blood groups",
+        "coagulation of blood"
+       ]
+      },
+      {
+       "name": "Composition of lymph and its function",
+       "level_label": "Topic",
+       "keywords": [
+        "composition of lymph",
+        "its function"
+       ]
+      },
+      {
+       "name": "Human circulatory system-Structure of human heart and blood vessels",
+       "level_label": "Topic",
+       "keywords": [
+        "human circulatory system-structure of human heart",
+        "blood vessels"
+       ]
+      },
+      {
+       "name": "Cardiac cycle, cardiac output, ECG, Double circulation",
+       "level_label": "Topic",
+       "keywords": [
+        "cardiac cycle",
+        "cardiac output",
+        "double circulation"
+       ]
+      },
+      {
+       "name": "Regulation of cardiac activity",
+       "level_label": "Topic",
+       "keywords": [
+        "regulation of cardiac activity"
+       ]
+      },
+      {
+       "name": "Disorders of circulatory system-Hypertension, Coronary artery disease, Angina pectoris",
+       "level_label": "Topic",
+       "keywords": [
+        "disorders of circulatory system-hypertension",
+        "coronary artery disease",
+        "angina pectoris"
+       ]
+      },
+      {
+       "name": "Heart failure",
+       "level_label": "Topic",
+       "keywords": [
+        "heart failure"
+       ]
+      },
+      {
+       "name": "Excretory products and their elimination: Modes of excretion- Ammonotelism, ureotelism, uricotelism",
+       "level_label": "Topic",
+       "keywords": [
+        "excretory products",
+        "their elimination: modes of excretion- ammonotelism",
+        "ureotelism",
+        "uricotelism"
+       ]
+      },
+      {
+       "name": "Human excretory system-structure and fuction",
+       "level_label": "Topic",
+       "keywords": [
+        "human excretory system-structure",
+        "fuction"
+       ]
+      },
+      {
+       "name": "Urine formation, Osmoregulation",
+       "level_label": "Topic",
+       "keywords": [
+        "urine formation",
+        "osmoregulation"
+       ]
+      },
+      {
+       "name": "Regulation of kidney function-Renin-angiotensin, Atrial Natriuretic Factor",
+       "level_label": "Topic",
+       "keywords": [
+        "regulation of kidney function-renin-angiotensin",
+        "atrial natriuretic factor"
+       ]
+      },
+      {
+       "name": "ADH and Diabetes insipidus",
+       "level_label": "Topic",
+       "keywords": [
+        "diabetes insipidus"
+       ]
+      },
+      {
+       "name": "Role of other organs in excretion",
+       "level_label": "Topic",
+       "keywords": [
+        "role of other organs in excretion"
+       ]
+      },
+      {
+       "name": "Disorders",
+       "level_label": "Topic",
+       "keywords": [
+        "disorders"
+       ]
+      },
+      {
+       "name": "Uraemia, Renal failure, Renal calculi, Nephritis",
+       "level_label": "Topic",
+       "keywords": [
+        "uraemia",
+        "renal failure",
+        "renal calculi",
+        "nephritis"
+       ]
+      },
+      {
+       "name": "Dialysis and artificial kidney",
+       "level_label": "Topic",
+       "keywords": [
+        "dialysis",
+        "artificial kidney"
+       ]
+      },
+      {
+       "name": "Locomotion and Movement: Types of movement- ciliary, fiagellar, muscular",
+       "level_label": "Topic",
+       "keywords": [
+        "locomotion",
+        "movement: types of movement- ciliary",
+        "fiagellar",
+        "muscular"
+       ]
+      },
+      {
+       "name": "Skeletal muscle- contractile proteins and muscle contraction",
+       "level_label": "Topic",
+       "keywords": [
+        "skeletal muscle- contractile proteins",
+        "muscle contraction"
+       ]
+      },
+      {
+       "name": "Skeletal system and its functions (To be dealt with the relevant practical of Practical syllabus)",
+       "level_label": "Topic",
+       "keywords": [
+        "skeletal system",
+        "its functions (to be dealt with the relevant practical of pr"
+       ]
+      },
+      {
+       "name": "Joints",
+       "level_label": "Topic",
+       "keywords": [
+        "joints"
+       ]
+      },
+      {
+       "name": "Disorders of muscular and skeletal system-Myasthenia gravis, Tetany, Muscular dystrophy, Arthritis",
+       "level_label": "Topic",
+       "keywords": [
+        "disorders of muscular",
+        "skeletal system-myasthenia gravis",
+        "tetany",
+        "muscular dystrophy",
+        "arthritis"
+       ]
+      },
+      {
+       "name": "Osteoporosis, Gout",
+       "level_label": "Topic",
+       "keywords": [
+        "osteoporosis",
+        "gout"
+       ]
+      },
+      {
+       "name": "Neural control and coordination: Neuron and nerves",
+       "level_label": "Topic",
+       "keywords": [
+        "neural control",
+        "coordination: neuron",
+        "nerves"
+       ]
+      },
+      {
+       "name": "Nervous system in humanscentral nervous system",
+       "level_label": "Topic",
+       "keywords": [
+        "nervous system in humanscentral nervous system"
+       ]
+      },
+      {
+       "name": "Peripheral nervous system and visceral nervous system",
+       "level_label": "Topic",
+       "keywords": [
+        "peripheral nervous system",
+        "visceral nervous system"
+       ]
+      },
+      {
+       "name": "Generation and conduction of nerve impulse",
+       "level_label": "Topic",
+       "keywords": [
+        "generation",
+        "conduction of nerve impulse"
+       ]
+      },
+      {
+       "name": "Chemical coordination and regulation: Endocrine glands and hormones",
+       "level_label": "Topic",
+       "keywords": [
+        "chemical coordination",
+        "regulation: endocrine glands",
+        "hormones"
+       ]
+      },
+      {
+       "name": "Human endocrine system-Hypothalamus, Pituitary, Pineal, Thyroid, Parathyroid, Adrenal, Pancreas",
+       "level_label": "Topic",
+       "keywords": [
+        "human endocrine system-hypothalamus",
+        "pituitary",
+        "pineal",
+        "thyroid",
+        "parathyroid",
+        "adrenal",
+        "pancreas"
+       ]
+      },
+      {
+       "name": "Gonads",
+       "level_label": "Topic",
+       "keywords": [
+        "gonads"
+       ]
+      },
+      {
+       "name": "Mechanism of hormone action (Elementary Idea)",
+       "level_label": "Topic",
+       "keywords": [
+        "mechanism of hormone action (elementary idea"
+       ]
+      },
+      {
+       "name": "Role of hormones as messengers and regulators, Hypo-and hyperactivity and related disorders",
+       "level_label": "Topic",
+       "keywords": [
+        "role of hormones as messengers",
+        "regulators",
+        "hypo-and hyperactivity",
+        "related disorders",
+        "common disorders e.g. dwarfism",
+        "acromegaly",
+        "cretinism",
+        "goiter",
+        "exopthalmic goiter",
+        "diabetes",
+        "addison’s disease"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Reproduction",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Sexual reproduction in flowering plants: Flower structure",
+       "level_label": "Topic",
+       "keywords": [
+        "sexual reproduction in flowering plants: flower structure"
+       ]
+      },
+      {
+       "name": "Development of male and female gametophytes",
+       "level_label": "Topic",
+       "keywords": [
+        "development of male",
+        "female gametophytes"
+       ]
+      },
+      {
+       "name": "Pollination-types, agencies and examples",
+       "level_label": "Topic",
+       "keywords": [
+        "pollination-types",
+        "agencies",
+        "examples"
+       ]
+      },
+      {
+       "name": "Outbreeding devices",
+       "level_label": "Topic",
+       "keywords": [
+        "outbreeding devices"
+       ]
+      },
+      {
+       "name": "Pollen-Pistil interaction",
+       "level_label": "Topic",
+       "keywords": [
+        "pollen-pistil interaction"
+       ]
+      },
+      {
+       "name": "Double fertilization",
+       "level_label": "Topic",
+       "keywords": [
+        "double fertilization"
+       ]
+      },
+      {
+       "name": "Post fertilization events- Development of endosperm and embryo",
+       "level_label": "Topic",
+       "keywords": [
+        "post fertilization events- development of endosperm",
+        "embryo"
+       ]
+      },
+      {
+       "name": "Development of seed and formation of fruit",
+       "level_label": "Topic",
+       "keywords": [
+        "development of seed",
+        "formation of fruit"
+       ]
+      },
+      {
+       "name": "Special modesapomixis, parthenocarpy, polyembryony",
+       "level_label": "Topic",
+       "keywords": [
+        "special modesapomixis",
+        "parthenocarpy",
+        "polyembryony"
+       ]
+      },
+      {
+       "name": "Significance of seed and fruit formation",
+       "level_label": "Topic",
+       "keywords": [
+        "significance of seed",
+        "fruit formation"
+       ]
+      },
+      {
+       "name": "Human Reproduction: Male and female reproductive systems",
+       "level_label": "Topic",
+       "keywords": [
+        "human reproduction: male",
+        "female reproductive systems"
+       ]
+      },
+      {
+       "name": "Microscopic anatomy of testis and ovary",
+       "level_label": "Topic",
+       "keywords": [
+        "microscopic anatomy of testis",
+        "ovary"
+       ]
+      },
+      {
+       "name": "Gametogenesis-spermatogenesis & oogenesis",
+       "level_label": "Topic",
+       "keywords": [
+        "gametogenesis-spermatogenesis & oogenesis"
+       ]
+      },
+      {
+       "name": "Menstrual cycle",
+       "level_label": "Topic",
+       "keywords": [
+        "menstrual cycle"
+       ]
+      },
+      {
+       "name": "Fertilisation, embryo development upto blastocyst formation, implantation",
+       "level_label": "Topic",
+       "keywords": [
+        "fertilisation",
+        "embryo development upto blastocyst formation",
+        "implantation"
+       ]
+      },
+      {
+       "name": "Pregnancy and placenta formation (Elementary idea)",
+       "level_label": "Topic",
+       "keywords": [
+        "pregnancy",
+        "placenta formation (elementary idea"
+       ]
+      },
+      {
+       "name": "Parturition (Elementary idea)",
+       "level_label": "Topic",
+       "keywords": [
+        "parturition (elementary idea"
+       ]
+      },
+      {
+       "name": "Lactation (Elementary idea)",
+       "level_label": "Topic",
+       "keywords": [
+        "lactation (elementary idea"
+       ]
+      },
+      {
+       "name": "Reproductive health: Need for reproductive health and prevention of sexually transmitted diseases",
+       "level_label": "Topic",
+       "keywords": [
+        "reproductive health: need for reproductive health",
+        "prevention of sexually transmitted diseases"
+       ]
+      },
+      {
+       "name": "Birth control-Need and Methods, Contraception and Medical Termination of Pregnancy (MTP)",
+       "level_label": "Topic",
+       "keywords": [
+        "birth control-need",
+        "methods",
+        "contraception",
+        "medical termination of pregnancy (mtp"
+       ]
+      },
+      {
+       "name": "Amniocentesis",
+       "level_label": "Topic",
+       "keywords": [
+        "amniocentesis"
+       ]
+      },
+      {
+       "name": "Infertility and assisted reproductive technologies – IVF, ZIFT, GIFT",
+       "level_label": "Topic",
+       "keywords": [
+        "infertility",
+        "assisted reproductive technologies – ivf",
+        "zift",
+        "gift",
+        "elementary idea for general awareness"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Genetics and Evolution",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Heredity and variation: Mendelian Inheritance",
+       "level_label": "Topic",
+       "keywords": [
+        "heredity",
+        "variation: mendelian inheritance"
+       ]
+      },
+      {
+       "name": "Deviations from MendelismIncomplete dominance, Co-dominance",
+       "level_label": "Topic",
+       "keywords": [
+        "deviations from mendelismincomplete dominance",
+        "co-dominance"
+       ]
+      },
+      {
+       "name": "Multiple alleles and Inheritance of blood groups, Pleiotropy",
+       "level_label": "Topic",
+       "keywords": [
+        "multiple alleles",
+        "inheritance of blood groups",
+        "pleiotropy"
+       ]
+      },
+      {
+       "name": "Elementary idea of polygenic inheritance",
+       "level_label": "Topic",
+       "keywords": [
+        "elementary idea of polygenic inheritance"
+       ]
+      },
+      {
+       "name": "Chromosome theory of inheritance",
+       "level_label": "Topic",
+       "keywords": [
+        "chromosome theory of inheritance"
+       ]
+      },
+      {
+       "name": "Chromosomes and genes",
+       "level_label": "Topic",
+       "keywords": [
+        "chromosomes",
+        "genes"
+       ]
+      },
+      {
+       "name": "Sex determination-In humans, birds, honey bee",
+       "level_label": "Topic",
+       "keywords": [
+        "sex determination-in humans",
+        "birds",
+        "honey bee"
+       ]
+      },
+      {
+       "name": "Linkage and crossing over",
+       "level_label": "Topic",
+       "keywords": [
+        "linkage",
+        "crossing over"
+       ]
+      },
+      {
+       "name": "Sex linked inheritance-Haemophilia, Colour blindness",
+       "level_label": "Topic",
+       "keywords": [
+        "sex linked inheritance-haemophilia",
+        "colour blindness"
+       ]
+      },
+      {
+       "name": "Mendelian disorders in humans-Thalassemia",
+       "level_label": "Topic",
+       "keywords": [
+        "mendelian disorders in humans-thalassemia"
+       ]
+      },
+      {
+       "name": "Chromosomal disorders in humans",
+       "level_label": "Topic",
+       "keywords": [
+        "chromosomal disorders in humans"
+       ]
+      },
+      {
+       "name": "Down’s syndrome, Turner’s and Klinefelter’s syndromes",
+       "level_label": "Topic",
+       "keywords": [
+        "down’s syndrome",
+        "turner’s",
+        "klinefelter’s syndromes"
+       ]
+      },
+      {
+       "name": "Molecular basis of Inheritance: Search for genetic material and DNA as genetic material",
+       "level_label": "Topic",
+       "keywords": [
+        "molecular basis of inheritance: search for genetic material",
+        "dna as genetic material"
+       ]
+      },
+      {
+       "name": "Structure of DNA and RNA",
+       "level_label": "Topic",
+       "keywords": [
+        "structure of dna"
+       ]
+      },
+      {
+       "name": "DNA packaging",
+       "level_label": "Topic",
+       "keywords": [
+        "dna packaging"
+       ]
+      },
+      {
+       "name": "DNA replication",
+       "level_label": "Topic",
+       "keywords": [
+        "dna replication"
+       ]
+      },
+      {
+       "name": "Central dogma",
+       "level_label": "Topic",
+       "keywords": [
+        "central dogma"
+       ]
+      },
+      {
+       "name": "Transcription, genetic code, translation",
+       "level_label": "Topic",
+       "keywords": [
+        "transcription",
+        "genetic code",
+        "translation"
+       ]
+      },
+      {
+       "name": "Gene expression and regulation- Lac Operon",
+       "level_label": "Topic",
+       "keywords": [
+        "gene expression",
+        "regulation- lac operon"
+       ]
+      },
+      {
+       "name": "Genome and human genome project",
+       "level_label": "Topic",
+       "keywords": [
+        "genome",
+        "human genome project"
+       ]
+      },
+      {
+       "name": "DNA finger printing, protein biosynthesis",
+       "level_label": "Topic",
+       "keywords": [
+        "dna finger printing",
+        "protein biosynthesis"
+       ]
+      },
+      {
+       "name": "Evolution: Origin of life",
+       "level_label": "Topic",
+       "keywords": [
+        "evolution: origin of life"
+       ]
+      },
+      {
+       "name": "Biological evolution and evidences for biological evolution from Paleontology, comparative anatomy",
+       "level_label": "Topic",
+       "keywords": [
+        "biological evolution",
+        "evidences for biological evolution from paleontology",
+        "comparative anatomy"
+       ]
+      },
+      {
+       "name": "Embryology and molecular evidence",
+       "level_label": "Topic",
+       "keywords": [
+        "embryology",
+        "molecular evidence"
+       ]
+      },
+      {
+       "name": "Darwin’s contribution, Modern Synthetic theory of Evolution",
+       "level_label": "Topic",
+       "keywords": [
+        "darwin’s contribution",
+        "modern synthetic theory of evolution"
+       ]
+      },
+      {
+       "name": "Mechanism of evolutionVariation and Natural Selection with examples, types of natural selection",
+       "level_label": "Topic",
+       "keywords": [
+        "mechanism of evolutionvariation",
+        "natural selection with examples",
+        "types of natural selection",
+        "mutation",
+        "recombination"
+       ]
+      },
+      {
+       "name": "Gene flow and genetic drift",
+       "level_label": "Topic",
+       "keywords": [
+        "gene flow",
+        "genetic drift"
+       ]
+      },
+      {
+       "name": "Hardy-Weinberg’s principle",
+       "level_label": "Topic",
+       "keywords": [
+        "hardy-weinberg’s principle"
+       ]
+      },
+      {
+       "name": "Adaptive Radiation",
+       "level_label": "Topic",
+       "keywords": [
+        "adaptive radiation"
+       ]
+      },
+      {
+       "name": "Human evolution",
+       "level_label": "Topic",
+       "keywords": [
+        "human evolution"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Biology and Human Welfare",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Health and Disease",
+       "level_label": "Topic",
+       "keywords": [
+        "health",
+        "disease"
+       ]
+      },
+      {
+       "name": "Pathogens",
+       "level_label": "Topic",
+       "keywords": [
+        "pathogens"
+       ]
+      },
+      {
+       "name": "Parasites causing human diseases",
+       "level_label": "Topic",
+       "keywords": [
+        "parasites causing human diseases",
+        "malaria",
+        "filariasis",
+        "ascariasis. typhoid",
+        "pneumonia",
+        "common cold",
+        "amoebiasis",
+        "ring worm",
+        "dengue",
+        "chikungunya"
+       ]
+      },
+      {
+       "name": "Basic concepts of immunology-vaccines",
+       "level_label": "Topic",
+       "keywords": [
+        "basic concepts of immunology-vaccines"
+       ]
+      },
+      {
+       "name": "Cancer, HIV and AIDS",
+       "level_label": "Topic",
+       "keywords": [
+        "cancer",
+        "aids"
+       ]
+      },
+      {
+       "name": "Adolescence, drug and alcohol abuse.Tobacco abuse",
+       "level_label": "Topic",
+       "keywords": [
+        "adolescence",
+        "drug",
+        "alcohol abuse.tobacco abuse"
+       ]
+      },
+      {
+       "name": "Microbes in human welfare, In household food processing, industrial production, sewage treatment",
+       "level_label": "Topic",
+       "keywords": [
+        "microbes in human welfare",
+        "in household food processing",
+        "industrial production",
+        "sewage treatment"
+       ]
+      },
+      {
+       "name": "Energy generation and as biocontrol agents and biofertilizers",
+       "level_label": "Topic",
+       "keywords": [
+        "energy generation",
+        "as biocontrol agents",
+        "biofertilizers"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Biotechnology and Its Applications",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Principles and process of Biotechnology: Genetic engineering (Recombinant DNA technology)",
+       "level_label": "Topic",
+       "keywords": [
+        "principles",
+        "process of biotechnology: genetic engineering (recombinant d"
+       ]
+      },
+      {
+       "name": "Application of Biotechnology in health and agriculture, Human insulin and vaccine production",
+       "level_label": "Topic",
+       "keywords": [
+        "application of biotechnology in health",
+        "agriculture",
+        "human insulin",
+        "vaccine production"
+       ]
+      },
+      {
+       "name": "Gene therapy",
+       "level_label": "Topic",
+       "keywords": [
+        "gene therapy"
+       ]
+      },
+      {
+       "name": "Genetically modified organisms-Bt crops",
+       "level_label": "Topic",
+       "keywords": [
+        "genetically modified organisms-bt crops"
+       ]
+      },
+      {
+       "name": "Transgenic Animals",
+       "level_label": "Topic",
+       "keywords": [
+        "transgenic animals"
+       ]
+      },
+      {
+       "name": "Biosafety issues-Biopiracy and patents",
+       "level_label": "Topic",
+       "keywords": [
+        "biosafety issues-biopiracy",
+        "patents"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Ecology and Environment",
+     "level_label": "Unit",
+     "children": [
+      {
+       "name": "Organisms and environmentPopulation interactions-mutualism, competition, predation, parasitism",
+       "level_label": "Topic",
+       "keywords": [
+        "organisms",
+        "environmentpopulation interactions-mutualism",
+        "competition",
+        "predation",
+        "parasitism"
+       ]
+      },
+      {
+       "name": "Population attributes-growth, birth rate and death rate, age distribution",
+       "level_label": "Topic",
+       "keywords": [
+        "population attributes-growth",
+        "birth rate",
+        "death rate",
+        "age distribution"
+       ]
+      },
+      {
+       "name": "Ecosystem: Patterns, components",
+       "level_label": "Topic",
+       "keywords": [
+        "ecosystem: patterns",
+        "components"
+       ]
+      },
+      {
+       "name": "Productivity and decomposition",
+       "level_label": "Topic",
+       "keywords": [
+        "productivity",
+        "decomposition"
+       ]
+      },
+      {
+       "name": "Energy flow",
+       "level_label": "Topic",
+       "keywords": [
+        "energy flow"
+       ]
+      },
+      {
+       "name": "Pyramids of number, biomass, energy",
+       "level_label": "Topic",
+       "keywords": [
+        "pyramids of number",
+        "biomass",
+        "energy"
+       ]
+      },
+      {
+       "name": "Biodiversity and its conservation: Concept of Biodiversity",
+       "level_label": "Topic",
+       "keywords": [
+        "biodiversity",
+        "its conservation: concept of biodiversity"
+       ]
+      },
+      {
+       "name": "Patterns of Biodiversity",
+       "level_label": "Topic",
+       "keywords": [
+        "patterns of biodiversity"
+       ]
+      },
+      {
+       "name": "Importance of Biodiversity",
+       "level_label": "Topic",
+       "keywords": [
+        "importance of biodiversity"
+       ]
+      },
+      {
+       "name": "Loss of Biodiversity",
+       "level_label": "Topic",
+       "keywords": [
+        "loss of biodiversity"
+       ]
+      },
+      {
+       "name": "Biodiversity conservation",
+       "level_label": "Topic",
+       "keywords": [
+        "biodiversity conservation"
+       ]
+      },
+      {
+       "name": "Hotspots, endangered organisms, extinction, Red Data Book, biosphere reserves",
+       "level_label": "Topic",
+       "keywords": [
+        "hotspots",
+        "endangered organisms",
+        "extinction",
+        "red data book",
+        "biosphere reserves"
+       ]
+      },
+      {
+       "name": "National parks and sanctuaries, Sacred Groves",
+       "level_label": "Topic",
+       "keywords": [
+        "national parks",
+        "sanctuaries",
+        "sacred groves"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -105,6 +105,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   references and `not_stated`, returned by `/me/exams/{code}/stages`, so a new year needs no app release. Drafts in `data/exam_formats`:
   JEE Main 2027 Paper 1, JEE Advanced 2026 Papers 1 and 2, NEET 2026 and its re-exam. Sections state page references and `numeric_rule`.
   `config_problems` refuses formats that repeat a subject, because mocks key marks by subject: JEE formats can't publish until then.
+- JEE and NEET syllabi (docs/jee-neet): `data/syllabi/official/{jee_main_2027,jee_advanced_2026,neet_ug_2026}.json` from the official lists,
+  Subject → (Section) → Unit → Topic, no chapter level because the sources have none. `canonical_jee_neet.json` proposes Physics and
+  Chemistry links; `python -m app.cli.syllabus link FILE --reviewer NAME` confirms them. App `CombinedTopicsCard` on Progress (flag).
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

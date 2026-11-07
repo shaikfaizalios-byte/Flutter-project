@@ -1,0 +1,999 @@
+{
+ "note": "PrepLoop's proposal of which Physics and Chemistry units mean the same thing across these exams. Not official. Links count only once a named reviewer imports this file. Each canonical topic is a JEE Main unit, paired with the same-numbered NEET unit.",
+ "canonical": [
+  {
+   "subject": "Physics",
+   "name": "Units and Measurements",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Units and Measurements"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Physics and Measurement"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Units and dimensions, dimensional analysis",
+      "Least count, significant figures",
+      "Methods of measurement and error analysis"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Kinematics",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Kinematics"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Kinematics"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Kinematics in one and two dimensions (Cartesian coordinates only), projectiles",
+      "Uniform circular motion",
+      "Relative velocity"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Laws of Motion",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Laws of Motion"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Laws of Motion"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Newton’s laws of motion",
+      "Inertial and uniformly accelerated frames of reference",
+      "Static and dynamic friction"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Work, Energy and Power",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Work, Energy and Power"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Work, Energy, and Power"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Kinetic and potential energy",
+      "Work and power",
+      "Conservation of linear momentum and mechanical energy",
+      "Impulse",
+      "Elastic and inelastic collisions",
+      "Collision of point masses with rigid bodies"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Rotational Motion",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Rotational Motion"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Rotational Motion"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Centre of mass and its motion",
+      "Rigid body, moment of inertia, parallel and perpendicular axes theorems",
+      "Moment of inertia of uniform bodies with simple geometrical shapes",
+      "Angular momentum",
+      "Torque",
+      "Conservation of angular momentum",
+      "Dynamics of rigid bodies with fixed axis of rotation",
+      "Rolling without slipping of rings, cylinders and spheres",
+      "Equilibrium of rigid bodies",
+      "Linear and angular simple harmonic motions",
+      "Viscosity (Poiseuille’s equation excluded), Modulus of rigidity and bulk modulus in mechanics"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Gravitation",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Gravitation"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Gravitation"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Law of gravitation",
+      "Gravitational potential and field",
+      "Acceleration due to gravity",
+      "Kepler’s law, Geostationary orbits, Motion of planets and satellites in circular orbits",
+      "Escape velocity"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Properties of Solids and Liquids",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Properties of Solids and Liquids"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Properties of Solids and Liquids"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Hooke’s law, Young’s modulus",
+      "Pressure in a fluid",
+      "Pascal’s law",
+      "Buoyancy",
+      "Surface energy and surface tension, angle of contact, drops, bubbles and capillary rise",
+      "Stoke’s law",
+      "Terminal velocity, Streamline flow, equation of continuity, Bernoulli’s theorem and its applications",
+      "Thermal expansion of solids, liquids and gases",
+      "Calorimetry, latent heat",
+      "Heat conduction in one dimension",
+      "Elementary concepts of convection and radiation",
+      "Newton’s law of cooling",
+      "Equivalence of heat and work",
+      "Blackbody radiation: absorptive and emissive powers",
+      "Kirchhoff’s law",
+      "Wien’s displacement law, Stefan’s law"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Thermodynamics",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Thermodynamics"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Thermodynamics"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Second law of thermodynamics, reversible and irreversible processes",
+      "Carnot engine and its efficiency"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Kinetic Theory of Gases",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Kinetic Theory of Gases"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Kinetic Theory of Gases"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Ideal gas laws",
+      "Specific heats (Cv and Cp for monoatomic and diatomic gases)",
+      "Isothermal and adiabatic processes, bulk modulus of gases",
+      "First law of thermodynamics and its applications (only for ideal gases)"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Oscillations and Waves",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Oscillations and Waves"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Oscillations and Waves"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Forced and damped oscillation (in one dimension), resonance",
+      "Wave motion (plane waves only), longitudinal and transverse waves, superposition of waves",
+      "Progressive and stationary waves",
+      "Vibration of strings and air columns",
+      "Resonance",
+      "Beats",
+      "Speed of sound in gases",
+      "Doppler effect (in sound)"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Electrostatics",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Electrostatics"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Electrostatics"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Coulomb’s law",
+      "Electric field and potential",
+      "Electrical potential energy of a system of point charges",
+      "And of electrical dipoles in a uniform electrostatic field",
+      "Electric field lines",
+      "Flux of electric field",
+      "Gauss’s law and its application in simple cases, such as",
+      "To find field due to infinitely long straight wire",
+      "Uniformly charged infinite plane sheet and uniformly charged thin spherical shell",
+      "Capacitance",
+      "Parallel plate capacitor with and without dielectrics",
+      "Capacitors in series and parallel",
+      "Energy stored in a capacitor",
+      "Heating effect of current"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Current Electricity",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Current Electricity"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Current Electricity"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Electric current",
+      "Ohm’s law",
+      "Series and parallel arrangements of resistances and cells",
+      "Kirchhoff’s laws and simple applications"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Magnetic Effects of Current and Magnetism",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Magnetic Effects of Current and Magnetism"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Magnetic Effects of Current and Magnetism"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Biot–Savart’s law and Ampere’s law",
+      "Magnetic field near a current-carrying straight wire",
+      "Along the axis of a circular coil and inside a long straight solenoid",
+      "Force on a moving charge and on a current-carrying wire in a uniform magnetic field",
+      "Magnetic moment of a current loop",
+      "Effect of a uniform magnetic field on a current loop",
+      "Moving coil galvanometer, voltmeter, ammeter and their conversions"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Electromagnetic Induction and Alternating Currents",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Electromagnetic Induction and Alternating Currents"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Electromagnetic Induction and Alternating Currents"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Electromagnetic induction: Faraday’s law, Lenz’s law",
+      "Self and mutual inductance",
+      "RC, LR, LC and LCR (in series) circuits with d.c. and a.c. sources"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Electromagnetic Waves",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Electromagnetic Waves"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Electromagnetic Waves"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Electromagnetic waves and their characteristics",
+      "Electromagnetic spectrum including elementary facts about their uses"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Optics",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Optics"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Optics"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Rectilinear propagation of light",
+      "Reflection and refraction at plane and spherical surfaces",
+      "Total internal reflection",
+      "Deviation and dispersion of light by a prism",
+      "Thin lenses",
+      "Combinations of mirrors and thin lenses",
+      "Magnification",
+      "Wave nature of light: Huygen’s principle, interference limited to Young’s double slit experiment",
+      "Diffraction due to a single slit",
+      "Polarization of light, plane polarized light",
+      "Brewster's law, Polaroids"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Dual Nature of Matter and Radiation",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Dual Nature of Matter and Radiation"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Dual Nature of Matter and Radiation"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Photoelectric effect",
+      "De Broglie wavelength of matter waves"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Atoms and Nuclei",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Atoms and Nuclei"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Atoms and Nuclei"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "Atomic nucleus",
+      "Α, β and γ radiations",
+      "Law of radioactive decay",
+      "Decay constant",
+      "Half-life and mean life",
+      "Binding energy and its calculation",
+      "Fission and fusion processes",
+      "Energy calculation in these processes",
+      "Bohr’s theory of hydrogen-like atoms",
+      "Characteristic and continuous X-rays, Moseley’s law"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Electronic Devices",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Electronic Devices"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Electronic Devices"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Physics",
+   "name": "Experimental Skills",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Experimental Skills"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Experimental Skills"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": [
+      "For physical quantities pertaining to the following experiments",
+      "Experiments based on using Vernier callipers and screw gauge (micrometre)",
+      "Determination of g using simple pendulum, Young’s modulus - elasticity of the material",
+      "Surface tension of water by capillary rise and effect of detergents",
+      "Specific heat of a liquid using calorimeter",
+      "Focal length of a concave mirror and a convex lens using u-v method",
+      "Speed of sound using resonance column, Verification of Ohm’s law using voltmeter and ammeter",
+      "And specific resistance of the material of a wire using meter bridge and post office box"
+     ]
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Some Basic Concepts in Chemistry",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Some Basic Concepts in Chemistry"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Some Basic Concepts in Chemistry"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "General topics"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Atomic Structure",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Atomic Structure"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Atomic Structure"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Atomic Structure"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Chemical Bonding and Molecular Structure",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Chemical Bonding and Molecular Structure"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Chemical Bonding and Molecular Structure"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Chemical Bonding and Molecular Structure"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Chemical Thermodynamics",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Chemical Thermodynamics"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Chemical Thermodynamics"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Chemical Thermodynamics"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Solutions",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Solutions"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Solutions"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Solutions"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Equilibrium",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Equilibrium"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Equilibrium"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Chemical and Ionic Equilibrium"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Redox Reactions and Electrochemistry",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Redox Reactions and Electrochemistry"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Redox Reactions and Electrochemistry"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Electrochemistry"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Chemical Kinetics",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Chemical Kinetics"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Chemical Kinetics"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Chemical Kinetics"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Classification of Elements and Periodicity in Properties",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Classification of Elements and Periodicity in Properties"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Classification of Elements and Periodicity in Properties"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Classification of Elements and Periodicity in Properties"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "p-Block Elements",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "p-Block Elements"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "p-Block Elements"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "d- and f-Block Elements",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "d- and f-Block Elements"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "d- and f-Block Elements"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Coordination Compounds",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Coordination Compounds"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Coordination Compounds"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Coordination Compounds"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Purification and Characterisation of Organic Compounds",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Purification and Characterisation of Organic Compounds"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Purification and Characterisation of Organic Compounds"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Some Basic Principles of Organic Chemistry",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Some Basic Principles of Organic Chemistry"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Some Basic Principles of Organic Chemistry"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Basic Principles of Organic Chemistry"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Hydrocarbons",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Hydrocarbons"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Hydrocarbons"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Alkanes",
+      "Alkenes and Alkynes",
+      "Benzene"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Organic Compounds Containing Halogens",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Organic Compounds Containing Halogens"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Organic Compounds Containing Halogens"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Alkyl Halides",
+      "Haloarenes"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Organic Compounds Containing Oxygen",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Organic Compounds Containing Oxygen"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Organic Compounds Containing Oxygen"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Phenols",
+      "Alcohols",
+      "Ethers",
+      "Aldehydes and Ketones",
+      "Carboxylic Acids"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Organic Compounds Containing Nitrogen",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Organic Compounds Containing Nitrogen"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Organic Compounds Containing Nitrogen"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Amines"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Biomolecules",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Biomolecules"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Biomolecules"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Biomolecules"
+     ],
+     "topics": []
+    }
+   }
+  },
+  {
+   "subject": "Chemistry",
+   "name": "Principles Related to Practical Chemistry",
+   "members": {
+    "JEE_MAIN": {
+     "units": [
+      "Principles Related to Practical Chemistry"
+     ]
+    },
+    "NEET_UG": {
+     "units": [
+      "Principles Related to Practical Chemistry"
+     ]
+    },
+    "JEE_ADVANCED": {
+     "units": [
+      "Principles of Qualitative Analysis",
+      "Practical Organic Chemistry"
+     ],
+     "topics": []
+    }
+   }
+  }
+ ],
+ "unlinked": [
+  "Chemistry / States of Matter: Gases and Liquids",
+  "Chemistry / Solid State",
+  "Chemistry / Surface Chemistry",
+  "Chemistry / Hydrogen",
+  "Chemistry / Isolation of Metals",
+  "Chemistry / Environmental Chemistry",
+  "Chemistry / Polymers",
+  "Chemistry / Chemistry in Everyday Life",
+  "Physics / Mechanics / Systems of particles"
+ ]
+}
