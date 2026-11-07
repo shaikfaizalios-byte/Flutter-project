@@ -8960,6 +8960,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Question {number}'**
   String chaptersHintQuestion(int number);
+
+  /// No description provided for @ladderFromLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'From PrepLoop\'s question library'**
+  String get ladderFromLibrary;
+
+  /// No description provided for @ladderChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked: {solves} independent solves agreed'**
+  String ladderChecked(int solves);
+
+  /// No description provided for @ladderCheckedRecalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked: {solves} independent solves agreed and the answer was recalculated'**
+  String ladderCheckedRecalculated(int solves);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

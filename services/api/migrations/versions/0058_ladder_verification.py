@@ -24,6 +24,12 @@ def upgrade() -> None:
     op.alter_column(
         "ladder_steps", "source", type_=sa.String(length=7), existing_type=sa.String(length=5)
     )
+    op.drop_constraint(op.f("ck_ladder_steps_source_valid"), "ladder_steps", type_="check")
+    op.create_check_constraint(
+        op.f("ck_ladder_steps_source_valid"),
+        "ladder_steps",
+        "source IS NULL OR source IN ('ai', 'paper', 'library')",
+    )
     op.add_column(
         "ladder_steps", sa.Column("checks", postgresql.JSONB(astext_type=sa.Text()), nullable=True)
     )
@@ -129,6 +135,12 @@ def downgrade() -> None:
     op.drop_column("ladder_steps", "checks")
     # The older schema can't name a library question as a step's source.
     op.execute("UPDATE ladder_steps SET source = 'paper' WHERE source = 'library'")
+    op.drop_constraint(op.f("ck_ladder_steps_source_valid"), "ladder_steps", type_="check")
+    op.create_check_constraint(
+        op.f("ck_ladder_steps_source_valid"),
+        "ladder_steps",
+        "source IS NULL OR source IN ('ai', 'paper')",
+    )
     op.alter_column(
         "ladder_steps", "source", type_=sa.String(length=5), existing_type=sa.String(length=7)
     )

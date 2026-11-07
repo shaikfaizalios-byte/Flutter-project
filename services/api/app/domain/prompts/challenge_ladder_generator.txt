@@ -51,7 +51,7 @@ RULES FOR EVERY QUESTION
 - Write in LANGUAGE, and keep model names exactly as given.
 - Match the stated difficulty, even if the seed questions are easier or harder than it.
 - Make it clearly different from the questions already asked: ask for a different unknown, or use a different setup, not the same sentence with new numbers.
-- It must be answerable from its own text: no figures and no outside data.
+- It must be answerable from its own text: no figures and no outside data.{{strict_rules}}
 
 OUTPUT
 Return JSON only, with no other text, for this one question:

@@ -132,6 +132,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `/insights/concept-hints`. Curated = `counted_curated()`. `model_proposals`: clusters of curated questions, `python -m app.cli.library
   propose EXAM`, a reviewer names and approves in `/review-tool`. `concept_hints`: AI groupings by meaning (`library hints EXAM`), own table,
   read by no count, private papers never sent; chosen over embeddings. App `ChaptersScreen` behind `examProfiles`.
+- Stricter ladder (docs/jee-neet/phase-g-report.md, migration 0058): an exam with a file in `data/ladder_rules` gets its level meanings and
+  formats (`rules_for`, `ExamContext.strict`); others are unchanged. Pure `app/domain/recompute.py` (SymPy through an `ast` allow-list, never
+  eval), `ladder_rules.py`; `ladder_verify.verify` = recheck, then solves by level (`defaults.json` `ladder.strict`), any disagreement
+  discards. Failing that, `_replace`: library question of the same chapter and level, then the learner's. Gated levels stay off per subject
+  until `python -m app.cli.ladder_benchmark` passes the owner's threshold (`ladder_gates`, `subject_open`); totals only, never questions.
+  Generated extreme-hard also go to `generated_reviews` (`/library/generated`, review tool); accepting makes a draft.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

@@ -4058,6 +4058,92 @@
         "title": "GenerateQuestionsResult",
         "type": "object"
       },
+      "GeneratedReviewRead": {
+        "description": "A generated question for a person to judge, with its answer.",
+        "properties": {
+          "answer_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Index"
+          },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "solution": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Solution",
+            "type": "array"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "exam_code",
+          "subject",
+          "topic_name",
+          "difficulty",
+          "format",
+          "stem",
+          "options",
+          "answer_index",
+          "answer_spec",
+          "solution"
+        ],
+        "title": "GeneratedReviewRead",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -4550,6 +4636,18 @@
             "title": "Basis Web",
             "type": "boolean"
           },
+          "checks": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checks"
+          },
           "difficulty": {
             "enum": [
               "easy",
@@ -4653,7 +4751,8 @@
               {
                 "enum": [
                   "ai",
-                  "paper"
+                  "paper",
+                  "library"
                 ],
                 "type": "string"
               },
@@ -19859,6 +19958,135 @@
           }
         ],
         "summary": "Take a question out of the library",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/generated": {
+      "get": {
+        "operationId": "generated_api_v1_library_generated_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GeneratedReviewRead"
+                  },
+                  "title": "Response Generated Api V1 Library Generated Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Generated questions waiting for a person",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/generated/{review_id}/accept": {
+      "post": {
+        "operationId": "accept_generated_api_v1_library_generated__review_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "review_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Review Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryEntryRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Make it a library draft, for the usual second solve and approval",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/generated/{review_id}/reject": {
+      "post": {
+        "operationId": "reject_generated_api_v1_library_generated__review_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "review_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Review Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryWithdraw"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reject a generated question",
         "tags": [
           "library"
         ]

@@ -59,7 +59,9 @@ class LadderStepRead(BaseModel):
     model_name: str | None
     second_model_name: str | None
     ready: bool
-    source: Literal["ai", "paper"] | None
+    source: Literal["ai", "paper", "library"] | None
+    # How a generated question was checked: {"solves": 3, "recalculated": true}.
+    checks: dict[str, Any] | None = None
     basis_papers: int
     basis_web: bool
     paper_label: str | None

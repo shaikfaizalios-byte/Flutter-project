@@ -1492,5 +1492,8 @@
   "chaptersHintsTitle": "शिफ्टों में एक जैसा विचार",
   "chaptersHintsNote": "AI संकेत: जाँचा नहीं गया और यहाँ की किसी गिनती में शामिल नहीं।",
   "chaptersHintShifts": "{topic} · {shifts} शिफ्ट",
-  "chaptersHintQuestion": "प्रश्न {number}"
+  "chaptersHintQuestion": "प्रश्न {number}",
+  "ladderFromLibrary": "PrepLoop की प्रश्न लाइब्रेरी से",
+  "ladderChecked": "जाँचा गया: {solves} स्वतंत्र हल सहमत रहे",
+  "ladderCheckedRecalculated": "जाँचा गया: {solves} स्वतंत्र हल सहमत रहे और उत्तर दोबारा गणना किया गया"
 }

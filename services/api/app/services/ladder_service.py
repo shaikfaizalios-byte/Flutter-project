@@ -18,12 +18,12 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from typing import Any, cast
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
 from app.domain import challenge_ladder as ladder
-from app.domain import question_formats
+from app.domain import ladder_rules, question_formats
 from app.domain.ai_content import PROMPT_VERSION
 from app.domain.errors import (
     AIDisabledError,
@@ -32,13 +32,15 @@ from app.domain.errors import (
     InvalidReferenceError,
     NotFoundError,
 )
+from app.domain.exam_format import SectionMarking
 from app.domain.scoring import Answer
 from app.domain.similarity import StemItem, similar_groups
 from app.integrations.ai import AIProvider, AIProviderError, AIResult
 from app.models.ai import AIGeneration
 from app.models.document import Document
 from app.models.exam import Exam
-from app.models.ladder import LadderSession, LadderStep
+from app.models.ladder import GeneratedReview, LadderSession, LadderStep
+from app.models.library import LibraryEntry
 from app.models.question import Question, QuestionOrigin, QuestionPattern, VerificationStatus
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.insights import RepeatsReport, TopicRepeat
@@ -52,10 +54,14 @@ from app.schemas.ladder import (
     LadderStepRead,
     LadderTopic,
 )
+from app.services.chapter_map import unit_topics
 from app.services.exam_profiles import profile_of
 from app.services.insights_service import InsightsService
+from app.services.ladder_benchmark import subject_open
 from app.services.ladder_exam import exam_context
+from app.services.ladder_verify import verify
 from app.services.patterns import visible_pattern
+from app.services.shared_bank import library_question
 from app.services.topic_service import visible_topics
 
 logger = logging.getLogger(__name__)
@@ -254,22 +260,31 @@ class LadderService:
         topic_questions = self._topic_questions(practice.exam_code, practice.topic_id)
         wanted = {step.pattern_id, step.second_pattern_id} - {None}
         same_model = [(q, d) for q, d in topic_questions if q.pattern_id in wanted]
+        exam = self._context(practice)
+        gated = exam.strict and ladder_rules.is_gated(step.difficulty)
+        if gated and not subject_open(self._session, practice.exam_code, practice.subject):
+            # Generated questions at this level aren't switched on for this subject.
+            self._replace(practice, exam, step, steps, same_model, topic_questions)
+            self._session.commit()
+            return _step_read(step)
         seeds = self._seeds(same_model or topic_questions)
         web = self._web_references(provider, practice, steps)
-        if not seeds and not web:
+        if not seeds and not web and not exam.strict:
             # Nothing to base a question on, and nothing real to fall back on either.
             raise AIUnavailableError("No references could be found for this topic.")
         others = [s.stem for s in steps if s.stem]
         sources = [q.stem for q, _ in topic_questions] + [r.snippet for r in web]
-        exam = self._context(practice)
-        if exam.marking is not None:
-            step.marks_correct = exam.marking.marks_correct
-            step.marks_wrong = exam.marking.marks_wrong
-            step.partial_rule = dict(exam.marking.partial) if exam.marking.partial else None
-        question = self._written_question(
-            provider, exam, practice, step, steps, seeds, web, others, sources
-        )
-        if question is not None:
+        _set_marks(step, exam.marking)
+        written = None
+        if seeds or web:
+            written = self._written_question(
+                provider, exam, practice, step, steps, seeds, web, others, sources
+            )
+        if written is not None:
+            question, checks = written
+            _set_marks(step, exam.marking_for(question.format))
+            if exam.strict and ladder_rules.needs_human_review(step.difficulty):
+                self._queue_for_review(practice, step, question)
             shown = ladder.shuffled(question, self._rng)
             step.source = "ai"
             step.stem = shown.stem
@@ -282,8 +297,9 @@ class LadderService:
             step.answer_spec = dict(shown.answer_spec) if shown.answer_spec else None
             step.basis_papers = max(step.basis_papers, len({s.paper_id for s in seeds}))
             step.basis_web = bool(web)
+            step.checks = checks
         else:
-            self._use_paper_question(step, steps, same_model, topic_questions)
+            self._replace(practice, exam, step, steps, same_model, topic_questions)
         self._session.commit()
         return _step_read(step)
 
@@ -298,8 +314,9 @@ class LadderService:
         web: Sequence[ladder.WebReference],
         others: Sequence[str],
         sources: Sequence[str],
-    ) -> ladder.GeneratedQuestion | None:
-        """A question that passed the checks, or None when the attempts ran out."""
+    ) -> tuple[ladder.GeneratedQuestion, dict[str, Any] | None] | None:
+        """A question that passed the checks, with how it was checked, or None when the attempts
+        ran out."""
         rounds = [x for x in all_steps if x.round_number == step.round_number]
         missed = Counter(x.model_name for x in all_steps if x.correct is False and x.model_name)
         prompt = ladder.generator_prompt(
@@ -317,7 +334,11 @@ class LadderService:
         regenerations = invalid = 0
         while regenerations <= ladder.MAX_REGENERATIONS and invalid <= ladder.MAX_INVALID_RETRIES:
             result = self._ask(
-                provider, QUESTION_TASK, ladder.LADDER_SYSTEM, prompt, ladder.GENERATED_SCHEMA
+                provider,
+                QUESTION_TASK,
+                ladder.LADDER_SYSTEM,
+                prompt,
+                ladder.STRICT_SCHEMA if exam.strict else ladder.GENERATED_SCHEMA,
             )
             if result is None:
                 return None  # the AI service failed: a real question takes the step
@@ -336,6 +357,27 @@ class LadderService:
                 self._log(provider, QUESTION_TASK, "invalid", result, "alike")
                 continue
             self._log(provider, QUESTION_TASK, "ok", result, "generated", created=1)
+            if exam.strict:
+                verdict = verify(
+                    question,
+                    step.difficulty,
+                    lambda task, system, text, schema: self._ask(
+                        provider, task, system, text, schema
+                    ),
+                    lambda task, outcome, reply, detail: self._log(
+                        provider, task, outcome, reply, detail
+                    ),
+                )
+                if verdict.passed:
+                    return question, verdict.checks
+                if verdict.problem == "unavailable":
+                    return None
+                regenerations += 1
+                if verdict.problem != "key_disagrees":
+                    self._log(
+                        provider, QUESTION_TASK, "invalid", result, verdict.problem or "check"
+                    )
+                continue
             solved = self._ask(
                 provider,
                 SOLVE_TASK,
@@ -352,10 +394,116 @@ class LadderService:
                 return None
             if ladder.solver_agrees(solved.data, question):
                 self._log(provider, SOLVE_TASK, "ok", solved, "agrees")
-                return question
+                return question, None
             regenerations += 1
             self._log(provider, SOLVE_TASK, "invalid", solved, "key_disagrees")
         return None
+
+    def _queue_for_review(
+        self,
+        practice: LadderSession,
+        step: LadderStep,
+        question: ladder.GeneratedQuestion,
+    ) -> None:
+        """Keeps a copy for a person. It reaches the library only through them."""
+        self._session.add(
+            GeneratedReview(
+                exam_code=practice.exam_code,
+                subject=practice.subject,
+                topic_id=practice.topic_id,
+                topic_name=practice.topic_name,
+                difficulty=step.difficulty,
+                format=question.format,
+                stem=question.stem,
+                options=list(question.options),
+                answer_index=question.answer_index,
+                answer_spec=dict(question.answer_spec) if question.answer_spec else None,
+                solution=list(question.solution),
+            )
+        )
+
+    def _replace(
+        self,
+        practice: LadderSession,
+        exam: ladder.ExamContext,
+        step: LadderStep,
+        steps: Sequence[LadderStep],
+        same_model: Sequence[tuple[Question, Document]],
+        topic_questions: Sequence[tuple[Question, Document]],
+    ) -> None:
+        """A question nobody could check gives way to a reviewed one: the library's, for the same
+        chapter and level, then the learner's own."""
+        if exam.strict and self._use_library_question(practice, exam, step, steps):
+            return
+        _set_marks(step, exam.marking)
+        self._use_paper_question(step, steps, same_model, topic_questions)
+
+    def _use_library_question(
+        self,
+        practice: LadderSession,
+        exam: ladder.ExamContext,
+        step: LadderStep,
+        steps: Sequence[LadderStep],
+    ) -> bool:
+        if practice.topic_id is None:
+            return False
+        units = unit_topics(self._session, practice.exam_code)
+        chapter = units.get(practice.topic_id)
+        topics = [t for t, unit in units.items() if unit == chapter] if chapter else []
+        used = {s.question_id for s in steps if s.question_id}
+        formats = [
+            *question_formats.SINGLE_ANSWER,
+            *(ladder.NUMBERS if practice.new_formats else ()),
+        ]
+        found = self._session.scalars(
+            select(Question)
+            .join(LibraryEntry, LibraryEntry.question_id == Question.id)
+            .options(selectinload(Question.options))
+            .where(
+                library_question(),
+                Question.exam_code == practice.exam_code,
+                Question.topic_id.in_(topics or [practice.topic_id]),
+                Question.format.in_(formats),
+                Question.key_outcome == "one",
+                Question.translation_of_id.is_(None),
+                Question.image_dependent.is_(False),
+                Question.stem != "",
+                Question.id.not_in(used),
+                func.coalesce(LibraryEntry.observed_difficulty, LibraryEntry.difficulty)
+                == ladder_rules.library_level(step.difficulty),
+            )
+            .order_by(LibraryEntry.seq)
+        ).all()
+        if not found:
+            return False
+        question = self._rng.choice(found)
+        ordered = sorted(question.options, key=lambda o: o.position)
+        one_option = question.format in question_formats.SINGLE_ANSWER
+        step.source = "library"
+        step.question_id = question.id
+        step.stem = question.stem
+        step.options = [o.text for o in ordered]
+        step.answer_index = (
+            next(
+                (
+                    i
+                    for i, o in enumerate(ordered)
+                    if o.position == question.correct_option_position
+                ),
+                None,
+            )
+            if one_option
+            else None
+        )
+        step.format = ladder.SINGLE_CORRECT if one_option else question.format
+        step.answer_spec = None if one_option else question.answer_spec
+        step.solution = [question.explanation] if question.explanation else []
+        step.shortcut = ""
+        step.time_target_seconds = ladder.time_target(
+            cast("ladder.Difficulty", step.difficulty), exam.base_time_seconds
+        )
+        _set_marks(step, exam.marking_for(step.format))
+        return True
 
     def _use_paper_question(
         self,
@@ -578,6 +726,13 @@ class LadderService:
         self._session.flush()
 
 
+def _set_marks(step: LadderStep, marking: SectionMarking | None) -> None:
+    if marking is not None:
+        step.marks_correct = marking.marks_correct
+        step.marks_wrong = marking.marks_wrong
+        step.partial_rule = dict(marking.partial) if marking.partial else None
+
+
 def _marking(step: LadderStep) -> tuple[float, float, dict[str, Any] | None] | None:
     if step.marks_correct is None or step.marks_wrong is None:
         return None
@@ -633,6 +788,7 @@ def _step_read(step: LadderStep) -> LadderStepRead:
         basis_papers=step.basis_papers,
         basis_web=step.basis_web,
         paper_label=step.paper_label,
+        checks=step.checks,
         stem=step.stem,
         options=step.options,
         time_target_seconds=step.time_target_seconds,

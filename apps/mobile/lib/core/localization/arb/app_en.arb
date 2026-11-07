@@ -2924,5 +2924,10 @@
   "@chaptersSession": {"placeholders": {"session": {"type": "String"}, "shifts": {"type": "int"}, "total": {"type": "int"}}},
   "@chaptersSharedExam": {"placeholders": {"exam": {"type": "String"}, "shifts": {"type": "int"}, "total": {"type": "int"}}},
   "@chaptersHintShifts": {"placeholders": {"topic": {"type": "String"}, "shifts": {"type": "int"}}},
-  "@chaptersHintQuestion": {"placeholders": {"number": {"type": "int"}}}
+  "@chaptersHintQuestion": {"placeholders": {"number": {"type": "int"}}},
+  "ladderFromLibrary": "From PrepLoop's question library",
+  "ladderChecked": "Checked: {solves} independent solves agreed",
+  "ladderCheckedRecalculated": "Checked: {solves} independent solves agreed and the answer was recalculated",
+  "@ladderChecked": {"placeholders": {"solves": {"type": "int"}}},
+  "@ladderCheckedRecalculated": {"placeholders": {"solves": {"type": "int"}}}
 }

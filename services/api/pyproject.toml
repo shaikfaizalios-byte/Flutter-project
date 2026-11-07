@@ -75,6 +75,10 @@ strict = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
+module = ["sympy", "sympy.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 # Neither ships type information; their APIs are wrapped in typed functions here.
 module = ["pypdfium2", "pypdfium2.*", "reportlab", "reportlab.*"]
 ignore_missing_imports = true

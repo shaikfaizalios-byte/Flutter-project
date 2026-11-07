@@ -17,11 +17,14 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.domain import challenge_ladder as ladder
 from app.domain import library, typed_answers
+from app.domain.challenge_ladder import NUMBERS
 from app.domain.errors import ConflictError, InvalidReferenceError, NotFoundError
+from app.domain.ladder_rules import library_level
 from app.domain.question_formats import SINGLE_ANSWER, SPEC_FORMATS, is_correct
 from app.domain.taxonomy import slug
 from app.domain.typed_answers import is_numeric
 from app.models.content import ContentReport
+from app.models.ladder import GeneratedReview
 from app.models.library import LIBRARY_SEQ, LibraryEntry, LibraryVersion
 from app.models.practice import SessionAnswer, SessionItem
 from app.models.question import (
@@ -38,6 +41,7 @@ from app.models.user import User
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.library import (
     CorrectionResult,
+    GeneratedReviewRead,
     LibraryCorrection,
     LibraryCreate,
     LibraryEntryRead,
@@ -361,6 +365,95 @@ def _matches(question: Question, data: LibrarySolve) -> bool:
     if question.typed_answer is not None and data.typed_answer is not None:
         return typed_answers.matches(question.typed_answer, data.typed_answer)
     return False
+
+
+class GeneratedQueue:
+    """Generated questions waiting for a person. Accepting makes a library draft, which then goes
+    through the same second solve and approval as any other; rights start pending."""
+
+    def __init__(self, session: Session, user: User) -> None:
+        self._session = session
+        self._user = user
+
+    def pending(self) -> list[GeneratedReviewRead]:
+        rows = self._session.scalars(
+            select(GeneratedReview)
+            .where(GeneratedReview.status == "pending")
+            .order_by(GeneratedReview.created_at)
+            .limit(200)
+        )
+        return [GeneratedReviewRead.model_validate(r) for r in rows]
+
+    def _open(self, review_id: uuid.UUID) -> GeneratedReview:
+        review = self._session.get(GeneratedReview, review_id)
+        if review is None:
+            raise NotFoundError("Question not found.")
+        if review.status != "pending":
+            raise ConflictError("review_decided", "This question has already been decided.")
+        return review
+
+    def _decide(self, review: GeneratedReview, status: str, note: str | None) -> None:
+        review.status = status
+        review.review_note = note
+        review.reviewed_by = self._user.email
+        review.reviewed_at = datetime.now(UTC)
+
+    def accept(self, review_id: uuid.UUID) -> LibraryEntryRead:
+        review = self._open(review_id)
+        typed = review.format in NUMBERS
+        question = Question(
+            origin=QuestionOrigin.LIBRARY,
+            owner_id=self._user.id,
+            exam_code=review.exam_code,
+            stem=review.stem,
+            language="en",
+            subject=review.subject,
+            topic_id=review.topic_id,
+            topic_status=TopicStatus.CONFIRMED if review.topic_id else TopicStatus.UNASSIGNED,
+            answer_type="typed" if typed else "choice",
+            answer_source="manual",
+            verification_status=VerificationStatus.UNVERIFIED,
+        )
+        question.format = review.format
+        question.answer_spec = review.answer_spec
+        if review.answer_index is not None:
+            question.correct_option_position = review.answer_index + 1
+        question.explanation = "\n".join(review.solution)
+        question.options = [
+            QuestionOption(position=i, label=chr(64 + i), text=text)
+            for i, text in enumerate(review.options, start=1)
+        ]
+        add_first_revision(question, "generated", "ai")
+        self._session.add(question)
+        self._session.flush()
+        entry = LibraryEntry(
+            question_id=question.id,
+            source_type="original_ai_verified",
+            rights_status="pending",
+            author_id=self._user.id,
+            author_name=self._user.email,
+            status=library.DRAFT,
+            difficulty=library_level(review.difficulty),
+        )
+        self._session.add(entry)
+        self._session.flush()
+        self._session.add(
+            LibraryVersion(
+                question_id=question.id,
+                version=1,
+                snapshot=current_snapshot(question),
+                changed_by=self._user.email,
+                reason="Accepted from the generated queue",
+            )
+        )
+        review.question_id = question.id
+        self._decide(review, "accepted", None)
+        self._session.commit()
+        return _read(entry)
+
+    def reject(self, review_id: uuid.UUID, reason: str) -> None:
+        self._decide(self._open(review_id), "rejected", reason)
+        self._session.commit()
 
 
 class LibraryReader:

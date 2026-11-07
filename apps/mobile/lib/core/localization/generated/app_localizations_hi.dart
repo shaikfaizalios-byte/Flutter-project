@@ -5580,4 +5580,17 @@ class AppLocalizationsHi extends AppLocalizations {
   String chaptersHintQuestion(int number) {
     return 'प्रश्न $number';
   }
+
+  @override
+  String get ladderFromLibrary => 'PrepLoop की प्रश्न लाइब्रेरी से';
+
+  @override
+  String ladderChecked(int solves) {
+    return 'जाँचा गया: $solves स्वतंत्र हल सहमत रहे';
+  }
+
+  @override
+  String ladderCheckedRecalculated(int solves) {
+    return 'जाँचा गया: $solves स्वतंत्र हल सहमत रहे और उत्तर दोबारा गणना किया गया';
+  }
 }

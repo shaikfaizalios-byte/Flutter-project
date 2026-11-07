@@ -9,6 +9,7 @@ from app.domain.errors import ForbiddenError
 from app.models.user import User
 from app.schemas.library import (
     CorrectionResult,
+    GeneratedReviewRead,
     LibraryCorrection,
     LibraryCreate,
     LibraryEntryRead,
@@ -27,7 +28,7 @@ from app.schemas.library import (
     PackRead,
     SolveResult,
 )
-from app.services.library_service import LibraryEditor, LibraryReader
+from app.services.library_service import GeneratedQueue, LibraryEditor, LibraryReader
 from app.services.repeat_analysis import ModelReview, propose_models
 
 router = APIRouter(prefix="/library", tags=["library"])
@@ -221,6 +222,35 @@ def reject_model(
     proposal_id: uuid.UUID, body: LibraryWithdraw, session: DbSession, user: Editor
 ) -> None:
     ModelReview(session, user).reject(proposal_id, body.reason)
+
+
+@router.get(
+    "/generated",
+    response_model=list[GeneratedReviewRead],
+    summary="Generated questions waiting for a person",
+)
+def generated(session: DbSession, user: Editor) -> list[GeneratedReviewRead]:
+    return GeneratedQueue(session, user).pending()
+
+
+@router.post(
+    "/generated/{review_id}/accept",
+    response_model=LibraryEntryRead,
+    summary="Make it a library draft, for the usual second solve and approval",
+)
+def accept_generated(review_id: uuid.UUID, session: DbSession, user: Editor) -> LibraryEntryRead:
+    return GeneratedQueue(session, user).accept(review_id)
+
+
+@router.post(
+    "/generated/{review_id}/reject",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Reject a generated question",
+)
+def reject_generated(
+    review_id: uuid.UUID, body: LibraryWithdraw, session: DbSession, user: Editor
+) -> None:
+    GeneratedQueue(session, user).reject(review_id, body.reason)
 
 
 @router.get("/reports", response_model=list[LibraryReportRead], summary="Reported mistakes")

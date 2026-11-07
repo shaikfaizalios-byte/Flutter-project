@@ -56,9 +56,17 @@ String ladderDifficultyLabel(AppLocalizations l10n, LadderDifficulty difficulty)
 /// Why this question looks the way it does: a real paper question, or the pattern it follows.
 String ladderBasis(AppLocalizations l10n, LadderStep step) {
   if (step.fromPaper) return l10n.ladderFromPapers(step.paperLabel ?? '');
+  if (step.fromLibrary) return l10n.ladderFromLibrary;
   if (step.basisPapers > 0 && step.basisWeb) return l10n.ladderBasisBoth(step.basisPapers);
   if (step.basisPapers > 0) return l10n.ladderBasisPapers(step.basisPapers);
   return l10n.ladderBasisWeb;
+}
+
+/// How a generated question was checked, once there is something to say.
+String? ladderChecks(AppLocalizations l10n, LadderStep step) {
+  final solves = step.solves;
+  if (solves == null) return null;
+  return step.recalculated ? l10n.ladderCheckedRecalculated(solves) : l10n.ladderChecked(solves);
 }
 
 /// One ladder on a topic: the start note, the steps filling in, the questions, the results.
@@ -284,6 +292,8 @@ class _QuestionState extends ConsumerState<_Question> {
         ),
         if (model != null) Text(model, style: theme.textTheme.bodySmall),
         Text(ladderBasis(l10n, step), style: theme.textTheme.bodySmall),
+        if (ladderChecks(l10n, step) case final String checks)
+          Text(checks, style: theme.textTheme.bodySmall),
         if (target != null)
           SwitchListTile(
             contentPadding: EdgeInsets.zero,

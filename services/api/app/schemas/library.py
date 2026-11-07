@@ -168,6 +168,24 @@ class ModelApproved(BaseModel):
     questions: int
 
 
+class GeneratedReviewRead(BaseModel):
+    """A generated question for a person to judge, with its answer."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    exam_code: str
+    subject: str
+    topic_name: str
+    difficulty: str
+    format: str
+    stem: str
+    options: list[str]
+    answer_index: int | None
+    answer_spec: dict[str, Any] | None
+    solution: list[str]
+
+
 class LibraryHit(BaseModel):
     question_id: uuid.UUID
     exam_code: str

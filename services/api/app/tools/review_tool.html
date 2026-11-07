@@ -52,6 +52,7 @@
         <option>draft</option><option>solved</option><option>approved</option><option>withdrawn</option>
       </select>
       <button class="act" id="libReports">Reported mistakes</button>
+      <button class="act" id="libGenerated">Generated questions</button>
       <input id="propExam" placeholder="Exam code" aria-label="Exam code for proposals" size="14">
       <button class="act" id="libModels">Proposed models</button>
       <button class="act" id="libPropose">Rebuild proposals</button>
@@ -373,6 +374,34 @@ async function loadReports() {
   if (!reports.length) $("libList").replaceChildren(node("div", "No reports.", { className: "muted" }));
   $("libQuestion").replaceChildren();
 }
+
+// Generated questions: accepting makes a draft, which still needs a second solve and approval.
+async function loadGenerated() {
+  const rows = await json("/library/generated");
+  $("libList").replaceChildren(...rows.map((row) => {
+    const card = node("div");
+    card.append(node("h3", `${row.subject} · ${row.topic_name} · ${row.difficulty} · ${row.format}`));
+    card.append(node("p", row.stem));
+    row.options.forEach((text, i) => card.append(node("div", `${i + 1}. ${text}`)));
+    const key = row.answer_index !== null ? `option ${row.answer_index + 1}` : JSON.stringify(row.answer_spec);
+    card.append(node("p", `Key: ${key}`));
+    for (const line of row.solution) card.append(node("div", line, { className: "muted" }));
+    const reason = node("input", undefined, { placeholder: "Reason, if rejecting" });
+    card.append(action("Accept as draft", async () => {
+      await json(`/library/generated/${row.id}/accept`, { method: "POST" });
+      say("Added as a draft, rights pending.");
+      await loadGenerated();
+    }), reason, action("Reject", async () => {
+      await call(`/library/generated/${row.id}/reject`, { method: "POST", json: { reason: reason.value } });
+      await loadGenerated();
+    }));
+    return card;
+  }));
+  if (!rows.length) $("libList").replaceChildren(node("div", "Nothing waiting.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+$("libGenerated").addEventListener("click", () => loadGenerated().catch((error) => say(error.message)));
 
 // Proposed models: a cluster becomes a model only when a subject reviewer names it here.
 async function loadProposals() {

@@ -58,7 +58,9 @@ class LadderStep(Base):
             "difficulty IN ('easy', 'medium', 'medium_hard', 'hard', 'extreme_hard')",
             name="difficulty_valid",
         ),
-        CheckConstraint("source IS NULL OR source IN ('ai', 'paper')", name="source_valid"),
+        CheckConstraint(
+            "source IS NULL OR source IN ('ai', 'paper', 'library')", name="source_valid"
+        ),
         CheckConstraint("step BETWEEN 1 AND 5", name="step_valid"),
     )
 
