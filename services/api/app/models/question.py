@@ -300,6 +300,8 @@ class Question(Base):
         ForeignKey("documents.id", ondelete="CASCADE")
     )
     source_question_number: Mapped[int | None] = mapped_column(Integer)
+    # The ID the paper prints, where it has one: keys and language versions match on it.
+    external_id: Mapped[str | None] = mapped_column(String(24), index=True)
     source_pages: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
     passage_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("passages.id", ondelete="SET NULL")
