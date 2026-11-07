@@ -14,8 +14,13 @@ class User(Base):
     __table_args__ = (
         # Emails are stored normalised (trimmed, lower-case) so uniqueness is case-insensitive.
         CheckConstraint("email = lower(email)", name="email_lowercase"),
+        CheckConstraint(
+            "content_role IS NULL OR content_role IN ('editor')", name="content_role_valid"
+        ),
     )
 
+    # Content staff: may write, solve and approve library questions. Set by the operator.
+    content_role: Mapped[str | None] = mapped_column(String(10))
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(254), unique=True)
     password_hash: Mapped[str] = mapped_column(String(255))

@@ -32,6 +32,7 @@ class VerificationStatus(StrEnum):
 
 class QuestionOrigin(StrEnum):
     SOURCE = "source"  # extracted from an uploaded document
+    LIBRARY = "library"  # written for the curated library: no paper behind it
     AI = "ai"  # generated (Phase 9); never presented as an official question
 
 
@@ -221,7 +222,7 @@ class Passage(Base):
 class Question(Base):
     __tablename__ = "questions"
     __table_args__ = (
-        CheckConstraint("origin IN ('source', 'ai')", name="origin_valid"),
+        CheckConstraint("origin IN ('source', 'ai', 'library')", name="origin_valid"),
         CheckConstraint(
             "verification_status IN ('unverified', 'verified', 'rejected')", name="status_valid"
         ),

@@ -9,6 +9,7 @@ from app.models.exam import Exam
 from app.models.feedback import Suggestion
 from app.models.ladder import LadderSession, LadderStep
 from app.models.language import LanguageRow
+from app.models.library import LibraryEntry, LibraryVersion
 from app.models.ops import RateLimitCounter
 from app.models.plus import BillingEvent, PlayPurchase, Subscription
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
@@ -49,6 +50,8 @@ __all__ = [
     "LadderSession",
     "LadderStep",
     "LanguageRow",
+    "LibraryEntry",
+    "LibraryVersion",
     "Passage",
     "PlayPurchase",
     "PracticeSession",

@@ -53,5 +53,25 @@
     "words_per_mark": 20,
     "disagreement_share": 0.2,
     "model_answer_share": 0.8
+  },
+  "library": {
+    "_about": "Question library. Product choices, not exam facts. A question is re-banded once it has calibration_min_attempts real attempts. bands are tried in order: accuracy at or above min_accuracy gives that level. If the median time is over slow_multiple of the stage's seconds per question, it moves one level harder. percent_min_attempts is how many real attempts it takes before a percentage is shown.",
+    "calibration_min_attempts": 200,
+    "percent_min_attempts": 30,
+    "bands": [
+      {
+        "level": "easy",
+        "min_accuracy": 0.7
+      },
+      {
+        "level": "medium",
+        "min_accuracy": 0.4
+      },
+      {
+        "level": "hard",
+        "min_accuracy": 0
+      }
+    ],
+    "slow_multiple": 1.5
   }
 }
