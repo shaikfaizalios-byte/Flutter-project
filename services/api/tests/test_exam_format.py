@@ -93,7 +93,7 @@ def test_an_incomplete_format_is_listed_but_cannot_start_a_mock(
             id=uuid.uuid4(),
             code="TEST_INCOMPLETE",
             exam_code="SSC_CHSL",
-            tier="Tier-I",
+            stage="Tier-I",
             name="Incomplete test format",
             sections=[{"subject": "General Awareness", "questions": 1}],
             sections_in_fixed_order=False,

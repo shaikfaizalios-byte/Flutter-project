@@ -1,0 +1,72 @@
+{
+ "note": "Answer formats for descriptive exams. Product defaults, not exam facts: the words only suggest a model, and a person confirms it.",
+ "models": [
+  {
+   "name": "Define",
+   "keywords": [
+    "define",
+    "definition",
+    "what is meant by",
+    "what do you mean by"
+   ]
+  },
+  {
+   "name": "Short note",
+   "keywords": [
+    "short note",
+    "write a note",
+    "brief note",
+    "notes on"
+   ]
+  },
+  {
+   "name": "Explain with a diagram",
+   "keywords": [
+    "with a diagram",
+    "neat diagram",
+    "labelled diagram",
+    "with a sketch"
+   ]
+  },
+  {
+   "name": "Compare",
+   "keywords": [
+    "compare",
+    "differentiate",
+    "distinguish",
+    "difference between"
+   ]
+  },
+  {
+   "name": "Derive",
+   "keywords": [
+    "derive",
+    "derivation",
+    "show that",
+    "prove that"
+   ]
+  },
+  {
+   "name": "Case study",
+   "keywords": [
+    "case study",
+    "case given",
+    "read the case"
+   ]
+  },
+  {
+   "name": "Essay",
+   "keywords": [
+    "essay",
+    "write an essay"
+   ]
+  },
+  {
+   "name": "Letter",
+   "keywords": [
+    "write a letter",
+    "letter to"
+   ]
+  }
+ ]
+}

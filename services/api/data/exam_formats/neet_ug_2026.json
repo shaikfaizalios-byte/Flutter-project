@@ -1,0 +1,37 @@
+{
+  "code": "NEET_UG_2026",
+  "exam_code": "NEET_UG",
+  "stage": "Single stage",
+  "name": "NEET (UG) 2026 (Information Bulletin)",
+  "sections": [
+    {
+      "part": "1",
+      "subject": "Physics",
+      "questions": 45,
+      "max_marks": 180
+    },
+    {
+      "part": "2",
+      "subject": "Chemistry",
+      "questions": 45,
+      "max_marks": 180
+    },
+    {
+      "part": "3",
+      "subject": "Biology (Botany & Zoology)",
+      "questions": 90,
+      "max_marks": 360
+    }
+  ],
+  "sections_in_fixed_order": false,
+  "total_questions": 180,
+  "duration_minutes": 180,
+  "negative_marks_per_wrong": 1,
+  "source": {
+    "title": "NTA, Information Bulletin NEET (UG)-2026",
+    "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
+    "reference": "Chapter 4, paras 2, 3 and 5 (third-party copy; replace with NTA's own link)",
+    "published_on": "2026-02-08"
+  },
+  "review_notes": "Publication date comes from news reports. The bulletin doesn't state a section order. It is a pen-and-paper exam."
+}

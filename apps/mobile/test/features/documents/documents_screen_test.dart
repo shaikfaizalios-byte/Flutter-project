@@ -9,6 +9,7 @@ import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/documents/application/documents_providers.dart';
 import 'package:preploop/features/documents/domain/documents_repository.dart';
 import 'package:preploop/features/documents/domain/imported_document.dart';
+import 'package:preploop/features/documents/domain/paper_details.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -50,6 +51,29 @@ class FakeDocumentsRepository implements DocumentsRepository {
   Completer<void>? uploadGate;
   final uploads = <(String name, String exam, ContentLanguage language)>[];
   final deleted = <String>[];
+  final details = <PaperDetails>[];
+  final keyTexts = <String>[];
+  List<OtherSet> others = const [];
+  String? markedAsSetOf;
+  AnswerKeyResult? keyResult;
+
+  @override
+  Future<void> setDetails(String id, PaperDetails value) async => details.add(value);
+
+  @override
+  Future<List<OtherSet>> duplicateSuggestions(String id) async => others;
+
+  @override
+  Future<void> markAsSetOf(String id, String otherId) async => markedAsSetOf = otherId;
+
+  @override
+  Future<AnswerKeyResult> sendKeyText(String id, String text) async {
+    keyTexts.add(text);
+    return keyResult!;
+  }
+
+  @override
+  Future<AnswerKeyResult> sendKeyFile(String id, UploadSource source) async => keyResult!;
 
   @override
   Future<List<ImportedDocument>> list() async {

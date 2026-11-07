@@ -30,9 +30,7 @@ Service = Annotated[InsightsService, Depends(get_insights_service)]
 )
 def repeats(
     service: Service,
-    exam: Annotated[
-        str | None, Query(max_length=32, description="Exam code, e.g. SSC_CHSL")
-    ] = None,
+    exam: Annotated[str | None, Query(max_length=32, description="Exam code")] = None,
     scope: Annotated[
         Literal["mine", "shared", "all"],
         Query(description="mine = your papers; shared = the shared bank; all = both"),

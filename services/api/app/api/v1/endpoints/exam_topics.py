@@ -15,8 +15,13 @@ from app.schemas.exam import (
     CustomExamCreate,
     CustomExamUpdate,
     ExamRead,
+    ExamStageRead,
     OwnTopicRead,
     PatternCreate,
+    PatternFromQuestions,
+    PatternMerge,
+    PatternMerged,
+    PatternRename,
     SyllabusDraftRead,
     SyllabusImportRead,
     SyllabusText,
@@ -30,7 +35,9 @@ from app.schemas.exam import (
 )
 from app.schemas.language import Language
 from app.schemas.question import PatternRead
+from app.schemas.syllabus import SyllabusVersionCreate, SyllabusVersionRead
 from app.services.syllabus_service import SyllabusService
+from app.services.syllabus_tree_service import SyllabusTreeService
 from app.services.taxonomy_service import canonical_tree
 from app.services.topic_service import TopicService
 
@@ -63,6 +70,52 @@ def my_exams(service: Service) -> list[ExamRead]:
 )
 def create_exam(body: CustomExamCreate, service: Service) -> ExamRead:
     return service.create_exam(body)
+
+
+def get_syllabus_service(session: DbSession, user: CurrentUser) -> SyllabusTreeService:
+    return SyllabusTreeService(session, user.id)
+
+
+Syllabus = Annotated[SyllabusTreeService, Depends(get_syllabus_service)]
+
+
+@router.get(
+    "/exams/{code}/syllabus-versions",
+    response_model=list[SyllabusVersionRead],
+    responses=NOT_FOUND,
+    summary="The exam's syllabus versions, as trees",
+)
+def syllabus_versions(code: str, service: Syllabus) -> list[SyllabusVersionRead]:
+    return service.versions(code)
+
+
+@router.post(
+    "/exams/{code}/syllabus-versions",
+    response_model=SyllabusVersionRead,
+    status_code=201,
+    responses={**NOT_FOUND, **CONFLICT},
+    summary="Add your own syllabus for the exam, built by hand or reviewed from a PDF",
+)
+def create_syllabus_version(
+    code: str, body: SyllabusVersionCreate, service: Syllabus
+) -> SyllabusVersionRead:
+    return service.create(code, body)
+
+
+@router.delete("/syllabus-versions/{version_id}", status_code=204, responses=NOT_FOUND)
+def delete_syllabus_version(version_id: uuid.UUID, service: Syllabus) -> Response:
+    service.delete(version_id)
+    return Response(status_code=204)
+
+
+@router.get(
+    "/me/exams/{code}/stages",
+    response_model=list[ExamStageRead],
+    responses=NOT_FOUND,
+    summary="An exam's stages: reviewed formats, or what you entered for your own exam",
+)
+def exam_stages(code: str, service: Service) -> list[ExamStageRead]:
+    return service.exam_stages(code)
 
 
 @router.patch("/me/exams/{code}", response_model=ExamRead, responses=NOT_FOUND)
@@ -231,6 +284,47 @@ def taxonomy(session: DbSession, user: CurrentUser) -> list[TaxonomySubjectRead]
 def delete_topic(topic_id: uuid.UUID, service: Service) -> Response:
     service.delete_topic(topic_id)
     return Response(status_code=204)
+
+
+@router.post(
+    "/patterns/from-questions",
+    response_model=PatternRead,
+    status_code=201,
+    responses={**NOT_FOUND, **CONFLICT},
+    summary="Name questions that look alike: a new model, with the questions confirmed",
+)
+def pattern_from_questions(body: PatternFromQuestions, service: Service) -> PatternRead:
+    return service.pattern_from_questions(body)
+
+
+@router.post(
+    "/topics/{topic_id}/default-models",
+    response_model=list[PatternRead],
+    responses=NOT_FOUND,
+    summary="Add the answer-format models a topic doesn't have yet",
+)
+def add_default_models(topic_id: uuid.UUID, service: Service) -> list[PatternRead]:
+    return service.add_default_models(topic_id)
+
+
+@router.patch(
+    "/patterns/{pattern_id}",
+    response_model=PatternRead,
+    responses={**NOT_FOUND, **CONFLICT},
+    summary="Rename one of your own models",
+)
+def rename_pattern(pattern_id: uuid.UUID, body: PatternRename, service: Service) -> PatternRead:
+    return service.rename_pattern(pattern_id, body.name)
+
+
+@router.post(
+    "/patterns/{pattern_id}/merge",
+    response_model=PatternMerged,
+    responses=NOT_FOUND,
+    summary="Move your questions to another model of the topic and remove this one",
+)
+def merge_pattern(pattern_id: uuid.UUID, body: PatternMerge, service: Service) -> PatternMerged:
+    return PatternMerged(moved=service.merge_pattern(pattern_id, body.into_id))
 
 
 @router.post("/patterns", response_model=PatternRead, status_code=201, responses=CONFLICT)

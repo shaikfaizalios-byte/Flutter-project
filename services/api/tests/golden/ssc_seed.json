@@ -1,0 +1,124 @@
+{
+ "SSC_CGL": {
+  "exam": {
+   "category": "Staff Selection",
+   "featured": true,
+   "name": "SSC Combined Graduate Level",
+   "short_name": "SSC CGL",
+   "sort_order": 10
+  },
+  "formats": [
+   {
+    "code": "SSC_CGL_2026_TIER1",
+    "duration_minutes": 60,
+    "fixed_order": true,
+    "negative_marks_per_wrong": 0.5,
+    "question_types": [
+     "choice"
+    ],
+    "sectional_timing": true,
+    "sections": [
+     {
+      "max_marks": 50,
+      "part": "A",
+      "questions": 25,
+      "subject": "General Intelligence and Reasoning",
+      "timer_minutes": 15
+     },
+     {
+      "max_marks": 50,
+      "part": "B",
+      "questions": 25,
+      "subject": "General Awareness",
+      "timer_minutes": 15
+     },
+     {
+      "max_marks": 50,
+      "part": "C",
+      "questions": 25,
+      "subject": "Quantitative Aptitude",
+      "timer_minutes": 15
+     },
+     {
+      "max_marks": 50,
+      "part": "D",
+      "questions": 25,
+      "subject": "English Comprehension",
+      "timer_minutes": 15
+     }
+    ],
+    "stage": "Tier-I",
+    "status": "verified",
+    "total_questions": 100
+   }
+  ],
+  "models": 91,
+  "models_digest": "e91e5629ec4f18ba376a685181d55beb0d77a701a0867dd67c3c42448d95c505",
+  "topics": {
+   "English Language": 13,
+   "General Awareness": 12,
+   "General Intelligence": 18,
+   "Quantitative Aptitude": 17
+  },
+  "topics_digest": "1e76c23582ff33b426ab1335f89102cb86cc001f0eb9306aca1c95c6b6699f6c"
+ },
+ "SSC_CHSL": {
+  "exam": {
+   "category": "Staff Selection",
+   "featured": true,
+   "name": "SSC Combined Higher Secondary Level",
+   "short_name": "SSC CHSL",
+   "sort_order": 20
+  },
+  "formats": [
+   {
+    "code": "SSC_CHSL_2026_TIER1",
+    "duration_minutes": 60,
+    "fixed_order": false,
+    "negative_marks_per_wrong": 0.5,
+    "question_types": [
+     "choice"
+    ],
+    "sectional_timing": false,
+    "sections": [
+     {
+      "max_marks": 50,
+      "part": "I",
+      "questions": 25,
+      "subject": "English Language (Basic Knowledge)"
+     },
+     {
+      "max_marks": 50,
+      "part": "II",
+      "questions": 25,
+      "subject": "General Intelligence"
+     },
+     {
+      "max_marks": 50,
+      "part": "III",
+      "questions": 25,
+      "subject": "Quantitative Aptitude (Basic Arithmetic Skill)"
+     },
+     {
+      "max_marks": 50,
+      "part": "IV",
+      "questions": 25,
+      "subject": "General Awareness"
+     }
+    ],
+    "stage": "Tier-I",
+    "status": "verified",
+    "total_questions": 100
+   }
+  ],
+  "models": 91,
+  "models_digest": "e91e5629ec4f18ba376a685181d55beb0d77a701a0867dd67c3c42448d95c505",
+  "topics": {
+   "English Language": 13,
+   "General Awareness": 12,
+   "General Intelligence": 18,
+   "Quantitative Aptitude": 17
+  },
+  "topics_digest": "1e76c23582ff33b426ab1335f89102cb86cc001f0eb9306aca1c95c6b6699f6c"
+ }
+}

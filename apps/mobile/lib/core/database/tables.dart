@@ -87,6 +87,9 @@ class PendingAnswers extends Table {
   /// The answer of a typed-in question (instead of [selectedPosition]). Added in schema v6.
   TextColumn get typedAnswer => text().nullable()();
 
+  /// JSON answer of a format that takes neither one option nor a text. Added in schema v9.
+  TextColumn get responseJson => text().nullable()();
+
   /// Monotonic per device; the server ignores updates older than the one it has.
   IntColumn get clientSeq => integer()();
   IntColumn get timeSpentMs => integer().nullable()();

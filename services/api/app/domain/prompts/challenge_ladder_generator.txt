@@ -1,5 +1,10 @@
 You write practice questions for {{exam}} aspirants in the PrepLoop app.
 
+EXAM: {{exam}}
+STAGE: {{stage}}
+MARKING: {{marking_scheme}}
+OPTIONS PER QUESTION: {{options_per_question}}
+AVERAGE TIME PER QUESTION IN THIS STAGE: {{base_time_seconds}} seconds
 TOPIC: {{topic}}
 ROUND: {{round}}  (1 = first ladder, 2 or more = "Test me more")
 LANGUAGE: {{language}}
@@ -15,19 +20,19 @@ MODELS THE STUDENT MISSED EARLIER:
 {{missed_models}}
 
 TASK
-Write the one multiple-choice question for step {{step}} of STEP PLAN, on TOPIC, at {{difficulty}} difficulty, using the model named for that step.
+Write the one question for step {{step}} of STEP PLAN, on TOPIC, at {{difficulty}} difficulty, using the model named for that step.
 
 DIFFICULTY BY STEP
 Round 1: step 1 easy, step 2 easy, step 3 medium, step 4 hard, step 5 extreme hard.
 Round 2 and later: step 1 medium-hard, step 2 medium-hard, step 3 hard, step 4 hard, step 5 hard.
 
 WHAT THE LEVELS MEAN
-- Easy: one concept, 1–2 steps, a direct formula, clean numbers. About 30 seconds.
-- Medium: 2–3 steps, needs setting up a relation or an equation. About 60 seconds.
-- Medium-hard: about 3 steps with one twist, such as a successive change or a hidden condition. About 75 seconds.
-- Hard: multi-step, may combine two ideas from the topic, with close distractors. Equal to the toughest questions in a Tier 1 paper. About 90 seconds.
-- Extreme hard: Tier 2 / mains level. Combines two models of the topic or needs a non-obvious approach. About 2–3 minutes, and still solvable with syllabus methods.
-For English, General Awareness and Reasoning, make questions harder with less common facts or vocabulary, more conditions and closer distractors. Never make them harder through vague or tricky wording.
+- Easy: one concept, 1–2 steps, a direct formula, clean numbers. About {{seconds_easy}} seconds.
+- Medium: 2–3 steps, needs setting up a relation or an equation. About {{seconds_medium}} seconds.
+- Medium-hard: about 3 steps with one twist, such as a successive change or a hidden condition. About {{seconds_medium_hard}} seconds.
+- Hard: multi-step, may combine two ideas from the topic, with close distractors. The toughest level in a {{exam}} {{stage}} paper. About {{seconds_hard}} seconds.
+- Extreme hard: above that level: {{above_hard}}. Combines two models of the topic or needs a non-obvious approach. About {{seconds_extreme_hard}} seconds, and still solvable with syllabus methods.
+For subjects that aren't about calculation, make questions harder with less common facts or vocabulary, more conditions and closer distractors. Never make them harder through vague or tricky wording.
 
 HOW TO USE THE REFERENCES
 - Use seed questions and web references as patterns only. Learn the question type, its structure and its typical numbers, then write a new question.
@@ -36,8 +41,10 @@ HOW TO USE THE REFERENCES
 - {{source_rule}}
 - In round 2 and later, focus on MODELS THE STUDENT MISSED EARLIER wherever the step plan allows.
 
+FORMATS YOU MAY USE (use only these; state the one you chose in "format")
+{{allowed_formats}}
+
 RULES FOR EVERY QUESTION
-- Exactly 4 options with exactly one correct answer.
 - Build the wrong options from common mistakes (wrong base for a percentage, adding instead of compounding, and so on), not from random numbers.
 - Work out the full solution before writing the options, then check it again.
 - Make the wording, units and numbers unambiguous. The answer should be reachable without a calculator.
@@ -53,10 +60,9 @@ Return JSON only, with no other text, for this one question:
   "difficulty": "{{difficulty}}",
   "model": "...",
   "basis": "papers | web | both",
+  "format": "{{first_format}}",
   "question": "...",
-  "options": ["...", "...", "...", "..."],
-  "answer_index": 0,
+{{answer_fields}}
   "solution": "Step-by-step working, one step per line",
-  "shortcut": "A faster method, or an empty string",
-  "time_target_seconds": 30
+  "shortcut": "A faster method, or an empty string"
 }

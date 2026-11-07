@@ -10,7 +10,17 @@ abstract final class AppTheme {
 
   /// Bundled font used for characters the primary font lacks (Devanagari),
   /// so Hindi renders without network access (see pubspec.yaml).
-  static const fontFallback = ['NotoSansDevanagari'];
+  static const fontFallback = [
+    'NotoSansDevanagari',
+    'NotoSansBengali',
+    'NotoSansTamil',
+    'NotoSansTelugu',
+    'NotoSansGujarati',
+    'NotoSansKannada',
+    'NotoSansMalayalam',
+    'NotoSansOriya',
+    'NotoSansGurmukhi',
+  ];
 
   /// Bundled (see pubspec.yaml): the web app loads no fonts from Google's servers.
   static const fontFamily = 'Roboto';

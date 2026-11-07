@@ -47,10 +47,17 @@ abstract final class AppRoutes {
   ).toString();
 
   /// A whole paper in simple points (AI).
+  static String paperDetails(String id, String name) =>
+      Uri(path: '/study/documents/$id/details', queryParameters: {'name': name}).toString();
   static String paperSummary(String id, String name, String examCode) => Uri(
     path: '/study/documents/$id/summary',
     queryParameters: {'name': name, 'exam': examCode},
   ).toString();
+  static const descriptiveTopics = '/descriptive/topics';
+
+  /// Written practice on a topic.
+  static String descriptiveRun(String topicId, String name) =>
+      Uri(path: '/descriptive/run', queryParameters: {'topic': topicId, 'name': name}).toString();
   static const ladderTopics = '/ladder/topics';
 
   /// Challenge Ladder on a topic.
@@ -69,6 +76,9 @@ abstract final class AppRoutes {
   static String _learn(String path, String topic, String? subject) =>
       Uri(path: path, queryParameters: {'topic': topic, 'subject': ?subject}).toString();
 
+  static String examSyllabus(String code) => '/profile/exams/$code/syllabus';
+  static String topicModels(String id, String name) =>
+      Uri(path: '/profile/topics/$id/models', queryParameters: {'name': name}).toString();
   static String examTopics(String code, {bool importSyllabus = false}) =>
       '/profile/exams/$code${importSyllabus ? '?syllabus=1' : ''}';
 }

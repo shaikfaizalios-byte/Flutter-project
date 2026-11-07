@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../ai/application/ai_providers.dart';
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
@@ -285,11 +286,25 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
             const SizedBox(height: AppSpacing.md),
             Text(l10n.fieldContentLanguage, style: theme.textTheme.labelLarge),
             const SizedBox(height: AppSpacing.sm),
-            SegmentedButton<ContentLanguage>(
-              segments: contentLanguageSegments(l10n, current: _language),
-              selected: {_language!},
-              onSelectionChanged: (s) => setState(() => _language = s.first),
-            ),
+            if (ref.watch(appFeaturesProvider).examProfiles)
+              DropdownButton<ContentLanguage>(
+                isExpanded: true,
+                value: _language,
+                onChanged: (value) => setState(() => _language = value),
+                items: [
+                  for (final language in ContentLanguage.all)
+                    DropdownMenuItem(
+                      value: language,
+                      child: Text(contentLanguageName(l10n, language)),
+                    ),
+                ],
+              )
+            else
+              SegmentedButton<ContentLanguage>(
+                segments: contentLanguageSegments(l10n, current: _language),
+                selected: {_language!},
+                onSelectionChanged: (s) => setState(() => _language = s.first),
+              ),
             const SizedBox(height: AppSpacing.lg),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -320,6 +335,7 @@ class _DocumentTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final language = contentLanguageName(l10n, document.language);
     final canSummarize = ref.watch(aiStatusProvider).value?.enabled ?? false;
+    final profiles = ref.watch(appFeaturesProvider).examProfiles;
 
     final statusText = importStatusText(l10n, document);
     final statusColor = switch (document.status) {
@@ -333,7 +349,8 @@ class _DocumentTile extends ConsumerWidget {
     return ListTile(
       onTap: document.status == DocumentStatus.failed
           ? null
-          : () => showPaperActions(context, document, canSummarize: canSummarize),
+          : () =>
+                showPaperActions(context, document, canSummarize: canSummarize, profiles: profiles),
       leading: Icon(
         document.status == DocumentStatus.failed ? Icons.error_outline : Icons.picture_as_pdf,
         color: statusColor,
@@ -413,6 +430,7 @@ Future<void> showPaperActions(
   BuildContext context,
   ImportedDocument document, {
   required bool canSummarize,
+  bool profiles = false,
 }) {
   final l10n = AppLocalizations.of(context);
   final router = GoRouter.of(context);
@@ -463,6 +481,14 @@ Future<void> showPaperActions(
                 enabled: document.canReview,
                 onTap: () =>
                     open(AppRoutes.paperSummary(document.id, document.filename, document.examCode)),
+              ),
+            if (profiles)
+              ListTile(
+                leading: const Icon(Icons.description_outlined),
+                title: Text(l10n.paperDetailsTitle),
+                subtitle: Text(l10n.paperDetailsHint),
+                enabled: document.canReview,
+                onTap: () => open(AppRoutes.paperDetails(document.id, document.filename)),
               ),
             ListTile(
               leading: const Icon(Icons.fact_check_outlined),

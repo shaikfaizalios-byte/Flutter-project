@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/calendar_date.dart';
 import '../../../core/utils/clock.dart';
 import '../../settings/application/app_preferences.dart';
 import '../../study_plan/application/study_profile_controller.dart';
+import '../../exams/presentation/exam_builder_screen.dart';
 import '../../exams/presentation/exam_selector.dart';
 import '../../study_plan/presentation/study_profile_widgets.dart';
 
@@ -144,15 +146,29 @@ class _ExamStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final profiles = ref.watch(appFeaturesProvider).examProfiles;
     final codes = ref.watch(studyProfileProvider.select((p) => p.examCodes));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _StepHeader(title: l10n.onboardingExamTitle, hint: l10n.onboardingExamHint),
+        if (profiles)
+          _StepHeader(title: l10n.onboardingPreparingTitle, hint: l10n.onboardingPreparingHint)
+        else
+          _StepHeader(title: l10n.onboardingExamTitle, hint: l10n.onboardingExamHint),
         ExamSelector(
           selected: codes,
           onChanged: ref.read(studyProfileProvider.notifier).setExamCodes,
         ),
+        if (profiles)
+          TextButton.icon(
+            icon: const Icon(Icons.add),
+            label: Text(l10n.onboardingCustomExam),
+            onPressed: () async {
+              final notifier = ref.read(studyProfileProvider.notifier);
+              final exam = await createCustomExam(context, ref);
+              if (exam != null) await notifier.setExamCodes([...codes, exam.code]);
+            },
+          ),
       ],
     );
   }

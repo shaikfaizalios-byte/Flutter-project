@@ -85,17 +85,48 @@ service `app/services/ladder_service.py`, app `lib/features/ladder`.
   Shared-bank papers are never sent: their rights cover practice, not an AI service. Web references: Claude's server-side
   `web_search_20250305` through `AIProvider.search_web`, once per session, with URLs checked against the real results;
   a failed search continues with papers only. Under 3 paper questions, web references lead; with none, only the web.
-- **Checks before a question shows** (`generate`): the schema (4 different options, index 0-3, a solution; one retry); not
+- **Exam facts.** `app/services/ladder_exam.py` reads the first stage: verified formats in effect, or the stage a learner entered.
+  The prompt gets the exam, stage, allowed formats, option count, marking and base time; none of it is in the template. Without a
+  stage, marks stay unstated. The next stage, if any, sets extreme hard.
+- **Formats.** single_correct, statement, assertion_reason, multiple_correct, numeric, match, as the stage allows, and only with
+  `include_new_formats`; otherwise single_correct. No format the ladder can write: 409 `ladder_no_format`. Descriptive exams have
+  no ladder yet.
+- **Time targets** are set by the server: seconds per question in the stage x the level's factor, from `defaults.json` `ladder`.
+- **Marks.** Each step snapshots its section's marks and is scored like a mock, with penalties and partial marks. None stated: right
+  or wrong only.
+- **Checks before a question shows** (`generate`): the schema (an allowed format, the exam's option count, a solution; one retry); not
   a copy (95 % with numbers kept, or found inside a web snippet); unlike the session's questions (the existing 80 %
-  numbers-hidden measure); an independent solve that sees only the question and options must reach the key (up to 2
-  regenerations). Still failing, or the AI service down: a real reviewed question of the same type, labelled "From your
-  papers"; with none left, 502. Options are shuffled and the key follows.
+  numbers-hidden measure); an independent solve that sees only what a learner sees must reach the key: the same option or
+  set of options, a number within the tolerance, or exactly the same pairs (up to 2 regenerations). Still failing, or the AI service down: a real reviewed question of the same type, labelled "From your
+  papers"; with none left, 502. Options (or a match question's right list) are shuffled and the key follows.
 - **Answers stay on the server** until the learner has answered (`LadderStepRead`); the first answer is final.
 - **Separate storage.** `ladder_sessions` and `ladder_steps`, never `questions`, so nothing can reach the repeat counts
   (`tests/test_ladder.py`). Attempts (topic, type, difficulty, correct, time) are kept for weak-topic tracking later; they
   don't feed it yet. Both tables are in the account export and deleted with the account.
 - **Cost.** A clean step is 2 AI requests, so a round is about 11 with the search; rejected attempts add more. Each counts
   toward the Plus monthly allowance (default 300), and each step counts once toward the hourly AI rate limit.
+
+## Written practice
+
+Pure rules in `app/domain/descriptive.py`, service `app/services/descriptive_service.py`, app `lib/features/descriptive`, settings
+in `data/exam_templates/defaults.json`. For exams of kind descriptive or mixed.
+
+- **Levels.** Define or list, short explanation, full explanation, analyse or compare, case study or critical evaluation. Marks are
+  a share of the marks of the exam's question; with none stated, the default.
+- **Questions.** `.../steps/{n}/generate` writes one with a rubric and a model answer. The rubric must add up to the marks, the
+  question must be unlike the others, and the model answer must earn nearly all of its own rubric. Failing that it is rewritten,
+  then 502. There is no fallback question: a real one would have no rubric.
+- **Marking.** Two separate requests; over the set gap, a third, and the middle one is shown with the range. Agreeing markings are
+  averaged point by point. The answer goes into the prompt as `<material>`. A failed marking saves nothing.
+- **Photos.** `POST /descriptive/read-photo`: JPEG or PNG up to 10 MB, turned upright and reduced, copied by the AI without
+  correcting, never stored. The learner corrects the text before it is marked.
+- **Real questions.** With `source: papers` a session uses the learner's own reviewed written questions as printed, never the shared
+  bank, up to 5, unanswered ones first. Marks are the question's own, else the exam's. The rubric is drafted by AI from the paper's
+  answer if there is one, checked the same way, and reused until the wording, marks or paper's answer change. The paper's answer
+  always wins over the AI's. Rubrics are labelled as AI-drafted, not the exam's official scheme.
+- **Separate storage.** `descriptive_sessions` and `descriptive_steps`, never `questions`. Tasks `written_question`, `written_mark`,
+  `written_read` (migration 0051).
+- **Label.** "Estimated marks from AI feedback, not an official grade." wherever marks are shown.
 
 ## Where AI content can appear
 

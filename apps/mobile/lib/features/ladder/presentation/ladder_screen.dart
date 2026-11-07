@@ -4,22 +4,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../../ai/application/ai_providers.dart';
 import '../../ai/presentation/ai_widgets.dart';
 import '../../exams/application/active_exam.dart';
 import '../../plus/presentation/plus_prompt.dart';
 import '../../practice/application/practice_providers.dart';
 import '../../practice/domain/practice_models.dart';
+import '../../practice/presentation/format_answers.dart';
 import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
+import '../../question_bank/domain/question.dart' show QuestionOption;
 import '../../settings/application/app_preferences.dart';
 import '../application/ladder_providers.dart';
 import '../domain/ladder_models.dart';
 import 'ladder_icon.dart';
+
+/// Marks without a needless ".0".
+String ladderMarksText(double marks) =>
+    marks == marks.roundToDouble() ? marks.toInt().toString() : marks.toString();
+
+/// A ladder step as the practice answer widgets expect it.
+SessionItemView _asItem(LadderStep step) => SessionItemView(
+  position: step.step,
+  options: [
+    for (final (index, text) in step.options.indexed)
+      QuestionOption(position: index + 1, label: String.fromCharCode(65 + index), text: text),
+  ],
+  verified: false,
+  bookmarked: false,
+  stem: step.stem,
+  format: step.format,
+  formatData: step.formatData,
+  response: step.result?.response,
+);
 
 String ladderDifficultyLabel(AppLocalizations l10n, LadderDifficulty difficulty) =>
     switch (difficulty) {
@@ -248,6 +271,7 @@ class _QuestionState extends ConsumerState<_Question> {
     final result = step.result;
     final total = widget.state.round!.steps.length;
     final target = step.timeTargetSeconds;
+    final showMarks = ref.watch(appFeaturesProvider).examProfiles;
     final model = step.secondModelName == null
         ? step.modelName
         : '${step.modelName} + ${step.secondModelName}';
@@ -271,28 +295,56 @@ class _QuestionState extends ConsumerState<_Question> {
             onChanged: _toggleTimer,
           ),
         const SizedBox(height: AppSpacing.sm),
-        SelectableText(step.stem ?? '', style: theme.textTheme.bodyLarge),
+        RichQuestionText(step.stem ?? '', style: theme.textTheme.bodyLarge),
         const SizedBox(height: AppSpacing.sm),
-        for (final (index, option) in step.options.indexed)
-          Card(
-            color: result == null
-                ? null
-                : index == result.answerIndex
-                ? theme.colorScheme.primaryContainer
-                : index == result.selectedIndex
-                ? theme.colorScheme.errorContainer
-                : null,
-            child: ListTile(
-              title: Text(option),
-              onTap: result == null ? () => widget.run.answer(index) : null,
+        if (step.takesResponse)
+          ResponseAnswer(
+            item: _asItem(step),
+            locked: result != null,
+            onSubmit: (response) async {
+              await widget.run.answerResponse(response);
+              return true;
+            },
+          )
+        else if (step.typed)
+          _NumberAnswer(locked: result != null, onSubmit: widget.run.answerTyped)
+        else
+          for (final (index, option) in step.options.indexed)
+            Card(
+              color: result == null
+                  ? null
+                  : index == result.answerIndex
+                  ? theme.colorScheme.primaryContainer
+                  : index == result.selectedIndex
+                  ? theme.colorScheme.errorContainer
+                  : null,
+              child: ListTile(
+                title: Text(option),
+                onTap: result == null ? () => widget.run.answer(index) : null,
+              ),
             ),
-          ),
         if (result != null) ...[
           const SizedBox(height: AppSpacing.sm),
           Text(
-            result.correct ? l10n.ladderRight : l10n.ladderWrong,
+            result.correct
+                ? l10n.ladderRight
+                : result.partlyRight
+                ? l10n.ladderPartlyRight
+                : l10n.ladderWrong,
             style: theme.textTheme.titleMedium,
           ),
+          if (showMarks && result.marks != null && result.marksPossible != null)
+            Text(
+              l10n.ladderMarks(
+                ladderMarksText(result.marks!),
+                ladderMarksText(result.marksPossible!),
+              ),
+            ),
+          if (result.answerLines.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(l10n.ladderCorrectAnswer, style: theme.textTheme.labelLarge),
+            for (final line in result.answerLines) Text(line),
+          ],
           if (result.solution.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.ladderSolution, style: theme.textTheme.labelLarge),
@@ -314,14 +366,64 @@ class _QuestionState extends ConsumerState<_Question> {
   }
 }
 
-class _Results extends StatelessWidget {
+/// Answers a question that takes a number.
+class _NumberAnswer extends StatefulWidget {
+  const _NumberAnswer({required this.locked, required this.onSubmit});
+
+  final bool locked;
+  final Future<void> Function(String text) onSubmit;
+
+  @override
+  State<_NumberAnswer> createState() => _NumberAnswerState();
+}
+
+class _NumberAnswerState extends State<_NumberAnswer> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    FocusScope.of(context).unfocus();
+    unawaited(widget.onSubmit(text));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.sm,
+      children: [
+        TextField(
+          controller: _controller,
+          enabled: !widget.locked,
+          maxLength: 100,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(labelText: l10n.sessionTypedAnswerLabel),
+        ),
+        if (!widget.locked)
+          FilledButton(onPressed: _submit, child: Text(l10n.sessionTypedAnswerSave)),
+      ],
+    );
+  }
+}
+
+class _Results extends ConsumerWidget {
   const _Results({required this.state, required this.run});
 
   final LadderRunState state;
   final LadderRun run;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final round = state.round!;
@@ -332,6 +434,15 @@ class _Results extends StatelessWidget {
       children: [
         Text(l10n.ladderResultsTitle, style: theme.textTheme.titleLarge),
         Text(l10n.ladderScore(summary.correct, summary.total)),
+        if (ref.watch(appFeaturesProvider).examProfiles &&
+            summary.marks != null &&
+            summary.marksPossible != null)
+          Text(
+            l10n.ladderMarks(
+              ladderMarksText(summary.marks!),
+              ladderMarksText(summary.marksPossible!),
+            ),
+          ),
         if (seconds > 0) Text(l10n.ladderTime(seconds ~/ 60, seconds % 60)),
         const SizedBox(height: AppSpacing.sm),
         for (final step in round.steps.reversed)

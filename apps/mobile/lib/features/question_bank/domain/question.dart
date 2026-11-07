@@ -351,6 +351,11 @@ class BankQuestion {
     this.passage,
     this.correctPosition,
     this.answerType = 'choice',
+    this.format = 'single_correct',
+    this.answerSpec,
+    this.marks,
+    this.wordLimit,
+    this.choiceGroup,
     this.typedAnswer,
     this.typedAnswerNumeric = false,
     this.modelAnswer,
@@ -408,6 +413,11 @@ class BankQuestion {
     ],
     correctPosition: json['correct_option_position'] as int?,
     answerType: json['answer_type'] as String? ?? 'choice',
+    format: json['format'] as String? ?? 'single_correct',
+    answerSpec: json['answer_spec'] as Map<String, dynamic>?,
+    marks: (json['marks'] as num?)?.toDouble(),
+    wordLimit: json['word_limit'] as int?,
+    choiceGroup: json['choice_group'] as String?,
     typedAnswer: json['typed_answer'] as String?,
     typedAnswerNumeric: json['typed_answer_numeric'] as bool? ?? false,
     modelAnswer: json['model_answer'] as String?,
@@ -471,6 +481,15 @@ class BankQuestion {
 
   /// "choice" (pick an option) or "typed" (type the answer in, e.g. CAT TITA).
   final String answerType;
+
+  /// How it is answered (the server's question formats), and its answer if it keeps its own.
+  final String format;
+  final Map<String, dynamic>? answerSpec;
+
+  /// As the paper prints them, mostly for descriptive questions.
+  final double? marks;
+  final int? wordLimit;
+  final String? choiceGroup;
   final String? typedAnswer;
   final bool typedAnswerNumeric;
   bool get isTyped => answerType == 'typed';
@@ -533,6 +552,11 @@ class BankQuestion {
     passage: passage,
     correctPosition: correctPosition,
     answerType: answerType,
+    format: format,
+    answerSpec: answerSpec,
+    marks: marks,
+    wordLimit: wordLimit,
+    choiceGroup: choiceGroup,
     typedAnswer: typedAnswer,
     typedAnswerNumeric: typedAnswerNumeric,
     modelAnswer: modelAnswer,
@@ -748,6 +772,11 @@ class QuestionEdit {
     this.answerType,
     this.typedAnswer,
     this.modelAnswer,
+    this.format,
+    this.answerSpec,
+    this.marks,
+    this.wordLimit,
+    this.choiceGroup,
     this.explanation,
     this.topicId,
     this.patternId,
@@ -762,6 +791,11 @@ class QuestionEdit {
   final String? answerType;
   final String? typedAnswer;
   final String? modelAnswer;
+  final String? format;
+  final Map<String, dynamic>? answerSpec;
+  final double? marks;
+  final int? wordLimit;
+  final String? choiceGroup;
   final String? explanation;
   final String? topicId;
   final String? patternId;
@@ -781,6 +815,11 @@ class QuestionEdit {
     'answer_type': ?answerType,
     'typed_answer': ?typedAnswer,
     'model_answer': ?modelAnswer,
+    'format': ?format,
+    'answer_spec': ?answerSpec,
+    'marks': ?marks,
+    'word_limit': ?wordLimit,
+    'choice_group': ?choiceGroup,
     'explanation': ?explanation,
     'topic_id': ?topicId,
     'pattern_id': ?patternId,

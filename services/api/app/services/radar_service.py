@@ -59,6 +59,8 @@ def _eligible_questions() -> Any:  # a Select of the columns below
             Question.verification_status != VerificationStatus.REJECTED,
             Question.topic_status == TopicStatus.CONFIRMED,
             Question.topic_id.is_not(None),
+            Question.translation_of_id.is_(None),
+            Document.duplicate_of_id.is_(None),
         )
     )
 
@@ -152,7 +154,9 @@ class RadarService:
 
     def _topics(self, pooled: list[PooledShift]) -> list[RadarTopic]:
         topic_rows = {t.id: t for t in self._session.scalars(select(Topic)).all()}
-        pattern_rows = {p.id: p for p in self._session.scalars(select(QuestionPattern)).all()}
+        # Only the shared list: a private model never joins the pooled counts.
+        shared = select(QuestionPattern).where(QuestionPattern.owner_id.is_(None))
+        pattern_rows = {p.id: p for p in self._session.scalars(shared).all()}
 
         def counts(entries: list[tuple[PooledShift, int]]) -> RadarCounts:
             years = Counter(p.shift.date.year for p, _ in entries)

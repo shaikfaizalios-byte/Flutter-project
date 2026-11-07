@@ -143,7 +143,19 @@ class LadderRun extends Notifier<LadderRunState> {
 
   int _ready(LadderRound round) => round.steps.where((s) => s.ready).length;
 
-  Future<void> answer(int selectedIndex) async {
+  Future<void> answer(int selectedIndex) => _send(selectedIndex: selectedIndex);
+
+  /// The answer to a question that takes a number.
+  Future<void> answerTyped(String text) => _send(typedAnswer: text);
+
+  /// The answer to a question with several options or pairs.
+  Future<void> answerResponse(Map<String, dynamic> response) => _send(response: response);
+
+  Future<void> _send({
+    int? selectedIndex,
+    String? typedAnswer,
+    Map<String, dynamic>? response,
+  }) async {
     final round = state.round;
     final step = state.step;
     if (round == null || step == null || step.answered) return;
@@ -153,6 +165,8 @@ class LadderRun extends Notifier<LadderRunState> {
         round.roundNumber,
         step.step,
         selectedIndex: selectedIndex,
+        typedAnswer: typedAnswer,
+        response: response,
         timeSpentMs: timeOnQuestion(_shownAt, ref.read(clockProvider)()),
       );
       if (ref.mounted) state = state.copyWith(round: round.withStep(answered));

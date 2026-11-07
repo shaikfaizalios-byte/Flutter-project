@@ -22,6 +22,8 @@ def current_snapshot(question: Question) -> dict[str, Any]:
         model_answer=question.model_answer,
         answer_source=question.answer_source,
         explanation=question.explanation,
+        format_name=question.format or "single_correct",
+        answer_spec=question.answer_spec,
     )
 
 

@@ -210,3 +210,23 @@ def test_disagreeing_counts_are_withheld(
     assert report["basis"]["shifts"] == 1
     assert report["basis"]["withheld"] == 2  # topic and pattern: 2 vs 3
     assert report["topics"] == []
+
+
+def test_a_private_model_never_reaches_the_pooled_report(
+    db_client: TestClient, db_session: Session, user: User
+) -> None:
+    """Even if two accounts' counts agreed on it, only the shared list is ever named."""
+    topic, _ = _venn(db_session)
+    user.radar_opt_in = True
+    other = make_user(db_session, "other@example.com")
+    other.radar_opt_in = True
+    private = QuestionPattern(topic_id=topic.id, owner_id=user.id, name="My secret", keywords=[])
+    db_session.add(private)
+    db_session.flush()
+    for owner in (user, other):
+        _classified(db_session, _shift_paper(db_session, owner), topic, private, n=2)
+
+    report = _radar(db_client)
+    assert report["basis"]["shifts"] == 1  # the shift itself is still published
+    assert report["topics"][0]["patterns"] == []
+    assert "My secret" not in str(report)

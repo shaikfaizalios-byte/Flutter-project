@@ -10,8 +10,11 @@
 """
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import date
 from typing import Any
+
+from app.domain.question_formats import SPEC_FORMATS
 
 
 def _positive_number(value: object) -> bool:
@@ -22,17 +25,26 @@ def _positive_int(value: object) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
 
+def _number(value: object) -> float | None:
+    try:
+        return float(str(value))
+    except ValueError:
+        return None
+
+
 def format_problems(
     *,
     sections: Sequence[Mapping[str, Any]] | None,
     total_questions: int | None,
     duration_minutes: int | None,
     negative_marks_per_wrong: float | None,
+    penalty_fraction: float | None = None,
 ) -> list[str]:
     """What the format does not state (empty when a mock can be built and scored from it).
 
     ``negative_marks_per_wrong`` must be stated even when it is 0 (no negative marking):
-    None means "not verified", not "none".
+    None means "not verified", not "none". A penalty can instead be stated as
+    ``penalty_fraction`` of the question's marks, or as ``marks_wrong`` on every section.
     """
     problems: list[str] = []
     if not sections:
@@ -59,14 +71,51 @@ def format_problems(
         problems.append("The format has no total question count.")
     if not _positive_int(duration_minutes):
         problems.append("The format has no verified duration.")
-    if negative_marks_per_wrong is None:
+    every_section = bool(sections) and all(
+        isinstance(s.get("marks_wrong"), int | float) for s in sections or []
+    )
+    if negative_marks_per_wrong is None and penalty_fraction is None and not every_section:
         problems.append("The format does not state its negative marking (0 if there is none).")
-    elif negative_marks_per_wrong < 0:
+    elif negative_marks_per_wrong is not None and negative_marks_per_wrong < 0:
         problems.append("Negative marks must be stated as a deduction of 0 or more.")
+    if penalty_fraction is not None and not 0 <= penalty_fraction <= 1:
+        problems.append("A penalty fraction must be between 0 and 1.")
     return problems
 
 
-SUPPORTED_QUESTION_TYPES = frozenset({"choice", "typed"})
+@dataclass(frozen=True, slots=True)
+class SectionMarking:
+    marks_correct: float
+    marks_wrong: float
+    marks_unanswered: float
+    partial: Mapping[str, Any] | None
+
+
+def section_marking(
+    section: Mapping[str, Any],
+    *,
+    negative_marks_per_wrong: float | None,
+    penalty_fraction: float | None,
+) -> SectionMarking:
+    """The marks of one section's questions. A section's own number wins, then the penalty
+    fraction, then the format's negative mark. ``format_problems`` has checked one is stated."""
+    correct = float(section["max_marks"]) / int(section["questions"])
+    wrong = section.get("marks_wrong")
+    if wrong is None:
+        wrong = (
+            correct * penalty_fraction
+            if penalty_fraction is not None
+            else (negative_marks_per_wrong)
+        )
+    return SectionMarking(
+        marks_correct=correct,
+        marks_wrong=float(wrong or 0),
+        marks_unanswered=float(section.get("marks_unanswered") or 0),
+        partial=section.get("partial"),
+    )
+
+
+SUPPORTED_QUESTION_TYPES = frozenset({"choice", "typed", *SPEC_FORMATS})
 
 
 def config_problems(
@@ -85,7 +134,18 @@ def config_problems(
     """What stops a draft format from being published, beyond its scoring facts."""
     problems: list[str] = []
     if not question_types or not set(question_types) <= SUPPORTED_QUESTION_TYPES:
-        problems.append("Question types must be among: choice, typed.")
+        problems.append(
+            "Question types must be among: " + ", ".join(sorted(SUPPORTED_QUESTION_TYPES)) + "."
+        )
+    for section in sections or []:
+        rule = section.get("partial")
+        if rule is not None and not _positive_number(_number(rule.get("per_correct"))):
+            problems.append(f"{section.get('subject')}: the partial rule states no marks.")
+        limit = section.get("attempt_limit")
+        if limit is not None and not (
+            _positive_int(limit) and limit <= int(section.get("questions") or 0)
+        ):
+            problems.append(f"{section.get('subject')}: the attempt limit doesn't fit the section.")
     if sectional_timing:
         raw = [s.get("timer_minutes") for s in sections or []]
         timers = [t for t in raw if isinstance(t, int) and _positive_int(t)]

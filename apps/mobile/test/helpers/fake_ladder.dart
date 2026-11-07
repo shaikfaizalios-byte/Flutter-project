@@ -29,6 +29,12 @@ class FakeLadderRepository implements LadderRepository {
 
   /// Answers to mark a step as a real paper question.
   int? paperStep;
+
+  /// The format of every question written.
+  String format = 'single_correct';
+
+  /// The marks of a right answer; null: the exam states none.
+  double? marks;
   final calls = <String>[];
   final _rounds = <int, LadderRound>{};
 
@@ -97,8 +103,9 @@ class FakeLadderRepository implements LadderRepository {
       basisWeb: step == 2,
       paperLabel: paper ? 'chsl.pdf 2023' : null,
       stem: 'Question $round-$step?',
-      options: const ['10', '20', '30', '40'],
+      options: format == 'numeric' ? const [] : const ['10', '20', '30', '40'],
       timeTargetSeconds: paper ? null : 60,
+      format: format,
     );
     _rounds[round] = _rounds[round]!.withStep(written);
     return written;
@@ -109,11 +116,15 @@ class FakeLadderRepository implements LadderRepository {
     String sessionId,
     int round,
     int step, {
-    required int selectedIndex,
+    int? selectedIndex,
+    String? typedAnswer,
+    Map<String, dynamic>? response,
     int? timeSpentMs,
   }) async {
-    calls.add('answer:$round:$step:$selectedIndex');
+    calls.add('answer:$round:$step:${selectedIndex ?? typedAnswer ?? response}');
     final planned = _rounds[round]!.steps[step - 1];
+    final correct = selectedIndex == 1 || typedAnswer == '20';
+    final partly = response != null;
     return LadderStep(
       roundNumber: round,
       step: step,
@@ -123,10 +134,15 @@ class FakeLadderRepository implements LadderRepository {
       basisPapers: planned.basisPapers,
       stem: planned.stem,
       options: planned.options,
+      format: planned.format,
       result: LadderResult(
         selectedIndex: selectedIndex,
-        correct: selectedIndex == 1,
-        answerIndex: 1,
+        correct: correct,
+        answerIndex: format == 'single_correct' ? 1 : null,
+        answerLines: format == 'single_correct' ? const [] : const ['20 ± 0.5'],
+        partlyRight: partly,
+        marks: marks == null ? null : (correct ? marks : (partly ? 1 : -1)),
+        marksPossible: marks,
         solution: const ['20 is the answer.'],
         shortcut: 'Half of 40.',
         timeSpentMs: timeSpentMs,

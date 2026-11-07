@@ -1,0 +1,65 @@
+{
+  "code": "NEET_UG",
+  "status": "draft",
+  "name": "NEET UG",
+  "short_name": "NEET UG",
+  "category": "Entrance",
+  "authority": "National Testing Agency",
+  "sort_order": 410,
+  "kind": "mcq",
+  "options_per_question": 4,
+  "languages": [
+    "en",
+    "hi",
+    "as",
+    "bn",
+    "gu",
+    "kn",
+    "ml",
+    "mr",
+    "or",
+    "pa",
+    "ta",
+    "te",
+    "ur"
+  ],
+  "exam_dates": [
+    "2026-05-03"
+  ],
+  "repeat_share": null,
+  "min_papers": null,
+  "reliable_papers": null,
+  "counting_unit": null,
+  "formats": [
+    "NEET_UG_2026"
+  ],
+  "sources": {
+    "kind": {
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
+      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf"
+    },
+    "options_per_question": {
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
+      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
+      "reference": "para 2: MCQ with four options and single correct answer/best option"
+    },
+    "languages": {
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
+      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
+      "reference": "para 6: 13 mediums"
+    },
+    "exam_dates": {
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
+      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
+      "uncertain": true,
+      "note": "News reports mention a re-exam on 21 June 2026 with 195 minutes; no official notice read yet."
+    },
+    "formats": {
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
+      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
+      "uncertain": true,
+      "note": "Read from a copy, not nta.ac.in. Check against the NTA original and any re-exam notice."
+    }
+  },
+  "note": "Draft. A named reviewer must check it against NTA's own site before it is applied."
+}

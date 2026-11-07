@@ -1,0 +1,653 @@
+{
+ "papers": [
+  {
+   "issues": {
+    "image_dependent": 1
+   },
+   "paper": "chsl-2019-shift-1.pdf",
+   "questions": [
+    {
+     "answer": 2,
+     "model": "Relationship between classes",
+     "number": 1,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Venn Diagrams"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Analogy"
+    },
+    {
+     "answer": 1,
+     "model": "Word coded as numbers",
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Coding-Decoding"
+    },
+    {
+     "answer": 2,
+     "model": "Income, expenditure and savings",
+     "number": 4,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Percentage"
+    },
+    {
+     "answer": 3,
+     "model": "Cost and selling price",
+     "number": 5,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Profit and Loss"
+    },
+    {
+     "answer": 1,
+     "model": "Single word",
+     "number": 6,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Synonyms"
+    },
+    {
+     "answer": 2,
+     "model": "Active to passive",
+     "number": 7,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Active and Passive Voice"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 8,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "History"
+    },
+    {
+     "answer": 1,
+     "model": "Constitution articles and schedules",
+     "number": 9,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "Polity"
+    }
+   ]
+  },
+  {
+   "issues": {
+    "image_dependent": 1
+   },
+   "paper": "chsl-2020-shift-2.pdf",
+   "questions": [
+    {
+     "answer": 3,
+     "model": "Relationship between classes",
+     "number": 1,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Venn Diagrams"
+    },
+    {
+     "answer": 1,
+     "model": null,
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Analogy"
+    },
+    {
+     "answer": 2,
+     "model": null,
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Classification (Odd One Out)"
+    },
+    {
+     "answer": 3,
+     "model": "Income, expenditure and savings",
+     "number": 4,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Percentage"
+    },
+    {
+     "answer": 1,
+     "model": "Cost and selling price",
+     "number": 5,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Profit and Loss"
+    },
+    {
+     "answer": 2,
+     "model": "Single word",
+     "number": 6,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Synonyms"
+    },
+    {
+     "answer": 3,
+     "model": "Active to passive",
+     "number": 7,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Active and Passive Voice"
+    },
+    {
+     "answer": 1,
+     "model": null,
+     "number": 8,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "History"
+    }
+   ]
+  },
+  {
+   "issues": {
+    "image_dependent": 1
+   },
+   "paper": "chsl-2021-shift-1.pdf",
+   "questions": [
+    {
+     "answer": 1,
+     "model": "Relationship between classes",
+     "number": 1,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Venn Diagrams"
+    },
+    {
+     "answer": 2,
+     "model": null,
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Analogy"
+    },
+    {
+     "answer": 3,
+     "model": "Word coded as numbers",
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Coding-Decoding"
+    },
+    {
+     "answer": 1,
+     "model": "Income, expenditure and savings",
+     "number": 4,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Percentage"
+    },
+    {
+     "answer": 2,
+     "model": "Single word",
+     "number": 5,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Synonyms"
+    },
+    {
+     "answer": 3,
+     "model": "Active to passive",
+     "number": 6,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Active and Passive Voice"
+    },
+    {
+     "answer": 1,
+     "model": "Constitution articles and schedules",
+     "number": 7,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "Polity"
+    }
+   ]
+  },
+  {
+   "issues": {
+    "image_dependent": 1,
+    "incomplete_options": 1
+   },
+   "paper": "chsl-2022-shift-3.pdf",
+   "questions": [
+    {
+     "answer": 2,
+     "model": "Relationship between classes",
+     "number": 1,
+     "options": 5,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Venn Diagrams"
+    },
+    {
+     "answer": 3,
+     "model": "Word coded as numbers",
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Coding-Decoding"
+    },
+    {
+     "answer": 1,
+     "model": null,
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Classification (Odd One Out)"
+    },
+    {
+     "answer": 2,
+     "model": "Income, expenditure and savings",
+     "number": 4,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Percentage"
+    },
+    {
+     "answer": 3,
+     "model": "Cost and selling price",
+     "number": 5,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Profit and Loss"
+    },
+    {
+     "answer": 1,
+     "model": "Single word",
+     "number": 6,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Synonyms"
+    },
+    {
+     "answer": 2,
+     "model": "Active to passive",
+     "number": 7,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Active and Passive Voice"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 8,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "History"
+    },
+    {
+     "answer": 1,
+     "model": "Constitution articles and schedules",
+     "number": 9,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "Polity"
+    }
+   ]
+  },
+  {
+   "issues": {
+    "image_dependent": 1,
+    "incomplete_options": 1
+   },
+   "paper": "chsl-undated.pdf",
+   "questions": [
+    {
+     "answer": 3,
+     "model": "Relationship between classes",
+     "number": 1,
+     "options": 3,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Venn Diagrams"
+    },
+    {
+     "answer": 1,
+     "model": null,
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Analogy"
+    },
+    {
+     "answer": 2,
+     "model": "Word coded as numbers",
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Coding-Decoding"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 4,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Classification (Odd One Out)"
+    },
+    {
+     "answer": 1,
+     "model": "Income, expenditure and savings",
+     "number": 5,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Percentage"
+    },
+    {
+     "answer": 2,
+     "model": "Cost and selling price",
+     "number": 6,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Profit and Loss"
+    },
+    {
+     "answer": 3,
+     "model": "Single word",
+     "number": 7,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Synonyms"
+    },
+    {
+     "answer": 1,
+     "model": null,
+     "number": 8,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "History"
+    }
+   ]
+  },
+  {
+   "issues": {},
+   "paper": "chsl-2023-shift-1.pdf",
+   "questions": [
+    {
+     "answer": 1,
+     "model": null,
+     "number": 1,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Analogy"
+    },
+    {
+     "answer": 2,
+     "model": "Word coded as numbers",
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Coding-Decoding"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Classification (Odd One Out)"
+    },
+    {
+     "answer": 1,
+     "model": "Income, expenditure and savings",
+     "number": 4,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Percentage"
+    },
+    {
+     "answer": 2,
+     "model": "Cost and selling price",
+     "number": 5,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Profit and Loss"
+    },
+    {
+     "answer": 3,
+     "model": "Active to passive",
+     "number": 6,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Active and Passive Voice"
+    },
+    {
+     "answer": 1,
+     "model": null,
+     "number": 7,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "History"
+    },
+    {
+     "answer": 2,
+     "model": "Constitution articles and schedules",
+     "number": 8,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "Polity"
+    }
+   ]
+  },
+  {
+   "issues": {
+    "image_dependent": 1
+   },
+   "paper": "cgl-2021-shift-1.pdf",
+   "questions": [
+    {
+     "answer": 2,
+     "model": "Relationship between classes",
+     "number": 1,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Venn Diagrams"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Analogy"
+    },
+    {
+     "answer": 1,
+     "model": "Word coded as numbers",
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Coding-Decoding"
+    },
+    {
+     "answer": 2,
+     "model": "Income, expenditure and savings",
+     "number": 4,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Percentage"
+    },
+    {
+     "answer": 3,
+     "model": "Cost and selling price",
+     "number": 5,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Profit and Loss"
+    },
+    {
+     "answer": 1,
+     "model": "Single word",
+     "number": 6,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Synonyms"
+    },
+    {
+     "answer": 2,
+     "model": "Active to passive",
+     "number": 7,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Active and Passive Voice"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 8,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "History"
+    }
+   ]
+  },
+  {
+   "issues": {
+    "image_dependent": 1
+   },
+   "paper": "cgl-2022-shift-2.pdf",
+   "questions": [
+    {
+     "answer": 3,
+     "model": "Relationship between classes",
+     "number": 1,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Venn Diagrams"
+    },
+    {
+     "answer": 1,
+     "model": "Word coded as numbers",
+     "number": 2,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Coding-Decoding"
+    },
+    {
+     "answer": 2,
+     "model": null,
+     "number": 3,
+     "options": 4,
+     "section": "General Intelligence",
+     "subject": "General Intelligence",
+     "topic": "Classification (Odd One Out)"
+    },
+    {
+     "answer": 3,
+     "model": "Cost and selling price",
+     "number": 4,
+     "options": 4,
+     "section": "Quantitative Aptitude",
+     "subject": "Quantitative Aptitude",
+     "topic": "Profit and Loss"
+    },
+    {
+     "answer": 1,
+     "model": "Single word",
+     "number": 5,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Synonyms"
+    },
+    {
+     "answer": 2,
+     "model": "Active to passive",
+     "number": 6,
+     "options": 4,
+     "section": "English Language",
+     "subject": "English Language",
+     "topic": "Active and Passive Voice"
+    },
+    {
+     "answer": 3,
+     "model": null,
+     "number": 7,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "History"
+    },
+    {
+     "answer": 1,
+     "model": "Constitution articles and schedules",
+     "number": 8,
+     "options": 4,
+     "section": "General Awareness",
+     "subject": "General Awareness",
+     "topic": "Polity"
+    }
+   ]
+  }
+ ]
+}

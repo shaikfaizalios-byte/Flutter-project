@@ -13,8 +13,7 @@ from typing import Any
 from app.domain.languages import LANGUAGES
 from app.domain.untrusted import UNTRUSTED_RULE, material
 
-PROMPT_VERSION = "p11"
-OPTIONS_PER_QUESTION = 4  # SSC CGL/CHSL objective questions have four options
+PROMPT_VERSION = "p12"
 MAX_GENERATED = 5
 
 # How each content language is named in prompts (from the reference list).
@@ -129,6 +128,7 @@ def questions_from_question_prompt(
     topic: str | None,
     language: str,
     count: int,
+    option_count: int,
 ) -> str:
     example = material(f"{stem}\n{_fmt_options(options)}")
     return (
@@ -137,7 +137,7 @@ def questions_from_question_prompt(
         f"Answer: ({correct})\n\n"
         f"Write {count} new, different multiple-choice practice questions on the same "
         f"topic and level, in {LANGUAGE_NAMES[language]}. Each has exactly "
-        f"{OPTIONS_PER_QUESTION} distinct options, exactly one correct option "
+        f"{option_count} distinct options, exactly one correct option "
         "(correct_option is 1-based) and a short explanation."
     )
 
@@ -151,6 +151,7 @@ def questions_from_notes_prompt(
     language: str,
     count: int,
     exam_name: str,
+    option_count: int,
 ) -> str:
     own_notes = material(f"{title}\n\n{notes or '(no notes)'}")
     return (
@@ -158,7 +159,7 @@ def questions_from_notes_prompt(
         f"The student's own notes (title first):\n{own_notes}\n\n"
         f"Write {count} multiple-choice practice questions that test this concept at the "
         f"level of {exam_name}, in {LANGUAGE_NAMES[language]}. Each has exactly "
-        f"{OPTIONS_PER_QUESTION} distinct options, exactly one correct option "
+        f"{option_count} distinct options, exactly one correct option "
         "(correct_option is 1-based) and a short explanation. If the notes contain a "
         "mistake, do not repeat it."
     )
@@ -325,7 +326,7 @@ class GeneratedQuestion:
 
 
 def validate_generated(
-    item: Any, *, avoid_stems: Sequence[str] = ()
+    item: Any, *, option_count: int, avoid_stems: Sequence[str] = ()
 ) -> tuple[GeneratedQuestion | None, list[str]]:
     """Checks one generated question. Returns the cleaned question, or None with the
     reasons it was rejected (codes, safe to store and show)."""
@@ -339,7 +340,7 @@ def validate_generated(
 
     if not isinstance(stem, str) or not (MIN_STEM <= len(stem.strip()) <= MAX_STEM):
         problems.append("bad_stem")
-    if not isinstance(options, list) or len(options) != OPTIONS_PER_QUESTION:
+    if not isinstance(options, list) or len(options) != option_count:
         problems.append("wrong_option_count")
     elif not all(isinstance(o, str) and 0 < len(o.strip()) <= MAX_OPTION for o in options):
         problems.append("bad_option")
@@ -348,7 +349,7 @@ def validate_generated(
     if (
         isinstance(correct, bool)
         or not isinstance(correct, int)
-        or not 1 <= correct <= OPTIONS_PER_QUESTION
+        or not 1 <= correct <= option_count
     ):
         problems.append("bad_answer")
     if not isinstance(explanation, str) or not (0 < len(explanation.strip()) <= MAX_EXPLANATION):
@@ -579,14 +580,20 @@ def validate_lesson(data: dict[str, Any]) -> TopicLesson | None:
 
 
 def topic_quiz_prompt(
-    *, topic: str, subject: str | None, exam_name: str | None, language: str, count: int
+    *,
+    topic: str,
+    subject: str | None,
+    exam_name: str | None,
+    language: str,
+    count: int,
+    option_count: int,
 ) -> str:
     return (
         f"{_topic_line(topic, subject, exam_name)}\n"
         f"They say they already know it. Write {count} original multiple-choice questions "
         f"that check whether they really do, in {LANGUAGE_NAMES[language]}: start easy and "
         "get harder, and cover different parts of the topic. Each has exactly "
-        f"{OPTIONS_PER_QUESTION} distinct options, exactly one correct option "
+        f"{option_count} distinct options, exactly one correct option "
         "(correct_option is 1-based) and a short explanation of why it is correct."
     )
 

@@ -7,12 +7,13 @@ import '../../../core/exams/exam_catalog.dart';
 import '../../../core/utils/app_log.dart';
 import '../data/exams_repository.dart';
 import '../domain/exam_topics.dart';
+import '../domain/new_exam.dart';
 
 /// Device cache of the last catalog (catalog + own exams of the signed-in learner), so exam
 /// names show offline. Erased with the learner's other device data.
 const examCatalogCacheKey = 'exam_catalog';
 
-/// Loaded at start-up from the cache (built-in SSC exams until the first refresh).
+/// Loaded at start-up from the cache (the built-in exams until the first refresh).
 final initialExamCatalogProvider = Provider<List<ExamOption>>((ref) => builtInExams);
 
 Future<List<ExamOption>> loadCachedExamCatalog(AppDatabase db) async {
@@ -66,6 +67,12 @@ class ExamCatalogController extends Notifier<List<ExamOption>> {
     return exam;
   }
 
+  Future<ExamOption> createFrom(NewExam draft) async {
+    final exam = await ref.read(examsRepositoryProvider).createExamFrom(draft);
+    await refresh();
+    return exam;
+  }
+
   Future<void> rename(String code, String name) async {
     await ref.read(examsRepositoryProvider).renameExam(code, name);
     await refresh();
@@ -79,6 +86,13 @@ class ExamCatalogController extends Notifier<List<ExamOption>> {
 
 final examCatalogProvider = NotifierProvider<ExamCatalogController, List<ExamOption>>(
   ExamCatalogController.new,
+);
+
+/// The profile of an exam (the defaults until the catalog knows it).
+final examProfileProvider = Provider.family<ExamProfile, String?>(
+  (ref, code) =>
+      ref.watch(examCatalogProvider).where((e) => e.code == code).firstOrNull?.profile ??
+      defaultExamProfile,
 );
 
 /// Display name of an exam (the code until the catalog knows it).

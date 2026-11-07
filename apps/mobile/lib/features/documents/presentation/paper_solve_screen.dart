@@ -193,6 +193,7 @@ class _QuestionView extends StatelessWidget {
               SolveKind.typed => _TypedPanel(question: question, onResult: onResult),
               SolveKind.written => _WrittenPanel(question: question, onResult: onResult),
               // Its options weren't read from the PDF: nothing to pick from yet.
+              SolveKind.practiceOnly => Text(l10n.paperSolvePracticeOnly),
               SolveKind.unreadable => Text(l10n.paperSolveNoOptions),
             },
             if (answered && question.explanation != null) ...[

@@ -1,8 +1,20 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
+from typing import Any
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, func
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    SmallInteger,
+    String,
+    func,
+)
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -24,11 +36,27 @@ class Exam(Base):
         CheckConstraint(
             "country_code IS NULL OR country_code ~ '^[A-Z]{2}$'", name="country_code_iso"
         ),
+        CheckConstraint(
+            "kind IS NULL OR kind IN ('mcq', 'descriptive', 'mixed')", name="kind_valid"
+        ),
+        CheckConstraint(
+            "options_per_question IS NULL OR options_per_question = 0 "
+            "OR options_per_question BETWEEN 2 AND 6",
+            name="options_valid",
+        ),
+        CheckConstraint(
+            "repeat_share IS NULL OR (repeat_share > 0 AND repeat_share <= 1)",
+            name="repeat_share_valid",
+        ),
+        CheckConstraint(
+            "counting_unit IS NULL OR counting_unit IN ('paper', 'session')",
+            name="counting_unit_valid",
+        ),
     )
 
     code: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
-    # Short display name for catalog exams ("SSC CGL"); own exams show ``name``.
+    # Short display name for catalog exams; own exams show ``name``.
     short_name: Mapped[str | None] = mapped_column(String(40))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     owner_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -49,4 +77,16 @@ class Exam(Base):
     languages: Mapped[list[str]] = mapped_column(
         ARRAY(String(8)), default=list, server_default="{}"
     )
+    # The exam's profile (app/domain/exam_profile.py); NULL takes the default.
+    kind: Mapped[str | None] = mapped_column(String(12))
+    options_per_question: Mapped[int | None] = mapped_column(SmallInteger)  # 0: it varies
+    repeat_share: Mapped[float | None] = mapped_column(Float)
+    min_papers: Mapped[int | None] = mapped_column(SmallInteger)
+    reliable_papers: Mapped[int | None] = mapped_column(SmallInteger)
+    counting_unit: Mapped[str | None] = mapped_column(String(8))
+    # Official exam dates, from the notice; empty = not recorded.
+    exam_dates: Mapped[list[date]] = mapped_column(ARRAY(Date), default=list, server_default="{}")
+    # A learner's own exam only: the stages they entered (never verified). Catalog exams keep
+    # their stages in exam_formats.
+    custom_stages: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -19,13 +19,16 @@ import '../domain/practice_models.dart';
 /// offline, it stays queued and is replayed later (in order). The server applies an
 /// answer only if its `client_seq` is newer than the stored one, so replays are safe.
 class PracticeRepository {
-  PracticeRepository(this._dio, this._db, {DateTime Function()? clock})
+  PracticeRepository(this._dio, this._db, {DateTime Function()? clock, this.newFormats = false})
     : _clock = clock ?? DateTime.now;
 
   final Dio _dio;
   final AppDatabase _db;
   final DateTime Function() _clock;
   int _lastSeq = 0;
+
+  /// This app can show formats beyond one option or a typed text.
+  final bool newFormats;
 
   static const _base = '/api/v1/practice';
 
@@ -35,7 +38,10 @@ class PracticeRepository {
     try {
       return await _guard(
         () async => _session(
-          (await _dio.post<Map<String, dynamic>>('$_base/sessions', data: request.toJson())).data!,
+          (await _dio.post<Map<String, dynamic>>(
+            '$_base/sessions',
+            data: {...request.toJson(), if (newFormats) 'include_new_formats': true},
+          )).data!,
         ),
       );
     } on NetworkFailure {
@@ -189,7 +195,7 @@ class PracticeRepository {
     () async => _session(
       (await _dio.post<Map<String, dynamic>>(
         '$_base/mock-tests',
-        data: {'exam_format_code': formatCode},
+        data: {'exam_format_code': formatCode, if (newFormats) 'include_new_formats': true},
       )).data!,
     ),
   );
@@ -214,6 +220,10 @@ class PracticeRepository {
           item.copyWith(
             selectedPosition: () => p.selectedPosition,
             typedAnswer: () => p.typedAnswer,
+            response: () => switch (p.responseJson) {
+              final String text => jsonDecode(text) as Map<String, dynamic>,
+              null => null,
+            },
           ),
         );
       }
@@ -281,6 +291,7 @@ class PracticeRepository {
     int position,
     int? selectedPosition, {
     String? typedAnswer,
+    Map<String, dynamic>? response,
     int? timeSpentMs,
   }) async {
     final offline = await _offline(sessionId);
@@ -321,6 +332,7 @@ class PracticeRepository {
             position: position,
             selectedPosition: Value(selectedPosition),
             typedAnswer: Value(typedAnswer),
+            responseJson: Value(response == null ? null : jsonEncode(response)),
             clientSeq: seq,
             timeSpentMs: Value(timeSpentMs),
             createdAt: _clock().toUtc(),
@@ -334,6 +346,7 @@ class PracticeRepository {
         seq,
         timeSpentMs,
         typed: typedAnswer,
+        response: response,
       );
       await _dequeue(sessionId, position, seq);
       return ack;
@@ -366,6 +379,10 @@ class PracticeRepository {
           row.clientSeq,
           row.timeSpentMs,
           typed: row.typedAnswer,
+          response: switch (row.responseJson) {
+            final String text => jsonDecode(text) as Map<String, dynamic>,
+            null => null,
+          },
         );
         sent++;
       } on NetworkFailure {
@@ -412,16 +429,22 @@ class PracticeRepository {
     int seq,
     int? timeSpentMs, {
     String? typed,
+    Map<String, dynamic>? response,
   }) => _guard(() async {
-    final response = await _dio.put<Map<String, dynamic>>(
+    final reply = await _dio.put<Map<String, dynamic>>(
       '$_base/sessions/$sessionId/answers/$position',
       data: {
-        if (typed != null) 'typed_answer': typed else 'selected_position': selected,
+        if (response != null)
+          'response': response
+        else if (typed != null)
+          'typed_answer': typed
+        else
+          'selected_position': selected,
         'client_seq': seq,
         'time_spent_ms': ?timeSpentMs,
       },
     );
-    final data = response.data!;
+    final data = reply.data!;
     return AnswerOutcome.confirmed(
       data['feedback'] == null
           ? null
@@ -429,6 +452,7 @@ class PracticeRepository {
       applied: data['applied'] as bool,
       selectedPosition: data['selected_position'] as int?,
       typedAnswer: data['typed_answer'] as String?,
+      response: data['response'] as Map<String, dynamic>?,
     );
   });
 

@@ -20,7 +20,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -361,6 +371,18 @@
             "title": "Position",
             "type": "integer"
           },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
           "selected_position": {
             "anyOf": [
               {
@@ -482,6 +504,76 @@
         "title": "AnswerCheckRequest",
         "type": "object"
       },
+      "AnswerKeyResult": {
+        "properties": {
+          "agreed": {
+            "title": "Agreed",
+            "type": "integer"
+          },
+          "ambiguous": {
+            "title": "Ambiguous",
+            "type": "boolean"
+          },
+          "applied": {
+            "title": "Applied",
+            "type": "integer"
+          },
+          "conflicts": {
+            "title": "Conflicts",
+            "type": "integer"
+          },
+          "problems": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "read_by": {
+            "title": "Read By",
+            "type": "string"
+          },
+          "unmatched": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Unmatched",
+            "type": "array"
+          },
+          "without_answer": {
+            "title": "Without Answer",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "read_by",
+          "applied",
+          "agreed",
+          "conflicts",
+          "unmatched",
+          "ambiguous",
+          "without_answer",
+          "problems"
+        ],
+        "title": "AnswerKeyResult",
+        "type": "object"
+      },
+      "AnswerKeyText": {
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "maxLength": 50000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "AnswerKeyText",
+        "type": "object"
+      },
       "AnswerUpdate": {
         "additionalProperties": false,
         "properties": {
@@ -489,6 +581,18 @@
             "minimum": 0.0,
             "title": "Client Seq",
             "type": "integer"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
           },
           "selected_position": {
             "anyOf": [
@@ -536,6 +640,21 @@
         "title": "AnswerUpdate",
         "type": "object"
       },
+      "Body_read_photo_api_v1_descriptive_read_photo_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "JPEG or PNG photo",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_read_photo_api_v1_descriptive_read_photo_post",
+        "type": "object"
+      },
       "Body_read_syllabus_api_v1_exams__code__syllabus_post": {
         "properties": {
           "file": {
@@ -555,6 +674,21 @@
           "file"
         ],
         "title": "Body_read_syllabus_api_v1_exams__code__syllabus_post",
+        "type": "object"
+      },
+      "Body_upload_answer_key_api_v1_documents__document_id__answer_key_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "Answer-key PDF",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_answer_key_api_v1_documents__document_id__answer_key_post",
         "type": "object"
       },
       "Body_upload_document_api_v1_documents_post": {
@@ -669,6 +803,43 @@
         "title": "CanonicalTopicRead",
         "type": "object"
       },
+      "CanonicalTopicStats": {
+        "description": "One canonical topic: ``answered`` and ``correct`` are all the exams together.",
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "exams": {
+            "items": {
+              "$ref": "#/components/schemas/ExamCounts"
+            },
+            "title": "Exams",
+            "type": "array"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "answered",
+          "correct",
+          "exams"
+        ],
+        "title": "CanonicalTopicStats",
+        "type": "object"
+      },
       "Change": {
         "additionalProperties": false,
         "properties": {
@@ -739,7 +910,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -912,7 +1093,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -1008,7 +1199,17 @@
               {
                 "enum": [
                   "en",
-                  "hi"
+                  "hi",
+                  "as",
+                  "bn",
+                  "gu",
+                  "kn",
+                  "ml",
+                  "mr",
+                  "or",
+                  "pa",
+                  "ta",
+                  "te"
                 ],
                 "type": "string"
               },
@@ -1264,11 +1465,135 @@
       "CustomExamCreate": {
         "additionalProperties": false,
         "properties": {
+          "conducting_body": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conducting Body"
+          },
+          "counting_unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "paper",
+                  "session"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counting Unit"
+          },
+          "exam_dates": {
+            "default": [],
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Exam Dates",
+            "type": "array"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mcq",
+                  "descriptive",
+                  "mixed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "languages": {
+            "default": [],
+            "items": {
+              "pattern": "^[a-z]{2,3}$",
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Languages",
+            "type": "array"
+          },
+          "min_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Papers"
+          },
           "name": {
             "maxLength": 100,
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "options_per_question": {
+            "anyOf": [
+              {
+                "maximum": 6.0,
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options Per Question"
+          },
+          "reliable_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reliable Papers"
+          },
+          "repeat_share": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repeat Share"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ExamStage"
+            },
+            "maxItems": 10,
+            "title": "Stages",
+            "type": "array"
           }
         },
         "required": [
@@ -1280,11 +1605,135 @@
       "CustomExamUpdate": {
         "additionalProperties": false,
         "properties": {
+          "conducting_body": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conducting Body"
+          },
+          "counting_unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "paper",
+                  "session"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counting Unit"
+          },
+          "exam_dates": {
+            "default": [],
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Exam Dates",
+            "type": "array"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mcq",
+                  "descriptive",
+                  "mixed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "languages": {
+            "default": [],
+            "items": {
+              "pattern": "^[a-z]{2,3}$",
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Languages",
+            "type": "array"
+          },
+          "min_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Papers"
+          },
           "name": {
             "maxLength": 100,
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "options_per_question": {
+            "anyOf": [
+              {
+                "maximum": 6.0,
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options Per Question"
+          },
+          "reliable_papers": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reliable Papers"
+          },
+          "repeat_share": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repeat Share"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ExamStage"
+            },
+            "maxItems": 10,
+            "title": "Stages",
+            "type": "array"
           }
         },
         "required": [
@@ -1332,6 +1781,383 @@
           "password"
         ],
         "title": "DeleteAccountRequest",
+        "type": "object"
+      },
+      "DescriptiveAnswer": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "default": "typed",
+            "enum": [
+              "typed",
+              "photo"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "DescriptiveAnswer",
+        "type": "object"
+      },
+      "DescriptiveOverview": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/DescriptiveTopic"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "topics",
+          "available"
+        ],
+        "title": "DescriptiveOverview",
+        "type": "object"
+      },
+      "DescriptivePhotoRead": {
+        "description": "What the AI read from a photo, for the learner to correct. Nothing is stored.",
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "unclear": {
+            "title": "Unclear",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "text",
+          "unclear"
+        ],
+        "title": "DescriptivePhotoRead",
+        "type": "object"
+      },
+      "DescriptivePointRead": {
+        "properties": {
+          "awarded": {
+            "title": "Awarded",
+            "type": "number"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "point": {
+            "title": "Point",
+            "type": "string"
+          }
+        },
+        "required": [
+          "point",
+          "marks",
+          "awarded",
+          "comment"
+        ],
+        "title": "DescriptivePointRead",
+        "type": "object"
+      },
+      "DescriptiveResult": {
+        "description": "Estimated marks from AI feedback, not an official grade.",
+        "properties": {
+          "answer_text": {
+            "title": "Answer Text",
+            "type": "string"
+          },
+          "high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High"
+          },
+          "length": {
+            "title": "Length",
+            "type": "string"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "marks_possible": {
+            "title": "Marks Possible",
+            "type": "number"
+          },
+          "missing_points": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Points",
+            "type": "array"
+          },
+          "model_answer": {
+            "title": "Model Answer",
+            "type": "string"
+          },
+          "model_answer_from_paper": {
+            "default": false,
+            "title": "Model Answer From Paper",
+            "type": "boolean"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/DescriptivePointRead"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "relevance": {
+            "title": "Relevance",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "structure": {
+            "title": "Structure",
+            "type": "string"
+          },
+          "word_count": {
+            "title": "Word Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "marks",
+          "marks_possible",
+          "low",
+          "high",
+          "runs",
+          "points",
+          "missing_points",
+          "structure",
+          "relevance",
+          "length",
+          "word_count",
+          "answer_text",
+          "model_answer"
+        ],
+        "title": "DescriptiveResult",
+        "type": "object"
+      },
+      "DescriptiveSessionRead": {
+        "properties": {
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/DescriptiveStepRead"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "topic_name",
+          "subject",
+          "steps"
+        ],
+        "title": "DescriptiveSessionRead",
+        "type": "object"
+      },
+      "DescriptiveStart": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "enum": [
+              "en",
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "source": {
+            "default": "ai",
+            "enum": [
+              "ai",
+              "papers"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "topic_id"
+        ],
+        "title": "DescriptiveStart",
+        "type": "object"
+      },
+      "DescriptiveStepRead": {
+        "properties": {
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "paper_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paper Label"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DescriptiveResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "default": "ai",
+            "enum": [
+              "ai",
+              "paper"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          },
+          "step": {
+            "title": "Step",
+            "type": "integer"
+          },
+          "word_limit": {
+            "title": "Word Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "step",
+          "level",
+          "marks",
+          "word_limit",
+          "ready",
+          "stem",
+          "result"
+        ],
+        "title": "DescriptiveStepRead",
+        "type": "object"
+      },
+      "DescriptiveTopic": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "paper_questions": {
+            "default": 0,
+            "title": "Paper Questions",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "subject"
+        ],
+        "title": "DescriptiveTopic",
         "type": "object"
       },
       "DeviceSession": {
@@ -1472,6 +2298,18 @@
             "title": "Created At",
             "type": "string"
           },
+          "duplicate_of_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Id"
+          },
           "error_code": {
             "anyOf": [
               {
@@ -1533,6 +2371,14 @@
             ],
             "title": "Exam Year"
           },
+          "extra_languages": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Extra Languages",
+            "type": "array"
+          },
           "extraction_summary": {
             "anyOf": [
               {
@@ -1558,7 +2404,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -1641,6 +2497,28 @@
             "title": "Segmentation Status",
             "type": "string"
           },
+          "session_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Label"
+          },
+          "set_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Set Code"
+          },
           "sha256": {
             "title": "Sha256",
             "type": "string"
@@ -1648,6 +2526,17 @@
           "size_bytes": {
             "title": "Size Bytes",
             "type": "integer"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
           },
           "status": {
             "enum": [
@@ -1739,6 +2628,42 @@
         "title": "DraftTopicRead",
         "type": "object"
       },
+      "DuplicateSuggestion": {
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "set_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Set Code"
+          },
+          "shared_share": {
+            "title": "Shared Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "document_id",
+          "filename",
+          "set_code",
+          "shared_share"
+        ],
+        "title": "DuplicateSuggestion",
+        "type": "object"
+      },
       "ErrorBody": {
         "properties": {
           "code": {
@@ -1804,6 +2729,29 @@
           "error"
         ],
         "title": "ErrorResponse",
+        "type": "object"
+      },
+      "ExamCounts": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "answered",
+          "correct"
+        ],
+        "title": "ExamCounts",
         "type": "object"
       },
       "ExamFormatRead": {
@@ -1914,6 +2862,10 @@
             "title": "Source Url",
             "type": "string"
           },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
           "status": {
             "default": "verified",
             "enum": [
@@ -1921,10 +2873,6 @@
               "retired"
             ],
             "title": "Status",
-            "type": "string"
-          },
-          "tier": {
-            "title": "Tier",
             "type": "string"
           },
           "total_questions": {
@@ -1947,7 +2895,7 @@
         "required": [
           "code",
           "exam_code",
-          "tier",
+          "stage",
           "name",
           "sections",
           "sections_in_fixed_order",
@@ -1965,6 +2913,64 @@
       },
       "ExamFormatSection": {
         "properties": {
+          "attempt_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Limit"
+          },
+          "cutoff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
+          },
+          "formats": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formats"
+          },
+          "marks_unanswered": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Unanswered"
+          },
+          "marks_wrong": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Wrong"
+          },
           "max_marks": {
             "anyOf": [
               {
@@ -2006,6 +3012,61 @@
           "questions"
         ],
         "title": "ExamFormatSection",
+        "type": "object"
+      },
+      "ExamProfileRead": {
+        "description": "What sets the exam apart; the app reads its rules from here.",
+        "properties": {
+          "counting_unit": {
+            "title": "Counting Unit",
+            "type": "string"
+          },
+          "exam_dates": {
+            "default": [],
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Exam Dates",
+            "type": "array"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "min_papers": {
+            "title": "Min Papers",
+            "type": "integer"
+          },
+          "options_per_question": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options Per Question"
+          },
+          "reliable_papers": {
+            "title": "Reliable Papers",
+            "type": "integer"
+          },
+          "repeat_share": {
+            "title": "Repeat Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "kind",
+          "options_per_question",
+          "repeat_share",
+          "min_papers",
+          "reliable_papers",
+          "counting_unit"
+        ],
+        "title": "ExamProfileRead",
         "type": "object"
       },
       "ExamRead": {
@@ -2077,6 +3138,9 @@
             "title": "Name",
             "type": "string"
           },
+          "profile": {
+            "$ref": "#/components/schemas/ExamProfileRead"
+          },
           "short_name": {
             "default": "",
             "title": "Short Name",
@@ -2085,9 +3149,108 @@
         },
         "required": [
           "code",
-          "name"
+          "name",
+          "profile"
         ],
         "title": "ExamRead",
+        "type": "object"
+      },
+      "ExamStage": {
+        "additionalProperties": false,
+        "description": "A stage as the learner enters it for their own exam.",
+        "properties": {
+          "duration_minutes": {
+            "maximum": 1440.0,
+            "minimum": 1.0,
+            "title": "Duration Minutes",
+            "type": "integer"
+          },
+          "marking_scheme": {
+            "$ref": "#/components/schemas/MarkingScheme"
+          },
+          "name": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/StageSection"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "duration_minutes",
+          "sections",
+          "marking_scheme"
+        ],
+        "title": "ExamStage",
+        "type": "object"
+      },
+      "ExamStageRead": {
+        "properties": {
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "marking_scheme": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarkingSchemeRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/StageSectionRead"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "duration_minutes",
+          "sections",
+          "marking_scheme",
+          "verified"
+        ],
+        "title": "ExamStageRead",
         "type": "object"
       },
       "ExplanationReview": {
@@ -2133,6 +3296,18 @@
               }
             ],
             "title": "Correct Position"
+          },
+          "correct_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Spec"
           },
           "correct_typed_answer": {
             "anyOf": [
@@ -2349,7 +3524,17 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -2532,11 +3717,30 @@
       "LadderAnswer": {
         "additionalProperties": false,
         "properties": {
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
           "selected_index": {
-            "maximum": 9.0,
-            "minimum": 0.0,
-            "title": "Selected Index",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 9.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Index"
           },
           "time_spent_ms": {
             "anyOf": [
@@ -2550,11 +3754,21 @@
               }
             ],
             "title": "Time Spent Ms"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
           }
         },
-        "required": [
-          "selected_index"
-        ],
         "title": "LadderAnswer",
         "type": "object"
       },
@@ -2579,6 +3793,11 @@
       "LadderOverview": {
         "description": "Topics for the exam, most repeated first; ``best`` is the learner's own best climb.",
         "properties": {
+          "available": {
+            "default": true,
+            "title": "Available",
+            "type": "boolean"
+          },
           "best": {
             "anyOf": [
               {
@@ -2608,16 +3827,77 @@
         "description": "What the learner sees once they have answered.",
         "properties": {
           "answer_index": {
-            "title": "Answer Index",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Index"
+          },
+          "answer_lines": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Answer Lines",
+            "type": "array"
           },
           "correct": {
             "title": "Correct",
             "type": "boolean"
           },
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "marks_possible": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Possible"
+          },
+          "partly_right": {
+            "default": false,
+            "title": "Partly Right",
+            "type": "boolean"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
           "selected_index": {
-            "title": "Selected Index",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Index"
           },
           "shortcut": {
             "title": "Shortcut",
@@ -2707,11 +3987,26 @@
             "title": "Exam Code",
             "type": "string"
           },
+          "include_new_formats": {
+            "default": false,
+            "title": "Include New Formats",
+            "type": "boolean"
+          },
           "language": {
             "default": "en",
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -2749,6 +4044,28 @@
             ],
             "title": "Difficulty",
             "type": "string"
+          },
+          "format": {
+            "default": "single_correct",
+            "title": "Format",
+            "type": "string"
+          },
+          "format_data": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format Data"
           },
           "model_name": {
             "anyOf": [
@@ -2947,6 +4264,65 @@
         "title": "LoginRequest",
         "type": "object"
       },
+      "MarkingScheme": {
+        "additionalProperties": false,
+        "properties": {
+          "marks_correct": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1000.0,
+            "title": "Marks Correct",
+            "type": "number"
+          },
+          "marks_unanswered": {
+            "default": 0,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Marks Unanswered",
+            "type": "number"
+          },
+          "marks_wrong": {
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Marks Wrong",
+            "type": "number"
+          }
+        },
+        "required": [
+          "marks_correct",
+          "marks_wrong"
+        ],
+        "title": "MarkingScheme",
+        "type": "object"
+      },
+      "MarkingSchemeRead": {
+        "properties": {
+          "marks_correct": {
+            "title": "Marks Correct",
+            "type": "number"
+          },
+          "marks_unanswered": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Unanswered"
+          },
+          "marks_wrong": {
+            "title": "Marks Wrong",
+            "type": "number"
+          }
+        },
+        "required": [
+          "marks_correct",
+          "marks_wrong"
+        ],
+        "title": "MarkingSchemeRead",
+        "type": "object"
+      },
       "MockAvailability": {
         "properties": {
           "available": {
@@ -2995,6 +4371,17 @@
             ],
             "title": "Negative Marks Per Wrong"
           },
+          "penalty_fraction": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Penalty Fraction"
+          },
           "section_counts_indicative": {
             "default": false,
             "title": "Section Counts Indicative",
@@ -3033,6 +4420,11 @@
             "minLength": 1,
             "title": "Exam Format Code",
             "type": "string"
+          },
+          "include_new_formats": {
+            "default": false,
+            "title": "Include New Formats",
+            "type": "boolean"
           }
         },
         "required": [
@@ -3123,6 +4515,39 @@
           "marking_note"
         ],
         "title": "MockResult",
+        "type": "object"
+      },
+      "NameSuggestion": {
+        "description": "Questions worded alike across papers with no model yet. A prompt to name them: nothing\nis created until a person does.",
+        "properties": {
+          "papers": {
+            "title": "Papers",
+            "type": "integer"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/SimilarQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "topic_name",
+          "papers",
+          "questions"
+        ],
+        "title": "NameSuggestion",
         "type": "object"
       },
       "NotRepeated": {
@@ -3935,6 +5360,72 @@
         "title": "PaperDateUpdate",
         "type": "object"
       },
+      "PaperDetailsUpdate": {
+        "additionalProperties": false,
+        "description": "Only what the request states changes. ``duplicate_of_id``: this paper is another set of\nthat one, and counts once.",
+        "properties": {
+          "duplicate_of_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Id"
+          },
+          "extra_languages": {
+            "default": [],
+            "items": {
+              "pattern": "^[a-z]{2,3}$",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Extra Languages",
+            "type": "array"
+          },
+          "session_label": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Label"
+          },
+          "set_code": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Set Code"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          }
+        },
+        "title": "PaperDetailsUpdate",
+        "type": "object"
+      },
       "PaperTopicsResult": {
         "properties": {
           "considered": {
@@ -4147,6 +5638,26 @@
         "title": "ParseSummary",
         "type": "object"
       },
+      "PassageKindUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "passage",
+              "chart",
+              "table",
+              "case"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "PassageKindUpdate",
+        "type": "object"
+      },
       "PassageRead": {
         "properties": {
           "first_question": {
@@ -4163,6 +5674,11 @@
           "id": {
             "format": "uuid",
             "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "default": "passage",
+            "title": "Kind",
             "type": "string"
           },
           "last_question": {
@@ -4275,6 +5791,40 @@
         "title": "PatternCreate",
         "type": "object"
       },
+      "PatternFromQuestions": {
+        "additionalProperties": false,
+        "description": "Names questions that look alike: a new private model, and the questions confirmed.",
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Question Ids",
+            "type": "array"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "question_ids"
+        ],
+        "title": "PatternFromQuestions",
+        "type": "object"
+      },
       "PatternGap": {
         "properties": {
           "name": {
@@ -4305,6 +5855,34 @@
         "title": "PatternGap",
         "type": "object"
       },
+      "PatternMerge": {
+        "additionalProperties": false,
+        "properties": {
+          "into_id": {
+            "format": "uuid",
+            "title": "Into Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "into_id"
+        ],
+        "title": "PatternMerge",
+        "type": "object"
+      },
+      "PatternMerged": {
+        "properties": {
+          "moved": {
+            "title": "Moved",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "moved"
+        ],
+        "title": "PatternMerged",
+        "type": "object"
+      },
       "PatternRead": {
         "description": "A named question type within a topic.",
         "properties": {
@@ -4316,6 +5894,11 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "own": {
+            "default": false,
+            "title": "Own",
+            "type": "boolean"
           },
           "topic_id": {
             "format": "uuid",
@@ -4329,6 +5912,22 @@
           "name"
         ],
         "title": "PatternRead",
+        "type": "object"
+      },
+      "PatternRename": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "PatternRename",
         "type": "object"
       },
       "PatternRepeat": {
@@ -4513,6 +6112,11 @@
           "include_ai": {
             "default": false,
             "title": "Include Ai",
+            "type": "boolean"
+          },
+          "include_new_formats": {
+            "default": false,
+            "title": "Include New Formats",
             "type": "boolean"
           },
           "include_shared": {
@@ -4804,6 +6408,18 @@
             ],
             "title": "Answer Source"
           },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
           "answer_type": {
             "enum": [
               "choice",
@@ -4812,6 +6428,17 @@
             ],
             "title": "Answer Type",
             "type": "string"
+          },
+          "choice_group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choice Group"
           },
           "correct_option_position": {
             "anyOf": [
@@ -4882,6 +6509,10 @@
             "title": "Figures",
             "type": "array"
           },
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -4901,10 +6532,31 @@
           "language": {
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
+          },
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
           },
           "model_answer": {
             "anyOf": [
@@ -5035,6 +6687,21 @@
             "title": "Stem",
             "type": "string"
           },
+          "sub_parts": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Parts"
+          },
           "subject": {
             "anyOf": [
               {
@@ -5091,6 +6758,18 @@
             ],
             "title": "Topic Suggestion Reason"
           },
+          "translation_of_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Translation Of Id"
+          },
           "typed_answer": {
             "anyOf": [
               {
@@ -5131,6 +6810,17 @@
               }
             ],
             "title": "Verified At"
+          },
+          "word_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Word Limit"
           }
         },
         "required": [
@@ -5156,6 +6846,8 @@
           "options",
           "correct_option_position",
           "answer_type",
+          "format",
+          "answer_spec",
           "typed_answer",
           "typed_answer_numeric",
           "answer_source",
@@ -5270,6 +6962,18 @@
             ],
             "title": "Answer Source"
           },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
           "answer_type": {
             "enum": [
               "choice",
@@ -5300,6 +7004,11 @@
               }
             ],
             "title": "Explanation"
+          },
+          "format": {
+            "default": "single_correct",
+            "title": "Format",
+            "type": "string"
           },
           "model_answer": {
             "anyOf": [
@@ -5352,6 +7061,18 @@
         "additionalProperties": false,
         "description": "Reviewer edits. Only fields present are changed; null clears nullable fields.",
         "properties": {
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
           "answer_type": {
             "anyOf": [
               {
@@ -5367,6 +7088,18 @@
               }
             ],
             "title": "Answer Type"
+          },
+          "choice_group": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choice Group"
           },
           "correct_option_position": {
             "anyOf": [
@@ -5393,6 +7126,17 @@
             ],
             "title": "Explanation"
           },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
           "image_dependent": {
             "anyOf": [
               {
@@ -5403,6 +7147,19 @@
               }
             ],
             "title": "Image Dependent"
+          },
+          "marks": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
           },
           "model_answer": {
             "anyOf": [
@@ -5470,6 +7227,21 @@
             ],
             "title": "Stem"
           },
+          "sub_parts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SubPart"
+                },
+                "maxItems": 30,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Parts"
+          },
           "subject": {
             "anyOf": [
               {
@@ -5522,6 +7294,19 @@
               }
             ],
             "title": "Verification Status"
+          },
+          "word_limit": {
+            "anyOf": [
+              {
+                "maximum": 20000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Word Limit"
           }
         },
         "title": "QuestionUpdate",
@@ -5928,6 +7713,17 @@
       "RepeatCounts": {
         "description": "How often something appeared in the learner's own papers.",
         "properties": {
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
           "papers": {
             "title": "Papers",
             "type": "integer"
@@ -5954,6 +7750,11 @@
       },
       "RepeatsReport": {
         "properties": {
+          "counting_unit": {
+            "default": "paper",
+            "title": "Counting Unit",
+            "type": "string"
+          },
           "exam_code": {
             "anyOf": [
               {
@@ -5964,6 +7765,14 @@
               }
             ],
             "title": "Exam Code"
+          },
+          "name_suggestions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/NameSuggestion"
+            },
+            "title": "Name Suggestions",
+            "type": "array"
           },
           "not_repeated": {
             "$ref": "#/components/schemas/NotRepeated",
@@ -6177,7 +7986,17 @@
               {
                 "enum": [
                   "en",
-                  "hi"
+                  "hi",
+                  "as",
+                  "bn",
+                  "gu",
+                  "kn",
+                  "ml",
+                  "mr",
+                  "or",
+                  "pa",
+                  "ta",
+                  "te"
                 ],
                 "type": "string"
               },
@@ -6372,9 +8191,31 @@
             ],
             "title": "Accuracy"
           },
+          "cleared": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cleared"
+          },
           "correct": {
             "title": "Correct",
             "type": "integer"
+          },
+          "cutoff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
           },
           "explanation": {
             "title": "Explanation",
@@ -6387,6 +8228,11 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "partial": {
+            "default": 0,
+            "title": "Partial",
+            "type": "integer"
           },
           "score": {
             "title": "Score",
@@ -6500,6 +8346,28 @@
             "title": "Figures",
             "type": "array"
           },
+          "format": {
+            "default": "single_correct",
+            "title": "Format",
+            "type": "string"
+          },
+          "format_data": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format Data"
+          },
           "options": {
             "items": {
               "$ref": "#/components/schemas/OptionRead"
@@ -6547,6 +8415,18 @@
               }
             ],
             "title": "Question Id"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
           },
           "section": {
             "anyOf": [
@@ -6599,6 +8479,14 @@
               }
             ],
             "title": "Subject"
+          },
+          "translations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TranslationRead"
+            },
+            "title": "Translations",
+            "type": "array"
           },
           "typed_answer": {
             "anyOf": [
@@ -6872,6 +8760,11 @@
           "max_score": {
             "title": "Max Score",
             "type": "number"
+          },
+          "partial": {
+            "default": 0,
+            "title": "Partial",
+            "type": "integer"
           },
           "score": {
             "title": "Score",
@@ -7193,6 +9086,94 @@
         "title": "SnapshotOption",
         "type": "object"
       },
+      "StageSection": {
+        "additionalProperties": false,
+        "properties": {
+          "cutoff": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "maximum": 1440.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "question_count": {
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Question Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "question_count"
+        ],
+        "title": "StageSection",
+        "type": "object"
+      },
+      "StageSectionRead": {
+        "properties": {
+          "cutoff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "question_count": {
+            "title": "Question Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "question_count"
+        ],
+        "title": "StageSectionRead",
+        "type": "object"
+      },
       "StarterCheckAvailability": {
         "description": "Whether a new learner can take a starter check for an exam (no papers of their own).",
         "properties": {
@@ -7266,6 +9247,42 @@
           "cited"
         ],
         "title": "StudyItemRead",
+        "type": "object"
+      },
+      "SubPart": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "marks": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "text": {
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "text"
+        ],
+        "title": "SubPart",
         "type": "object"
       },
       "SubjectStats": {
@@ -7469,6 +9486,133 @@
         "title": "SyllabusImportRead",
         "type": "object"
       },
+      "SyllabusNodeInput": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Aliases",
+            "type": "array"
+          },
+          "children": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeInput"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "keywords": {
+            "default": [],
+            "items": {
+              "maxLength": 60,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 60,
+            "title": "Keywords",
+            "type": "array"
+          },
+          "level_label": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level Label"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "SyllabusNodeInput",
+        "type": "object"
+      },
+      "SyllabusNodeRead": {
+        "properties": {
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "children": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeRead"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "level_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level Label"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "level_label",
+          "keywords",
+          "aliases",
+          "topic_id"
+        ],
+        "title": "SyllabusNodeRead",
+        "type": "object"
+      },
       "SyllabusSource": {
         "additionalProperties": false,
         "description": "Where a saved draft came from: its topics form one section that can be removed.",
@@ -7530,6 +9674,137 @@
           "text"
         ],
         "title": "SyllabusText",
+        "type": "object"
+      },
+      "SyllabusVersionCreate": {
+        "additionalProperties": false,
+        "description": "A learner's own syllabus: built by hand, or reviewed from a PDF.",
+        "properties": {
+          "effective_year": {
+            "anyOf": [
+              {
+                "maximum": 2100.0,
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Year"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "source_kind": {
+            "default": "manual",
+            "enum": [
+              "pdf",
+              "manual"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "tree": {
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeInput"
+            },
+            "minItems": 1,
+            "title": "Tree",
+            "type": "array"
+          }
+        },
+        "required": [
+          "tree",
+          "name"
+        ],
+        "title": "SyllabusVersionCreate",
+        "type": "object"
+      },
+      "SyllabusVersionRead": {
+        "properties": {
+          "effective_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Year"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "in_force": {
+            "title": "In Force",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "own": {
+            "title": "Own",
+            "type": "boolean"
+          },
+          "source_kind": {
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Title"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "tree": {
+            "items": {
+              "$ref": "#/components/schemas/SyllabusNodeRead"
+            },
+            "title": "Tree",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "exam_code",
+          "effective_year",
+          "name",
+          "source_kind",
+          "source_title",
+          "source_url",
+          "own",
+          "in_force",
+          "tree"
+        ],
+        "title": "SyllabusVersionRead",
         "type": "object"
       },
       "TaxonomySubjectRead": {
@@ -7880,7 +10155,17 @@
             "default": "en",
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -7938,6 +10223,11 @@
       },
       "TopicRef": {
         "properties": {
+          "dropped": {
+            "default": false,
+            "title": "Dropped",
+            "type": "boolean"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -8020,7 +10310,17 @@
             "default": "en",
             "enum": [
               "en",
-              "hi"
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
             ],
             "title": "Language",
             "type": "string"
@@ -8080,6 +10380,11 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "partial": {
+            "default": 0,
+            "title": "Partial",
+            "type": "integer"
           },
           "score": {
             "title": "Score",
@@ -8318,6 +10623,55 @@
           "deleted"
         ],
         "title": "TopicsDeleted",
+        "type": "object"
+      },
+      "TranslationLink": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          }
+        },
+        "required": [
+          "question_id"
+        ],
+        "title": "TranslationLink",
+        "type": "object"
+      },
+      "TranslationRead": {
+        "description": "The question in another language, linked by a reviewer. Options keep their position.",
+        "properties": {
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "language",
+          "stem",
+          "options"
+        ],
+        "title": "TranslationRead",
         "type": "object"
       },
       "UserRead": {
@@ -9809,6 +12163,73 @@
         ]
       }
     },
+    "/api/v1/analytics/canonical": {
+      "get": {
+        "operationId": "canonical_api_v1_analytics_canonical_get",
+        "parameters": [
+          {
+            "description": "Exams to compare",
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "description": "Exams to compare",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 20,
+              "title": "Exam",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CanonicalTopicStats"
+                  },
+                  "title": "Response Canonical Api V1 Analytics Canonical Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Answers on topics that mean the same across exams, per exam and combined",
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
     "/api/v1/analytics/overview": {
       "get": {
         "operationId": "overview_api_v1_analytics_overview_get",
@@ -9855,7 +12276,7 @@
             }
           },
           {
-            "description": "Only this exam (e.g. SSC_CHSL); all if omitted",
+            "description": "Only this exam; all if omitted",
             "in": "query",
             "name": "exam",
             "required": false,
@@ -9869,7 +12290,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Only this exam (e.g. SSC_CHSL); all if omitted",
+              "description": "Only this exam; all if omitted",
               "title": "Exam"
             }
           }
@@ -10839,7 +13260,17 @@
                 {
                   "enum": [
                     "en",
-                    "hi"
+                    "hi",
+                    "as",
+                    "bn",
+                    "gu",
+                    "kn",
+                    "ml",
+                    "mr",
+                    "or",
+                    "pa",
+                    "ta",
+                    "te"
                   ],
                   "type": "string"
                 },
@@ -11458,6 +13889,522 @@
         ]
       }
     },
+    "/api/v1/descriptive/overview": {
+      "get": {
+        "operationId": "overview_api_v1_descriptive_overview_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Whether an exam has written practice, and its topics",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/read-photo": {
+      "post": {
+        "operationId": "read_photo_api_v1_descriptive_read_photo_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_read_photo_api_v1_descriptive_read_photo_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptivePhotoRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read a handwritten answer from a photo for correcting (nothing is stored)",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions": {
+      "post": {
+        "operationId": "start_api_v1_descriptive_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescriptiveStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveSessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start written practice on a topic: plans the levels (questions come one by one)",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions/{session_id}": {
+      "get": {
+        "operationId": "read_api_v1_descriptive_sessions__session_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveSessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read a written practice session",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions/{session_id}/steps/{number}/answer": {
+      "post": {
+        "operationId": "answer_api_v1_descriptive_sessions__session_id__steps__number__answer_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescriptiveAnswer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveStepRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mark an answer against the rubric: estimated marks, not an official grade",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
+    "/api/v1/descriptive/sessions/{session_id}/steps/{number}/generate": {
+      "post": {
+        "operationId": "generate_api_v1_descriptive_sessions__session_id__steps__number__generate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescriptiveStepRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Write one level's question and rubric, and check them",
+        "tags": [
+          "descriptive"
+        ]
+      }
+    },
     "/api/v1/documents": {
       "get": {
         "operationId": "list_documents_api_v1_documents_get",
@@ -11758,6 +14705,342 @@
           }
         ],
         "summary": "Get Document",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/answer-key": {
+      "post": {
+        "operationId": "upload_answer_key_api_v1_documents__document_id__answer_key_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_answer_key_api_v1_documents__document_id__answer_key_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerKeyResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "file_too_large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "unsupported_file_type (not a PDF)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "validation_error, invalid_reference, empty_file, invalid_pdf, encrypted_pdf, too_many_pages"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited (see Retry-After)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Fill in missing answers from a separate answer-key PDF (the file isn't kept)",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/answer-key/text": {
+      "post": {
+        "operationId": "type_answer_key_api_v1_documents__document_id__answer_key_text_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerKeyText"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerKeyResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Fill in missing answers from a typed or pasted answer key",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/details": {
+      "put": {
+        "operationId": "set_details_api_v1_documents__document_id__details_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaperDetailsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stage, session, set and languages; mark the paper as another set of a paper",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/duplicate-suggestions": {
+      "get": {
+        "operationId": "duplicate_suggestions_api_v1_documents__document_id__duplicate_suggestions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DuplicateSuggestion"
+                  },
+                  "title": "Response Duplicate Suggestions Api V1 Documents  Document Id  Duplicate Suggestions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your papers that look like another set of this one (nothing changes until you say)",
         "tags": [
           "documents"
         ]
@@ -12634,6 +15917,162 @@
         ]
       }
     },
+    "/api/v1/exams/{code}/syllabus-versions": {
+      "get": {
+        "operationId": "syllabus_versions_api_v1_exams__code__syllabus_versions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SyllabusVersionRead"
+                  },
+                  "title": "Response Syllabus Versions Api V1 Exams  Code  Syllabus Versions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "The exam's syllabus versions, as trees",
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "create_syllabus_version_api_v1_exams__code__syllabus_versions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyllabusVersionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyllabusVersionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add your own syllabus for the exam, built by hand or reviewed from a PDF",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/api/v1/exams/{code}/syllabus/text": {
       "post": {
         "operationId": "read_syllabus_text_api_v1_exams__code__syllabus_text_post",
@@ -12819,7 +16258,7 @@
         "operationId": "repeats_api_v1_insights_repeats_get",
         "parameters": [
           {
-            "description": "Exam code, e.g. SSC_CHSL",
+            "description": "Exam code",
             "in": "query",
             "name": "exam",
             "required": false,
@@ -12833,7 +16272,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Exam code, e.g. SSC_CHSL",
+              "description": "Exam code",
               "title": "Exam"
             }
           },
@@ -13685,6 +17124,77 @@
         ]
       }
     },
+    "/api/v1/me/exams/{code}/stages": {
+      "get": {
+        "operationId": "exam_stages_api_v1_me_exams__code__stages_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExamStageRead"
+                  },
+                  "title": "Response Exam Stages Api V1 Me Exams  Code  Stages Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "An exam's stages: reviewed formats, or what you entered for your own exam",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/api/v1/me/plus": {
       "get": {
         "operationId": "plus_status_api_v1_me_plus_get",
@@ -13818,6 +17328,84 @@
         "summary": "Start a free test subscription (development servers only)",
         "tags": [
           "plus"
+        ]
+      }
+    },
+    "/api/v1/passages/{passage_id}/kind": {
+      "put": {
+        "operationId": "set_passage_kind_api_v1_passages__passage_id__kind_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "passage_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Passage Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassageKindUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassageRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Say what shared material is: text, chart, table or case",
+        "tags": [
+          "questions"
         ]
       }
     },
@@ -13955,6 +17543,82 @@
         ]
       }
     },
+    "/api/v1/patterns/from-questions": {
+      "post": {
+        "operationId": "pattern_from_questions_api_v1_patterns_from_questions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatternFromQuestions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatternRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Name questions that look alike: a new model, with the questions confirmed",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/api/v1/patterns/{pattern_id}": {
       "delete": {
         "operationId": "delete_pattern_api_v1_patterns__pattern_id__delete",
@@ -14011,6 +17675,170 @@
           }
         ],
         "summary": "Delete Pattern",
+        "tags": [
+          "exams"
+        ]
+      },
+      "patch": {
+        "operationId": "rename_pattern_api_v1_patterns__pattern_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pattern_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pattern Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatternRename"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatternRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Rename one of your own models",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/patterns/{pattern_id}/merge": {
+      "post": {
+        "operationId": "merge_pattern_api_v1_patterns__pattern_id__merge_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pattern_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pattern Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatternMerge"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatternMerged"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Move your questions to another model of the topic and remove this one",
         "tags": [
           "exams"
         ]
@@ -14994,7 +18822,17 @@
                 {
                   "enum": [
                     "en",
-                    "hi"
+                    "hi",
+                    "as",
+                    "bn",
+                    "gu",
+                    "kn",
+                    "ml",
+                    "mr",
+                    "or",
+                    "pa",
+                    "ta",
+                    "te"
                   ],
                   "type": "string"
                 },
@@ -15866,12 +19704,90 @@
         ]
       }
     },
+    "/api/v1/questions/{question_id}/translation-of": {
+      "put": {
+        "operationId": "set_translation_api_v1_questions__question_id__translation_of_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranslationLink"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Link this question as a translation of another, so they count once",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
     "/api/v1/radar": {
       "get": {
         "operationId": "radar_api_v1_radar_get",
         "parameters": [
           {
-            "description": "Exam code, e.g. SSC_CHSL",
+            "description": "Exam code",
             "in": "query",
             "name": "exam",
             "required": false,
@@ -15885,7 +19801,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Exam code, e.g. SSC_CHSL",
+              "description": "Exam code",
               "title": "Exam"
             }
           }
@@ -16190,6 +20106,67 @@
           }
         ],
         "summary": "Remove a syllabus import and all its topics",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/syllabus-versions/{version_id}": {
+      "delete": {
+        "operationId": "delete_syllabus_version_api_v1_syllabus_versions__version_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "version_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Version Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Syllabus Version",
         "tags": [
           "exams"
         ]
@@ -16928,6 +20905,78 @@
           }
         ],
         "summary": "Mark a topic as revised (or not) for you",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/default-models": {
+      "post": {
+        "operationId": "add_default_models_api_v1_topics__topic_id__default_models_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Topic Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PatternRead"
+                  },
+                  "title": "Response Add Default Models Api V1 Topics  Topic Id  Default Models Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add the answer-format models a topic doesn't have yet",
         "tags": [
           "exams"
         ]

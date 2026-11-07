@@ -8,7 +8,7 @@ requested IANA timezone, computed by PostgreSQL (``timezone(zone, answered_at)``
 
 import uuid
 import zoneinfo
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
@@ -24,9 +24,12 @@ from app.models.practice import (
     SessionStatus,
 )
 from app.models.question import ExamFormat, Question, Topic
+from app.models.taxonomy import TaxonomyLabel, TaxonomyNode, TopicTaxonomyLink
 from app.schemas.analytics import (
     AnalyticsOverview,
+    CanonicalTopicStats,
     DailyStats,
+    ExamCounts,
     MockResult,
     SubjectStats,
     TopicStats,
@@ -94,6 +97,7 @@ class AnalyticsService:
                     or_(
                         SessionAnswer.selected_position.is_not(None),
                         SessionAnswer.typed_answer.is_not(None),
+                        SessionAnswer.response.is_not(None),
                     ),
                     _counts_as_result(),
                     PracticeSession.owner_id == self._owner_id,
@@ -213,6 +217,70 @@ class AnalyticsService:
             daily=daily,
             mocks=self._mocks(zone, exam),
         )
+
+    def canonical(self, exams: Sequence[str]) -> list[CanonicalTopicStats]:
+        """Raw counts per canonical topic. Only confirmed links count."""
+        correct = func.coalesce(func.sum(case((SessionAnswer.is_correct.is_(True), 1), else_=0)), 0)
+        rows = self._session.execute(
+            select(
+                TaxonomyNode.key,
+                Question.exam_code,
+                func.count().cast(Integer),
+                correct,
+            )
+            .select_from(SessionAnswer)
+            .join(
+                SessionItem,
+                and_(
+                    SessionItem.session_id == SessionAnswer.session_id,
+                    SessionItem.position == SessionAnswer.position,
+                ),
+            )
+            .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
+            .join(Question, Question.id == SessionAnswer.question_id)
+            .join(TopicTaxonomyLink, TopicTaxonomyLink.topic_id == SessionItem.topic_id)
+            .join(TaxonomyNode, TaxonomyNode.id == TopicTaxonomyLink.node_id)
+            .where(
+                TopicTaxonomyLink.status == "confirmed",
+                or_(
+                    SessionAnswer.selected_position.is_not(None),
+                    SessionAnswer.typed_answer.is_not(None),
+                    SessionAnswer.response.is_not(None),
+                ),
+                _counts_as_result(),
+                PracticeSession.owner_id == self._owner_id,
+                Question.exam_code.in_(exams),
+            )
+            .group_by(TaxonomyNode.key, Question.exam_code)
+            .order_by(TaxonomyNode.key, Question.exam_code)
+        ).all()
+        by_key: dict[str, list[ExamCounts]] = {}
+        for key, exam_code, answered, right in rows:
+            by_key.setdefault(key, []).append(
+                ExamCounts(exam_code=exam_code, answered=answered, correct=int(right))
+            )
+        names: dict[str, str] = {
+            key: label
+            for key, label in self._session.execute(
+                select(TaxonomyNode.key, TaxonomyLabel.label)
+                .join(TaxonomyLabel, TaxonomyLabel.node_id == TaxonomyNode.id)
+                .where(
+                    TaxonomyNode.key.in_(by_key),
+                    TaxonomyLabel.is_alias.is_(False),
+                    TaxonomyLabel.language == "en",
+                )
+            )
+        }
+        return [
+            CanonicalTopicStats(
+                key=key,
+                name=names.get(key, key),
+                answered=sum(e.answered for e in counts),
+                correct=sum(e.correct for e in counts),
+                exams=counts,
+            )
+            for key, counts in by_key.items()
+        ]
 
     def _mocks(self, zone: zoneinfo.ZoneInfo, exam: str | None) -> list[MockResult]:
         query = (

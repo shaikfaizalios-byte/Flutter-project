@@ -10,6 +10,7 @@ import logging
 import re
 import unicodedata
 import uuid
+from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
 from typing import BinaryIO
@@ -27,6 +28,7 @@ from app.domain.errors import (
     UnsupportedFileTypeError,
     UploadTooLargeError,
 )
+from app.domain.paper_duplicates import looks_like_same_paper, shared_share
 from app.integrations.storage import DocumentStorage
 from app.models.document import Document, DocumentStatus
 from app.models.question import (
@@ -34,6 +36,7 @@ from app.models.question import (
     FormatStatus,
     Question,
     QuestionIssue,
+    QuestionOrigin,
     VerificationStatus,
 )
 from app.repositories.document_repository import DocumentRepository
@@ -41,9 +44,11 @@ from app.repositories.exam_repository import ExamRepository
 from app.schemas.document import (
     DocumentPageList,
     DocumentRead,
+    DuplicateSuggestion,
     PageList,
     PageRead,
     PaperDateUpdate,
+    PaperDetailsUpdate,
 )
 from app.services.page_layout import PdfRenderer
 
@@ -210,6 +215,67 @@ class DocumentService:
         document.paper_date_reason = None
         self._session.commit()
         return DocumentRead.model_validate(document)
+
+    def set_details(self, document_id: uuid.UUID, data: PaperDetailsUpdate) -> DocumentRead:
+        document = self._get_or_404(document_id)
+        changes = data.model_dump(exclude_unset=True)
+        if "duplicate_of_id" in changes:
+            self._check_duplicate(document, changes["duplicate_of_id"])
+        for field, value in changes.items():
+            setattr(document, field, value or None if field != "extra_languages" else value)
+        self._session.commit()
+        return DocumentRead.model_validate(document)
+
+    def _check_duplicate(self, document: Document, target_id: uuid.UUID | None) -> None:
+        if target_id is None:
+            return
+        target = self._documents.get(target_id)
+        if (
+            target is None
+            or target.owner_id != self._owner_id
+            or target.id == document.id
+            or target.exam_code != document.exam_code
+            or target.duplicate_of_id is not None
+        ):
+            raise InvalidReferenceError("That can't be another set of this paper.")
+        pointed_to = self._session.scalar(
+            select(Document.id).where(Document.duplicate_of_id == document.id).limit(1)
+        )
+        if pointed_to is not None:
+            raise InvalidReferenceError("Other papers are marked as sets of this one.")
+
+    def duplicate_suggestions(self, document_id: uuid.UUID) -> Sequence[DuplicateSuggestion]:
+        """Own papers of the exam that look like another set of this one. Only a suggestion."""
+        document = self._get_or_404(document_id)
+        rows = self._session.execute(
+            select(Question.document_id, Question.stem)
+            .join(Document, Document.id == Question.document_id)
+            .where(
+                Document.owner_id == self._owner_id,
+                Document.exam_code == document.exam_code,
+                Document.duplicate_of_id.is_(None),
+                Question.origin == QuestionOrigin.SOURCE,
+            )
+        ).all()
+        stems: dict[uuid.UUID, list[str]] = defaultdict(list)
+        for paper_id, stem in rows:
+            if paper_id is not None:
+                stems[paper_id].append(stem)
+        mine = stems.pop(document.id, [])
+        found = []
+        for paper_id, others in stems.items():
+            if looks_like_same_paper(mine, others):
+                other = self._documents.get(paper_id)
+                if other is not None:
+                    found.append(
+                        DuplicateSuggestion(
+                            document_id=paper_id,
+                            filename=other.original_filename,
+                            set_code=other.set_code,
+                            shared_share=round(shared_share(mine, others), 3),
+                        )
+                    )
+        return sorted(found, key=lambda s: -s.shared_share)
 
     def require_extracted(self, document_id: uuid.UUID) -> None:
         if self._get_or_404(document_id).status != DocumentStatus.COMPLETED:

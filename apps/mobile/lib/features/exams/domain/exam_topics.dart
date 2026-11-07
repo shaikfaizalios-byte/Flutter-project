@@ -184,3 +184,26 @@ class TopicDraft {
   final int questionsConsidered;
   final List<NewTopic> topics;
 }
+
+/// A named question type of a topic: the shared list, or the learner's own.
+@immutable
+class TopicModel {
+  const TopicModel({
+    required this.id,
+    required this.topicId,
+    required this.name,
+    required this.own,
+  });
+
+  factory TopicModel.fromJson(Map<String, dynamic> json) => TopicModel(
+    id: json['id'] as String,
+    topicId: json['topic_id'] as String,
+    name: json['name'] as String,
+    own: json['own'] as bool? ?? false,
+  );
+
+  final String id;
+  final String topicId;
+  final String name;
+  final bool own;
+}

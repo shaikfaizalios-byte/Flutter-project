@@ -1,8 +1,8 @@
 import uuid
 from datetime import date, datetime
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 from app.schemas.language import Language
 
@@ -40,11 +40,57 @@ class DocumentRead(BaseModel):
     exam_date: date | None
     exam_shift: int | None
     paper_date_status: Literal["unknown", "suggested", "confirmed"]
+    stage: str | None = None
+    session_label: str | None = None
+    set_code: str | None = None
+    extra_languages: list[str] = []
+    duplicate_of_id: uuid.UUID | None = None
     paper_date_reason: str | None
     created_at: datetime
     updated_at: datetime
     processing_started_at: datetime | None
     processing_finished_at: datetime | None
+
+
+class PaperDetailsUpdate(BaseModel):
+    """Only what the request states changes. ``duplicate_of_id``: this paper is another set of
+    that one, and counts once."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    stage: Annotated[str, StringConstraints(strip_whitespace=True, max_length=60)] | None = None
+    session_label: (
+        Annotated[str, StringConstraints(strip_whitespace=True, max_length=40)] | None
+    ) = None
+    set_code: Annotated[str, StringConstraints(strip_whitespace=True, max_length=20)] | None = None
+    extra_languages: list[Annotated[str, StringConstraints(pattern=r"^[a-z]{2,3}$")]] = Field(
+        default=[], max_length=20
+    )
+    duplicate_of_id: uuid.UUID | None = None
+
+
+class AnswerKeyText(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50_000)]
+
+
+class AnswerKeyResult(BaseModel):
+    read_by: str  # text, ocr, mixed, none or typed
+    applied: int
+    agreed: int  # already had the same answer
+    conflicts: int  # flagged for a person; nothing was overwritten
+    unmatched: list[int]  # key numbers with no such question
+    ambiguous: bool  # numbers repeat in the paper, so nothing could be matched
+    without_answer: int  # questions still without one
+    problems: list[str]
+
+
+class DuplicateSuggestion(BaseModel):
+    document_id: uuid.UUID
+    filename: str
+    set_code: str | None
+    shared_share: float
 
 
 class PaperDateUpdate(BaseModel):

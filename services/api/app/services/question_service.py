@@ -11,9 +11,17 @@ from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.domain import ai_reading, question_history, typed_answers
+from app.domain.answer_key import KeyQuestion, plan_key
 from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
 from app.domain.figures import figure_box_problem, page_box
-from app.domain.segmentation import EXPECTED_OPTIONS, Issue, IssueCode, content_issues
+from app.domain.question_formats import (
+    FORMATS,
+    SINGLE_ANSWER,
+    SPEC_FORMATS,
+    answer_type_of,
+    spec_problems,
+)
+from app.domain.segmentation import AnswerKeyRead, Issue, IssueCode, content_issues
 from app.integrations.storage import DocumentStorage
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
@@ -30,6 +38,7 @@ from app.models.question import (
     TopicStatus,
     VerificationStatus,
 )
+from app.schemas.document import AnswerKeyResult
 from app.schemas.question import (
     AIExplanationRead,
     AIProvenance,
@@ -50,8 +59,14 @@ from app.schemas.question import (
     TopicRead,
 )
 from app.services.exam_formats import published_formats
+from app.services.exam_profiles import profile_for
 from app.services.page_layout import PdfRenderer
-from app.services.patterns import clear_pattern, pattern_candidates, refresh_pattern
+from app.services.patterns import (
+    clear_pattern,
+    pattern_candidates,
+    refresh_pattern,
+    visible_pattern,
+)
 from app.services.question_history import (
     current_snapshot,
     extracted_snapshots,
@@ -111,6 +126,8 @@ def _clean(question: Question) -> bool:
         return False
     if any(not i.resolved and i.code in REVIEW_FIRST_CODES for i in question.issues):
         return False  # read by AI and not confirmed by the page text: a person must look
+    if question.format in SPEC_FORMATS:
+        return not spec_problems(question.format, question.answer_spec, len(question.options))
     if question.answer_type == "typed":
         return bool(question.typed_answer)
     if question.answer_type == "written":
@@ -232,12 +249,15 @@ class QuestionService:
         stmt = (
             select(QuestionPattern)
             .join(Topic, Topic.id == QuestionPattern.topic_id)
-            .where(*topic_scope(self._owner_id, None))
+            .where(*topic_scope(self._owner_id, None), visible_pattern(self._owner_id))
             .order_by(QuestionPattern.topic_id, QuestionPattern.sort_order, QuestionPattern.name)
         )
         if topic_id:
             stmt = stmt.where(QuestionPattern.topic_id == topic_id)
-        return [PatternRead.model_validate(p) for p in self._session.scalars(stmt).all()]
+        return [
+            PatternRead(id=p.id, topic_id=p.topic_id, name=p.name, own=p.owner_id is not None)
+            for p in self._session.scalars(stmt).all()
+        ]
 
     def exam_formats(self, exam_code: str | None) -> list[ExamFormatRead]:
         """Published formats (verified and retired, with their status); never drafts."""
@@ -281,7 +301,9 @@ class QuestionService:
             rejected=sum(q.verification_status == VerificationStatus.REJECTED for q in questions),
             with_open_issues=sum(any(not i.resolved for i in q.issues) for q in questions),
             missing_answers=sum(
-                (q.typed_answer is None)
+                (q.answer_spec is None)
+                if q.format in SPEC_FORMATS
+                else (q.typed_answer is None)
                 if q.answer_type == "typed"
                 else (q.correct_option_position is None)
                 for q in questions
@@ -341,6 +363,7 @@ class QuestionService:
                 QuestionOption(position=i + 1, label=o["label"], text=o["text"])
                 for i, o in enumerate(changes.pop("options"))
             ]
+        self._change_format(question, changes)
         if "answer_type" in changes:
             answer_type = changes.pop("answer_type")
             if answer_type is not None and answer_type != question.answer_type:
@@ -399,7 +422,7 @@ class QuestionService:
         if pattern_change:
             self._set_pattern(question, pattern_id)
         elif data.model_fields_set & {"topic_id", "stem"}:
-            refresh_pattern(question, pattern_candidates(self._session))
+            refresh_pattern(question, pattern_candidates(self._session, self._owner_id))
 
         content_changed = bool(data.model_fields_set - {"verification_status"})
         self._refresh_content_issues(question)
@@ -443,6 +466,93 @@ class QuestionService:
         self._session.commit()
         return self.get(question_id)
 
+    def apply_answer_key(
+        self, document_id: uuid.UUID, read: AnswerKeyRead, read_by: str
+    ) -> AnswerKeyResult:
+        """Fills in missing answers of one paper; see app/domain/answer_key.py."""
+        document = self._session.get(Document, document_id)
+        if document is None or document.owner_id != self._owner_id:
+            raise NotFoundError("Document not found.")
+        questions = self._session.scalars(
+            select(Question)
+            .where(
+                Question.document_id == document_id,
+                Question.origin == QuestionOrigin.SOURCE,
+                Question.format.in_(SINGLE_ANSWER),
+                Question.verification_status != VerificationStatus.REJECTED,
+            )
+            .options(*self._load_options())
+        ).all()
+        plan = plan_key(
+            [
+                KeyQuestion(
+                    q.id,
+                    q.source_question_number or 0,
+                    q.correct_option_position,
+                    len(q.options),
+                )
+                for q in questions
+            ],
+            read.entries,
+        )
+        for question in questions:
+            if question.id in plan.apply:
+                before = current_snapshot(question)
+                question.correct_option_position = plan.apply[question.id]
+                question.answer_source = "answer_key"
+                self._refresh_content_issues(question)
+                record_edit(self._session, question, before)
+            elif question.id in plan.conflicts:
+                question.issues.append(
+                    QuestionIssue(
+                        document_id=document_id,
+                        code=IssueCode.CONFLICTING_ANSWERS,
+                        detail=plan.conflicts[question.id][:500],
+                    )
+                )
+        self._session.commit()
+        return AnswerKeyResult(
+            read_by=read_by,
+            applied=len(plan.apply),
+            agreed=plan.agreed,
+            conflicts=len(plan.conflicts),
+            unmatched=plan.unmatched,
+            ambiguous=plan.ambiguous,
+            without_answer=sum(q.correct_option_position is None for q in questions),
+            problems=read.problems,
+        )
+
+    def set_translation(self, question_id: uuid.UUID, of: uuid.UUID | None) -> QuestionRead:
+        """This question is ``of`` in another language, and counts once. Null unlinks it."""
+        question = self._get_or_404(question_id)
+        if of is not None:
+            target = self._get_or_404(of)
+            if (
+                target.id == question.id
+                or target.language == question.language
+                or target.exam_code != question.exam_code
+                or target.translation_of_id is not None
+            ):
+                raise InvalidReferenceError("That can't be a translation of this question.")
+        question.translation_of_id = of
+        self._session.commit()
+        return self.get(question_id)
+
+    def set_passage_kind(self, passage_id: uuid.UUID, kind: str) -> PassageRead:
+        passage = self._session.get(Passage, passage_id)
+        owner = (
+            self._session.scalar(
+                select(Document.owner_id).where(Document.id == passage.document_id)
+            )
+            if passage is not None
+            else None
+        )
+        if passage is None or owner != self._owner_id:
+            raise NotFoundError("Passage not found.")
+        passage.kind = kind
+        self._session.commit()
+        return PassageRead.model_validate(passage)
+
     def _verify(self, question: Question) -> None:
         blocking = [
             i.code for i in question.issues if not i.resolved and i.code in CONTENT_ISSUE_CODES
@@ -467,7 +577,11 @@ class QuestionService:
             clear_pattern(question)
             return
         pattern = self._session.get(QuestionPattern, pattern_id)
-        if pattern is None or pattern.topic_id != question.topic_id:
+        if (
+            pattern is None
+            or pattern.topic_id != question.topic_id
+            or pattern.owner_id not in (None, self._owner_id)
+        ):
             raise InvalidReferenceError("Unknown pattern for this question's topic.")
         question.pattern_id = pattern.id
         question.pattern_status = TopicStatus.CONFIRMED
@@ -477,12 +591,42 @@ class QuestionService:
             question.topic_suggested_by = None
             question.topic_suggestion_reason = None
 
+    @staticmethod
+    def _change_format(question: Question, changes: dict[str, Any]) -> None:
+        """A reviewer sets the format and, for formats that need it, its answer."""
+        name = changes.pop("format", None) or question.format
+        if name not in FORMATS:
+            raise InvalidReferenceError("Unknown question format.")
+        spec_given = "answer_spec" in changes
+        spec = changes.pop("answer_spec", None) if spec_given else question.answer_spec
+        if name == question.format and not spec_given:
+            return
+        if name not in SPEC_FORMATS:
+            spec = None
+        options = changes.get("options", question.options)
+        problems = spec_problems(name, spec, len(options)) if name in SPEC_FORMATS else []
+        if problems and spec is not None:
+            raise InvalidReferenceError(problems[0])
+        target = answer_type_of(name)
+        if target != question.answer_type:
+            question.format = "single_correct"  # lets answer_type follow, then is set below
+            changes["answer_type"] = target
+        question.format = name
+        question.answer_spec = spec
+        question.answer_source = "manual" if spec is not None else question.answer_source
+
     def _refresh_content_issues(self, question: Question) -> None:
         question.issues = [i for i in question.issues if i.code not in CONTENT_ISSUE_CODES]
+        if question.format in SPEC_FORMATS:
+            if question.answer_spec is None:
+                question.issues.append(
+                    QuestionIssue(document_id=question.document_id, code=IssueCode.MISSING_ANSWER)
+                )
+            return
         found = content_issues(
             option_texts=[o.text for o in question.options],
             answer_position=question.correct_option_position,
-            expected_options=EXPECTED_OPTIONS,
+            expected_options=profile_for(self._session, question.exam_code).parser_options,
             option_figures={f.option_position for f in question.figures if f.option_position},
             answer_type=question.answer_type,
             typed_answer=question.typed_answer,
@@ -789,6 +933,13 @@ class QuestionService:
             options=[OptionRead.model_validate(o) for o in question.options],
             correct_option_position=question.correct_option_position,
             answer_type=question.answer_type,
+            format=question.format,
+            answer_spec=question.answer_spec,
+            translation_of_id=question.translation_of_id,
+            marks=question.marks,
+            word_limit=question.word_limit,
+            sub_parts=question.sub_parts,
+            choice_group=question.choice_group,
             typed_answer=question.typed_answer,
             model_answer=question.model_answer,
             typed_answer_numeric=bool(question.typed_answer)

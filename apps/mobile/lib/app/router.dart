@@ -15,10 +15,13 @@ import '../features/weekly_review/presentation/weekly_review_screen.dart';
 import '../features/concepts/presentation/concept_list_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
+import '../features/documents/presentation/paper_details_screen.dart';
 import '../features/documents/presentation/paper_read_screen.dart';
 import '../features/documents/presentation/paper_solve_screen.dart';
 import '../features/exams/presentation/exam_topics_screen.dart';
 import '../features/exams/presentation/my_exams_screen.dart';
+import '../features/exams/presentation/syllabus_tree_screen.dart';
+import '../features/exams/presentation/topic_models_screen.dart';
 import '../features/insights/presentation/repeats_screen.dart';
 import '../features/legal/presentation/legal_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
@@ -39,6 +42,8 @@ import '../features/feedback/presentation/suggestions_screen.dart';
 import '../features/auth/presentation/devices_screen.dart';
 import '../features/plus/presentation/plus_screen.dart';
 import '../features/ai/data/ai_repository.dart';
+import '../features/descriptive/presentation/descriptive_card.dart';
+import '../features/descriptive/presentation/descriptive_screen.dart';
 import '../features/ladder/presentation/ladder_screen.dart';
 import '../features/ladder/presentation/ladder_topics_screen.dart';
 import '../features/learn/presentation/topic_lesson_screen.dart';
@@ -113,6 +118,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.plus, builder: (context, state) => const PlusScreen()),
       GoRoute(path: AppRoutes.devices, builder: (context, state) => const DevicesScreen()),
       GoRoute(
+        path: '/profile/topics/:id/models',
+        redirect: (_, _) => ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+        builder: (context, state) => TopicModelsScreen(
+          topicId: state.pathParameters['id']!,
+          topicName: state.uri.queryParameters['name'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: '/profile/exams/:code/syllabus',
+        redirect: (_, _) => ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.myExams,
+        builder: (context, state) => SyllabusTreeScreen(examCode: state.pathParameters['code']!),
+      ),
+      GoRoute(
         path: '/profile/exams/:code',
         builder: (context, state) => ExamTopicsScreen(
           examCode: state.pathParameters['code']!,
@@ -120,6 +138,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       // Lessons and knowledge checks stay unreachable (even by link) while the feature is hidden.
+      GoRoute(
+        path: '/descriptive/topics',
+        parentNavigatorKey: _rootNavigatorKey,
+        redirect: (context, state) =>
+            ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+        builder: (context, state) => const DescriptiveTopicsScreen(),
+      ),
+      GoRoute(
+        path: '/descriptive/run',
+        parentNavigatorKey: _rootNavigatorKey,
+        redirect: (context, state) =>
+            ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+        builder: (context, state) => DescriptiveScreen(
+          topicId: state.uri.queryParameters['topic'] ?? '',
+          topicName: state.uri.queryParameters['name'] ?? '',
+        ),
+      ),
       GoRoute(
         path: '/ladder/topics',
         parentNavigatorKey: _rootNavigatorKey,
@@ -177,6 +212,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                             builder: (context, state) => PaperSolveScreen(
                               documentId: state.pathParameters['id']!,
                               name: state.uri.queryParameters['name'] ?? '',
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'details',
+                            parentNavigatorKey: _rootNavigatorKey,
+                            redirect: (_, _) =>
+                                ref.read(appFeaturesProvider).examProfiles ? null : AppRoutes.home,
+                            builder: (context, state) => PaperDetailsScreen(
+                              documentId: state.pathParameters['id']!,
+                              filename: state.uri.queryParameters['name'] ?? '',
                             ),
                           ),
                           GoRoute(

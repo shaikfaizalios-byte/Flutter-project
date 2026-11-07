@@ -4,18 +4,20 @@ import 'package:preploop/features/exams/data/exams_repository.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/documents/domain/imported_document.dart';
 import 'package:preploop/features/exams/domain/exam_topics.dart';
+import 'package:preploop/features/exams/domain/new_exam.dart';
+import 'package:preploop/features/exams/domain/syllabus_tree.dart';
 
 /// A small catalog for app tests: the two SSC exams (featured) plus a few others.
-const testCatalog = <ExamOption>[
+final testCatalog = <ExamOption>[
   ...builtInExams,
-  ExamOption(code: 'IBPS_PO', shortName: 'IBPS PO', category: 'Banking'),
-  ExamOption(code: 'NEET_UG', shortName: 'NEET UG', category: 'Entrance'),
+  const ExamOption(code: 'IBPS_PO', shortName: 'IBPS PO', category: 'Banking'),
+  const ExamOption(code: 'NEET_UG', shortName: 'NEET UG', category: 'Entrance'),
 ];
 
 /// In-memory exams and topics that follow the server's rules (own exams are private,
 /// duplicates refused, an exam in use can't be deleted).
 class FakeExamsRepository implements ExamsRepository {
-  FakeExamsRepository({List<ExamOption> catalog = testCatalog}) : catalog = [...catalog];
+  FakeExamsRepository({List<ExamOption>? catalog}) : catalog = [...(catalog ?? testCatalog)];
 
   final List<ExamOption> catalog;
   final topicsByExam = <String, List<ExamTopic>>{};
@@ -32,6 +34,71 @@ class FakeExamsRepository implements ExamsRepository {
   Future<ExamOption> createExam(String name) async {
     calls.add('create:$name');
     final exam = ExamOption(code: 'MY_${++_ids}', shortName: name, custom: true);
+    catalog.add(exam);
+    return exam;
+  }
+
+  List<TopicModel> models = const [];
+
+  @override
+  Future<List<TopicModel>> topicModels(String topicId) async => models;
+
+  @override
+  Future<void> createModel(String topicId, String name) async =>
+      calls.add('createModel:$topicId:$name');
+
+  @override
+  Future<void> renameModel(String id, String name) async => calls.add('renameModel:$id:$name');
+
+  @override
+  Future<void> mergeModel(String id, String intoId) async => calls.add('mergeModel:$id:$intoId');
+
+  @override
+  Future<void> deleteModel(String id) async => calls.add('deleteModel:$id');
+
+  @override
+  Future<void> nameModel(String topicId, String name, List<String> questionIds) async =>
+      calls.add('nameModel:$topicId:$name:${questionIds.length}');
+
+  @override
+  Future<void> addDefaultModels(String topicId) async => calls.add('addDefaultModels:$topicId');
+
+  List<SyllabusVersion> versions = const [];
+  List<CanonicalStats> stats = const [];
+  String? builtName;
+  int? builtYear;
+  List<SyllabusNode>? builtTree;
+
+  @override
+  Future<List<SyllabusVersion>> syllabusVersions(String examCode) async => versions;
+
+  @override
+  Future<void> createSyllabusVersion(
+    String examCode, {
+    required String name,
+    required int? effectiveYear,
+    required List<SyllabusNode> tree,
+  }) async {
+    builtName = name;
+    builtYear = effectiveYear;
+    builtTree = tree;
+  }
+
+  @override
+  Future<void> deleteSyllabusVersion(String id) async {
+    versions = versions.where((v) => v.id != id).toList();
+  }
+
+  @override
+  Future<List<CanonicalStats>> canonicalStats(List<String> examCodes) async => stats;
+
+  /// What the custom exam builder sent.
+  final created = <NewExam>[];
+
+  @override
+  Future<ExamOption> createExamFrom(NewExam draft) async {
+    created.add(draft);
+    final exam = ExamOption(code: 'MY_${++_ids}', shortName: draft.name, custom: true);
     catalog.add(exam);
     return exam;
   }

@@ -4738,6 +4738,167 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get ladderPartlyRight => 'आंशिक रूप से सही';
+
+  @override
+  String ladderMarks(String marks, String possible) {
+    return 'अंक: $possible में से $marks';
+  }
+
+  @override
+  String get ladderCorrectAnswer => 'सही उत्तर';
+
+  @override
+  String get descriptiveTitle => 'लिखित उत्तर';
+
+  @override
+  String get descriptiveTagline =>
+      'एक विषय पर पाँच प्रश्न, हर अगला अधिक माँगता है, अनुमानित अंकों के साथ।';
+
+  @override
+  String get descriptiveNoTopics => 'पहले इस परीक्षा में विषय जोड़ें।';
+
+  @override
+  String get descriptiveIntro =>
+      'आप पाँच अभ्यास प्रश्नों के उत्तर देंगे, छोटी परिभाषा से लेकर केस या आलोचनात्मक मूल्यांकन तक। हर प्रश्न AI लिखता है और उसके अंक-बिंदुओं से जाँचता है।';
+
+  @override
+  String get descriptivePrivacy =>
+      'आपके उत्तर, आपकी जोड़ी गई फ़ोटो और आपके पेपरों के उदाहरण प्रश्न AI सेवा को भेजे जाते हैं। फ़ोटो सहेजी नहीं जातीं।';
+
+  @override
+  String get descriptiveEstimateLabel => 'AI प्रतिक्रिया से अनुमानित अंक, आधिकारिक ग्रेड नहीं।';
+
+  @override
+  String get descriptiveStart => 'लिखना शुरू करें';
+
+  @override
+  String get descriptiveWriting => 'प्रश्न लिखा जा रहा है और अंक-बिंदु जाँचे जा रहे हैं…';
+
+  @override
+  String get descriptiveMarking =>
+      'आपका उत्तर जाँचा जा रहा है। इसे एक से अधिक बार जाँचा जाता है, इसलिए एक मिनट लग सकता है।';
+
+  @override
+  String descriptiveStepOf(int step, int total, String level) {
+    return 'प्रश्न $total में से $step: $level';
+  }
+
+  @override
+  String descriptiveMarksAndLength(String marks, int words) {
+    return '$marks अंक · लगभग $words शब्द (PrepLoop का सुझाव, परीक्षा का नियम नहीं)';
+  }
+
+  @override
+  String get descriptiveAiQuestion => 'AI से बना अभ्यास प्रश्न, किसी आधिकारिक पेपर से नहीं।';
+
+  @override
+  String get descriptiveYourAnswer => 'आपका उत्तर';
+
+  @override
+  String get descriptiveFromPhoto => 'फ़ोटो से पढ़ें';
+
+  @override
+  String get descriptiveReadingPhoto => 'फ़ोटो पढ़ी जा रही है…';
+
+  @override
+  String get descriptiveCheckPhoto =>
+      'इसे अपने पन्ने से मिलाएँ और भेजने से पहले सुधारें। सुधारा हुआ पाठ ही जाँचा जाएगा।';
+
+  @override
+  String get descriptivePhotoUnclear =>
+      'कुछ लिखावट पढ़ना कठिन था। [?] वह जगह दिखाता है जो पढ़ी नहीं जा सकी।';
+
+  @override
+  String get descriptiveSubmit => 'मेरा उत्तर जाँचें';
+
+  @override
+  String descriptiveMarks(String marks, String possible) {
+    return '$possible में से $marks अंक';
+  }
+
+  @override
+  String descriptiveRange(String low, String high) {
+    return 'जाँच में अंतर रहा, $low से $high तक। यह बीच वाली है।';
+  }
+
+  @override
+  String descriptiveWordCount(int words) {
+    return 'आपका उत्तर: $words शब्द';
+  }
+
+  @override
+  String get descriptiveByPoint => 'बिंदु के अनुसार अंक';
+
+  @override
+  String get descriptiveMissing => 'क्या छूट गया';
+
+  @override
+  String descriptiveStructure(String text) {
+    return 'संरचना: $text';
+  }
+
+  @override
+  String descriptiveRelevance(String text) {
+    return 'प्रासंगिकता: $text';
+  }
+
+  @override
+  String descriptiveLength(String text) {
+    return 'लंबाई: $text';
+  }
+
+  @override
+  String get descriptiveModelAnswer => 'आदर्श उत्तर (AI से बना)';
+
+  @override
+  String get descriptiveTryAgain => 'फिर कोशिश करें';
+
+  @override
+  String get descriptivePlusMessage => 'लिखित उत्तर PrepLoop Plus का हिस्सा हैं।';
+
+  @override
+  String get descriptiveLevelDefine => 'परिभाषा या सूची';
+
+  @override
+  String get descriptiveLevelShort => 'संक्षिप्त व्याख्या';
+
+  @override
+  String get descriptiveLevelFull => 'पूर्ण व्याख्या';
+
+  @override
+  String get descriptiveLevelAnalyse => 'विश्लेषण या तुलना';
+
+  @override
+  String get descriptiveLevelCase => 'केस स्टडी या आलोचनात्मक मूल्यांकन';
+
+  @override
+  String descriptiveUsePapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'मेरे पेपरों के प्रश्न लें ($count)',
+      one: 'मेरे पेपरों का 1 प्रश्न लें',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String descriptiveFromPaper(String paper) {
+    return 'आपके पेपर से: $paper';
+  }
+
+  @override
+  String get descriptiveLevelPaper => 'आपके पेपर से';
+
+  @override
+  String get descriptiveAnswerFromPaper => 'आपके पेपर में छपा उत्तर';
+
+  @override
+  String get descriptiveRubricNote =>
+      'अंक-बिंदु AI ने बनाए हैं, यह परीक्षा की आधिकारिक योजना नहीं है।';
+
+  @override
   String get ladderCleared => 'पार किया';
 
   @override
@@ -4768,4 +4929,418 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get ladderPractiseReal => 'अपने पेपरों के असली प्रश्नों का अभ्यास करें';
+
+  @override
+  String get onboardingPreparingTitle => 'आप किसकी तैयारी कर रहे हैं?';
+
+  @override
+  String get onboardingPreparingHint => 'एक या अधिक चुनें, या अपनी परीक्षा बनाएँ।';
+
+  @override
+  String get onboardingCustomExam => 'अपनी परीक्षा';
+
+  @override
+  String get examBuilderTitle => 'अपनी परीक्षा';
+
+  @override
+  String get examBuilderIntro =>
+      'केवल नाम ज़रूरी है। बाकी जानकारी अपनी परीक्षा की आधिकारिक सूचना से जोड़ें। आपकी भरी जानकारी आपकी ही रहती है और कभी आधिकारिक नहीं दिखाई जाती।';
+
+  @override
+  String get examBuilderBody => 'परीक्षा कराने वाली संस्था (वैकल्पिक)';
+
+  @override
+  String get examBuilderKind => 'प्रश्नों का प्रकार';
+
+  @override
+  String get examKindMcq => 'बहुविकल्पीय';
+
+  @override
+  String get examKindDescriptive => 'लिखित उत्तर';
+
+  @override
+  String get examKindMixed => 'दोनों';
+
+  @override
+  String get examBuilderOptions => 'प्रति प्रश्न विकल्प';
+
+  @override
+  String get examBuilderOptionsVary => 'अलग-अलग';
+
+  @override
+  String get examBuilderLanguages => 'पेपर की भाषाएँ';
+
+  @override
+  String get examBuilderDates => 'परीक्षा की तिथियाँ';
+
+  @override
+  String get examBuilderAddDate => 'तिथि जोड़ें';
+
+  @override
+  String get examBuilderStages => 'चरण';
+
+  @override
+  String get examBuilderStagesHint => 'जैसे, प्रारंभिक और मुख्य पेपर।';
+
+  @override
+  String get examBuilderAddStage => 'चरण जोड़ें';
+
+  @override
+  String get examBuilderStageName => 'चरण का नाम';
+
+  @override
+  String get examBuilderMinutes => 'मिनट';
+
+  @override
+  String get examBuilderMinutesOptional => 'मिनट (वैकल्पिक)';
+
+  @override
+  String get examBuilderMarksCorrect => 'सही उत्तर के अंक';
+
+  @override
+  String get examBuilderMarksWrong => 'गलत उत्तर पर कटने वाले अंक';
+
+  @override
+  String get examBuilderSections => 'खंड';
+
+  @override
+  String get examBuilderSectionName => 'खंड का नाम';
+
+  @override
+  String get examBuilderQuestions => 'प्रश्न';
+
+  @override
+  String get examBuilderCutoff => 'कटऑफ़ (वैकल्पिक)';
+
+  @override
+  String get examBuilderAddSection => 'खंड जोड़ें';
+
+  @override
+  String get examBuilderNeeded => 'ज़रूरी है';
+
+  @override
+  String get examBuilderNumber => 'संख्या लिखें';
+
+  @override
+  String get examBuilderSave => 'परीक्षा बनाएँ';
+
+  @override
+  String get notRepeatedDropped => 'मौजूदा पाठ्यक्रम से हटाया गया';
+
+  @override
+  String syllabusTreeTitle(String exam) {
+    return '$exam पाठ्यक्रम';
+  }
+
+  @override
+  String get syllabusTreeTooltip => 'पाठ्यक्रम की संरचना';
+
+  @override
+  String syllabusFromYear(String year) {
+    return '$year से';
+  }
+
+  @override
+  String get syllabusInForce => 'लागू';
+
+  @override
+  String get syllabusYours => 'आपका';
+
+  @override
+  String get syllabusBuiltIn => 'पहले से मौजूद';
+
+  @override
+  String get syllabusEmpty =>
+      'इस परीक्षा का अभी कोई पाठ्यक्रम नहीं है। इसे खुद बनाएँ, या विषय स्क्रीन पर PDF से विषय जोड़ें।';
+
+  @override
+  String get syllabusNoConnection => 'अभी पाठ्यक्रम लोड नहीं हो पा रहा है।';
+
+  @override
+  String get syllabusBuild => 'पाठ्यक्रम बनाएँ';
+
+  @override
+  String get syllabusBuildName => 'नाम';
+
+  @override
+  String get syllabusBuildYear => 'लागू होने का वर्ष (वैकल्पिक)';
+
+  @override
+  String get syllabusBuildOutline => 'रूपरेखा';
+
+  @override
+  String get syllabusBuildHint =>
+      'हर पंक्ति में एक विषय। किसी को ऊपर वाले के नीचे रखने के लिए पंक्ति दो और स्पेस से शुरू करें।';
+
+  @override
+  String get syllabusDelete => 'यह पाठ्यक्रम हटाएँ';
+
+  @override
+  String get syllabusAcrossExams => 'आपकी परीक्षाओं में समान विषय';
+
+  @override
+  String syllabusAcrossAll(int correct, int answered) {
+    return 'सभी परीक्षाएँ: $answered में से $correct सही';
+  }
+
+  @override
+  String syllabusAcrossCount(int correct, int answered) {
+    return '$answered में से $correct सही';
+  }
+
+  @override
+  String get sessionChooseAllThatApply => 'सभी सही विकल्प चुनें।';
+
+  @override
+  String get sessionMatchChoose => 'चुनें';
+
+  @override
+  String get sessionOrderHelp => 'इन्हें सही क्रम में रखें।';
+
+  @override
+  String get sessionOrderUp => 'ऊपर ले जाएँ';
+
+  @override
+  String get sessionOrderDown => 'नीचे ले जाएँ';
+
+  @override
+  String get resultYourFullAnswer => 'आपने उत्तर दिया';
+
+  @override
+  String get formatTitle => 'प्रश्न का प्रकार';
+
+  @override
+  String get formatSingleCorrect => 'एक सही विकल्प';
+
+  @override
+  String get formatAssertionReason => 'कथन और कारण';
+
+  @override
+  String get formatStatement => 'कथन आधारित';
+
+  @override
+  String get formatTrueFalse => 'सही या गलत';
+
+  @override
+  String get formatMultipleCorrect => 'कई सही विकल्प';
+
+  @override
+  String get formatNumeric => 'संख्यात्मक उत्तर';
+
+  @override
+  String get formatFillBlank => 'रिक्त स्थान भरें';
+
+  @override
+  String get formatMatch => 'सुमेलित करें';
+
+  @override
+  String get formatOrdering => 'क्रम में रखें';
+
+  @override
+  String get formatNumericHint => 'एक मान दें, पेपर अनुमति दे तो छूट के साथ, या एक सीमा दें।';
+
+  @override
+  String get formatValue => 'मान';
+
+  @override
+  String get formatTolerance => 'छूट';
+
+  @override
+  String get formatRangeFrom => 'से';
+
+  @override
+  String get formatRangeTo => 'तक';
+
+  @override
+  String get formatAccepted => 'स्वीकृत उत्तर';
+
+  @override
+  String get formatOnePerLine => 'हर पंक्ति में एक।';
+
+  @override
+  String get formatPairs => 'जोड़े';
+
+  @override
+  String get formatPairsHint => 'हर पंक्ति में एक जोड़ा, इस तरह: बायाँ = दायाँ';
+
+  @override
+  String get formatOrderItems => 'मदें';
+
+  @override
+  String get formatOrderHint => 'हर पंक्ति में एक, सही क्रम में।';
+
+  @override
+  String get formatMarks => 'अंक';
+
+  @override
+  String get formatWordLimit => 'शब्द सीमा';
+
+  @override
+  String get formatChoiceGroup => 'विकल्प समूह';
+
+  @override
+  String get formatIncomplete => 'पहले उत्तर भरें।';
+
+  @override
+  String get formatSave => 'प्रकार सहेजें';
+
+  @override
+  String get paperDetailsTitle => 'पेपर का विवरण और उत्तर कुंजी';
+
+  @override
+  String get paperDetailsHint => 'चरण, सत्र, सेट, या अलग कुंजी';
+
+  @override
+  String get paperStage => 'चरण';
+
+  @override
+  String get paperSession => 'सत्र';
+
+  @override
+  String get paperSetCode => 'सेट';
+
+  @override
+  String get paperOtherSetsTitle => 'यह वही पेपर हो सकता है';
+
+  @override
+  String get paperOtherSetsNote =>
+      'इनमें वही प्रश्न हैं। अगर कोई इस पेपर का दूसरा सेट है, तो उसे चिह्नित करें ताकि वह एक बार गिना जाए। आपके करने तक कुछ नहीं बदलता।';
+
+  @override
+  String paperOtherSetsShare(int percent) {
+    return '$percent% प्रश्न मेल खाते हैं';
+  }
+
+  @override
+  String get paperMarkAsSet => 'वही पेपर';
+
+  @override
+  String get paperMarkedAsSet => 'वही पेपर चिह्नित किया गया';
+
+  @override
+  String get paperKeyTitle => 'अलग उत्तर कुंजी';
+
+  @override
+  String get paperKeyNote => 'यह केवल छूटे उत्तर भरती है। पहले से दिया उत्तर नहीं बदलता।';
+
+  @override
+  String get paperKeyPaste => 'कुंजी चिपकाएँ';
+
+  @override
+  String get paperKeyApply => 'कुंजी लागू करें';
+
+  @override
+  String get paperKeyPdf => 'PDF चुनें';
+
+  @override
+  String paperKeyApplied(int count) {
+    return '$count उत्तर भरे गए';
+  }
+
+  @override
+  String paperKeyAgreed(int count) {
+    return '$count पहले से मेल खाते थे';
+  }
+
+  @override
+  String paperKeyConflicts(int count) {
+    return '$count पहले से दिए उत्तर से अलग हैं: चिह्नित किए, बदले नहीं';
+  }
+
+  @override
+  String paperKeyUnmatched(String numbers) {
+    return 'ऐसा कोई प्रश्न नहीं: $numbers';
+  }
+
+  @override
+  String get paperKeyAmbiguous =>
+      'इस पेपर में प्रश्न संख्याएँ दोहराई गई हैं, इसलिए कुंजी नहीं मिलाई जा सकती। ये उत्तर समीक्षा में दें।';
+
+  @override
+  String paperKeyWithoutAnswer(int count) {
+    return '$count प्रश्नों का अभी उत्तर नहीं है';
+  }
+
+  @override
+  String get paperSolvePracticeOnly =>
+      'इस तरह के प्रश्न का उत्तर अभ्यास में दिया जाता है, यहाँ नहीं।';
+
+  @override
+  String get repeatsNameTitle => 'ये एक जैसे लगते हैं। इस प्रकार को नाम दें?';
+
+  @override
+  String repeatsNameNote(int papers, String topic) {
+    return '$topic में $papers पेपरों में एक जैसे शब्द, अभी कोई मॉडल नहीं।';
+  }
+
+  @override
+  String get repeatsNameAction => 'नाम दें';
+
+  @override
+  String get repeatsByMarks => 'अंकों से क्रम';
+
+  @override
+  String repeatsMarks(String marks) {
+    return '$marks अंक';
+  }
+
+  @override
+  String repeatsInSessions(int sessions, int total, int questions) {
+    return '$total में से $sessions सत्रों में · $questions प्रश्न';
+  }
+
+  @override
+  String get repeatsSessionsNote =>
+      'यह परीक्षा सत्र से गिनी जाती है: एक ही बैठक के पेपर एक बार गिने जाते हैं।';
+
+  @override
+  String modelsTitle(String topic) {
+    return '$topic के मॉडल';
+  }
+
+  @override
+  String get modelsManage => 'मॉडल प्रबंधित करें';
+
+  @override
+  String get modelsAdd => 'मॉडल जोड़ें';
+
+  @override
+  String get modelsName => 'मॉडल का नाम';
+
+  @override
+  String get modelsRename => 'नाम बदलें';
+
+  @override
+  String get modelsMerge => 'मिलाएँ';
+
+  @override
+  String modelsMergeInto(String name) {
+    return '$name को इसमें मिलाएँ';
+  }
+
+  @override
+  String get modelsActions => 'मॉडल के विकल्प';
+
+  @override
+  String get modelsEmpty => 'इस विषय में अभी कोई मॉडल नहीं है।';
+
+  @override
+  String get modelsDefaultsNote =>
+      'लिखित उत्तरों के लिए सामान्य उत्तर प्रारूप जोड़ें: परिभाषा, संक्षिप्त टिप्पणी, तुलना आदि।';
+
+  @override
+  String get modelsAddDefaults => 'उत्तर प्रारूप जोड़ें';
+
+  @override
+  String get sessionOriginalLanguage => 'जैसा छपा है';
+
+  @override
+  String resultCutoffCleared(String cutoff) {
+    return 'कटऑफ़ $cutoff: पूरा';
+  }
+
+  @override
+  String resultCutoffMissed(String cutoff) {
+    return 'कटऑफ़ $cutoff: पूरा नहीं';
+  }
 }

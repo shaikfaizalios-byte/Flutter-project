@@ -21,7 +21,8 @@ def run(*pages: str, flagged: set[int] | None = None) -> SegmentationResult:
         [
             PageText(i + 1, dedent(text).strip(), needs_review=(i + 1) in (flagged or set()))
             for i, text in enumerate(pages)
-        ]
+        ],
+        expected_options=4,
     )
 
 
@@ -559,7 +560,7 @@ def test_answer_key_table_drawn_as_a_grid_in_a_real_pdf(tmp_path: Path) -> None:
     document = pdfium.PdfDocument(path)
     text = normalize_text(document[0].get_textpage().get_text_bounded())
     document.close()
-    result = segment([PageText(1, text, needs_review=False)])
+    result = segment([PageText(1, text, needs_review=False)], expected_options=4)
     assert _answers(result) == [2, 3, 1, 4, 2]
     assert result.document_issues == []
 
@@ -740,3 +741,17 @@ def test_explanations_start_after_the_key_even_without_their_heading() -> None:
     assert not any(
         i.code == IssueCode.CONFLICTING_ANSWERS for q in result.questions for i in q.issues
     )
+
+
+def test_sections_can_run_past_part_d() -> None:
+    result = run(
+        """
+        Part E: Biology
+        1. Which organ pumps blood through the body?
+        (1) Heart
+        (2) Lung
+        (3) Liver
+        (4) Skin
+        """
+    )
+    assert result.questions[0].section == "Biology"

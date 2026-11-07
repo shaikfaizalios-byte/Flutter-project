@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -14,7 +15,10 @@ import '../../question_bank/presentation/figure_view.dart';
 import '../../question_bank/presentation/question_widgets.dart';
 import '../../question_bank/presentation/shared_report.dart';
 import '../application/practice_providers.dart';
+import '../../../core/localization/content_language.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../domain/practice_models.dart';
+import 'format_answers.dart';
 import 'result_view.dart';
 
 /// A practice session or mock test. Shows the result once the session is submitted.
@@ -126,6 +130,7 @@ class _SessionBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final session = state.session;
     final item = state.item;
+    final shown = item.translationIn(ref.watch(shownLanguageProvider));
     final isMock = session.mode == SessionMode.mock;
     // Mocks and the starter check: answers can change and are marked after submitting.
     final testLike = session.mode.testLike;
@@ -245,15 +250,21 @@ class _SessionBody extends ConsumerWidget {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
-                    child: SelectableText(item.passage!.text),
+                    child: RichQuestionText(item.passage!.text),
                   ),
                 ),
               ],
               const SizedBox(height: AppSpacing.md),
+              if (item.translations.isNotEmpty && ref.watch(appFeaturesProvider).examProfiles)
+                _LanguageChoice(item: item),
               if (item.stem == null)
                 Text(l10n.sessionQuestionRemoved)
               else
-                SelectableText(item.stem!, style: Theme.of(context).textTheme.titleMedium),
+                RichQuestionText(
+                  shown?.stem ?? item.stem!,
+                  key: ValueKey('stem-${item.position}-${shown?.language}'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               if (item.questionId != null)
                 QuestionFigures(questionId: item.questionId!, figures: item.figures),
               const SizedBox(height: AppSpacing.md),
@@ -264,25 +275,33 @@ class _SessionBody extends ConsumerWidget {
                   locked: !testLike && item.answered,
                   onSubmit: (text) => _controller(ref).submitTyped(text),
                 ),
-              for (final option in item.options)
-                _OptionTile(
-                  label: option.label,
-                  text: option.text,
-                  figure: item.questionId == null
-                      ? null
-                      : switch (optionFigure(item.figures, option.position)) {
-                          final f? => QuestionFigureView(
-                            questionId: item.questionId!,
-                            figure: f,
-                            zoomable: false,
-                          ),
-                          null => null,
-                        },
-                  selected: item.selectedPosition == option.position,
-                  correct: item.feedback?.correctPosition == option.position,
-                  showFeedback: item.feedback != null,
-                  onTap: () => _controller(ref).select(option.position),
+              if (item.takesResponse)
+                ResponseAnswer(
+                  key: ValueKey('response-${item.position}'),
+                  item: item,
+                  locked: !testLike && item.answered,
+                  onSubmit: (response) => _controller(ref).submitResponse(response),
                 ),
+              if (!item.takesResponse)
+                for (final option in item.options)
+                  _OptionTile(
+                    label: option.label,
+                    text: shown?.option(option.position) ?? option.text,
+                    figure: item.questionId == null
+                        ? null
+                        : switch (optionFigure(item.figures, option.position)) {
+                            final f? => QuestionFigureView(
+                              questionId: item.questionId!,
+                              figure: f,
+                              zoomable: false,
+                            ),
+                            null => null,
+                          },
+                    selected: item.selectedPosition == option.position,
+                    correct: item.feedback?.correctPosition == option.position,
+                    showFeedback: item.feedback != null,
+                    onTap: () => _controller(ref).select(option.position),
+                  ),
               if (state.queuedPositions.contains(item.position)) ...[
                 const SizedBox(height: AppSpacing.sm),
                 Row(
@@ -367,6 +386,51 @@ class _SessionBody extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Which language the session's questions are read in. Null: as the paper printed them.
+class ShownLanguage extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void show(String? language) => state = language;
+}
+
+final shownLanguageProvider = NotifierProvider.autoDispose<ShownLanguage, String?>(
+  ShownLanguage.new,
+);
+
+/// Switches a question between the paper's language and its linked translations.
+class _LanguageChoice extends ConsumerWidget {
+  const _LanguageChoice({required this.item});
+
+  final SessionItemView item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final shown = item.translationIn(ref.watch(shownLanguageProvider))?.language;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Wrap(
+        spacing: AppSpacing.sm,
+        children: [
+          ChoiceChip(
+            label: Text(l10n.sessionOriginalLanguage),
+            selected: shown == null,
+            onSelected: (_) => ref.read(shownLanguageProvider.notifier).show(null),
+          ),
+          for (final translation in item.translations)
+            ChoiceChip(
+              label: Text(contentLanguageName(l10n, ContentLanguage(translation.language))),
+              selected: shown == translation.language,
+              onSelected: (_) =>
+                  ref.read(shownLanguageProvider.notifier).show(translation.language),
+            ),
+        ],
       ),
     );
   }
@@ -481,11 +545,14 @@ class _OptionTile extends StatelessWidget {
                   Text('($label)  ', style: const TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
                     child: figure == null
-                        ? Text(text)
+                        ? RichQuestionText(text, selectable: false)
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: AppSpacing.xs,
-                            children: [if (text.isNotEmpty) Text(text), figure!],
+                            children: [
+                              if (text.isNotEmpty) RichQuestionText(text, selectable: false),
+                              figure!,
+                            ],
                           ),
                   ),
                 ],
@@ -526,15 +593,17 @@ class _FeedbackPanel extends StatelessWidget {
                       : Theme.of(context).colorScheme.error,
                 ),
               ),
-            Text(
-              feedback.correctTypedAnswer != null
-                  ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
-                  : l10n.sessionCorrectAnswer(correctLabel),
-            ),
+            Text(switch (correctAnswerText(item, feedback)) {
+              final String words => l10n.sessionCorrectTypedAnswer(words),
+              null =>
+                feedback.correctTypedAnswer != null
+                    ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
+                    : l10n.sessionCorrectAnswer(correctLabel),
+            }),
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),
-              SelectableText(feedback.explanation!),
+              RichQuestionText(feedback.explanation!),
             ],
           ],
         ),

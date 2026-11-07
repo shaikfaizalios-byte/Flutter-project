@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
@@ -25,6 +25,7 @@ class PatternRead(BaseModel):
     id: uuid.UUID
     topic_id: uuid.UUID
     name: str
+    own: bool = False  # the learner's own, not the shared list
 
 
 class ExamFormatSection(BaseModel):
@@ -34,6 +35,12 @@ class ExamFormatSection(BaseModel):
     max_marks: int | None = None
     # Sectional timer from the notice, when it sets one (mocks keep one overall timer).
     timer_minutes: int | None = None
+    # Stated only where the format differs from its general marking.
+    marks_wrong: float | None = None
+    marks_unanswered: float | None = None
+    cutoff: float | None = None
+    attempt_limit: int | None = None  # "attempt any n of these"
+    formats: list[str] | None = None  # the question formats of this section
 
 
 class ExamFormatRead(BaseModel):
@@ -41,7 +48,7 @@ class ExamFormatRead(BaseModel):
 
     code: str
     exam_code: str
-    tier: str
+    stage: str
     name: str
     sections: list[ExamFormatSection]
     sections_in_fixed_order: bool
@@ -111,10 +118,31 @@ class IssueRead(BaseModel):
     resolved: bool
 
 
+class SubPart(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    label: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10)]
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
+    marks: float | None = Field(default=None, ge=0, le=1000)
+
+
+class TranslationLink(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    question_id: uuid.UUID | None
+
+
+class PassageKindUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["passage", "chart", "table", "case"]
+
+
 class PassageRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    kind: str = "passage"
     text: str
     first_question: int | None
     last_question: int | None
@@ -191,6 +219,13 @@ class QuestionRead(BaseModel):
     correct_option_position: int | None
     # "choice": pick an option; "typed": type the answer in (TITA), see typed_answer.
     answer_type: Literal["choice", "typed", "written"]
+    format: str
+    answer_spec: dict[str, Any] | None
+    translation_of_id: uuid.UUID | None = None
+    marks: float | None = None
+    word_limit: int | None = None
+    sub_parts: list[dict[str, Any]] | None = None
+    choice_group: str | None = None
     typed_answer: str | None
     # Whether typed_answer is a number (the app shows a number keyboard).
     typed_answer_numeric: bool
@@ -234,6 +269,9 @@ class QuestionSnapshotRead(BaseModel):
     stem: str
     options: list[SnapshotOption]
     answer_type: Literal["choice", "typed", "written"]
+    # Snapshots from before formats have neither.
+    format: str = "single_correct"
+    answer_spec: dict[str, Any] | None = None
     correct_option_position: int | None
     typed_answer: str | None
     model_answer: str | None
@@ -286,6 +324,15 @@ class QuestionUpdate(BaseModel):
     options: list[OptionInput] | None = Field(default=None, min_length=2, max_length=6)
     correct_option_position: int | None = Field(default=None, ge=1, le=6)
     answer_type: Literal["choice", "typed", "written"] | None = None
+    # How it is answered, and the answer of a format that keeps its own (question_formats.py).
+    format: str | None = None
+    answer_spec: dict[str, Any] | None = None
+    marks: float | None = Field(default=None, ge=0, le=1000)
+    word_limit: int | None = Field(default=None, ge=1, le=20_000)
+    sub_parts: list[SubPart] | None = Field(default=None, max_length=30)
+    choice_group: Annotated[str, StringConstraints(strip_whitespace=True, max_length=20)] | None = (
+        None
+    )
     typed_answer: (
         Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
         | None

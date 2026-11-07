@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
+import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
@@ -423,6 +426,12 @@ class _ExamTopicsScreenState extends ConsumerState<ExamTopicsScreen> {
           _selecting ? l10n.topicsSelected(_selected.length) : l10n.topicsScreenTitle(name),
         ),
         actions: [
+          if (!_selecting && ref.watch(appFeaturesProvider).examProfiles)
+            IconButton(
+              tooltip: l10n.syllabusTreeTooltip,
+              icon: const Icon(Icons.account_tree_outlined),
+              onPressed: () => context.push(AppRoutes.examSyllabus(widget.examCode)),
+            ),
           if (_selecting) ...[
             TextButton(
               onPressed: () => setState(() {

@@ -43,7 +43,9 @@ def test_publishing_needs_consistent_timers_types_dates_and_a_source() -> None:
     assert "Sectionally timed sections must be taken in a fixed order." in config(
         sections_in_fixed_order=False
     )
-    assert "Question types must be among: choice, typed." in config(question_types=["multi"])
+    refused = config(question_types=["essay"])
+    assert any(p.startswith("Question types must be among") for p in refused)
+    assert not config(question_types=["choice", "multiple_correct"])
     assert "The format ends before it starts." in config(
         effective_from=date(2027, 1, 2), effective_to=date(2027, 1, 1)
     )
@@ -81,7 +83,7 @@ def draft_data(**changes: Any) -> dict[str, Any]:
     data: dict[str, Any] = {
         "code": "SSC_CHSL_2027_TIER1",
         "exam_code": "SSC_CHSL",
-        "tier": "Tier-I",
+        "stage": "Tier-I",
         "name": "SSC CHSL 2027 Tier-I",
         "sections": [{"part": "I", "subject": "General Awareness", "questions": 1, "max_marks": 2}],
         "sections_in_fixed_order": False,

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
@@ -22,6 +22,8 @@ class PracticeCreate(BaseModel):
     # AI-generated questions are excluded unless the learner opts in (and are labelled).
     # Mock tests never use them.
     include_ai: bool = False
+    # Formats beyond one option or a typed text. Only apps that can show them ask for them.
+    include_new_formats: bool = False
     # Verified questions from the shared bank (papers the operator shared, labelled as such).
     include_shared: bool = True
     count: int = Field(default=10, ge=1, le=100)
@@ -87,6 +89,8 @@ class MockCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     exam_format_code: Annotated[str, StringConstraints(min_length=1, max_length=64)]
+    # This app can show question formats beyond one option or a typed text.
+    include_new_formats: bool = False
 
 
 class AnswerUpdate(BaseModel):
@@ -98,6 +102,8 @@ class AnswerUpdate(BaseModel):
         Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
         | None
     ) = None
+    # The answer of a format with its own (app/domain/question_formats.py).
+    response: dict[str, Any] | None = None
     # Monotonic per device (e.g. microseconds since epoch). Older updates are ignored.
     client_seq: int = Field(ge=0)
     time_spent_ms: int | None = Field(default=None, ge=0, le=24 * 3600 * 1000)
@@ -106,6 +112,7 @@ class AnswerUpdate(BaseModel):
 class Feedback(BaseModel):
     correct_position: int | None  # None for a typed-in question
     correct_typed_answer: str | None = None  # the expected answer of a typed-in question
+    correct_spec: dict[str, Any] | None = None  # the answer of a format with its own
     is_correct: bool | None
     explanation: str | None
     # "source": from the paper (or the reviewer); "ai": AI-generated (an AI question's own
@@ -121,6 +128,14 @@ class ItemSource(BaseModel):
     shared_source: str | None = None
 
 
+class TranslationRead(BaseModel):
+    """The question in another language, linked by a reviewer. Options keep their position."""
+
+    language: str
+    stem: str
+    options: list[str]
+
+
 class SessionItemRead(BaseModel):
     position: int
     question_id: uuid.UUID | None
@@ -128,6 +143,10 @@ class SessionItemRead(BaseModel):
     subject: str | None
     stem: str | None  # None if the question was deleted after the session started
     options: list[OptionRead]
+    format: str = "single_correct"
+    # What the format lists for the learner (never its answer): match and ordering items.
+    format_data: dict[str, list[str]] | None = None
+    translations: list[TranslationRead] = []
     # Figures cropped from the source paper (fetch via /questions/{question_id}/figures/{id}).
     figures: list[FigureRead]
     passage: PassageRead | None
@@ -140,6 +159,7 @@ class SessionItemRead(BaseModel):
     selected_position: int | None
     answer_type: Literal["choice", "typed"] = "choice"
     typed_answer: str | None = None  # what the learner typed
+    response: dict[str, Any] | None = None  # the answer of a format with its own
     # Whether the expected typed answer is a number (show a number keyboard).
     typed_answer_numeric: bool = False
     # Practice: shown once answered. Mock: shown only after submission.
@@ -150,6 +170,7 @@ class TallyRead(BaseModel):
     correct: int
     wrong: int
     unattempted: int
+    partial: int = 0  # earned some marks under the exam's partial rule
     score: float
     max_score: float
     accuracy: float | None
@@ -158,6 +179,9 @@ class TallyRead(BaseModel):
 
 class SectionResult(TallyRead):
     name: str
+    # From the format, when it states one. The exam's own cutoffs may differ each year.
+    cutoff: float | None = None
+    cleared: bool | None = None
 
 
 class TopicResult(TallyRead):
@@ -241,6 +265,7 @@ class AnswerAck(BaseModel):
     position: int
     selected_position: int | None
     typed_answer: str | None = None
+    response: dict[str, Any] | None = None
     applied: bool  # False when the update was older than the stored one or the answer is locked
     feedback: Feedback | None
 
@@ -261,6 +286,7 @@ class MockAvailability(BaseModel):
     total_questions: int
     duration_minutes: int | None
     negative_marks_per_wrong: float | None
+    penalty_fraction: float | None = None  # of the question's marks, instead of a fixed mark
     sections: list[SectionAvailability]
     # The notice gives the section split as only indicative: real papers may vary.
     section_counts_indicative: bool = False

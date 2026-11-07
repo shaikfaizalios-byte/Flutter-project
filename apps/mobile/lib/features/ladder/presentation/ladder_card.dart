@@ -21,6 +21,7 @@ class LadderCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final overview = ref.watch(ladderOverviewProvider).value;
+    if (overview?.available == false) return const SizedBox.shrink();
     final best = overview?.best;
     return Card(
       child: Padding(

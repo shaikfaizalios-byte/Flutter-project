@@ -12,6 +12,7 @@ from app.database.base import Base
 from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
 from app.models.content import ContentReport, ContentRights
+from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
@@ -30,6 +31,7 @@ from app.models.question import (
     SyllabusImport,
     Topic,
 )
+from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.sync import SyncItem
 from app.models.taxonomy import TaxonomyNode, TopicTaxonomyLink
 from app.models.user import User
@@ -84,7 +86,12 @@ def _fill_account(db: Session, user: User) -> None:
     db.flush()
     imported = SyllabusImport(owner_id=user.id, exam_code=code, name="Typed syllabus", kind="typed")
     db.add(imported)
+    version = SyllabusVersion(
+        exam_code=code, owner_id=user.id, name="My syllabus", source_kind="manual"
+    )
+    db.add(version)
     db.flush()
+    db.add(SyllabusNode(version_id=version.id, position=1, name="Maths"))
     topic = Topic(
         subject="Maths",
         name="Ratios",
@@ -97,7 +104,7 @@ def _fill_account(db: Session, user: User) -> None:
     db.flush()
     db.add_all(
         [
-            QuestionPattern(topic_id=topic.id, name="Mixtures", keywords=[]),
+            QuestionPattern(topic_id=topic.id, owner_id=user.id, name="Mixtures", keywords=[]),
             TopicTaxonomyLink(
                 topic_id=topic.id,
                 node_id=db.scalars(
@@ -166,6 +173,14 @@ def _fill_account(db: Session, user: User) -> None:
     db.add(ladder)
     db.flush()
     db.add(LadderStep(session_id=ladder.id, round_number=1, step=1, difficulty="easy"))
+    written = DescriptiveSession(
+        owner_id=user.id, exam_code=code, topic_name="T", subject="S", language="en"
+    )
+    db.add(written)
+    db.flush()
+    db.add(
+        DescriptiveStep(session_id=written.id, step=1, level="define_list", marks=2, word_limit=40)
+    )
     db.flush()
     question = Question(
         owner_id=user.id,

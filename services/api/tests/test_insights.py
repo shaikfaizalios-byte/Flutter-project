@@ -141,6 +141,7 @@ def test_report_counts_reviewed_apart_from_suggestions_with_its_basis(
     assert topic["confirmed"] == {
         "questions": 5,
         "papers": 3,
+        "marks": None,
         "years": [{"year": 2019, "questions": 2}, {"year": 2021, "questions": 2}],
     }
     assert topic["unreviewed"] == 1

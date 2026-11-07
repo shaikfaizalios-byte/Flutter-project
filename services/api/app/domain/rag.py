@@ -92,7 +92,7 @@ def best_window(text: str, terms: Sequence[str], size: int = SNIPPET_CHARS) -> s
 class RagSource:
     key: str  # "S1", "S2", ... the name the model cites
     kind: SourceKind
-    label: str  # shown to the learner: "chsl-2024.pdf, page 7"
+    label: str  # shown to the learner: "paper-2024.pdf, page 7"
     text: str  # the snippet sent to the model
     verified: bool  # a reviewer checked it (questions); raw page text is not checked
     rank: float  # retrieval score, higher = better match

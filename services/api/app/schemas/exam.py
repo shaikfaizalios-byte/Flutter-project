@@ -1,12 +1,25 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Subject = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Keyword = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=60)]
+LanguageCode = Annotated[str, StringConstraints(pattern=r"^[a-z]{2,3}$")]
+
+
+class ExamProfileRead(BaseModel):
+    """What sets the exam apart; the app reads its rules from here."""
+
+    kind: str
+    options_per_question: int | None  # null: differs from paper to paper
+    repeat_share: float
+    min_papers: int
+    reliable_papers: int
+    counting_unit: str
+    exam_dates: list[date] = []
 
 
 class ExamRead(BaseModel):
@@ -26,17 +39,91 @@ class ExamRead(BaseModel):
     # Languages the exam's paper is offered in, from its official notice (ISO 639 codes, any
     # language, not only those PrepLoop supports for content; empty = not recorded).
     languages: list[str] = []
+    profile: ExamProfileRead
 
 
-class CustomExamCreate(BaseModel):
+class MarkingScheme(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    marks_correct: float = Field(gt=0, le=1000)
+    marks_wrong: float = Field(ge=0, le=1000)  # deducted for a wrong answer
+    marks_unanswered: float = Field(default=0, ge=0, le=1000)
+
+
+class StageSection(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: Name
+    question_count: int = Field(ge=1, le=1000)
+    duration_minutes: int | None = Field(default=None, ge=1, le=1440)
+    cutoff: float | None = Field(default=None, ge=0)
 
 
-class CustomExamUpdate(BaseModel):
+class ExamStage(BaseModel):
+    """A stage as the learner enters it for their own exam."""
+
     model_config = ConfigDict(extra="forbid")
 
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=60)]
+    duration_minutes: int = Field(ge=1, le=1440)
+    sections: list[StageSection] = Field(min_length=1, max_length=30)
+    marking_scheme: MarkingScheme
+
+    @model_validator(mode="after")
+    def _sections_fit(self) -> "ExamStage":
+        timed = [s.duration_minutes for s in self.sections if s.duration_minutes]
+        if sum(timed) > self.duration_minutes:
+            raise ValueError("The sections take longer than the stage.")
+        return self
+
+
+class StageSectionRead(BaseModel):
+    name: str
+    question_count: int
+    duration_minutes: int | None = None
+    cutoff: float | None = None
+
+
+class MarkingSchemeRead(BaseModel):
+    marks_correct: float
+    marks_wrong: float
+    marks_unanswered: float | None = None  # null: the source doesn't say
+
+
+class ExamStageRead(BaseModel):
+    name: str
+    duration_minutes: int | None
+    sections: list[StageSectionRead]
+    marking_scheme: MarkingSchemeRead | None  # null: marks differ between sections
+    verified: bool  # from a reviewed format; false: entered by the learner
+    source: str | None = None
+
+
+class CustomExamProfile(BaseModel):
+    """What a learner can state about their own exam. Left out: the defaults apply. An explicit
+    null ``options_per_question`` means it differs from paper to paper."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    conducting_body: (
+        Annotated[str, StringConstraints(strip_whitespace=True, max_length=120)] | None
+    ) = None
+    kind: Literal["mcq", "descriptive", "mixed"] | None = None
+    options_per_question: int | None = Field(default=None, ge=2, le=6)
+    languages: list[LanguageCode] = Field(default=[], max_length=30)
+    exam_dates: list[date] = Field(default=[], max_length=20)
+    stages: list[ExamStage] = Field(default=[], max_length=10)
+    repeat_share: float | None = Field(default=None, gt=0, le=1)
+    min_papers: int | None = Field(default=None, ge=1, le=100)
+    reliable_papers: int | None = Field(default=None, ge=1, le=100)
+    counting_unit: Literal["paper", "session"] | None = None
+
+
+class CustomExamCreate(CustomExamProfile):
+    name: Name
+
+
+class CustomExamUpdate(CustomExamProfile):
     name: Name
 
 
@@ -184,6 +271,35 @@ class SyllabusDraftRead(BaseModel):
     subjects: list[SyllabusSubjectRead]
     topic_count: int
     truncated: bool  # the PDF listed more topics than one draft holds
+
+
+ModelName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+
+
+class PatternRename(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: ModelName
+
+
+class PatternMerge(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    into_id: uuid.UUID
+
+
+class PatternMerged(BaseModel):
+    moved: int  # questions now under the other model
+
+
+class PatternFromQuestions(BaseModel):
+    """Names questions that look alike: a new private model, and the questions confirmed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    topic_id: uuid.UUID
+    name: ModelName
+    question_ids: list[uuid.UUID] = Field(min_length=1, max_length=200)
 
 
 class PatternCreate(BaseModel):

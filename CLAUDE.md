@@ -44,6 +44,63 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   review, AI, uploads, notes. `/me/exams`, `/exams/{code}/topics`, `/topics` (+bulk), `/patterns`; optional
   `POST /ai/exams/{code}/topic-draft` (never saved). Mobile: `examCatalogProvider` (server list cached in
   `app_settings`, built-in SSC fallback), `features/exams` (selector + "More exams" search, My exams, topics).
+- Exam profiles (any-exam Phase 1, docs/any-exam, migrations 0041-0043): what sets an exam apart is data. `exams` has kind,
+  options_per_question (0 = varies), repeat_share, min_papers, reliable_papers, counting_unit, exam_dates (NULL = defaults in
+  `services/api/data/exam_templates/defaults.json`; pure `app/domain/exam_profile.py`, `profile_of`/`profile_for`). A stage
+  = one `exam_formats` row (`stage`, was `tier`); learners' own exams keep entered stages in `exams.custom_stages`, never
+  verified (`GET /me/exams/{code}/stages`). Templates: `data/exam_templates/*.json`, a source per fact, status
+  draft|verified|example, applied with `python -m app.cli.exam_formats template FILE --apply --reviewer NAME`. The app's
+  built-in exams and defaults are generated: `python scripts/export_exam_data.py` -> `core/exams/exam_data.g.dart`.
+  `RepeatRules.of(profile)` via `repeatRulesProvider`. Builder + new onboarding wording behind `AppFeatures.examProfiles`.
+  Exam names must not appear in `app/` or `lib/` (test). SSC is pinned: `tests/test_ssc_characterization.py` + `tests/golden`
+  (must pass unchanged every phase), and `python -m app.cli.characterize save|compare` for real papers (hashes only).
+- Syllabus versions (any-exam Phase 2, migration 0044): `syllabus_versions` (exam, owner NULL = shared, effective_year NULL =
+  from the start, nobody recorded it) + `syllabus_nodes` (any depth, level_label, keywords, aliases) sit OVER `topics`: a leaf
+  points to the topic questions use, reused across versions so history stays. Pure `app/domain/syllabus_tree.py`
+  (`in_force`, `scope_for`); with one version nothing changes. Not repeated uses the version in force for the counted papers
+  (`TopicRef.dropped`), suggestions use today's (`active_topics`). `GET/POST /exams/{code}/syllabus-versions`,
+  `DELETE /syllabus-versions/{id}`; shared versions: `python -m app.cli.syllabus import FILE --reviewer NAME` (needs a source
+  and year); built-in lists are in `data/syllabi`. Combined stats: `GET /analytics/canonical?exam=A&exam=B` (confirmed links
+  only). App: `SyllabusTreeScreen` behind `AppFeatures.examProfiles`, outline builder `parseOutline`.
+- Question formats (any-exam Phase 3, migrations 0045-0046, Drift v9): `questions.format` + `answer_spec`, snapshotted on
+  `session_items`; `session_answers.response`. Plain formats (single_correct, assertion_reason, statement, true_false, typed_in,
+  descriptive) keep today's answer columns; multiple_correct, numeric, fill_blank, match, ordering are marked from `answer_spec`
+  by pure `app/domain/question_formats.py`. `Question.answer_type` set alone pulls its plain format (`@validates`). Practice
+  serves spec formats only with `include_new_formats` (app: `PracticeRepository.newFormats` from the flag); mocks and offline
+  packs never. Paper details: `PUT /documents/{id}/details` (stage, session, set, extra_languages, `duplicate_of_id`);
+  `questions.translation_of_id`. Both are excluded from repeats and Radar, only once a person confirms
+  (`paper_duplicates.py` only suggests). Answer key files: `POST /documents/{id}/answer-key[/text]`, pure `answer_key.py`, never
+  overwrites. Text: `RichQuestionText` (`flutter_math_fork`, TeX + pipe tables, plain when the flag is off). Review:
+  `FormatEditorCard`, `PaperDetailsScreen`. The parser doesn't detect formats yet; reviewers set them.
+- Models and counting (any-exam Phase 4, migration 0047): `question_patterns.owner_id` (NULL = shared list, else private, even on
+  a shared topic); ONE rule `visible_pattern` (`app/services/patterns.py`). `PATCH /patterns/{id}`, `POST /patterns/{id}/merge`,
+  `POST /patterns/from-questions`, `POST /topics/{id}/default-models`; learners change only their own. Radar names shared models
+  only; the shared bank refuses private ones. Lists: `data/model_lists` (`shared_aptitude.json` = the 91 seeded models,
+  `descriptive_defaults.json`). `RepeatsReport.name_suggestions` = alike questions in `MIN_PAPERS_TO_NAME` papers with no
+  confirmed model (own papers). `counting_unit` session: pure `app/domain/counting.py` `unit_key`, confirmed date + shift + session
+  = one; `RepeatCounts.marks`; app `byMarks`/`marksVary`, `TopicModelsScreen`. The embedding hint is NOT built (needs a decision).
+- Mock marking and languages (any-exam Phase 6, migrations 0048-0049): sections may state `marks_wrong`, `marks_unanswered`,
+  `cutoff`, `attempt_limit`, `partial`, `formats`; `exam_formats.penalty_fraction` = a share of the question's marks. Pure
+  `section_marking` (`app/domain/exam_format.py`): section, then fraction, then negative mark; none stated = incomplete.
+  `question_formats.partial_marks`; a partly right answer earns marks but isn't correct. `question_types` may name formats; such
+  mocks need `include_new_formats`. Sessions snapshot marks, rule, limits and cutoffs. Reference list adds 10 Indic languages
+  (no Urdu: RTL), fonts in `assets/fonts/noto_indic`; `ContentLanguage.known` stays en/hi, `.all` adds regional (flag only).
+  `SessionItemRead.translations`, translations are never eligible on their own (`_eligible`); app `shownLanguageProvider`.
+- Ladder for any exam (any-exam Phase 5, migration 0050): `app/services/ladder_exam.py` `exam_context` builds pure
+  `ExamContext` (first stage, next stage, formats, options, marking, base time) from verified formats in effect or `custom_stages`.
+  `allowed_formats`: a section's `formats`, else `question_types` ("choice" = single_correct, "typed" = numeric); only
+  `GENERATED_FORMATS`; none = 409 `ladder_no_format`. Without `include_new_formats` (app: flag) always single_correct. Time targets
+  are the server's: `time_target`, factors in `defaults.json` `ladder`. `solver_agrees` per format. `ladder.mark` uses mock scoring;
+  steps snapshot marks, null = none stated. Descriptive exams: `available` false, start refused (until Phase 7).
+- Written practice (any-exam Phase 7, migration 0051): exams of kind descriptive|mixed. Pure `app/domain/descriptive.py`,
+  `descriptive_service.py`, `/descriptive/*`, settings in `defaults.json` `descriptive`. Five levels; marks = share of the exam's
+  question marks (`exam_context`), else the default. Each question has a rubric (must add up) and a model answer, which must earn
+  `model_answer_share` of its own rubric. Answers are marked twice; a gap over `disagreement_share` of the marks runs a third, the
+  middle one is shown with the range. `POST /descriptive/read-photo`: the AI copies handwriting, nothing stored, learner corrects.
+  Own tables, never `questions`. App `features/descriptive` behind `examProfiles`; always labelled as estimated marks.
+  Real questions (migration 0052): `DescriptiveStart.source` papers = the learner's own reviewed written questions as printed (never
+  the shared bank, translations, duplicates, figures), unanswered first, up to 5; marks printed, else the exam's. Rubric drafted by
+  AI and reused while wording, marks and the paper's answer are unchanged (`_earlier_rubric`); the paper's answer wins over the AI's.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry
@@ -361,6 +418,7 @@ docker compose -f infra/docker-compose.yml up --build   # full stack + Mailpit (
 services\api\.venv\Scripts\python.exe scripts\generate_app_icons.py  # launcher icons (Android/iOS/web)
 cd apps\mobile; flutter build appbundle --release --dart-define=FLAVOR=production --dart-define=API_BASE_URL=https://...
 cd services\api; .\.venv\Scripts\python.exe -m app.workers.document_worker  # standalone worker
+python scripts\export_exam_data.py   # refresh the app's exam data after changing data/exam_templates
 python website\build.py --out website\_site   # public website (GitHub Pages: .github/workflows/pages.yml)
 # Production backend: infra/production (VPS + docker compose + Caddy); steps in docs/deployment.md
 powershell -ExecutionPolicy Bypass -File scripts\tunnel.ps1   # public test tunnel to the PC API (updates deploy/public-api-url)

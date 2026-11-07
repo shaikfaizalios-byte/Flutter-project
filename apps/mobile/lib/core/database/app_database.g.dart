@@ -1452,6 +1452,15 @@ class $PendingAnswersTable extends PendingAnswers
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _responseJsonMeta = const VerificationMeta('responseJson');
+  @override
+  late final GeneratedColumn<String> responseJson = GeneratedColumn<String>(
+    'response_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _clientSeqMeta = const VerificationMeta('clientSeq');
   @override
   late final GeneratedColumn<int> clientSeq = GeneratedColumn<int>(
@@ -1485,6 +1494,7 @@ class $PendingAnswersTable extends PendingAnswers
     position,
     selectedPosition,
     typedAnswer,
+    responseJson,
     clientSeq,
     timeSpentMs,
     createdAt,
@@ -1527,6 +1537,12 @@ class $PendingAnswersTable extends PendingAnswers
       context.handle(
         _typedAnswerMeta,
         typedAnswer.isAcceptableOrUnknown(data['typed_answer']!, _typedAnswerMeta),
+      );
+    }
+    if (data.containsKey('response_json')) {
+      context.handle(
+        _responseJsonMeta,
+        responseJson.isAcceptableOrUnknown(data['response_json']!, _responseJsonMeta),
       );
     }
     if (data.containsKey('client_seq')) {
@@ -1576,6 +1592,10 @@ class $PendingAnswersTable extends PendingAnswers
         DriftSqlType.string,
         data['${effectivePrefix}typed_answer'],
       ),
+      responseJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}response_json'],
+      ),
       clientSeq: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}client_seq'],
@@ -1607,6 +1627,9 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
   /// The answer of a typed-in question (instead of [selectedPosition]). Added in schema v6.
   final String? typedAnswer;
 
+  /// JSON answer of a format that takes neither one option nor a text. Added in schema v9.
+  final String? responseJson;
+
   /// Monotonic per device; the server ignores updates older than the one it has.
   final int clientSeq;
   final int? timeSpentMs;
@@ -1616,6 +1639,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     required this.position,
     this.selectedPosition,
     this.typedAnswer,
+    this.responseJson,
     required this.clientSeq,
     this.timeSpentMs,
     required this.createdAt,
@@ -1630,6 +1654,9 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     }
     if (!nullToAbsent || typedAnswer != null) {
       map['typed_answer'] = Variable<String>(typedAnswer);
+    }
+    if (!nullToAbsent || responseJson != null) {
+      map['response_json'] = Variable<String>(responseJson);
     }
     map['client_seq'] = Variable<int>(clientSeq);
     if (!nullToAbsent || timeSpentMs != null) {
@@ -1647,6 +1674,9 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
           ? const Value.absent()
           : Value(selectedPosition),
       typedAnswer: typedAnswer == null && nullToAbsent ? const Value.absent() : Value(typedAnswer),
+      responseJson: responseJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(responseJson),
       clientSeq: Value(clientSeq),
       timeSpentMs: timeSpentMs == null && nullToAbsent ? const Value.absent() : Value(timeSpentMs),
       createdAt: Value(createdAt),
@@ -1660,6 +1690,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
       position: serializer.fromJson<int>(json['position']),
       selectedPosition: serializer.fromJson<int?>(json['selectedPosition']),
       typedAnswer: serializer.fromJson<String?>(json['typedAnswer']),
+      responseJson: serializer.fromJson<String?>(json['responseJson']),
       clientSeq: serializer.fromJson<int>(json['clientSeq']),
       timeSpentMs: serializer.fromJson<int?>(json['timeSpentMs']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -1673,6 +1704,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
       'position': serializer.toJson<int>(position),
       'selectedPosition': serializer.toJson<int?>(selectedPosition),
       'typedAnswer': serializer.toJson<String?>(typedAnswer),
+      'responseJson': serializer.toJson<String?>(responseJson),
       'clientSeq': serializer.toJson<int>(clientSeq),
       'timeSpentMs': serializer.toJson<int?>(timeSpentMs),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -1684,6 +1716,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     int? position,
     Value<int?> selectedPosition = const Value.absent(),
     Value<String?> typedAnswer = const Value.absent(),
+    Value<String?> responseJson = const Value.absent(),
     int? clientSeq,
     Value<int?> timeSpentMs = const Value.absent(),
     DateTime? createdAt,
@@ -1692,6 +1725,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     position: position ?? this.position,
     selectedPosition: selectedPosition.present ? selectedPosition.value : this.selectedPosition,
     typedAnswer: typedAnswer.present ? typedAnswer.value : this.typedAnswer,
+    responseJson: responseJson.present ? responseJson.value : this.responseJson,
     clientSeq: clientSeq ?? this.clientSeq,
     timeSpentMs: timeSpentMs.present ? timeSpentMs.value : this.timeSpentMs,
     createdAt: createdAt ?? this.createdAt,
@@ -1704,6 +1738,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
           ? data.selectedPosition.value
           : this.selectedPosition,
       typedAnswer: data.typedAnswer.present ? data.typedAnswer.value : this.typedAnswer,
+      responseJson: data.responseJson.present ? data.responseJson.value : this.responseJson,
       clientSeq: data.clientSeq.present ? data.clientSeq.value : this.clientSeq,
       timeSpentMs: data.timeSpentMs.present ? data.timeSpentMs.value : this.timeSpentMs,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -1717,6 +1752,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
           ..write('position: $position, ')
           ..write('selectedPosition: $selectedPosition, ')
           ..write('typedAnswer: $typedAnswer, ')
+          ..write('responseJson: $responseJson, ')
           ..write('clientSeq: $clientSeq, ')
           ..write('timeSpentMs: $timeSpentMs, ')
           ..write('createdAt: $createdAt')
@@ -1730,6 +1766,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
     position,
     selectedPosition,
     typedAnswer,
+    responseJson,
     clientSeq,
     timeSpentMs,
     createdAt,
@@ -1742,6 +1779,7 @@ class PendingAnswerRow extends DataClass implements Insertable<PendingAnswerRow>
           other.position == this.position &&
           other.selectedPosition == this.selectedPosition &&
           other.typedAnswer == this.typedAnswer &&
+          other.responseJson == this.responseJson &&
           other.clientSeq == this.clientSeq &&
           other.timeSpentMs == this.timeSpentMs &&
           other.createdAt == this.createdAt);
@@ -1752,6 +1790,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
   final Value<int> position;
   final Value<int?> selectedPosition;
   final Value<String?> typedAnswer;
+  final Value<String?> responseJson;
   final Value<int> clientSeq;
   final Value<int?> timeSpentMs;
   final Value<DateTime> createdAt;
@@ -1761,6 +1800,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     this.position = const Value.absent(),
     this.selectedPosition = const Value.absent(),
     this.typedAnswer = const Value.absent(),
+    this.responseJson = const Value.absent(),
     this.clientSeq = const Value.absent(),
     this.timeSpentMs = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1771,6 +1811,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     required int position,
     this.selectedPosition = const Value.absent(),
     this.typedAnswer = const Value.absent(),
+    this.responseJson = const Value.absent(),
     required int clientSeq,
     this.timeSpentMs = const Value.absent(),
     required DateTime createdAt,
@@ -1784,6 +1825,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     Expression<int>? position,
     Expression<int>? selectedPosition,
     Expression<String>? typedAnswer,
+    Expression<String>? responseJson,
     Expression<int>? clientSeq,
     Expression<int>? timeSpentMs,
     Expression<DateTime>? createdAt,
@@ -1794,6 +1836,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
       if (position != null) 'position': position,
       if (selectedPosition != null) 'selected_position': selectedPosition,
       if (typedAnswer != null) 'typed_answer': typedAnswer,
+      if (responseJson != null) 'response_json': responseJson,
       if (clientSeq != null) 'client_seq': clientSeq,
       if (timeSpentMs != null) 'time_spent_ms': timeSpentMs,
       if (createdAt != null) 'created_at': createdAt,
@@ -1806,6 +1849,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     Value<int>? position,
     Value<int?>? selectedPosition,
     Value<String?>? typedAnswer,
+    Value<String?>? responseJson,
     Value<int>? clientSeq,
     Value<int?>? timeSpentMs,
     Value<DateTime>? createdAt,
@@ -1816,6 +1860,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
       position: position ?? this.position,
       selectedPosition: selectedPosition ?? this.selectedPosition,
       typedAnswer: typedAnswer ?? this.typedAnswer,
+      responseJson: responseJson ?? this.responseJson,
       clientSeq: clientSeq ?? this.clientSeq,
       timeSpentMs: timeSpentMs ?? this.timeSpentMs,
       createdAt: createdAt ?? this.createdAt,
@@ -1837,6 +1882,9 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
     }
     if (typedAnswer.present) {
       map['typed_answer'] = Variable<String>(typedAnswer.value);
+    }
+    if (responseJson.present) {
+      map['response_json'] = Variable<String>(responseJson.value);
     }
     if (clientSeq.present) {
       map['client_seq'] = Variable<int>(clientSeq.value);
@@ -1860,6 +1908,7 @@ class PendingAnswersCompanion extends UpdateCompanion<PendingAnswerRow> {
           ..write('position: $position, ')
           ..write('selectedPosition: $selectedPosition, ')
           ..write('typedAnswer: $typedAnswer, ')
+          ..write('responseJson: $responseJson, ')
           ..write('clientSeq: $clientSeq, ')
           ..write('timeSpentMs: $timeSpentMs, ')
           ..write('createdAt: $createdAt, ')
@@ -5160,6 +5209,7 @@ typedef $$PendingAnswersTableCreateCompanionBuilder = PendingAnswersCompanion Fu
   required int position,
   Value<int?> selectedPosition,
   Value<String?> typedAnswer,
+  Value<String?> responseJson,
   required int clientSeq,
   Value<int?> timeSpentMs,
   required DateTime createdAt,
@@ -5170,6 +5220,7 @@ typedef $$PendingAnswersTableUpdateCompanionBuilder = PendingAnswersCompanion Fu
   Value<int> position,
   Value<int?> selectedPosition,
   Value<String?> typedAnswer,
+  Value<String?> responseJson,
   Value<int> clientSeq,
   Value<int?> timeSpentMs,
   Value<DateTime> createdAt,
@@ -5197,6 +5248,9 @@ class $$PendingAnswersTableFilterComposer extends Composer<_$AppDatabase, $Pendi
 
   ColumnFilters<String> get typedAnswer =>
       $composableBuilder(column: $table.typedAnswer, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get responseJson =>
+      $composableBuilder(column: $table.responseJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get clientSeq =>
       $composableBuilder(column: $table.clientSeq, builder: (column) => ColumnFilters(column));
@@ -5230,6 +5284,9 @@ class $$PendingAnswersTableOrderingComposer extends Composer<_$AppDatabase, $Pen
   ColumnOrderings<String> get typedAnswer =>
       $composableBuilder(column: $table.typedAnswer, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get responseJson =>
+      $composableBuilder(column: $table.responseJson, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get clientSeq =>
       $composableBuilder(column: $table.clientSeq, builder: (column) => ColumnOrderings(column));
 
@@ -5260,6 +5317,9 @@ class $$PendingAnswersTableAnnotationComposer
 
   GeneratedColumn<String> get typedAnswer =>
       $composableBuilder(column: $table.typedAnswer, builder: (column) => column);
+
+  GeneratedColumn<String> get responseJson =>
+      $composableBuilder(column: $table.responseJson, builder: (column) => column);
 
   GeneratedColumn<int> get clientSeq =>
       $composableBuilder(column: $table.clientSeq, builder: (column) => column);
@@ -5303,6 +5363,7 @@ class $$PendingAnswersTableTableManager
                 Value<int> position = const Value.absent(),
                 Value<int?> selectedPosition = const Value.absent(),
                 Value<String?> typedAnswer = const Value.absent(),
+                Value<String?> responseJson = const Value.absent(),
                 Value<int> clientSeq = const Value.absent(),
                 Value<int?> timeSpentMs = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -5312,6 +5373,7 @@ class $$PendingAnswersTableTableManager
                 position: position,
                 selectedPosition: selectedPosition,
                 typedAnswer: typedAnswer,
+                responseJson: responseJson,
                 clientSeq: clientSeq,
                 timeSpentMs: timeSpentMs,
                 createdAt: createdAt,
@@ -5323,6 +5385,7 @@ class $$PendingAnswersTableTableManager
                 required int position,
                 Value<int?> selectedPosition = const Value.absent(),
                 Value<String?> typedAnswer = const Value.absent(),
+                Value<String?> responseJson = const Value.absent(),
                 required int clientSeq,
                 Value<int?> timeSpentMs = const Value.absent(),
                 required DateTime createdAt,
@@ -5332,6 +5395,7 @@ class $$PendingAnswersTableTableManager
                 position: position,
                 selectedPosition: selectedPosition,
                 typedAnswer: typedAnswer,
+                responseJson: responseJson,
                 clientSeq: clientSeq,
                 timeSpentMs: timeSpentMs,
                 createdAt: createdAt,

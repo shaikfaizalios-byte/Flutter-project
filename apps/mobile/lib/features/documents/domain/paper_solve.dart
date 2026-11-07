@@ -1,4 +1,5 @@
 import '../../practice/domain/offline_practice.dart' show typedAnswerMatches;
+import '../../question_bank/domain/format_spec.dart';
 import '../../question_bank/domain/question.dart';
 
 /// How a question of a paper is answered when solving it.
@@ -14,9 +15,13 @@ enum SolveKind {
 
   /// A multiple-choice question whose options weren't read from the PDF: it needs review.
   unreadable,
+
+  /// A format that needs more than a tap or a typed text: answered in practice, not here.
+  practiceOnly,
 }
 
 SolveKind solveKind(BankQuestion question) => switch (question.answerType) {
+  _ when specFormats.contains(question.format) => SolveKind.practiceOnly,
   'typed' => SolveKind.typed,
   'written' => SolveKind.written,
   _ when question.options.isEmpty => SolveKind.unreadable,

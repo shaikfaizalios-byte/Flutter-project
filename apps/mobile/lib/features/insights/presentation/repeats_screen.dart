@@ -14,6 +14,11 @@ import '../../practice/application/practice_providers.dart';
 import '../../practice/domain/practice_models.dart';
 import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
 import '../data/insights_repository.dart';
+import '../../../core/errors/app_failure.dart';
+import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
+import '../../exams/application/exam_catalog_controller.dart';
+import '../../exams/data/exams_repository.dart';
+import '../../exams/presentation/topic_models_screen.dart';
 import '../domain/radar.dart';
 import '../domain/repeats.dart';
 import 'radar_sharing_card.dart';
@@ -22,6 +27,11 @@ import '../../concepts/application/concepts_providers.dart';
 
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
 /// Every number states its basis; reviewed counts are kept apart from suggestions.
+/// The rules of the exam being shown.
+final repeatRulesProvider = Provider<RepeatRules>(
+  (ref) => RepeatRules.of(ref.watch(examProfileProvider(ref.watch(activeExamProvider)))),
+);
+
 class RepeatsScreen extends ConsumerStatefulWidget {
   const RepeatsScreen({super.key, this.initialView = 'mine'});
 
@@ -38,6 +48,27 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
 
   /// The other side: what these papers did not ask.
   bool _notRepeated = false;
+
+  /// Rank topics by the marks they carried, where marks differ.
+  bool _byMarks = false;
+
+  Future<void> _nameModel(NameSuggestion group) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => ModelNameDialog(title: l10n.repeatsNameTitle),
+    );
+    if (name == null) return;
+    try {
+      await ref.read(examsRepositoryProvider).nameModel(group.topicId, name, [
+        for (final q in group.questions) q.questionId,
+      ]);
+      ref.invalidate(repeatsProvider(_query));
+    } on AppFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(uploadErrorMessage(l10n, failure))));
+    }
+  }
 
   RepeatsQuery get _query => (examCode: _exam, scope: _view == 'shared' ? 'shared' : 'mine');
 
@@ -128,6 +159,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
   List<Widget> _radarContent(BuildContext context, RadarReport report) {
     final l10n = AppLocalizations.of(context);
     final small = Theme.of(context).textTheme.bodySmall;
+    final rules = ref.watch(repeatRulesProvider);
     final basis = report.basis;
     if (basis.shifts == 0) {
       return [
@@ -151,10 +183,7 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
           children: [
             Text(l10n.radarHowCounted(basis.minAccounts), style: small),
             if (basis.withheld > 0) Text(l10n.radarWithheld(basis.withheld), style: small),
-            Text(
-              l10n.radarMostRule((RepeatRules.share * 100).round(), RepeatRules.minPapers),
-              style: small,
-            ),
+            Text(l10n.radarMostRule((rules.share * 100).round(), rules.minPapers), style: small),
           ],
         ),
       ),
@@ -230,12 +259,19 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
       ];
     }
     if (_notRepeated) return _notRepeatedContent(context, report);
-    final reviewed = report.topics.where((t) => t.confirmed.questions > 0).toList();
+    final profiles = ref.watch(appFeaturesProvider).examProfiles;
+    final reviewedInOrder = report.topics.where((t) => t.confirmed.questions > 0).toList();
+    final canRankByMarks = profiles && marksVary(reviewedInOrder);
+    final reviewed = canRankByMarks && _byMarks ? byMarks(reviewedInOrder) : reviewedInOrder;
     final unreviewedOnly = report.topics
         .where((t) => t.confirmed.questions == 0 && t.unreviewed > 0)
         .toList();
     return [
-      _BasisCard(basis: report.papers, shared: _view == 'shared'),
+      _BasisCard(
+        basis: report.papers,
+        rules: ref.watch(repeatRulesProvider),
+        shared: _view == 'shared',
+      ),
       const SizedBox(height: AppSpacing.md),
       if (reviewed.isEmpty && unreviewedOnly.isNotEmpty)
         Padding(
@@ -246,8 +282,48 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
             child: Text(l10n.repeatsNeedsReviewMessage),
           ),
         ),
+      if (report.countingUnit == 'session')
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Text(l10n.repeatsSessionsNote),
+        ),
+      if (profiles)
+        for (final group in report.nameSuggestions)
+          SectionCard(
+            icon: Icons.drive_file_rename_outline,
+            title: l10n.repeatsNameTitle,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.repeatsNameNote(group.papers, group.topicName)),
+                for (final question in group.questions.take(3))
+                  Text('· ${question.stemExcerpt}', maxLines: 2, overflow: TextOverflow.ellipsis),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: TextButton(
+                    onPressed: () => _nameModel(group),
+                    child: Text(l10n.repeatsNameAction),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      if (canRankByMarks)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: FilterChip(
+            label: Text(l10n.repeatsByMarks),
+            selected: _byMarks,
+            onSelected: (on) => setState(() => _byMarks = on),
+          ),
+        ),
       for (final topic in [...reviewed, ...unreviewedOnly])
-        _TopicCard(topic: topic, basis: report.papers, examCode: _exam),
+        _TopicCard(
+          topic: topic,
+          basis: report.papers,
+          examCode: _exam,
+          sessions: report.countingUnit == 'session',
+        ),
       if (report.similarGroups.isNotEmpty) ...[
         const SizedBox(height: AppSpacing.md),
         Text(l10n.repeatsSimilarTitle, style: Theme.of(context).textTheme.titleMedium),
@@ -286,7 +362,11 @@ extension on _RepeatsScreenState {
     }
 
     return [
-      _BasisCard(basis: report.papers, shared: _view == 'shared'),
+      _BasisCard(
+        basis: report.papers,
+        rules: ref.watch(repeatRulesProvider),
+        shared: _view == 'shared',
+      ),
       const SizedBox(height: AppSpacing.md),
       SectionCard(
         icon: Icons.info_outline,
@@ -332,6 +412,7 @@ extension on _RepeatsScreenState {
                         contentPadding: EdgeInsets.zero,
                         dense: true,
                         title: Text(topic.name),
+                        subtitle: topic.dropped ? Text(l10n.notRepeatedDropped) : null,
                         trailing: TextButton(
                           onPressed: () => study(topic),
                           child: Text(l10n.notRepeatedStudy),
@@ -393,9 +474,10 @@ extension on _RepeatsScreenState {
 }
 
 class _BasisCard extends StatelessWidget {
-  const _BasisCard({required this.basis, this.shared = false});
+  const _BasisCard({required this.basis, required this.rules, this.shared = false});
 
   final PapersBasis basis;
+  final RepeatRules rules;
 
   /// Counting the shared bank rather than the learner's own papers.
   final bool shared;
@@ -417,15 +499,15 @@ class _BasisCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpacing.xs,
         children: [
-          if (RepeatRules.isSmallSample(basis))
+          if (rules.isSmallSample(basis))
             Text(
-              l10n.repeatsSmallSample(basis.total, RepeatRules.reliablePapers),
+              l10n.repeatsSmallSample(basis.total, rules.reliablePapers),
               style: small?.copyWith(color: Theme.of(context).colorScheme.tertiary),
             ),
           if (basis.undated > 0) Text(l10n.repeatsUndated(basis.undated), style: small),
           Text(l10n.repeatsReviewedNote, style: small),
           Text(
-            l10n.repeatsMostPapersRule((RepeatRules.share * 100).round(), RepeatRules.minPapers),
+            l10n.repeatsMostPapersRule((rules.share * 100).round(), rules.minPapers),
             style: small,
           ),
         ],
@@ -434,26 +516,42 @@ class _BasisCard extends StatelessWidget {
   }
 }
 
-String _counts(AppLocalizations l10n, RepeatCounts counts, PapersBasis basis) =>
-    l10n.repeatsInPapers(counts.papers, basis.total, counts.questions);
+String _counts(
+  AppLocalizations l10n,
+  RepeatCounts counts,
+  PapersBasis basis, {
+  bool sessions = false,
+}) => [
+  sessions
+      ? l10n.repeatsInSessions(counts.papers, basis.total, counts.questions)
+      : l10n.repeatsInPapers(counts.papers, basis.total, counts.questions),
+  if (counts.marks case final marks?)
+    l10n.repeatsMarks(marks.toStringAsFixed(marks % 1 == 0 ? 0 : 1)),
+].join(' · ');
 
 String _years(List<YearCount> years) => years.map((y) => '${y.year}: ${y.questions}').join(' · ');
 
 class _TopicCard extends ConsumerWidget {
-  const _TopicCard({required this.topic, required this.basis, required this.examCode});
+  const _TopicCard({
+    required this.topic,
+    required this.basis,
+    required this.examCode,
+    this.sessions = false,
+  });
 
   final TopicRepeat topic;
   final PapersBasis basis;
   final String? examCode;
+  final bool sessions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final small = theme.textTheme.bodySmall;
-    final most = RepeatRules.seenInMostPapers(topic.confirmed, basis);
+    final most = ref.watch(repeatRulesProvider).seenInMostPapers(topic.confirmed, basis);
     final subtitle = [
-      if (topic.confirmed.questions > 0) _counts(l10n, topic.confirmed, basis),
+      if (topic.confirmed.questions > 0) _counts(l10n, topic.confirmed, basis, sessions: sessions),
       if (topic.unreviewed > 0) l10n.repeatsUnreviewed(topic.unreviewed),
     ].join('\n');
 
@@ -488,7 +586,7 @@ class _TopicCard extends ConsumerWidget {
               title: Text(pattern.name),
               subtitle: Text(
                 [
-                  _counts(l10n, pattern.confirmed, basis),
+                  _counts(l10n, pattern.confirmed, basis, sessions: sessions),
                   if (pattern.confirmed.years.isNotEmpty)
                     l10n.repeatsByYear(_years(pattern.confirmed.years)),
                   if (pattern.unreviewed > 0) l10n.repeatsUnreviewed(pattern.unreviewed),
@@ -507,6 +605,14 @@ class _TopicCard extends ConsumerWidget {
                       ),
                       child: Text(l10n.repeatsPractise),
                     ),
+            ),
+          if (ref.watch(appFeaturesProvider).examProfiles)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                onPressed: () => context.push(AppRoutes.topicModels(topic.topicId, topic.name)),
+                child: Text(l10n.modelsManage),
+              ),
             ),
           if (topic.withoutPattern > 0)
             Padding(
@@ -591,9 +697,9 @@ class _RadarTopicCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final small = theme.textTheme.bodySmall;
+    final rules = ref.watch(repeatRulesProvider);
     final most =
-        basis.shifts >= RepeatRules.minPapers &&
-        topic.counts.shifts / basis.shifts >= RepeatRules.share;
+        basis.shifts >= rules.minPapers && topic.counts.shifts / basis.shifts >= rules.share;
     String years(List<RadarYear> ys) => ys.map((y) => '${y.year}: ${y.shifts}').join(' · ');
 
     return Card(

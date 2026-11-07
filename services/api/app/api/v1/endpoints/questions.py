@@ -11,12 +11,15 @@ from app.schemas.question import (
     ExamFormatRead,
     FigureCreate,
     FigureRead,
+    PassageKindUpdate,
+    PassageRead,
     PatternRead,
     QuestionList,
     QuestionRead,
     QuestionRevisionRead,
     QuestionUpdate,
     TopicRead,
+    TranslationLink,
     VerificationLiteral,
 )
 from app.services.question_service import QuestionFilter, QuestionService
@@ -77,6 +80,32 @@ def list_questions(
 )
 def get_question(question_id: uuid.UUID, service: Service) -> QuestionRead:
     return service.get(question_id)
+
+
+@router.put(
+    "/questions/{question_id}/translation-of",
+    response_model=QuestionRead,
+    tags=["questions"],
+    responses=NOT_FOUND,
+    summary="Link this question as a translation of another, so they count once",
+)
+def set_translation(
+    question_id: uuid.UUID, body: TranslationLink, service: Service
+) -> QuestionRead:
+    return service.set_translation(question_id, body.question_id)
+
+
+@router.put(
+    "/passages/{passage_id}/kind",
+    response_model=PassageRead,
+    tags=["questions"],
+    responses=NOT_FOUND,
+    summary="Say what shared material is: text, chart, table or case",
+)
+def set_passage_kind(
+    passage_id: uuid.UUID, body: PassageKindUpdate, service: Service
+) -> PassageRead:
+    return service.set_passage_kind(passage_id, body.kind)
 
 
 @router.patch(

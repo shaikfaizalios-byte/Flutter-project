@@ -53,7 +53,7 @@ _YEAR = re.compile(r"(?<!\d)((?:19|20)\d\d)(?!\d)")
 _SHIFT = re.compile(
     r"shift[\s._-]*(?:no\.?|number)?[\s._:-]*(\d{1,2})(?!\d)|(?<!\d)(\d)(?:st|nd|rd|th)?[\s._-]*shift"
 )
-# Only the start of the first page is read: where SSC papers print "Exam Date" and "Shift".
+# Only the start of the first page is read: where papers print "Exam Date" and "Shift".
 FIRST_PAGE_CHARS = 1500
 
 

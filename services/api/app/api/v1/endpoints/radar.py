@@ -28,9 +28,7 @@ Service = Annotated[RadarService, Depends(get_radar_service)]
 )
 def radar(
     service: Service,
-    exam: Annotated[
-        str | None, Query(max_length=32, description="Exam code, e.g. SSC_CHSL")
-    ] = None,
+    exam: Annotated[str | None, Query(max_length=32, description="Exam code")] = None,
 ) -> RadarReport:
     return service.report(exam)
 

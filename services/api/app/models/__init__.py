@@ -3,6 +3,7 @@
 from app.models.ai import AIExplanation, AIGeneration
 from app.models.concept import Concept
 from app.models.content import AuditEvent, ContentReport, ContentRights
+from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
@@ -24,6 +25,7 @@ from app.models.question import (
     SyllabusImport,
     Topic,
 )
+from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.sync import SyncItem
 from app.models.taxonomy import TaxonomyLabel, TaxonomyNode, TopicTaxonomyLink
 from app.models.user import AccountCode, RefreshToken, User
@@ -38,6 +40,8 @@ __all__ = [
     "Concept",
     "ContentReport",
     "ContentRights",
+    "DescriptiveSession",
+    "DescriptiveStep",
     "Document",
     "DocumentPage",
     "Exam",
@@ -61,6 +65,8 @@ __all__ = [
     "Subscription",
     "Suggestion",
     "SyllabusImport",
+    "SyllabusNode",
+    "SyllabusVersion",
     "SyncItem",
     "TaxonomyLabel",
     "TaxonomyNode",

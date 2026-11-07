@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
@@ -12,6 +13,7 @@ import '../../../core/widgets/empty_state.dart';
 import '../../documents/presentation/documents_screen.dart' show uploadErrorMessage;
 import '../../study_plan/application/study_profile_controller.dart';
 import '../application/exam_catalog_controller.dart';
+import 'exam_builder_screen.dart';
 import 'exam_selector.dart';
 
 /// The learner's exams (chosen in the study plan, plus their own) and a way into each exam's
@@ -52,6 +54,13 @@ class _MyExamsScreenState extends ConsumerState<MyExamsScreen> {
   }
 
   Future<void> _create() async {
+    if (ref.read(appFeaturesProvider).examProfiles) {
+      final exam = await createCustomExam(context, ref);
+      if (exam == null) return;
+      final profile = ref.read(studyProfileProvider);
+      await ref.read(studyProfileProvider.notifier).setExamCodes([...profile.examCodes, exam.code]);
+      return;
+    }
     final name = await showDialog<String>(
       context: context,
       builder: (context) => const ExamNameDialog(),

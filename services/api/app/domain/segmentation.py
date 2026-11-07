@@ -28,7 +28,6 @@ from dataclasses import dataclass, field
 from app.domain import typed_answers
 from app.domain.text_quality import UNREADABLE_CHARS
 
-EXPECTED_OPTIONS = 4  # SSC objective papers; formats with other counts can pass their own.
 _DASHES = "-" + chr(0x2013) + chr(0x2014)  # hyphen, en dash, em dash
 _DASH = f"[{_DASHES}]"
 
@@ -128,6 +127,8 @@ STRONG_QUESTION = re.compile(
 _LABEL_ROW = re.compile(r"^\s*(?:Q\s*\d{1,3}[\s,|/-]*){2,}$", re.IGNORECASE)
 # Fewer different strong numbers than this only count when the paper isn't plainly numbered.
 MIN_STRONG_NUMBERS = 3
+# How many options a question can have when its exam's count varies (labels run to 9 at most).
+OPTION_LIMIT = 9
 
 
 def strong_start(text: str) -> re.Match[str] | None:
@@ -153,7 +154,7 @@ WEAK_QUESTION = re.compile(r"^(\d{1,3})\s*[.):]\s+(.*)$")
 # A question number alone on its line ("4."), its text on the next lines.
 BARE_NUMBER = re.compile(r"^(\d{1,3})\s*[.)]$")
 SECTION_PREFIX = re.compile(
-    rf"^(?:section|part|खंड|भाग)\s*(?:{_DASH}|:)?\s*([A-D]|[IVX]{{1,4}}|\d{{1,2}})?\b\s*"
+    rf"^(?:section|part|खंड|भाग)\s*(?:{_DASH}|:)?\s*([A-H]|[IVX]{{1,4}}|\d{{1,2}})?\b\s*"
     rf"(?:{_DASH}|:|\.)?\s*(.*)$",
     re.IGNORECASE,
 )
@@ -333,7 +334,7 @@ def section_heading(line: str, extra: frozenset[str] = frozenset()) -> str | Non
 
 @dataclass(slots=True)
 class _State:
-    expected_options: int
+    expected_options: int  # the most a question can have: the exam's count, or OPTION_LIMIT
     strong_numbering: bool
     extra_headings: frozenset[str] = frozenset()
     questions: list[ParsedQuestion] = field(default_factory=list)
@@ -409,12 +410,12 @@ def _resolve_typed(question: ParsedQuestion) -> None:
 def segment(
     pages: Sequence[PageText],
     *,
-    expected_options: int = EXPECTED_OPTIONS,
+    expected_options: int | None,
     extra_headings: Sequence[str] = (),
 ) -> SegmentationResult:
     lines = _lines(pages)
     state = _State(
-        expected_options=expected_options,
+        expected_options=expected_options or OPTION_LIMIT,
         extra_headings=frozenset(h.strip().casefold() for h in extra_headings if h.strip()),
         strong_numbering=uses_strong_numbering([line.text for line in lines]),
     )
@@ -934,6 +935,33 @@ def _flush_key_table(state: _State) -> None:
     state.key_numbers, state.key_answers = [], []
 
 
+@dataclass(frozen=True, slots=True)
+class AnswerKeyRead:
+    entries: list[tuple[int, str]]
+    problems: list[str]
+
+
+def read_answer_key(pages: Sequence[str]) -> AnswerKeyRead:
+    """The key of a file that holds only a key, read by the rules of a key inside a paper."""
+    state = _State(expected_options=0, strong_numbering=False)
+    for page in pages:
+        for raw in page.splitlines():
+            text = raw.strip()
+            if not text:
+                continue
+            if len(text) <= 60 and ANSWER_KEY_HEADING.match(text):
+                text = ANSWER_KEY_HEADING.sub("", text).strip(" :.-")
+                if not text:
+                    continue
+            pairs = _key_pairs(text)
+            if pairs:
+                state.key_entries.extend(pairs)
+            else:
+                _key_table_line(state, text)
+    _flush_key_table(state)
+    return AnswerKeyRead(state.key_entries, state.key_issues)
+
+
 def _attach_answer_key(
     questions: list[ParsedQuestion],
     entries: list[tuple[int, str]],
@@ -996,7 +1024,7 @@ def _attach_explanations(
 def _validate(
     questions: list[ParsedQuestion],
     pages: Sequence[PageText],
-    expected_options: int,
+    expected_options: int | None,
     document_issues: list[Issue],
 ) -> None:
     if not questions:
@@ -1037,7 +1065,7 @@ def _validate(
 
 
 def validate_question_content(
-    question: ParsedQuestion, expected_options: int, option_figures: Collection[int] = ()
+    question: ParsedQuestion, expected_options: int | None, option_figures: Collection[int] = ()
 ) -> list[Issue]:
     """Checks that also apply after a reviewer edits a question."""
     return content_issues(
@@ -1054,7 +1082,7 @@ def content_issues(
     *,
     option_texts: Sequence[str],
     answer_position: int | None,
-    expected_options: int,
+    expected_options: int | None,
     option_figures: Collection[int] = (),
     answer_type: str = "choice",
     typed_answer: str | None = None,
@@ -1068,7 +1096,8 @@ def content_issues(
     if answer_type == "written":
         return [] if model_answer and model_answer.strip() else [Issue(IssueCode.MISSING_ANSWER)]
     issues: list[Issue] = []
-    if len(option_texts) != expected_options:
+    # None: the count differs from paper to paper, so any count is fine.
+    if expected_options is not None and len(option_texts) != expected_options:
         issues.append(
             Issue(
                 IssueCode.INCOMPLETE_OPTIONS,
@@ -1092,7 +1121,7 @@ def check_against_format(
     sections: Iterable[tuple[str, int]],
 ) -> list[Issue]:
     """Compare found questions with a *verified* exam format. Sections are matched by name
-    only, never by position (SSC notices list parts "not in sequence")."""
+    only, never by position (notices can list parts "not in sequence")."""
     issues: list[Issue] = []
     found = len({(q.section, q.number) for q in result.questions})
     if found != total_questions:

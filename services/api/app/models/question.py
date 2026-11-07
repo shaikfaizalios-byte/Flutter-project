@@ -19,7 +19,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database.base import Base
 
@@ -73,7 +73,7 @@ class ExamFormat(Base):
     exam_code: Mapped[str] = mapped_column(
         String(32), ForeignKey("exams.code", ondelete="RESTRICT")
     )
-    tier: Mapped[str] = mapped_column(String(32))
+    stage: Mapped[str] = mapped_column(String(32))
     name: Mapped[str] = mapped_column(String(200))
     # [{"part": "I", "subject": "...", "questions": 25, "max_marks": 50}, ...]
     sections: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
@@ -81,6 +81,8 @@ class ExamFormat(Base):
     total_questions: Mapped[int] = mapped_column(Integer)
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
     negative_marks_per_wrong: Mapped[float | None] = mapped_column(Float)
+    # A penalty stated as a share of the question's own marks, instead of a fixed number.
+    penalty_fraction: Mapped[float | None] = mapped_column(Float)
     source_title: Mapped[str] = mapped_column(String(300))
     source_url: Mapped[str] = mapped_column(String(500))
     source_reference: Mapped[str] = mapped_column(String(300))
@@ -95,9 +97,10 @@ class ExamFormat(Base):
     supersedes_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("exam_formats.id", ondelete="SET NULL")
     )
-    # Answer types the paper uses (choice, typed); mocks are built from these only.
+    # What the paper uses: choice, typed, or question formats (multiple_correct, numeric, ...).
+    # Mocks are built from these only.
     question_types: Mapped[list[str]] = mapped_column(
-        ARRAY(String(8)), default=lambda: ["choice"], server_default="{choice}"
+        ARRAY(String(20)), default=lambda: ["choice"], server_default="{choice}"
     )
     # Each section has its own timer (its timer_minutes) and sections are taken in order.
     sectional_timing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
@@ -166,11 +169,23 @@ class QuestionPattern(Base):
     classes"). Editable taxonomy data; ``keywords`` drive pattern *suggestions* only."""
 
     __tablename__ = "question_patterns"
-    __table_args__ = (UniqueConstraint("topic_id", "name", name="uq_question_patterns_topic_name"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "topic_id",
+            "owner_id",
+            "name",
+            name="uq_question_patterns_topic_owner_name",
+            postgresql_nulls_not_distinct=True,
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     topic_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("topics.id", ondelete="CASCADE"), index=True
+    )
+    # NULL: the shared list. Otherwise private to that learner, even on a shared topic.
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
     name: Mapped[str] = mapped_column(String(120))
     keywords: Mapped[list[str]] = mapped_column(
@@ -181,9 +196,13 @@ class QuestionPattern(Base):
 
 
 class Passage(Base):
-    """Shared directions or a reading passage that governs several questions."""
+    """Shared directions or a reading passage that governs several questions. Each question
+    keeps its own topic and model."""
 
     __tablename__ = "passages"
+    __table_args__ = (
+        CheckConstraint("kind IN ('passage', 'chart', 'table', 'case')", name="kind_valid"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     document_id: Mapped[uuid.UUID] = mapped_column(
@@ -193,6 +212,8 @@ class Passage(Base):
     first_question: Mapped[int | None] = mapped_column(Integer)
     last_question: Mapped[int | None] = mapped_column(Integer)
     source_pages: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
+    # What the shared material is: text, or a chart, table or case the questions are about.
+    kind: Mapped[str] = mapped_column(String(8), default="passage", server_default="passage")
 
 
 class Question(Base):
@@ -230,6 +251,12 @@ class Question(Base):
             "answer_type = 'written' OR model_answer IS NULL", name="model_answer_only_written"
         ),
         CheckConstraint("extracted_by IN ('rules', 'ai')", name="extracted_by_valid"),
+        CheckConstraint(
+            "format IN ('single_correct', 'assertion_reason', 'statement', 'true_false', "
+            "'typed_in', 'descriptive', 'multiple_correct', 'match', 'ordering', 'numeric', "
+            "'fill_blank')",
+            name="format_valid",
+        ),
         # A typed question has no option answer, and only typed questions have a typed answer.
         CheckConstraint(
             "answer_type = 'choice' OR correct_option_position IS NULL",
@@ -275,6 +302,32 @@ class Question(Base):
     # "choice": pick an option; "typed": type the answer in (TITA), compared by typed_answers.
     answer_type: Mapped[str] = mapped_column(String(8), default="choice", server_default="choice")
     typed_answer: Mapped[str | None] = mapped_column(String(100))
+    # How it is answered and marked (app/domain/question_formats.py). Formats beyond one option
+    # or a typed text keep their answer in answer_spec.
+    format: Mapped[str] = mapped_column(
+        String(20), default="single_correct", server_default="single_correct"
+    )
+    answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+    # This question in another language, confirmed by a person: counts once, as that question.
+    translation_of_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("questions.id", ondelete="SET NULL"), index=True
+    )
+    # As the paper prints them, mostly for descriptive questions.
+    marks: Mapped[float | None] = mapped_column(Float)
+    word_limit: Mapped[int | None] = mapped_column(Integer)
+    sub_parts: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB(none_as_null=True))
+    # Questions of one group are alternatives ("answer any one"); the paper names the group.
+    choice_group: Mapped[str | None] = mapped_column(String(20))
+
+    @validates("answer_type")
+    def _format_follows(self, _key: str, value: str) -> str:
+        """Whoever sets only ``answer_type`` gets its plain format; a chosen format stays."""
+        if self.format in (None, "single_correct", "typed_in", "descriptive"):
+            self.format = {"typed": "typed_in", "written": "descriptive"}.get(
+                value, "single_correct"
+            )
+        return value
+
     # "written": the answer as written in the notes (no options; revised as a flashcard).
     model_answer: Mapped[str | None] = mapped_column(Text)
     # "answer_key" | "inline" | "manual" — where the answer came from.

@@ -22,6 +22,7 @@ def publish_problems(f: ExamFormat) -> list[str]:
         total_questions=f.total_questions,
         duration_minutes=f.duration_minutes,
         negative_marks_per_wrong=f.negative_marks_per_wrong,
+        penalty_fraction=f.penalty_fraction,
     ) + config_problems(
         sections=f.sections,
         duration_minutes=f.duration_minutes,

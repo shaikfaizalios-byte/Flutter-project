@@ -4738,6 +4738,167 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get ladderPartlyRight => 'Partly right';
+
+  @override
+  String ladderMarks(String marks, String possible) {
+    return 'Marks: $marks of $possible';
+  }
+
+  @override
+  String get ladderCorrectAnswer => 'Correct answer';
+
+  @override
+  String get descriptiveTitle => 'Written answers';
+
+  @override
+  String get descriptiveTagline =>
+      'Five questions on a topic, each asking for more, with estimated marks.';
+
+  @override
+  String get descriptiveNoTopics => 'Add topics to this exam first.';
+
+  @override
+  String get descriptiveIntro =>
+      'You\'ll answer five practice questions, from a short definition up to a case or critical evaluation. Each one is written by AI and checked against its own marking points.';
+
+  @override
+  String get descriptivePrivacy =>
+      'Your answers, any photo you add and example questions from your papers go to the AI service. Photos aren\'t stored.';
+
+  @override
+  String get descriptiveEstimateLabel => 'Estimated marks from AI feedback, not an official grade.';
+
+  @override
+  String get descriptiveStart => 'Start writing';
+
+  @override
+  String get descriptiveWriting => 'Writing the question and checking its marking points…';
+
+  @override
+  String get descriptiveMarking =>
+      'Marking your answer. It\'s marked more than once, so this can take a minute.';
+
+  @override
+  String descriptiveStepOf(int step, int total, String level) {
+    return 'Question $step of $total: $level';
+  }
+
+  @override
+  String descriptiveMarksAndLength(String marks, int words) {
+    return '$marks marks · about $words words (PrepLoop\'s suggestion, not an exam rule)';
+  }
+
+  @override
+  String get descriptiveAiQuestion => 'AI-generated practice question, not from an official paper.';
+
+  @override
+  String get descriptiveYourAnswer => 'Your answer';
+
+  @override
+  String get descriptiveFromPhoto => 'Read from a photo';
+
+  @override
+  String get descriptiveReadingPhoto => 'Reading the photo…';
+
+  @override
+  String get descriptiveCheckPhoto =>
+      'Check this against your page and correct it before sending. Your corrected text is what gets marked.';
+
+  @override
+  String get descriptivePhotoUnclear =>
+      'Some of the writing was hard to read. [?] marks what couldn\'t be read.';
+
+  @override
+  String get descriptiveSubmit => 'Mark my answer';
+
+  @override
+  String descriptiveMarks(String marks, String possible) {
+    return '$marks of $possible marks';
+  }
+
+  @override
+  String descriptiveRange(String low, String high) {
+    return 'The markings differed, from $low to $high. This is the middle one.';
+  }
+
+  @override
+  String descriptiveWordCount(int words) {
+    return 'Your answer: $words words';
+  }
+
+  @override
+  String get descriptiveByPoint => 'Marks by point';
+
+  @override
+  String get descriptiveMissing => 'What was missing';
+
+  @override
+  String descriptiveStructure(String text) {
+    return 'Structure: $text';
+  }
+
+  @override
+  String descriptiveRelevance(String text) {
+    return 'Relevance: $text';
+  }
+
+  @override
+  String descriptiveLength(String text) {
+    return 'Length: $text';
+  }
+
+  @override
+  String get descriptiveModelAnswer => 'Model answer (AI-generated)';
+
+  @override
+  String get descriptiveTryAgain => 'Try again';
+
+  @override
+  String get descriptivePlusMessage => 'Written answers are part of PrepLoop Plus.';
+
+  @override
+  String get descriptiveLevelDefine => 'Define or list';
+
+  @override
+  String get descriptiveLevelShort => 'Short explanation';
+
+  @override
+  String get descriptiveLevelFull => 'Full explanation';
+
+  @override
+  String get descriptiveLevelAnalyse => 'Analyse or compare';
+
+  @override
+  String get descriptiveLevelCase => 'Case study or critical evaluation';
+
+  @override
+  String descriptiveUsePapers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use questions from my papers ($count)',
+      one: 'Use 1 question from my papers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String descriptiveFromPaper(String paper) {
+    return 'From your paper: $paper';
+  }
+
+  @override
+  String get descriptiveLevelPaper => 'From your paper';
+
+  @override
+  String get descriptiveAnswerFromPaper => 'Answer printed in your paper';
+
+  @override
+  String get descriptiveRubricNote =>
+      'Marking points drafted by AI, not the exam\'s official scheme.';
+
+  @override
   String get ladderCleared => 'Cleared';
 
   @override
@@ -4768,4 +4929,419 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ladderPractiseReal => 'Practise real questions from your papers';
+
+  @override
+  String get onboardingPreparingTitle => 'What are you preparing for?';
+
+  @override
+  String get onboardingPreparingHint => 'Choose one or more, or create your own.';
+
+  @override
+  String get onboardingCustomExam => 'Custom exam';
+
+  @override
+  String get examBuilderTitle => 'Custom exam';
+
+  @override
+  String get examBuilderIntro =>
+      'Only the name is needed. Add the rest from your exam\'s official notice. What you enter stays yours and is never shown as official.';
+
+  @override
+  String get examBuilderBody => 'Conducting body (optional)';
+
+  @override
+  String get examBuilderKind => 'Question style';
+
+  @override
+  String get examKindMcq => 'Multiple choice';
+
+  @override
+  String get examKindDescriptive => 'Written answers';
+
+  @override
+  String get examKindMixed => 'Both';
+
+  @override
+  String get examBuilderOptions => 'Options per question';
+
+  @override
+  String get examBuilderOptionsVary => 'Varies';
+
+  @override
+  String get examBuilderLanguages => 'Languages of the paper';
+
+  @override
+  String get examBuilderDates => 'Exam dates';
+
+  @override
+  String get examBuilderAddDate => 'Add a date';
+
+  @override
+  String get examBuilderStages => 'Stages';
+
+  @override
+  String get examBuilderStagesHint => 'For example, a preliminary and a main paper.';
+
+  @override
+  String get examBuilderAddStage => 'Add a stage';
+
+  @override
+  String get examBuilderStageName => 'Stage name';
+
+  @override
+  String get examBuilderMinutes => 'Minutes';
+
+  @override
+  String get examBuilderMinutesOptional => 'Minutes (optional)';
+
+  @override
+  String get examBuilderMarksCorrect => 'Marks for a correct answer';
+
+  @override
+  String get examBuilderMarksWrong => 'Marks off for a wrong answer';
+
+  @override
+  String get examBuilderSections => 'Sections';
+
+  @override
+  String get examBuilderSectionName => 'Section name';
+
+  @override
+  String get examBuilderQuestions => 'Questions';
+
+  @override
+  String get examBuilderCutoff => 'Cutoff (optional)';
+
+  @override
+  String get examBuilderAddSection => 'Add a section';
+
+  @override
+  String get examBuilderNeeded => 'Needed';
+
+  @override
+  String get examBuilderNumber => 'Enter a number';
+
+  @override
+  String get examBuilderSave => 'Create exam';
+
+  @override
+  String get notRepeatedDropped => 'Dropped from the current syllabus';
+
+  @override
+  String syllabusTreeTitle(String exam) {
+    return '$exam syllabus';
+  }
+
+  @override
+  String get syllabusTreeTooltip => 'Syllabus tree';
+
+  @override
+  String syllabusFromYear(String year) {
+    return 'from $year';
+  }
+
+  @override
+  String get syllabusInForce => 'In force';
+
+  @override
+  String get syllabusYours => 'Yours';
+
+  @override
+  String get syllabusBuiltIn => 'Built-in';
+
+  @override
+  String get syllabusEmpty =>
+      'This exam has no syllabus yet. Build one by hand, or add topics from a PDF on the topics screen.';
+
+  @override
+  String get syllabusNoConnection => 'The syllabus can\'t be loaded right now.';
+
+  @override
+  String get syllabusBuild => 'Build a syllabus';
+
+  @override
+  String get syllabusBuildName => 'Name';
+
+  @override
+  String get syllabusBuildYear => 'Effective year (optional)';
+
+  @override
+  String get syllabusBuildOutline => 'Outline';
+
+  @override
+  String get syllabusBuildHint =>
+      'One item per line. Start a line with two more spaces to put it under the one above.';
+
+  @override
+  String get syllabusDelete => 'Delete this syllabus';
+
+  @override
+  String get syllabusAcrossExams => 'Same topics across your exams';
+
+  @override
+  String syllabusAcrossAll(int correct, int answered) {
+    return 'All exams: $correct of $answered correct';
+  }
+
+  @override
+  String syllabusAcrossCount(int correct, int answered) {
+    return '$correct of $answered correct';
+  }
+
+  @override
+  String get sessionChooseAllThatApply => 'Choose every correct option.';
+
+  @override
+  String get sessionMatchChoose => 'Choose';
+
+  @override
+  String get sessionOrderHelp => 'Put these in the right order.';
+
+  @override
+  String get sessionOrderUp => 'Move up';
+
+  @override
+  String get sessionOrderDown => 'Move down';
+
+  @override
+  String get resultYourFullAnswer => 'You answered';
+
+  @override
+  String get formatTitle => 'Question format';
+
+  @override
+  String get formatSingleCorrect => 'One correct option';
+
+  @override
+  String get formatAssertionReason => 'Assertion and reason';
+
+  @override
+  String get formatStatement => 'Statement based';
+
+  @override
+  String get formatTrueFalse => 'True or false';
+
+  @override
+  String get formatMultipleCorrect => 'Several correct options';
+
+  @override
+  String get formatNumeric => 'Numerical answer';
+
+  @override
+  String get formatFillBlank => 'Fill in the blank';
+
+  @override
+  String get formatMatch => 'Match the following';
+
+  @override
+  String get formatOrdering => 'Put in order';
+
+  @override
+  String get formatNumericHint =>
+      'Give a value, with a tolerance if the paper allows one, or a range.';
+
+  @override
+  String get formatValue => 'Value';
+
+  @override
+  String get formatTolerance => 'Tolerance';
+
+  @override
+  String get formatRangeFrom => 'From';
+
+  @override
+  String get formatRangeTo => 'To';
+
+  @override
+  String get formatAccepted => 'Accepted answers';
+
+  @override
+  String get formatOnePerLine => 'One per line.';
+
+  @override
+  String get formatPairs => 'Pairs';
+
+  @override
+  String get formatPairsHint => 'One pair per line, written as: left = right';
+
+  @override
+  String get formatOrderItems => 'Items';
+
+  @override
+  String get formatOrderHint => 'One per line, in the correct order.';
+
+  @override
+  String get formatMarks => 'Marks';
+
+  @override
+  String get formatWordLimit => 'Word limit';
+
+  @override
+  String get formatChoiceGroup => 'Choice group';
+
+  @override
+  String get formatIncomplete => 'Fill in the answer first.';
+
+  @override
+  String get formatSave => 'Save format';
+
+  @override
+  String get paperDetailsTitle => 'Paper details and answer key';
+
+  @override
+  String get paperDetailsHint => 'Stage, session, set, or a separate key';
+
+  @override
+  String get paperStage => 'Stage';
+
+  @override
+  String get paperSession => 'Session';
+
+  @override
+  String get paperSetCode => 'Set';
+
+  @override
+  String get paperOtherSetsTitle => 'Could be the same paper';
+
+  @override
+  String get paperOtherSetsNote =>
+      'These hold the same questions. If one is another set of this paper, mark it so it counts once. Nothing changes until you do.';
+
+  @override
+  String paperOtherSetsShare(int percent) {
+    return '$percent% of the questions match';
+  }
+
+  @override
+  String get paperMarkAsSet => 'Same paper';
+
+  @override
+  String get paperMarkedAsSet => 'Marked as the same paper';
+
+  @override
+  String get paperKeyTitle => 'Separate answer key';
+
+  @override
+  String get paperKeyNote =>
+      'This only fills in missing answers. An answer already set stays as it is.';
+
+  @override
+  String get paperKeyPaste => 'Paste the key';
+
+  @override
+  String get paperKeyApply => 'Apply key';
+
+  @override
+  String get paperKeyPdf => 'Choose a PDF';
+
+  @override
+  String paperKeyApplied(int count) {
+    return '$count answers filled in';
+  }
+
+  @override
+  String paperKeyAgreed(int count) {
+    return '$count already matched';
+  }
+
+  @override
+  String paperKeyConflicts(int count) {
+    return '$count differ from the answer already set: flagged, not changed';
+  }
+
+  @override
+  String paperKeyUnmatched(String numbers) {
+    return 'No such question: $numbers';
+  }
+
+  @override
+  String get paperKeyAmbiguous =>
+      'Question numbers repeat in this paper, so the key can\'t be matched. Set these answers in review.';
+
+  @override
+  String paperKeyWithoutAnswer(int count) {
+    return '$count questions still have no answer';
+  }
+
+  @override
+  String get paperSolvePracticeOnly => 'This kind of question is answered in practice, not here.';
+
+  @override
+  String get repeatsNameTitle => 'These look alike. Name this type?';
+
+  @override
+  String repeatsNameNote(int papers, String topic) {
+    return 'Worded alike in $papers papers under $topic, with no model yet.';
+  }
+
+  @override
+  String get repeatsNameAction => 'Name it';
+
+  @override
+  String get repeatsByMarks => 'Rank by marks';
+
+  @override
+  String repeatsMarks(String marks) {
+    return '$marks marks';
+  }
+
+  @override
+  String repeatsInSessions(int sessions, int total, int questions) {
+    return 'In $sessions of $total sessions · $questions questions';
+  }
+
+  @override
+  String get repeatsSessionsNote =>
+      'This exam is counted by session: papers of the same sitting count once.';
+
+  @override
+  String modelsTitle(String topic) {
+    return 'Models in $topic';
+  }
+
+  @override
+  String get modelsManage => 'Manage models';
+
+  @override
+  String get modelsAdd => 'Add a model';
+
+  @override
+  String get modelsName => 'Model name';
+
+  @override
+  String get modelsRename => 'Rename';
+
+  @override
+  String get modelsMerge => 'Merge';
+
+  @override
+  String modelsMergeInto(String name) {
+    return 'Merge $name into';
+  }
+
+  @override
+  String get modelsActions => 'Model actions';
+
+  @override
+  String get modelsEmpty => 'This topic has no models yet.';
+
+  @override
+  String get modelsDefaultsNote =>
+      'For written answers, add the usual answer formats: define, short note, compare and others.';
+
+  @override
+  String get modelsAddDefaults => 'Add answer formats';
+
+  @override
+  String get sessionOriginalLanguage => 'As printed';
+
+  @override
+  String resultCutoffCleared(String cutoff) {
+    return 'Cutoff $cutoff: reached';
+  }
+
+  @override
+  String resultCutoffMissed(String cutoff) {
+    return 'Cutoff $cutoff: not reached';
+  }
 }

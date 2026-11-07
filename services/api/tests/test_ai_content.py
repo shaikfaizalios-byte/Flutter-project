@@ -38,20 +38,24 @@ def good(**changes: Any) -> dict[str, Any]:
     ],
 )
 def test_generated_question_validation(item: Any, problems: list[str]) -> None:
-    question, found = ai_content.validate_generated(item)
+    question, found = ai_content.validate_generated(item, option_count=4)
     assert found == problems
     assert (question is None) == bool(problems)
 
 
 def test_valid_questions_are_normalised_not_rewritten() -> None:
-    question, _ = ai_content.validate_generated(good(stem="  What   is 25% of 80?  "))
+    question, _ = ai_content.validate_generated(
+        good(stem="  What   is 25% of 80?  "), option_count=4
+    )
     assert question is not None
     assert question.stem == "What   is 25% of 80?"  # trimmed only; inner text kept as written
     assert question.correct_option == 2
 
 
 def test_copies_of_given_stems_are_rejected() -> None:
-    _, problems = ai_content.validate_generated(good(), avoid_stems=["what is 25%  of 80?"])
+    _, problems = ai_content.validate_generated(
+        good(), option_count=4, avoid_stems=["what is 25%  of 80?"]
+    )
     assert problems == ["copied_source"]
 
 
@@ -109,7 +113,14 @@ def test_prompts_ask_for_the_learners_language() -> None:
     )
     assert "Hindi (Devanagari script)" in hindi
     notes = ai_content.questions_from_notes_prompt(
-        title="T", notes="", subject="S", topic="P", language="en", count=2, exam_name="RRB NTPC"
+        title="T",
+        notes="",
+        subject="S",
+        topic="P",
+        language="en",
+        count=2,
+        option_count=4,
+        exam_name="RRB NTPC",
     )
     assert "(no notes)" in notes and "Write 2" in notes
     assert "level of RRB NTPC" in notes and "SSC" not in notes
@@ -262,7 +273,7 @@ def test_topic_prompts_name_the_topic_exam_and_language() -> None:
     assert "SSC CGL" in lesson
     assert "Hindi" in lesson and "new to it" in lesson
     quiz = ai_content.topic_quiz_prompt(
-        topic="Percentage", subject=None, exam_name=None, language="en", count=5
+        topic="Percentage", subject=None, exam_name=None, language="en", count=5, option_count=4
     )
     assert "Write 5 original" in quiz and "a competitive exam" in quiz and "English" in quiz
     assert "previous-year" in ai_content.TOPIC_SYSTEM

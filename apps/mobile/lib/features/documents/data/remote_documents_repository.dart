@@ -6,6 +6,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../concepts/domain/concept.dart';
 import '../domain/documents_repository.dart';
 import '../domain/imported_document.dart';
+import '../domain/paper_details.dart';
 
 class RemoteDocumentsRepository implements DocumentsRepository {
   const RemoteDocumentsRepository(this._dio);
@@ -58,6 +59,47 @@ class RemoteDocumentsRepository implements DocumentsRepository {
 
   @override
   Future<void> delete(String id) => _guard(() => _dio.delete<void>('$_path/$id'));
+
+  @override
+  Future<void> setDetails(String id, PaperDetails details) =>
+      _guard(() => _dio.put<void>('$_path/$id/details', data: details.toJson()));
+
+  @override
+  Future<List<OtherSet>> duplicateSuggestions(String id) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>('$_path/$id/duplicate-suggestions');
+    return [for (final s in response.data!) OtherSet.fromJson(s as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<void> markAsSetOf(String id, String otherId) =>
+      _guard(() => _dio.put<void>('$_path/$id/details', data: {'duplicate_of_id': otherId}));
+
+  @override
+  Future<AnswerKeyResult> sendKeyText(String id, String text) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_path/$id/answer-key/text',
+      data: {'text': text},
+    );
+    return AnswerKeyResult.fromJson(response.data!);
+  });
+
+  @override
+  Future<AnswerKeyResult> sendKeyFile(String id, UploadSource source) => _guard(() async {
+    final form = FormData.fromMap({
+      'file': MultipartFile.fromStream(
+        source.open,
+        source.length,
+        filename: source.name,
+        contentType: DioMediaType('application', 'pdf'),
+      ),
+    });
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_path/$id/answer-key',
+      data: form,
+      options: Options(sendTimeout: _uploadSendTimeout),
+    );
+    return AnswerKeyResult.fromJson(response.data!);
+  });
 
   @override
   Future<Uint8List> pageImage(String id, int page) => _guard(() async {

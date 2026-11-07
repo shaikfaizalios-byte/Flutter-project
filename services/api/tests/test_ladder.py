@@ -30,6 +30,15 @@ __all__ = ["ai", "document", "make_api"]  # fixtures re-used from other test mod
 
 SESSIONS = "/api/v1/ladder/sessions"
 EXAM = "SSC_CHSL"
+CONTEXT = ladder.ExamContext(
+    name="Sample Exam",
+    stage=None,
+    next_stage=None,
+    formats=("single_correct",),
+    options=4,
+    marking=None,
+    base_time_seconds=36,
+)
 
 # --- the plan --------------------------------------------------------------------------------
 
@@ -95,7 +104,6 @@ def written(
         "answer_index": 1,
         "solution": "120 km in 2 hours\n120 / 2 = 60",
         "shortcut": "",
-        "time_target_seconds": 45,
     }
     return data | changes
 
@@ -115,19 +123,20 @@ def written(
     ],
 )
 def test_structure_is_checked(changes: dict[str, Any]) -> None:
-    assert ladder.validate_generated(written(**changes)) is None
+    assert ladder.validate_generated(written(**changes), CONTEXT, "easy") is None
 
 
-def test_a_good_question_passes_and_time_targets_stay_sensible() -> None:
-    question = ladder.validate_generated(written(time_target_seconds=9999))
-    assert question is not None and question.time_target_seconds == ladder.MAX_TIME_TARGET
+def test_a_good_question_passes_and_its_time_comes_from_the_exam() -> None:
+    question = ladder.validate_generated(written(time_target_seconds=9999), CONTEXT, "easy")
+    assert question is not None and question.time_target_seconds == 30
 
 
 def test_shuffling_moves_the_answer_with_its_option() -> None:
-    question = ladder.validate_generated(written())
+    question = ladder.validate_generated(written(), CONTEXT, "easy")
     assert question is not None
     for seed_value in range(10):
         shown = ladder.shuffled(question, random.Random(seed_value))  # noqa: S311 - test data
+        assert shown.answer_index is not None
         assert shown.options[shown.answer_index] == "60 km/h"
         assert sorted(shown.options) == sorted(question.options)
 
@@ -156,7 +165,7 @@ def test_the_solver_never_sees_the_answer_or_the_solution() -> None:
 def test_the_prompt_template_is_filled_without_leftovers() -> None:
     plan = ladder.plan_round(models(3), 1)
     prompt = ladder.generator_prompt(
-        exam_name="SSC CHSL",
+        exam=CONTEXT,
         topic="Percentage",
         round_number=1,
         plan=plan,
@@ -169,7 +178,7 @@ def test_the_prompt_template_is_filled_without_leftovers() -> None:
     )
     assert "Step 1 (easy): M0" in prompt
     assert "Step 5 (extreme hard): M0 combined with M2" in prompt
-    assert "Write the one multiple-choice question for step 5" in prompt
+    assert "Write the one question for step 5" in prompt
     assert "at extreme hard difficulty" in prompt
     assert "https://example.com/a" in prompt and "Earlier question" in prompt
     assert "MODELS THE STUDENT MISSED EARLIER:\nM1" in prompt

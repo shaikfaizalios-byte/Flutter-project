@@ -7509,6 +7509,258 @@ abstract class AppLocalizations {
   /// **'Time: {minutes} min {seconds} s'**
   String ladderTime(int minutes, int seconds);
 
+  /// No description provided for @ladderPartlyRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly right'**
+  String get ladderPartlyRight;
+
+  /// No description provided for @ladderMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks: {marks} of {possible}'**
+  String ladderMarks(String marks, String possible);
+
+  /// No description provided for @ladderCorrectAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct answer'**
+  String get ladderCorrectAnswer;
+
+  /// No description provided for @descriptiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answers'**
+  String get descriptiveTitle;
+
+  /// No description provided for @descriptiveTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Five questions on a topic, each asking for more, with estimated marks.'**
+  String get descriptiveTagline;
+
+  /// No description provided for @descriptiveNoTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Add topics to this exam first.'**
+  String get descriptiveNoTopics;
+
+  /// No description provided for @descriptiveIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll answer five practice questions, from a short definition up to a case or critical evaluation. Each one is written by AI and checked against its own marking points.'**
+  String get descriptiveIntro;
+
+  /// No description provided for @descriptivePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers, any photo you add and example questions from your papers go to the AI service. Photos aren\'t stored.'**
+  String get descriptivePrivacy;
+
+  /// No description provided for @descriptiveEstimateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated marks from AI feedback, not an official grade.'**
+  String get descriptiveEstimateLabel;
+
+  /// No description provided for @descriptiveStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start writing'**
+  String get descriptiveStart;
+
+  /// No description provided for @descriptiveWriting.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing the question and checking its marking points…'**
+  String get descriptiveWriting;
+
+  /// No description provided for @descriptiveMarking.
+  ///
+  /// In en, this message translates to:
+  /// **'Marking your answer. It\'s marked more than once, so this can take a minute.'**
+  String get descriptiveMarking;
+
+  /// No description provided for @descriptiveStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {step} of {total}: {level}'**
+  String descriptiveStepOf(int step, int total, String level);
+
+  /// No description provided for @descriptiveMarksAndLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{marks} marks · about {words} words (PrepLoop\'s suggestion, not an exam rule)'**
+  String descriptiveMarksAndLength(String marks, int words);
+
+  /// No description provided for @descriptiveAiQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated practice question, not from an official paper.'**
+  String get descriptiveAiQuestion;
+
+  /// No description provided for @descriptiveYourAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get descriptiveYourAnswer;
+
+  /// No description provided for @descriptiveFromPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from a photo'**
+  String get descriptiveFromPhoto;
+
+  /// No description provided for @descriptiveReadingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the photo…'**
+  String get descriptiveReadingPhoto;
+
+  /// No description provided for @descriptiveCheckPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this against your page and correct it before sending. Your corrected text is what gets marked.'**
+  String get descriptiveCheckPhoto;
+
+  /// No description provided for @descriptivePhotoUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of the writing was hard to read. [?] marks what couldn\'t be read.'**
+  String get descriptivePhotoUnclear;
+
+  /// No description provided for @descriptiveSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark my answer'**
+  String get descriptiveSubmit;
+
+  /// No description provided for @descriptiveMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'{marks} of {possible} marks'**
+  String descriptiveMarks(String marks, String possible);
+
+  /// No description provided for @descriptiveRange.
+  ///
+  /// In en, this message translates to:
+  /// **'The markings differed, from {low} to {high}. This is the middle one.'**
+  String descriptiveRange(String low, String high);
+
+  /// No description provided for @descriptiveWordCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer: {words} words'**
+  String descriptiveWordCount(int words);
+
+  /// No description provided for @descriptiveByPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks by point'**
+  String get descriptiveByPoint;
+
+  /// No description provided for @descriptiveMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'What was missing'**
+  String get descriptiveMissing;
+
+  /// No description provided for @descriptiveStructure.
+  ///
+  /// In en, this message translates to:
+  /// **'Structure: {text}'**
+  String descriptiveStructure(String text);
+
+  /// No description provided for @descriptiveRelevance.
+  ///
+  /// In en, this message translates to:
+  /// **'Relevance: {text}'**
+  String descriptiveRelevance(String text);
+
+  /// No description provided for @descriptiveLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Length: {text}'**
+  String descriptiveLength(String text);
+
+  /// No description provided for @descriptiveModelAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Model answer (AI-generated)'**
+  String get descriptiveModelAnswer;
+
+  /// No description provided for @descriptiveTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get descriptiveTryAgain;
+
+  /// No description provided for @descriptivePlusMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answers are part of PrepLoop Plus.'**
+  String get descriptivePlusMessage;
+
+  /// No description provided for @descriptiveLevelDefine.
+  ///
+  /// In en, this message translates to:
+  /// **'Define or list'**
+  String get descriptiveLevelDefine;
+
+  /// No description provided for @descriptiveLevelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short explanation'**
+  String get descriptiveLevelShort;
+
+  /// No description provided for @descriptiveLevelFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full explanation'**
+  String get descriptiveLevelFull;
+
+  /// No description provided for @descriptiveLevelAnalyse.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyse or compare'**
+  String get descriptiveLevelAnalyse;
+
+  /// No description provided for @descriptiveLevelCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Case study or critical evaluation'**
+  String get descriptiveLevelCase;
+
+  /// No description provided for @descriptiveUsePapers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Use 1 question from my papers} other{Use questions from my papers ({count})}}'**
+  String descriptiveUsePapers(int count);
+
+  /// No description provided for @descriptiveFromPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'From your paper: {paper}'**
+  String descriptiveFromPaper(String paper);
+
+  /// No description provided for @descriptiveLevelPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'From your paper'**
+  String get descriptiveLevelPaper;
+
+  /// No description provided for @descriptiveAnswerFromPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer printed in your paper'**
+  String get descriptiveAnswerFromPaper;
+
+  /// No description provided for @descriptiveRubricNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Marking points drafted by AI, not the exam\'s official scheme.'**
+  String get descriptiveRubricNote;
+
   /// No description provided for @ladderCleared.
   ///
   /// In en, this message translates to:
@@ -7568,6 +7820,750 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Practise real questions from your papers'**
   String get ladderPractiseReal;
+
+  /// No description provided for @onboardingPreparingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you preparing for?'**
+  String get onboardingPreparingTitle;
+
+  /// No description provided for @onboardingPreparingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one or more, or create your own.'**
+  String get onboardingPreparingHint;
+
+  /// No description provided for @onboardingCustomExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom exam'**
+  String get onboardingCustomExam;
+
+  /// No description provided for @examBuilderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom exam'**
+  String get examBuilderTitle;
+
+  /// No description provided for @examBuilderIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the name is needed. Add the rest from your exam\'s official notice. What you enter stays yours and is never shown as official.'**
+  String get examBuilderIntro;
+
+  /// No description provided for @examBuilderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Conducting body (optional)'**
+  String get examBuilderBody;
+
+  /// No description provided for @examBuilderKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Question style'**
+  String get examBuilderKind;
+
+  /// No description provided for @examKindMcq.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple choice'**
+  String get examKindMcq;
+
+  /// No description provided for @examKindDescriptive.
+  ///
+  /// In en, this message translates to:
+  /// **'Written answers'**
+  String get examKindDescriptive;
+
+  /// No description provided for @examKindMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get examKindMixed;
+
+  /// No description provided for @examBuilderOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options per question'**
+  String get examBuilderOptions;
+
+  /// No description provided for @examBuilderOptionsVary.
+  ///
+  /// In en, this message translates to:
+  /// **'Varies'**
+  String get examBuilderOptionsVary;
+
+  /// No description provided for @examBuilderLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages of the paper'**
+  String get examBuilderLanguages;
+
+  /// No description provided for @examBuilderDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam dates'**
+  String get examBuilderDates;
+
+  /// No description provided for @examBuilderAddDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a date'**
+  String get examBuilderAddDate;
+
+  /// No description provided for @examBuilderStages.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages'**
+  String get examBuilderStages;
+
+  /// No description provided for @examBuilderStagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, a preliminary and a main paper.'**
+  String get examBuilderStagesHint;
+
+  /// No description provided for @examBuilderAddStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a stage'**
+  String get examBuilderAddStage;
+
+  /// No description provided for @examBuilderStageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage name'**
+  String get examBuilderStageName;
+
+  /// No description provided for @examBuilderMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get examBuilderMinutes;
+
+  /// No description provided for @examBuilderMinutesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes (optional)'**
+  String get examBuilderMinutesOptional;
+
+  /// No description provided for @examBuilderMarksCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks for a correct answer'**
+  String get examBuilderMarksCorrect;
+
+  /// No description provided for @examBuilderMarksWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks off for a wrong answer'**
+  String get examBuilderMarksWrong;
+
+  /// No description provided for @examBuilderSections.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get examBuilderSections;
+
+  /// No description provided for @examBuilderSectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Section name'**
+  String get examBuilderSectionName;
+
+  /// No description provided for @examBuilderQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get examBuilderQuestions;
+
+  /// No description provided for @examBuilderCutoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutoff (optional)'**
+  String get examBuilderCutoff;
+
+  /// No description provided for @examBuilderAddSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a section'**
+  String get examBuilderAddSection;
+
+  /// No description provided for @examBuilderNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed'**
+  String get examBuilderNeeded;
+
+  /// No description provided for @examBuilderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get examBuilderNumber;
+
+  /// No description provided for @examBuilderSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Create exam'**
+  String get examBuilderSave;
+
+  /// No description provided for @notRepeatedDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped from the current syllabus'**
+  String get notRepeatedDropped;
+
+  /// No description provided for @syllabusTreeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{exam} syllabus'**
+  String syllabusTreeTitle(String exam);
+
+  /// No description provided for @syllabusTreeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllabus tree'**
+  String get syllabusTreeTooltip;
+
+  /// No description provided for @syllabusFromYear.
+  ///
+  /// In en, this message translates to:
+  /// **'from {year}'**
+  String syllabusFromYear(String year);
+
+  /// No description provided for @syllabusInForce.
+  ///
+  /// In en, this message translates to:
+  /// **'In force'**
+  String get syllabusInForce;
+
+  /// No description provided for @syllabusYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Yours'**
+  String get syllabusYours;
+
+  /// No description provided for @syllabusBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get syllabusBuiltIn;
+
+  /// No description provided for @syllabusEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam has no syllabus yet. Build one by hand, or add topics from a PDF on the topics screen.'**
+  String get syllabusEmpty;
+
+  /// No description provided for @syllabusNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'The syllabus can\'t be loaded right now.'**
+  String get syllabusNoConnection;
+
+  /// No description provided for @syllabusBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Build a syllabus'**
+  String get syllabusBuild;
+
+  /// No description provided for @syllabusBuildName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get syllabusBuildName;
+
+  /// No description provided for @syllabusBuildYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective year (optional)'**
+  String get syllabusBuildYear;
+
+  /// No description provided for @syllabusBuildOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'Outline'**
+  String get syllabusBuildOutline;
+
+  /// No description provided for @syllabusBuildHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One item per line. Start a line with two more spaces to put it under the one above.'**
+  String get syllabusBuildHint;
+
+  /// No description provided for @syllabusDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this syllabus'**
+  String get syllabusDelete;
+
+  /// No description provided for @syllabusAcrossExams.
+  ///
+  /// In en, this message translates to:
+  /// **'Same topics across your exams'**
+  String get syllabusAcrossExams;
+
+  /// No description provided for @syllabusAcrossAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All exams: {correct} of {answered} correct'**
+  String syllabusAcrossAll(int correct, int answered);
+
+  /// No description provided for @syllabusAcrossCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} of {answered} correct'**
+  String syllabusAcrossCount(int correct, int answered);
+
+  /// No description provided for @sessionChooseAllThatApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose every correct option.'**
+  String get sessionChooseAllThatApply;
+
+  /// No description provided for @sessionMatchChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get sessionMatchChoose;
+
+  /// No description provided for @sessionOrderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Put these in the right order.'**
+  String get sessionOrderHelp;
+
+  /// No description provided for @sessionOrderUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get sessionOrderUp;
+
+  /// No description provided for @sessionOrderDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get sessionOrderDown;
+
+  /// No description provided for @resultYourFullAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'You answered'**
+  String get resultYourFullAnswer;
+
+  /// No description provided for @formatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question format'**
+  String get formatTitle;
+
+  /// No description provided for @formatSingleCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'One correct option'**
+  String get formatSingleCorrect;
+
+  /// No description provided for @formatAssertionReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Assertion and reason'**
+  String get formatAssertionReason;
+
+  /// No description provided for @formatStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement based'**
+  String get formatStatement;
+
+  /// No description provided for @formatTrueFalse.
+  ///
+  /// In en, this message translates to:
+  /// **'True or false'**
+  String get formatTrueFalse;
+
+  /// No description provided for @formatMultipleCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Several correct options'**
+  String get formatMultipleCorrect;
+
+  /// No description provided for @formatNumeric.
+  ///
+  /// In en, this message translates to:
+  /// **'Numerical answer'**
+  String get formatNumeric;
+
+  /// No description provided for @formatFillBlank.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the blank'**
+  String get formatFillBlank;
+
+  /// No description provided for @formatMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the following'**
+  String get formatMatch;
+
+  /// No description provided for @formatOrdering.
+  ///
+  /// In en, this message translates to:
+  /// **'Put in order'**
+  String get formatOrdering;
+
+  /// No description provided for @formatNumericHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a value, with a tolerance if the paper allows one, or a range.'**
+  String get formatNumericHint;
+
+  /// No description provided for @formatValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get formatValue;
+
+  /// No description provided for @formatTolerance.
+  ///
+  /// In en, this message translates to:
+  /// **'Tolerance'**
+  String get formatTolerance;
+
+  /// No description provided for @formatRangeFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get formatRangeFrom;
+
+  /// No description provided for @formatRangeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get formatRangeTo;
+
+  /// No description provided for @formatAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted answers'**
+  String get formatAccepted;
+
+  /// No description provided for @formatOnePerLine.
+  ///
+  /// In en, this message translates to:
+  /// **'One per line.'**
+  String get formatOnePerLine;
+
+  /// No description provided for @formatPairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs'**
+  String get formatPairs;
+
+  /// No description provided for @formatPairsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One pair per line, written as: left = right'**
+  String get formatPairsHint;
+
+  /// No description provided for @formatOrderItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get formatOrderItems;
+
+  /// No description provided for @formatOrderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One per line, in the correct order.'**
+  String get formatOrderHint;
+
+  /// No description provided for @formatMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks'**
+  String get formatMarks;
+
+  /// No description provided for @formatWordLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Word limit'**
+  String get formatWordLimit;
+
+  /// No description provided for @formatChoiceGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice group'**
+  String get formatChoiceGroup;
+
+  /// No description provided for @formatIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the answer first.'**
+  String get formatIncomplete;
+
+  /// No description provided for @formatSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save format'**
+  String get formatSave;
+
+  /// No description provided for @paperDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper details and answer key'**
+  String get paperDetailsTitle;
+
+  /// No description provided for @paperDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage, session, set, or a separate key'**
+  String get paperDetailsHint;
+
+  /// No description provided for @paperStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get paperStage;
+
+  /// No description provided for @paperSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get paperSession;
+
+  /// No description provided for @paperSetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get paperSetCode;
+
+  /// No description provided for @paperOtherSetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could be the same paper'**
+  String get paperOtherSetsTitle;
+
+  /// No description provided for @paperOtherSetsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'These hold the same questions. If one is another set of this paper, mark it so it counts once. Nothing changes until you do.'**
+  String get paperOtherSetsNote;
+
+  /// No description provided for @paperOtherSetsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of the questions match'**
+  String paperOtherSetsShare(int percent);
+
+  /// No description provided for @paperMarkAsSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Same paper'**
+  String get paperMarkAsSet;
+
+  /// No description provided for @paperMarkedAsSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as the same paper'**
+  String get paperMarkedAsSet;
+
+  /// No description provided for @paperKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate answer key'**
+  String get paperKeyTitle;
+
+  /// No description provided for @paperKeyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This only fills in missing answers. An answer already set stays as it is.'**
+  String get paperKeyNote;
+
+  /// No description provided for @paperKeyPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the key'**
+  String get paperKeyPaste;
+
+  /// No description provided for @paperKeyApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply key'**
+  String get paperKeyApply;
+
+  /// No description provided for @paperKeyPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF'**
+  String get paperKeyPdf;
+
+  /// No description provided for @paperKeyApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} answers filled in'**
+  String paperKeyApplied(int count);
+
+  /// No description provided for @paperKeyAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} already matched'**
+  String paperKeyAgreed(int count);
+
+  /// No description provided for @paperKeyConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} differ from the answer already set: flagged, not changed'**
+  String paperKeyConflicts(int count);
+
+  /// No description provided for @paperKeyUnmatched.
+  ///
+  /// In en, this message translates to:
+  /// **'No such question: {numbers}'**
+  String paperKeyUnmatched(String numbers);
+
+  /// No description provided for @paperKeyAmbiguous.
+  ///
+  /// In en, this message translates to:
+  /// **'Question numbers repeat in this paper, so the key can\'t be matched. Set these answers in review.'**
+  String get paperKeyAmbiguous;
+
+  /// No description provided for @paperKeyWithoutAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions still have no answer'**
+  String paperKeyWithoutAnswer(int count);
+
+  /// No description provided for @paperSolvePracticeOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This kind of question is answered in practice, not here.'**
+  String get paperSolvePracticeOnly;
+
+  /// No description provided for @repeatsNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'These look alike. Name this type?'**
+  String get repeatsNameTitle;
+
+  /// No description provided for @repeatsNameNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Worded alike in {papers} papers under {topic}, with no model yet.'**
+  String repeatsNameNote(int papers, String topic);
+
+  /// No description provided for @repeatsNameAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Name it'**
+  String get repeatsNameAction;
+
+  /// No description provided for @repeatsByMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank by marks'**
+  String get repeatsByMarks;
+
+  /// No description provided for @repeatsMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'{marks} marks'**
+  String repeatsMarks(String marks);
+
+  /// No description provided for @repeatsInSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'In {sessions} of {total} sessions · {questions} questions'**
+  String repeatsInSessions(int sessions, int total, int questions);
+
+  /// No description provided for @repeatsSessionsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam is counted by session: papers of the same sitting count once.'**
+  String get repeatsSessionsNote;
+
+  /// No description provided for @modelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Models in {topic}'**
+  String modelsTitle(String topic);
+
+  /// No description provided for @modelsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage models'**
+  String get modelsManage;
+
+  /// No description provided for @modelsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a model'**
+  String get modelsAdd;
+
+  /// No description provided for @modelsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Model name'**
+  String get modelsName;
+
+  /// No description provided for @modelsRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get modelsRename;
+
+  /// No description provided for @modelsMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get modelsMerge;
+
+  /// No description provided for @modelsMergeInto.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {name} into'**
+  String modelsMergeInto(String name);
+
+  /// No description provided for @modelsActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Model actions'**
+  String get modelsActions;
+
+  /// No description provided for @modelsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This topic has no models yet.'**
+  String get modelsEmpty;
+
+  /// No description provided for @modelsDefaultsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For written answers, add the usual answer formats: define, short note, compare and others.'**
+  String get modelsDefaultsNote;
+
+  /// No description provided for @modelsAddDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Add answer formats'**
+  String get modelsAddDefaults;
+
+  /// No description provided for @sessionOriginalLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'As printed'**
+  String get sessionOriginalLanguage;
+
+  /// No description provided for @resultCutoffCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutoff {cutoff}: reached'**
+  String resultCutoffCleared(String cutoff);
+
+  /// No description provided for @resultCutoffMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutoff {cutoff}: not reached'**
+  String resultCutoffMissed(String cutoff);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

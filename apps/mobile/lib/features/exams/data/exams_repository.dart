@@ -5,6 +5,8 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/exams/exam_catalog.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/exam_topics.dart';
+import '../domain/new_exam.dart';
+import '../domain/syllabus_tree.dart';
 import '../../concepts/domain/concept.dart';
 import '../../documents/domain/imported_document.dart';
 
@@ -13,6 +15,39 @@ abstract interface class ExamsRepository {
   Future<List<ExamOption>> exams();
 
   Future<ExamOption> createExam(String name);
+
+  Future<List<TopicModel>> topicModels(String topicId);
+  Future<void> createModel(String topicId, String name);
+  Future<void> renameModel(String id, String name);
+
+  /// The learner's questions move to [intoId], and this model goes.
+  Future<void> mergeModel(String id, String intoId);
+  Future<void> deleteModel(String id);
+
+  /// A new private model with these questions confirmed under it.
+  Future<void> nameModel(String topicId, String name, List<String> questionIds);
+
+  /// Adds the answer-format models the topic doesn't have yet.
+  Future<void> addDefaultModels(String topicId);
+
+  /// The exam's syllabus versions, as trees.
+  Future<List<SyllabusVersion>> syllabusVersions(String examCode);
+
+  /// Adds the learner's own syllabus for the exam.
+  Future<void> createSyllabusVersion(
+    String examCode, {
+    required String name,
+    required int? effectiveYear,
+    required List<SyllabusNode> tree,
+  });
+
+  Future<void> deleteSyllabusVersion(String id);
+
+  /// Answers on topics that mean the same across [examCodes].
+  Future<List<CanonicalStats>> canonicalStats(List<String> examCodes);
+
+  /// Creates an exam from the custom exam builder.
+  Future<ExamOption> createExamFrom(NewExam exam);
 
   Future<ExamOption> renameExam(String code, String name);
 
@@ -80,6 +115,91 @@ class RemoteExamsRepository implements ExamsRepository {
   @override
   Future<ExamOption> createExam(String name) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>('$_base/me/exams', data: {'name': name});
+    return ExamOption.fromJson(response.data!);
+  });
+
+  @override
+  Future<List<TopicModel>> topicModels(String topicId) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '$_base/patterns',
+      queryParameters: {'topic_id': topicId},
+    );
+    return [for (final m in response.data!) TopicModel.fromJson(m as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<void> createModel(String topicId, String name) => _guard(() async {
+    await _dio.post<void>('$_base/patterns', data: {'topic_id': topicId, 'name': name});
+  });
+
+  @override
+  Future<void> renameModel(String id, String name) => _guard(() async {
+    await _dio.patch<void>('$_base/patterns/$id', data: {'name': name});
+  });
+
+  @override
+  Future<void> mergeModel(String id, String intoId) => _guard(() async {
+    await _dio.post<void>('$_base/patterns/$id/merge', data: {'into_id': intoId});
+  });
+
+  @override
+  Future<void> deleteModel(String id) => _guard(() async {
+    await _dio.delete<void>('$_base/patterns/$id');
+  });
+
+  @override
+  Future<void> nameModel(String topicId, String name, List<String> questionIds) => _guard(() async {
+    await _dio.post<void>(
+      '$_base/patterns/from-questions',
+      data: {'topic_id': topicId, 'name': name, 'question_ids': questionIds},
+    );
+  });
+
+  @override
+  Future<void> addDefaultModels(String topicId) => _guard(() async {
+    await _dio.post<void>('$_base/topics/$topicId/default-models');
+  });
+
+  @override
+  Future<List<SyllabusVersion>> syllabusVersions(String examCode) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>('$_base/exams/$examCode/syllabus-versions');
+    return [for (final v in response.data!) SyllabusVersion.fromJson(v as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<void> createSyllabusVersion(
+    String examCode, {
+    required String name,
+    required int? effectiveYear,
+    required List<SyllabusNode> tree,
+  }) => _guard(() async {
+    await _dio.post<void>(
+      '$_base/exams/$examCode/syllabus-versions',
+      data: {
+        'name': name,
+        'effective_year': effectiveYear,
+        'tree': [for (final n in tree) n.toJson()],
+      },
+    );
+  });
+
+  @override
+  Future<void> deleteSyllabusVersion(String id) => _guard(() async {
+    await _dio.delete<void>('$_base/syllabus-versions/$id');
+  });
+
+  @override
+  Future<List<CanonicalStats>> canonicalStats(List<String> examCodes) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '$_base/analytics/canonical',
+      queryParameters: {'exam': examCodes},
+    );
+    return [for (final s in response.data!) CanonicalStats.fromJson(s as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<ExamOption> createExamFrom(NewExam exam) => _guard(() async {
+    final response = await _dio.post<Map<String, dynamic>>('$_base/me/exams', data: exam.toJson());
     return ExamOption.fromJson(response.data!);
   });
 

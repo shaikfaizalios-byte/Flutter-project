@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import '../../concepts/domain/concept.dart';
 import 'imported_document.dart';
+import 'paper_details.dart';
 
 /// Server-backed document storage. Methods throw `AppFailure`s on errors.
 abstract interface class DocumentsRepository {
@@ -21,6 +22,18 @@ abstract interface class DocumentsRepository {
 
   /// One page (1-based) of the original PDF as PNG bytes, exactly as uploaded.
   Future<Uint8List> pageImage(String id, int page);
+
+  Future<void> setDetails(String id, PaperDetails details);
+
+  /// Papers that look like another set of this one. Only suggestions.
+  Future<List<OtherSet>> duplicateSuggestions(String id);
+
+  /// This paper is another set of [otherId] and counts once, as that paper.
+  Future<void> markAsSetOf(String id, String otherId);
+
+  /// Fills in missing answers from a separate key. An existing answer is never replaced.
+  Future<AnswerKeyResult> sendKeyText(String id, String text);
+  Future<AnswerKeyResult> sendKeyFile(String id, UploadSource source);
 }
 
 /// Lets the UI cancel an in-flight upload without depending on Dio.

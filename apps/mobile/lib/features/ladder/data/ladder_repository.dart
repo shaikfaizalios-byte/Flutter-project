@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/app_features.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/content_language.dart';
 import '../../../core/network/api_client.dart';
@@ -27,15 +28,20 @@ abstract interface class LadderRepository {
     String sessionId,
     int round,
     int step, {
-    required int selectedIndex,
+    int? selectedIndex,
+    String? typedAnswer,
+    Map<String, dynamic>? response,
     int? timeSpentMs,
   });
 }
 
 class RemoteLadderRepository implements LadderRepository {
-  const RemoteLadderRepository(this._dio);
+  const RemoteLadderRepository(this._dio, {this.newFormats = false});
 
   final Dio _dio;
+
+  /// This build can show formats beyond one correct option.
+  final bool newFormats;
   static const _base = '/api/v1/ladder';
 
   /// One question means a few AI calls, far over the usual wait.
@@ -58,7 +64,12 @@ class RemoteLadderRepository implements LadderRepository {
   }) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '$_base/sessions',
-      data: {'exam_code': examCode, 'topic_id': topicId, 'language': language.code},
+      data: {
+        'exam_code': examCode,
+        'topic_id': topicId,
+        'language': language.code,
+        if (newFormats) 'include_new_formats': true,
+      },
     );
     return LadderRound.fromJson(response.data!);
   });
@@ -83,14 +94,21 @@ class RemoteLadderRepository implements LadderRepository {
     String sessionId,
     int round,
     int step, {
-    required int selectedIndex,
+    int? selectedIndex,
+    String? typedAnswer,
+    Map<String, dynamic>? response,
     int? timeSpentMs,
   }) => _guard(() async {
-    final response = await _dio.post<Map<String, dynamic>>(
+    final reply = await _dio.post<Map<String, dynamic>>(
       '$_base/sessions/$sessionId/rounds/$round/steps/$step/answer',
-      data: {'selected_index': selectedIndex, 'time_spent_ms': ?timeSpentMs},
+      data: {
+        'selected_index': ?selectedIndex,
+        'typed_answer': ?typedAnswer,
+        'response': ?response,
+        'time_spent_ms': ?timeSpentMs,
+      },
     );
-    return LadderStep.fromJson(response.data!);
+    return LadderStep.fromJson(reply.data!);
   });
 
   Future<T> _guard<T>(Future<T> Function() request) async {
@@ -103,5 +121,8 @@ class RemoteLadderRepository implements LadderRepository {
 }
 
 final ladderRepositoryProvider = Provider<LadderRepository>(
-  (ref) => RemoteLadderRepository(ref.watch(dioProvider)),
+  (ref) => RemoteLadderRepository(
+    ref.watch(dioProvider),
+    newFormats: ref.watch(appFeaturesProvider).examProfiles,
+  ),
 );
