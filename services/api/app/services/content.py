@@ -9,8 +9,10 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.domain.errors import ConflictError, InvalidReferenceError, NotFoundError, RateLimitedError
+from app.domain.library import is_visible
 from app.models.content import AuditEvent, ContentReport, ContentRights
 from app.models.document import Document
+from app.models.library import LibraryEntry
 from app.models.question import Question
 from app.schemas.content import ContentReportCreate, ContentReportRead
 
@@ -85,7 +87,11 @@ class ContentReports:
         document_id = data.document_id
         if data.question_id is not None:
             question = self._session.get(Question, data.question_id)
-            if question is None or question.document_id is None:
+            if question is None:
+                raise NotFoundError("Question not found.")
+            if self._in_library(question):
+                return self._save(data, question.document_id)
+            if question.document_id is None:
                 raise NotFoundError("Question not found.")
             if document_id is not None and document_id != question.document_id:
                 raise InvalidReferenceError("The question is not from that paper.")
@@ -95,6 +101,13 @@ class ContentReports:
         document = self._session.get(Document, document_id)
         if document is None or document.shared_at is None or document.owner_id == self._owner_id:
             raise NotFoundError("Shared paper not found.")
+        return self._save(data, document_id)
+
+    def _in_library(self, question: Question) -> bool:
+        entry = self._session.get(LibraryEntry, question.id)
+        return entry is not None and is_visible(entry.status, entry.rights_status)
+
+    def _save(self, data: ContentReportCreate, document_id: uuid.UUID | None) -> ContentReportRead:
         report = ContentReport(
             owner_id=self._owner_id,
             document_id=document_id,

@@ -14,9 +14,10 @@ from sqlalchemy.sql.base import ExecutableOption
 from app.domain import ai_reading, question_history, typed_answers
 from app.domain.answer_key import KeyQuestion, plan_key
 from app.domain.answer_keys import answer_changed, key_problems
-from app.domain.errors import DomainError, InvalidReferenceError, NotFoundError
+from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
 from app.domain.figures import figure_box_problem, page_box
 from app.domain.import_checks import CheckedQuestion, check_import
+from app.domain.library import DRAFT
 from app.domain.official_key import KeyTarget, plan_official_key, read_official_key
 from app.domain.question_formats import (
     FORMATS,
@@ -29,6 +30,7 @@ from app.domain.segmentation import AnswerKeyRead, Issue, IssueCode, content_iss
 from app.integrations.storage import DocumentStorage
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.document import Document
+from app.models.library import LibraryEntry
 from app.models.question import (
     ExamFormat,
     Passage,
@@ -376,8 +378,18 @@ class QuestionService:
 
     # --- reviewer edits ---------------------------------------------------------------
 
+    def _refuse_if_curated(self, question: Question) -> None:
+        """A library question past its draft changes only by a new version, so its history and
+        the attempts at it stay right."""
+        entry = self._session.get(LibraryEntry, question.id)
+        if entry is not None and entry.status != DRAFT:
+            raise ConflictError(
+                "library_question", "This is in the library: correct it there as a new version."
+            )
+
     def update(self, question_id: uuid.UUID, data: QuestionUpdate) -> QuestionRead:
         question = self._get_or_404(question_id)
+        self._refuse_if_curated(question)
         before = current_snapshot(question)
         changes = data.model_dump(exclude_unset=True)
         status = changes.pop("verification_status", None)
@@ -549,6 +561,7 @@ class QuestionService:
     def set_answer_key(self, question_id: uuid.UUID, data: AnswerKeyUpdate) -> KeySaved:
         """Records the official key. A final key re-marks every attempt at this question."""
         question = self._get_or_404(question_id)
+        self._refuse_if_curated(question)
         before = current_snapshot(question)
         problems = key_problems(
             format_name=question.format,
@@ -1045,6 +1058,9 @@ class QuestionService:
             )
             read = read.model_copy(
                 update={
+                    "library_source": self._session.scalar(
+                        select(LibraryEntry.source_type).where(LibraryEntry.question_id == q.id)
+                    ),
                     "answer_origin": origin,
                     "paper_answer": PaperAnswerRead.model_validate(paper, from_attributes=True)
                     if paper

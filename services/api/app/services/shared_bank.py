@@ -16,8 +16,10 @@ from sqlalchemy import ColumnElement, Select, and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.domain.errors import ConflictError, NotFoundError
+from app.domain.library import APPROVED, VISIBLE_RIGHTS
 from app.models.content import ContentRights
 from app.models.document import Document
+from app.models.library import LibraryEntry
 from app.models.question import (
     Question,
     QuestionOrigin,
@@ -29,6 +31,15 @@ from app.schemas.insights import SharedBankExam
 from app.services.content import audit, set_rights
 
 RIGHTS_MAX = 500
+
+
+def library_question() -> ColumnElement[bool]:
+    """Curated library questions learners may see: approved, with rights licensed or owned."""
+    return Question.id.in_(
+        select(LibraryEntry.question_id).where(
+            LibraryEntry.status == APPROVED, LibraryEntry.rights_status.in_(VISIBLE_RIGHTS)
+        )
+    )
 
 
 def shared_document_ids() -> Select[uuid.UUID]:
@@ -47,7 +58,7 @@ def shared_question() -> ColumnElement[bool]:
 def visible_question(owner_id: uuid.UUID, *, include_shared: bool = True) -> ColumnElement[bool]:
     """The learner's own questions, plus shared-bank questions when wanted."""
     own = Question.owner_id == owner_id
-    return or_(own, shared_question()) if include_shared else own
+    return or_(own, shared_question(), library_question()) if include_shared else own
 
 
 @dataclass(frozen=True, slots=True)

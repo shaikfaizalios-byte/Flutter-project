@@ -75,6 +75,13 @@ def ladder_times() -> LadderTimes:
 
 
 @cache
+def library_settings() -> dict[str, Any]:
+    """Question library settings. Product choices, kept with the other defaults."""
+    settings: dict[str, Any] = _defaults()["library"]
+    return settings
+
+
+@cache
 def descriptive_settings() -> dict[str, Any]:
     """Descriptive practice settings. Product choices, kept with the other defaults."""
     settings: dict[str, Any] = _defaults()["descriptive"]

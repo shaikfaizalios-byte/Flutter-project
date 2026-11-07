@@ -249,7 +249,7 @@ class PaperAnswerRead(BaseModel):
 
 class QuestionRead(BaseModel):
     id: uuid.UUID
-    origin: Literal["source", "ai"]
+    origin: Literal["source", "ai", "library"]
     exam_code: str
     section: str | None
     subject: str | None
@@ -313,6 +313,8 @@ class QuestionRead(BaseModel):
     # question, as read), "reviewer" (set or changed in review), "ai" (AI-generated
     # question), "none" (no answer yet). A reviewer's answer is never shown as the paper's.
     answer_origin: Literal["paper", "reviewer", "ai", "none"] = "none"
+    # official_pyq, original_expert or original_ai_verified, for a curated library question.
+    library_source: str | None = None
     # What the paper said, when the current answer is a reviewer's and the question's
     # history goes back to its reading (null when it doesn't: read before history began).
     paper_answer: PaperAnswerRead | None = None

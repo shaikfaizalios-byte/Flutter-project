@@ -118,6 +118,7 @@ class Feedback(BaseModel):
     # "source": from the paper (or the reviewer); "ai": AI-generated (an AI question's own
     # explanation, or an approved AI explanation for a source question).
     explanation_origin: Literal["source", "ai"] | None
+    percent_right: int | None = None  # from real attempts only, once there are enough
     accepted_positions: list[int] | None = None  # the key accepts each of these
     key_note: Literal["dropped", "several", "changed"] | None = None
 
@@ -139,6 +140,8 @@ class TranslationRead(BaseModel):
 
 
 class SessionItemRead(BaseModel):
+    # official_pyq, original_expert or original_ai_verified, for a curated library question.
+    library_source: str | None = None
     position: int
     question_id: uuid.UUID | None
     section: str | None
@@ -152,7 +155,7 @@ class SessionItemRead(BaseModel):
     # Figures cropped from the source paper (fetch via /questions/{question_id}/figures/{id}).
     figures: list[FigureRead]
     passage: PassageRead | None
-    origin: Literal["source", "ai"] | None
+    origin: Literal["source", "ai", "library"] | None
     verified: bool
     source: ItemSource
     bookmarked: bool

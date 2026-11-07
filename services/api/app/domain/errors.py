@@ -68,6 +68,13 @@ class PlusRequiredError(DomainError):
     code = "plus_required"
 
 
+class ForbiddenError(DomainError):
+    """Signed in, but this account has no role for this."""
+
+    status_code = 403
+    code = "forbidden"
+
+
 class AIAllowanceUsedError(RateLimitedError):
     """This month's AI allowance is used up; it resets at the start of next month (UTC)."""
 

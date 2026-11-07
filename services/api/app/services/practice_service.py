@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
 from app.domain.exam_format import format_problems, section_marking
+from app.domain.library import percent_right
 from app.domain.question_formats import (
     RESPONSE_FORMATS,
     SINGLE_ANSWER,
@@ -52,6 +53,7 @@ from app.domain.segmentation import same_subject
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.content import ContentRights
 from app.models.document import Document
+from app.models.library import LibraryEntry
 from app.models.practice import (
     Bookmark,
     PracticeSession,
@@ -183,7 +185,7 @@ def _eligible(
     statuses = [VerificationStatus.VERIFIED]
     if include_unverified:
         statuses.append(VerificationStatus.UNVERIFIED)
-    origins = [QuestionOrigin.SOURCE]
+    origins = [QuestionOrigin.SOURCE, QuestionOrigin.LIBRARY]
     if include_ai:
         origins.append(QuestionOrigin.AI)
     return select(Question).where(
@@ -655,6 +657,11 @@ class PracticeService:
                 ).where(
                     Question.exam_code == exam_format.exam_code,
                     visible_question(self._owner_id),
+                    Question.id.not_in(
+                        select(LibraryEntry.question_id).where(
+                            LibraryEntry.source_type == "original_ai_verified"
+                        )
+                    ),
                 )
             ).all()
             if q.format in allowed
@@ -1035,6 +1042,7 @@ class PracticeService:
                     ),
                     bookmarked=bool(item.question_id and item.question_id in bookmarks),
                     shared=shared,
+                    library_source=self._library_source(item.question_id),
                     selected_position=answer.selected_position if answer else None,
                     answer_type=item.answer_type,
                     typed_answer=answer.typed_answer if answer else None,
@@ -1233,7 +1241,10 @@ class PracticeService:
         origin: Literal["source", "ai"] | None = None
         if question is not None and question.explanation:
             explanation = question.explanation
-            origin = "ai" if question.origin == QuestionOrigin.AI else "source"
+            by_ai = question.origin == QuestionOrigin.AI or (
+                self._library_source(question.id) == "original_ai_verified"
+            )
+            origin = "ai" if by_ai else "source"
         elif question is not None:
             approved = self._session.scalars(
                 select(AIExplanation)
@@ -1253,9 +1264,18 @@ class PracticeService:
             is_correct=answer.is_correct if answer else None,
             explanation=explanation,
             explanation_origin=origin,
+            percent_right=self._percent_right(item.question_id),
             accepted_positions=item.accepted_positions,
             key_note=_key_note(item),
         )
+
+    def _library_source(self, question_id: uuid.UUID | None) -> str | None:
+        entry = self._session.get(LibraryEntry, question_id) if question_id else None
+        return entry.source_type if entry else None
+
+    def _percent_right(self, question_id: uuid.UUID | None) -> int | None:
+        entry = self._session.get(LibraryEntry, question_id) if question_id else None
+        return percent_right(entry.attempts, entry.correct_count) if entry else None
 
     def _questions(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, Question]:
         if not ids:

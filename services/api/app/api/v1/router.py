@@ -16,6 +16,7 @@ from app.api.v1.endpoints import (
     health,
     insights,
     ladder,
+    library,
     ops,
     plus,
     practice,
@@ -46,6 +47,7 @@ api_router.include_router(insights.router, dependencies=_signed_in)
 api_router.include_router(radar.router, dependencies=_signed_in)
 api_router.include_router(ai.router, dependencies=_signed_in)
 api_router.include_router(ladder.router, dependencies=_signed_in)
+api_router.include_router(library.router, dependencies=_signed_in)
 api_router.include_router(descriptive.router, dependencies=_signed_in)
 api_router.include_router(sync.router, dependencies=_signed_in)
 api_router.include_router(feedback.router, dependencies=_signed_in)

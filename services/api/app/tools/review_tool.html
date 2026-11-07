@@ -43,14 +43,35 @@
     <button class="act" id="check">Check import</button>
     <label class="act">Key file <input id="key" type="file" accept="application/pdf"></label>
     <span class="muted"><kbd>j</kbd>/<kbd>k</kbd> move <kbd>x</kbd> select <kbd>v</kbd> verify <kbd>r</kbd> reject <kbd>t</kbd> topic <kbd>m</kbd> model <kbd>a</kbd> apply</span>
+    <button class="act" id="libraryToggle">Library</button>
     <span id="status" class="muted" role="status"></span>
   </header>
-  <main>
+  <div id="library" hidden>
+    <div class="bar">
+      <select id="libStatus" aria-label="Status">
+        <option>draft</option><option>solved</option><option>approved</option><option>withdrawn</option>
+      </select>
+      <button class="act" id="libReports">Reported mistakes</button>
+    </div>
+    <div id="libList"></div>
+    <section id="libQuestion"></section>
+  </div>
+  <main id="papers">
     <section>
       <div class="bar">
         <select id="topic" aria-label="Topic"></select>
         <select id="model" aria-label="Model"></select>
         <button class="act" id="apply">Apply to selected</button>
+      </div>
+      <div class="bar">
+        <select id="libSource" aria-label="Source type">
+          <option>official_pyq</option><option>original_expert</option><option>original_ai_verified</option>
+        </select>
+        <select id="libLevel" aria-label="Assigned level">
+          <option>easy</option><option selected>medium</option><option>hard</option>
+        </select>
+        <input id="libYear" type="number" placeholder="Year" aria-label="Exam year" style="width:6em">
+        <button class="act" id="libAdd">Add selected to library</button>
       </div>
       <div class="muted"><span id="chosen">0</span> selected</div>
       <div id="report"></div>
@@ -230,8 +251,156 @@ $("key").addEventListener("change", async (event) => {
   event.target.value = "";
 });
 
+// Library: draft -> solved by a second reviewer -> approved. Rights are recorded apart, and
+// learners see a question only once it is approved and its rights are licensed or owned.
+const node = (tag, text, attrs = {}) => {
+  const made = Object.assign(document.createElement(tag), attrs);
+  if (text !== undefined) made.textContent = text;
+  return made;
+};
+const action = (label, run) => {
+  const button = node("button", label, { className: "act", type: "button" });
+  button.addEventListener("click", () => run().catch((error) => say(error.message)));
+  return button;
+};
+
+async function loadLibrary() {
+  const rows = await json(`/library/entries?status=${$("libStatus").value}`);
+  $("libList").replaceChildren(...rows.map((row) => {
+    const line = node("div");
+    line.append(action(`${row.source_type} · ${row.difficulty} · ${row.rights_status} · v${row.version}`,
+      () => openEntry(row)));
+    line.append(node("span", ` by ${row.author_name}`, { className: "muted" }));
+    return line;
+  }));
+  if (!rows.length) $("libList").replaceChildren(node("div", "Nothing here.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+async function openEntry(entry, reportId = null) {
+  const id = entry.question_id;
+  const q = await json(`/library/entries/${id}/question`);
+  const box = $("libQuestion");
+  box.replaceChildren(node("p", q.stem));
+  for (const figure of q.figures) {
+    const image = node("img", undefined, { alt: "Figure as printed" });
+    box.append(image);
+    await picture(`/library/entries/${id}/figures/${figure.id}`, image);
+  }
+  for (const option of q.options) box.append(node("div", `${option.position}. ${option.text}`));
+  if (q.correct_position !== null) box.append(node("p", `Key: option ${q.correct_position}`));
+  if (q.typed_answer !== null) box.append(node("p", `Key: ${q.typed_answer}`));
+  if (q.explanation) box.append(node("p", q.explanation, { className: "muted" }));
+  const done = async (text) => { say(text); await loadLibrary(); };
+  if (entry.status === "draft") {
+    const position = node("input", undefined, { type: "number", min: 1, placeholder: "Option" });
+    const typed = node("input", undefined, { placeholder: "Or typed answer" });
+    box.append(position, typed, action("Submit my answer", async () => {
+      const result = await json(`/library/entries/${id}/solve`, {
+        method: "POST",
+        json: {
+          selected_position: position.value ? Number(position.value) : null,
+          typed_answer: typed.value || null,
+        },
+      });
+      await done(result.agrees ? "Solved: it agrees with the key." : "It differs from the key: still a draft.");
+    }));
+  }
+  if (entry.status === "solved") {
+    box.append(action("Approve", async () => {
+      await json(`/library/entries/${id}/approve`, { method: "POST" });
+      await done("Approved.");
+    }));
+  }
+  const rights = node("select");
+  for (const value of ["pending", "licensed", "owned"]) {
+    rights.append(node("option", value, { selected: value === entry.rights_status }));
+  }
+  const rightsNote = node("input", undefined, { placeholder: "Basis for the rights", value: entry.rights_note || "" });
+  box.append(node("h3", "Rights"), rights, rightsNote, action("Save rights", async () => {
+    await json(`/library/entries/${id}/rights`, {
+      method: "PUT", json: { rights_status: rights.value, rights_note: rightsNote.value },
+    });
+    await done("Rights saved.");
+  }));
+  if (entry.status !== "draft") {
+    const reason = node("input", undefined, { placeholder: "Why this changes" });
+    const key = node("input", undefined, { type: "number", min: 1, placeholder: "New correct option" });
+    const stem = node("textarea", undefined, { placeholder: "New wording (leave empty to keep)" });
+    box.append(node("h3", "New version"), reason, key, stem, action("Save version", async () => {
+      const result = await json(`/library/entries/${id}/correct`, {
+        method: "POST",
+        json: {
+          reason: reason.value,
+          correct_option_position: key.value ? Number(key.value) : null,
+          stem: stem.value || null,
+          report_id: reportId,
+        },
+      });
+      await done(`Version ${result.entry.version} saved, ${result.sessions_remarked} session(s) marked again.`);
+    }));
+    box.append(action("Withdraw", async () => {
+      await json(`/library/entries/${id}/withdraw`, { method: "POST", json: { reason: reason.value } });
+      await done("Withdrawn.");
+    }));
+  }
+  const history = await json(`/library/entries/${id}/versions`);
+  box.append(node("h3", "History"));
+  for (const version of history) {
+    box.append(node("div", `v${version.version} · ${version.changed_by} · ${version.reason}`, { className: "muted" }));
+  }
+}
+
+async function loadReports() {
+  const reports = await json("/library/reports");
+  const entries = await json("/library/entries?status=approved");
+  $("libList").replaceChildren(...reports.map((report) => {
+    const line = node("div");
+    const entry = entries.find((e) => e.question_id === report.question_id);
+    line.append(node("span", `${report.kind}: ${report.text} `));
+    if (entry) line.append(action("Open", () => openEntry(entry, report.id)));
+    line.append(action("No change needed", async () => {
+      await call(`/library/reports/${report.id}/dismiss`, {
+        method: "POST", json: { reason: "Checked: no change needed." },
+      });
+      await loadReports();
+    }));
+    return line;
+  }));
+  if (!reports.length) $("libList").replaceChildren(node("div", "No reports.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+$("libraryToggle").addEventListener("click", () => {
+  const show = $("library").hidden;
+  $("library").hidden = !show;
+  $("papers").hidden = show;
+  if (show) loadLibrary().catch((error) => say(error.message));
+});
+$("libStatus").addEventListener("change", () => loadLibrary().catch((error) => say(error.message)));
+$("libReports").addEventListener("click", () => loadReports().catch((error) => say(error.message)));
+$("libAdd").addEventListener("click", async () => {
+  let added = 0;
+  try {
+    for (const id of targets()) {
+      await json("/library/entries", {
+        method: "POST",
+        json: {
+          question_id: id,
+          source_type: $("libSource").value,
+          difficulty: $("libLevel").value,
+          exam_year: $("libYear").value ? Number($("libYear").value) : null,
+        },
+      });
+      added += 1;
+    }
+    say(`${added} added as drafts, rights pending.`);
+  } catch (error) { say(`${added} added. ${error.message}`); }
+});
+
 document.addEventListener("keydown", (event) => {
   if (["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName) || $("app").hidden) return;
+  if (!$("library").hidden) return;
   const q = questions[at];
   const keys = {
     j: () => { at = Math.min(at + 1, questions.length - 1); draw(); },
