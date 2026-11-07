@@ -120,6 +120,10 @@ in `data/exam_templates/defaults.json`. For exams of kind descriptive or mixed.
   averaged point by point. The answer goes into the prompt as `<material>`. A failed marking saves nothing.
 - **Photos.** `POST /descriptive/read-photo`: JPEG or PNG up to 10 MB, turned upright and reduced, copied by the AI without
   correcting, never stored. The learner corrects the text before it is marked.
+- **Real questions.** With `source: papers` a session uses the learner's own reviewed written questions as printed, never the shared
+  bank, up to 5, unanswered ones first. Marks are the question's own, else the exam's. The rubric is drafted by AI from the paper's
+  answer if there is one, checked the same way, and reused until the wording, marks or paper's answer change. The paper's answer
+  always wins over the AI's. Rubrics are labelled as AI-drafted, not the exam's official scheme.
 - **Separate storage.** `descriptive_sessions` and `descriptive_steps`, never `questions`. Tasks `written_question`, `written_mark`,
   `written_read` (migration 0051).
 - **Label.** "Estimated marks from AI feedback, not an official grade." wherever marks are shown.

@@ -34,6 +34,17 @@ Built on Phase 5, on branch `claude/any-exam-phase-7`. Everything in the app is 
 - `descriptive_sessions` and `descriptive_steps`, never `questions`, so nothing reaches repeat counts. Both are in the account
   export and deleted with the account. The draft privacy policy now covers this.
 
+## Added after approval: real written questions
+
+- Written practice can now use the learner's own reviewed written questions, as printed, instead of AI-written ones. Up to 5 per
+  session, ones not yet answered first. Never the shared bank, translations, confirmed duplicates or questions that need a figure.
+- Marks are those on the question, else the exam's, else the default.
+- The AI drafts the rubric, from the paper's own answer when there is one, and the same check applies. That rubric is reused so the
+  question is marked the same way each time, and redrafted only if the wording, marks or paper's answer change.
+- The paper's own answer is always the one shown. Rubrics are labelled as drafted by AI, not the exam's official scheme.
+- Migration 0052, reversible. Downgrading removes these sessions, because the older schema would show them as AI-written.
+- Tests: `tests/test_descriptive_papers.py` and additions to `descriptive_flow_test.dart`.
+
 ## Decisions you may want to check
 
 - **Handwriting is read by the AI, not Tesseract.** Tesseract is built for print and does badly on handwriting. This means photos
@@ -77,8 +88,8 @@ The new AI task names were too long for their column, so every question would ha
 
 - **Nothing has run on the real model.** Marking quality, how often two markings agree, handwriting accuracy, Hindi and cost are all
   unmeasured. I'd try real answers before showing marks to anyone. A round costs about 2 requests per question and 2 or 3 per answer.
-- **Only AI-written questions are marked.** Real written questions from papers are used as examples, but aren't marked with a rubric.
-  They keep the existing answer check in Solve this paper.
+- **Real written questions are reached by topic.** They need a topic and a review, and appear in written practice, not in Solve this
+  paper, which keeps its existing answer check.
 - **A model answer checked by the same AI** catches a broken rubric, not a shared mistake. Rubrics aren't reviewed by a person.
 - **Word limits are suggestions.** Exam formats have no word limit field yet.
 - **One photo adds to the box at a time.** Several pages work by repeating it. Diagrams in answers aren't read or marked.
@@ -87,8 +98,6 @@ The new AI task names were too long for their column, so every question would ha
 
 ## Open questions
 
-- Should real written questions from a learner's papers get rubrics and marking too? I'd do that next, since they're what the exam
-  actually asks.
 - Do you want a camera button? It needs `image_picker` (BSD-3, from the Flutter team) and testing on a phone.
 - Are the level shares and 20 words per mark right? Both are one-line changes in the defaults.
 - Still open: the official documents for the JEE/NEET work, IBPS's option count, the university exam, embeddings, ladder time

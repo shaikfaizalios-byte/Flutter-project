@@ -25,6 +25,7 @@ String descriptiveLevelLabel(AppLocalizations l10n, String level) => switch (lev
   'full_explanation' => l10n.descriptiveLevelFull,
   'analyse_compare' => l10n.descriptiveLevelAnalyse,
   'case_evaluate' => l10n.descriptiveLevelCase,
+  'paper' => l10n.descriptiveLevelPaper,
   _ => level,
 };
 
@@ -34,6 +35,11 @@ class DescriptiveScreen extends ConsumerWidget {
 
   final String topicId;
   final String topicName;
+
+  int _paperQuestions(WidgetRef ref) {
+    final topics = ref.watch(descriptiveOverviewProvider).value?.topics ?? const [];
+    return topics.where((t) => t.topicId == topicId).firstOrNull?.paperQuestions ?? 0;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,7 +62,11 @@ class DescriptiveScreen extends ConsumerWidget {
       final state = ref.watch(descriptiveRunProvider(key));
       final run = ref.read(descriptiveRunProvider(key).notifier);
       body = switch (state.stage) {
-        DescriptiveStage.intro => _Intro(onStart: run.start),
+        DescriptiveStage.intro => _Intro(
+          paperQuestions: _paperQuestions(ref),
+          onStart: run.start,
+          onPapers: () => run.start(fromPapers: true),
+        ),
         DescriptiveStage.writing => _Waiting(text: l10n.descriptiveWriting),
         DescriptiveStage.question ||
         DescriptiveStage.marking => _Step(key: ValueKey(state.current), state: state, run: run),
@@ -78,9 +88,11 @@ class DescriptiveScreen extends ConsumerWidget {
 }
 
 class _Intro extends StatelessWidget {
-  const _Intro({required this.onStart});
+  const _Intro({required this.paperQuestions, required this.onStart, required this.onPapers});
 
+  final int paperQuestions;
   final Future<void> Function() onStart;
+  final Future<void> Function() onPapers;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +105,11 @@ class _Intro extends StatelessWidget {
         Text(l10n.descriptivePrivacy, style: Theme.of(context).textTheme.bodySmall),
         const _EstimateNote(),
         FilledButton(onPressed: onStart, child: Text(l10n.descriptiveStart)),
+        if (paperQuestions > 0)
+          OutlinedButton(
+            onPressed: onPapers,
+            child: Text(l10n.descriptiveUsePapers(paperQuestions)),
+          ),
       ],
     );
   }
@@ -189,10 +206,20 @@ class _StepState extends ConsumerState<_Step> {
           l10n.descriptiveMarksAndLength(marksText(step.marks), step.wordLimit),
           style: theme.textTheme.bodySmall,
         ),
-        Text(l10n.descriptiveAiQuestion, style: theme.textTheme.bodySmall),
+        Text(
+          step.fromPaper
+              ? l10n.descriptiveFromPaper(step.paperLabel ?? '')
+              : l10n.descriptiveAiQuestion,
+          style: theme.textTheme.bodySmall,
+        ),
         RichQuestionText(step.stem ?? '', style: theme.textTheme.bodyLarge),
         if (result != null)
-          _Result(result: result, last: step.step == total, onNext: widget.run.next)
+          _Result(
+            result: result,
+            fromPaper: step.fromPaper,
+            last: step.step == total,
+            onNext: widget.run.next,
+          )
         else if (marking)
           _Waiting(text: l10n.descriptiveMarking)
         else ...[
@@ -239,9 +266,15 @@ class _StepState extends ConsumerState<_Step> {
 }
 
 class _Result extends StatelessWidget {
-  const _Result({required this.result, required this.last, required this.onNext});
+  const _Result({
+    required this.result,
+    required this.fromPaper,
+    required this.last,
+    required this.onNext,
+  });
 
   final DescriptiveResult result;
+  final bool fromPaper;
   final bool last;
   final Future<void> Function() onNext;
 
@@ -265,6 +298,7 @@ class _Result extends StatelessWidget {
         Text(l10n.descriptiveWordCount(result.wordCount), style: theme.textTheme.bodySmall),
         const SizedBox(height: AppSpacing.xs),
         Text(l10n.descriptiveByPoint, style: theme.textTheme.labelLarge),
+        if (fromPaper) Text(l10n.descriptiveRubricNote, style: theme.textTheme.bodySmall),
         for (final point in result.points)
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -281,7 +315,12 @@ class _Result extends StatelessWidget {
         if (result.relevance.isNotEmpty) Text(l10n.descriptiveRelevance(result.relevance)),
         if (result.length.isNotEmpty) Text(l10n.descriptiveLength(result.length)),
         const SizedBox(height: AppSpacing.xs),
-        Text(l10n.descriptiveModelAnswer, style: theme.textTheme.labelLarge),
+        Text(
+          result.modelAnswerFromPaper
+              ? l10n.descriptiveAnswerFromPaper
+              : l10n.descriptiveModelAnswer,
+          style: theme.textTheme.labelLarge,
+        ),
         SelectableText(result.modelAnswer),
         const SizedBox(height: AppSpacing.sm),
         FilledButton(

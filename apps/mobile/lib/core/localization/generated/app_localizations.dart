@@ -7731,6 +7731,36 @@ abstract class AppLocalizations {
   /// **'Case study or critical evaluation'**
   String get descriptiveLevelCase;
 
+  /// No description provided for @descriptiveUsePapers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Use 1 question from my papers} other{Use questions from my papers ({count})}}'**
+  String descriptiveUsePapers(int count);
+
+  /// No description provided for @descriptiveFromPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'From your paper: {paper}'**
+  String descriptiveFromPaper(String paper);
+
+  /// No description provided for @descriptiveLevelPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'From your paper'**
+  String get descriptiveLevelPaper;
+
+  /// No description provided for @descriptiveAnswerFromPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer printed in your paper'**
+  String get descriptiveAnswerFromPaper;
+
+  /// No description provided for @descriptiveRubricNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Marking points drafted by AI, not the exam\'s official scheme.'**
+  String get descriptiveRubricNote;
+
   /// No description provided for @ladderCleared.
   ///
   /// In en, this message translates to:
