@@ -180,9 +180,11 @@ def test_a_missing_answer_issue_goes_once_the_key_fills_it(
 
 def test_a_pdf_key(db_client: TestClient, db_session: Session, user: User) -> None:
     paper = _paper(db_session, user, [None, None])
+    # Enough text to count as a text layer: a shorter page goes to OCR where Tesseract is installed.
+    key_pdf = text_pdf([["Sample paper for checking a key file", "Answer Key", "1-(2) 2-(3)"]])
     response = db_client.post(
         f"/api/v1/documents/{paper.id}/answer-key",
-        files={"file": ("key.pdf", text_pdf([["Answer Key", "1-(2) 2-(3)"]]), "application/pdf")},
+        files={"file": ("key.pdf", key_pdf, "application/pdf")},
     )
     assert response.status_code == 200, response.text
     assert response.json()["applied"] == 2
