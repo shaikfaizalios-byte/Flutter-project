@@ -224,7 +224,8 @@ class _SessionBody extends ConsumerWidget {
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
                 children: [
-                  if (item.origin != null) OriginChip(origin: item.origin!),
+                  if (item.origin != null)
+                    OriginChip(origin: item.origin!, librarySource: item.librarySource),
                   if (!item.verified)
                     Chip(
                       visualDensity: VisualDensity.compact,
@@ -613,6 +614,8 @@ class _FeedbackPanel extends StatelessWidget {
                     : l10n.sessionCorrectAnswer(correctLabel),
             }),
             if (keyNoteText(l10n, item, feedback) case final String note) Text(note),
+            if (feedback.percentRight != null)
+              Text(l10n.sessionPercentRight(feedback.percentRight!)),
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),

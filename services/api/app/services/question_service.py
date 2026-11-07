@@ -1041,6 +1041,15 @@ class QuestionService:
         sources = self._shared_sources(
             {q.document_id for q in questions if q.owner_id != self._owner_id}
         )
+        library_sources = dict(
+            self._session.execute(
+                select(LibraryEntry.question_id, LibraryEntry.source_type).where(
+                    LibraryEntry.question_id.in_([q.id for q in questions])
+                )
+            )
+            .tuples()
+            .all()
+        )
         extracted = extracted_snapshots(
             self._session,
             [q.id for q in questions if q.answer_source not in ("answer_key", "inline", "ai")],
@@ -1058,9 +1067,7 @@ class QuestionService:
             )
             read = read.model_copy(
                 update={
-                    "library_source": self._session.scalar(
-                        select(LibraryEntry.source_type).where(LibraryEntry.question_id == q.id)
-                    ),
+                    "library_source": library_sources.get(q.id),
                     "answer_origin": origin,
                     "paper_answer": PaperAnswerRead.model_validate(paper, from_attributes=True)
                     if paper

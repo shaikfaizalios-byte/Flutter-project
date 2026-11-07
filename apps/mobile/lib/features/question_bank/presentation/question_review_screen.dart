@@ -96,7 +96,7 @@ class _SharedQuestionView extends ConsumerWidget {
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
                 children: [
-                  OriginChip(origin: q.origin),
+                  OriginChip(origin: q.origin, librarySource: q.librarySource),
                   if (q.topic != null)
                     Chip(
                       visualDensity: VisualDensity.compact,
@@ -408,7 +408,7 @@ class _EditorState extends ConsumerState<_Editor> {
           runSpacing: AppSpacing.xs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            OriginChip(origin: q.origin),
+            OriginChip(origin: q.origin, librarySource: q.librarySource),
             if (q.readByAi)
               Chip(
                 visualDensity: VisualDensity.compact,

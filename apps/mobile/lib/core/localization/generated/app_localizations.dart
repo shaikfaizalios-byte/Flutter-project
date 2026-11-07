@@ -8702,6 +8702,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cutoff {cutoff}: not reached'**
   String resultCutoffMissed(String cutoff);
+
+  /// No description provided for @libraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question library'**
+  String get libraryTitle;
+
+  /// No description provided for @libraryHubMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions reviewed by PrepLoop. Search them or save a chapter for offline practice.'**
+  String get libraryHubMessage;
+
+  /// No description provided for @libraryOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the library'**
+  String get libraryOpen;
+
+  /// No description provided for @librarySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the library'**
+  String get librarySearchHint;
+
+  /// No description provided for @libraryFilterChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter'**
+  String get libraryFilterChapter;
+
+  /// No description provided for @libraryFilterTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic'**
+  String get libraryFilterTopic;
+
+  /// No description provided for @libraryFilterModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get libraryFilterModel;
+
+  /// No description provided for @libraryFilterFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get libraryFilterFormat;
+
+  /// No description provided for @libraryFilterYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get libraryFilterYear;
+
+  /// No description provided for @libraryFilterLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get libraryFilterLevel;
+
+  /// No description provided for @libraryLevelEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get libraryLevelEasy;
+
+  /// No description provided for @libraryLevelMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get libraryLevelMedium;
+
+  /// No description provided for @libraryLevelHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get libraryLevelHard;
+
+  /// No description provided for @libraryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No library questions match this yet.'**
+  String get libraryEmpty;
+
+  /// No description provided for @libraryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the library. Check your connection and try again.'**
+  String get libraryFailed;
+
+  /// No description provided for @libraryPictured.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed as a picture. Open it to see the question.'**
+  String get libraryPictured;
+
+  /// No description provided for @libraryOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters for offline practice'**
+  String get libraryOfflineTitle;
+
+  /// No description provided for @libraryNoPacks.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters to save for this exam yet.'**
+  String get libraryNoPacks;
+
+  /// No description provided for @libraryPackCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions'**
+  String libraryPackCount(int count);
+
+  /// No description provided for @librarySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get librarySave;
+
+  /// No description provided for @libraryUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get libraryUpdate;
+
+  /// No description provided for @librarySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get librarySaved;
+
+  /// No description provided for @librarySourceOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous year paper'**
+  String get librarySourceOfficial;
+
+  /// No description provided for @librarySourceExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Written for PrepLoop'**
+  String get librarySourceExpert;
+
+  /// No description provided for @librarySourceAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-written, checked by reviewers'**
+  String get librarySourceAi;
+
+  /// No description provided for @sessionPercentRight.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% got this right'**
+  String sessionPercentRight(int percent);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

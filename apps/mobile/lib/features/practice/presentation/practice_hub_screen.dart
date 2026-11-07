@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
@@ -93,6 +94,25 @@ class PracticeHubScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+                if (ref.watch(appFeaturesProvider).examProfiles) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  SectionCard(
+                    icon: Icons.local_library_outlined,
+                    title: l10n.libraryTitle,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.libraryHubMessage),
+                        const SizedBox(height: AppSpacing.sm),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.local_library_outlined),
+                          label: Text(l10n.libraryOpen),
+                          onPressed: () => context.push(AppRoutes.library),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 const _MockTestsCard(),
                 const SizedBox(height: AppSpacing.md),

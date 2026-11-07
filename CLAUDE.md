@@ -32,7 +32,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v8)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v10)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -119,6 +119,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   in another language links `translation_of_id`. `import_checks.py`, `GET /documents/{id}/import-check`. `questions.transcript` = AI
   reading for search only, never shown (`app.cli.official_papers transcribe`). Internal tool: `/review-tool`
   (`app/tools/review_tool.html`, off in production unless `PREPLOOP_EXPOSE_REVIEW_TOOL`), `POST /questions/bulk-assign`.
+- Question library (docs/jee-neet/phase-e-report.md, migration 0056, Drift v10): `library_entries`/`library_versions` over `questions`
+  (origin `library`, or an editor's own imported question; learners' imports can't enter). `users.content_role` 'editor' (`python -m
+  app.cli.library role EMAIL editor`) guards `/library/entries|reports`. draft -> solved by a second reviewer (key hidden until then)
+  -> approved, never by the author; `library_question()` = approved and rights licensed|owned, part of `visible_question`. Corrections
+  make a version and run `apply_final_key`; past draft, plain edits are refused (`_refuse_if_curated`). `/library/search`, `/library/packs`
+  (delta by `seq`; an emptied chapter stays listed). Pure `app/domain/library.py`; `python -m app.cli.library calibrate`, settings in
+  `defaults.json` `library`. AI-written ones never reach mocks. App `features/library` behind `examProfiles`, `LibrarySourceChip`.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

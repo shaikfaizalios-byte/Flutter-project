@@ -7,7 +7,7 @@ imports never enter it, because staff can only add questions from their own acco
 
 import base64
 import uuid
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Any
@@ -465,30 +465,38 @@ class LibraryReader:
         return [(q, e) for q, e in rows]
 
     def packs(self, exam: str) -> list[PackRead]:
+        """Every chapter that has held a public question. One left empty stays listed, with its
+        number raised, so a device holding it learns its questions have gone."""
         units = _unit_topics(self._session, exam)
-        grouped: dict[str, list[LibraryEntry]] = defaultdict(list)
-        names: dict[str, tuple[str, str]] = {}
-        for question, entry in self._pack_rows(exam):
-            unit, subject = (
-                units.get(question.topic_id, (OTHER_PACK, ""))
-                if question.topic_id
-                else (
-                    OTHER_PACK,
-                    "",
-                )
+
+        def place(topic_id: uuid.UUID | None) -> tuple[str, str]:
+            return units.get(topic_id, (OTHER_PACK, "")) if topic_id else (OTHER_PACK, "")
+
+        counts = Counter(slug(" ".join(place(q.topic_id)[::-1])) for q, _ in self._pack_rows(exam))
+        rows = self._session.execute(
+            select(Question.topic_id, LibraryEntry.seq)
+            .join(LibraryEntry, LibraryEntry.question_id == Question.id)
+            .where(
+                Question.exam_code == exam,
+                LibraryEntry.status.in_((library.APPROVED, library.WITHDRAWN)),
             )
+        ).all()
+        newest: dict[str, int] = {}
+        names: dict[str, tuple[str, str]] = {}
+        for topic_id, seq in rows:
+            unit, subject = place(topic_id)
             key = slug(f"{subject} {unit}")
-            grouped[key].append(entry)
+            newest[key] = max(newest.get(key, 0), seq)
             names[key] = (unit, subject)
         return [
             PackRead(
                 key=key,
                 name=names[key][0],
                 subject=names[key][1],
-                questions=len(entries),
-                seq=max(e.seq for e in entries),
+                questions=counts[key],
+                seq=newest[key],
             )
-            for key, entries in sorted(grouped.items())
+            for key in sorted(newest)
         ]
 
     def pack(self, exam: str, key: str, since: int) -> PackDelta:

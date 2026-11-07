@@ -388,6 +388,7 @@ class PracticeService:
         sources = self._shared_sources(
             {q.document_id for q in questions if q.document_id and q.owner_id != self._owner_id}
         )
+        entries = self._library_entries({q.id for q in questions})
         items = []
         for q in questions:
             shared = q.owner_id != self._owner_id
@@ -415,6 +416,7 @@ class PracticeService:
                     else filenames.get(q.document_id),
                     page=q.source_pages[0] if q.source_pages else None,
                     question_number=q.source_question_number,
+                    library_source=entries[q.id].source_type if q.id in entries else None,
                 )
             )
         return OfflinePack(questions=items, limit=limit, generated_at=self._now())
@@ -802,7 +804,14 @@ class PracticeService:
             typed_answer=existing.typed_answer,
             response=existing.response,
             applied=applied,
-            feedback=self._feedback(practice, item, existing),
+            feedback=self._feedback(
+                practice,
+                item,
+                existing,
+                entry=self._session.get(LibraryEntry, item.question_id)
+                if item.question_id
+                else None,
+            ),
         )
 
     def submit(self, session_id: uuid.UUID, *, reason: str = "user") -> SessionRead:
@@ -999,6 +1008,7 @@ class PracticeService:
         active = practice.status == SessionStatus.ACTIVE
         open_section = practice.current_section if plan and active else None
 
+        entries = self._library_entries({i.question_id for i in practice.items if i.question_id})
         items: list[SessionItemRead] = []
         for item in practice.items:
             question = questions.get(item.question_id) if item.question_id else None
@@ -1042,7 +1052,9 @@ class PracticeService:
                     ),
                     bookmarked=bool(item.question_id and item.question_id in bookmarks),
                     shared=shared,
-                    library_source=self._library_source(item.question_id),
+                    library_source=entries[item.question_id].source_type
+                    if item.question_id in entries
+                    else None,
                     selected_position=answer.selected_position if answer else None,
                     answer_type=item.answer_type,
                     typed_answer=answer.typed_answer if answer else None,
@@ -1052,7 +1064,13 @@ class PracticeService:
                         bool(item.typed_answer)
                         and typed_answers.is_numeric(item.typed_answer or "")
                     ),
-                    feedback=self._feedback(practice, item, answer, question),
+                    feedback=self._feedback(
+                        practice,
+                        item,
+                        answer,
+                        question,
+                        entries.get(item.question_id) if item.question_id else None,
+                    ),
                 )
             )
         return SessionRead(
@@ -1229,6 +1247,7 @@ class PracticeService:
         item: SessionItem,
         answer: SessionAnswer | None,
         question: Question | None = None,
+        entry: LibraryEntry | None = None,
     ) -> Feedback | None:
         reveal = practice.status == SessionStatus.SUBMITTED or (
             practice.mode == SessionMode.PRACTICE and _answered(answer)
@@ -1242,7 +1261,7 @@ class PracticeService:
         if question is not None and question.explanation:
             explanation = question.explanation
             by_ai = question.origin == QuestionOrigin.AI or (
-                self._library_source(question.id) == "original_ai_verified"
+                entry is not None and entry.source_type == "original_ai_verified"
             )
             origin = "ai" if by_ai else "source"
         elif question is not None:
@@ -1264,18 +1283,14 @@ class PracticeService:
             is_correct=answer.is_correct if answer else None,
             explanation=explanation,
             explanation_origin=origin,
-            percent_right=self._percent_right(item.question_id),
+            percent_right=percent_right(entry.attempts, entry.correct_count) if entry else None,
             accepted_positions=item.accepted_positions,
             key_note=_key_note(item),
         )
 
-    def _library_source(self, question_id: uuid.UUID | None) -> str | None:
-        entry = self._session.get(LibraryEntry, question_id) if question_id else None
-        return entry.source_type if entry else None
-
-    def _percent_right(self, question_id: uuid.UUID | None) -> int | None:
-        entry = self._session.get(LibraryEntry, question_id) if question_id else None
-        return percent_right(entry.attempts, entry.correct_count) if entry else None
+    def _library_entries(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, LibraryEntry]:
+        rows = self._session.scalars(select(LibraryEntry).where(LibraryEntry.question_id.in_(ids)))
+        return {row.question_id: row for row in rows}
 
     def _questions(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, Question]:
         if not ids:

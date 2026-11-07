@@ -85,9 +85,10 @@ class PracticeRepository {
     ];
     final now = _clock().toUtc();
     await _db.transaction(() async {
-      await _db.delete(_db.offlineQuestions).go();
+      // Chapters saved from the library stay until the learner's copy is updated.
+      await (_db.delete(_db.offlineQuestions)..where((q) => q.packKey.isNull())).go();
       await _db.batch((batch) {
-        batch.insertAll(_db.offlineQuestions, [
+        batch.insertAll(mode: InsertMode.insertOrIgnore, _db.offlineQuestions, [
           for (final q in questions)
             OfflineQuestionsCompanion.insert(
               id: q['id'] as String,

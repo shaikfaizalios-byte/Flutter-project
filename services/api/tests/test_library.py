@@ -388,6 +388,27 @@ def test_packs_send_only_what_changed(clients: dict[str, TestClient], db_session
     assert [q["stem"] for q in delta["questions"]] == ["Work out 2 + 2."]
     assert delta["removed"] == [second]
     assert delta["seq"] > full["seq"]
+    assert (
+        learner.get(f"{BASE}/packs", params={"exam": "SSC_CHSL"}).json()[0]["seq"] > packs[0]["seq"]
+    )
+
+
+def test_a_chapter_left_empty_stays_listed_so_devices_update(
+    clients: dict[str, TestClient],
+) -> None:
+    only = approved(clients)
+    learner = clients["learner"]
+    before = learner.get(f"{BASE}/packs", params={"exam": "SSC_CHSL"}).json()
+    clients["second"].post(
+        f"{BASE}/entries/{only}/withdraw", json={"reason": "Out of the syllabus."}
+    )
+    after = learner.get(f"{BASE}/packs", params={"exam": "SSC_CHSL"}).json()
+    assert after[0]["questions"] == 0
+    assert after[0]["seq"] > before[0]["seq"]
+    delta = learner.get(
+        f"{BASE}/packs/{after[0]['key']}", params={"exam": "SSC_CHSL", "since": before[0]["seq"]}
+    ).json()
+    assert delta["removed"] == [only]
 
 
 def test_levels_move_only_on_enough_real_attempts() -> None:

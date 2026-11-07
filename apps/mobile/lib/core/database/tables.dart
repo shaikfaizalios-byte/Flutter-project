@@ -185,8 +185,36 @@ class OfflineQuestions extends Table {
   TextColumn get subject => text().nullable()();
   TextColumn get topicId => text().nullable()();
   TextColumn get patternId => text().nullable()();
+
+  /// The library chapter this was saved with (schema v10); null = from the daily offline pack.
+  TextColumn get packKey => text().nullable()();
   TextColumn get data => text()();
   DateTimeColumn get savedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Library chapters saved on the device (schema v10). [seq] is the last change it has seen, so
+/// an update asks only for what came after.
+@DataClassName('LibraryPackRow')
+class LibraryPacks extends Table {
+  TextColumn get examCode => text()();
+  TextColumn get packKey => text()();
+  TextColumn get name => text()();
+  IntColumn get seq => integer()();
+  DateTimeColumn get savedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {examCode, packKey};
+}
+
+/// Figures of saved library questions (schema v10), so they show without a connection.
+@DataClassName('OfflineFigureRow')
+class OfflineFigures extends Table {
+  TextColumn get id => text()();
+  TextColumn get questionId => text()();
+  BlobColumn get data => blob()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

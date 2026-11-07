@@ -1,3 +1,6 @@
+import '../../../core/errors/app_failure.dart';
+import '../../library/application/library_providers.dart';
+
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,10 +41,16 @@ final topicsProvider = FutureProvider.family<List<TopicRef>, String?>(
 );
 
 /// Figure images never change (a re-parse creates new ids), so they stay cached.
-final figureBytesProvider = FutureProvider.family<Uint8List, (String, String)>(
-  (ref, key) => ref.watch(questionsRepositoryProvider).figure(key.$1, key.$2),
-  retry: _noRetry,
-);
+final figureBytesProvider = FutureProvider.family<Uint8List, (String, String)>((ref, key) async {
+  try {
+    return await ref.watch(questionsRepositoryProvider).figure(key.$1, key.$2);
+  } on AppFailure {
+    // Offline: a saved library chapter may hold it.
+    final saved = await ref.read(libraryRepositoryProvider).savedFigure(key.$2);
+    if (saved != null) return saved;
+    rethrow;
+  }
+}, retry: _noRetry);
 
 final patternsProvider = FutureProvider<List<PatternRef>>(
   (ref) => ref.watch(questionsRepositoryProvider).patterns(),

@@ -51,6 +51,7 @@ class OfflineQuestion(BaseModel):
     document_filename: str | None
     page: int | None
     question_number: int | None
+    library_source: str | None = None
 
 
 class OfflinePack(BaseModel):

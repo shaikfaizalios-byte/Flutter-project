@@ -5427,4 +5427,87 @@ class AppLocalizationsHi extends AppLocalizations {
   String resultCutoffMissed(String cutoff) {
     return 'कटऑफ़ $cutoff: पूरा नहीं';
   }
+
+  @override
+  String get libraryTitle => 'प्रश्न लाइब्रेरी';
+
+  @override
+  String get libraryHubMessage =>
+      'PrepLoop द्वारा जाँचे गए प्रश्न। इन्हें खोजें या ऑफ़लाइन अभ्यास के लिए कोई अध्याय सहेजें।';
+
+  @override
+  String get libraryOpen => 'लाइब्रेरी खोलें';
+
+  @override
+  String get librarySearchHint => 'लाइब्रेरी में खोजें';
+
+  @override
+  String get libraryFilterChapter => 'अध्याय';
+
+  @override
+  String get libraryFilterTopic => 'विषय';
+
+  @override
+  String get libraryFilterModel => 'मॉडल';
+
+  @override
+  String get libraryFilterFormat => 'प्रारूप';
+
+  @override
+  String get libraryFilterYear => 'वर्ष';
+
+  @override
+  String get libraryFilterLevel => 'कठिनाई';
+
+  @override
+  String get libraryLevelEasy => 'आसान';
+
+  @override
+  String get libraryLevelMedium => 'मध्यम';
+
+  @override
+  String get libraryLevelHard => 'कठिन';
+
+  @override
+  String get libraryEmpty => 'अभी लाइब्रेरी में ऐसा कोई प्रश्न नहीं है।';
+
+  @override
+  String get libraryFailed => 'लाइब्रेरी तक नहीं पहुँच सके। कनेक्शन जाँचकर फिर कोशिश करें।';
+
+  @override
+  String get libraryPictured => 'चित्र के रूप में छपा है। प्रश्न देखने के लिए इसे खोलें।';
+
+  @override
+  String get libraryOfflineTitle => 'ऑफ़लाइन अभ्यास के लिए अध्याय';
+
+  @override
+  String get libraryNoPacks => 'इस परीक्षा के लिए अभी सहेजने को कोई अध्याय नहीं है।';
+
+  @override
+  String libraryPackCount(int count) {
+    return '$count प्रश्न';
+  }
+
+  @override
+  String get librarySave => 'सहेजें';
+
+  @override
+  String get libraryUpdate => 'अपडेट करें';
+
+  @override
+  String get librarySaved => 'सहेजा गया';
+
+  @override
+  String get librarySourceOfficial => 'पिछले वर्ष का प्रश्नपत्र';
+
+  @override
+  String get librarySourceExpert => 'PrepLoop के लिए लिखा गया';
+
+  @override
+  String get librarySourceAi => 'AI द्वारा लिखा, समीक्षकों ने जाँचा';
+
+  @override
+  String sessionPercentRight(int percent) {
+    return '$percent% ने इसे सही किया';
+  }
 }

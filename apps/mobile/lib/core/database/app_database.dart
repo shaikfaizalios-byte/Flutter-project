@@ -23,6 +23,8 @@ part 'app_database.g.dart';
     SyncOutbox,
     OfflineQuestions,
     OfflineSessions,
+    LibraryPacks,
+    OfflineFigures,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -42,7 +44,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -87,6 +89,12 @@ class AppDatabase extends _$AppDatabase {
       },
       from8To9: (m, schema) async {
         await m.addColumn(schema.pendingAnswers, schema.pendingAnswers.responseJson);
+      },
+      // v10: library chapters saved for offline practice, with their figures.
+      from9To10: (m, schema) async {
+        await m.addColumn(schema.offlineQuestions, schema.offlineQuestions.packKey);
+        await m.createTable(schema.libraryPacks);
+        await m.createTable(schema.offlineFigures);
       },
     ),
     beforeOpen: (details) async {

@@ -30,6 +30,7 @@ class AnswerFeedback {
     this.explanationByAi = false,
     this.acceptedPositions = const [],
     this.keyNote,
+    this.percentRight,
   });
 
   factory AnswerFeedback.fromJson(Map<String, dynamic> json) => AnswerFeedback(
@@ -41,6 +42,7 @@ class AnswerFeedback {
     explanationByAi: json['explanation_origin'] == 'ai',
     acceptedPositions: (json['accepted_positions'] as List<dynamic>? ?? const []).cast<int>(),
     keyNote: json['key_note'] as String?,
+    percentRight: json['percent_right'] as int?,
   );
 
   final int? correctPosition; // null for a typed-in question
@@ -53,6 +55,9 @@ class AnswerFeedback {
 
   /// `dropped`, `several` or `changed`.
   final String? keyNote;
+
+  /// From real attempts at a library question; null until there are enough.
+  final int? percentRight;
   final String? explanation;
 
   /// The explanation is AI-generated (labelled in the UI).
@@ -86,6 +91,7 @@ class SessionItemView {
     this.formatData,
     this.response,
     this.translations = const [],
+    this.librarySource,
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -104,6 +110,7 @@ class SessionItemView {
           ? null
           : Passage.fromJson(json['passage'] as Map<String, dynamic>),
       origin: json['origin'] == null ? null : QuestionOrigin.fromCode(json['origin'] as String),
+      librarySource: json['library_source'] as String?,
       verified: json['verified'] as bool,
       sourceFilename: source['document_filename'] as String?,
       sourcePage: source['page'] as int?,
@@ -133,6 +140,9 @@ class SessionItemView {
   final int position;
   final String? questionId;
   final String? section;
+
+  /// `official_pyq`, `original_expert` or `original_ai_verified`, for a library question.
+  final String? librarySource;
 
   /// Null when the question was deleted after the session started.
   final String? stem;

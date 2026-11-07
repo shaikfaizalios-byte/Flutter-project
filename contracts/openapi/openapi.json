@@ -5846,6 +5846,17 @@
             "title": "Id",
             "type": "string"
           },
+          "library_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Library Source"
+          },
           "options": {
             "items": {
               "$ref": "#/components/schemas/OptionRead"

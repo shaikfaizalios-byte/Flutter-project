@@ -5428,4 +5428,87 @@ class AppLocalizationsEn extends AppLocalizations {
   String resultCutoffMissed(String cutoff) {
     return 'Cutoff $cutoff: not reached';
   }
+
+  @override
+  String get libraryTitle => 'Question library';
+
+  @override
+  String get libraryHubMessage =>
+      'Questions reviewed by PrepLoop. Search them or save a chapter for offline practice.';
+
+  @override
+  String get libraryOpen => 'Open the library';
+
+  @override
+  String get librarySearchHint => 'Search the library';
+
+  @override
+  String get libraryFilterChapter => 'Chapter';
+
+  @override
+  String get libraryFilterTopic => 'Topic';
+
+  @override
+  String get libraryFilterModel => 'Model';
+
+  @override
+  String get libraryFilterFormat => 'Format';
+
+  @override
+  String get libraryFilterYear => 'Year';
+
+  @override
+  String get libraryFilterLevel => 'Difficulty';
+
+  @override
+  String get libraryLevelEasy => 'Easy';
+
+  @override
+  String get libraryLevelMedium => 'Medium';
+
+  @override
+  String get libraryLevelHard => 'Hard';
+
+  @override
+  String get libraryEmpty => 'No library questions match this yet.';
+
+  @override
+  String get libraryFailed => 'Couldn\'t reach the library. Check your connection and try again.';
+
+  @override
+  String get libraryPictured => 'Printed as a picture. Open it to see the question.';
+
+  @override
+  String get libraryOfflineTitle => 'Chapters for offline practice';
+
+  @override
+  String get libraryNoPacks => 'No chapters to save for this exam yet.';
+
+  @override
+  String libraryPackCount(int count) {
+    return '$count questions';
+  }
+
+  @override
+  String get librarySave => 'Save';
+
+  @override
+  String get libraryUpdate => 'Update';
+
+  @override
+  String get librarySaved => 'Saved';
+
+  @override
+  String get librarySourceOfficial => 'Previous year paper';
+
+  @override
+  String get librarySourceExpert => 'Written for PrepLoop';
+
+  @override
+  String get librarySourceAi => 'AI-written, checked by reviewers';
+
+  @override
+  String sessionPercentRight(int percent) {
+    return '$percent% got this right';
+  }
 }

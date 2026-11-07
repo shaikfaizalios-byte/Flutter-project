@@ -15,9 +15,14 @@ enum VerificationStatus {
 /// Where a question came from. AI-generated questions (Phase 9) must always be labelled.
 enum QuestionOrigin {
   source,
-  ai;
+  ai,
+  library;
 
-  static QuestionOrigin fromCode(String code) => code == 'ai' ? ai : source;
+  static QuestionOrigin fromCode(String code) => switch (code) {
+    'ai' => ai,
+    'library' => library,
+    _ => source,
+  };
 }
 
 @immutable
@@ -365,6 +370,7 @@ class BankQuestion {
     this.modelAnswer,
     this.answerSource,
     this.readByAi = false,
+    this.librarySource,
     this.explanation,
     this.topicSuggestedBy,
     this.topicSuggestionReason,
@@ -435,6 +441,7 @@ class BankQuestion {
         ? null
         : PaperAnswer.fromJson(json['paper_answer'] as Map<String, dynamic>),
     readByAi: json['extracted_by'] == 'ai',
+    librarySource: json['library_source'] as String?,
     explanation: json['explanation'] as String?,
     imageDependent: json['image_dependent'] as bool,
     status: VerificationStatus.fromCode(json['verification_status'] as String),
@@ -527,6 +534,9 @@ class BankQuestion {
 
   /// Read out of the paper by AI (compare with the source page before verifying).
   final bool readByAi;
+
+  /// `official_pyq`, `original_expert` or `original_ai_verified`, for a library question.
+  final String? librarySource;
   final String? explanation;
   final bool imageDependent;
   final VerificationStatus status;
