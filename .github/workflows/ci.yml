@@ -104,7 +104,16 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build apk --debug --dart-define=API_BASE_URL=http://10.0.2.2:8000
+      # Gradle fetches its tools from GitHub release downloads, which sometimes time out (504):
+      # retry before calling the build broken.
+      - name: Build the debug APK (up to 3 tries)
+        run: |
+          for attempt in 1 2 3; do
+            flutter build apk --debug --dart-define=API_BASE_URL=http://10.0.2.2:8000 && exit 0
+            echo "::warning::Build attempt $attempt failed; retrying in 60 s"
+            sleep 60
+          done
+          exit 1
 
   container:
     runs-on: ubuntu-24.04
