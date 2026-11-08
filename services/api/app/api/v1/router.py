@@ -17,6 +17,7 @@ from app.api.v1.endpoints import (
     insights,
     ladder,
     library,
+    media,
     ops,
     plus,
     practice,
@@ -55,3 +56,4 @@ api_router.include_router(content.router, dependencies=_signed_in)
 api_router.include_router(plus.router, dependencies=_signed_in)
 # Not signed in as a whole: Google's notifications carry their own token (verify needs a user).
 api_router.include_router(billing.router)
+api_router.include_router(media.router)

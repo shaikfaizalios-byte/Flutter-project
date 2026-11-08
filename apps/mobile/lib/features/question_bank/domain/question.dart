@@ -127,6 +127,7 @@ class QuestionFigure {
     required this.height,
     this.optionPosition,
     this.byReviewer = false,
+    this.url,
   });
 
   factory QuestionFigure.fromJson(Map<String, dynamic> json) => QuestionFigure(
@@ -137,7 +138,12 @@ class QuestionFigure {
     width: json['width'] as int,
     height: json['height'] as int,
     byReviewer: json['source'] == 'reviewer',
+    url: json['url'] as String?,
   );
+
+  /// A cacheable link for a figure every learner may see (a CDN may serve it); null for the
+  /// learner's own papers, which come from the signed-in endpoint.
+  final String? url;
 
   final String id;
   final FigureKind kind;

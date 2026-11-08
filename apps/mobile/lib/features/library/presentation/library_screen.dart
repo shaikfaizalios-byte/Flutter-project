@@ -260,7 +260,20 @@ class _ChaptersCard extends ConsumerStatefulWidget {
 class _ChaptersCardState extends ConsumerState<_ChaptersCard> {
   final _busy = <String>{};
 
-  Future<void> _save(LibraryPack pack) async {
+  /// Saved chapters already brought up to date on this visit.
+  final _refreshed = <String>{};
+
+  /// A saved chapter that changed is fetched again without asking: only what changed comes.
+  void _refreshOutdated(List<LibraryPack> packs, Map<String, int> saved) {
+    for (final pack in packs) {
+      if (packState(pack, saved[pack.key]) != PackState.outdated) continue;
+      if (_refreshed.contains(pack.key) || _busy.contains(pack.key)) continue;
+      _refreshed.add(pack.key);
+      Future.microtask(() => _save(pack, quiet: true));
+    }
+  }
+
+  Future<void> _save(LibraryPack pack, {bool quiet = false}) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy.add(pack.key));
@@ -268,7 +281,7 @@ class _ChaptersCardState extends ConsumerState<_ChaptersCard> {
       await ref.read(libraryRepositoryProvider).savePack(widget.exam, pack);
       ref.invalidate(savedPacksProvider(widget.exam));
     } on AppFailure {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.libraryFailed)));
+      if (!quiet) messenger.showSnackBar(SnackBar(content: Text(l10n.libraryFailed)));
     } finally {
       if (mounted) setState(() => _busy.remove(pack.key));
     }
@@ -283,6 +296,7 @@ class _ChaptersCardState extends ConsumerState<_ChaptersCard> {
         // An emptied chapter is shown only to a device still holding its questions.
         if (pack.questions > 0 || saved.containsKey(pack.key)) pack,
     ];
+    _refreshOutdated(packs, saved);
     return SectionCard(
       icon: Icons.download_for_offline_outlined,
       title: l10n.libraryOfflineTitle,

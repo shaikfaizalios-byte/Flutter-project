@@ -127,6 +127,10 @@ class Settings(BaseSettings):
     # One-time codes for password reset and email verification.
     account_code_minutes: int = Field(default=15, ge=5, le=60)
     account_code_max_attempts: int = Field(default=5, ge=1, le=10)
+    # Figures every learner may see get signed links a CDN can cache. The base is the CDN's
+    # address in front of this API (empty: links are relative to the API).
+    media_base_url: str | None = None
+    media_url_hours: int = Field(default=24, ge=1, le=168)
     # Prometheus-format metrics at /api/v1/metrics, only with this bearer token.
     metrics_token: SecretStr | None = None
 

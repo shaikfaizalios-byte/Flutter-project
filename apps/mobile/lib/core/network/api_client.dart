@@ -17,6 +17,13 @@ Dio buildApiDio(AppConfig config) => Dio(
   ),
 );
 
+/// Plain client for cacheable figure links: no access token, so a CDN can cache the answer.
+final mediaDioProvider = Provider<Dio>((ref) {
+  final dio = buildApiDio(ref.watch(appConfigProvider));
+  ref.onDispose(dio.close);
+  return dio;
+});
+
 /// Shared HTTP client for the PrepLoop API. Adds the access token to every request and,
 /// when the server answers 401, refreshes the tokens once and retries.
 final dioProvider = Provider<Dio>((ref) {

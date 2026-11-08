@@ -32,7 +32,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v10)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v11)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -143,6 +143,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   adds up. `section_key` names repeated subjects, so sections mark apart. `MockCreate.section` = one section, pro-rata time.
   `GET /practice/sessions/{id}/analysis` (`mock_analysis.py`); a percentile only from `percentile_min_accounts` first attempts, labelled,
   no ranks. App `cbt_view.dart` (part of session_screen), `domain/cbt.dart`, `MockAnalysisCard`, behind `examProfiles`.
+- Scale (docs/jee-neet/phase-i-report.md, migration 0060): `question_figures.sha256`; figures every learner may see get signed links
+  `/api/v1/media/figures/{sha}.png` (pure `app/domain/media.py`, `services/media.py` `figure_reads`, no sign-in, public cache headers,
+  `PREPLOOP_MEDIA_BASE_URL` for a CDN); app `publicFigureProvider` (no token, falls back). `attempt_events` (final|remarked) written in
+  practice_service; `calibrate` reads them from `job_cursors`. Chapter list cached per process. Load test: `app.cli.load_seed`
+  (test databases only) + `scripts/load_test.py` + `scripts/load_profiles`. Image runs `WEB_CONCURRENCY` processes. Acceptance:
+  docs/jee-neet/acceptance.md.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

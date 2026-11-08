@@ -262,4 +262,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(library.queries.last.difficulty, 'hard');
   });
+
+  testWidgets('a saved chapter that changed is updated on its own', (tester) async {
+    final library = FakeLibrary()..saved['maths-arithmetic'] = 3;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          libraryRepositoryProvider.overrideWithValue(library),
+          activeExamProvider.overrideWithValue('SSC_CHSL'),
+          topicsProvider.overrideWith((ref, exam) async => const <TopicRef>[]),
+          patternsProvider.overrideWith((ref) async => const <PatternRef>[]),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: LibraryScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(library.saved, {'maths-arithmetic': 7});
+    expect(find.text('Saved'), findsOneWidget);
+  });
 }

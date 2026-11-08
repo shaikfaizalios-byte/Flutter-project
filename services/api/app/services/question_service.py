@@ -73,6 +73,7 @@ from app.schemas.question import (
 )
 from app.services.exam_formats import published_formats
 from app.services.exam_profiles import profile_for
+from app.services.media import figure_reads
 from app.services.page_layout import PdfRenderer
 from app.services.patterns import (
     clear_pattern,
@@ -1085,6 +1086,7 @@ class QuestionService:
                         "issues": [],
                         "open_issue_count": 0,
                         "ai_explanation": None,
+                        "figures": figure_reads(q.figures, public=True),
                     }
                 )
             reads.append(read)

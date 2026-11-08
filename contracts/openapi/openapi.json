@@ -3985,6 +3985,17 @@
             "title": "Source",
             "type": "string"
           },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
           "width": {
             "title": "Width",
             "type": "integer"
@@ -21430,6 +21441,66 @@
         "summary": "Start a free test subscription (development servers only)",
         "tags": [
           "plus"
+        ]
+      }
+    },
+    "/api/v1/media/figures/{sha256}.png": {
+      "get": {
+        "operationId": "figure_api_v1_media_figures__sha256__png_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sha256",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Sha256",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "e",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "title": "E",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "s",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 8,
+              "title": "S",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "A figure by the hash of its bytes, through a signed link",
+        "tags": [
+          "media"
         ]
       }
     },

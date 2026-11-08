@@ -6,6 +6,7 @@ imports never enter it, because staff can only add questions from their own acco
 """
 
 import base64
+import time
 import uuid
 from collections import Counter, defaultdict
 from collections.abc import Sequence
@@ -24,9 +25,9 @@ from app.domain.question_formats import SINGLE_ANSWER, SPEC_FORMATS, is_correct
 from app.domain.taxonomy import slug
 from app.domain.typed_answers import is_numeric
 from app.models.content import ContentReport
+from app.models.events import JobCursor
 from app.models.ladder import GeneratedReview
 from app.models.library import LIBRARY_SEQ, LibraryEntry, LibraryVersion
-from app.models.practice import SessionAnswer, SessionItem
 from app.models.question import (
     Question,
     QuestionFigure,
@@ -59,14 +60,19 @@ from app.schemas.library import (
     SolveResult,
 )
 from app.schemas.question import FigureRead, OptionRead, PassageRead
+from app.services.attempt_events import attempts_of, backfill, move_cursor, read_since
 from app.services.chapter_map import unit_topics
 from app.services.content import audit, resolve
 from app.services.exam_formats import mock_formats
+from app.services.media import figure_reads
 from app.services.practice_service import apply_final_key
 from app.services.question_history import add_first_revision, current_snapshot, record_edit
 from app.services.shared_bank import library_question
 
 OTHER_PACK = "other"
+CALIBRATION_JOB = "calibration"
+PACK_LIST_SECONDS = 300
+_pack_lists: dict[str, tuple[float, int, list[PackRead]]] = {}
 # As the offline pack: formats marked by an answer_spec stay online.
 PACK_FORMATS = ("single_correct", "statement", "assertion_reason", "true_false", "typed_in")
 
@@ -534,6 +540,24 @@ class LibraryReader:
         return [(q, e) for q, e in rows]
 
     def packs(self, exam: str) -> list[PackRead]:
+        """Cached per process while nothing in the exam's library changed, for a few minutes at
+        most (the weeks before an exam ask this a lot)."""
+        newest = (
+            self._session.scalar(
+                select(func.max(LibraryEntry.seq))
+                .join(Question, Question.id == LibraryEntry.question_id)
+                .where(Question.exam_code == exam)
+            )
+            or 0
+        )
+        cached = _pack_lists.get(exam)
+        if cached and cached[1] == newest and time.monotonic() - cached[0] < PACK_LIST_SECONDS:
+            return cached[2]
+        found = self._packs(exam)
+        _pack_lists[exam] = (time.monotonic(), newest, found)
+        return found
+
+    def _packs(self, exam: str) -> list[PackRead]:
         """Every chapter that has held a public question. One left empty stays listed, with its
         number raised, so a device holding it learns its questions have gone."""
         units = unit_topics(self._session, exam)
@@ -652,7 +676,7 @@ def _pack_question(
         page=None,
         question_number=None,
         library_source=entry.source_type,
-        figures=[FigureRead.model_validate(f).model_dump(mode="json") for f in figures],
+        figures=[f.model_dump(mode="json") for f in figure_reads(figures, public=True)],
     )
 
 
@@ -664,37 +688,21 @@ def _base_seconds(session: Session, exam_code: str, today: Any) -> float | None:
 
 
 def calibrate(session: Session, now: datetime | None = None) -> int:
-    """Counts real attempts per library question and re-bands those with enough. Returns how many
-    changed level. Only marked answers count."""
+    """Re-bands library questions from their attempt events. Reads only what came after the last
+    run, and works out again just the questions those events touched. Returns how many changed
+    level. The first run writes events for answers from before they existed."""
     moment = now or datetime.now(UTC)
-    rows = session.execute(
-        select(
-            SessionItem.question_id,
-            SessionAnswer.is_correct,
-            SessionAnswer.time_spent_ms,
-        )
-        .join(
-            SessionAnswer,
-            and_(
-                SessionAnswer.session_id == SessionItem.session_id,
-                SessionAnswer.position == SessionItem.position,
-            ),
-        )
-        .where(
-            SessionItem.question_id.in_(select(LibraryEntry.question_id)),
-            SessionAnswer.is_correct.is_not(None),
-        )
-    ).all()
-    attempts: dict[uuid.UUID, list[tuple[bool, int | None]]] = defaultdict(list)
-    for question_id, right, spent in rows:
-        if question_id is not None:
-            attempts[question_id].append((bool(right), spent))
+    if session.get(JobCursor, CALIBRATION_JOB) is None:
+        backfill(session)
+    library_ids = set(session.scalars(select(LibraryEntry.question_id)))
+    touched, newest = read_since(session, CALIBRATION_JOB, library_ids)
     changed = 0
-    for question_id, answers in attempts.items():
+    for question_id in touched:
         entry = session.get(LibraryEntry, question_id)
         question = session.get(Question, question_id)
         if entry is None or question is None:
             continue
+        answers = attempts_of(session, question_id)
         entry.attempts = len(answers)
         entry.correct_count = sum(right for right, _ in answers)
         entry.median_ms = library.median([t for _, t in answers if t is not None])
@@ -708,5 +716,6 @@ def calibrate(session: Session, now: datetime | None = None) -> int:
             entry.observed_difficulty = level
             entry.calibrated_at = moment
             changed += 1
+    move_cursor(session, CALIBRATION_JOB, newest)
     session.commit()
     return changed

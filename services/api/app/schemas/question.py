@@ -89,6 +89,9 @@ class FigureRead(BaseModel):
     # stem: a figure in the question; option: an option that is a figure;
     # original: the whole question as printed (its text could not be read in full).
     kind: Literal["stem", "option", "original"]
+    # A cacheable link (a CDN may serve it), for figures every learner may see; else null and the
+    # figure is fetched from the signed-in endpoint.
+    url: str | None = None
     option_position: int | None
     page_number: int
     width: int

@@ -98,8 +98,10 @@ from app.schemas.practice import (
     TopicResult,
     TranslationRead,
 )
-from app.schemas.question import FigureRead, OptionRead, PassageRead
+from app.schemas.question import OptionRead, PassageRead
+from app.services.attempt_events import final_events, remarked_event
 from app.services.exam_formats import is_in_effect, mock_formats
+from app.services.media import figure_reads
 from app.services.shared_bank import shared_question, visible_question
 from app.services.taxonomy_service import subject_labels_by_topic
 
@@ -306,9 +308,13 @@ def apply_final_key(session: Session, question: Question) -> int:
         item.key_changed = question.key_changed
         answer = session.get(SessionAnswer, (item.session_id, item.position))
         if answer is not None:
+            was = answer.is_correct
             given = _given(answer)
             judged = given is not None and question.key_outcome != "dropped"
             answer.is_correct = is_correct(_scored(item), given) if judged else None  # type: ignore[arg-type]
+            attempt = session.get(PracticeSession, item.session_id)
+            if attempt is not None:
+                remarked_event(session, attempt, item, answer, was)
         touched.add(item.session_id)
     session.flush()
     remarked = 0
@@ -847,6 +853,8 @@ class PracticeService:
                 else update.time_spent_ms
             )
             existing.answered_at = self._now()
+            if practice.mode == SessionMode.PRACTICE and not update.visit:
+                final_events(self._session, practice, [existing])  # practice answers are final
             self._session.commit()
         assert existing is not None  # noqa: S101 - set above when applied; else pre-existing
         return AnswerAck(
@@ -948,6 +956,9 @@ class PracticeService:
         practice.submitted_at = now
         practice.submit_reason = reason
         self._write_result(practice, max(0, int((now - practice.started_at).total_seconds())))
+        if practice.mode != SessionMode.PRACTICE or reason == "offline":
+            # A test's answers count once it is in; practice answers counted when given.
+            final_events(self._session, practice, practice.answers)
         self._session.commit()
 
     def remark(self, practice: PracticeSession) -> None:
@@ -1081,9 +1092,7 @@ class PracticeService:
                     format=item.format,
                     format_data=public_data(item.format, item.answer_spec),
                     translations=translations.get(item.question_id, []) if item.question_id else [],
-                    figures=[FigureRead.model_validate(f) for f in question.figures]
-                    if question
-                    else [],
+                    figures=figure_reads(question.figures, public=shared) if question else [],
                     passage=PassageRead.model_validate(question.passage)
                     if question and question.passage
                     else None,
