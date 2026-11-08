@@ -19,6 +19,7 @@ from app.models.concept import Concept
 from app.models.content import ContentReport, ContentRights
 from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
+from app.models.events import AttemptEvent
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
 from app.models.ladder import LadderSession, LadderStep
@@ -74,6 +75,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
     Subscription,
     PlayPurchase,
     SyncItem,
+    AttemptEvent,
 )
 
 # In order: a parent is always listed before its children.
@@ -116,6 +118,7 @@ NOT_EXPORTED: dict[str, str] = {
     "generated_reviews": "generated questions awaiting review: not linked to any learner",
     "ladder_gates": "operator settings for generated questions, not the learner's",
     "ladder_benchmark_runs": "totals of internal benchmark runs, not the learner's",
+    "job_cursors": "where server jobs stopped; no learner data",
     "audit_events": "operator decisions about shared content (ids and reasons, no content)",
     "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
     "after deletion with the account link cleared; the purchases are in play_purchases",

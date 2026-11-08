@@ -14,6 +14,7 @@ from app.models.concept import Concept
 from app.models.content import ContentReport, ContentRights
 from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
+from app.models.events import AttemptEvent
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
 from app.models.ladder import LadderSession, LadderStep
@@ -250,6 +251,14 @@ def _fill_account(db: Session, user: User) -> None:
                 is_correct=True,
                 client_seq=1,
                 answered_at=now,
+            ),
+            AttemptEvent(
+                owner_id=user.id,
+                session_id=session.id,
+                position=1,
+                question_id=question.id,
+                kind="final",
+                correct=True,
             ),
             AIGeneration(
                 owner_id=user.id,

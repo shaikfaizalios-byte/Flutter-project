@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from datetime import date, datetime
 from enum import StrEnum
@@ -16,6 +17,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    event,
     func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
@@ -479,6 +481,8 @@ class QuestionFigure(Base):
     # the page (scans and layouts the rules can't read), cropped from the same page.
     source: Mapped[str] = mapped_column(String(10), default="pdf", server_default="pdf")
     data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
+    # Hash of the image bytes: a cache names the figure by its content (set on insert).
+    sha256: Mapped[str | None] = mapped_column(String(64), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -508,3 +512,9 @@ class QuestionRevision(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.clock_timestamp()
     )
+
+
+@event.listens_for(QuestionFigure, "before_insert")
+def _hash_figure(_mapper: object, _connection: object, figure: QuestionFigure) -> None:
+    if figure.sha256 is None and figure.data is not None:
+        figure.sha256 = hashlib.sha256(figure.data).hexdigest()

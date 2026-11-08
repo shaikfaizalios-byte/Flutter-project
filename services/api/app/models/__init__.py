@@ -5,6 +5,7 @@ from app.models.concept import Concept
 from app.models.content import AuditEvent, ContentReport, ContentRights
 from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
+from app.models.events import AttemptEvent, JobCursor
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
 from app.models.ladder import (
@@ -42,6 +43,7 @@ __all__ = [
     "AIExplanation",
     "AIGeneration",
     "AccountCode",
+    "AttemptEvent",
     "AuditEvent",
     "BillingEvent",
     "Bookmark",
@@ -56,6 +58,7 @@ __all__ = [
     "Exam",
     "ExamFormat",
     "GeneratedReview",
+    "JobCursor",
     "LadderBenchmarkRun",
     "LadderGate",
     "LadderSession",
