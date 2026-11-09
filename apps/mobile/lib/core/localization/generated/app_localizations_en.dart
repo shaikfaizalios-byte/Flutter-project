@@ -4899,6 +4899,90 @@ class AppLocalizationsEn extends AppLocalizations {
       'Marking points drafted by AI, not the exam\'s official scheme.';
 
   @override
+  String get progressCombinedTitle => 'Across your exams';
+
+  @override
+  String progressCombinedExam(String exam, int correct, int answered) {
+    return '$exam: $correct of $answered';
+  }
+
+  @override
+  String progressCombinedTotal(int correct, int answered) {
+    return '$correct of $answered';
+  }
+
+  @override
+  String get formatInteger => 'Whole number';
+
+  @override
+  String get formatWholeNumber => 'The whole number';
+
+  @override
+  String get formatDecimals => 'Decimal places';
+
+  @override
+  String get formatDecimalsHint =>
+      'Only if the paper states it. Answers count if right when truncated or rounded to this many places.';
+
+  @override
+  String get answerKeyTitle => 'Official answer key';
+
+  @override
+  String get answerKeyNoStage => 'No official key';
+
+  @override
+  String get answerKeyProvisional => 'Provisional key';
+
+  @override
+  String get answerKeyFinal => 'Final key';
+
+  @override
+  String get answerKeyOne => 'One answer';
+
+  @override
+  String get answerKeySeveral => 'Several answers accepted';
+
+  @override
+  String get answerKeyDropped => 'Dropped: marks to everyone';
+
+  @override
+  String get answerKeyChooseOption => 'Choose the answer';
+
+  @override
+  String get answerKeyPickTwo => 'Choose at least two accepted answers.';
+
+  @override
+  String get answerKeyFinalNote => 'A final key marks every attempt at this question again.';
+
+  @override
+  String get answerKeySave => 'Save the key';
+
+  @override
+  String answerKeyRemarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Saved. $count attempts marked again.',
+      one: 'Saved. 1 attempt marked again.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionKeyDropped => 'Dropped in the official key: everyone gets the marks.';
+
+  @override
+  String sessionKeySeveral(String answers) {
+    return 'The official key accepts more than one answer: $answers.';
+  }
+
+  @override
+  String get sessionKeyChanged => 'This answer changed in the final key.';
+
+  @override
+  String get resultRemarked => 'Marked again with the final answer key.';
+
+  @override
   String get ladderCleared => 'Cleared';
 
   @override
@@ -5343,5 +5427,251 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String resultCutoffMissed(String cutoff) {
     return 'Cutoff $cutoff: not reached';
+  }
+
+  @override
+  String get libraryTitle => 'Question library';
+
+  @override
+  String get libraryHubMessage =>
+      'Questions reviewed by PrepLoop. Search them or save a chapter for offline practice.';
+
+  @override
+  String get libraryOpen => 'Open the library';
+
+  @override
+  String get librarySearchHint => 'Search the library';
+
+  @override
+  String get libraryFilterChapter => 'Chapter';
+
+  @override
+  String get libraryFilterTopic => 'Topic';
+
+  @override
+  String get libraryFilterModel => 'Model';
+
+  @override
+  String get libraryFilterFormat => 'Format';
+
+  @override
+  String get libraryFilterYear => 'Year';
+
+  @override
+  String get libraryFilterLevel => 'Difficulty';
+
+  @override
+  String get libraryLevelEasy => 'Easy';
+
+  @override
+  String get libraryLevelMedium => 'Medium';
+
+  @override
+  String get libraryLevelHard => 'Hard';
+
+  @override
+  String get libraryEmpty => 'No library questions match this yet.';
+
+  @override
+  String get libraryFailed => 'Couldn\'t reach the library. Check your connection and try again.';
+
+  @override
+  String get libraryPictured => 'Printed as a picture. Open it to see the question.';
+
+  @override
+  String get libraryOfflineTitle => 'Chapters for offline practice';
+
+  @override
+  String get libraryNoPacks => 'No chapters to save for this exam yet.';
+
+  @override
+  String libraryPackCount(int count) {
+    return '$count questions';
+  }
+
+  @override
+  String get librarySave => 'Save';
+
+  @override
+  String get libraryUpdate => 'Update';
+
+  @override
+  String get librarySaved => 'Saved';
+
+  @override
+  String get librarySourceOfficial => 'Previous year paper';
+
+  @override
+  String get librarySourceExpert => 'Written for PrepLoop';
+
+  @override
+  String get librarySourceAi => 'AI-written, checked by reviewers';
+
+  @override
+  String sessionPercentRight(int percent) {
+    return '$percent% got this right';
+  }
+
+  @override
+  String get chaptersTitle => 'Chapters by shift';
+
+  @override
+  String get chaptersOpen => 'See chapters by shift';
+
+  @override
+  String chaptersBasis(int shifts, int questions) {
+    return '$shifts shifts counted · $questions reviewed questions';
+  }
+
+  @override
+  String get chaptersNote => 'Counted from reviewed questions in these papers. Not a prediction.';
+
+  @override
+  String chaptersSmallSample(int shifts) {
+    return 'Only $shifts shifts counted: a small sample.';
+  }
+
+  @override
+  String chaptersUnreviewed(int count) {
+    return '$count questions not reviewed yet are left out.';
+  }
+
+  @override
+  String get chaptersEmpty => 'No reviewed questions to count yet.';
+
+  @override
+  String get chaptersFailed => 'Couldn\'t load the chapters. Check your connection and try again.';
+
+  @override
+  String chaptersAppeared(int shifts, int total) {
+    return 'Appeared in $shifts of $total shifts';
+  }
+
+  @override
+  String chaptersYear(String year, int percent, int shifts, int total) {
+    return '$year: $percent% of questions · $shifts of $total shifts';
+  }
+
+  @override
+  String chaptersSession(String session, int shifts, int total) {
+    return '$session: $shifts of $total shifts';
+  }
+
+  @override
+  String get chaptersSharedTitle => 'Chapters shared by your exams';
+
+  @override
+  String chaptersSharedExam(String exam, int shifts, int total) {
+    return '$exam: $shifts of $total shifts';
+  }
+
+  @override
+  String get chaptersHintsTitle => 'Same idea across shifts';
+
+  @override
+  String get chaptersHintsNote => 'AI hint: not checked, and not part of any count here.';
+
+  @override
+  String chaptersHintShifts(String topic, int shifts) {
+    return '$topic · $shifts shifts';
+  }
+
+  @override
+  String chaptersHintQuestion(int number) {
+    return 'Question $number';
+  }
+
+  @override
+  String get ladderFromLibrary => 'From PrepLoop\'s question library';
+
+  @override
+  String ladderChecked(int solves) {
+    return 'Checked: $solves independent solves agreed';
+  }
+
+  @override
+  String ladderCheckedRecalculated(int solves) {
+    return 'Checked: $solves independent solves agreed and the answer was recalculated';
+  }
+
+  @override
+  String get cbtSaveAndNext => 'Save & Next';
+
+  @override
+  String get cbtMarkAndNext => 'Mark for Review & Next';
+
+  @override
+  String get cbtClear => 'Clear Response';
+
+  @override
+  String get cbtNotVisited => 'Not visited';
+
+  @override
+  String get cbtNotAnswered => 'Not answered';
+
+  @override
+  String get cbtAnswered => 'Answered';
+
+  @override
+  String get cbtMarked => 'Marked for review';
+
+  @override
+  String get cbtAnsweredMarked => 'Answered and marked for review (will be evaluated)';
+
+  @override
+  String get cbtNotSaved => 'This answer couldn\'t be saved. Try again.';
+
+  @override
+  String cbtQuestionStatus(int number, String status) {
+    return 'Question $number, $status';
+  }
+
+  @override
+  String get mockSectional => 'Practise one section';
+
+  @override
+  String mockSectionalMessage(String section) {
+    return '$section only, on its share of the paper\'s time. This isn\'t how the exam is timed.';
+  }
+
+  @override
+  String get analysisTitle => 'How this test went';
+
+  @override
+  String get analysisHistory => 'Your attempts at this paper';
+
+  @override
+  String get analysisThisTest => 'this test';
+
+  @override
+  String get analysisChapters => 'By chapter';
+
+  @override
+  String analysisCounts(int correct, int wrong, int left) {
+    return '$correct right, $wrong wrong, $left left';
+  }
+
+  @override
+  String analysisAccuracy(int percent) {
+    return '$percent% of attempted';
+  }
+
+  @override
+  String get analysisTimes => 'Time and marks per question';
+
+  @override
+  String analysisQuestion(int number) {
+    return 'Question $number';
+  }
+
+  @override
+  String get analysisUnattempted => 'Not attempted';
+
+  @override
+  String get analysisDropped => 'Dropped';
+
+  @override
+  String analysisPercentile(int percent, int accounts) {
+    return 'Scored above $percent% of $accounts PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.';
   }
 }

@@ -1,0 +1,10 @@
+{
+  "_about": "Exam-week peak. Learner numbers and targets are product choices: size them from real sign-ups before each exam.",
+  "learners": 300,
+  "ramp_seconds": 120,
+  "duration_seconds": 600,
+  "think_seconds": [3, 15],
+  "mix": {"mock": 0.5, "practice": 0.25, "library": 0.15, "chapters": 0.1},
+  "targets": {"p95_ms": 800, "error_rate": 0.01},
+  "random_seed": 1
+}

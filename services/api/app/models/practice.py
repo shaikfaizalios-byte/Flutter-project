@@ -15,7 +15,7 @@ from sqlalchemy import (
     String,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -116,6 +116,10 @@ class SessionItem(Base):
     # Partial credit from the format, snapshotted so a later change never touches this attempt.
     partial_rule: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     question_verified: Mapped[bool] = mapped_column(Boolean)
+    # How the key stood. A final key updates these and re-marks the session.
+    key_outcome: Mapped[str] = mapped_column(String(7), default="one", server_default="one")
+    accepted_positions: Mapped[list[int] | None] = mapped_column(ARRAY(Integer))
+    key_changed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
 
 class SessionAnswer(Base):
@@ -136,6 +140,8 @@ class SessionAnswer(Base):
     # The answer of a format that takes neither one option nor a typed text.
     response: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     is_correct: Mapped[bool | None] = mapped_column(Boolean)
+    # In a computer-based mock: the learner wants to look at this question again.
+    marked_for_review: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     client_seq: Mapped[int] = mapped_column(BigInteger)
     time_spent_ms: Mapped[int | None] = mapped_column(Integer)
     answered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.domain import challenge_ladder as ladder
 from app.domain.exam_format import SectionMarking, format_problems, section_marking
+from app.domain.ladder_rules import rules_for
 from app.domain.segmentation import same_subject
 from app.models.exam import Exam
 from app.models.question import ExamFormat
@@ -29,6 +30,7 @@ class _Stage:
     base_seconds: float
     formats: tuple[str, ...]
     marking: SectionMarking | None
+    markings: Mapping[str, SectionMarking] | None = None
 
 
 def _section_of(
@@ -41,6 +43,22 @@ def _section_of(
     return None
 
 
+def _by_format(
+    exam_format: ExamFormat, subjects: Sequence[str]
+) -> dict[str, SectionMarking] | None:
+    """Marks by format, where a subject has a section per format."""
+    found: dict[str, SectionMarking] = {}
+    for section in exam_format.sections or []:
+        name = str(section.get("subject") or "")
+        if not any(same_subject(subject, name) for subject in subjects):
+            continue
+        marking = _format_marking(exam_format, section)
+        if marking is not None:
+            for format_name in section.get("formats") or []:
+                found[format_name] = marking
+    return found or None
+
+
 def _format_stage(exam_format: ExamFormat, subjects: Sequence[str]) -> _Stage:
     section = _section_of(exam_format.sections or [], subjects)
     return _Stage(
@@ -50,6 +68,7 @@ def _format_stage(exam_format: ExamFormat, subjects: Sequence[str]) -> _Stage:
             exam_format.question_types or [], section.get("formats") if section else None
         ),
         marking=_format_marking(exam_format, section),
+        markings=_by_format(exam_format, subjects),
     )
 
 
@@ -118,7 +137,10 @@ def exam_context(
     """An app that can't show the newer formats gets one correct option, as it always did."""
     stages = _stages(session, exam, subject, topic_id, today)
     first = stages[0] if stages else None
+    rules = rules_for(exam.code)
     formats = first.formats if first and new_formats else (ladder.SINGLE_CORRECT,)
+    if rules is not None and new_formats:
+        formats = rules.formats
     return ladder.ExamContext(
         name=exam.name,
         stage=first.name if first else None,
@@ -127,4 +149,7 @@ def exam_context(
         options=profile_of(exam).expected_options,
         marking=first.marking if first else None,
         base_time_seconds=first.base_seconds if first else ladder.base_time(None, None),
+        anchors=rules.anchors if rules else None,
+        strict=rules is not None,
+        markings=first.markings if first else None,
     )

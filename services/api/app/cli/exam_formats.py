@@ -51,6 +51,52 @@ class _Source(BaseModel):
     published_on: date
 
 
+class _Session(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: Text
+    dates: list[date]
+
+
+class _Shift(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: Text
+    starts: Annotated[str, StringConstraints(pattern=r"^\d\d:\d\d$")]
+    ends: Annotated[str, StringConstraints(pattern=r"^\d\d:\d\d$")]
+
+
+class _Cbt(BaseModel):
+    """The computer-based test's rules, from the official instructions. ``basis`` says so when
+    they are another exam's, used for practice."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    marked_with_answer_counts: bool
+    marked_without_answer_counts: bool
+    answer_needs_saving: bool
+    free_navigation: bool
+    ends_at_zero: bool
+    language_switch: Literal["paper"]
+    reference: Text
+    basis: Text | None = None
+
+
+class _Conduct(BaseModel):
+    """How one year's exam is conducted, with where each fact was read."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    year: int = Field(ge=2000, le=2100)
+    mode: Literal["cbt", "pen_and_paper"]
+    sessions: list[_Session]
+    shifts: list[_Shift]
+    languages: list[str]
+    references: dict[str, Text]
+    not_stated: list[Text] = []  # what the official sources leave open
+    cbt: _Cbt | None = None
+
+
 class FormatFile(BaseModel):
     """A draft format as the operator writes it. Unknown keys are refused; facts the notice
     doesn't state are left null and stop publishing."""
@@ -71,6 +117,7 @@ class FormatFile(BaseModel):
     # True when the notice says its section-wise question counts are only indicative.
     section_counts_indicative: bool = False
     question_types: list[str] = ["choice"]
+    conduct: _Conduct | None = None
     effective_from: date | None = None
     effective_to: date | None = None
     supersedes: str | None = None
@@ -193,6 +240,7 @@ def import_format(session: Session, data: dict[str, Any]) -> tuple[ExamFormat, l
         sectional_timing=spec.sectional_timing,
         section_counts_indicative=spec.section_counts_indicative,
         question_types=spec.question_types,
+        conduct=spec.conduct.model_dump(mode="json") if spec.conduct else None,
         effective_from=spec.effective_from,
         effective_to=spec.effective_to,
         supersedes_id=supersedes.id if supersedes else None,

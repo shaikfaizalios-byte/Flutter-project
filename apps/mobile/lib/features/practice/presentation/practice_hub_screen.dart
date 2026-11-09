@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
@@ -90,9 +91,36 @@ class PracticeHubScreen extends ConsumerWidget {
                         label: Text(l10n.repeatsOpen),
                         onPressed: () => context.push(AppRoutes.repeats),
                       ),
+                      if (ref.watch(appFeaturesProvider).examProfiles) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.bar_chart),
+                          label: Text(l10n.chaptersOpen),
+                          onPressed: () => context.push(AppRoutes.chapters),
+                        ),
+                      ],
                     ],
                   ),
                 ),
+                if (ref.watch(appFeaturesProvider).examProfiles) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  SectionCard(
+                    icon: Icons.local_library_outlined,
+                    title: l10n.libraryTitle,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.libraryHubMessage),
+                        const SizedBox(height: AppSpacing.sm),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.local_library_outlined),
+                          label: Text(l10n.libraryOpen),
+                          onPressed: () => context.push(AppRoutes.library),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 const _MockTestsCard(),
                 const SizedBox(height: AppSpacing.md),
@@ -344,6 +372,12 @@ class _MockTile extends ConsumerWidget {
     final short = mock.formatComplete
         ? mock.sections.where((s) => s.available < s.needed).toList()
         : const <SectionAvailabilityView>[];
+    final features = ref.watch(appFeaturesProvider);
+    final ready = [
+      if (features.examProfiles && mock.formatComplete && !mock.sectionalTiming)
+        for (final s in mock.sections)
+          if (s.available >= s.needed) s,
+    ];
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(mock.name),
@@ -358,20 +392,35 @@ class _MockTile extends ConsumerWidget {
         ].where((s) => s.isNotEmpty).join('\n'),
       ),
       isThreeLine: !mock.available,
-      trailing: FilledButton.tonal(
-        onPressed: mock.available ? () => _confirmAndStart(context, ref) : null,
-        child: Text(l10n.mockStart),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (ready.length > 1 || (ready.isNotEmpty && !mock.available))
+            PopupMenuButton<String>(
+              tooltip: l10n.mockSectional,
+              itemBuilder: (_) => [
+                for (final s in ready) PopupMenuItem(value: s.subject, child: Text(s.subject)),
+              ],
+              onSelected: (section) => _confirmAndStart(context, ref, section: section),
+            ),
+          FilledButton.tonal(
+            onPressed: mock.available ? () => _confirmAndStart(context, ref) : null,
+            child: Text(l10n.mockStart),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _confirmAndStart(BuildContext context, WidgetRef ref) async {
+  Future<void> _confirmAndStart(BuildContext context, WidgetRef ref, {String? section}) async {
     final l10n = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.mockConfirmTitle),
-        content: Text(l10n.mockConfirmMessage),
+        content: Text(
+          section == null ? l10n.mockConfirmMessage : l10n.mockSectionalMessage(section),
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(l10n.cancel)),
           FilledButton(
@@ -382,7 +431,10 @@ class _MockTile extends ConsumerWidget {
       ),
     );
     if (ok != true || !context.mounted) return;
-    await startAndOpen(context, () => ref.read(practiceRepositoryProvider).startMock(mock.code));
+    await startAndOpen(
+      context,
+      () => ref.read(practiceRepositoryProvider).startMock(mock.code, section: section),
+    );
   }
 }
 

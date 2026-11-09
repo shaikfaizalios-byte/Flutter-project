@@ -1,0 +1,178 @@
+{
+  "code": "JEE_MAIN_2027_PAPER1",
+  "exam_code": "JEE_MAIN",
+  "stage": "Paper 1 (B.E./B.Tech.)",
+  "name": "JEE (Main) 2027 Paper 1 (B.E./B.Tech.)",
+  "sections": [
+    {
+      "part": "Section A",
+      "subject": "Mathematics",
+      "questions": 20,
+      "max_marks": 80,
+      "marks_wrong": 1,
+      "formats": [
+        "single_correct"
+      ],
+      "reference": "Information Bulletin 2027, PDF pp.17-18, para 2.4 items 1 and 2"
+    },
+    {
+      "part": "Section B",
+      "subject": "Mathematics",
+      "questions": 5,
+      "max_marks": 20,
+      "marks_wrong": 1,
+      "formats": [
+        "integer"
+      ],
+      "numeric_rule": {
+        "value": "integer",
+        "rule": "rounded off to the nearest integer"
+      },
+      "reference": "Information Bulletin 2027, PDF pp.17-18, para 2.4 items 1 and 3"
+    },
+    {
+      "part": "Section A",
+      "subject": "Physics",
+      "questions": 20,
+      "max_marks": 80,
+      "marks_wrong": 1,
+      "formats": [
+        "single_correct"
+      ],
+      "reference": "Information Bulletin 2027, PDF pp.17-18, para 2.4 items 1 and 2"
+    },
+    {
+      "part": "Section B",
+      "subject": "Physics",
+      "questions": 5,
+      "max_marks": 20,
+      "marks_wrong": 1,
+      "formats": [
+        "integer"
+      ],
+      "numeric_rule": {
+        "value": "integer",
+        "rule": "rounded off to the nearest integer"
+      },
+      "reference": "Information Bulletin 2027, PDF pp.17-18, para 2.4 items 1 and 3"
+    },
+    {
+      "part": "Section A",
+      "subject": "Chemistry",
+      "questions": 20,
+      "max_marks": 80,
+      "marks_wrong": 1,
+      "formats": [
+        "single_correct"
+      ],
+      "reference": "Information Bulletin 2027, PDF pp.17-18, para 2.4 items 1 and 2"
+    },
+    {
+      "part": "Section B",
+      "subject": "Chemistry",
+      "questions": 5,
+      "max_marks": 20,
+      "marks_wrong": 1,
+      "formats": [
+        "integer"
+      ],
+      "numeric_rule": {
+        "value": "integer",
+        "rule": "rounded off to the nearest integer"
+      },
+      "reference": "Information Bulletin 2027, PDF pp.17-18, para 2.4 items 1 and 3"
+    }
+  ],
+  "sections_in_fixed_order": false,
+  "total_questions": 75,
+  "duration_minutes": 180,
+  "negative_marks_per_wrong": 1,
+  "question_types": [
+    "choice",
+    "integer"
+  ],
+  "conduct": {
+    "year": 2027,
+    "mode": "cbt",
+    "sessions": [
+      {
+        "name": "Session 1 (January 2027)",
+        "dates": [
+          "2027-01-20",
+          "2027-01-21",
+          "2027-01-22",
+          "2027-01-23",
+          "2027-01-24",
+          "2027-01-28"
+        ]
+      },
+      {
+        "name": "Session 2 (April 2027)",
+        "dates": [
+          "2027-04-02",
+          "2027-04-03",
+          "2027-04-04",
+          "2027-04-05",
+          "2027-04-06",
+          "2027-04-07"
+        ]
+      }
+    ],
+    "shifts": [
+      {
+        "name": "First Shift",
+        "starts": "09:00",
+        "ends": "12:00"
+      },
+      {
+        "name": "Second Shift",
+        "starts": "15:00",
+        "ends": "18:00"
+      }
+    ],
+    "languages": [
+      "en",
+      "hi",
+      "as",
+      "bn",
+      "gu",
+      "kn",
+      "ml",
+      "mr",
+      "or",
+      "pa",
+      "ta",
+      "te",
+      "ur"
+    ],
+    "references": {
+      "mode": "Information Bulletin 2027, PDF p.16, para 2.1(a)",
+      "sessions": "Information Bulletin 2027, PDF p.6, Important Dates",
+      "shifts": "Information Bulletin 2027, PDF p.7 and p.30",
+      "languages": "Information Bulletin 2027, PDF p.16, para 2.2 (paper in English and the chosen language; English prevails)",
+      "duration": "Information Bulletin 2027, PDF p.21, para 2.5 (03 hours; 04 hours for PwD/PwBD eligible for a scribe)",
+      "dropped_questions": "Information Bulletin 2027, PDF pp.20-21: full marks to all who appeared in that shift"
+    },
+    "not_stated": [
+      "Which of the listed dates and shifts carry Paper 1. The bulletin lists the dates for all papers together.",
+      "The bulletin says MCQ without giving the option count; four is read from a 2026 paper."
+    ],
+    "cbt": {
+      "marked_with_answer_counts": true,
+      "marked_without_answer_counts": false,
+      "answer_needs_saving": true,
+      "free_navigation": true,
+      "ends_at_zero": true,
+      "language_switch": "paper",
+      "reference": "Information Bulletin 2027, PDF pp.58-61: General Instructions 2-5, Navigating 8, Answering 9-11, sections 12-14, instruction 21"
+    }
+  },
+  "effective_from": "2026-10-24",
+  "source": {
+    "title": "NTA, Information Bulletin, Joint Entrance Examination (Main) 2027",
+    "url": "https://cdnbbsr.s3waas.gov.in/s3f8e59f4b2fe7c5705bf878bbd494ccdf/uploads/2026/10/202610241890224107.pdf",
+    "reference": "Chapter 2: paras 2.1 to 2.5 (PDF pages 16 to 21)",
+    "published_on": "2026-10-24"
+  },
+  "review_notes": "Publication date is the date in the bulletin's file name and the notice inviting applications."
+}

@@ -161,4 +161,4 @@ def test_learners_see_the_lists_never_the_answer() -> None:
 
 
 def test_the_list_of_formats_matches_the_brief() -> None:
-    assert len(FORMATS) == 11
+    assert len(FORMATS) == 12

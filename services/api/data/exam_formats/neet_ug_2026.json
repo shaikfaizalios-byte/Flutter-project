@@ -2,36 +2,86 @@
   "code": "NEET_UG_2026",
   "exam_code": "NEET_UG",
   "stage": "Single stage",
-  "name": "NEET (UG) 2026 (Information Bulletin)",
+  "name": "NEET (UG) 2026, 3 May 2026 (exam cancelled, see NEET_UG_2026_RE)",
   "sections": [
     {
       "part": "1",
       "subject": "Physics",
       "questions": 45,
-      "max_marks": 180
+      "max_marks": 180,
+      "reference": "Information Bulletin 2026, PDF p.26, Chapter 4 para 2"
     },
     {
       "part": "2",
       "subject": "Chemistry",
       "questions": 45,
-      "max_marks": 180
+      "max_marks": 180,
+      "reference": "Information Bulletin 2026, PDF p.26, Chapter 4 para 2"
     },
     {
       "part": "3",
       "subject": "Biology (Botany & Zoology)",
       "questions": 90,
-      "max_marks": 360
+      "max_marks": 360,
+      "reference": "Information Bulletin 2026, PDF p.26, Chapter 4 para 2"
     }
   ],
   "sections_in_fixed_order": false,
   "total_questions": 180,
   "duration_minutes": 180,
   "negative_marks_per_wrong": 1,
+  "conduct": {
+    "year": 2026,
+    "mode": "pen_and_paper",
+    "sessions": [
+      {
+        "name": "3 May 2026",
+        "dates": [
+          "2026-05-03"
+        ]
+      }
+    ],
+    "shifts": [
+      {
+        "name": "Single shift",
+        "starts": "14:00",
+        "ends": "17:00"
+      }
+    ],
+    "languages": [
+      "en",
+      "hi",
+      "as",
+      "bn",
+      "gu",
+      "kn",
+      "ml",
+      "mr",
+      "or",
+      "pa",
+      "ta",
+      "te",
+      "ur"
+    ],
+    "references": {
+      "mode": "Information Bulletin 2026, PDF p.27, Chapter 4 para 4",
+      "sessions": "Information Bulletin 2026, PDF p.7",
+      "shifts": "Information Bulletin 2026, PDF p.7 and p.27",
+      "languages": "Information Bulletin 2026, PDF p.27, Chapter 4 para 6",
+      "duration": "Information Bulletin 2026, PDF p.27, Chapter 4 para 5",
+      "dropped_questions": "Information Bulletin 2026, PDF p.26: several correct, all correct, none correct and dropped cases"
+    },
+    "not_stated": [
+      "Botany and Zoology: the bulletin gives one Biology row of 90 questions, with no split between them."
+    ]
+  },
+  "effective_from": "2026-02-08",
+  "effective_to": "2026-05-03",
   "source": {
     "title": "NTA, Information Bulletin NEET (UG)-2026",
-    "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
-    "reference": "Chapter 4, paras 2, 3 and 5 (third-party copy; replace with NTA's own link)",
+    "url": "https://cdnbbsr.s3waas.gov.in/s37bc1ec1d9c3426357e69acd5bf320061/uploads/2026/02/202602231394640855.pdf",
+    "reference": "Chapter 4, paras 2 to 6 (PDF pages 26 and 27)",
     "published_on": "2026-02-08"
   },
-  "review_notes": "Publication date comes from news reports. The bulletin doesn't state a section order. It is a pen-and-paper exam."
+  "review_notes": "Publication date comes from news reports. The bulletin doesn't state a section order. The 3 May exam was replaced by the re-examination on 21 June 2026."
 }

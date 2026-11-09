@@ -162,6 +162,7 @@ def _format_stage(f: ExamFormat) -> ExamStageRead:
         ),
         verified=True,
         source=f.source_title,
+        conduct=f.conduct,
     )
 
 

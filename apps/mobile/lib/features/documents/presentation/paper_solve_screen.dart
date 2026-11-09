@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../ai/application/ai_providers.dart';
@@ -199,7 +200,7 @@ class _QuestionView extends StatelessWidget {
             if (answered && question.explanation != null) ...[
               const SizedBox(height: AppSpacing.md),
               Text(l10n.paperSolveExplanation, style: theme.textTheme.titleSmall),
-              SelectableText(question.explanation!),
+              RichQuestionText(question.explanation!),
             ],
           ],
         ),
@@ -249,11 +250,11 @@ class _ChoicePanelState extends ConsumerState<_ChoicePanel> {
                 final f? => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (option.text.isNotEmpty) Text(option.text),
+                    if (option.text.isNotEmpty) RichQuestionText(option.text, selectable: false),
                     QuestionFigureView(questionId: question.id, figure: f, zoomable: false),
                   ],
                 ),
-                null => Text(option.text),
+                null => RichQuestionText(option.text, selectable: false),
               },
               trailing: chosen == option.position ? const Icon(Icons.radio_button_checked) : null,
               onTap: chosen != null

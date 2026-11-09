@@ -222,3 +222,45 @@ class RevisionStats {
   /// Reviews per local calendar day.
   final Map<CalendarDate, int> daily;
 }
+
+/// Answers on one exam's side of a topic shared across exams.
+@immutable
+class ExamTopicCounts {
+  const ExamTopicCounts({required this.examCode, required this.answered, required this.correct});
+
+  factory ExamTopicCounts.fromJson(Map<String, dynamic> json) => ExamTopicCounts(
+    examCode: json['exam_code'] as String,
+    answered: json['answered'] as int,
+    correct: json['correct'] as int,
+  );
+
+  final String examCode;
+  final int answered;
+  final int correct;
+}
+
+/// A topic that means the same across exams: raw counts, combined and per exam.
+@immutable
+class CanonicalTopic {
+  const CanonicalTopic({
+    required this.name,
+    required this.answered,
+    required this.correct,
+    required this.exams,
+  });
+
+  factory CanonicalTopic.fromJson(Map<String, dynamic> json) => CanonicalTopic(
+    name: json['name'] as String,
+    answered: json['answered'] as int,
+    correct: json['correct'] as int,
+    exams: [
+      for (final exam in json['exams'] as List<dynamic>)
+        ExamTopicCounts.fromJson(exam as Map<String, dynamic>),
+    ],
+  );
+
+  final String name;
+  final int answered;
+  final int correct;
+  final List<ExamTopicCounts> exams;
+}

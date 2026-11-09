@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../domain/practice_models.dart';
 
 /// Answers a question whose format takes more than one tap: several options, pairs or an order.
@@ -52,7 +53,7 @@ class _MultipleCorrectState extends State<_MultipleCorrect> {
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
-            title: Text('${option.label}. ${option.text}'),
+            title: RichQuestionText('${option.label}. ${option.text}', selectable: false),
             value: _chosen.contains(option.position),
             onChanged: widget.locked
                 ? null
@@ -105,7 +106,7 @@ class _MatchState extends State<_Match> {
           Row(
             spacing: AppSpacing.sm,
             children: [
-              Expanded(child: Text(text)),
+              Expanded(child: RichQuestionText(text, selectable: false)),
               Expanded(
                 child: DropdownButton<int>(
                   isExpanded: true,
@@ -116,7 +117,10 @@ class _MatchState extends State<_Match> {
                       : (value) => setState(() => _chosen[index] = value!),
                   items: [
                     for (final (position, right) in _right.indexed)
-                      DropdownMenuItem(value: position, child: Text(right)),
+                      DropdownMenuItem(
+                        value: position,
+                        child: RichQuestionText(right, selectable: false),
+                      ),
                   ],
                 ),
               ),
@@ -170,7 +174,7 @@ class _OrderingState extends State<_Ordering> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Text('${place + 1}'),
-            title: Text(_items[index]),
+            title: RichQuestionText(_items[index], selectable: false),
             trailing: widget.locked
                 ? null
                 : Row(

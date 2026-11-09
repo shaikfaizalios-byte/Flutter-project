@@ -321,7 +321,7 @@ class _Result extends StatelessWidget {
               : l10n.descriptiveModelAnswer,
           style: theme.textTheme.labelLarge,
         ),
-        SelectableText(result.modelAnswer),
+        RichQuestionText(result.modelAnswer),
         const SizedBox(height: AppSpacing.sm),
         FilledButton(
           onPressed: onNext,

@@ -56,9 +56,17 @@ String ladderDifficultyLabel(AppLocalizations l10n, LadderDifficulty difficulty)
 /// Why this question looks the way it does: a real paper question, or the pattern it follows.
 String ladderBasis(AppLocalizations l10n, LadderStep step) {
   if (step.fromPaper) return l10n.ladderFromPapers(step.paperLabel ?? '');
+  if (step.fromLibrary) return l10n.ladderFromLibrary;
   if (step.basisPapers > 0 && step.basisWeb) return l10n.ladderBasisBoth(step.basisPapers);
   if (step.basisPapers > 0) return l10n.ladderBasisPapers(step.basisPapers);
   return l10n.ladderBasisWeb;
+}
+
+/// How a generated question was checked, once there is something to say.
+String? ladderChecks(AppLocalizations l10n, LadderStep step) {
+  final solves = step.solves;
+  if (solves == null) return null;
+  return step.recalculated ? l10n.ladderCheckedRecalculated(solves) : l10n.ladderChecked(solves);
 }
 
 /// One ladder on a topic: the start note, the steps filling in, the questions, the results.
@@ -284,6 +292,8 @@ class _QuestionState extends ConsumerState<_Question> {
         ),
         if (model != null) Text(model, style: theme.textTheme.bodySmall),
         Text(ladderBasis(l10n, step), style: theme.textTheme.bodySmall),
+        if (ladderChecks(l10n, step) case final String checks)
+          Text(checks, style: theme.textTheme.bodySmall),
         if (target != null)
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
@@ -319,7 +329,7 @@ class _QuestionState extends ConsumerState<_Question> {
                   ? theme.colorScheme.errorContainer
                   : null,
               child: ListTile(
-                title: Text(option),
+                title: RichQuestionText(option, selectable: false),
                 onTap: result == null ? () => widget.run.answer(index) : null,
               ),
             ),
@@ -348,12 +358,13 @@ class _QuestionState extends ConsumerState<_Question> {
           if (result.solution.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.ladderSolution, style: theme.textTheme.labelLarge),
-            for (final (index, line) in result.solution.indexed) Text('${index + 1}. $line'),
+            for (final (index, line) in result.solution.indexed)
+              RichQuestionText('${index + 1}. $line', selectable: false),
           ],
           if (result.shortcut.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.ladderShortcut, style: theme.textTheme.labelLarge),
-            Text(result.shortcut),
+            RichQuestionText(result.shortcut, selectable: false),
           ],
           const SizedBox(height: AppSpacing.md),
           FilledButton(

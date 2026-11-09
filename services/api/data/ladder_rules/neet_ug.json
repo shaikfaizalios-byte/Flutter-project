@@ -1,0 +1,16 @@
+{
+  "_about": "How the Challenge Ladder works for this exam. Product rules, not exam facts.",
+  "exam_code": "NEET_UG",
+  "formats": [
+    "single_correct",
+    "assertion_reason",
+    "statement"
+  ],
+  "anchors": {
+    "easy": "A direct application of one class 11/12 concept.",
+    "medium": "Standard NEET level.",
+    "medium_hard": "Between standard and the toughest NEET level.",
+    "hard": "The toughest NEET level.",
+    "extreme_hard": "The toughest NEET-style multi-statement, assertion-reason or multi-concept question, staying inside the NEET syllabus."
+  }
+}

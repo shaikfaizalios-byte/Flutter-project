@@ -1,0 +1,99 @@
+{
+  "code": "NEET_UG_2026_RE",
+  "exam_code": "NEET_UG",
+  "stage": "Single stage",
+  "name": "NEET (UG) 2026 Re-examination, 21 June 2026",
+  "sections": [
+    {
+      "part": "1",
+      "subject": "Physics",
+      "questions": 45,
+      "max_marks": 180,
+      "reference": "Information Bulletin 2026, PDF p.26, Chapter 4 para 2"
+    },
+    {
+      "part": "2",
+      "subject": "Chemistry",
+      "questions": 45,
+      "max_marks": 180,
+      "reference": "Information Bulletin 2026, PDF p.26, Chapter 4 para 2"
+    },
+    {
+      "part": "3",
+      "subject": "Biology (Botany & Zoology)",
+      "questions": 90,
+      "max_marks": 360,
+      "reference": "Information Bulletin 2026, PDF p.26, Chapter 4 para 2"
+    }
+  ],
+  "sections_in_fixed_order": false,
+  "total_questions": 180,
+  "duration_minutes": 195,
+  "negative_marks_per_wrong": 1,
+  "conduct": {
+    "year": 2026,
+    "mode": "pen_and_paper",
+    "sessions": [
+      {
+        "name": "Re-examination, 21 June 2026",
+        "dates": [
+          "2026-06-21"
+        ]
+      }
+    ],
+    "shifts": [
+      {
+        "name": "Single shift",
+        "starts": "14:00",
+        "ends": "17:15"
+      }
+    ],
+    "languages": [
+      "en",
+      "hi",
+      "as",
+      "bn",
+      "gu",
+      "kn",
+      "ml",
+      "mr",
+      "or",
+      "pa",
+      "ta",
+      "te",
+      "ur"
+    ],
+    "references": {
+      "mode": "Public Notice, 15 May 2026, p.1: Pen & Paper Mode (Offline)",
+      "sessions": "Public Notice, 15 May 2026, p.1",
+      "shifts": "Public Notice, 12 June 2026, para 2; Press Release, 19 June 2026, para 1",
+      "languages": "Public Notice, 15 May 2026, p.1: 13 languages",
+      "duration": "Public Notice, 12 June 2026, para 2: window of 195 minutes, including formalities",
+      "pattern": "Public Notice, 15 May 2026, p.2: guidelines as per the Information Bulletin"
+    },
+    "not_stated": [
+      "Botany and Zoology: the bulletin gives one Biology row of 90 questions, with no split between them.",
+      "195 minutes includes formalities such as signing attendance sheets. The FAQ calls the extra 15 minutes time for formalities; no notice gives a writing time on its own.",
+      "No notice restates question counts or marking. They are the bulletin's, carried over by the 15 May notice."
+    ],
+    "cbt": {
+      "marked_with_answer_counts": true,
+      "marked_without_answer_counts": false,
+      "answer_needs_saving": true,
+      "free_navigation": true,
+      "ends_at_zero": true,
+      "language_switch": "paper",
+      "reference": "Information Bulletin JEE (Main) 2027, PDF pp.58-61 (NTA's published CBT instructions)",
+      "basis": "NTA has published no CBT instructions for NEET (UG). These are its JEE (Main) instructions, used for practice until it does."
+    }
+  },
+  "effective_from": "2026-05-15",
+  "supersedes": "NEET_UG_2026",
+  "source": {
+    "title": "NTA, Public Notice: Conduct of Re-examination for NEET (UG) 2026, 15 May 2026",
+    "url": "https://nta.ac.in/Download/Notice/Notice_20260516152513.pdf",
+    "reference": "Duration: Public Notice of 12 June 2026, para 2. Pattern: Information Bulletin as carried over on p.2",
+    "published_on": "2026-05-15"
+  },
+  "review_notes": "Other sources: https://nta.ac.in/Download/Notice/Notice_20260612114428.pdf and https://nta.ac.in/Download/Notice/Notice_20260619163804.PDF."
+}

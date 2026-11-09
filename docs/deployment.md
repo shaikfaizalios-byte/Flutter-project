@@ -120,6 +120,18 @@ Secrets come from the platform's secret store, never from files in the image:
 - liveness: `GET /api/v1/health`
 - readiness: `GET /api/v1/health/ready` (checks the database; 503 when it's unreachable)
 
+## Figures through a CDN, and server processes
+
+Figures every learner may see (shared bank and library) come with signed links,
+`/api/v1/media/figures/{sha256}.png?e=...&s=...`. They need no sign-in, name the image by its content and
+answer with `Cache-Control: public, max-age=..., immutable`, so a CDN in front of the API can cache them.
+Set `PREPLOOP_MEDIA_BASE_URL` to the CDN's address for that path (empty: links are relative to the API).
+Links last one to two days (`PREPLOOP_MEDIA_URL_HOURS`, default 24). After a takedown, purge the CDN or
+wait out the links. A learner's own papers never get these links.
+
+`WEB_CONCURRENCY` sets the API's processes (default 2). Before an exam, run the load test against a
+staging copy (`scripts/load_test.py`, docs/jee-neet/phase-i-report.md) and size this from it.
+
 ## Release procedure
 
 1. CI is green on `main`. That covers lint, types, tests on Postgres, the migration drift check, OpenAPI drift, the mobile tests, the Android build and the image build.

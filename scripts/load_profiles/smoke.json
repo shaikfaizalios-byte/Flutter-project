@@ -1,0 +1,10 @@
+{
+  "_about": "A short local run to check the load test itself works.",
+  "learners": 20,
+  "ramp_seconds": 10,
+  "duration_seconds": 60,
+  "think_seconds": [0.2, 1],
+  "mix": {"mock": 0.5, "practice": 0.25, "library": 0.15, "chapters": 0.1},
+  "targets": {"p95_ms": 800, "error_rate": 0.01},
+  "random_seed": 1
+}

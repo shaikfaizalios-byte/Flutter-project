@@ -15,6 +15,9 @@ abstract interface class QuestionsRepository {
   Future<BankQuestion> get(String id);
   Future<BankQuestion> update(String id, QuestionEdit edit);
 
+  /// Records the official key. A final key re-marks attempts; [remarked] says how many sessions.
+  Future<({BankQuestion question, int remarked})> setAnswerKey(String id, AnswerKeyEdit edit);
+
   /// The question's history, oldest first (own questions only).
   Future<List<QuestionRevision>> revisions(String id);
 
@@ -78,6 +81,20 @@ class RemoteQuestionsRepository implements QuestionsRepository {
     final response = await _dio.get<Map<String, dynamic>>('/api/v1/questions/$id');
     return BankQuestion.fromJson(response.data!);
   });
+
+  @override
+  Future<({BankQuestion question, int remarked})> setAnswerKey(String id, AnswerKeyEdit edit) =>
+      _guard(() async {
+        final response = await _dio.put<Map<String, dynamic>>(
+          '/api/v1/questions/$id/answer-key',
+          data: edit.toJson(),
+        );
+        final data = response.data!;
+        return (
+          question: BankQuestion.fromJson(data['question'] as Map<String, dynamic>),
+          remarked: data['sessions_remarked'] as int,
+        );
+      });
 
   @override
   Future<BankQuestion> update(String id, QuestionEdit edit) => _guard(() async {

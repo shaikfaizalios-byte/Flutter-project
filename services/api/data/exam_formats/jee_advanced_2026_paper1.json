@@ -1,0 +1,227 @@
+{
+  "code": "JEE_ADVANCED_2026_PAPER1",
+  "exam_code": "JEE_ADVANCED",
+  "stage": "Paper 1",
+  "name": "JEE (Advanced) 2026 Paper 1",
+  "sections": [
+    {
+      "subject": "Physics",
+      "part": "Section 1",
+      "questions": 4,
+      "max_marks": 12,
+      "formats": [
+        "single_correct"
+      ],
+      "marks_wrong": 1,
+      "reference": "Paper 1 instructions, Section 1, p.1, in each of the paper's three parts"
+    },
+    {
+      "subject": "Physics",
+      "part": "Section 2",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "multiple_correct"
+      ],
+      "marks_wrong": 1,
+      "partial": {
+        "per_correct": "1"
+      },
+      "reference": "Paper 1 instructions, Section 2, p.3, in each of the paper's three parts"
+    },
+    {
+      "subject": "Physics",
+      "part": "Section 3",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "numeric"
+      ],
+      "marks_wrong": 0,
+      "numeric_rule": {
+        "value": "decimal",
+        "decimals": 2,
+        "rule": "truncate/round-off the value to two decimal places"
+      },
+      "reference": "Paper 1 instructions, Section 3, p.6, in each of the paper's three parts"
+    },
+    {
+      "subject": "Physics",
+      "part": "Section 4",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "single_correct"
+      ],
+      "marks_wrong": 1,
+      "note": "Matching List Sets: List-I has 4 entries, List-II has 5, with four options and one correct",
+      "reference": "Paper 1 instructions, Section 4, p.7, in each of the paper's three parts"
+    },
+    {
+      "subject": "Chemistry",
+      "part": "Section 1",
+      "questions": 4,
+      "max_marks": 12,
+      "formats": [
+        "single_correct"
+      ],
+      "marks_wrong": 1,
+      "reference": "Paper 1 instructions, Section 1, p.1, in each of the paper's three parts"
+    },
+    {
+      "subject": "Chemistry",
+      "part": "Section 2",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "multiple_correct"
+      ],
+      "marks_wrong": 1,
+      "partial": {
+        "per_correct": "1"
+      },
+      "reference": "Paper 1 instructions, Section 2, p.3, in each of the paper's three parts"
+    },
+    {
+      "subject": "Chemistry",
+      "part": "Section 3",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "numeric"
+      ],
+      "marks_wrong": 0,
+      "numeric_rule": {
+        "value": "decimal",
+        "decimals": 2,
+        "rule": "truncate/round-off the value to two decimal places"
+      },
+      "reference": "Paper 1 instructions, Section 3, p.6, in each of the paper's three parts"
+    },
+    {
+      "subject": "Chemistry",
+      "part": "Section 4",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "single_correct"
+      ],
+      "marks_wrong": 1,
+      "note": "Matching List Sets: List-I has 4 entries, List-II has 5, with four options and one correct",
+      "reference": "Paper 1 instructions, Section 4, p.7, in each of the paper's three parts"
+    },
+    {
+      "subject": "Mathematics",
+      "part": "Section 1",
+      "questions": 4,
+      "max_marks": 12,
+      "formats": [
+        "single_correct"
+      ],
+      "marks_wrong": 1,
+      "reference": "Paper 1 instructions, Section 1, p.1, in each of the paper's three parts"
+    },
+    {
+      "subject": "Mathematics",
+      "part": "Section 2",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "multiple_correct"
+      ],
+      "marks_wrong": 1,
+      "partial": {
+        "per_correct": "1"
+      },
+      "reference": "Paper 1 instructions, Section 2, p.3, in each of the paper's three parts"
+    },
+    {
+      "subject": "Mathematics",
+      "part": "Section 3",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "numeric"
+      ],
+      "marks_wrong": 0,
+      "numeric_rule": {
+        "value": "decimal",
+        "decimals": 2,
+        "rule": "truncate/round-off the value to two decimal places"
+      },
+      "reference": "Paper 1 instructions, Section 3, p.6, in each of the paper's three parts"
+    },
+    {
+      "subject": "Mathematics",
+      "part": "Section 4",
+      "questions": 4,
+      "max_marks": 16,
+      "formats": [
+        "single_correct"
+      ],
+      "marks_wrong": 1,
+      "note": "Matching List Sets: List-I has 4 entries, List-II has 5, with four options and one correct",
+      "reference": "Paper 1 instructions, Section 4, p.7, in each of the paper's three parts"
+    }
+  ],
+  "sections_in_fixed_order": false,
+  "total_questions": 48,
+  "duration_minutes": 180,
+  "question_types": [
+    "choice",
+    "multiple_correct",
+    "numeric"
+  ],
+  "conduct": {
+    "year": 2026,
+    "mode": "cbt",
+    "sessions": [
+      {
+        "name": "May 2026",
+        "dates": [
+          "2026-05-17"
+        ]
+      }
+    ],
+    "shifts": [
+      {
+        "name": "Paper 1",
+        "starts": "09:00",
+        "ends": "12:00"
+      }
+    ],
+    "languages": [
+      "en",
+      "hi"
+    ],
+    "references": {
+      "mode": "Information Brochure 2026, PDF p.38, section 18",
+      "sessions": "Information Brochure 2026, PDF p.21",
+      "shifts": "Information Brochure 2026, PDF p.21",
+      "languages": "Information Brochure 2026, PDF p.37, section 17 (switch at any time; English prevails)",
+      "duration": "Information Brochure 2026, PDF p.37 and p.39 (3 hours; 4 hours for PwD with compensatory time)",
+      "dropped_questions": "Information Brochure 2026, PDF p.37, section 17: full marks to all"
+    },
+    "not_stated": [
+      "Marking is stated only in the paper's own instructions, so a later year must be read from that year's paper.",
+      "Section 3 and 4: the paper doesn't say how far a typed value may differ. Answer keys may state ranges; read them in Phase D."
+    ],
+    "cbt": {
+      "marked_with_answer_counts": true,
+      "marked_without_answer_counts": false,
+      "answer_needs_saving": true,
+      "free_navigation": true,
+      "ends_at_zero": true,
+      "language_switch": "paper",
+      "reference": "Information Brochure 2026, PDF pp.39-41: para 18.1 b, d, f; para 18.2; para 18.3"
+    }
+  },
+  "effective_from": "2025-12-30",
+  "source": {
+    "title": "JEE (Advanced) 2026 Paper 1, instructions in each section",
+    "url": "https://jeeadv.ac.in/documents/p1_english.pdf",
+    "reference": "Pages cited on each section. Each paper repeats one layout in its three parts",
+    "published_on": "2026-05-17"
+  },
+  "review_notes": "Partial marks: the paper's +3, +2 and +1 rules are one mark per correct option chosen with no wrong one, so per_correct 1 states them exactly."
+}

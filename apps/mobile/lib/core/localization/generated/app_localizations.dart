@@ -7761,6 +7761,144 @@ abstract class AppLocalizations {
   /// **'Marking points drafted by AI, not the exam\'s official scheme.'**
   String get descriptiveRubricNote;
 
+  /// No description provided for @progressCombinedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Across your exams'**
+  String get progressCombinedTitle;
+
+  /// No description provided for @progressCombinedExam.
+  ///
+  /// In en, this message translates to:
+  /// **'{exam}: {correct} of {answered}'**
+  String progressCombinedExam(String exam, int correct, int answered);
+
+  /// No description provided for @progressCombinedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} of {answered}'**
+  String progressCombinedTotal(int correct, int answered);
+
+  /// No description provided for @formatInteger.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole number'**
+  String get formatInteger;
+
+  /// No description provided for @formatWholeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole number'**
+  String get formatWholeNumber;
+
+  /// No description provided for @formatDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal places'**
+  String get formatDecimals;
+
+  /// No description provided for @formatDecimalsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only if the paper states it. Answers count if right when truncated or rounded to this many places.'**
+  String get formatDecimalsHint;
+
+  /// No description provided for @answerKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Official answer key'**
+  String get answerKeyTitle;
+
+  /// No description provided for @answerKeyNoStage.
+  ///
+  /// In en, this message translates to:
+  /// **'No official key'**
+  String get answerKeyNoStage;
+
+  /// No description provided for @answerKeyProvisional.
+  ///
+  /// In en, this message translates to:
+  /// **'Provisional key'**
+  String get answerKeyProvisional;
+
+  /// No description provided for @answerKeyFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final key'**
+  String get answerKeyFinal;
+
+  /// No description provided for @answerKeyOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One answer'**
+  String get answerKeyOne;
+
+  /// No description provided for @answerKeySeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'Several answers accepted'**
+  String get answerKeySeveral;
+
+  /// No description provided for @answerKeyDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped: marks to everyone'**
+  String get answerKeyDropped;
+
+  /// No description provided for @answerKeyChooseOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the answer'**
+  String get answerKeyChooseOption;
+
+  /// No description provided for @answerKeyPickTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least two accepted answers.'**
+  String get answerKeyPickTwo;
+
+  /// No description provided for @answerKeyFinalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A final key marks every attempt at this question again.'**
+  String get answerKeyFinalNote;
+
+  /// No description provided for @answerKeySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the key'**
+  String get answerKeySave;
+
+  /// No description provided for @answerKeyRemarked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Saved. 1 attempt marked again.} other{Saved. {count} attempts marked again.}}'**
+  String answerKeyRemarked(int count);
+
+  /// No description provided for @sessionKeyDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped in the official key: everyone gets the marks.'**
+  String get sessionKeyDropped;
+
+  /// No description provided for @sessionKeySeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'The official key accepts more than one answer: {answers}.'**
+  String sessionKeySeveral(String answers);
+
+  /// No description provided for @sessionKeyChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'This answer changed in the final key.'**
+  String get sessionKeyChanged;
+
+  /// No description provided for @resultRemarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked again with the final answer key.'**
+  String get resultRemarked;
+
   /// No description provided for @ladderCleared.
   ///
   /// In en, this message translates to:
@@ -8564,6 +8702,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cutoff {cutoff}: not reached'**
   String resultCutoffMissed(String cutoff);
+
+  /// No description provided for @libraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question library'**
+  String get libraryTitle;
+
+  /// No description provided for @libraryHubMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions reviewed by PrepLoop. Search them or save a chapter for offline practice.'**
+  String get libraryHubMessage;
+
+  /// No description provided for @libraryOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the library'**
+  String get libraryOpen;
+
+  /// No description provided for @librarySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the library'**
+  String get librarySearchHint;
+
+  /// No description provided for @libraryFilterChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter'**
+  String get libraryFilterChapter;
+
+  /// No description provided for @libraryFilterTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic'**
+  String get libraryFilterTopic;
+
+  /// No description provided for @libraryFilterModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get libraryFilterModel;
+
+  /// No description provided for @libraryFilterFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get libraryFilterFormat;
+
+  /// No description provided for @libraryFilterYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get libraryFilterYear;
+
+  /// No description provided for @libraryFilterLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get libraryFilterLevel;
+
+  /// No description provided for @libraryLevelEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get libraryLevelEasy;
+
+  /// No description provided for @libraryLevelMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get libraryLevelMedium;
+
+  /// No description provided for @libraryLevelHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get libraryLevelHard;
+
+  /// No description provided for @libraryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No library questions match this yet.'**
+  String get libraryEmpty;
+
+  /// No description provided for @libraryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the library. Check your connection and try again.'**
+  String get libraryFailed;
+
+  /// No description provided for @libraryPictured.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed as a picture. Open it to see the question.'**
+  String get libraryPictured;
+
+  /// No description provided for @libraryOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters for offline practice'**
+  String get libraryOfflineTitle;
+
+  /// No description provided for @libraryNoPacks.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters to save for this exam yet.'**
+  String get libraryNoPacks;
+
+  /// No description provided for @libraryPackCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions'**
+  String libraryPackCount(int count);
+
+  /// No description provided for @librarySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get librarySave;
+
+  /// No description provided for @libraryUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get libraryUpdate;
+
+  /// No description provided for @librarySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get librarySaved;
+
+  /// No description provided for @librarySourceOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous year paper'**
+  String get librarySourceOfficial;
+
+  /// No description provided for @librarySourceExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Written for PrepLoop'**
+  String get librarySourceExpert;
+
+  /// No description provided for @librarySourceAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-written, checked by reviewers'**
+  String get librarySourceAi;
+
+  /// No description provided for @sessionPercentRight.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% got this right'**
+  String sessionPercentRight(int percent);
+
+  /// No description provided for @chaptersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters by shift'**
+  String get chaptersTitle;
+
+  /// No description provided for @chaptersOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'See chapters by shift'**
+  String get chaptersOpen;
+
+  /// No description provided for @chaptersBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'{shifts} shifts counted · {questions} reviewed questions'**
+  String chaptersBasis(int shifts, int questions);
+
+  /// No description provided for @chaptersNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted from reviewed questions in these papers. Not a prediction.'**
+  String get chaptersNote;
+
+  /// No description provided for @chaptersSmallSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {shifts} shifts counted: a small sample.'**
+  String chaptersSmallSample(int shifts);
+
+  /// No description provided for @chaptersUnreviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions not reviewed yet are left out.'**
+  String chaptersUnreviewed(int count);
+
+  /// No description provided for @chaptersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviewed questions to count yet.'**
+  String get chaptersEmpty;
+
+  /// No description provided for @chaptersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the chapters. Check your connection and try again.'**
+  String get chaptersFailed;
+
+  /// No description provided for @chaptersAppeared.
+  ///
+  /// In en, this message translates to:
+  /// **'Appeared in {shifts} of {total} shifts'**
+  String chaptersAppeared(int shifts, int total);
+
+  /// No description provided for @chaptersYear.
+  ///
+  /// In en, this message translates to:
+  /// **'{year}: {percent}% of questions · {shifts} of {total} shifts'**
+  String chaptersYear(String year, int percent, int shifts, int total);
+
+  /// No description provided for @chaptersSession.
+  ///
+  /// In en, this message translates to:
+  /// **'{session}: {shifts} of {total} shifts'**
+  String chaptersSession(String session, int shifts, int total);
+
+  /// No description provided for @chaptersSharedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters shared by your exams'**
+  String get chaptersSharedTitle;
+
+  /// No description provided for @chaptersSharedExam.
+  ///
+  /// In en, this message translates to:
+  /// **'{exam}: {shifts} of {total} shifts'**
+  String chaptersSharedExam(String exam, int shifts, int total);
+
+  /// No description provided for @chaptersHintsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Same idea across shifts'**
+  String get chaptersHintsTitle;
+
+  /// No description provided for @chaptersHintsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'AI hint: not checked, and not part of any count here.'**
+  String get chaptersHintsNote;
+
+  /// No description provided for @chaptersHintShifts.
+  ///
+  /// In en, this message translates to:
+  /// **'{topic} · {shifts} shifts'**
+  String chaptersHintShifts(String topic, int shifts);
+
+  /// No description provided for @chaptersHintQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number}'**
+  String chaptersHintQuestion(int number);
+
+  /// No description provided for @ladderFromLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'From PrepLoop\'s question library'**
+  String get ladderFromLibrary;
+
+  /// No description provided for @ladderChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked: {solves} independent solves agreed'**
+  String ladderChecked(int solves);
+
+  /// No description provided for @ladderCheckedRecalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked: {solves} independent solves agreed and the answer was recalculated'**
+  String ladderCheckedRecalculated(int solves);
+
+  /// No description provided for @cbtSaveAndNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & Next'**
+  String get cbtSaveAndNext;
+
+  /// No description provided for @cbtMarkAndNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark for Review & Next'**
+  String get cbtMarkAndNext;
+
+  /// No description provided for @cbtClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Response'**
+  String get cbtClear;
+
+  /// No description provided for @cbtNotVisited.
+  ///
+  /// In en, this message translates to:
+  /// **'Not visited'**
+  String get cbtNotVisited;
+
+  /// No description provided for @cbtNotAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered'**
+  String get cbtNotAnswered;
+
+  /// No description provided for @cbtAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered'**
+  String get cbtAnswered;
+
+  /// No description provided for @cbtMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked for review'**
+  String get cbtMarked;
+
+  /// No description provided for @cbtAnsweredMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered and marked for review (will be evaluated)'**
+  String get cbtAnsweredMarked;
+
+  /// No description provided for @cbtNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'This answer couldn\'t be saved. Try again.'**
+  String get cbtNotSaved;
+
+  /// No description provided for @cbtQuestionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number}, {status}'**
+  String cbtQuestionStatus(int number, String status);
+
+  /// No description provided for @mockSectional.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise one section'**
+  String get mockSectional;
+
+  /// No description provided for @mockSectionalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{section} only, on its share of the paper\'s time. This isn\'t how the exam is timed.'**
+  String mockSectionalMessage(String section);
+
+  /// No description provided for @analysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How this test went'**
+  String get analysisTitle;
+
+  /// No description provided for @analysisHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Your attempts at this paper'**
+  String get analysisHistory;
+
+  /// No description provided for @analysisThisTest.
+  ///
+  /// In en, this message translates to:
+  /// **'this test'**
+  String get analysisThisTest;
+
+  /// No description provided for @analysisChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'By chapter'**
+  String get analysisChapters;
+
+  /// No description provided for @analysisCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} right, {wrong} wrong, {left} left'**
+  String analysisCounts(int correct, int wrong, int left);
+
+  /// No description provided for @analysisAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of attempted'**
+  String analysisAccuracy(int percent);
+
+  /// No description provided for @analysisTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Time and marks per question'**
+  String get analysisTimes;
+
+  /// No description provided for @analysisQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number}'**
+  String analysisQuestion(int number);
+
+  /// No description provided for @analysisUnattempted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not attempted'**
+  String get analysisUnattempted;
+
+  /// No description provided for @analysisDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped'**
+  String get analysisDropped;
+
+  /// No description provided for @analysisPercentile.
+  ///
+  /// In en, this message translates to:
+  /// **'Scored above {percent}% of {accounts} PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.'**
+  String analysisPercentile(int percent, int accounts);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

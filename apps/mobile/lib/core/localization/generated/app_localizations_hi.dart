@@ -4899,6 +4899,90 @@ class AppLocalizationsHi extends AppLocalizations {
       'अंक-बिंदु AI ने बनाए हैं, यह परीक्षा की आधिकारिक योजना नहीं है।';
 
   @override
+  String get progressCombinedTitle => 'आपकी सभी परीक्षाओं में';
+
+  @override
+  String progressCombinedExam(String exam, int correct, int answered) {
+    return '$exam: $answered में से $correct';
+  }
+
+  @override
+  String progressCombinedTotal(int correct, int answered) {
+    return '$answered में से $correct';
+  }
+
+  @override
+  String get formatInteger => 'पूर्ण संख्या';
+
+  @override
+  String get formatWholeNumber => 'पूर्ण संख्या';
+
+  @override
+  String get formatDecimals => 'दशमलव स्थान';
+
+  @override
+  String get formatDecimalsHint =>
+      'केवल तभी जब पेपर में लिखा हो। उत्तर इतने स्थानों तक काटने या पूर्णांकित करने पर सही हो तो मान्य होगा।';
+
+  @override
+  String get answerKeyTitle => 'आधिकारिक उत्तर कुंजी';
+
+  @override
+  String get answerKeyNoStage => 'कोई आधिकारिक कुंजी नहीं';
+
+  @override
+  String get answerKeyProvisional => 'अनंतिम कुंजी';
+
+  @override
+  String get answerKeyFinal => 'अंतिम कुंजी';
+
+  @override
+  String get answerKeyOne => 'एक उत्तर';
+
+  @override
+  String get answerKeySeveral => 'कई उत्तर मान्य';
+
+  @override
+  String get answerKeyDropped => 'हटाया गया: सभी को अंक';
+
+  @override
+  String get answerKeyChooseOption => 'उत्तर चुनें';
+
+  @override
+  String get answerKeyPickTwo => 'कम से कम दो मान्य उत्तर चुनें।';
+
+  @override
+  String get answerKeyFinalNote => 'अंतिम कुंजी इस प्रश्न के हर प्रयास को फिर से जाँचती है।';
+
+  @override
+  String get answerKeySave => 'कुंजी सहेजें';
+
+  @override
+  String answerKeyRemarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'सहेजा गया। $count प्रयास फिर से जाँचे गए।',
+      one: 'सहेजा गया। 1 प्रयास फिर से जाँचा गया।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionKeyDropped => 'आधिकारिक कुंजी में हटाया गया: सभी को अंक मिलते हैं।';
+
+  @override
+  String sessionKeySeveral(String answers) {
+    return 'आधिकारिक कुंजी एक से अधिक उत्तर मानती है: $answers।';
+  }
+
+  @override
+  String get sessionKeyChanged => 'अंतिम कुंजी में यह उत्तर बदल गया।';
+
+  @override
+  String get resultRemarked => 'अंतिम उत्तर कुंजी से फिर से जाँचा गया।';
+
+  @override
   String get ladderCleared => 'पार किया';
 
   @override
@@ -5342,5 +5426,252 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String resultCutoffMissed(String cutoff) {
     return 'कटऑफ़ $cutoff: पूरा नहीं';
+  }
+
+  @override
+  String get libraryTitle => 'प्रश्न लाइब्रेरी';
+
+  @override
+  String get libraryHubMessage =>
+      'PrepLoop द्वारा जाँचे गए प्रश्न। इन्हें खोजें या ऑफ़लाइन अभ्यास के लिए कोई अध्याय सहेजें।';
+
+  @override
+  String get libraryOpen => 'लाइब्रेरी खोलें';
+
+  @override
+  String get librarySearchHint => 'लाइब्रेरी में खोजें';
+
+  @override
+  String get libraryFilterChapter => 'अध्याय';
+
+  @override
+  String get libraryFilterTopic => 'विषय';
+
+  @override
+  String get libraryFilterModel => 'मॉडल';
+
+  @override
+  String get libraryFilterFormat => 'प्रारूप';
+
+  @override
+  String get libraryFilterYear => 'वर्ष';
+
+  @override
+  String get libraryFilterLevel => 'कठिनाई';
+
+  @override
+  String get libraryLevelEasy => 'आसान';
+
+  @override
+  String get libraryLevelMedium => 'मध्यम';
+
+  @override
+  String get libraryLevelHard => 'कठिन';
+
+  @override
+  String get libraryEmpty => 'अभी लाइब्रेरी में ऐसा कोई प्रश्न नहीं है।';
+
+  @override
+  String get libraryFailed => 'लाइब्रेरी तक नहीं पहुँच सके। कनेक्शन जाँचकर फिर कोशिश करें।';
+
+  @override
+  String get libraryPictured => 'चित्र के रूप में छपा है। प्रश्न देखने के लिए इसे खोलें।';
+
+  @override
+  String get libraryOfflineTitle => 'ऑफ़लाइन अभ्यास के लिए अध्याय';
+
+  @override
+  String get libraryNoPacks => 'इस परीक्षा के लिए अभी सहेजने को कोई अध्याय नहीं है।';
+
+  @override
+  String libraryPackCount(int count) {
+    return '$count प्रश्न';
+  }
+
+  @override
+  String get librarySave => 'सहेजें';
+
+  @override
+  String get libraryUpdate => 'अपडेट करें';
+
+  @override
+  String get librarySaved => 'सहेजा गया';
+
+  @override
+  String get librarySourceOfficial => 'पिछले वर्ष का प्रश्नपत्र';
+
+  @override
+  String get librarySourceExpert => 'PrepLoop के लिए लिखा गया';
+
+  @override
+  String get librarySourceAi => 'AI द्वारा लिखा, समीक्षकों ने जाँचा';
+
+  @override
+  String sessionPercentRight(int percent) {
+    return '$percent% ने इसे सही किया';
+  }
+
+  @override
+  String get chaptersTitle => 'शिफ्ट के अनुसार अध्याय';
+
+  @override
+  String get chaptersOpen => 'शिफ्ट के अनुसार अध्याय देखें';
+
+  @override
+  String chaptersBasis(int shifts, int questions) {
+    return '$shifts शिफ्ट गिनी गईं · $questions जाँचे गए प्रश्न';
+  }
+
+  @override
+  String get chaptersNote =>
+      'इन प्रश्नपत्रों के जाँचे गए प्रश्नों से गिना गया। यह कोई भविष्यवाणी नहीं है।';
+
+  @override
+  String chaptersSmallSample(int shifts) {
+    return 'केवल $shifts शिफ्ट गिनी गईं: यह छोटा नमूना है।';
+  }
+
+  @override
+  String chaptersUnreviewed(int count) {
+    return '$count प्रश्न अभी जाँचे नहीं गए, इसलिए छोड़े गए हैं।';
+  }
+
+  @override
+  String get chaptersEmpty => 'गिनने के लिए अभी कोई जाँचा गया प्रश्न नहीं है।';
+
+  @override
+  String get chaptersFailed => 'अध्याय लोड नहीं हो सके। कनेक्शन जाँचकर फिर कोशिश करें।';
+
+  @override
+  String chaptersAppeared(int shifts, int total) {
+    return '$total में से $shifts शिफ्ट में आया';
+  }
+
+  @override
+  String chaptersYear(String year, int percent, int shifts, int total) {
+    return '$year: $percent% प्रश्न · $total में से $shifts शिफ्ट';
+  }
+
+  @override
+  String chaptersSession(String session, int shifts, int total) {
+    return '$session: $total में से $shifts शिफ्ट';
+  }
+
+  @override
+  String get chaptersSharedTitle => 'आपकी परीक्षाओं के साझा अध्याय';
+
+  @override
+  String chaptersSharedExam(String exam, int shifts, int total) {
+    return '$exam: $total में से $shifts शिफ्ट';
+  }
+
+  @override
+  String get chaptersHintsTitle => 'शिफ्टों में एक जैसा विचार';
+
+  @override
+  String get chaptersHintsNote => 'AI संकेत: जाँचा नहीं गया और यहाँ की किसी गिनती में शामिल नहीं।';
+
+  @override
+  String chaptersHintShifts(String topic, int shifts) {
+    return '$topic · $shifts शिफ्ट';
+  }
+
+  @override
+  String chaptersHintQuestion(int number) {
+    return 'प्रश्न $number';
+  }
+
+  @override
+  String get ladderFromLibrary => 'PrepLoop की प्रश्न लाइब्रेरी से';
+
+  @override
+  String ladderChecked(int solves) {
+    return 'जाँचा गया: $solves स्वतंत्र हल सहमत रहे';
+  }
+
+  @override
+  String ladderCheckedRecalculated(int solves) {
+    return 'जाँचा गया: $solves स्वतंत्र हल सहमत रहे और उत्तर दोबारा गणना किया गया';
+  }
+
+  @override
+  String get cbtSaveAndNext => 'सेव करें और आगे बढ़ें';
+
+  @override
+  String get cbtMarkAndNext => 'समीक्षा हेतु चिह्नित करें और आगे बढ़ें';
+
+  @override
+  String get cbtClear => 'उत्तर हटाएँ';
+
+  @override
+  String get cbtNotVisited => 'नहीं देखा गया';
+
+  @override
+  String get cbtNotAnswered => 'उत्तर नहीं दिया';
+
+  @override
+  String get cbtAnswered => 'उत्तर दिया';
+
+  @override
+  String get cbtMarked => 'समीक्षा हेतु चिह्नित';
+
+  @override
+  String get cbtAnsweredMarked => 'उत्तर दिया और समीक्षा हेतु चिह्नित (मूल्यांकन होगा)';
+
+  @override
+  String get cbtNotSaved => 'यह उत्तर सेव नहीं हो सका। फिर कोशिश करें।';
+
+  @override
+  String cbtQuestionStatus(int number, String status) {
+    return 'प्रश्न $number, $status';
+  }
+
+  @override
+  String get mockSectional => 'एक खंड का अभ्यास करें';
+
+  @override
+  String mockSectionalMessage(String section) {
+    return 'केवल $section, प्रश्नपत्र के समय के अपने हिस्से में। परीक्षा का समय ऐसे तय नहीं होता।';
+  }
+
+  @override
+  String get analysisTitle => 'यह टेस्ट कैसा रहा';
+
+  @override
+  String get analysisHistory => 'इस प्रश्नपत्र पर आपके प्रयास';
+
+  @override
+  String get analysisThisTest => 'यह टेस्ट';
+
+  @override
+  String get analysisChapters => 'अध्याय के अनुसार';
+
+  @override
+  String analysisCounts(int correct, int wrong, int left) {
+    return '$correct सही, $wrong गलत, $left छोड़े';
+  }
+
+  @override
+  String analysisAccuracy(int percent) {
+    return 'हल किए गए में $percent%';
+  }
+
+  @override
+  String get analysisTimes => 'प्रति प्रश्न समय और अंक';
+
+  @override
+  String analysisQuestion(int number) {
+    return 'प्रश्न $number';
+  }
+
+  @override
+  String get analysisUnattempted => 'हल नहीं किया';
+
+  @override
+  String get analysisDropped => 'हटाया गया';
+
+  @override
+  String analysisPercentile(int percent, int accounts) {
+    return 'इस प्रश्नपत्र पर $accounts PrepLoop खातों के पहले प्रयासों में से $percent% से अधिक अंक। यह वास्तविक PrepLoop प्रयासों से है; परीक्षा की रैंक नहीं।';
   }
 }

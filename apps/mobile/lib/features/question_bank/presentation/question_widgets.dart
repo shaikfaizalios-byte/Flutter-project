@@ -42,13 +42,41 @@ String statusLabel(AppLocalizations l10n, VerificationStatus status) => switch (
 };
 
 /// Always-visible provenance label: source questions vs AI-generated ones.
-class OriginChip extends StatelessWidget {
-  const OriginChip({super.key, required this.origin});
+/// Where a library question came from. AI-written ones say so, however well they were checked.
+class LibrarySourceChip extends StatelessWidget {
+  const LibrarySourceChip({super.key, required this.source});
 
-  final QuestionOrigin origin;
+  final String? source;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final ai = source == 'original_ai_verified';
+    return Chip(
+      visualDensity: VisualDensity.compact,
+      avatar: Icon(ai ? Icons.auto_awesome : Icons.local_library_outlined, size: 16),
+      label: Text(switch (source) {
+        'official_pyq' => l10n.librarySourceOfficial,
+        'original_expert' => l10n.librarySourceExpert,
+        'original_ai_verified' => l10n.librarySourceAi,
+        _ => l10n.libraryTitle,
+      }),
+      backgroundColor: ai ? Theme.of(context).colorScheme.tertiaryContainer : null,
+    );
+  }
+}
+
+class OriginChip extends StatelessWidget {
+  const OriginChip({super.key, required this.origin, this.librarySource});
+
+  final QuestionOrigin origin;
+  final String? librarySource;
+
+  @override
+  Widget build(BuildContext context) {
+    if (librarySource != null || origin == QuestionOrigin.library) {
+      return LibrarySourceChip(source: librarySource);
+    }
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final ai = origin == QuestionOrigin.ai;

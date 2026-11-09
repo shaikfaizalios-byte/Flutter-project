@@ -6,7 +6,10 @@ The rest keep theirs in ``answer_spec``:
 
 - multiple_correct: {"correct_positions": [1, 3]}; every correct option and no other is needed
 - numeric: {"value": "2.5", "tolerance": "0.01"} or {"min": "2.4", "max": "2.6"}, as text so no
-  precision is lost; compared as decimals, nothing is rounded
+  precision is lost; compared as decimals. With "decimals": 2 the paper's rule applies: an answer
+  counts if it is right as typed, truncated or rounded to that many places
+- integer: {"value": "7"}; a whole number, compared by value. {"also": ["8"]} adds any others the
+  key accepts
 - fill_blank: {"accepted": ["mitochondria"]}; any of them, ignoring case and spacing
 - match: {"left": [...], "right": [...], "pairs": [[0, 2], [1, 0]]}; exactly these pairs
 - ordering: {"items": [...], "order": [2, 0, 1]}; exactly this order
@@ -16,7 +19,7 @@ Partial marks come from the exam's marking rules, not from here.
 
 import unicodedata
 from collections.abc import Mapping, Sequence
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
 from app.domain import typed_answers
@@ -29,7 +32,7 @@ DESCRIPTIVE = "descriptive"
 # Answered through ``SessionAnswer.response``.
 RESPONSE_FORMATS = ("multiple_correct", "match", "ordering")
 # Typed, but marked by their ``answer_spec``.
-TYPED_SPEC_FORMATS = ("numeric", "fill_blank")
+TYPED_SPEC_FORMATS = ("numeric", "integer", "fill_blank")
 SPEC_FORMATS = (*RESPONSE_FORMATS, *TYPED_SPEC_FORMATS)
 FORMATS = (*SINGLE_ANSWER, TYPED_IN, DESCRIPTIVE, *SPEC_FORMATS)
 # Formats that list their own items instead of using the question's options.
@@ -103,6 +106,11 @@ def spec_problems(format_name: str, spec: Mapping[str, Any] | None, option_count
         return []
     if format_name == "numeric":
         return _numeric_problems(spec)
+    if format_name == "integer":
+        values = [_decimal(v) for v in [spec.get("value"), *spec.get("also", [])]]
+        if not all(v is not None and v == v.to_integral_value() for v in values):
+            return ["give a whole number"]
+        return []
     if format_name == "fill_blank":
         accepted = spec.get("accepted")
         if _texts(accepted) is None or len(accepted or []) > MAX_ACCEPTED:
@@ -124,6 +132,11 @@ def spec_problems(format_name: str, spec: Mapping[str, Any] | None, option_count
 
 
 def _numeric_problems(spec: Mapping[str, Any]) -> list[str]:
+    decimals = spec.get("decimals")
+    if decimals is not None and (
+        isinstance(decimals, bool) or not isinstance(decimals, int) or not 0 <= decimals <= 10
+    ):
+        return ["give the number of decimal places, from 0 to 10"]
     if "value" in spec:
         tolerance = _decimal(spec.get("tolerance", "0"))
         if _decimal(spec["value"]) is None or tolerance is None or tolerance < 0:
@@ -165,6 +178,10 @@ def is_correct(format_name: str, spec: Mapping[str, Any], answer: object) -> boo
     """``answer``: the typed text, or the response of a RESPONSE_FORMATS question."""
     if format_name == "numeric":
         return _numeric_correct(spec, answer)
+    if format_name == "integer":
+        given = _decimal(answer) if isinstance(answer, str) else None
+        accepted = [_decimal(v) for v in [spec["value"], *spec.get("also", [])]]
+        return given is not None and given in accepted
     if format_name == "fill_blank":
         return isinstance(answer, str) and _fold(answer) in {_fold(a) for a in spec["accepted"]}
     if not isinstance(answer, Mapping):
@@ -201,6 +218,22 @@ def _numeric_correct(spec: Mapping[str, Any], answer: object) -> bool:
     given = _decimal(answer) if isinstance(answer, str) else None
     if given is None:
         return False
+    return any(_within(spec, number) for number in _readings(given, spec.get("decimals")))
+
+
+def _readings(given: Decimal, decimals: int | None) -> tuple[Decimal, ...]:
+    """The answer as typed and, under a decimal-places rule, truncated and rounded."""
+    if decimals is None:
+        return (given,)
+    places = Decimal(1).scaleb(-decimals)
+    return (
+        given,
+        given.quantize(places, rounding=ROUND_DOWN),
+        given.quantize(places, rounding=ROUND_HALF_UP),
+    )
+
+
+def _within(spec: Mapping[str, Any], given: Decimal) -> bool:
     if "value" in spec:
         value, tolerance = _decimal(spec["value"]), _decimal(spec.get("tolerance", "0"))
         return value is not None and tolerance is not None and abs(given - value) <= tolerance

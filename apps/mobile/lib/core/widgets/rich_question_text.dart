@@ -27,15 +27,39 @@ class TablePart extends TextPart {
 }
 
 final _delimited = RegExp(
-  r'\$\$(.+?)\$\$|\\\[(.+?)\\\]|\\\((.+?)\\\)|(?<![\\$\w])\$(?![\s$])([^$\n]*?[^\s\\$])\$(?![\d$])',
+  r'\$\$(.+?)\$\$|\\\[(.+?)\\\]|\\\((.+?)\\\)|(?<![\\$\w])\$(?![\s$])([^$\n]*?[^\s\\$])\$(?![\d$])|\\ce\{((?:[^{}]|\{[^{}]*\})*)\}',
   dotAll: true,
 );
+final _chemistry = RegExp(r'\\ce\{((?:[^{}]|\{[^{}]*\})*)\}');
 final _tableRule = RegExp(r'^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$');
 
 /// Splits text into plain text, TeX (`$..$`, `\(..\)` inline; `$$..$$`, `\[..\]` on their own
 /// line) and pipe tables. Text is shown as written: a dollar amount such as "$5 and $6" stays
 /// text, because TeX can't start before a space or end before a digit.
 List<TextPart> splitQuestionText(String text) {
+  final known = _parsed.remove(text);
+  final parts = known ?? _split(text);
+  _parsed[text] = parts; // most recently used last
+  if (_parsed.length > _parsedLimit) _parsed.remove(_parsed.keys.first);
+  return parts;
+}
+
+/// Questions rebuild often (timers, answers), so their text is parsed once.
+const _parsedLimit = 300;
+final _parsed = <String, List<TextPart>>{};
+
+/// `\ce{...}` chemistry as TeX: `H2O`, `SO4^2-`, `2H2 + O2 -> 2H2O`, `N2 + 3H2 <=> 2NH3`.
+String ceToTex(String formula) {
+  var tex = formula.trim();
+  tex = tex.replaceAll('<=>', r' \rightleftharpoons ');
+  tex = tex.replaceAll('<-', r' \leftarrow ').replaceAll('->', r' \rightarrow ');
+  tex = tex.replaceAllMapped(RegExp(r'([A-Za-z)\]])(\d+)'), (m) => '${m[1]}_{${m[2]}}');
+  tex = tex.replaceAllMapped(RegExp(r'\^(?!\{)(\d*[+-])'), (m) => '^{${m[1]}}');
+  tex = tex.trim().replaceAll(RegExp(r'\s+'), r'\ ');
+  return '\\mathrm{$tex}';
+}
+
+List<TextPart> _split(String text) {
   final parts = <TextPart>[];
   void math(String block) {
     var at = 0;
@@ -43,7 +67,10 @@ List<TextPart> splitQuestionText(String text) {
       if (match.start > at) parts.add(PlainPart(block.substring(at, match.start)));
       final display = match.group(1) ?? match.group(2);
       final inline = match.group(3) ?? match.group(4);
-      parts.add(MathPart((display ?? inline)!.trim(), display: display != null));
+      final tex = match.group(5) != null
+          ? ceToTex(match.group(5)!)
+          : (display ?? inline)!.trim().replaceAllMapped(_chemistry, (m) => ceToTex(m[1]!));
+      parts.add(MathPart(tex, display: display != null));
       at = match.end;
     }
     if (at < block.length) parts.add(PlainPart(block.substring(at)));
@@ -124,9 +151,11 @@ class RichQuestionText extends ConsumerWidget {
         case MathPart(:final tex):
           endLine();
           blocks.add(
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: _Tex(tex, style: base, mathStyle: MathStyle.display),
+            RepaintBoundary(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: _Tex(tex, style: base, mathStyle: MathStyle.display),
+              ),
             ),
           );
         case TablePart(:final rows):

@@ -574,6 +574,94 @@
         "title": "AnswerKeyText",
         "type": "object"
       },
+      "AnswerKeyUpdate": {
+        "additionalProperties": false,
+        "description": "The official key of one question. Left out: the answer stays as it is.",
+        "properties": {
+          "accepted_positions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 10,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Positions"
+          },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
+          "correct_option_position": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option Position"
+          },
+          "outcome": {
+            "default": "one",
+            "enum": [
+              "one",
+              "several",
+              "dropped"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "provisional",
+                  "final"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          }
+        },
+        "required": [
+          "stage"
+        ],
+        "title": "AnswerKeyUpdate",
+        "type": "object"
+      },
       "AnswerUpdate": {
         "additionalProperties": false,
         "properties": {
@@ -581,6 +669,17 @@
             "minimum": 0.0,
             "title": "Client Seq",
             "type": "integer"
+          },
+          "marked_for_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marked For Review"
           },
           "response": {
             "anyOf": [
@@ -632,6 +731,11 @@
               }
             ],
             "title": "Typed Answer"
+          },
+          "visit": {
+            "default": false,
+            "title": "Visit",
+            "type": "boolean"
           }
         },
         "required": [
@@ -730,6 +834,103 @@
           "language"
         ],
         "title": "Body_upload_document_api_v1_documents_post",
+        "type": "object"
+      },
+      "Body_upload_official_key_api_v1_documents__document_id__official_key_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "Official answer-key PDF",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_official_key_api_v1_documents__document_id__official_key_post",
+        "type": "object"
+      },
+      "BulkAssign": {
+        "additionalProperties": false,
+        "properties": {
+          "pattern_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
+          },
+          "question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Question Ids",
+            "type": "array"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          },
+          "verification_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "unverified",
+                  "verified",
+                  "rejected"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Status"
+          }
+        },
+        "required": [
+          "question_ids"
+        ],
+        "title": "BulkAssign",
+        "type": "object"
+      },
+      "BulkAssignResult": {
+        "properties": {
+          "failed": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Failed",
+            "type": "array"
+          },
+          "updated": {
+            "title": "Updated",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "updated",
+          "failed"
+        ],
+        "title": "BulkAssignResult",
         "type": "object"
       },
       "CanonicalDecision": {
@@ -898,6 +1099,143 @@
         "title": "Change",
         "type": "object"
       },
+      "ChapterAccuracy": {
+        "properties": {
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "time_ms": {
+            "title": "Time Ms",
+            "type": "integer"
+          },
+          "unattempted": {
+            "title": "Unattempted",
+            "type": "integer"
+          },
+          "wrong": {
+            "title": "Wrong",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "subject",
+          "name",
+          "correct",
+          "wrong",
+          "unattempted",
+          "time_ms"
+        ],
+        "title": "ChapterAccuracy",
+        "type": "object"
+      },
+      "ChapterReport": {
+        "properties": {
+          "basis": {
+            "$ref": "#/components/schemas/ShiftBasis"
+          },
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/ChapterWeight"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "mine",
+              "shared",
+              "all"
+            ],
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "scope",
+          "basis",
+          "chapters"
+        ],
+        "title": "ChapterReport",
+        "type": "object"
+      },
+      "ChapterWeight": {
+        "description": "A chapter in the counted papers. Its weight in a year is its questions over the year's\nquestions in ``ShiftBasis``.",
+        "properties": {
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/SessionWeight"
+            },
+            "title": "Sessions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicWeight"
+            },
+            "title": "Topics",
+            "type": "array"
+          },
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/YearWeight"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "subject",
+          "name",
+          "questions",
+          "shifts",
+          "years",
+          "sessions",
+          "topics"
+        ],
+        "title": "ChapterWeight",
+        "type": "object"
+      },
       "ConceptCreate": {
         "additionalProperties": false,
         "properties": {
@@ -992,6 +1330,94 @@
           "language"
         ],
         "title": "ConceptCreate",
+        "type": "object"
+      },
+      "ConceptHintQuestion": {
+        "properties": {
+          "excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Excerpt"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "question_id",
+          "year",
+          "number",
+          "excerpt"
+        ],
+        "title": "ConceptHintQuestion",
+        "type": "object"
+      },
+      "ConceptHintRead": {
+        "description": "Questions an AI read as testing one concept. A hint, outside every reviewed count.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/ConceptHintQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "topic_name",
+          "label",
+          "shifts",
+          "questions"
+        ],
+        "title": "ConceptHintRead",
         "type": "object"
       },
       "ConceptInput": {
@@ -1460,6 +1886,23 @@
           "resolved_at"
         ],
         "title": "ContentReportRead",
+        "type": "object"
+      },
+      "CorrectionResult": {
+        "properties": {
+          "entry": {
+            "$ref": "#/components/schemas/LibraryEntryRead"
+          },
+          "sessions_remarked": {
+            "title": "Sessions Remarked",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "entry",
+          "sessions_remarked"
+        ],
+        "title": "CorrectionResult",
         "type": "object"
       },
       "CustomExamCreate": {
@@ -2731,6 +3174,34 @@
         "title": "ErrorResponse",
         "type": "object"
       },
+      "ExamChapter": {
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "total_shifts": {
+            "title": "Total Shifts",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "exam_code",
+          "questions",
+          "shifts",
+          "total_shifts"
+        ],
+        "title": "ExamChapter",
+        "type": "object"
+      },
       "ExamCounts": {
         "properties": {
           "answered": {
@@ -3195,6 +3666,18 @@
       },
       "ExamStageRead": {
         "properties": {
+          "conduct": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conduct"
+          },
           "duration_minutes": {
             "anyOf": [
               {
@@ -3286,6 +3769,20 @@
       },
       "Feedback": {
         "properties": {
+          "accepted_positions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Positions"
+          },
           "correct_position": {
             "anyOf": [
               {
@@ -3356,6 +3853,33 @@
               }
             ],
             "title": "Is Correct"
+          },
+          "key_note": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dropped",
+                  "several",
+                  "changed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Note"
+          },
+          "percent_right": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent Right"
           }
         },
         "required": [
@@ -3460,6 +3984,17 @@
             ],
             "title": "Source",
             "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
           },
           "width": {
             "title": "Width",
@@ -3588,6 +4123,92 @@
         "title": "GenerateQuestionsResult",
         "type": "object"
       },
+      "GeneratedReviewRead": {
+        "description": "A generated question for a person to judge, with its answer.",
+        "properties": {
+          "answer_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Index"
+          },
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "solution": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Solution",
+            "type": "array"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "exam_code",
+          "subject",
+          "topic_name",
+          "difficulty",
+          "format",
+          "stem",
+          "options",
+          "answer_index",
+          "answer_spec",
+          "solution"
+        ],
+        "title": "GeneratedReviewRead",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -3628,6 +4249,35 @@
           "environment"
         ],
         "title": "HealthResponse",
+        "type": "object"
+      },
+      "ImportCheckRead": {
+        "properties": {
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "problems": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionCountRead"
+            },
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ok",
+          "sections",
+          "problems"
+        ],
+        "title": "ImportCheckRead",
         "type": "object"
       },
       "IssueRead": {
@@ -3712,6 +4362,23 @@
           "question_number"
         ],
         "title": "ItemSource",
+        "type": "object"
+      },
+      "KeySaved": {
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/QuestionRead"
+          },
+          "sessions_remarked": {
+            "title": "Sessions Remarked",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "question",
+          "sessions_remarked"
+        ],
+        "title": "KeySaved",
         "type": "object"
       },
       "LadderAnswer": {
@@ -4034,6 +4701,18 @@
             "title": "Basis Web",
             "type": "boolean"
           },
+          "checks": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checks"
+          },
           "difficulty": {
             "enum": [
               "easy",
@@ -4137,7 +4816,8 @@
               {
                 "enum": [
                   "ai",
-                  "paper"
+                  "paper",
+                  "library"
                 ],
                 "type": "string"
               },
@@ -4220,6 +4900,751 @@
           "papers"
         ],
         "title": "LadderTopic",
+        "type": "object"
+      },
+      "LibraryCorrection": {
+        "additionalProperties": false,
+        "description": "Only what changes. The reason is kept with the new version.",
+        "properties": {
+          "answer_spec": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Spec"
+          },
+          "correct_option_position": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option Position"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "maxLength": 10000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "report_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Id"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "maxLength": 10000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "LibraryCorrection",
+        "type": "object"
+      },
+      "LibraryCreate": {
+        "additionalProperties": false,
+        "description": "A question of the editor's own imported paper, or a new one written for the library.",
+        "properties": {
+          "correct_option_position": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option Position"
+          },
+          "difficulty": {
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "exam_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Code"
+          },
+          "exam_year": {
+            "anyOf": [
+              {
+                "maximum": 2100.0,
+                "minimum": 1950.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Year"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "maxLength": 10000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "language": {
+            "default": "en",
+            "enum": [
+              "en",
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "options": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/NewOption"
+            },
+            "maxItems": 10,
+            "title": "Options",
+            "type": "array"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "rights_note": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rights Note"
+          },
+          "rights_status": {
+            "default": "pending",
+            "enum": [
+              "licensed",
+              "owned",
+              "pending"
+            ],
+            "title": "Rights Status",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "official_pyq",
+              "original_expert",
+              "original_ai_verified"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "maxLength": 10000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          }
+        },
+        "required": [
+          "source_type",
+          "difficulty"
+        ],
+        "title": "LibraryCreate",
+        "type": "object"
+      },
+      "LibraryEntryRead": {
+        "description": "What staff see. The key is left out, so a second solve stays independent.",
+        "properties": {
+          "approved_by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By Name"
+          },
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "author_name": {
+            "title": "Author Name",
+            "type": "string"
+          },
+          "difficulty": {
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "exam_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Year"
+          },
+          "observed_difficulty": {
+            "anyOf": [
+              {
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Difficulty"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "rights_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rights Note"
+          },
+          "rights_status": {
+            "enum": [
+              "licensed",
+              "owned",
+              "pending"
+            ],
+            "title": "Rights Status",
+            "type": "string"
+          },
+          "solved_by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solved By Name"
+          },
+          "source_type": {
+            "enum": [
+              "official_pyq",
+              "original_expert",
+              "original_ai_verified"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "solved",
+              "approved",
+              "withdrawn"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "question_id",
+          "source_type",
+          "rights_status",
+          "rights_note",
+          "author_name",
+          "status",
+          "solved_by_name",
+          "approved_by_name",
+          "version",
+          "exam_year",
+          "difficulty",
+          "observed_difficulty",
+          "attempts"
+        ],
+        "title": "LibraryEntryRead",
+        "type": "object"
+      },
+      "LibraryHit": {
+        "properties": {
+          "difficulty": {
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "exam_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Year"
+          },
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
+          "percent_right": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent Right"
+          },
+          "pictured": {
+            "title": "Pictured",
+            "type": "boolean"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "official_pyq",
+              "original_expert",
+              "original_ai_verified"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "required": [
+          "question_id",
+          "exam_code",
+          "stem",
+          "format",
+          "source_type",
+          "exam_year",
+          "difficulty",
+          "subject",
+          "topic",
+          "pictured",
+          "percent_right"
+        ],
+        "title": "LibraryHit",
+        "type": "object"
+      },
+      "LibraryPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LibraryHit"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "LibraryPage",
+        "type": "object"
+      },
+      "LibraryQuestionRead": {
+        "description": "A question as a reviewer sees it. The key stays hidden until a second person has solved it,\nso that solve is independent.",
+        "properties": {
+          "correct_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Position"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "figures": {
+            "items": {
+              "$ref": "#/components/schemas/FigureRead"
+            },
+            "title": "Figures",
+            "type": "array"
+          },
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/OptionRead"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          }
+        },
+        "required": [
+          "question_id",
+          "exam_code",
+          "stem",
+          "format",
+          "options",
+          "figures",
+          "correct_position",
+          "typed_answer",
+          "explanation"
+        ],
+        "title": "LibraryQuestionRead",
+        "type": "object"
+      },
+      "LibraryReportRead": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "question_id",
+          "kind",
+          "text"
+        ],
+        "title": "LibraryReportRead",
+        "type": "object"
+      },
+      "LibraryRights": {
+        "additionalProperties": false,
+        "properties": {
+          "rights_note": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Rights Note",
+            "type": "string"
+          },
+          "rights_status": {
+            "enum": [
+              "licensed",
+              "owned",
+              "pending"
+            ],
+            "title": "Rights Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rights_status",
+          "rights_note"
+        ],
+        "title": "LibraryRights",
+        "type": "object"
+      },
+      "LibrarySolve": {
+        "additionalProperties": false,
+        "description": "The second reviewer's own answer, given without seeing the key.",
+        "properties": {
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
+          "selected_position": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Position"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          }
+        },
+        "title": "LibrarySolve",
+        "type": "object"
+      },
+      "LibraryVersionRead": {
+        "properties": {
+          "changed_by": {
+            "title": "Changed By",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "changed_by",
+          "reason"
+        ],
+        "title": "LibraryVersionRead",
+        "type": "object"
+      },
+      "LibraryWithdraw": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "LibraryWithdraw",
         "type": "object"
       },
       "LoginRequest": {
@@ -4323,10 +5748,58 @@
         "title": "MarkingSchemeRead",
         "type": "object"
       },
+      "MockAnalysis": {
+        "properties": {
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/ChapterAccuracy"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/MockHistoryRow"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "percentile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PercentileRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionAnalysis"
+            },
+            "title": "Questions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "questions",
+          "chapters",
+          "history",
+          "percentile"
+        ],
+        "title": "MockAnalysis",
+        "type": "object"
+      },
       "MockAvailability": {
         "properties": {
           "available": {
             "title": "Available",
+            "type": "boolean"
+          },
+          "computer_based": {
+            "default": false,
+            "title": "Computer Based",
             "type": "boolean"
           },
           "duration_minutes": {
@@ -4387,6 +5860,11 @@
             "title": "Section Counts Indicative",
             "type": "boolean"
           },
+          "sectional_timing": {
+            "default": false,
+            "title": "Sectional Timing",
+            "type": "boolean"
+          },
           "sections": {
             "items": {
               "$ref": "#/components/schemas/SectionAvailability"
@@ -4425,12 +5903,67 @@
             "default": false,
             "title": "Include New Formats",
             "type": "boolean"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
           }
         },
         "required": [
           "exam_format_code"
         ],
         "title": "MockCreate",
+        "type": "object"
+      },
+      "MockHistoryRow": {
+        "properties": {
+          "current": {
+            "title": "Current",
+            "type": "boolean"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "number"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "required": [
+          "session_id",
+          "submitted_at",
+          "score",
+          "max_score",
+          "current"
+        ],
+        "title": "MockHistoryRow",
         "type": "object"
       },
       "MockResult": {
@@ -4517,6 +6050,120 @@
         "title": "MockResult",
         "type": "object"
       },
+      "ModelApproval": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 3,
+            "title": "Name",
+            "type": "string"
+          },
+          "question_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Ids"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "ModelApproval",
+        "type": "object"
+      },
+      "ModelApproved": {
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "questions"
+        ],
+        "title": "ModelApproved",
+        "type": "object"
+      },
+      "ModelProposalQuestion": {
+        "properties": {
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "text"
+        ],
+        "title": "ModelProposalQuestion",
+        "type": "object"
+      },
+      "ModelProposalRead": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/ModelProposalQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "topic_name",
+          "shifts",
+          "questions"
+        ],
+        "title": "ModelProposalRead",
+        "type": "object"
+      },
+      "ModelsProposed": {
+        "properties": {
+          "proposed": {
+            "title": "Proposed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "proposed"
+        ],
+        "title": "ModelsProposed",
+        "type": "object"
+      },
       "NameSuggestion": {
         "description": "Questions worded alike across papers with no model yet. A prompt to name them: nothing\nis created until a person does.",
         "properties": {
@@ -4550,6 +6197,29 @@
         "title": "NameSuggestion",
         "type": "object"
       },
+      "NewOption": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "maxLength": 8,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "text"
+        ],
+        "title": "NewOption",
+        "type": "object"
+      },
       "NotRepeated": {
         "description": "The other side of repeats, for one exam: what these papers did not ask. Not a\nprediction: a topic missing from a few papers can still be asked.",
         "properties": {
@@ -4576,6 +6246,59 @@
           }
         },
         "title": "NotRepeated",
+        "type": "object"
+      },
+      "OfficialKeyResult": {
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "integer"
+          },
+          "dropped": {
+            "title": "Dropped",
+            "type": "integer"
+          },
+          "missing": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "problems": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "sessions_remarked": {
+            "title": "Sessions Remarked",
+            "type": "integer"
+          },
+          "several": {
+            "title": "Several",
+            "type": "integer"
+          },
+          "stage": {
+            "enum": [
+              "provisional",
+              "final"
+            ],
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "applied",
+          "several",
+          "dropped",
+          "missing",
+          "problems",
+          "sessions_remarked"
+        ],
+        "title": "OfficialKeyResult",
         "type": "object"
       },
       "OfflineAnswer": {
@@ -4723,6 +6446,17 @@
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "library_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Library Source"
           },
           "options": {
             "items": {
@@ -5040,6 +6774,316 @@
           "exam_codes"
         ],
         "title": "OwnTopicRead",
+        "type": "object"
+      },
+      "PackDelta": {
+        "properties": {
+          "figures": {
+            "items": {
+              "$ref": "#/components/schemas/PackFigure"
+            },
+            "title": "Figures",
+            "type": "array"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/PackQuestion"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "removed": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Removed",
+            "type": "array"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "seq",
+          "questions",
+          "figures",
+          "removed"
+        ],
+        "title": "PackDelta",
+        "type": "object"
+      },
+      "PackFigure": {
+        "properties": {
+          "data": {
+            "title": "Data",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "question_id",
+          "data"
+        ],
+        "title": "PackFigure",
+        "type": "object"
+      },
+      "PackQuestion": {
+        "properties": {
+          "answer_type": {
+            "enum": [
+              "choice",
+              "typed"
+            ],
+            "title": "Answer Type",
+            "type": "string"
+          },
+          "correct_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Position"
+          },
+          "document_filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Filename"
+          },
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "figures": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Figures",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "library_source": {
+            "enum": [
+              "official_pyq",
+              "original_expert",
+              "original_ai_verified"
+            ],
+            "title": "Library Source",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/OptionRead"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "passage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassageRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pattern_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
+          },
+          "question_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Number"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          },
+          "shared": {
+            "title": "Shared",
+            "type": "boolean"
+          },
+          "shared_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared Source"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          },
+          "typed_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typed Answer"
+          },
+          "typed_answer_numeric": {
+            "title": "Typed Answer Numeric",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "exam_code",
+          "section",
+          "subject",
+          "topic_id",
+          "pattern_id",
+          "stem",
+          "passage",
+          "options",
+          "answer_type",
+          "correct_position",
+          "typed_answer",
+          "typed_answer_numeric",
+          "explanation",
+          "shared",
+          "shared_source",
+          "document_filename",
+          "page",
+          "question_number",
+          "library_source"
+        ],
+        "title": "PackQuestion",
+        "type": "object"
+      },
+      "PackRead": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "subject",
+          "questions",
+          "seq"
+        ],
+        "title": "PackRead",
         "type": "object"
       },
       "PageList": {
@@ -5958,6 +8002,25 @@
         "title": "PatternRepeat",
         "type": "object"
       },
+      "PercentileRead": {
+        "description": "From real PrepLoop attempts only: each account's first attempt at this paper.",
+        "properties": {
+          "accounts": {
+            "title": "Accounts",
+            "type": "integer"
+          },
+          "percent": {
+            "title": "Percent",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "percent",
+          "accounts"
+        ],
+        "title": "PercentileRead",
+        "type": "object"
+      },
       "PlayPurchaseVerify": {
         "additionalProperties": false,
         "description": "A Google Play purchase the app reports after buying or restoring.",
@@ -6270,6 +8333,76 @@
         "title": "PushResult",
         "type": "object"
       },
+      "QuestionAnalysis": {
+        "properties": {
+          "marked": {
+            "title": "Marked",
+            "type": "boolean"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "number"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          },
+          "status": {
+            "enum": [
+              "correct",
+              "wrong",
+              "unattempted",
+              "dropped"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "time_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Ms"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "required": [
+          "position",
+          "section",
+          "topic",
+          "status",
+          "marks",
+          "time_ms",
+          "marked"
+        ],
+        "title": "QuestionAnalysis",
+        "type": "object"
+      },
       "QuestionHistory": {
         "properties": {
           "attempts": {
@@ -6366,6 +8499,20 @@
       },
       "QuestionRead": {
         "properties": {
+          "accepted_positions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Positions"
+          },
           "ai": {
             "anyOf": [
               {
@@ -6529,6 +8676,36 @@
             "title": "Issues",
             "type": "array"
           },
+          "key_changed": {
+            "default": false,
+            "title": "Key Changed",
+            "type": "boolean"
+          },
+          "key_outcome": {
+            "default": "one",
+            "enum": [
+              "one",
+              "several",
+              "dropped"
+            ],
+            "title": "Key Outcome",
+            "type": "string"
+          },
+          "key_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "provisional",
+                  "final"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Stage"
+          },
           "language": {
             "enum": [
               "en",
@@ -6546,6 +8723,17 @@
             ],
             "title": "Language",
             "type": "string"
+          },
+          "library_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Library Source"
           },
           "marks": {
             "anyOf": [
@@ -6583,7 +8771,8 @@
           "origin": {
             "enum": [
               "source",
-              "ai"
+              "ai",
+              "library"
             ],
             "title": "Origin",
             "type": "string"
@@ -8149,6 +10338,29 @@
         "title": "SectionAvailability",
         "type": "object"
       },
+      "SectionCountRead": {
+        "properties": {
+          "expected": {
+            "title": "Expected",
+            "type": "integer"
+          },
+          "found": {
+            "title": "Found",
+            "type": "integer"
+          },
+          "section": {
+            "title": "Section",
+            "type": "string"
+          }
+        },
+        "required": [
+          "section",
+          "expected",
+          "found"
+        ],
+        "title": "SectionCountRead",
+        "type": "object"
+      },
       "SectionRead": {
         "description": "One timed section of a sectionally timed mock (positions inclusive, 1-based).",
         "properties": {
@@ -8216,6 +10428,11 @@
               }
             ],
             "title": "Cutoff"
+          },
+          "dropped": {
+            "default": 0,
+            "title": "Dropped",
+            "type": "integer"
           },
           "explanation": {
             "title": "Explanation",
@@ -8368,6 +10585,22 @@
             ],
             "title": "Format Data"
           },
+          "library_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Library Source"
+          },
+          "marked_for_review": {
+            "default": false,
+            "title": "Marked For Review",
+            "type": "boolean"
+          },
           "options": {
             "items": {
               "$ref": "#/components/schemas/OptionRead"
@@ -8380,7 +10613,8 @@
               {
                 "enum": [
                   "source",
-                  "ai"
+                  "ai",
+                  "library"
                 ],
                 "type": "string"
               },
@@ -8507,6 +10741,11 @@
           "verified": {
             "title": "Verified",
             "type": "boolean"
+          },
+          "visited": {
+            "default": false,
+            "title": "Visited",
+            "type": "boolean"
           }
         },
         "required": [
@@ -8554,6 +10793,18 @@
           "answered_count": {
             "title": "Answered Count",
             "type": "integer"
+          },
+          "cbt": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cbt"
           },
           "current_section": {
             "anyOf": [
@@ -8657,6 +10908,17 @@
             ],
             "title": "Section Deadline At"
           },
+          "sectional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sectional"
+          },
           "sections": {
             "default": [],
             "items": {
@@ -8749,6 +11011,11 @@
             "title": "Correct",
             "type": "integer"
           },
+          "dropped": {
+            "default": 0,
+            "title": "Dropped",
+            "type": "integer"
+          },
           "explanation": {
             "title": "Explanation",
             "type": "string"
@@ -8765,6 +11032,11 @@
             "default": 0,
             "title": "Partial",
             "type": "integer"
+          },
+          "remarked": {
+            "default": false,
+            "title": "Remarked",
+            "type": "boolean"
           },
           "score": {
             "title": "Score",
@@ -8918,6 +11190,29 @@
         "title": "SessionSummary",
         "type": "object"
       },
+      "SessionWeight": {
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "session": {
+            "title": "Session",
+            "type": "string"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "session",
+          "questions",
+          "shifts"
+        ],
+        "title": "SessionWeight",
+        "type": "object"
+      },
       "SharedBankExam": {
         "description": "Starter papers: what the shared bank holds for one exam (verified questions only).",
         "properties": {
@@ -8940,6 +11235,73 @@
           "questions"
         ],
         "title": "SharedBankExam",
+        "type": "object"
+      },
+      "SharedChapter": {
+        "description": "A chapter reviewers linked across exams.",
+        "properties": {
+          "exams": {
+            "items": {
+              "$ref": "#/components/schemas/ExamChapter"
+            },
+            "title": "Exams",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "name",
+          "exams"
+        ],
+        "title": "SharedChapter",
+        "type": "object"
+      },
+      "ShiftBasis": {
+        "description": "What was counted: every shift, and the reviewed questions in them.",
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/SessionWeight"
+            },
+            "title": "Sessions",
+            "type": "array"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "unreviewed": {
+            "title": "Unreviewed",
+            "type": "integer"
+          },
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/YearWeight"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "shifts",
+          "questions",
+          "unreviewed",
+          "years",
+          "sessions"
+        ],
+        "title": "ShiftBasis",
         "type": "object"
       },
       "SignedOut": {
@@ -9084,6 +11446,23 @@
           "text"
         ],
         "title": "SnapshotOption",
+        "type": "object"
+      },
+      "SolveResult": {
+        "properties": {
+          "agrees": {
+            "title": "Agrees",
+            "type": "boolean"
+          },
+          "entry": {
+            "$ref": "#/components/schemas/LibraryEntryRead"
+          }
+        },
+        "required": [
+          "agrees",
+          "entry"
+        ],
+        "title": "SolveResult",
         "type": "object"
       },
       "StageSection": {
@@ -10369,6 +12748,11 @@
             "title": "Correct",
             "type": "integer"
           },
+          "dropped": {
+            "default": 0,
+            "title": "Dropped",
+            "type": "integer"
+          },
           "explanation": {
             "title": "Explanation",
             "type": "string"
@@ -10553,6 +12937,35 @@
           }
         },
         "title": "TopicUpdate",
+        "type": "object"
+      },
+      "TopicWeight": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "topic_id": {
+            "format": "uuid",
+            "title": "Topic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "questions",
+          "shifts"
+        ],
+        "title": "TopicWeight",
         "type": "object"
       },
       "TopicsBulkCreate": {
@@ -10805,6 +13218,40 @@
           "questions"
         ],
         "title": "YearCount",
+        "type": "object"
+      },
+      "YearWeight": {
+        "properties": {
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "shifts": {
+            "title": "Shifts",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "questions",
+          "shifts"
+        ],
+        "title": "YearWeight",
         "type": "object"
       }
     },
@@ -15124,6 +17571,192 @@
         ]
       }
     },
+    "/api/v1/documents/{document_id}/import-check": {
+      "get": {
+        "operationId": "import_check_api_v1_documents__document_id__import_check_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format_code",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "title": "Format Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCheckRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Compare an imported paper with a format: counts, keys and question formats",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/official-key": {
+      "post": {
+        "operationId": "upload_official_key_api_v1_documents__document_id__official_key_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_official_key_api_v1_documents__document_id__official_key_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfficialKeyResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Document not found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "file_too_large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "unsupported_file_type (not a PDF)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "validation_error, invalid_reference, empty_file, invalid_pdf, encrypted_pdf, too_many_pages"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited (see Retry-After)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Match an official key file to this paper by question ID (the file isn't kept)",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/v1/documents/{document_id}/pages": {
       "get": {
         "operationId": "get_document_pages_api_v1_documents__document_id__pages_get",
@@ -16253,6 +18886,141 @@
         ]
       }
     },
+    "/api/v1/insights/chapters": {
+      "get": {
+        "operationId": "chapters_api_v1_insights_chapters_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "enum": [
+                "mine",
+                "shared",
+                "all"
+              ],
+              "title": "Scope",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChapterReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chapters by shift and year, from reviewed questions in the counted papers",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/insights/concept-hints": {
+      "get": {
+        "operationId": "concept_hints_api_v1_insights_concept_hints_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConceptHintRead"
+                  },
+                  "title": "Response Concept Hints Api V1 Insights Concept Hints Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "AI hints of questions testing one concept, outside every reviewed count",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
     "/api/v1/insights/repeats": {
       "get": {
         "operationId": "repeats_api_v1_insights_repeats_get",
@@ -16372,6 +19140,87 @@
           }
         ],
         "summary": "Starter papers: shared papers and verified questions per exam",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/insights/shared-chapters": {
+      "get": {
+        "operationId": "shared_chapters_api_v1_insights_shared_chapters_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 4,
+              "minItems": 2,
+              "title": "Exam",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "enum": [
+                "mine",
+                "shared",
+                "all"
+              ],
+              "title": "Scope",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SharedChapter"
+                  },
+                  "title": "Response Shared Chapters Api V1 Insights Shared Chapters Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chapters reviewers linked across these exams",
         "tags": [
           "insights"
         ]
@@ -16875,6 +19724,1270 @@
         ]
       }
     },
+    "/api/v1/library/entries": {
+      "get": {
+        "operationId": "queue_api_v1_library_entries_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 9,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LibraryEntryRead"
+                  },
+                  "title": "Response Queue Api V1 Library Entries Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "The review queue",
+        "tags": [
+          "library"
+        ]
+      },
+      "post": {
+        "operationId": "create_api_v1_library_entries_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryEntryRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add a question as a draft",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/approve": {
+      "post": {
+        "operationId": "approve_api_v1_library_entries__question_id__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryEntryRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Approve a question",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/correct": {
+      "post": {
+        "operationId": "correct_api_v1_library_entries__question_id__correct_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryCorrection"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrectionResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A new version: attempts are marked again",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/figures/{figure_id}": {
+      "get": {
+        "operationId": "figure_api_v1_library_entries__question_id__figures__figure_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "figure_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Figure Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A figure of a question under review (PNG)",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/question": {
+      "get": {
+        "operationId": "question_api_v1_library_entries__question_id__question_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryQuestionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A question for review; the key stays hidden until it has been solved",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/rights": {
+      "put": {
+        "operationId": "set_rights_api_v1_library_entries__question_id__rights_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryRights"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryEntryRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Record the rights",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/solve": {
+      "post": {
+        "operationId": "solve_api_v1_library_entries__question_id__solve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibrarySolve"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A second reviewer's own answer",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/versions": {
+      "get": {
+        "operationId": "versions_api_v1_library_entries__question_id__versions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LibraryVersionRead"
+                  },
+                  "title": "Response Versions Api V1 Library Entries  Question Id  Versions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A question's version history",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/entries/{question_id}/withdraw": {
+      "post": {
+        "operationId": "withdraw_api_v1_library_entries__question_id__withdraw_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryWithdraw"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryEntryRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Take a question out of the library",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/generated": {
+      "get": {
+        "operationId": "generated_api_v1_library_generated_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GeneratedReviewRead"
+                  },
+                  "title": "Response Generated Api V1 Library Generated Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Generated questions waiting for a person",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/generated/{review_id}/accept": {
+      "post": {
+        "operationId": "accept_generated_api_v1_library_generated__review_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "review_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Review Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryEntryRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Make it a library draft, for the usual second solve and approval",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/generated/{review_id}/reject": {
+      "post": {
+        "operationId": "reject_generated_api_v1_library_generated__review_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "review_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Review Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryWithdraw"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reject a generated question",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/model-proposals": {
+      "get": {
+        "operationId": "model_proposals_api_v1_library_model_proposals_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ModelProposalRead"
+                  },
+                  "title": "Response Model Proposals Api V1 Library Model Proposals Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Clusters of alike questions waiting for a subject reviewer",
+        "tags": [
+          "library"
+        ]
+      },
+      "post": {
+        "operationId": "run_proposals_api_v1_library_model_proposals_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsProposed"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Rebuild the proposals from curated papers",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/model-proposals/{proposal_id}/approve": {
+      "post": {
+        "operationId": "approve_model_api_v1_library_model_proposals__proposal_id__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelApproval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelApproved"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Name the model and confirm it on the questions kept",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/model-proposals/{proposal_id}/reject": {
+      "post": {
+        "operationId": "reject_model_api_v1_library_model_proposals__proposal_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryWithdraw"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reject a proposal: it won't be proposed again",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/packs": {
+      "get": {
+        "operationId": "packs_api_v1_library_packs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PackRead"
+                  },
+                  "title": "Response Packs Api V1 Library Packs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chapter packs for offline use",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/packs/{key}": {
+      "get": {
+        "operationId": "pack_api_v1_library_packs__key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Since",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackDelta"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "A chapter's changes since a device's copy",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/reports": {
+      "get": {
+        "operationId": "reports_api_v1_library_reports_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LibraryReportRead"
+                  },
+                  "title": "Response Reports Api V1 Library Reports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reported mistakes",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/reports/{report_id}/dismiss": {
+      "post": {
+        "operationId": "dismiss_api_v1_library_reports__report_id__dismiss_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryWithdraw"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Close a report that needs no change",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/v1/library/search": {
+      "get": {
+        "operationId": "search_api_v1_library_search_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "unit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Unit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "topic_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Topic Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pattern_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pattern Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 20,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Format"
+            }
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1950,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "in": "query",
+            "name": "difficulty",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 6,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Difficulty"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 100000,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search the library",
+        "tags": [
+          "library"
+        ]
+      }
+    },
     "/api/v1/me/exams": {
       "get": {
         "operationId": "my_exams_api_v1_me_exams_get",
@@ -17328,6 +21441,66 @@
         "summary": "Start a free test subscription (development servers only)",
         "tags": [
           "plus"
+        ]
+      }
+    },
+    "/api/v1/media/figures/{sha256}.png": {
+      "get": {
+        "operationId": "figure_api_v1_media_figures__sha256__png_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sha256",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Sha256",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "e",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "title": "E",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "s",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 8,
+              "title": "S",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "A figure by the hash of its bytes, through a signed link",
+        "tags": [
+          "media"
         ]
       }
     },
@@ -18349,6 +22522,64 @@
         ]
       }
     },
+    "/api/v1/practice/sessions/{session_id}/analysis": {
+      "get": {
+        "operationId": "mock_analysis_api_v1_practice_sessions__session_id__analysis_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MockAnalysis"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "After a mock: marks and time per question, chapters, history, percentile",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
     "/api/v1/practice/sessions/{session_id}/answers/{position}": {
       "put": {
         "operationId": "save_answer_api_v1_practice_sessions__session_id__answers__position__put",
@@ -19001,6 +23232,62 @@
         ]
       }
     },
+    "/api/v1/questions/bulk-assign": {
+      "post": {
+        "operationId": "bulk_assign_api_v1_questions_bulk_assign_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkAssign"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkAssignResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Set a topic, a model or a review state on many questions at once",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
     "/api/v1/questions/{question_id}": {
       "get": {
         "operationId": "get_question_api_v1_questions__question_id__get",
@@ -19140,6 +23427,84 @@
           }
         ],
         "summary": "Review a question (edit, verify, reject)",
+        "tags": [
+          "questions"
+        ]
+      }
+    },
+    "/api/v1/questions/{question_id}/answer-key": {
+      "put": {
+        "operationId": "set_answer_key_api_v1_questions__question_id__answer_key_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerKeyUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeySaved"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Question not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Record the official key: a final key re-marks every attempt at this question",
         "tags": [
           "questions"
         ]

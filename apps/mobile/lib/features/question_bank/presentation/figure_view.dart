@@ -32,7 +32,9 @@ class QuestionFigureView extends ConsumerWidget {
       FigureKind.option => l10n.figureOptionLabel(figure.pageNumber),
       FigureKind.stem => l10n.figureLabel(figure.pageNumber),
     };
-    final image = ref.watch(figureBytesProvider((questionId, figure.id)));
+    final image = figure.url == null
+        ? ref.watch(figureBytesProvider((questionId, figure.id)))
+        : ref.watch(publicFigureProvider((questionId, figure.id, figure.url!)));
     final colors = Theme.of(context).colorScheme;
 
     return LayoutBuilder(

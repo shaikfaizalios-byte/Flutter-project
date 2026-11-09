@@ -22,6 +22,7 @@ from app.domain import question_formats, scoring
 from app.domain.ai_content import LANGUAGE_NAMES
 from app.domain.exam_format import SectionMarking
 from app.domain.exam_profile import ladder_times
+from app.domain.recompute import KINDS
 from app.domain.similarity import THRESHOLD, normalise, stem_similarity
 from app.domain.untrusted import UNTRUSTED_RULE, material
 
@@ -43,7 +44,9 @@ MAX_INVALID_RETRIES = 1  # after output that doesn't fit the schema
 SINGLE_CORRECT = "single_correct"
 # Formats the ladder can write and check. The rest are never generated.
 ONE_OPTION = (SINGLE_CORRECT, "statement", "assertion_reason")
-GENERATED_FORMATS = (*ONE_OPTION, "multiple_correct", "numeric", "match")
+NUMBERS = ("numeric", "integer")
+PARAGRAPH = "paragraph"  # one question on a passage, written for exams whose rules ask for it
+GENERATED_FORMATS = (*ONE_OPTION, "multiple_correct", *NUMBERS, "match")
 MIN_STATEMENTS = 2
 MAX_STATEMENTS = 6
 MAX_STEM = 1500
@@ -66,6 +69,14 @@ class ExamContext:
     options: int
     marking: SectionMarking | None  # None: no marks stated for this subject
     base_time_seconds: float
+    # From data/ladder_rules: the exam's own level meanings, and the stricter checks.
+    anchors: Mapping[str, str] | None = None
+    strict: bool = False
+    # A section's marks by format, where a subject's sections differ.
+    markings: Mapping[str, SectionMarking] | None = None
+
+    def marking_for(self, format_name: str) -> SectionMarking | None:
+        return (self.markings or {}).get(format_name, self.marking)
 
 
 def allowed_formats(
@@ -241,10 +252,65 @@ GENERATED_SCHEMA: dict[str, Any] = {
     "additionalProperties": False,
 }
 
+STRUCTURED_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "kind": {"type": "string", "enum": list(KINDS)},
+        "given": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "value": {"type": "string"},
+                    "unit": {"type": "string"},
+                },
+                "required": ["name", "value"],
+                "additionalProperties": False,
+            },
+        },
+        "formula": {"type": "string"},
+        "steps": {"type": "array", "items": {"type": "string"}},
+        "expression": {"type": "string"},
+        "unit": {"type": "string"},
+        "decimals": {"type": "integer"},
+        "symbols": {"type": "array", "items": {"type": "string"}},
+        "option_expressions": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["kind"],
+    "additionalProperties": False,
+}
+STRICT_SCHEMA: dict[str, Any] = {
+    **GENERATED_SCHEMA,
+    "properties": {
+        **GENERATED_SCHEMA["properties"],
+        "passage": {"type": "string"},
+        "structured": STRUCTURED_SCHEMA,
+    },
+    "required": [*GENERATED_SCHEMA["required"], "structured"],
+}
+KEY_FIELDS = ("answer_index", "correct_indices", "numeric_answer")
+
+STRICT_RULES = """
+
+STRUCTURED SOLUTION
+Besides "solution", return "structured", which the app recalculates in code:
+- "kind": "numeric" (the answer is a value), "symbolic" (the answer is a formula), "reasoning",
+  or "fact_recall" (the answer rests on remembered facts).
+- For numeric: "given", each with "name", "value" and "unit"; "formula" in words; "steps";
+  "expression", using only those names, numbers, + - * / ^ and sqrt, exp, ln, log10, sin, cos,
+  tan, asin, acos, atan, abs, pi; "unit", the answer's unit; and "decimals" if the question
+  states a rounding rule.
+  Units: m cm mm km nm s ms min h kg g N J kJ eV W Pa atm C V A ohm F T Hz K mol L deg rad,
+  written like m/s^2. Angles in sin, cos and tan need the unit deg or rad.
+- For symbolic: "symbols", "expression" and "option_expressions", one formula per option, in
+  order."""
+
 SOLVE_SYSTEM = "You solve exam questions carefully." + UNTRUSTED_RULE
 _SOLVE_ANSWERS: dict[str, tuple[str, dict[str, Any]]] = {
     "multiple_correct": ("correct_indices", {"type": "array", "items": {"type": "integer"}}),
     "numeric": ("numeric_answer", {"type": "string"}),
+    "integer": ("numeric_answer", {"type": "string"}),
     "match": (
         "match_pairs",
         {"type": "array", "items": {"type": "array", "items": {"type": "integer"}}},
@@ -329,6 +395,11 @@ def _format_rules(exam: ExamContext) -> str:
             'numeric: no options. "numeric_answer" is the number, as text. "tolerance" is how '
             'far an answer may be from it, as text, "0" when it must be exact.'
         ),
+        "integer": 'integer: no options. "numeric_answer" is a whole number, as text.',
+        PARAGRAPH: (
+            f'paragraph: "passage" is a short paragraph, and the question depends on it. '
+            f"Exactly {n} options with exactly one correct answer."
+        ),
         "match": (
             'match: "match_left" and "match_right" are two lists. "match_pairs" gives each left '
             "item its right item as [left, right], counted from 0."
@@ -343,14 +414,19 @@ def _answer_fields(exam: ExamContext) -> str:
     lines: list[str] = []
     if "statement" in formats:
         lines.append('  "statements": ["...", "..."],')
-    if formats - {"numeric", "match"}:
+    if PARAGRAPH in formats:
+        lines.append('  "passage": "...",')
+    if exam.strict:
+        lines.append('  "structured": {"kind": "numeric", "given": [], "expression": "..."},')
+    if formats - {"numeric", "integer", "match"}:
         lines.append(f'  "options": [{options}],')
-    if formats & set(ONE_OPTION):
+    if formats & {*ONE_OPTION, PARAGRAPH}:
         lines.append('  "answer_index": 0,')
     if "multiple_correct" in formats:
         lines.append('  "correct_indices": [0, 2],')
-    if "numeric" in formats:
+    if formats & set(NUMBERS):
         lines.append('  "numeric_answer": "2.5",')
+    if "numeric" in formats:
         lines.append('  "tolerance": "0.01",')
     if "match" in formats:
         lines.append('  "match_left": ["...", "..."],')
@@ -419,8 +495,20 @@ def generator_prompt(
                 material("\n".join(f"- {a}" for a in avoid)) if avoid else "(none yet)"
             ),
             "missed_models": ", ".join(missed) if missed else "(none)",
+            "strict_rules": _strict_rules(exam),
         },
     )
+
+
+def _strict_rules(exam: ExamContext) -> str:
+    if not exam.strict:
+        return ""
+    levels = "".join(
+        f"\n- {level.replace('_', ' ').capitalize()}: {meaning}"
+        for level, meaning in (exam.anchors or {}).items()
+    )
+    anchors = f"\n\nFOR THIS EXAM THE LEVELS MEAN (this replaces the list above){levels}"
+    return (anchors if levels else "") + STRICT_RULES
 
 
 def _numbered(items: Sequence[str]) -> str:
@@ -436,7 +524,7 @@ def solve_prompt(
 ) -> str:
     """Only what a learner would see: the solver must not see the key or the solution."""
     question = f"Question:\n{material(stem)}\n\n"
-    if format_name == "numeric":
+    if format_name in NUMBERS:
         return (
             f"{question}Solve this question. The answer is a number. Reply with JSON only: "
             '{"numeric_answer": "the number", "working": "..."}'
@@ -478,6 +566,7 @@ class GeneratedQuestion:
     time_target_seconds: int
     format: str = SINGLE_CORRECT
     answer_spec: Mapping[str, Any] | None = None
+    structured: Mapping[str, Any] | None = None
 
 
 def _clean(text: str) -> str:
@@ -522,7 +611,9 @@ def _with_statements(stem: str, statements: object) -> str | None:
     return "\n".join([stem, *(f"{i}. {text}" for i, text in enumerate(cleaned, start=1))])
 
 
-def _numeric_spec(data: Mapping[str, Any]) -> dict[str, Any]:
+def _numeric_spec(format_name: str, data: Mapping[str, Any]) -> dict[str, Any]:
+    if format_name == "integer":
+        return {"value": _number_text(data.get("numeric_answer"))}
     return {
         "value": _number_text(data.get("numeric_answer")),
         "tolerance": _number_text(data.get("tolerance", "0")),
@@ -547,8 +638,8 @@ def _answer(
     format_name: str, data: Mapping[str, Any], count: int
 ) -> tuple[tuple[str, ...], int | None, dict[str, Any] | None] | None:
     """The question's options, answer index and answer_spec, or None when they don't fit."""
-    if format_name in ("numeric", "match"):
-        spec = _numeric_spec(data) if format_name == "numeric" else _match_spec(data)
+    if format_name in (*NUMBERS, "match"):
+        spec = _match_spec(data) if format_name == "match" else _numeric_spec(format_name, data)
         if spec is None or question_formats.spec_problems(format_name, spec, 0):
             return None
         return (), None, spec
@@ -581,6 +672,17 @@ def validate_generated(
         return None
     if not isinstance(stem, str) or not isinstance(solution, str):
         return None
+    structured = data.get("structured")
+    if exam.strict and not isinstance(structured, dict):
+        return None
+    limit = MAX_STEM
+    if format_name == PARAGRAPH:
+        passage = data.get("passage")
+        if not isinstance(passage, str) or not passage.strip():
+            return None
+        stem = f"{_clean(passage)}\n\n{stem}"
+        format_name = SINGLE_CORRECT  # marked as one correct option; the passage is in its text
+        limit = MAX_STEM * 2
     answer = _answer(format_name, data, exam.options)
     if answer is None:
         return None
@@ -592,7 +694,7 @@ def validate_generated(
     full_stem: str | None = _clean(stem)
     if format_name == "statement":
         full_stem = _with_statements(full_stem or "", data.get("statements"))
-    if full_stem is None or not 0 < len(full_stem) <= MAX_STEM:
+    if full_stem is None or not 0 < len(full_stem) <= limit:
         return None
     options, index, spec = answer
     return GeneratedQuestion(
@@ -604,6 +706,54 @@ def validate_generated(
         time_target_seconds=time_target(difficulty, exam.base_time_seconds),
         format=format_name,
         answer_spec=spec,
+        structured=structured if exam.strict else None,
+    )
+
+
+def benchmark_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "properties": {
+            **{k: GENERATED_SCHEMA["properties"][k] for k in KEY_FIELDS},
+            "tolerance": {"type": "string"},
+            "solution": {"type": "string"},
+            "structured": STRUCTURED_SCHEMA,
+        },
+        "required": ["solution", "structured"],
+        "additionalProperties": False,
+    }
+
+
+def benchmark_prompt(stem: str, options: Sequence[str], format_name: str) -> str:
+    """A past question to answer with full working, as a generated one would come."""
+    listed = f"Options, numbered from 0:\n{material(_numbered(options))}\n\n" if options else ""
+    return (
+        f"Question:\n{material(stem)}\n\n{listed}Solve it. The format is {format_name}. Give the "
+        "answer in the field the format uses (answer_index, correct_indices or numeric_answer), "
+        f'"solution", one step per line, and "structured".{STRICT_RULES}'
+    )
+
+
+def candidate(
+    data: dict[str, Any], stem: str, options: Sequence[str], format_name: str
+) -> "GeneratedQuestion | None":
+    """A past question with the AI's answer as its key, ready for the same checks."""
+    answer = _answer(format_name, {**data, "options": list(options)}, len(options))
+    structured = data.get("structured")
+    solution = data.get("solution")
+    if answer is None or not isinstance(structured, dict) or not isinstance(solution, str):
+        return None
+    shown, index, spec = answer
+    return GeneratedQuestion(
+        stem=stem,
+        options=shown,
+        answer_index=index,
+        solution=(solution,),
+        shortcut="",
+        time_target_seconds=0,
+        format=format_name,
+        answer_spec=spec,
+        structured=structured,
     )
 
 
@@ -614,9 +764,9 @@ def solver_agrees(data: dict[str, Any], question: GeneratedQuestion) -> bool:
     if spec is None:
         answer = data.get("answer_index")
         return not isinstance(answer, bool) and answer == question.answer_index
-    if question.format == "numeric":
+    if question.format in NUMBERS:
         number = _number_text(data.get("numeric_answer"))
-        return number is not None and question_formats.is_correct("numeric", spec, number)
+        return number is not None and question_formats.is_correct(question.format, spec, number)
     if question.format == "match":
         return question_formats.is_correct("match", spec, {"pairs": data.get("match_pairs")})
     indices = _int_list(data.get("correct_indices"))
@@ -698,6 +848,8 @@ def answer_lines(
         return []
     if format_name == "multiple_correct":
         return [options[p - 1] for p in spec["correct_positions"]]
+    if format_name == "integer":
+        return [str(spec["value"])]
     if format_name == "numeric":
         tolerance = Decimal(str(spec.get("tolerance") or "0"))
         return [f"{spec['value']} ± {spec['tolerance']}" if tolerance else str(spec["value"])]

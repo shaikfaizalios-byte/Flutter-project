@@ -41,4 +41,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=4)"
 
 # Behind a TLS-terminating proxy, set FORWARDED_ALLOW_IPS to the proxy's address.
-CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips \"${FORWARDED_ALLOW_IPS:-127.0.0.1}\""]
+# WEB_CONCURRENCY = server processes: one process served ~20 requests/s in the load test, four ~50/s
+# (docs/jee-neet/phase-i-report.md). Each keeps its own database pool (PREPLOOP_DATABASE_POOL_SIZE).
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers \"${WEB_CONCURRENCY:-2}\" --proxy-headers --forwarded-allow-ips \"${FORWARDED_ALLOW_IPS:-127.0.0.1}\""]

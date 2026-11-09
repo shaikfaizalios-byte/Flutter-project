@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from datetime import date, datetime
 from enum import StrEnum
@@ -16,6 +17,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    event,
     func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
@@ -32,6 +34,7 @@ class VerificationStatus(StrEnum):
 
 class QuestionOrigin(StrEnum):
     SOURCE = "source"  # extracted from an uploaded document
+    LIBRARY = "library"  # written for the curated library: no paper behind it
     AI = "ai"  # generated (Phase 9); never presented as an official question
 
 
@@ -105,6 +108,8 @@ class ExamFormat(Base):
     # Each section has its own timer (its timer_minutes) and sections are taken in order.
     sectional_timing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     # The notice gives the section split as only indicative (real papers may vary); mocks say so.
+    # How this year's exam is conducted: mode, sessions, shifts, languages. See FormatFile.
+    conduct: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     section_counts_indicative: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false"
     )
@@ -219,7 +224,7 @@ class Passage(Base):
 class Question(Base):
     __tablename__ = "questions"
     __table_args__ = (
-        CheckConstraint("origin IN ('source', 'ai')", name="origin_valid"),
+        CheckConstraint("origin IN ('source', 'ai', 'library')", name="origin_valid"),
         CheckConstraint(
             "verification_status IN ('unverified', 'verified', 'rejected')", name="status_valid"
         ),
@@ -254,9 +259,13 @@ class Question(Base):
         CheckConstraint(
             "format IN ('single_correct', 'assertion_reason', 'statement', 'true_false', "
             "'typed_in', 'descriptive', 'multiple_correct', 'match', 'ordering', 'numeric', "
-            "'fill_blank')",
+            "'integer', 'fill_blank')",
             name="format_valid",
         ),
+        CheckConstraint(
+            "key_stage IS NULL OR key_stage IN ('provisional', 'final')", name="key_stage_valid"
+        ),
+        CheckConstraint("key_outcome IN ('one', 'several', 'dropped')", name="key_outcome_valid"),
         # A typed question has no option answer, and only typed questions have a typed answer.
         CheckConstraint(
             "answer_type = 'choice' OR correct_option_position IS NULL",
@@ -294,6 +303,10 @@ class Question(Base):
         ForeignKey("documents.id", ondelete="CASCADE")
     )
     source_question_number: Mapped[int | None] = mapped_column(Integer)
+    # The ID the paper prints, where it has one: keys and language versions match on it.
+    external_id: Mapped[str | None] = mapped_column(String(24), index=True)
+    # An AI reading of a question printed as a picture, for search only: never shown or marked.
+    transcript: Mapped[str | None] = mapped_column(Text)
     source_pages: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
     passage_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("passages.id", ondelete="SET NULL")
@@ -308,6 +321,13 @@ class Question(Base):
         String(20), default="single_correct", server_default="single_correct"
     )
     answer_spec: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+    # The official key, when one was entered: null when the answer has no official key behind it.
+    key_stage: Mapped[str | None] = mapped_column(String(11))
+    # one; several (accepted_positions all count); dropped (marks to everyone).
+    key_outcome: Mapped[str] = mapped_column(String(7), default="one", server_default="one")
+    accepted_positions: Mapped[list[int] | None] = mapped_column(ARRAY(Integer))
+    # The final key differs from the provisional one.
+    key_changed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     # This question in another language, confirmed by a person: counts once, as that question.
     translation_of_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("questions.id", ondelete="SET NULL"), index=True
@@ -401,6 +421,8 @@ class QuestionOption(Base):
     position: Mapped[int] = mapped_column(Integer, primary_key=True)  # 1-based display order
     label: Mapped[str] = mapped_column(String(8))  # as printed: "1", "a", "A"
     text: Mapped[str] = mapped_column(Text)
+    # The ID the paper prints, where it has one.
+    external_id: Mapped[str | None] = mapped_column(String(24))
 
 
 class QuestionIssue(Base):
@@ -459,6 +481,8 @@ class QuestionFigure(Base):
     # the page (scans and layouts the rules can't read), cropped from the same page.
     source: Mapped[str] = mapped_column(String(10), default="pdf", server_default="pdf")
     data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
+    # Hash of the image bytes: a cache names the figure by its content (set on insert).
+    sha256: Mapped[str | None] = mapped_column(String(64), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -488,3 +512,9 @@ class QuestionRevision(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.clock_timestamp()
     )
+
+
+@event.listens_for(QuestionFigure, "before_insert")
+def _hash_figure(_mapper: object, _connection: object, figure: QuestionFigure) -> None:
+    if figure.sha256 is None and figure.data is not None:
+        figure.sha256 = hashlib.sha256(figure.data).hexdigest()

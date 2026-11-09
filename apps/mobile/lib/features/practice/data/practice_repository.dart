@@ -8,6 +8,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/utils/app_log.dart';
 import '../../question_bank/domain/question.dart';
+import '../domain/cbt.dart';
 import '../domain/offline_practice.dart';
 import '../domain/practice_models.dart';
 
@@ -85,9 +86,10 @@ class PracticeRepository {
     ];
     final now = _clock().toUtc();
     await _db.transaction(() async {
-      await _db.delete(_db.offlineQuestions).go();
+      // Chapters saved from the library stay until the learner's copy is updated.
+      await (_db.delete(_db.offlineQuestions)..where((q) => q.packKey.isNull())).go();
       await _db.batch((batch) {
-        batch.insertAll(_db.offlineQuestions, [
+        batch.insertAll(mode: InsertMode.insertOrIgnore, _db.offlineQuestions, [
           for (final q in questions)
             OfflineQuestionsCompanion.insert(
               id: q['id'] as String,
@@ -191,14 +193,24 @@ class PracticeRepository {
     ),
   );
 
-  Future<PracticeSessionView> startMock(String formatCode) => _guard(
+  Future<PracticeSessionView> startMock(String formatCode, {String? section}) => _guard(
     () async => _session(
       (await _dio.post<Map<String, dynamic>>(
         '$_base/mock-tests',
-        data: {'exam_format_code': formatCode, if (newFormats) 'include_new_formats': true},
+        data: {
+          'exam_format_code': formatCode,
+          if (newFormats) 'include_new_formats': true,
+          'section': ?section,
+        },
       )).data!,
     ),
   );
+
+  /// After a mock: marks and time per question, chapters, history, and a real percentile if any.
+  Future<MockAnalysis> analysis(String sessionId) => _guard(() async {
+    final response = await _dio.get<Map<String, dynamic>>('$_base/sessions/$sessionId/analysis');
+    return MockAnalysis.fromJson(response.data!);
+  });
 
   /// Fetches the session after replaying any queued answers for it, then re-applies
   /// answers still queued (offline) so the learner sees what they chose.
@@ -293,7 +305,16 @@ class PracticeRepository {
     String? typedAnswer,
     Map<String, dynamic>? response,
     int? timeSpentMs,
+    bool? marked,
+    bool visit = false,
   }) async {
+    if (visit) {
+      // A visit must never replace an answer still waiting to be sent.
+      final waiting = await (_db.select(
+        _db.pendingAnswers,
+      )..where((p) => p.sessionId.equals(sessionId) & p.position.equals(position))).get();
+      if (waiting.isNotEmpty) return const AnswerOutcome.queued();
+    }
     final offline = await _offline(sessionId);
     if (offline != null) {
       final existing = offline.answers[position];
@@ -333,6 +354,8 @@ class PracticeRepository {
             selectedPosition: Value(selectedPosition),
             typedAnswer: Value(typedAnswer),
             responseJson: Value(response == null ? null : jsonEncode(response)),
+            marked: Value(marked),
+            visit: Value(visit),
             clientSeq: seq,
             timeSpentMs: Value(timeSpentMs),
             createdAt: _clock().toUtc(),
@@ -347,6 +370,8 @@ class PracticeRepository {
         timeSpentMs,
         typed: typedAnswer,
         response: response,
+        marked: marked,
+        visit: visit,
       );
       await _dequeue(sessionId, position, seq);
       return ack;
@@ -383,6 +408,8 @@ class PracticeRepository {
             final String text => jsonDecode(text) as Map<String, dynamic>,
             null => null,
           },
+          marked: row.marked,
+          visit: row.visit,
         );
         sent++;
       } on NetworkFailure {
@@ -430,6 +457,8 @@ class PracticeRepository {
     int? timeSpentMs, {
     String? typed,
     Map<String, dynamic>? response,
+    bool? marked,
+    bool visit = false,
   }) => _guard(() async {
     final reply = await _dio.put<Map<String, dynamic>>(
       '$_base/sessions/$sessionId/answers/$position',
@@ -438,10 +467,12 @@ class PracticeRepository {
           'response': response
         else if (typed != null)
           'typed_answer': typed
-        else
+        else if (!visit)
           'selected_position': selected,
         'client_seq': seq,
         'time_spent_ms': ?timeSpentMs,
+        'marked_for_review': ?marked,
+        if (visit) 'visit': true,
       },
     );
     final data = reply.data!;

@@ -32,7 +32,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - **Mobile:** feature-first Clean Architecture (`features/<f>/{presentation,application,domain,data}`),
   only the layers a feature actually needs. Riverpod 3 for state + DI, GoRouter (StatefulShellRoute,
   5 tabs, onboarding gate via redirect), Dio (single `dioProvider`), Material 3, gen-l10n (EN + HI),
-  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v8)
+  bundled Noto Sans Devanagari fallback. Drift/SQLite (`core/database`, schema v11)
   is the offline-first local store; repositories in `features/*/data`. Phase 2 is local-only — no sync.
 - **Backend:** modular monolith. FastAPI + Pydantic v2 + pydantic-settings; routing → service → repository.
   SQLAlchemy 2 (sync, psycopg 3) + Alembic + PostgreSQL 17. Services own the transaction (commit per
@@ -78,7 +78,7 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   only; the shared bank refuses private ones. Lists: `data/model_lists` (`shared_aptitude.json` = the 91 seeded models,
   `descriptive_defaults.json`). `RepeatsReport.name_suggestions` = alike questions in `MIN_PAPERS_TO_NAME` papers with no
   confirmed model (own papers). `counting_unit` session: pure `app/domain/counting.py` `unit_key`, confirmed date + shift + session
-  = one; `RepeatCounts.marks`; app `byMarks`/`marksVary`, `TopicModelsScreen`. The embedding hint is NOT built (needs a decision).
+  = one; `RepeatCounts.marks`; app `byMarks`/`marksVary`, `TopicModelsScreen`. Meaning hints: see repeat analysis below.
 - Mock marking and languages (any-exam Phase 6, migrations 0048-0049): sections may state `marks_wrong`, `marks_unanswered`,
   `cutoff`, `attempt_limit`, `partial`, `formats`; `exam_formats.penalty_fraction` = a share of the question's marks. Pure
   `section_marking` (`app/domain/exam_format.py`): section, then fraction, then negative mark; none stated = incomplete.
@@ -101,6 +101,54 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   Real questions (migration 0052): `DescriptiveStart.source` papers = the learner's own reviewed written questions as printed (never
   the shared bank, translations, duplicates, figures), unanswered first, up to 5; marks printed, else the exam's. Rubric drafted by
   AI and reused while wording, marks and the paper's answer are unchanged (`_earlier_rubric`); the paper's answer wins over the AI's.
+- JEE and NEET templates (docs/jee-neet, migration 0053): `exam_formats.conduct` = a year's mode, sessions, shifts, languages,
+  references and `not_stated`, returned by `/me/exams/{code}/stages`, so a new year needs no app release. Drafts in `data/exam_formats`:
+  JEE Main 2027 Paper 1, JEE Advanced 2026 Papers 1 and 2, NEET 2026 and its re-exam. Sections state page references and `numeric_rule`.
+  Mocks mark by section (`section_key`), so these can publish.
+- JEE and NEET syllabi (docs/jee-neet): `data/syllabi/official/{jee_main_2027,jee_advanced_2026,neet_ug_2026}.json` from the official lists,
+  Subject → (Section) → Unit → Topic, no chapter level because the sources have none. `canonical_jee_neet.json` proposes Physics and
+  Chemistry links; `python -m app.cli.syllabus link FILE --reviewer NAME` confirms them. App `CombinedTopicsCard` on Progress (flag).
+- Answer keys and rendering (docs/jee-neet phase C, migration 0054): `questions.key_stage` provisional|final, `key_outcome`
+  one|several|dropped, `accepted_positions`, `key_changed`, snapshotted on `session_items`. `PUT /questions/{id}/answer-key`; a final
+  key runs `apply_final_key` (practice_service): every attempt at the question, any account, is re-marked (`result.remarked`). Dropped:
+  marks to all, never practised; offline packs take `one` only. Format `integer`; numeric `decimals` = right as typed, truncated or
+  rounded. `RichQuestionText` is used for options and solutions too, parses `\\ce{}` (`ceToTex`) and caches parsed text.
+- Official papers (docs/jee-neet phase D, migration 0055): `app/domain/official_paper.py` reads papers printing "Question Id" headers,
+  with stem and options as images: crops as printed, no text read, `external_id` on questions and options. `official_key.py` +
+  `POST /documents/{id}/official-key`: keys by ID (option IDs, numbers, Dropped, "41 or 42"); may overwrite, unlike plain keys. Same ID
+  in another language links `translation_of_id`. `import_checks.py`, `GET /documents/{id}/import-check`. `questions.transcript` = AI
+  reading for search only, never shown (`app.cli.official_papers transcribe`). Internal tool: `/review-tool`
+  (`app/tools/review_tool.html`, off in production unless `PREPLOOP_EXPOSE_REVIEW_TOOL`), `POST /questions/bulk-assign`.
+- Question library (docs/jee-neet/phase-e-report.md, migration 0056, Drift v10): `library_entries`/`library_versions` over `questions`
+  (origin `library`, or an editor's own imported question; learners' imports can't enter). `users.content_role` 'editor' (`python -m
+  app.cli.library role EMAIL editor`) guards `/library/entries|reports`. draft -> solved by a second reviewer (key hidden until then)
+  -> approved, never by the author; `library_question()` = approved and rights licensed|owned, part of `visible_question`. Corrections
+  make a version and run `apply_final_key`; past draft, plain edits are refused (`_refuse_if_curated`). `/library/search`, `/library/packs`
+  (delta by `seq`; an emptied chapter stays listed). Pure `app/domain/library.py`; `python -m app.cli.library calibrate`, settings in
+  `defaults.json` `library`. AI-written ones never reach mocks. App `features/library` behind `examProfiles`, `LibrarySourceChip`.
+- Repeat analysis by shift (docs/jee-neet/phase-f-report.md, migration 0057): apart from `/insights/repeats`, which stays pinned.
+  `app/services/repeat_analysis.py`, pure `app/domain/shift_counts.py`: `GET /insights/chapters` (X of Y shifts by year and session, reviewed
+  questions only, chapter = syllabus Unit via `chapter_map.py`), `/insights/shared-chapters` (confirmed links, topics named for the exam),
+  `/insights/concept-hints`. Curated = `counted_curated()`. `model_proposals`: clusters of curated questions, `python -m app.cli.library
+  propose EXAM`, a reviewer names and approves in `/review-tool`. `concept_hints`: AI groupings by meaning (`library hints EXAM`), own table,
+  read by no count, private papers never sent; chosen over embeddings. App `ChaptersScreen` behind `examProfiles`.
+- Stricter ladder (docs/jee-neet/phase-g-report.md, migration 0058): an exam with a file in `data/ladder_rules` gets its level meanings and
+  formats (`rules_for`, `ExamContext.strict`); others are unchanged. Pure `app/domain/recompute.py` (SymPy through an `ast` allow-list, never
+  eval), `ladder_rules.py`; `ladder_verify.verify` = recheck, then solves by level (`defaults.json` `ladder.strict`), any disagreement
+  discards. Failing that, `_replace`: library question of the same chapter and level, then the learner's. Gated levels stay off per subject
+  until `python -m app.cli.ladder_benchmark` passes the owner's threshold (`ladder_gates`, `subject_open`); totals only, never questions.
+  Generated extreme-hard also go to `generated_reviews` (`/library/generated`, review tool); accepting makes a draft.
+- Computer-based mocks (docs/jee-neet/phase-h-report.md, migration 0059, Drift v11): `conduct.cbt` = the official rules with a reference
+  (`basis` when another exam's), copied to `selection.cbt`; `SessionRead.cbt`. `session_answers.marked_for_review`, `AnswerUpdate.visit`; time
+  adds up. `section_key` names repeated subjects, so sections mark apart. `MockCreate.section` = one section, pro-rata time.
+  `GET /practice/sessions/{id}/analysis` (`mock_analysis.py`); a percentile only from `percentile_min_accounts` first attempts, labelled,
+  no ranks. App `cbt_view.dart` (part of session_screen), `domain/cbt.dart`, `MockAnalysisCard`, behind `examProfiles`.
+- Scale (docs/jee-neet/phase-i-report.md, migration 0060): `question_figures.sha256`; figures every learner may see get signed links
+  `/api/v1/media/figures/{sha}.png` (pure `app/domain/media.py`, `services/media.py` `figure_reads`, no sign-in, public cache headers,
+  `PREPLOOP_MEDIA_BASE_URL` for a CDN); app `publicFigureProvider` (no token, falls back). `attempt_events` (final|remarked) written in
+  practice_service; `calibrate` reads them from `job_cursors`. Chapter list cached per process. Load test: `app.cli.load_seed`
+  (test databases only) + `scripts/load_test.py` + `scripts/load_profiles`. Image runs `WEB_CONCURRENCY` processes. Acceptance:
+  docs/jee-neet/acceptance.md.
 - Current exam (mobile, `features/exams/application/active_exam.dart`): `activeExamProvider` = the learner's
   choice (device setting `active_exam` in `app_settings`, erased on sign-out) while it is one of
   `studyProfile.examCodes`, else the first. Imported papers, question bank, practice (requests carry

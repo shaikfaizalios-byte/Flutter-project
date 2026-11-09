@@ -229,7 +229,9 @@ class OfflineSession {
           passage: q.json['passage'] == null
               ? null
               : Passage.fromJson(q.json['passage'] as Map<String, dynamic>),
-          origin: QuestionOrigin.source,
+          origin: q.json['library_source'] == null ? QuestionOrigin.source : QuestionOrigin.library,
+          librarySource: q.json['library_source'] as String?,
+          figures: figuresFromJson(q.json['figures']),
           verified: true,
           sourceFilename: q.json['document_filename'] as String?,
           sourcePage: q.json['page'] as int?,

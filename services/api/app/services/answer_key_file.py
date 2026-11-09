@@ -25,6 +25,16 @@ def read_key_pdf(
     stream: BinaryIO, *, language: str, settings: Settings, ocr: OcrEngine, temp_dir: Path
 ) -> tuple[AnswerKeyRead, str]:
     """The key, and how the pages were read."""
+    pages, read_by = read_key_pages(
+        stream, language=language, settings=settings, ocr=ocr, temp_dir=temp_dir
+    )
+    return read_answer_key(pages), read_by
+
+
+def read_key_pages(
+    stream: BinaryIO, *, language: str, settings: Settings, ocr: OcrEngine, temp_dir: Path
+) -> tuple[list[str], str]:
+    """The text of each page of a key file, and how the pages were read."""
     temp = temp_dir / f"answer-key-{uuid.uuid4().hex}.pdf"
     try:
         save_limited(stream, temp, settings.max_upload_bytes)
@@ -34,4 +44,4 @@ def read_key_pdf(
         temp.unlink(missing_ok=True)
     methods = {p.method for p in extracted if p.method != ExtractionMethod.NONE}
     read_by = "mixed" if len(methods) > 1 else (methods.pop() if methods else "none")
-    return read_answer_key([p.text for p in extracted]), str(read_by)
+    return [p.text for p in extracted], str(read_by)

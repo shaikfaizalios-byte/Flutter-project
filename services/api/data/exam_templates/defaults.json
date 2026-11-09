@@ -18,7 +18,34 @@
     },
     "round_to_seconds": 5,
     "min_seconds": 15,
-    "max_seconds": 600
+    "max_seconds": 600,
+    "strict": {
+      "_about": "Stricter checks for exams with a file in data/ladder_rules. solves: independent solves that must all agree, by level. gated_levels stay off for a subject until the benchmark passes the owner's threshold. Product choices, not exam facts.",
+      "solves": {
+        "easy": 1,
+        "medium": 2,
+        "medium_hard": 2,
+        "hard": 3,
+        "extreme_hard": 3
+      },
+      "fact_recall_solves": 2,
+      "gated_levels": [
+        "hard",
+        "extreme_hard"
+      ],
+      "review_levels": [
+        "extreme_hard"
+      ],
+      "library_levels": {
+        "easy": "easy",
+        "medium": "medium",
+        "medium_hard": "medium",
+        "hard": "hard",
+        "extreme_hard": "hard"
+      },
+      "option_tolerance": 0.005,
+      "gate_min_accepted": 20
+    }
   },
   "descriptive": {
     "_about": "Descriptive practice. A level's marks are its share of the marks of the exam's question, or of default_question_marks when the exam states none. Lengths are PrepLoop's suggestions. Product choices, not exam facts.",
@@ -53,5 +80,29 @@
     "words_per_mark": 20,
     "disagreement_share": 0.2,
     "model_answer_share": 0.8
+  },
+  "library": {
+    "_about": "Question library. Product choices, not exam facts. A question is re-banded once it has calibration_min_attempts real attempts. bands are tried in order: accuracy at or above min_accuracy gives that level. If the median time is over slow_multiple of the stage's seconds per question, it moves one level harder. percent_min_attempts is how many real attempts it takes before a percentage is shown.",
+    "calibration_min_attempts": 200,
+    "percent_min_attempts": 30,
+    "bands": [
+      {
+        "level": "easy",
+        "min_accuracy": 0.7
+      },
+      {
+        "level": "medium",
+        "min_accuracy": 0.4
+      },
+      {
+        "level": "hard",
+        "min_accuracy": 0
+      }
+    ],
+    "slow_multiple": 1.5
+  },
+  "mock_analysis": {
+    "_about": "After a mock. A percentile needs this many accounts' first attempts. A product choice.",
+    "percentile_min_accounts": 100
   }
 }

@@ -19,6 +19,7 @@ from app.models.concept import Concept
 from app.models.content import ContentReport, ContentRights
 from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
+from app.models.events import AttemptEvent
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
 from app.models.ladder import LadderSession, LadderStep
@@ -74,6 +75,7 @@ OWNED_DATA: tuple[type[Any], ...] = (
     Subscription,
     PlayPurchase,
     SyncItem,
+    AttemptEvent,
 )
 
 # In order: a parent is always listed before its children.
@@ -108,6 +110,15 @@ NOT_EXPORTED: dict[str, str] = {
     "taxonomy_nodes": "canonical topics: reference data, not the learner's",
     "taxonomy_labels": "names of canonical topics: reference data",
     "languages": "the supported content languages: reference data",
+    "library_entries": "PrepLoop's curated content, not the learner's; a deleted editor's links "
+    "are cleared and their name stays as the credit",
+    "library_versions": "history of PrepLoop's curated content, not the learner's",
+    "model_proposals": "proposed models from shared papers: reference data, not the learner's",
+    "concept_hints": "AI groupings of shared questions: reference data, not the learner's",
+    "generated_reviews": "generated questions awaiting review: not linked to any learner",
+    "ladder_gates": "operator settings for generated questions, not the learner's",
+    "ladder_benchmark_runs": "totals of internal benchmark runs, not the learner's",
+    "job_cursors": "where server jobs stopped; no learner data",
     "audit_events": "operator decisions about shared content (ids and reasons, no content)",
     "billing_events": "audit of store checks and notifications (token hashes, no content); kept "
     "after deletion with the account link cleared; the purchases are in play_purchases",

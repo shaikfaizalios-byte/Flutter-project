@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     # Interactive docs (/docs, OpenAPI) outside production. Turn off when a development server
     # is reachable from the internet (e.g. through a tunnel).
     expose_docs: bool = True
+    # The content team's review page at /review-tool. It holds no data and needs a sign-in, but
+    # stays off in production unless turned on.
+    expose_review_tool: bool = False
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
     # Optional regex for allowed origins. Intended for local development only, where the
     # Flutter web dev server picks a random localhost port.
@@ -124,6 +127,10 @@ class Settings(BaseSettings):
     # One-time codes for password reset and email verification.
     account_code_minutes: int = Field(default=15, ge=5, le=60)
     account_code_max_attempts: int = Field(default=5, ge=1, le=10)
+    # Figures every learner may see get signed links a CDN can cache. The base is the CDN's
+    # address in front of this API (empty: links are relative to the API).
+    media_base_url: str | None = None
+    media_url_hours: int = Field(default=24, ge=1, le=168)
     # Prometheus-format metrics at /api/v1/metrics, only with this bearer token.
     metrics_token: SecretStr | None = None
 
@@ -166,6 +173,10 @@ class Settings(BaseSettings):
         return bool(
             self.play_package_name and self.play_subscription_ids and self.play_service_account_file
         )
+
+    @property
+    def review_tool_enabled(self) -> bool:
+        return self.expose_review_tool or self.environment is not Environment.PRODUCTION
 
     @property
     def docs_enabled(self) -> bool:

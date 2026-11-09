@@ -1,3 +1,4 @@
+import 'package:preploop/features/practice/domain/cbt.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/features/practice/data/practice_repository.dart';
 import 'package:preploop/features/practice/domain/practice_models.dart';
@@ -119,7 +120,7 @@ class FakePracticeRepository implements PracticeRepository {
   }
 
   @override
-  Future<PracticeSessionView> startMock(String formatCode) async {
+  Future<PracticeSessionView> startMock(String formatCode, {String? section}) async {
     final id = 'm${sessions.length + 1}';
     sessions[id] =
         _FakeSession(
@@ -197,9 +198,16 @@ class FakePracticeRepository implements PracticeRepository {
     String? typedAnswer,
     Map<String, dynamic>? response,
     int? timeSpentMs,
+    bool? marked,
+    bool visit = false,
   }) async {
     final s = _get(sessionId);
     timesSpent[position] = timeSpentMs;
+    if (marked != null) marks[position] = marked;
+    if (visit) {
+      visits.add(position);
+      return const AnswerOutcome.confirmed(null, applied: true);
+    }
     if (offline) return const AnswerOutcome.queued();
     _expire(s);
     if (s.submitted) throw const ServerFailure(statusCode: 409, code: 'session_closed');
@@ -225,6 +233,16 @@ class FakePracticeRepository implements PracticeRepository {
       typedAnswer: s.typed[position],
     );
   }
+
+  /// Review marks and visits, as a computer-based mock sends them.
+  final marks = <int, bool>{};
+  final visits = <int>[];
+  final cbtSessions = <String>{};
+
+  void useCbt(String id) => cbtSessions.add(id);
+
+  @override
+  Future<MockAnalysis> analysis(String sessionId) async => const MockAnalysis();
 
   @override
   Future<int> flush({String? sessionId}) async => 0;
@@ -324,12 +342,15 @@ class FakePracticeRepository implements PracticeRepository {
       deadlineAt: s.deadline,
       serverNow: serverNow(),
       submitReason: s.submitReason,
+      cbt: cbtSessions.contains(s.id) ? const CbtRules(reference: 'Bulletin, p.1') : null,
       items: [
         for (final (i, q) in s.questions.indexed)
           SessionItemView(
             position: i + 1,
             questionId: q.id,
             section: q.section,
+            marked: marks[i + 1] ?? false,
+            visited: visits.contains(i + 1),
             stem: q.stem,
             options: q.isTyped ? const [] : q.options,
             figures: q.figures,

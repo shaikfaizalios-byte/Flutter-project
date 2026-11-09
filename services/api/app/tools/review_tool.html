@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrepLoop content review</title>
+<style>
+  :root { color-scheme: light; --line: #d7dbe0; --muted: #5d6673; --accent: #1c5fd4; --bad: #b3261e; --good: #17693a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 system-ui, sans-serif; color: #1a1d21; background: #f5f6f8; }
+  header { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 8px 12px; background: #fff; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 15px; margin: 0 8px 0 0; }
+  main { display: grid; grid-template-columns: 300px 1fr 1fr; height: calc(100vh - 53px); }
+  section { overflow: auto; padding: 10px; border-right: 1px solid var(--line); background: #fff; }
+  #list button { display: flex; gap: 6px; width: 100%; text-align: left; padding: 5px 6px; border: 0; background: none; border-radius: 4px; cursor: pointer; align-items: center; font: inherit; }
+  #list button.on { background: #e4edfd; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #bbb; flex: none; }
+  .verified .dot { background: var(--good); } .rejected .dot { background: var(--bad); }
+  img { max-width: 100%; background: #fff; display: block; }
+  .opt { display: flex; gap: 8px; padding: 4px 0; border-top: 1px solid #eef0f3; }
+  .opt.right { background: #e7f5ec; }
+  .muted { color: var(--muted); } .bad { color: var(--bad); } .good { color: var(--good); }
+  select, input, button.act { font: inherit; padding: 4px 6px; }
+  #login { max-width: 320px; margin: 15vh auto; display: grid; gap: 8px; background: #fff; padding: 20px; border: 1px solid var(--line); border-radius: 8px; }
+  kbd { background: #eef0f3; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; font-size: 12px; }
+  .bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<form id="login">
+  <h1>PrepLoop content review</h1>
+  <input id="email" type="email" placeholder="Email" autocomplete="username" required>
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password" required>
+  <button class="act">Sign in</button>
+  <div id="loginError" class="bad"></div>
+</form>
+<div id="app" hidden>
+  <header>
+    <h1>Content review</h1>
+    <select id="paper" aria-label="Paper"></select>
+    <input id="format" placeholder="Format code to check" aria-label="Format code" size="24">
+    <button class="act" id="check">Check import</button>
+    <label class="act">Key file <input id="key" type="file" accept="application/pdf"></label>
+    <span class="muted"><kbd>j</kbd>/<kbd>k</kbd> move <kbd>x</kbd> select <kbd>v</kbd> verify <kbd>r</kbd> reject <kbd>t</kbd> topic <kbd>m</kbd> model <kbd>a</kbd> apply</span>
+    <button class="act" id="libraryToggle">Library</button>
+    <span id="status" class="muted" role="status"></span>
+  </header>
+  <div id="library" hidden>
+    <div class="bar">
+      <select id="libStatus" aria-label="Status">
+        <option>draft</option><option>solved</option><option>approved</option><option>withdrawn</option>
+      </select>
+      <button class="act" id="libReports">Reported mistakes</button>
+      <button class="act" id="libGenerated">Generated questions</button>
+      <input id="propExam" placeholder="Exam code" aria-label="Exam code for proposals" size="14">
+      <button class="act" id="libModels">Proposed models</button>
+      <button class="act" id="libPropose">Rebuild proposals</button>
+    </div>
+    <div id="libList"></div>
+    <section id="libQuestion"></section>
+  </div>
+  <main id="papers">
+    <section>
+      <div class="bar">
+        <select id="topic" aria-label="Topic"></select>
+        <select id="model" aria-label="Model"></select>
+        <button class="act" id="apply">Apply to selected</button>
+      </div>
+      <div class="bar">
+        <select id="libSource" aria-label="Source type">
+          <option>official_pyq</option><option>original_expert</option><option>original_ai_verified</option>
+        </select>
+        <select id="libLevel" aria-label="Assigned level">
+          <option>easy</option><option selected>medium</option><option>hard</option>
+        </select>
+        <input id="libYear" type="number" placeholder="Year" aria-label="Exam year" style="width:6em">
+        <button class="act" id="libAdd">Add selected to library</button>
+      </div>
+      <div class="muted"><span id="chosen">0</span> selected</div>
+      <div id="report"></div>
+      <div id="list"></div>
+    </section>
+    <section id="question"></section>
+    <section id="page"></section>
+  </main>
+</div>
+<script>
+const api = "/api/v1";
+let token = null, questions = [], at = 0, topics = [], models = [];
+const chosen = new Set();
+const $ = (id) => document.getElementById(id);
+const say = (text) => { $("status").textContent = text; };
+
+async function call(path, options = {}) {
+  const response = await fetch(api + path, {
+    ...options,
+    headers: { Authorization: `Bearer ${token}`, ...(options.json ? { "Content-Type": "application/json" } : {}), ...(options.headers || {}) },
+    body: options.json ? JSON.stringify(options.json) : options.body,
+  });
+  if (!response.ok) {
+    const failure = await response.json().catch(() => ({}));
+    throw new Error(failure?.error?.message || `Request failed (${response.status})`);
+  }
+  return response;
+}
+const json = async (path, options) => (await call(path, options)).json();
+
+async function picture(path, element) {
+  const blob = await (await call(path)).blob();
+  element.src = URL.createObjectURL(blob);
+}
+
+$("login").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  try {
+    const response = await fetch(`${api}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: $("email").value, password: $("password").value }),
+    });
+    if (!response.ok) throw new Error("Those details weren't accepted.");
+    token = (await response.json()).access_token;
+    $("password").value = "";
+    $("login").hidden = true;
+    $("app").hidden = false;
+    await loadPapers();
+  } catch (error) { $("loginError").textContent = error.message; }
+});
+
+async function loadPapers() {
+  const data = await json("/documents");
+  const papers = data.items || data;
+  $("paper").replaceChildren(...papers.map((paper) => new Option(`${paper.original_filename} (${paper.exam_code})`, paper.id)));
+  $("paper").dataset.exams = JSON.stringify(Object.fromEntries(papers.map((p) => [p.id, p.exam_code])));
+  if (papers.length) await loadPaper();
+}
+
+async function loadPaper() {
+  const id = $("paper").value;
+  const exam = JSON.parse($("paper").dataset.exams)[id];
+  await loadPaperQuestions();
+  topics = await json(`/topics?exam=${encodeURIComponent(exam)}`).catch(() => []);
+  models = await json("/patterns").catch(() => []);
+  $("topic").replaceChildren(new Option("Topic…", ""), ...topics.map((t) => new Option(`${t.subject}: ${t.name}`, t.id)));
+  $("model").replaceChildren(new Option("Model…", ""), ...models.map((m) => new Option(m.name, m.id)));
+  chosen.clear(); at = 0; $("report").textContent = ""; draw();
+}
+
+function draw() {
+  $("chosen").textContent = chosen.size;
+  $("list").replaceChildren(...questions.map((q, index) => {
+    const row = document.createElement("button");
+    row.className = `${index === at ? "on" : ""} ${q.verification_status}`;
+    row.innerHTML = `<input type="checkbox" tabindex="-1"><span class="dot"></span><span></span>`;
+    row.querySelector("input").checked = chosen.has(q.id);
+    row.lastChild.textContent = `${q.source_question_number ?? "?"} ${q.section || ""} ${q.topic ? "· " + q.topic.name : ""}`;
+    row.addEventListener("click", () => { at = index; draw(); });
+    return row;
+  }));
+  const current = $("list").children[at];
+  if (current) current.scrollIntoView({ block: "nearest" });
+  drawQuestion();
+}
+
+async function drawQuestion() {
+  const q = questions[at];
+  const box = $("question"), page = $("page");
+  box.replaceChildren(); page.replaceChildren();
+  if (!q) return;
+  const title = document.createElement("h2");
+  title.style.fontSize = "15px";
+  title.textContent = `Question ${q.source_question_number} · ${q.format}${q.key_stage ? " · " + q.key_stage + " key" : ""}`;
+  const stem = document.createElement("p");
+  stem.textContent = q.stem;
+  box.append(title, stem);
+  for (const figure of (q.figures || []).filter((f) => f.kind === "stem")) {
+    const image = document.createElement("img");
+    image.alt = "Question as printed";
+    box.append(image);
+    picture(`/questions/${q.id}/figures/${figure.id}`, image);
+  }
+  for (const option of q.options || []) {
+    const row = document.createElement("div");
+    row.className = `opt ${option.position === q.correct_option_position ? "right" : ""}`;
+    const label = document.createElement("strong");
+    label.textContent = option.label;
+    const body = document.createElement("div");
+    body.textContent = option.text;
+    row.append(label, body);
+    box.append(row);
+    for (const figure of (q.figures || []).filter((f) => f.option_position === option.position)) {
+      const image = document.createElement("img");
+      image.alt = `Option ${option.label} as printed`;
+      body.append(image);
+      picture(`/questions/${q.id}/figures/${figure.id}`, image);
+    }
+  }
+  const number = (q.source_pages || [1])[0];
+  const scan = document.createElement("img");
+  scan.alt = `Page ${number} of the paper`;
+  page.append(scan);
+  picture(`/documents/${q.document_id}/pages/${number}/image`, scan).catch(() => { scan.alt = "Page not available"; });
+}
+
+async function assign(fields, ids) {
+  const result = await json("/questions/bulk-assign", { method: "POST", json: { question_ids: ids, ...fields } });
+  say(`${result.updated} updated${result.failed.length ? `, ${result.failed.length} refused` : ""}`);
+  const keep = at;
+  chosen.clear();
+  await loadPaperQuestions();
+  at = keep; draw();
+}
+
+async function loadPaperQuestions() {
+  const id = $("paper").value;
+  questions = [];
+  for (let offset = 0; ; offset += 100) {
+    const page = (await json(`/questions?document_id=${id}&limit=100&offset=${offset}`)).items;
+    questions.push(...page);
+    if (page.length < 100) break;
+  }
+  questions.sort((a, b) => (a.source_question_number || 0) - (b.source_question_number || 0));
+}
+
+const targets = () => (chosen.size ? [...chosen] : questions[at] ? [questions[at].id] : []);
+
+function applyChoice() {
+  const fields = {};
+  if ($("topic").value) fields.topic_id = $("topic").value;
+  if ($("model").value) fields.pattern_id = $("model").value;
+  if (Object.keys(fields).length && targets().length) assign(fields, targets()).catch((e) => say(e.message));
+}
+
+$("apply").addEventListener("click", applyChoice);
+$("paper").addEventListener("change", () => loadPaper().catch((e) => say(e.message)));
+$("check").addEventListener("click", async () => {
+  try {
+    const result = await json(`/documents/${$("paper").value}/import-check?format_code=${encodeURIComponent($("format").value)}`);
+    const lines = result.sections.map((s) => `${s.section}: ${s.found} of ${s.expected}`).concat(result.problems);
+    $("report").innerHTML = `<p class="${result.ok ? "good" : "bad"}"></p>`;
+    $("report").firstChild.textContent = result.ok ? "All checks passed." : lines.join(" · ");
+  } catch (error) { say(error.message); }
+});
+$("key").addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const form = new FormData();
+  form.append("file", file);
+  try {
+    const result = await json(`/documents/${$("paper").value}/official-key`, { method: "POST", body: form });
+    say(`${result.stage} key: ${result.applied} applied, ${result.dropped} dropped, ${result.missing.length} not covered, ${result.sessions_remarked} sessions marked again`);
+    await loadPaperQuestions(); draw();
+  } catch (error) { say(error.message); }
+  event.target.value = "";
+});
+
+// Library: draft -> solved by a second reviewer -> approved. Rights are recorded apart, and
+// learners see a question only once it is approved and its rights are licensed or owned.
+const node = (tag, text, attrs = {}) => {
+  const made = Object.assign(document.createElement(tag), attrs);
+  if (text !== undefined) made.textContent = text;
+  return made;
+};
+const action = (label, run) => {
+  const button = node("button", label, { className: "act", type: "button" });
+  button.addEventListener("click", () => run().catch((error) => say(error.message)));
+  return button;
+};
+
+async function loadLibrary() {
+  const rows = await json(`/library/entries?status=${$("libStatus").value}`);
+  $("libList").replaceChildren(...rows.map((row) => {
+    const line = node("div");
+    line.append(action(`${row.source_type} · ${row.difficulty} · ${row.rights_status} · v${row.version}`,
+      () => openEntry(row)));
+    line.append(node("span", ` by ${row.author_name}`, { className: "muted" }));
+    return line;
+  }));
+  if (!rows.length) $("libList").replaceChildren(node("div", "Nothing here.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+async function openEntry(entry, reportId = null) {
+  const id = entry.question_id;
+  const q = await json(`/library/entries/${id}/question`);
+  const box = $("libQuestion");
+  box.replaceChildren(node("p", q.stem));
+  for (const figure of q.figures) {
+    const image = node("img", undefined, { alt: "Figure as printed" });
+    box.append(image);
+    await picture(`/library/entries/${id}/figures/${figure.id}`, image);
+  }
+  for (const option of q.options) box.append(node("div", `${option.position}. ${option.text}`));
+  if (q.correct_position !== null) box.append(node("p", `Key: option ${q.correct_position}`));
+  if (q.typed_answer !== null) box.append(node("p", `Key: ${q.typed_answer}`));
+  if (q.explanation) box.append(node("p", q.explanation, { className: "muted" }));
+  const done = async (text) => { say(text); await loadLibrary(); };
+  if (entry.status === "draft") {
+    const position = node("input", undefined, { type: "number", min: 1, placeholder: "Option" });
+    const typed = node("input", undefined, { placeholder: "Or typed answer" });
+    box.append(position, typed, action("Submit my answer", async () => {
+      const result = await json(`/library/entries/${id}/solve`, {
+        method: "POST",
+        json: {
+          selected_position: position.value ? Number(position.value) : null,
+          typed_answer: typed.value || null,
+        },
+      });
+      await done(result.agrees ? "Solved: it agrees with the key." : "It differs from the key: still a draft.");
+    }));
+  }
+  if (entry.status === "solved") {
+    box.append(action("Approve", async () => {
+      await json(`/library/entries/${id}/approve`, { method: "POST" });
+      await done("Approved.");
+    }));
+  }
+  const rights = node("select");
+  for (const value of ["pending", "licensed", "owned"]) {
+    rights.append(node("option", value, { selected: value === entry.rights_status }));
+  }
+  const rightsNote = node("input", undefined, { placeholder: "Basis for the rights", value: entry.rights_note || "" });
+  box.append(node("h3", "Rights"), rights, rightsNote, action("Save rights", async () => {
+    await json(`/library/entries/${id}/rights`, {
+      method: "PUT", json: { rights_status: rights.value, rights_note: rightsNote.value },
+    });
+    await done("Rights saved.");
+  }));
+  if (entry.status !== "draft") {
+    const reason = node("input", undefined, { placeholder: "Why this changes" });
+    const key = node("input", undefined, { type: "number", min: 1, placeholder: "New correct option" });
+    const stem = node("textarea", undefined, { placeholder: "New wording (leave empty to keep)" });
+    box.append(node("h3", "New version"), reason, key, stem, action("Save version", async () => {
+      const result = await json(`/library/entries/${id}/correct`, {
+        method: "POST",
+        json: {
+          reason: reason.value,
+          correct_option_position: key.value ? Number(key.value) : null,
+          stem: stem.value || null,
+          report_id: reportId,
+        },
+      });
+      await done(`Version ${result.entry.version} saved, ${result.sessions_remarked} session(s) marked again.`);
+    }));
+    box.append(action("Withdraw", async () => {
+      await json(`/library/entries/${id}/withdraw`, { method: "POST", json: { reason: reason.value } });
+      await done("Withdrawn.");
+    }));
+  }
+  const history = await json(`/library/entries/${id}/versions`);
+  box.append(node("h3", "History"));
+  for (const version of history) {
+    box.append(node("div", `v${version.version} · ${version.changed_by} · ${version.reason}`, { className: "muted" }));
+  }
+}
+
+async function loadReports() {
+  const reports = await json("/library/reports");
+  const entries = await json("/library/entries?status=approved");
+  $("libList").replaceChildren(...reports.map((report) => {
+    const line = node("div");
+    const entry = entries.find((e) => e.question_id === report.question_id);
+    line.append(node("span", `${report.kind}: ${report.text} `));
+    if (entry) line.append(action("Open", () => openEntry(entry, report.id)));
+    line.append(action("No change needed", async () => {
+      await call(`/library/reports/${report.id}/dismiss`, {
+        method: "POST", json: { reason: "Checked: no change needed." },
+      });
+      await loadReports();
+    }));
+    return line;
+  }));
+  if (!reports.length) $("libList").replaceChildren(node("div", "No reports.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+// Generated questions: accepting makes a draft, which still needs a second solve and approval.
+async function loadGenerated() {
+  const rows = await json("/library/generated");
+  $("libList").replaceChildren(...rows.map((row) => {
+    const card = node("div");
+    card.append(node("h3", `${row.subject} · ${row.topic_name} · ${row.difficulty} · ${row.format}`));
+    card.append(node("p", row.stem));
+    row.options.forEach((text, i) => card.append(node("div", `${i + 1}. ${text}`)));
+    const key = row.answer_index !== null ? `option ${row.answer_index + 1}` : JSON.stringify(row.answer_spec);
+    card.append(node("p", `Key: ${key}`));
+    for (const line of row.solution) card.append(node("div", line, { className: "muted" }));
+    const reason = node("input", undefined, { placeholder: "Reason, if rejecting" });
+    card.append(action("Accept as draft", async () => {
+      await json(`/library/generated/${row.id}/accept`, { method: "POST" });
+      say("Added as a draft, rights pending.");
+      await loadGenerated();
+    }), reason, action("Reject", async () => {
+      await call(`/library/generated/${row.id}/reject`, { method: "POST", json: { reason: reason.value } });
+      await loadGenerated();
+    }));
+    return card;
+  }));
+  if (!rows.length) $("libList").replaceChildren(node("div", "Nothing waiting.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+$("libGenerated").addEventListener("click", () => loadGenerated().catch((error) => say(error.message)));
+
+// Proposed models: a cluster becomes a model only when a subject reviewer names it here.
+async function loadProposals() {
+  const exam = encodeURIComponent($("propExam").value.trim());
+  const rows = await json(`/library/model-proposals?exam=${exam}`);
+  $("libList").replaceChildren(...rows.map((row) => {
+    const card = node("div");
+    card.append(node("h3", `${row.topic_name} · ${row.shifts} shifts`));
+    const boxes = row.questions.map((q) => {
+      const box = node("input", undefined, { type: "checkbox", checked: true });
+      const label = node("label");
+      label.append(box, ` ${q.text}`);
+      card.append(label, node("br"));
+      return { box, id: q.question_id };
+    });
+    const name = node("input", undefined, { placeholder: "Model name" });
+    const reason = node("input", undefined, { placeholder: "Reason, if rejecting" });
+    card.append(name, action("Approve", async () => {
+      const kept = boxes.filter((b) => b.box.checked).map((b) => b.id);
+      const result = await json(`/library/model-proposals/${row.id}/approve`, {
+        method: "POST", json: { name: name.value, question_ids: kept },
+      });
+      say(`Model saved on ${result.questions} question(s).`);
+      await loadProposals();
+    }), reason, action("Reject", async () => {
+      await call(`/library/model-proposals/${row.id}/reject`, {
+        method: "POST", json: { reason: reason.value },
+      });
+      await loadProposals();
+    }));
+    return card;
+  }));
+  if (!rows.length) $("libList").replaceChildren(node("div", "No proposals.", { className: "muted" }));
+  $("libQuestion").replaceChildren();
+}
+
+$("libModels").addEventListener("click", () => loadProposals().catch((error) => say(error.message)));
+$("libPropose").addEventListener("click", async () => {
+  try {
+    const exam = encodeURIComponent($("propExam").value.trim());
+    const result = await json(`/library/model-proposals?exam=${exam}`, { method: "POST" });
+    say(`${result.proposed} proposal(s) open.`);
+    await loadProposals();
+  } catch (error) { say(error.message); }
+});
+
+$("libraryToggle").addEventListener("click", () => {
+  const show = $("library").hidden;
+  $("library").hidden = !show;
+  $("papers").hidden = show;
+  if (show) loadLibrary().catch((error) => say(error.message));
+});
+$("libStatus").addEventListener("change", () => loadLibrary().catch((error) => say(error.message)));
+$("libReports").addEventListener("click", () => loadReports().catch((error) => say(error.message)));
+$("libAdd").addEventListener("click", async () => {
+  let added = 0;
+  try {
+    for (const id of targets()) {
+      await json("/library/entries", {
+        method: "POST",
+        json: {
+          question_id: id,
+          source_type: $("libSource").value,
+          difficulty: $("libLevel").value,
+          exam_year: $("libYear").value ? Number($("libYear").value) : null,
+        },
+      });
+      added += 1;
+    }
+    say(`${added} added as drafts, rights pending.`);
+  } catch (error) { say(`${added} added. ${error.message}`); }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName) || $("app").hidden) return;
+  if (!$("library").hidden) return;
+  const q = questions[at];
+  const keys = {
+    j: () => { at = Math.min(at + 1, questions.length - 1); draw(); },
+    k: () => { at = Math.max(at - 1, 0); draw(); },
+    x: () => { if (q) { chosen.has(q.id) ? chosen.delete(q.id) : chosen.add(q.id); draw(); } },
+    v: () => assign({ verification_status: "verified" }, targets()).catch((e) => say(e.message)),
+    r: () => assign({ verification_status: "rejected" }, targets()).catch((e) => say(e.message)),
+    t: () => $("topic").focus(),
+    m: () => $("model").focus(),
+    a: applyChoice,
+  };
+  if (keys[event.key]) { event.preventDefault(); keys[event.key](); }
+});
+</script>
+</body>
+</html>

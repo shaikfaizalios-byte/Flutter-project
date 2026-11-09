@@ -17,9 +17,12 @@ import '../../question_bank/presentation/shared_report.dart';
 import '../application/practice_providers.dart';
 import '../../../core/localization/content_language.dart';
 import '../../../core/widgets/rich_question_text.dart';
+import '../domain/cbt.dart';
 import '../domain/practice_models.dart';
 import 'format_answers.dart';
 import 'result_view.dart';
+
+part 'cbt_view.dart';
 
 /// A practice session or mock test. Shows the result once the session is submitted.
 class SessionScreen extends ConsumerWidget {
@@ -36,6 +39,9 @@ class SessionScreen extends ConsumerWidget {
         appBar: AppBar(title: Text(l10n.resultTitle)),
         body: ResultView(session: value.session),
       ),
+      AsyncData(:final value)
+          when value.session.cbt != null && ref.watch(appFeaturesProvider).examProfiles =>
+        _CbtView(sessionId: sessionId, state: value),
       AsyncData(:final value) => _SessionBody(sessionId: sessionId, state: value),
       AsyncError(:final error) => Scaffold(
         appBar: AppBar(),
@@ -224,7 +230,8 @@ class _SessionBody extends ConsumerWidget {
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
                 children: [
-                  if (item.origin != null) OriginChip(origin: item.origin!),
+                  if (item.origin != null)
+                    OriginChip(origin: item.origin!, librarySource: item.librarySource),
                   if (!item.verified)
                     Chip(
                       visualDensity: VisualDensity.compact,
@@ -496,6 +503,18 @@ class _TypedAnswerBoxState extends State<_TypedAnswerBox> {
   }
 }
 
+/// What the official key said about this question, when it's more than one plain answer.
+String? keyNoteText(AppLocalizations l10n, SessionItemView item, AnswerFeedback feedback) {
+  String label(int position) =>
+      item.options.where((o) => o.position == position).firstOrNull?.label ?? '$position';
+  return switch (feedback.keyNote) {
+    'dropped' => l10n.sessionKeyDropped,
+    'several' => l10n.sessionKeySeveral(feedback.acceptedPositions.map(label).join(', ')),
+    'changed' => l10n.sessionKeyChanged,
+    _ => null,
+  };
+}
+
 class _OptionTile extends StatelessWidget {
   const _OptionTile({
     required this.label,
@@ -600,6 +619,9 @@ class _FeedbackPanel extends StatelessWidget {
                     ? l10n.sessionCorrectTypedAnswer(feedback.correctTypedAnswer!)
                     : l10n.sessionCorrectAnswer(correctLabel),
             }),
+            if (keyNoteText(l10n, item, feedback) case final String note) Text(note),
+            if (feedback.percentRight != null)
+              Text(l10n.sessionPercentRight(feedback.percentRight!)),
             if (feedback.explanation != null && feedback.explanation!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),

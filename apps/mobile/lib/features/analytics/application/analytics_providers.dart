@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 
+import '../../../app/app_features.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/app_log.dart';
 import '../../practice/application/practice_providers.dart';
@@ -24,6 +25,14 @@ final analyticsRepositoryProvider = Provider<AnalyticsRepository>(
 );
 
 Duration? _noRetry(int retryCount, Object error) => null;
+
+/// Topics shared by the learner's exams. Asked only with two or more exams, under the flag.
+final canonicalStatsProvider = FutureProvider.autoDispose<List<CanonicalTopic>>((ref) async {
+  if (!ref.watch(appFeaturesProvider).examProfiles) return const [];
+  final exams = ref.watch(studyProfileProvider.select((p) => p.examCodes));
+  if (exams.length < 2) return const [];
+  return ref.watch(analyticsRepositoryProvider).canonical(exams);
+}, retry: (_, _) => null);
 
 /// Server practice statistics of the current exam (needs a connection).
 final practiceAnalyticsProvider = FutureProvider.autoDispose<PracticeAnalytics>((ref) async {

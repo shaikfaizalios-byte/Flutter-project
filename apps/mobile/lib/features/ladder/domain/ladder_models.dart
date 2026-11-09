@@ -74,6 +74,9 @@ class LadderStep {
     this.modelName,
     this.secondModelName,
     this.fromPaper = false,
+    this.fromLibrary = false,
+    this.solves,
+    this.recalculated = false,
     this.basisPapers = 0,
     this.basisWeb = false,
     this.paperLabel,
@@ -93,6 +96,9 @@ class LadderStep {
     modelName: json['model_name'] as String?,
     secondModelName: json['second_model_name'] as String?,
     fromPaper: json['source'] == 'paper',
+    fromLibrary: json['source'] == 'library',
+    solves: (json['checks'] as Map<String, dynamic>?)?['solves'] as int?,
+    recalculated: (json['checks'] as Map<String, dynamic>?)?['recalculated'] == true,
     basisPapers: json['basis_papers'] as int,
     basisWeb: json['basis_web'] as bool,
     paperLabel: json['paper_label'] as String?,
@@ -117,6 +123,13 @@ class LadderStep {
 
   /// A real question from the learner's paper, not written by AI.
   final bool fromPaper;
+
+  /// A reviewed library question took the step, because a generated one couldn't be checked.
+  final bool fromLibrary;
+
+  /// How a generated question was checked: solves that agreed, and a recalculated answer.
+  final int? solves;
+  final bool recalculated;
   final int basisPapers;
   final bool basisWeb;
   final String? paperLabel;
@@ -134,7 +147,7 @@ class LadderStep {
   bool get answered => result != null;
 
   /// Answered with a number instead of an option.
-  bool get typed => format == 'numeric';
+  bool get typed => format == 'numeric' || format == 'integer';
 
   /// Answered by more than one tap.
   bool get takesResponse => format == 'multiple_correct' || format == 'match';

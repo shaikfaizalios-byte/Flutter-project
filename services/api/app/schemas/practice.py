@@ -51,6 +51,7 @@ class OfflineQuestion(BaseModel):
     document_filename: str | None
     page: int | None
     question_number: int | None
+    library_source: str | None = None
 
 
 class OfflinePack(BaseModel):
@@ -91,6 +92,8 @@ class MockCreate(BaseModel):
     exam_format_code: Annotated[str, StringConstraints(min_length=1, max_length=64)]
     # This app can show question formats beyond one option or a typed text.
     include_new_formats: bool = False
+    # One section of the paper, on its share of the time. Not the exam's own format.
+    section: Annotated[str, StringConstraints(min_length=1, max_length=120)] | None = None
 
 
 class AnswerUpdate(BaseModel):
@@ -107,6 +110,10 @@ class AnswerUpdate(BaseModel):
     # Monotonic per device (e.g. microseconds since epoch). Older updates are ignored.
     client_seq: int = Field(ge=0)
     time_spent_ms: int | None = Field(default=None, ge=0, le=24 * 3600 * 1000)
+    # Computer-based mocks only. None leaves the mark as it was.
+    marked_for_review: bool | None = None
+    # Seen and left without saving: the saved answer stays, and the time counts.
+    visit: bool = False
 
 
 class Feedback(BaseModel):
@@ -118,6 +125,9 @@ class Feedback(BaseModel):
     # "source": from the paper (or the reviewer); "ai": AI-generated (an AI question's own
     # explanation, or an approved AI explanation for a source question).
     explanation_origin: Literal["source", "ai"] | None
+    percent_right: int | None = None  # from real attempts only, once there are enough
+    accepted_positions: list[int] | None = None  # the key accepts each of these
+    key_note: Literal["dropped", "several", "changed"] | None = None
 
 
 class ItemSource(BaseModel):
@@ -136,7 +146,52 @@ class TranslationRead(BaseModel):
     options: list[str]
 
 
+class QuestionAnalysis(BaseModel):
+    position: int
+    section: str | None
+    topic: str | None
+    status: Literal["correct", "wrong", "unattempted", "dropped"]
+    marks: float
+    time_ms: int | None
+    marked: bool
+
+
+class ChapterAccuracy(BaseModel):
+    subject: str
+    name: str
+    correct: int
+    wrong: int
+    unattempted: int
+    time_ms: int
+
+
+class MockHistoryRow(BaseModel):
+    session_id: uuid.UUID
+    submitted_at: datetime | None
+    score: float
+    max_score: float
+    current: bool
+
+
+class PercentileRead(BaseModel):
+    """From real PrepLoop attempts only: each account's first attempt at this paper."""
+
+    percent: int
+    accounts: int
+
+
+class MockAnalysis(BaseModel):
+    questions: list[QuestionAnalysis]
+    chapters: list[ChapterAccuracy]
+    history: list[MockHistoryRow]  # the learner's attempts at this paper, oldest first
+    percentile: PercentileRead | None
+
+
 class SessionItemRead(BaseModel):
+    # official_pyq, original_expert or original_ai_verified, for a curated library question.
+    library_source: str | None = None
+    marked_for_review: bool = False
+    visited: bool = False
     position: int
     question_id: uuid.UUID | None
     section: str | None
@@ -150,7 +205,7 @@ class SessionItemRead(BaseModel):
     # Figures cropped from the source paper (fetch via /questions/{question_id}/figures/{id}).
     figures: list[FigureRead]
     passage: PassageRead | None
-    origin: Literal["source", "ai"] | None
+    origin: Literal["source", "ai", "library"] | None
     verified: bool
     source: ItemSource
     bookmarked: bool
@@ -171,6 +226,7 @@ class TallyRead(BaseModel):
     wrong: int
     unattempted: int
     partial: int = 0  # earned some marks under the exam's partial rule
+    dropped: int = 0  # dropped by the key: marks to everyone
     score: float
     max_score: float
     accuracy: float | None
@@ -192,6 +248,7 @@ class TopicResult(TallyRead):
 class SessionResult(TallyRead):
     time_taken_seconds: int
     marking_note: str
+    remarked: bool = False  # marked again with the final key
     sections: list[SectionResult]
     topics: list[TopicResult]
 
@@ -235,6 +292,9 @@ class SessionRead(BaseModel):
     answered_count: int
     items: list[SessionItemRead]
     result: SessionResult | None
+    # A computer-based mock's rules, as the attempt keeps them.
+    cbt: dict[str, Any] | None = None
+    sectional: str | None = None  # one section of the paper, not the whole of it
     # Sectionally timed mocks only: the sections in order, the open one (index; equal to the
     # number of sections once all are closed) and when it closes. Questions of sections not
     # open yet come without their content; closed sections can't be answered.
@@ -290,6 +350,8 @@ class MockAvailability(BaseModel):
     sections: list[SectionAvailability]
     # The notice gives the section split as only indicative: real papers may vary.
     section_counts_indicative: bool = False
+    computer_based: bool = False
+    sectional_timing: bool = False
 
 
 class QuestionHistory(BaseModel):

@@ -118,6 +118,13 @@ def section_marking(
 SUPPORTED_QUESTION_TYPES = frozenset({"choice", "typed", *SPEC_FORMATS})
 
 
+def section_key(section: Mapping[str, Any], sections: Sequence[Mapping[str, Any]]) -> str:
+    """A section's name in a mock: its subject, with its part where a subject has several."""
+    subject = str(section.get("subject") or "")
+    repeated = sum(str(s.get("subject") or "") == subject for s in sections) > 1
+    return f"{subject} {section.get('part')}" if repeated else subject
+
+
 def config_problems(
     *,
     sections: Sequence[Mapping[str, Any]] | None,
@@ -137,6 +144,10 @@ def config_problems(
         problems.append(
             "Question types must be among: " + ", ".join(sorted(SUPPORTED_QUESTION_TYPES)) + "."
         )
+    keys = [section_key(section, sections or []) for section in sections or []]
+    if len(set(keys)) != len(keys):
+        # Mocks keep marks and limits by section, so these sections would mark as one.
+        problems.append("Two sections have the same subject and part.")
     for section in sections or []:
         rule = section.get("partial")
         if rule is not None and not _positive_number(_number(rule.get("per_correct"))):

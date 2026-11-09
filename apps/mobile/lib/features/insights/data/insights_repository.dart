@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_failure.dart';
 import '../../../core/network/api_client.dart';
+import '../domain/chapters.dart';
 import '../domain/radar.dart';
 import '../domain/repeats.dart';
 
@@ -11,6 +12,15 @@ abstract interface class InsightsRepository {
   /// Over the learner's own papers.
   /// [scope]: "mine" (your papers), "shared" (the shared bank) or "all".
   Future<RepeatsReport> repeats({String? examCode, String scope = 'mine'});
+
+  /// Chapters by shift, year and session: the learner's papers and curated ones.
+  Future<ChapterReport> chapters(String examCode);
+
+  /// Chapters reviewers linked across these exams.
+  Future<List<SharedChapter>> sharedChapters(List<String> examCodes);
+
+  /// AI hints of questions testing one concept, outside every reviewed count.
+  Future<List<ConceptHint>> conceptHints(String examCode);
 
   /// Pooled over learners who share their counts (the Repeat Radar).
   Future<RadarReport> radar({String? examCode});
@@ -35,6 +45,34 @@ class RemoteInsightsRepository implements InsightsRepository {
       queryParameters: {'exam': ?examCode, 'scope': scope},
     );
     return RepeatsReport.fromJson(response.data!);
+  });
+
+  @override
+  Future<ChapterReport> chapters(String examCode) => _guard(() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/v1/insights/chapters',
+      queryParameters: {'exam': examCode},
+    );
+    return ChapterReport.fromJson(response.data!);
+  });
+
+  @override
+  Future<List<SharedChapter>> sharedChapters(List<String> examCodes) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/api/v1/insights/shared-chapters',
+      queryParameters: {'exam': examCodes},
+      options: Options(listFormat: ListFormat.multi),
+    );
+    return [for (final c in response.data!) SharedChapter.fromJson(c as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<List<ConceptHint>> conceptHints(String examCode) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/api/v1/insights/concept-hints',
+      queryParameters: {'exam': examCode},
+    );
+    return [for (final h in response.data!) ConceptHint.fromJson(h as Map<String, dynamic>)];
   });
 
   @override

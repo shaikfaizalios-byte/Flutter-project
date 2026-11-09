@@ -89,6 +89,9 @@ class FigureRead(BaseModel):
     # stem: a figure in the question; option: an option that is a figure;
     # original: the whole question as printed (its text could not be read in full).
     kind: Literal["stem", "option", "original"]
+    # A cacheable link (a CDN may serve it), for figures every learner may see; else null and the
+    # figure is fetched from the signed-in endpoint.
+    url: str | None = None
     option_position: int | None
     page_number: int
     width: int
@@ -124,6 +127,60 @@ class SubPart(BaseModel):
     label: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10)]
     text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
     marks: float | None = Field(default=None, ge=0, le=1000)
+
+
+class OfficialKeyResult(BaseModel):
+    stage: Literal["provisional", "final"]
+    applied: int
+    several: int
+    dropped: int
+    missing: list[int]  # question numbers the key doesn't cover
+    problems: list[str]
+    sessions_remarked: int
+
+
+class SectionCountRead(BaseModel):
+    section: str
+    expected: int
+    found: int
+
+
+class ImportCheckRead(BaseModel):
+    ok: bool
+    sections: list[SectionCountRead]
+    problems: list[str]
+
+
+class BulkAssign(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    question_ids: list[uuid.UUID] = Field(min_length=1, max_length=500)
+    topic_id: uuid.UUID | None = None
+    pattern_id: uuid.UUID | None = None
+    verification_status: VerificationLiteral | None = None
+
+
+class BulkAssignResult(BaseModel):
+    updated: int
+    failed: list[uuid.UUID]
+
+
+class AnswerKeyUpdate(BaseModel):
+    """The official key of one question. Left out: the answer stays as it is."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    stage: Literal["provisional", "final"] | None
+    outcome: Literal["one", "several", "dropped"] = "one"
+    accepted_positions: list[int] | None = Field(default=None, max_length=10)
+    correct_option_position: int | None = Field(default=None, ge=1, le=10)
+    typed_answer: Annotated[str, StringConstraints(max_length=100)] | None = None
+    answer_spec: dict[str, Any] | None = None
+
+
+class KeySaved(BaseModel):
+    question: "QuestionRead"
+    sessions_remarked: int
 
 
 class TranslationLink(BaseModel):
@@ -195,7 +252,7 @@ class PaperAnswerRead(BaseModel):
 
 class QuestionRead(BaseModel):
     id: uuid.UUID
-    origin: Literal["source", "ai"]
+    origin: Literal["source", "ai", "library"]
     exam_code: str
     section: str | None
     subject: str | None
@@ -238,6 +295,10 @@ class QuestionRead(BaseModel):
     image_dependent: bool
     figures: list[FigureRead]
     verification_status: VerificationLiteral
+    key_stage: Literal["provisional", "final"] | None = None
+    key_outcome: Literal["one", "several", "dropped"] = "one"
+    accepted_positions: list[int] | None = None
+    key_changed: bool = False  # the final key differs from the provisional one
     verified_at: datetime | None
     issues: list[IssueRead]
     open_issue_count: int
@@ -255,6 +316,8 @@ class QuestionRead(BaseModel):
     # question, as read), "reviewer" (set or changed in review), "ai" (AI-generated
     # question), "none" (no answer yet). A reviewer's answer is never shown as the paper's.
     answer_origin: Literal["paper", "reviewer", "ai", "none"] = "none"
+    # official_pyq, original_expert or original_ai_verified, for a curated library question.
+    library_source: str | None = None
     # What the paper said, when the current answer is a reviewer's and the question's
     # history goes back to its reading (null when it doesn't: read before history began).
     paper_answer: PaperAnswerRead | None = None
@@ -397,3 +460,6 @@ class DocumentFormatUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     exam_format_code: str | None
+
+
+KeySaved.model_rebuild()

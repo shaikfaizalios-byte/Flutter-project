@@ -5,10 +5,18 @@ from app.models.concept import Concept
 from app.models.content import AuditEvent, ContentReport, ContentRights
 from app.models.descriptive import DescriptiveSession, DescriptiveStep
 from app.models.document import Document, DocumentPage
+from app.models.events import AttemptEvent, JobCursor
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
-from app.models.ladder import LadderSession, LadderStep
+from app.models.ladder import (
+    GeneratedReview,
+    LadderBenchmarkRun,
+    LadderGate,
+    LadderSession,
+    LadderStep,
+)
 from app.models.language import LanguageRow
+from app.models.library import LibraryEntry, LibraryVersion
 from app.models.ops import RateLimitCounter
 from app.models.plus import BillingEvent, PlayPurchase, Subscription
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
@@ -25,6 +33,7 @@ from app.models.question import (
     SyllabusImport,
     Topic,
 )
+from app.models.repeat_analysis import ConceptHint, ModelProposal
 from app.models.syllabus import SyllabusNode, SyllabusVersion
 from app.models.sync import SyncItem
 from app.models.taxonomy import TaxonomyLabel, TaxonomyNode, TopicTaxonomyLink
@@ -34,10 +43,12 @@ __all__ = [
     "AIExplanation",
     "AIGeneration",
     "AccountCode",
+    "AttemptEvent",
     "AuditEvent",
     "BillingEvent",
     "Bookmark",
     "Concept",
+    "ConceptHint",
     "ContentReport",
     "ContentRights",
     "DescriptiveSession",
@@ -46,9 +57,16 @@ __all__ = [
     "DocumentPage",
     "Exam",
     "ExamFormat",
+    "GeneratedReview",
+    "JobCursor",
+    "LadderBenchmarkRun",
+    "LadderGate",
     "LadderSession",
     "LadderStep",
     "LanguageRow",
+    "LibraryEntry",
+    "LibraryVersion",
+    "ModelProposal",
     "Passage",
     "PlayPurchase",
     "PracticeSession",

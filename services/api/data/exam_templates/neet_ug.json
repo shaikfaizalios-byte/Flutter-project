@@ -24,42 +24,42 @@
     "ur"
   ],
   "exam_dates": [
-    "2026-05-03"
+    "2026-06-21"
   ],
   "repeat_share": null,
   "min_papers": null,
   "reliable_papers": null,
-  "counting_unit": null,
+  "counting_unit": "session",
   "formats": [
-    "NEET_UG_2026"
+    "NEET_UG_2026",
+    "NEET_UG_2026_RE"
   ],
   "sources": {
     "kind": {
-      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
-      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf"
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4",
+      "url": "https://cdnbbsr.s3waas.gov.in/s37bc1ec1d9c3426357e69acd5bf320061/uploads/2026/02/202602231394640855.pdf",
+      "reference": "PDF p.26, para 2"
     },
     "options_per_question": {
-      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
-      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
-      "reference": "para 2: MCQ with four options and single correct answer/best option"
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4",
+      "url": "https://cdnbbsr.s3waas.gov.in/s37bc1ec1d9c3426357e69acd5bf320061/uploads/2026/02/202602231394640855.pdf",
+      "reference": "PDF p.26, para 2: MCQ with four options and single correct answer/best option"
     },
     "languages": {
-      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
-      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
-      "reference": "para 6: 13 mediums"
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4",
+      "url": "https://cdnbbsr.s3waas.gov.in/s37bc1ec1d9c3426357e69acd5bf320061/uploads/2026/02/202602231394640855.pdf",
+      "reference": "PDF p.27, para 6: 13 mediums"
     },
     "exam_dates": {
-      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
-      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
-      "uncertain": true,
-      "note": "News reports mention a re-exam on 21 June 2026 with 195 minutes; no official notice read yet."
+      "source": "NTA, Public Notice, 15 May 2026",
+      "url": "https://nta.ac.in/Download/Notice/Notice_20260516152513.pdf",
+      "reference": "p.1: re-examination on 21 June 2026. The 3 May exam was replaced"
     },
     "formats": {
-      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4 (read from a third-party copy)",
-      "url": "https://karnatakahelp.in/wp-content/uploads/2026/02/NTA-NEET-UG-2026-Information-Bulletin.pdf",
-      "uncertain": true,
-      "note": "Read from a copy, not nta.ac.in. Check against the NTA original and any re-exam notice."
+      "source": "NTA, Information Bulletin NEET (UG)-2026, Chapter 4",
+      "url": "https://cdnbbsr.s3waas.gov.in/s37bc1ec1d9c3426357e69acd5bf320061/uploads/2026/02/202602231394640855.pdf",
+      "reference": "Chapter 4, and the re-examination notices"
     }
   },
-  "note": "Draft. A named reviewer must check it against NTA's own site before it is applied."
+  "note": "No official notice for 2027 was found, including any move to computer-based mode, so nothing is stored for it. Counting by session is a product choice from the brief. See NEET_UG_2026_RE for the 195-minute window."
 }

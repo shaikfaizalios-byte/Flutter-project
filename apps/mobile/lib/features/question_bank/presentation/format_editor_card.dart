@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/widgets/rich_question_text.dart';
 import '../domain/format_spec.dart';
 import '../domain/question.dart';
 
@@ -11,6 +12,7 @@ String formatName(AppLocalizations l10n, String format) => switch (format) {
   'true_false' => l10n.formatTrueFalse,
   'multiple_correct' => l10n.formatMultipleCorrect,
   'numeric' => l10n.formatNumeric,
+  'integer' => l10n.formatInteger,
   'fill_blank' => l10n.formatFillBlank,
   'match' => l10n.formatMatch,
   'ordering' => l10n.formatOrdering,
@@ -34,6 +36,7 @@ class _FormatEditorCardState extends State<FormatEditorCard> {
   late final _positions = {..._start.positions};
   late final _value = TextEditingController(text: _start.value);
   late final _tolerance = TextEditingController(text: _start.tolerance);
+  late final _decimals = TextEditingController(text: _start.decimals);
   late final _low = TextEditingController(text: _start.low);
   late final _high = TextEditingController(text: _start.high);
   late final _lines = TextEditingController(text: _start.lines);
@@ -44,7 +47,17 @@ class _FormatEditorCardState extends State<FormatEditorCard> {
 
   @override
   void dispose() {
-    for (final c in [_value, _tolerance, _low, _high, _lines, _marks, _wordLimit, _choiceGroup]) {
+    for (final c in [
+      _value,
+      _tolerance,
+      _decimals,
+      _low,
+      _high,
+      _lines,
+      _marks,
+      _wordLimit,
+      _choiceGroup,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -54,6 +67,7 @@ class _FormatEditorCardState extends State<FormatEditorCard> {
     positions: _positions,
     value: _value.text,
     tolerance: _tolerance.text,
+    decimals: _decimals.text,
     low: _low.text,
     high: _high.text,
     lines: _lines.text,
@@ -94,7 +108,7 @@ class _FormatEditorCardState extends State<FormatEditorCard> {
         CheckboxListTile(
           contentPadding: EdgeInsets.zero,
           controlAffinity: ListTileControlAffinity.leading,
-          title: Text('${option.label}. ${option.text}'),
+          title: RichQuestionText('${option.label}. ${option.text}', selectable: false),
           value: _positions.contains(option.position),
           onChanged: (on) => setState(
             () =>
@@ -118,7 +132,9 @@ class _FormatEditorCardState extends State<FormatEditorCard> {
           Expanded(child: _field(_high, l10n.formatRangeTo)),
         ],
       ),
+      _field(_decimals, l10n.formatDecimals, hint: l10n.formatDecimalsHint),
     ],
+    'integer' => [_field(_value, l10n.formatWholeNumber)],
     'fill_blank' => [_field(_lines, l10n.formatAccepted, lines: 3, hint: l10n.formatOnePerLine)],
     'match' => [_field(_lines, l10n.formatPairs, lines: 4, hint: l10n.formatPairsHint)],
     'ordering' => [_field(_lines, l10n.formatOrderItems, lines: 4, hint: l10n.formatOrderHint)],

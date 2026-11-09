@@ -90,6 +90,12 @@ class PendingAnswers extends Table {
   /// JSON answer of a format that takes neither one option nor a text. Added in schema v9.
   TextColumn get responseJson => text().nullable()();
 
+  /// Marked for review in a computer-based mock; null leaves it as it was. Added in v11.
+  BoolColumn get marked => boolean().nullable()();
+
+  /// Seen without saving an answer: only the visit and its time count. Added in v11.
+  BoolColumn get visit => boolean().withDefault(const Constant(false))();
+
   /// Monotonic per device; the server ignores updates older than the one it has.
   IntColumn get clientSeq => integer()();
   IntColumn get timeSpentMs => integer().nullable()();
@@ -185,8 +191,36 @@ class OfflineQuestions extends Table {
   TextColumn get subject => text().nullable()();
   TextColumn get topicId => text().nullable()();
   TextColumn get patternId => text().nullable()();
+
+  /// The library chapter this was saved with (schema v10); null = from the daily offline pack.
+  TextColumn get packKey => text().nullable()();
   TextColumn get data => text()();
   DateTimeColumn get savedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Library chapters saved on the device (schema v10). [seq] is the last change it has seen, so
+/// an update asks only for what came after.
+@DataClassName('LibraryPackRow')
+class LibraryPacks extends Table {
+  TextColumn get examCode => text()();
+  TextColumn get packKey => text()();
+  TextColumn get name => text()();
+  IntColumn get seq => integer()();
+  DateTimeColumn get savedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {examCode, packKey};
+}
+
+/// Figures of saved library questions (schema v10), so they show without a connection.
+@DataClassName('OfflineFigureRow')
+class OfflineFigures extends Table {
+  TextColumn get id => text()();
+  TextColumn get questionId => text()();
+  BlobColumn get data => blob()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

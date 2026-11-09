@@ -1,0 +1,15 @@
+{
+  "_about": "How the Challenge Ladder works for this exam. Product rules, not exam facts.",
+  "exam_code": "JEE_MAIN",
+  "formats": [
+    "single_correct",
+    "numeric"
+  ],
+  "anchors": {
+    "easy": "A direct application of one class 11/12 concept.",
+    "medium": "Standard JEE Main level.",
+    "medium_hard": "Between standard and the toughest JEE Main level.",
+    "hard": "The toughest JEE Main level.",
+    "extreme_hard": "JEE Advanced level."
+  }
+}

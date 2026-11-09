@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/localization/generated/app_localizations.dart';
 import 'package:preploop/features/practice/domain/practice_models.dart';
@@ -21,18 +22,20 @@ SessionItemView item(String format, {Map<String, List<String>>? data, int option
 Future<List<Map<String, dynamic>>> pump(WidgetTester tester, SessionItemView view) async {
   final sent = <Map<String, dynamic>>[];
   await tester.pumpWidget(
-    MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: ResponseAnswer(
-            item: view,
-            locked: false,
-            onSubmit: (response) async {
-              sent.add(response);
-              return true;
-            },
+    ProviderScope(
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ResponseAnswer(
+              item: view,
+              locked: false,
+              onSubmit: (response) async {
+                sent.add(response);
+                return true;
+              },
+            ),
           ),
         ),
       ),

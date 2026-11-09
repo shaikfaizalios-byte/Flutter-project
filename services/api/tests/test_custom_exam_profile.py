@@ -143,7 +143,7 @@ def test_every_stated_fact_in_a_template_has_a_source() -> None:
 
 def test_templates_without_official_facts_claim_none() -> None:
     templates = _templates()
-    for name in ("upsc_cse_prelims.json", "jee_main.json"):
+    for name in ("upsc_cse_prelims.json",):
         data = templates[name]
         assert data["status"] == "draft"
         assert data["kind"] is None and data["options_per_question"] is None
@@ -159,7 +159,7 @@ def test_only_a_sourced_template_with_a_reviewer_is_applied(db_session: Session)
     with pytest.raises(ValueError, match="Not applicable"):
         apply_template(db_session, templates["ibps_po.json"], "A. Reviewer")
     with pytest.raises(ValueError, match="Not applicable"):
-        apply_template(db_session, templates["neet_ug.json"], "A. Reviewer")  # flagged uncertain
+        apply_template(db_session, templates["upsc_cse_prelims.json"], "A. Reviewer")  # no facts
     with pytest.raises(ValueError, match="example"):
         apply_template(db_session, templates["example_descriptive_university.json"], "A. Reviewer")
 

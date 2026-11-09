@@ -16,14 +16,16 @@ import random
 import uuid
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from sqlalchemy import Select, and_, false, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.domain import typed_answers
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
-from app.domain.exam_format import format_problems, section_marking
+from app.domain.exam_format import format_problems, section_key, section_marking
+from app.domain.library import percent_right
+from app.domain.mock_analysis import sectional_minutes
 from app.domain.question_formats import (
     RESPONSE_FORMATS,
     SINGLE_ANSWER,
@@ -52,6 +54,7 @@ from app.domain.segmentation import same_subject
 from app.models.ai import AIExplanation, DraftStatus
 from app.models.content import ContentRights
 from app.models.document import Document
+from app.models.library import LibraryEntry
 from app.models.practice import (
     Bookmark,
     PracticeSession,
@@ -95,8 +98,10 @@ from app.schemas.practice import (
     TopicResult,
     TranslationRead,
 )
-from app.schemas.question import FigureRead, OptionRead, PassageRead
+from app.schemas.question import OptionRead, PassageRead
+from app.services.attempt_events import final_events, remarked_event
 from app.services.exam_formats import is_in_effect, mock_formats
+from app.services.media import figure_reads
 from app.services.shared_bank import shared_question, visible_question
 from app.services.taxonomy_service import subject_labels_by_topic
 
@@ -183,12 +188,13 @@ def _eligible(
     statuses = [VerificationStatus.VERIFIED]
     if include_unverified:
         statuses.append(VerificationStatus.UNVERIFIED)
-    origins = [QuestionOrigin.SOURCE]
+    origins = [QuestionOrigin.SOURCE, QuestionOrigin.LIBRARY]
     if include_ai:
         origins.append(QuestionOrigin.AI)
     return select(Question).where(
         Question.origin.in_(origins),
         Question.verification_status.in_(statuses),
+        Question.key_outcome != "dropped",  # no answer left to practise
         Question.translation_of_id.is_(None),  # shown with its question, never asked apart
         or_(
             Question.image_dependent.is_(False),
@@ -230,7 +236,8 @@ def _needs_new_formats(exam_format: ExamFormat) -> bool:
 
 def _section_values(exam_format: ExamFormat, key: str) -> dict[str, Any]:
     """What the format's sections state for ``key``, by section name."""
-    return {s["subject"]: s[key] for s in exam_format.sections if s.get(key) is not None}
+    sections = exam_format.sections
+    return {section_key(s, sections): s[key] for s in sections if s.get(key) is not None}
 
 
 def _cutoff_fields(practice: PracticeSession, section: str, tally: Tally) -> dict[str, object]:
@@ -259,7 +266,66 @@ def _scored(item: SessionItem) -> ScoredItem:
         answer_spec=item.answer_spec,
         marks_unanswered=to_decimal(item.marks_unanswered),
         partial_rule=item.partial_rule,
+        key_outcome=item.key_outcome,
+        accepted_positions=item.accepted_positions,
     )
+
+
+def _key_note(item: SessionItem) -> Literal["dropped", "several", "changed"] | None:
+    if item.key_outcome == "dropped":
+        return "dropped"
+    if item.key_outcome == "several":
+        return "several"
+    return "changed" if item.key_changed else None
+
+
+def _evaluated(practice: PracticeSession, answer: SessionAnswer) -> Answer | None:
+    """The answer that counts: the official rules say whether a marked one does."""
+    rules = (practice.selection or {}).get("cbt") or {}
+    if answer.marked_for_review and rules.get("marked_with_answer_counts") is False:
+        return None
+    return _given(answer)
+
+
+def _given(answer: SessionAnswer) -> Answer | None:
+    if answer.response is not None:
+        return answer.response
+    return answer.typed_answer if answer.typed_answer is not None else answer.selected_position
+
+
+def apply_final_key(session: Session, question: Question) -> int:
+    """Puts a question's final key on every attempt at it and re-marks them. Returns the sessions
+    re-marked. Attempts are the learners' own, so this reaches every account that took it."""
+    items = session.scalars(select(SessionItem).where(SessionItem.question_id == question.id)).all()
+    touched: set[uuid.UUID] = set()
+    for item in items:
+        typed = question.answer_type == "typed"
+        item.correct_position = None if typed else question.correct_option_position
+        item.typed_answer = question.typed_answer if typed else None
+        item.answer_spec = question.answer_spec
+        item.key_outcome = question.key_outcome
+        item.accepted_positions = question.accepted_positions
+        item.key_changed = question.key_changed
+        answer = session.get(SessionAnswer, (item.session_id, item.position))
+        if answer is not None:
+            was = answer.is_correct
+            given = _given(answer)
+            judged = given is not None and question.key_outcome != "dropped"
+            answer.is_correct = is_correct(_scored(item), given) if judged else None  # type: ignore[arg-type]
+            attempt = session.get(PracticeSession, item.session_id)
+            if attempt is not None:
+                remarked_event(session, attempt, item, answer, was)
+        touched.add(item.session_id)
+    session.flush()
+    remarked = 0
+    for session_id in touched:
+        practice = session.get(PracticeSession, session_id)
+        if practice is not None and practice.status == SessionStatus.SUBMITTED:
+            session.refresh(practice)
+            owner = cast("uuid.UUID", practice.owner_id)  # a session from before accounts: unused
+            PracticeService(session, owner_id=owner).remark(practice)
+            remarked += 1
+    return remarked
 
 
 class PracticeService:
@@ -321,6 +387,7 @@ class PracticeService:
         learner (own + shared bank), without figures (images aren't stored offline)."""
         stmt = (
             _eligible(include_unverified=False)
+            .where(Question.key_outcome == "one")
             .where(
                 visible_question(self._owner_id),
                 ~select(QuestionFigure.id)
@@ -337,6 +404,7 @@ class PracticeService:
         sources = self._shared_sources(
             {q.document_id for q in questions if q.document_id and q.owner_id != self._owner_id}
         )
+        entries = self._library_entries({q.id for q in questions})
         items = []
         for q in questions:
             shared = q.owner_id != self._owner_id
@@ -364,6 +432,7 @@ class PracticeService:
                     else filenames.get(q.document_id),
                     page=q.source_pages[0] if q.source_pages else None,
                     question_number=q.source_question_number,
+                    library_source=entries[q.id].source_type if q.id in entries else None,
                 )
             )
         return OfflinePack(questions=items, limit=limit, generated_at=self._now())
@@ -518,12 +587,15 @@ class PracticeService:
             raise FormatIncompleteError(
                 "This paper format is incomplete: " + " ".join(availability.format_problems)
             )
-        if not availability.available:
-            short = [
-                f"{s.subject}: {s.available} of {s.needed}"
-                for s in availability.sections
-                if s.available < s.needed
-            ]
+        chosen = list(exam_format.sections)
+        if request.section is not None:
+            chosen = [s for s in chosen if section_key(s, exam_format.sections) == request.section]
+            if not chosen or exam_format.sectional_timing:
+                raise InvalidReferenceError("This paper has no such section to practise.")
+        wanted = {section_key(s, exam_format.sections) for s in chosen}
+        missing = [s for s in availability.sections if s.subject in wanted]
+        if any(s.available < s.needed for s in missing):
+            short = [f"{s.subject}: {s.available} of {s.needed}" for s in missing]
             raise NotEnoughQuestionsError(
                 "Not enough reviewed questions for this mock test (" + "; ".join(short) + ")."
             )
@@ -535,6 +607,10 @@ class PracticeService:
         seed = random.SystemRandom().randrange(2**31)
         rng = random.Random(seed)  # noqa: S311 - question sampling, recorded for reproducibility
         started = self._now()
+        if request.section is not None:
+            duration = sectional_minutes(
+                duration, int(chosen[0]["questions"]), int(exam_format.total_questions or 1)
+            )
         mock = PracticeSession(
             owner_id=self._owner_id,
             mode=SessionMode.MOCK,
@@ -548,15 +624,23 @@ class PracticeService:
         position = 0
         items: list[SessionItem] = []
         plan: list[PlannedSection] = []
+        used: set[uuid.UUID] = set()
         for section, pool in zip(exam_format.sections, pools, strict=True):
+            key = section_key(section, exam_format.sections)
+            if key not in wanted:
+                continue
             needed = int(section["questions"])
+            left = [q for q in pool if q.id not in used]
+            if len(left) < needed:  # two sections drew on the same questions
+                raise NotEnoughQuestionsError(f"Not enough reviewed questions for {key}.")
             marking = section_marking(
                 section,
                 negative_marks_per_wrong=exam_format.negative_marks_per_wrong,
                 penalty_fraction=exam_format.penalty_fraction,
             )
             first = position + 1
-            for question in rng.sample(pool, needed):
+            for question in rng.sample(left, needed):
+                used.add(question.id)
                 position += 1
                 item = self._item(
                     position,
@@ -566,18 +650,23 @@ class PracticeService:
                 )
                 item.marks_unanswered = marking.marks_unanswered
                 item.partial_rule = dict(marking.partial) if marking.partial else None
-                item.section = section["subject"]
+                item.section = key
                 items.append(item)
             if exam_format.sectional_timing:
                 plan.append(
                     PlannedSection(
-                        name=str(section["subject"]),
+                        name=key,
                         first_position=first,
                         last_position=position,
                         minutes=int(section["timer_minutes"]),
                     )
                 )
         mock.items = items
+        rules = (exam_format.conduct or {}).get("cbt")
+        if rules:
+            mock.selection = {**mock.selection, "cbt": rules}  # the attempt keeps its rules
+        if request.section is not None:
+            mock.selection = {**mock.selection, "section": request.section}
         limits = _section_values(exam_format, "attempt_limit")
         cutoffs = _section_values(exam_format, "cutoff")
         if limits or cutoffs:
@@ -606,6 +695,11 @@ class PracticeService:
                 ).where(
                     Question.exam_code == exam_format.exam_code,
                     visible_question(self._owner_id),
+                    Question.id.not_in(
+                        select(LibraryEntry.question_id).where(
+                            LibraryEntry.source_type == "original_ai_verified"
+                        )
+                    ),
                 )
             ).all()
             if q.format in allowed
@@ -636,7 +730,9 @@ class PracticeService:
             pools.append(pool)
             sections.append(
                 SectionAvailability(
-                    subject=subject, needed=_count(section.get("questions")), available=len(pool)
+                    subject=section_key(section, exam_format.sections or []),
+                    needed=_count(section.get("questions")),
+                    available=len(pool),
                 )
             )
         availability = MockAvailability(
@@ -651,6 +747,8 @@ class PracticeService:
             penalty_fraction=exam_format.penalty_fraction,
             sections=sections,
             section_counts_indicative=exam_format.section_counts_indicative,
+            computer_based=bool((exam_format.conduct or {}).get("cbt")),
+            sectional_timing=exam_format.sectional_timing,
         )
         return availability, pools
 
@@ -675,6 +773,9 @@ class PracticeService:
             marks_wrong=marks_wrong,
             marks_unanswered=0.0,
             question_verified=question.verification_status == VerificationStatus.VERIFIED,
+            key_outcome=question.key_outcome,
+            accepted_positions=question.accepted_positions,
+            key_changed=question.key_changed,
         )
 
     # --- answering & submitting -----------------------------------------------------
@@ -692,6 +793,15 @@ class PracticeService:
             raise ConflictError(
                 "section_closed", "This question's section is not open (sections are timed)."
             )
+        cbt = (practice.selection or {}).get("cbt")
+        if (update.visit or update.marked_for_review is not None) and not cbt:
+            raise InvalidAnswerError("Only computer-based mocks have this.")
+        if update.visit and (
+            update.selected_position is not None
+            or update.typed_answer is not None
+            or update.response is not None
+        ):
+            raise InvalidAnswerError("A visit saves no answer.")
         typed = item.answer_type == "typed"
         by_response = item.format in RESPONSE_FORMATS
         if by_response and (update.selected_position or update.typed_answer):
@@ -719,22 +829,32 @@ class PracticeService:
                 existing = SessionAnswer(session_id=practice.id, position=position)
                 practice.answers.append(existing)
             existing.question_id = item.question_id
-            existing.selected_position = update.selected_position
-            existing.typed_answer = (
-                typed_answers.clean(update.typed_answer) if update.typed_answer else None
-            )
-            existing.response = update.response
-            given: Answer | None = (
-                update.response
-                if by_response
-                else existing.typed_answer
-                if typed
-                else existing.selected_position
-            )
-            existing.is_correct = None if given is None else is_correct(_scored(item), given)
+            if not update.visit:
+                existing.selected_position = update.selected_position
+                existing.typed_answer = (
+                    typed_answers.clean(update.typed_answer) if update.typed_answer else None
+                )
+                existing.response = update.response
+                given: Answer | None = (
+                    update.response
+                    if by_response
+                    else existing.typed_answer
+                    if typed
+                    else existing.selected_position
+                )
+                existing.is_correct = None if given is None else is_correct(_scored(item), given)
+            if update.marked_for_review is not None:
+                existing.marked_for_review = update.marked_for_review
             existing.client_seq = update.client_seq
-            existing.time_spent_ms = update.time_spent_ms
+            # A computer-based mock returns to questions, so its time adds up.
+            existing.time_spent_ms = (
+                (existing.time_spent_ms or 0) + (update.time_spent_ms or 0)
+                if cbt
+                else update.time_spent_ms
+            )
             existing.answered_at = self._now()
+            if practice.mode == SessionMode.PRACTICE and not update.visit:
+                final_events(self._session, practice, [existing])  # practice answers are final
             self._session.commit()
         assert existing is not None  # noqa: S101 - set above when applied; else pre-existing
         return AnswerAck(
@@ -743,7 +863,14 @@ class PracticeService:
             typed_answer=existing.typed_answer,
             response=existing.response,
             applied=applied,
-            feedback=self._feedback(practice, item, existing),
+            feedback=self._feedback(
+                practice,
+                item,
+                existing,
+                entry=self._session.get(LibraryEntry, item.question_id)
+                if item.question_id
+                else None,
+            ),
         )
 
     def submit(self, session_id: uuid.UUID, *, reason: str = "user") -> SessionRead:
@@ -825,20 +952,27 @@ class PracticeService:
         now = at or self._now()
         if reason == "time_up" and practice.deadline_at is not None:
             now = min(now, practice.deadline_at)
-        selections: dict[int, Answer | None] = {
-            a.position: a.response
-            if a.response is not None
-            else a.typed_answer
-            if a.typed_answer is not None
-            else a.selected_position
-            for a in practice.answers
-        }
-        items = [_scored(i) for i in practice.items]
-        scored = score_session(items, selections)
-        topic_names = self._topic_names({i.topic_id for i in practice.items if i.topic_id})
         practice.status = SessionStatus.SUBMITTED
         practice.submitted_at = now
         practice.submit_reason = reason
+        self._write_result(practice, max(0, int((now - practice.started_at).total_seconds())))
+        if practice.mode != SessionMode.PRACTICE or reason == "offline":
+            # A test's answers count once it is in; practice answers counted when given.
+            final_events(self._session, practice, practice.answers)
+        self._session.commit()
+
+    def remark(self, practice: PracticeSession) -> None:
+        """Marks a finished session again after a final key, keeping its time. Doesn't commit."""
+        taken = (practice.result or {}).get("time_taken_seconds", 0)
+        self._write_result(practice, int(taken), remarked=True)
+
+    def _write_result(
+        self, practice: PracticeSession, seconds: int, *, remarked: bool = False
+    ) -> None:
+        selections = {a.position: _evaluated(practice, a) for a in practice.answers}
+        items = [_scored(i) for i in practice.items]
+        scored = score_session(items, selections)
+        topic_names = self._topic_names({i.topic_id for i in practice.items if i.topic_id})
         practice.score = float(scored.total.score)
         practice.max_score = float(scored.total.max_score)
         practice.result = {
@@ -851,10 +985,10 @@ class PracticeService:
                 {"topic_id": tid, "name": topic_names.get(tid, ""), **tally_json(t)}
                 for tid, t in scored.topics.items()
             ],
-            "time_taken_seconds": max(0, int((now - practice.started_at).total_seconds())),
+            "time_taken_seconds": seconds,
             "marking_note": self._marking_note(practice),
+            **({"remarked": True} if remarked else {}),
         }
-        self._session.commit()
 
     def _marking_note(self, practice: PracticeSession) -> str:
         if practice.mode == SessionMode.PRACTICE:
@@ -936,6 +1070,7 @@ class PracticeService:
         active = practice.status == SessionStatus.ACTIVE
         open_section = practice.current_section if plan and active else None
 
+        entries = self._library_entries({i.question_id for i in practice.items if i.question_id})
         items: list[SessionItemRead] = []
         for item in practice.items:
             question = questions.get(item.question_id) if item.question_id else None
@@ -957,9 +1092,7 @@ class PracticeService:
                     format=item.format,
                     format_data=public_data(item.format, item.answer_spec),
                     translations=translations.get(item.question_id, []) if item.question_id else [],
-                    figures=[FigureRead.model_validate(f) for f in question.figures]
-                    if question
-                    else [],
+                    figures=figure_reads(question.figures, public=shared) if question else [],
                     passage=PassageRead.model_validate(question.passage)
                     if question and question.passage
                     else None,
@@ -979,16 +1112,27 @@ class PracticeService:
                     ),
                     bookmarked=bool(item.question_id and item.question_id in bookmarks),
                     shared=shared,
+                    library_source=entries[item.question_id].source_type
+                    if item.question_id in entries
+                    else None,
+                    marked_for_review=answer.marked_for_review if answer else False,
+                    visited=answer is not None,
                     selected_position=answer.selected_position if answer else None,
                     answer_type=item.answer_type,
                     typed_answer=answer.typed_answer if answer else None,
                     response=answer.response if answer else None,
-                    typed_answer_numeric=item.format == "numeric"
+                    typed_answer_numeric=item.format in ("numeric", "integer")
                     or (
                         bool(item.typed_answer)
                         and typed_answers.is_numeric(item.typed_answer or "")
                     ),
-                    feedback=self._feedback(practice, item, answer, question),
+                    feedback=self._feedback(
+                        practice,
+                        item,
+                        answer,
+                        question,
+                        entries.get(item.question_id) if item.question_id else None,
+                    ),
                 )
             )
         return SessionRead(
@@ -1007,6 +1151,8 @@ class PracticeService:
             remaining_seconds=remaining,
             item_count=len(practice.items),
             answered_count=sum(_answered(a) for a in practice.answers),
+            cbt=(practice.selection or {}).get("cbt"),
+            sectional=(practice.selection or {}).get("section"),
             items=items,
             result=self._result(practice.result) if practice.result else None,
             sections=[SectionRead(**p.to_json()) for p in plan],
@@ -1165,6 +1311,7 @@ class PracticeService:
         item: SessionItem,
         answer: SessionAnswer | None,
         question: Question | None = None,
+        entry: LibraryEntry | None = None,
     ) -> Feedback | None:
         reveal = practice.status == SessionStatus.SUBMITTED or (
             practice.mode == SessionMode.PRACTICE and _answered(answer)
@@ -1177,7 +1324,10 @@ class PracticeService:
         origin: Literal["source", "ai"] | None = None
         if question is not None and question.explanation:
             explanation = question.explanation
-            origin = "ai" if question.origin == QuestionOrigin.AI else "source"
+            by_ai = question.origin == QuestionOrigin.AI or (
+                entry is not None and entry.source_type == "original_ai_verified"
+            )
+            origin = "ai" if by_ai else "source"
         elif question is not None:
             approved = self._session.scalars(
                 select(AIExplanation)
@@ -1197,7 +1347,14 @@ class PracticeService:
             is_correct=answer.is_correct if answer else None,
             explanation=explanation,
             explanation_origin=origin,
+            percent_right=percent_right(entry.attempts, entry.correct_count) if entry else None,
+            accepted_positions=item.accepted_positions,
+            key_note=_key_note(item),
         )
+
+    def _library_entries(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, LibraryEntry]:
+        rows = self._session.scalars(select(LibraryEntry).where(LibraryEntry.question_id.in_(ids)))
+        return {row.question_id: row for row in rows}
 
     def _questions(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, Question]:
         if not ids:
@@ -1276,4 +1433,9 @@ class PracticeService:
             marking_note=data["marking_note"],
             sections=[SectionResult(**s) for s in data["sections"]],
             topics=[TopicResult(**t) for t in data["topics"]],
+            remarked=data.get("remarked", False),
         )
+
+
+scored_item = _scored
+given_answer = _given
