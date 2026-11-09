@@ -43,8 +43,8 @@ SEE WHAT REPEATS
 
 PRACTISE AND REVISE
 • Topic-wise or mixed practice with instant feedback, also offline.
-• Timed mock tests for exams with a verified official format (SSC CGL Tier-I, SSC CHSL Tier-I,
-  RRB NTPC CBT), marked exactly as the official notice states.
+• Timed mock tests for exams with a verified official format (SSC CGL Tier-I, SSC CHSL Tier-I),
+  marked exactly as the official notice states.
 • Flashcards with scheduled revision, and a daily reminder you control.
 
 KNOW WHERE YOU STAND
@@ -65,8 +65,9 @@ Boards or any exam body.
 ```
 
 Only if — remove the line before uploading if it isn't true in that build:
-- "RRB NTPC CBT" mock formats: only once the RRB formats are published on the **production**
-  server (`python -m app.cli.exam_formats publish`).
+- Mock formats: "RRB NTPC CBT" is left out of the mock line (English and Hindi) because its formats
+  are drafts. Add it back only once they are published on the **production** server
+  (`python -m app.cli.exam_formats publish`).
 - "No ads": true today; keep it true.
 - Do **not** add AI features (explanations, quick answers, lessons) until AI is switched on
   in production and its quality has been checked; then add a line labelled as AI-generated.
@@ -104,7 +105,7 @@ PrepLoop आपके पिछले वर्षों के पेपरो�
 अभ्यास और रिवीजन
 • टॉपिक-वार या मिश्रित अभ्यास, तुरंत फ़ीडबैक के साथ, ऑफ़लाइन भी।
 • सत्यापित आधिकारिक प्रारूप वाली परीक्षाओं के लिए समयबद्ध मॉक टेस्ट (SSC CGL Tier-I,
-  SSC CHSL Tier-I, RRB NTPC CBT), अंक ठीक वैसे जैसे आधिकारिक सूचना में लिखे हैं।
+  SSC CHSL Tier-I), अंक ठीक वैसे जैसे आधिकारिक सूचना में लिखे हैं।
 • निर्धारित रिवीजन वाले फ़्लैशकार्ड, और आपके नियंत्रण में दैनिक रिमाइंडर।
 
 जानें आप कहाँ हैं
