@@ -18,7 +18,7 @@ from app.models.events import AttemptEvent
 from app.models.exam import Exam
 from app.models.feedback import Suggestion
 from app.models.ladder import LadderSession, LadderStep
-from app.models.plus import PlayPurchase, Subscription
+from app.models.plus import PlayPurchase, Subscription, WebPayment
 from app.models.practice import Bookmark, PracticeSession, SessionAnswer, SessionItem
 from app.models.progress import TopicCompletion
 from app.models.question import (
@@ -132,6 +132,13 @@ def _fill_account(db: Session, user: User) -> None:
                 state="SUBSCRIPTION_STATE_ACTIVE",
                 acknowledged=True,
                 test_purchase=True,
+            ),
+            WebPayment(
+                owner_id=user.id,
+                environment="staging",
+                order_id=f"PLUS-{uuid.uuid4().hex}",
+                amount_paise=9900,
+                days=30,
             ),
             SyncItem(owner_id=user.id, entity="setting", item_id="theme", data={"value": "dark"}),
         ]

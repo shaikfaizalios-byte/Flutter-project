@@ -18,6 +18,69 @@ enum PlusSource {
   static PlusSource? fromCode(String? code) => code == null ? null : PlusSource.values.byName(code);
 }
 
+/// Plus bought on the website (Paytm): one payment gives [days] of Plus, with no renewal.
+@immutable
+class WebOffer {
+  const WebOffer({required this.amountPaise, required this.days, this.testPayments = false});
+
+  factory WebOffer.fromJson(Map<String, dynamic> json) => WebOffer(
+    amountPaise: json['amount_paise'] as int,
+    days: json['days'] as int,
+    testPayments: json['test_payments'] as bool? ?? false,
+  );
+
+  final int amountPaise;
+  final int days;
+
+  /// Paytm's test environment: no real money moves.
+  final bool testPayments;
+
+  /// The price as written in India, e.g. "₹99" or "₹99.50".
+  String get price {
+    final rupees = amountPaise ~/ 100;
+    final paise = amountPaise % 100;
+    return paise == 0 ? '₹$rupees' : '₹$rupees.${paise.toString().padLeft(2, '0')}';
+  }
+}
+
+/// A website payment the server has started with Paytm.
+@immutable
+class WebOrder {
+  const WebOrder({required this.orderId, required this.payPath});
+
+  final String orderId;
+
+  /// Opened in the browser on the API's address: it sends the learner to Paytm.
+  final String payPath;
+}
+
+enum WebOrderState { created, pending, success, failed, refunded }
+
+/// A website payment as the server last confirmed it with Paytm.
+@immutable
+class WebOrderStatus {
+  const WebOrderStatus({required this.status, this.grantedUntil, this.testPayment = false});
+
+  factory WebOrderStatus.fromJson(Map<String, dynamic> json) => WebOrderStatus(
+    status: WebOrderState.values.byName(json['status'] as String),
+    grantedUntil: switch (json['granted_until']) {
+      final String at => DateTime.parse(at),
+      _ => null,
+    },
+    testPayment: json['test_payment'] as bool? ?? false,
+  );
+
+  final WebOrderState status;
+  final DateTime? grantedUntil;
+  final bool testPayment;
+
+  /// Paid, failed or refunded: asking again changes nothing.
+  bool get settled =>
+      status == WebOrderState.success ||
+      status == WebOrderState.failed ||
+      status == WebOrderState.refunded;
+}
+
 /// The account's PrepLoop Plus state. The server decides it; the app only shows it.
 @immutable
 class PlusStatus {
@@ -32,6 +95,7 @@ class PlusStatus {
     this.purchasesAvailable = false,
     this.playProductIds = const [],
     this.playAccountId,
+    this.webOffer,
   });
 
   factory PlusStatus.fromJson(Map<String, dynamic> json) => PlusStatus(
@@ -48,6 +112,10 @@ class PlusStatus {
     purchasesAvailable: json['purchases_available'] as bool,
     playProductIds: [for (final id in json['play_product_ids'] as List<dynamic>? ?? []) '$id'],
     playAccountId: json['play_account_id'] as String?,
+    webOffer: switch (json['web_offer']) {
+      final Map<String, dynamic> offer => WebOffer.fromJson(offer),
+      _ => null,
+    },
   );
 
   final bool active;
@@ -70,6 +138,9 @@ class PlusStatus {
 
   /// Passed to Play with a purchase, so the server adds it to this account only.
   final String? playAccountId;
+
+  /// Paying on the website (Paytm); null when the server doesn't offer it.
+  final WebOffer? webOffer;
 }
 
 /// Days of a test subscription started from the app.
@@ -84,6 +155,12 @@ abstract interface class PlusRepository {
 
   /// Reports a Google Play purchase; the server checks it with Google before adding Plus.
   Future<PlusStatus> verifyPlay({required String productId, required String purchaseToken});
+
+  /// Starts a website payment; the server sets the price.
+  Future<WebOrder> startWebPayment();
+
+  /// A website payment, checked with Paytm by the server while it isn't settled.
+  Future<WebOrderStatus> webOrder(String orderId);
 }
 
 class RemotePlusRepository implements PlusRepository {
@@ -119,6 +196,21 @@ class RemotePlusRepository implements PlusRepository {
           )).data!,
         ),
       );
+
+  @override
+  Future<WebOrder> startWebPayment() => _guard(() async {
+    final data = (await _dio.post<Map<String, dynamic>>('/api/v1/billing/paytm/orders')).data!;
+    return WebOrder(orderId: data['order_id'] as String, payPath: data['pay_path'] as String);
+  });
+
+  @override
+  Future<WebOrderStatus> webOrder(String orderId) => _guard(
+    () async => WebOrderStatus.fromJson(
+      (await _dio.get<Map<String, dynamic>>(
+        '/api/v1/billing/paytm/orders/${Uri.encodeComponent(orderId)}',
+      )).data!,
+    ),
+  );
 
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {

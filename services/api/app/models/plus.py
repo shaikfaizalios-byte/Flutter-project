@@ -15,7 +15,7 @@ class Subscription(Base):
         CheckConstraint("plan IN ('plus')", name="plan_valid"),
         # test: self-started in a development server; operator: granted with the CLI;
         # play: a Google Play purchase verified with the Play Developer API (see
-        # play_purchases); web: not built yet.
+        # play_purchases); web: paid on the website with Paytm (see web_payments).
         CheckConstraint("source IN ('test', 'operator', 'play', 'web')", name="source_valid"),
     )
 
@@ -70,8 +70,12 @@ class BillingEvent(Base):
 
     __tablename__ = "billing_events"
     __table_args__ = (
-        CheckConstraint("provider IN ('play')", name="provider_valid"),
-        CheckConstraint("kind IN ('verify', 'subscription', 'voided', 'test')", name="kind_valid"),
+        CheckConstraint("provider IN ('play', 'paytm')", name="provider_valid"),
+        CheckConstraint(
+            "kind IN ('verify', 'subscription', 'voided', 'test', 'order', 'callback', 'webhook', "
+            "'status')",
+            name="kind_valid",
+        ),
         CheckConstraint(
             "outcome IN ('applied', 'ignored', 'refused', 'unknown_token', 'error')",
             name="outcome_valid",
@@ -92,4 +96,53 @@ class BillingEvent(Base):
     detail: Mapped[str] = mapped_column(String(200), default="", server_default="")
     received_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class WebPayment(Base):
+    """One order to buy PrepLoop Plus on the website (Paytm), as last confirmed with Paytm.
+
+    A paid order gives `days` of Plus from `granted_from` (now, or the end of the Plus the account
+    already had) to `granted_until`. The price and days are copied from the server's settings when
+    the order is made. `environment` keeps test (staging) payments apart from real ones.
+    """
+
+    __tablename__ = "web_payments"
+    __table_args__ = (
+        CheckConstraint("provider IN ('paytm')", name="provider_valid"),
+        CheckConstraint("environment IN ('staging', 'production')", name="environment_valid"),
+        CheckConstraint(
+            "status IN ('created', 'pending', 'success', 'failed', 'refunded')",
+            name="status_valid",
+        ),
+        CheckConstraint("amount_paise > 0", name="amount_positive"),
+        CheckConstraint("days > 0", name="days_positive"),
+        CheckConstraint(
+            "(status IN ('success', 'refunded')) = (granted_until IS NOT NULL)",
+            name="granted_when_paid",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    provider: Mapped[str] = mapped_column(String(8), default="paytm")
+    environment: Mapped[str] = mapped_column(String(16))
+    order_id: Mapped[str] = mapped_column(String(50), unique=True)
+    amount_paise: Mapped[int] = mapped_column(Integer)
+    currency: Mapped[str] = mapped_column(String(3), default="INR")
+    days: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(16), default="created")
+    # Paytm's token for opening its payment page (valid for minutes; not a payment credential).
+    txn_token: Mapped[str | None] = mapped_column(String(200))
+    txn_id: Mapped[str | None] = mapped_column(String(64))
+    payment_mode: Mapped[str | None] = mapped_column(String(16))
+    result_code: Mapped[str | None] = mapped_column(String(16))
+    granted_from: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    granted_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

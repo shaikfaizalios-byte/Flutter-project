@@ -13,7 +13,7 @@ from app.core.config import Settings
 from app.domain.errors import AIAllowanceUsedError, ConflictError, PlusRequiredError
 from app.models.ai import AIGeneration
 from app.models.plus import Subscription
-from app.schemas.plus import PlusStatus
+from app.schemas.plus import PlusStatus, WebOffer
 
 # AI requests that count against the allowance (failed and invalid ones don't).
 COUNTED_OUTCOMES = ("ok", "partial")
@@ -42,6 +42,7 @@ class PlusService:
         now: Callable[[], datetime] | None = None,
         *,
         play_account_id: str | None = None,
+        web_offer: WebOffer | None = None,
     ) -> None:
         self._session = session
         self._owner_id = owner_id
@@ -49,6 +50,7 @@ class PlusService:
         self._now = now or (lambda: datetime.now(UTC))
         # Set when Google Play purchases are available (see BillingService.play_account_id).
         self._play_account_id = play_account_id
+        self._web_offer = web_offer
 
     def status(self) -> PlusStatus:
         now = self._now()
@@ -74,6 +76,7 @@ class PlusService:
             if self._play_account_id
             else [],
             play_account_id=self._play_account_id,
+            web_offer=self._web_offer,
         )
 
     def check_ai_allowed(self) -> None:

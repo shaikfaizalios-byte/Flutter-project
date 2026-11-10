@@ -7,6 +7,17 @@ PlusSource = Literal["test", "operator", "play", "web"]
 TEST_DAYS_MAX = 31
 
 
+class WebOffer(BaseModel):
+    """Plus bought on the website: one payment gives `days` of Plus, with no renewal."""
+
+    provider: Literal["paytm"] = "paytm"
+    amount_paise: int
+    currency: Literal["INR"] = "INR"
+    days: int
+    # Paytm's staging environment: no real money moves.
+    test_payments: bool
+
+
 class PlusStatus(BaseModel):
     """The account's PrepLoop Plus state, as the server sees it."""
 
@@ -26,6 +37,8 @@ class PlusStatus(BaseModel):
     # Passed to Play as the obfuscated account id at purchase time, so the purchase can only
     # be added to this account (null when purchases are not available).
     play_account_id: str | None = None
+    # Paying on the website (Paytm); null when this server doesn't offer it.
+    web_offer: WebOffer | None = None
 
 
 class PlayPurchaseVerify(BaseModel):
@@ -41,3 +54,24 @@ class PlusTestStart(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     days: int = Field(default=7, ge=1, le=TEST_DAYS_MAX)
+
+
+WebPaymentStatus = Literal["created", "pending", "success", "failed", "refunded"]
+
+
+class PaytmOrderCreated(BaseModel):
+    order_id: str
+    # Open this (on the API's address) in the browser: it sends the learner to Paytm. It expires
+    # in 15 minutes.
+    pay_path: str
+    amount_paise: int
+    days: int
+
+
+class PaytmOrderRead(BaseModel):
+    order_id: str
+    status: WebPaymentStatus
+    amount_paise: int
+    days: int
+    granted_until: datetime | None
+    test_payment: bool

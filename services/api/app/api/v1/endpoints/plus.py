@@ -1,3 +1,4 @@
+import hashlib
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
@@ -6,9 +7,10 @@ from app.api.deps import CurrentUser
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.schemas.errors import ErrorResponse
-from app.schemas.plus import PlusStatus, PlusTestStart
+from app.schemas.plus import PlusStatus, PlusTestStart, WebOffer
 from app.services.billing_service import BillingService
 from app.services.plus_service import PlusService
+from app.services.web_billing_service import WebBillingService
 
 
 def billing_service(request: Request, session: DbSession, settings: Settings) -> BillingService:
@@ -17,6 +19,18 @@ def billing_service(request: Request, session: DbSession, settings: Settings) ->
         settings,
         request.app.state.play_billing,
         account_secret=request.app.state.token_signer.secret,
+    )
+
+
+def web_billing_service(
+    request: Request, session: DbSession, settings: Settings
+) -> WebBillingService:
+    secret: str = request.app.state.token_signer.secret
+    return WebBillingService(
+        session,
+        settings,
+        request.app.state.paytm,
+        link_key=hashlib.sha256(b"preploop-paytm-link:" + secret.encode()).digest(),
     )
 
 
@@ -34,7 +48,18 @@ def get_plus_service(
 ) -> PlusService:
     billing = billing_service(request, session, settings)
     play_id = billing.play_account_id(user.id) if request.app.state.play_billing else None
-    return PlusService(session, user.id, settings, play_account_id=play_id)
+    web = web_billing_service(request, session, settings)
+    offer = web.offer()
+    web_offer = (
+        WebOffer(
+            amount_paise=offer[0],
+            days=offer[1],
+            test_payments=request.app.state.paytm.environment != "production",
+        )
+        if offer is not None
+        else None
+    )
+    return PlusService(session, user.id, settings, play_account_id=play_id, web_offer=web_offer)
 
 
 Service = Annotated[PlusService, Depends(get_plus_service)]

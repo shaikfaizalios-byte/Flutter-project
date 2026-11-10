@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/theme/app_spacing.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
@@ -11,11 +12,12 @@ import '../../../core/widgets/section_card.dart';
 import '../../../core/utils/external_links.dart';
 import '../../ai/application/ai_providers.dart';
 import '../application/play_purchases.dart';
+import '../application/web_payments.dart';
 import '../data/plus_repository.dart';
 
 /// PrepLoop Plus: what it includes, the account's status and this month's AI use. Bought with
-/// Google Play where the server sells it (prices from Play); a development server offers a free
-/// test subscription instead.
+/// Google Play in the Android app (prices from Play) or with Paytm on the website (price from the
+/// server); a development server offers a free test subscription instead.
 class PlusScreen extends ConsumerStatefulWidget {
   const PlusScreen({super.key});
 
@@ -100,6 +102,7 @@ class _PlusDetails extends ConsumerWidget {
     String date(DateTime d) => DateFormat.yMMMd(locale).format(d.toLocal());
     final aiOn = ref.watch(aiStatusProvider).value?.enabled ?? false;
     final s = status;
+    final web = ref.watch(webPaymentsSupportedProvider) ? s.webOffer : null;
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -129,6 +132,7 @@ class _PlusDetails extends ConsumerWidget {
                   onPressed: () => ref.read(linkOpenerProvider)(playSubscriptionsUri),
                 ),
               ],
+              if (s.active && s.source == PlusSource.web) Text(l10n.plusWebLabel),
               const SizedBox(height: AppSpacing.sm),
               if (s.active && s.source == PlusSource.test)
                 OutlinedButton(onPressed: busy ? null : onEndTest, child: Text(l10n.plusEndTest))
@@ -140,7 +144,9 @@ class _PlusDetails extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(l10n.plusTestExplained, style: theme.textTheme.bodySmall),
-              ] else if (!s.active && s.purchasesAvailable && s.playAccountId != null)
+              ] else if (web != null && (!s.active || s.source == PlusSource.web))
+                _WebOfferPanel(offer: web, extending: s.active)
+              else if (!s.active && s.purchasesAvailable && s.playAccountId != null)
                 _PlayOffers(accountId: s.playAccountId!)
               else if (!s.active)
                 Text(l10n.plusNotForSaleYet, style: theme.textTheme.bodySmall),
@@ -258,5 +264,66 @@ class _PlayOffers extends ConsumerWidget {
       AsyncError() => Text(l10n.plusPlayUnavailable, style: theme.textTheme.bodySmall),
       _ => const LinearProgressIndicator(),
     };
+  }
+}
+
+/// Plus paid on the website with Paytm: one payment, a set number of days, no renewal.
+class _WebOfferPanel extends ConsumerStatefulWidget {
+  const _WebOfferPanel({required this.offer, required this.extending});
+
+  final WebOffer offer;
+
+  /// Plus is already on: paying adds the days after it ends.
+  final bool extending;
+
+  @override
+  ConsumerState<_WebOfferPanel> createState() => _WebOfferPanelState();
+}
+
+class _WebOfferPanelState extends ConsumerState<_WebOfferPanel> {
+  bool _busy = false;
+
+  Future<void> _pay() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final order = await ref.read(plusRepositoryProvider).startWebPayment();
+      final uri = paymentPageUri(ref.read(appConfigProvider), order.payPath);
+      if (!await ref.read(paymentPageOpenerProvider)(uri)) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.plusWebPayFailed)));
+      }
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Starting a Paytm payment failed', error, stack);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.plusWebPayFailed)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final offer = widget.offer;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.plusWebPrice(offer.price, offer.days), style: theme.textTheme.titleSmall),
+        const SizedBox(height: AppSpacing.xs),
+        FilledButton.icon(
+          icon: const Icon(Icons.payments_outlined),
+          label: Text(widget.extending ? l10n.plusWebPayMore(offer.days) : l10n.plusWebPay),
+          onPressed: _busy ? null : _pay,
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(l10n.plusWebTerms(offer.days), style: theme.textTheme.bodySmall),
+        if (offer.testPayments)
+          Text(
+            l10n.plusWebTestPayments,
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.tertiary),
+          ),
+      ],
+    );
   }
 }

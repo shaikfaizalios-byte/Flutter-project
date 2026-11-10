@@ -88,6 +88,9 @@ usage analytics.
 - Hosting and database: [hosting provider, region].
 - Email delivery (sign-in codes): [email provider].
 - AI assistance (only when used): [Anthropic PBC]. See their data-use terms: [link].
+- Payments on the website (only when you buy Plus there): [Paytm Payments Services Limited]. You
+  enter your payment details on Paytm's page; PrepLoop receives only the result of the order
+  (paid or not, the amount, Paytm's transaction number and the kind of payment, such as UPI).
 
 They process data only to provide these services to us.
 

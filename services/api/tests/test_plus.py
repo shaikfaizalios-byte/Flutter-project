@@ -112,6 +112,7 @@ def test_status_counts_this_months_successful_ai_requests(
         "purchases_available": False,
         "play_product_ids": [],
         "play_account_id": None,
+        "web_offer": None,
     }
 
 

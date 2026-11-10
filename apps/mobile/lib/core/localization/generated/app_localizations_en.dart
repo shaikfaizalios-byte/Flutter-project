@@ -5674,4 +5674,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String analysisPercentile(int percent, int accounts) {
     return 'Scored above $percent% of $accounts PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.';
   }
+
+  @override
+  String get plusWebLabel => 'Paid on the website with Paytm. It doesn\'t renew by itself.';
+
+  @override
+  String plusWebPrice(String price, int days) {
+    return '$price for $days days';
+  }
+
+  @override
+  String get plusWebPay => 'Pay with Paytm';
+
+  @override
+  String plusWebPayMore(int days) {
+    return 'Add $days days with Paytm';
+  }
+
+  @override
+  String plusWebTerms(int days) {
+    return 'One payment gives $days days of Plus. Nothing renews or is charged again. If you already have Plus, the days are added after it ends. Paytm takes the payment; PrepLoop never sees your card or bank details.';
+  }
+
+  @override
+  String get plusWebTestPayments => 'Test payments: no real money is taken on this server.';
+
+  @override
+  String get plusWebPayFailed => 'Paytm could not be opened. Try again.';
+
+  @override
+  String get paytmChecking => 'Checking your payment with Paytm…';
+
+  @override
+  String paytmPaid(String date) {
+    return 'Thank you! PrepLoop Plus is on until $date.';
+  }
+
+  @override
+  String get paytmPending =>
+      'Paytm is still confirming your payment. Plus starts as soon as it does.';
+
+  @override
+  String get paytmFailed =>
+      'Paytm says the payment did not go through. If money left your account, your bank returns it.';
+
+  @override
+  String get paytmRefunded => 'This payment was refunded, so it gives no Plus time.';
+
+  @override
+  String get paytmNotFoundYet =>
+      'Paytm has no completed payment for this order yet. If you paid, check again in a few minutes.';
+
+  @override
+  String get paytmNoOrder => 'No payment to check. Start again from PrepLoop Plus.';
+
+  @override
+  String get paytmTestPayment => 'Test payment: no real money was taken.';
+
+  @override
+  String get paytmCheckFailed => 'PrepLoop could not reach the server just now; still trying.';
+
+  @override
+  String get paytmCheckAgain => 'Check again';
+
+  @override
+  String get paytmBackToPlus => 'Back to PrepLoop Plus';
 }
