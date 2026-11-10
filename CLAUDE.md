@@ -241,8 +241,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   pure rules `app/domain/billing.py`), refuses other products/accounts, stores `play_purchases`, acknowledges,
   sets `subscriptions` source play; Pub/Sub RTDN at `/billing/play/rtdn` (Google OIDC checked, once per message);
   `billing_events` audit (token hash only), migration 0031. App: `in_app_purchase`, `features/plus/data/play_store.dart`,
-  `PlayPurchaseController` (listens from app start; completes only after the server confirms). NOT built yet: web /
-  Apple payments, legal texts. See docs/plus.md.
+  `PlayPurchaseController` (listens from app start; completes only after the server confirms). Website (migration 0061): Paytm,
+  one payment = `PREPLOOP_PAYTM_PLUS_DAYS` days, no renewal; `web_payments`, pure `app/domain/paytm.py` (checksums,
+  `outcome`), `web_billing_service.py`, `/billing/paytm/orders|pay|callback|webhook`; Plus only on Paytm's Transaction
+  Status answer for this MID, order and amount, once; app `PaytmReturnScreen` (`/profile/plus/paytm`), button only on
+  web (`webPaymentsSupportedProvider`). NOT built yet: Apple payments, auto-renewal on the web, legal texts.
+  See docs/plus.md.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000
   chars, 10/day/account); operator reads/marks with `python -m app.cli.suggestions list|mark`. Mobile
   "Suggest a feature" (Profile card, sidebar, Home shortcuts) shows each suggestion's status.

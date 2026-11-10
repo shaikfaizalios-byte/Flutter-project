@@ -24,6 +24,7 @@ from app.database.session import build_engine, build_sessionmaker
 from app.integrations.ai import AIProvider, provider_from_settings
 from app.integrations.email import EmailSender, email_sender_from_settings
 from app.integrations.ocr import OcrEngine, TesseractOcrEngine
+from app.integrations.paytm import PaytmClient, paytm_client_from_settings
 from app.integrations.play_billing import (
     PlayBillingClient,
     PushTokenVerifier,
@@ -58,6 +59,7 @@ def create_app(
     ocr_engine: OcrEngine | None = None,
     play_billing: PlayBillingClient | None = None,
     play_push_verifier: PushTokenVerifier | None = None,
+    paytm: PaytmClient | None = None,
 ) -> FastAPI:
     """Build the app. ``engine`` and ``storage`` let tests inject dependencies; by default
     they are created from settings (no engine if ``database_url`` is unset)."""
@@ -125,6 +127,8 @@ def create_app(
         if play_push_verifier is not None
         else push_verifier_from_settings(settings)
     )
+    # Paying on the website with Paytm: off unless injected (tests) or configured.
+    app.state.paytm = paytm if paytm is not None else paytm_client_from_settings(settings)
     # AI is off unless a provider is injected (tests) or an API key is configured.
     app.state.ai_provider = (
         ai_provider if ai_provider is not None else provider_from_settings(settings)

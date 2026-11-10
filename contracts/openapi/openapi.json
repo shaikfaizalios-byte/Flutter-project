@@ -8002,6 +8002,87 @@
         "title": "PatternRepeat",
         "type": "object"
       },
+      "PaytmOrderCreated": {
+        "properties": {
+          "amount_paise": {
+            "title": "Amount Paise",
+            "type": "integer"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          },
+          "pay_path": {
+            "title": "Pay Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "pay_path",
+          "amount_paise",
+          "days"
+        ],
+        "title": "PaytmOrderCreated",
+        "type": "object"
+      },
+      "PaytmOrderRead": {
+        "properties": {
+          "amount_paise": {
+            "title": "Amount Paise",
+            "type": "integer"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "granted_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted Until"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "created",
+              "pending",
+              "success",
+              "failed",
+              "refunded"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "test_payment": {
+            "title": "Test Payment",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "order_id",
+          "status",
+          "amount_paise",
+          "days",
+          "granted_until",
+          "test_payment"
+        ],
+        "title": "PaytmOrderRead",
+        "type": "object"
+      },
       "PercentileRead": {
         "description": "From real PrepLoop attempts only: each account's first attempt at this paper.",
         "properties": {
@@ -8120,6 +8201,16 @@
           "test_mode": {
             "title": "Test Mode",
             "type": "boolean"
+          },
+          "web_offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WebOffer"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -13202,6 +13293,42 @@
         "title": "VerifyEmailConfirm",
         "type": "object"
       },
+      "WebOffer": {
+        "description": "Plus bought on the website: one payment gives `days` of Plus, with no renewal.",
+        "properties": {
+          "amount_paise": {
+            "title": "Amount Paise",
+            "type": "integer"
+          },
+          "currency": {
+            "const": "INR",
+            "default": "INR",
+            "title": "Currency",
+            "type": "string"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "provider": {
+            "const": "paytm",
+            "default": "paytm",
+            "title": "Provider",
+            "type": "string"
+          },
+          "test_payments": {
+            "title": "Test Payments",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "amount_paise",
+          "days",
+          "test_payments"
+        ],
+        "title": "WebOffer",
+        "type": "object"
+      },
       "YearCount": {
         "properties": {
           "questions": {
@@ -15554,6 +15681,139 @@
         "summary": "Email a 6-digit code to confirm the account's address",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/v1/billing/paytm/orders": {
+      "post": {
+        "operationId": "create_paytm_order_api_v1_billing_paytm_orders_post",
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaytmOrderCreated"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many payment attempts"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Paytm unreachable"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Purchases not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start paying for PrepLoop Plus on the website (Paytm)",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/api/v1/billing/paytm/orders/{order_id}": {
+      "get": {
+        "operationId": "read_paytm_order_api_v1_billing_paytm_orders__order_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaytmOrderRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not your order"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Paytm unreachable"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Purchases not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your website payment, checked with Paytm while it is not settled",
+        "tags": [
+          "billing"
         ]
       }
     },

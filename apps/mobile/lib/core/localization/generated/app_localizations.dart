@@ -9116,6 +9116,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scored above {percent}% of {accounts} PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.'**
   String analysisPercentile(int percent, int accounts);
+
+  /// No description provided for @plusWebLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on the website with Paytm. It doesn\'t renew by itself.'**
+  String get plusWebLabel;
+
+  /// No description provided for @plusWebPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} for {days} days'**
+  String plusWebPrice(String price, int days);
+
+  /// No description provided for @plusWebPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with Paytm'**
+  String get plusWebPay;
+
+  /// No description provided for @plusWebPayMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {days} days with Paytm'**
+  String plusWebPayMore(int days);
+
+  /// No description provided for @plusWebTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'One payment gives {days} days of Plus. Nothing renews or is charged again. If you already have Plus, the days are added after it ends. Paytm takes the payment; PrepLoop never sees your card or bank details.'**
+  String plusWebTerms(int days);
+
+  /// No description provided for @plusWebTestPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Test payments: no real money is taken on this server.'**
+  String get plusWebTestPayments;
+
+  /// No description provided for @plusWebPayFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Paytm could not be opened. Try again.'**
+  String get plusWebPayFailed;
+
+  /// No description provided for @paytmChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your payment with Paytm…'**
+  String get paytmChecking;
+
+  /// No description provided for @paytmPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! PrepLoop Plus is on until {date}.'**
+  String paytmPaid(String date);
+
+  /// No description provided for @paytmPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Paytm is still confirming your payment. Plus starts as soon as it does.'**
+  String get paytmPending;
+
+  /// No description provided for @paytmFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Paytm says the payment did not go through. If money left your account, your bank returns it.'**
+  String get paytmFailed;
+
+  /// No description provided for @paytmRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment was refunded, so it gives no Plus time.'**
+  String get paytmRefunded;
+
+  /// No description provided for @paytmNotFoundYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Paytm has no completed payment for this order yet. If you paid, check again in a few minutes.'**
+  String get paytmNotFoundYet;
+
+  /// No description provided for @paytmNoOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment to check. Start again from PrepLoop Plus.'**
+  String get paytmNoOrder;
+
+  /// No description provided for @paytmTestPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Test payment: no real money was taken.'**
+  String get paytmTestPayment;
+
+  /// No description provided for @paytmCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'PrepLoop could not reach the server just now; still trying.'**
+  String get paytmCheckFailed;
+
+  /// No description provided for @paytmCheckAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get paytmCheckAgain;
+
+  /// No description provided for @paytmBackToPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to PrepLoop Plus'**
+  String get paytmBackToPlus;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

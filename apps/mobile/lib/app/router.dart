@@ -42,6 +42,7 @@ import 'app_features.dart';
 import 'routes.dart';
 import '../features/feedback/presentation/suggestions_screen.dart';
 import '../features/auth/presentation/devices_screen.dart';
+import '../features/plus/presentation/paytm_return_screen.dart';
 import '../features/plus/presentation/plus_screen.dart';
 import '../features/ai/data/ai_repository.dart';
 import '../features/descriptive/presentation/descriptive_card.dart';
@@ -118,6 +119,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.myExams, builder: (context, state) => const MyExamsScreen()),
       GoRoute(path: AppRoutes.suggestions, builder: (context, state) => const SuggestionsScreen()),
       GoRoute(path: AppRoutes.plus, builder: (context, state) => const PlusScreen()),
+      GoRoute(
+        path: AppRoutes.plusPaytm,
+        builder: (context, state) {
+          final order = state.uri.queryParameters['order'] ?? '';
+          return PaytmReturnScreen(key: ValueKey(order), orderId: order);
+        },
+      ),
       GoRoute(path: AppRoutes.devices, builder: (context, state) => const DevicesScreen()),
       GoRoute(
         path: '/profile/topics/:id/models',

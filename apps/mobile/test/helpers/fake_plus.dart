@@ -23,6 +23,13 @@ class FakePlusRepository implements PlusRepository {
   AppFailure? failure;
   final calls = <String>[];
 
+  /// What the server offers on the website (null = not offered).
+  WebOffer? webOffer;
+
+  /// Answers to webOrder, in turn (the last one repeats).
+  final webOrders = <WebOrderStatus>[];
+  int webOrderChecks = 0;
+
   PlusStatus get _status => PlusStatus(
     active: source != null,
     source: source,
@@ -34,7 +41,28 @@ class FakePlusRepository implements PlusRepository {
     purchasesAvailable: playProductIds.isNotEmpty,
     playProductIds: playProductIds,
     playAccountId: playProductIds.isEmpty ? null : 'acct-1',
+    webOffer: webOffer,
   );
+
+  @override
+  Future<WebOrder> startWebPayment() async {
+    calls.add('web-order');
+    if (failure != null) throw failure!;
+    return const WebOrder(orderId: 'PLUS-1', payPath: '/api/v1/billing/paytm/pay/PLUS-1?e=1&s=x');
+  }
+
+  @override
+  Future<WebOrderStatus> webOrder(String orderId) async {
+    calls.add('web-check:$orderId');
+    if (failure != null) throw failure!;
+    final answer = webOrders[webOrderChecks.clamp(0, webOrders.length - 1)];
+    webOrderChecks++;
+    if (answer.status == WebOrderState.success) {
+      source = PlusSource.web;
+      activeUntil = answer.grantedUntil;
+    }
+    return answer;
+  }
 
   @override
   Future<PlusStatus> verifyPlay({required String productId, required String purchaseToken}) async {

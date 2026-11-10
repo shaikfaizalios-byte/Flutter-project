@@ -1,5 +1,6 @@
 """Application settings loaded from environment variables (and an optional .env file)."""
 
+from decimal import Decimal
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
@@ -103,6 +104,19 @@ class Settings(BaseSettings):
     # audience and service account the push subscription signs its OIDC token with.
     play_rtdn_audience: str | None = None
     play_rtdn_service_account: str | None = None
+    # Paytm Payment Gateway: Plus bought on the website (docs/plus.md "Paytm"). Off unless the
+    # merchant id and key, price, days, callback and return URLs are all set. A production
+    # server must use Paytm's production environment, and any other server its staging one.
+    paytm_environment: Literal["staging", "production"] = "staging"
+    paytm_mid: str | None = None
+    paytm_merchant_key: SecretStr | None = None
+    paytm_website_name: str | None = None  # default: WEBSTAGING / DEFAULT
+    paytm_plus_price: Decimal | None = Field(default=None, gt=0, max_digits=8, decimal_places=2)
+    paytm_plus_days: int | None = Field(default=None, ge=1, le=366)
+    # This API's /api/v1/billing/paytm/callback as Paytm can reach it.
+    paytm_callback_url: str | None = None
+    # The web app's page Paytm's callback sends the browser back to; "{order}" is replaced.
+    paytm_return_url: str | None = None
     # Accounts. The signing secret is required outside development/test; locally a random
     # one is generated per process (tokens then stop working after a restart).
     auth_secret: SecretStr | None = None
@@ -164,6 +178,19 @@ class Settings(BaseSettings):
                 raise ValueError("PREPLOOP_PLUS_TEST_MODE is for development only.")
             if not self.plus_required_for_ai:
                 raise ValueError("PREPLOOP_PLUS_REQUIRED_FOR_AI=false is for development only.")
+        if self.paytm_configured:
+            production = self.environment is Environment.PRODUCTION
+            if production != (self.paytm_environment == "production"):
+                raise ValueError(
+                    "PREPLOOP_PAYTM_ENVIRONMENT must be production on a production server only."
+                )
+            key = self.paytm_merchant_key.get_secret_value() if self.paytm_merchant_key else ""
+            if len(key.encode()) not in (16, 24, 32):
+                raise ValueError("PREPLOOP_PAYTM_MERCHANT_KEY must be 16, 24 or 32 characters.")
+            if self.environment in (Environment.PRODUCTION, Environment.STAGING) and not str(
+                self.paytm_callback_url
+            ).startswith("https://"):
+                raise ValueError("PREPLOOP_PAYTM_CALLBACK_URL must be https here.")
         if self.email_backend == "smtp" and (not self.smtp_host or not self.smtp_from):
             raise ValueError("PREPLOOP_SMTP_HOST and PREPLOOP_SMTP_FROM are required for SMTP.")
         return self
@@ -172,6 +199,17 @@ class Settings(BaseSettings):
     def play_billing_configured(self) -> bool:
         return bool(
             self.play_package_name and self.play_subscription_ids and self.play_service_account_file
+        )
+
+    @property
+    def paytm_configured(self) -> bool:
+        return bool(
+            self.paytm_mid
+            and self.paytm_merchant_key
+            and self.paytm_plus_price
+            and self.paytm_plus_days
+            and self.paytm_callback_url
+            and self.paytm_return_url
         )
 
     @property

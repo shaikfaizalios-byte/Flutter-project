@@ -32,6 +32,8 @@ abstract final class AppRoutes {
   static const myExams = '/profile/exams';
   static const suggestions = '/profile/suggestions';
   static const plus = '/profile/plus';
+  // Paytm sends the browser back here after a website payment (?order=...).
+  static const plusPaytm = '/profile/plus/paytm';
   static const devices = '/profile/devices';
 
   static String concept(String id) => '/study/concepts/$id';
