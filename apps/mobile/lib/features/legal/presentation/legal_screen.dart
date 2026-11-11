@@ -52,7 +52,9 @@ class _MarkdownView extends StatelessWidget {
     for (final raw in text.split(RegExp(r'\n\s*\n'))) {
       final block = raw.trim();
       if (block.isEmpty) continue;
-      if (block.startsWith('## ')) {
+      if (block.startsWith('### ')) {
+        blocks.add(_heading(block.substring(4), theme.textTheme.titleSmall));
+      } else if (block.startsWith('## ')) {
         blocks.add(_heading(block.substring(3), theme.textTheme.titleMedium));
       } else if (block.startsWith('# ')) {
         blocks.add(_heading(block.substring(2), theme.textTheme.headlineSmall));

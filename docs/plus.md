@@ -142,7 +142,9 @@ in the web build (`webPaymentsSupportedProvider` = `kIsWeb`).
 1. **Other payments.** Apple in-app purchase for iOS (the same `subscriptions` row). Google Play and
    Paytm are built (above) but have never run against the real Play API or Paytm (no Play Console
    or Paytm keys here); automatic monthly renewal on the website is not built.
-2. **Legal.** Terms: price, renewal, cancellation, refunds; GST invoicing in India; privacy
+2. **Legal.** Terms of sale are drafted in `apps/mobile/assets/legal/terms.md` ("PrepLoop Plus"), with
+   [placeholders] for the refund policy, GST, outages, grievance officer and seller details; GST
+   invoicing in India is not built; privacy
    policy: Google Play and Paytm as payment processors, what `play_purchases`/`web_payments`/
    `billing_events` keep and for how long.
 3. **Account deletion with an active Play subscription.** Deleting the account does not cancel
