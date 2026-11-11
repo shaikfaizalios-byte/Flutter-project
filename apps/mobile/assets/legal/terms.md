@@ -3,6 +3,7 @@
 **Draft for legal review — not yet in force.** Replace every [bracketed placeholder] before release.
 
 These terms are between you and [Operator name] ("we") for the PrepLoop app and service.
+PrepLoop is offered to users in India.
 
 ## The service
 
@@ -49,12 +50,11 @@ them, practise, revise with flashcards and track your progress.
 - Papers and files you import stay private to your account. They are never shown to other learners;
   the optional Repeat Radar shares only counts of topics and question types, never question text.
 - If you believe content in PrepLoop infringes your copyright or other rights, write to
-  [copyright / grievance contact email] with: what the content is, where it appears, your contact
-  details, and a statement that you own the rights or act for the owner. We remove infringing
-  content promptly and may close accounts that repeatedly infringe.
-- [Legal review: name a Grievance Officer as India's IT Rules 2021 require. If the service is
-  offered to users in the United States, register a designated DMCA agent with the US Copyright
-  Office (dmca.copyright.gov) and list that agent here.]
+  [support contact email] with: what the content is, where it appears, your contact details, and a
+  statement that you own the rights or act for the owner. We remove infringing content promptly
+  and may close accounts that repeatedly infringe.
+- Grievance Officer (Information Technology Rules, 2021): [Grievance Officer name],
+  [support contact email], [phone number].
 
 ## Emails
 
@@ -82,7 +82,8 @@ importing papers, reviewing questions, practice, mock tests, revision and progre
 - AI content is always labelled. It can be wrong and is never an official or previous-year
   question. Plus does not promise any exam result.
 - AI depends on outside services. If AI is unavailable for a while, the rest of PrepLoop keeps
-  working. [Legal review: say whether you give extra days or a refund for long outages.]
+  working. If AI is unavailable for **3 or more days in a row**, we add the days lost to your Plus
+  period when you ask us at [support contact email].
 
 ### Buying Plus in the Android app (Google Play)
 
@@ -92,14 +93,15 @@ importing papers, reviewing questions, practice, mock tests, revision and progre
   the end of the period you already paid for. Deleting your PrepLoop account does **not** cancel a
   Google Play subscription; cancel it in Google Play first.
 - Plus starts once PrepLoop has checked the purchase with Google. Refunds for Play purchases follow
-  Google Play's refund policies. [Legal review: say whether you also give refunds yourself, and how
-  to ask.]
+  Google Play's refund policies only: ask Google Play for them (Order history → Request a refund).
+  The 7-day refund for website payments below does not apply to Play purchases. If Google Play
+  refunds a subscription and ends it, Plus ends too.
 
 ### Buying Plus on the website (Paytm)
 
 - The website shows the price and the number of days before you pay (currently **₹99 for 30
-  days**). [Legal review: state whether the price includes GST, and your GSTIN if you are
-  registered.]
+  days**). This is the full amount you pay: [Operator name] is not registered for GST, so no GST
+  is charged.
 - **One payment, no automatic renewal.** A payment gives that number of days of Plus. Nothing is
   charged again. When the days run out, Plus ends unless you pay again.
 - If you pay while Plus is already on, the new days are added after your current Plus ends.
@@ -107,10 +109,13 @@ importing papers, reviewing questions, practice, mock tests, revision and progre
 - Plus starts only after Paytm confirms the payment to PrepLoop. If Paytm reports the payment as
   pending, Plus starts once Paytm confirms it. If Paytm reports it as failed, no Plus is given and
   any money taken from your account is returned by your bank or Paytm under their rules.
-- **Refunds.** [Legal review: write your refund policy, for example whether unused days can be
-  refunded, within how many days to ask, and how long a refund takes.] To ask for a refund, write
-  to [support contact email] with the email of your PrepLoop account and the date of the payment.
-  If a payment is refunded in full, the days it bought are removed from your Plus.
+- **Refunds.** You can ask for a full refund of a website payment within **7 days** of paying,
+  for any reason. Write to [support contact email] with the email of your PrepLoop account and
+  the date of the payment. We start the refund through Paytm within 7 working days; your bank may
+  take a few more days to show it. When a payment is refunded in full, the days it bought are
+  removed from your Plus. After 7 days, payments are not refunded, except when we charged you by
+  mistake (for example twice) or you paid and Plus was never given; those are always refunded in
+  full.
 
 ### Price changes
 
@@ -121,18 +126,22 @@ you before a renewal at a new price.
 ### Ending Plus or your account
 
 - Plus bought on the website simply ends when its days run out.
-- If you delete your account, Plus ends with it. [Legal review: say whether unused paid days are
-  refunded on account deletion.]
-- If we suspend an account for breaking these terms, [Legal review: say what happens to paid days].
-- If we stop offering Plus, we will tell you in advance and [Legal review: refund unused days /
-  other remedy].
+- If you delete your account, Plus ends with it and unused paid days are not refunded (you can
+  still ask for a refund within 7 days of a website payment, as above). Cancel a Google Play
+  subscription in Google Play before deleting your account.
+- If we suspend an account for breaking these terms, its Plus ends and unused days are not
+  refunded.
+- If we stop offering Plus, we will tell you at least 30 days in advance, and refund the unused
+  days of website payments in proportion (for example, 10 unused days of a ₹99 payment for 30 days
+  = ₹33).
 
 ### Complaints
 
-Write to [support contact email] about any payment or Plus problem. [Legal review: the Consumer
-Protection (E-Commerce) Rules, 2020 ask sellers to name a grievance officer with contact details,
-acknowledge complaints within 48 hours and resolve them within one month; add the name, email and
-phone number here, and the seller's legal name and address.]
+Write to [support contact email] about any payment or Plus problem. Our Grievance Officer is
+[Grievance Officer name] ([support contact email], [phone number]). We acknowledge complaints
+within 48 hours and resolve them within one month.
+
+Seller: [Operator name], [postal address].
 
 ## Ending
 
@@ -143,10 +152,11 @@ Plus or your account" above.
 ## Liability
 
 The service is provided "as is". To the extent the law allows, we are not liable for indirect
-losses or for decisions made based on content in the app. [Legal review: liability caps and
-consumer-law carve-outs for your markets.]
+losses or for decisions made based on content in the app. Nothing in these terms takes away
+rights you have under the Consumer Protection Act, 2019. [Legal review: liability cap.]
 
 ## Law and contact
 
-These terms are governed by [governing law / jurisdiction]. Contact: [support contact email].
+These terms are governed by the laws of India. Courts at [city] have jurisdiction. Contact:
+[support contact email].
 Last updated: [date].
