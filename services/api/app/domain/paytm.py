@@ -179,6 +179,33 @@ def outcome(status: PaytmStatus, *, mid: str, order_id: str, amount_paise: int) 
     return "success"
 
 
+RefundOutcome = Literal["refunded", "partial", "pending", "failed", "mismatch"]
+
+
+def refund_outcome(
+    data: Mapping[str, Any], *, mid: str, order_id: str, amount_paise: int
+) -> RefundOutcome:
+    """What Paytm's Refund Status API says about a refund of this order.
+
+    refunded: a successful refund whose running total covers the whole amount. partial: successful,
+    but less than the amount (nothing is taken back). failed: Paytm refused it or knows no such
+    refund. mismatch: an answer for another merchant or order: never applied.
+    """
+    body = data.get("body")
+    body = body if isinstance(body, Mapping) else {}
+    info = body.get("resultInfo")
+    info = info if isinstance(info, Mapping) else {}
+    result = str(info.get("resultStatus") or "")
+    if result in ("TXN_FAILURE", "NO_RECORD_FOUND"):
+        return "failed"
+    if result != "TXN_SUCCESS":
+        return "pending"
+    if body.get("mid") != mid or body.get("orderId") != order_id:
+        return "mismatch"
+    total = paise(body.get("totalRefundAmount") or body.get("refundAmount") or 0) or 0
+    return "refunded" if total >= amount_paise else "partial"
+
+
 def granted_window(
     now: datetime, current_until: datetime | None, days: int
 ) -> tuple[datetime, datetime]:

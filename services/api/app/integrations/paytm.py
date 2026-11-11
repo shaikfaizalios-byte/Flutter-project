@@ -1,4 +1,5 @@
-"""Paytm Payment Gateway: Initiate Transaction and Transaction Status APIs (docs/plus.md "Paytm").
+"""Paytm Payment Gateway: Initiate Transaction, Transaction Status and Refund Status APIs
+(docs/plus.md "Paytm").
 
 Requests are signed with the merchant key (app/domain/paytm.py). Standard library only. The key,
 transaction tokens and payment details are never logged.
@@ -39,6 +40,10 @@ class PaytmClient(Protocol):
 
     def status(self, order_id: str) -> dict[str, Any]:
         """The Transaction Status API answer for an order."""
+        ...
+
+    def refund_status(self, order_id: str, ref_id: str) -> dict[str, Any]:
+        """The Refund Status API answer for one refund of an order."""
         ...
 
     def payment_page_url(self, order_id: str) -> str:
@@ -82,6 +87,12 @@ class PaytmGateway:
     def status(self, order_id: str) -> dict[str, Any]:
         return self._post(
             f"{self._hosts[1]}/v3/order/status", {"mid": self.mid, "orderId": order_id}
+        )
+
+    def refund_status(self, order_id: str, ref_id: str) -> dict[str, Any]:
+        return self._post(
+            f"{self._hosts[1]}/v2/refund/status",
+            {"mid": self.mid, "orderId": order_id, "refId": ref_id},
         )
 
     def payment_page_url(self, order_id: str) -> str:

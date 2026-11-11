@@ -7,6 +7,8 @@
   asking. Whichever it is, the server asks Paytm's Transaction Status API about the order and acts
   only on that answer: a success for this merchant, order and amount adds the order's days of Plus,
   once; a full refund takes them back.
+- `refund_notice`: Paytm's refund webhooks. The refund is checked with Paytm's Refund Status API;
+  only a successful refund of the whole amount takes the order's days back.
 
 Every step is recorded in `billing_events` (order id hash only, no payment details).
 """
@@ -199,6 +201,44 @@ class WebBillingService:
             if payment.status == "failed":
                 payment.txn_token = None
             self._event(kind, order_id, payment.owner_id, "ignored", note)
+        self._session.commit()
+        return payment
+
+    def refund_notice(self, order_id: str, ref_id: str | None) -> WebPayment | None:
+        """A refund webhook named this order. Without the refund's reference, the order status
+        (which carries the refunded amount) is asked instead."""
+        client = self._require_client()
+        if not paytm.order_id_valid(order_id):
+            raise InvalidReferenceError("Not a PrepLoop order.")
+        if not ref_id:
+            return self.refresh(order_id, "webhook")
+        payment = self._session.scalar(
+            select(WebPayment).where(WebPayment.order_id == order_id).with_for_update()
+        )
+        if payment is None:
+            self._event("webhook", order_id, None, "unknown_token", "refund")
+            self._session.commit()
+            return None
+        if payment.status == "refunded":
+            self._session.commit()
+            return payment
+        try:
+            data = client.refund_status(order_id, ref_id)
+        except PaytmError as exc:
+            self._session.commit()  # nothing changed; releases the row
+            raise StoreUnavailableError("Paytm could not be reached. Try again.") from exc
+        result = paytm.refund_outcome(
+            data, mid=client.mid, order_id=order_id, amount_paise=payment.amount_paise
+        )
+        note = f"refund {result}"
+        if result == "refunded":
+            self._refund(payment, self._now())
+            self._event("webhook", order_id, payment.owner_id, "applied", note)
+        elif result == "mismatch":
+            logger.warning("Paytm refund status does not match a PrepLoop order")
+            self._event("webhook", order_id, payment.owner_id, "refused", note)
+        else:
+            self._event("webhook", order_id, payment.owner_id, "ignored", note)
         self._session.commit()
         return payment
 

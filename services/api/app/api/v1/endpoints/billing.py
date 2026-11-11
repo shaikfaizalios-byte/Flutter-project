@@ -231,3 +231,24 @@ async def paytm_webhook(
         checksum_ok=client.checksum_valid(values) if "CHECKSUMHASH" in values else None,
     )
     return {"status": "ok"}
+
+
+@router.post("/paytm/refund-webhook", include_in_schema=False)
+async def paytm_refund_webhook(
+    request: Request,
+    session: DbSession,
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> dict[str, str]:
+    """Paytm's refund webhooks (refund accepted, refund done): they only say which order and
+    refund to ask Paytm about."""
+    values = await _form_or_json(request)
+    order_id = _order_id(values)
+    if request.app.state.paytm is None:
+        raise UnauthorizedError("Paytm notifications are not accepted on this server.")
+    if not paytm.order_id_valid(order_id):
+        return {"status": "ignored"}
+    ref_id = values.get("refId") or values.get("REFID") or None
+    await run_in_threadpool(
+        web_billing_service(request, session, settings).refund_notice, order_id, ref_id
+    )
+    return {"status": "ok"}

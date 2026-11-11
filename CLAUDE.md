@@ -243,7 +243,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `billing_events` audit (token hash only), migration 0031. App: `in_app_purchase`, `features/plus/data/play_store.dart`,
   `PlayPurchaseController` (listens from app start; completes only after the server confirms). Website (migration 0061): Paytm,
   one payment = `PREPLOOP_PAYTM_PLUS_DAYS` days, no renewal; `web_payments`, pure `app/domain/paytm.py` (checksums,
-  `outcome`), `web_billing_service.py`, `/billing/paytm/orders|pay|callback|webhook`; Plus only on Paytm's Transaction
+  `outcome`), `web_billing_service.py`, `/billing/paytm/orders|pay|callback|webhook|refund-webhook` (refunds checked with the
+  Refund Status API, full ones take the days back); Plus only on Paytm's Transaction
   Status answer for this MID, order and amount, once; app `PaytmReturnScreen` (`/profile/plus/paytm`), button only on
   web (`webPaymentsSupportedProvider`). NOT built yet: Apple payments, auto-renewal on the web, legal texts.
   See docs/plus.md.

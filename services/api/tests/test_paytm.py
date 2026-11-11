@@ -106,6 +106,43 @@ def status_answer(
     return {"head": {"signature": "s"}, "body": body}
 
 
+def refund_answer(
+    result: str = "TXN_SUCCESS",
+    *,
+    order_id: str,
+    total: str = "99.00",
+    mid: str = MID,
+) -> dict[str, Any]:
+    return {
+        "head": {"signature": "s"},
+        "body": {
+            "resultInfo": {"resultStatus": result, "resultCode": "10", "resultMsg": "x"},
+            "mid": mid,
+            "orderId": order_id,
+            "refId": "REF-1",
+            "txnAmount": "99.00",
+            "refundAmount": total,
+            "totalRefundAmount": total,
+        },
+    }
+
+
+def test_only_a_full_confirmed_refund_counts() -> None:
+    order = paytm.new_order_id()
+
+    def out(data: dict[str, Any]) -> str:
+        return paytm.refund_outcome(data, mid=MID, order_id=order, amount_paise=9900)
+
+    assert out(refund_answer(order_id=order)) == "refunded"
+    assert out(refund_answer(order_id=order, total="50.00")) == "partial"
+    assert out(refund_answer("PENDING", order_id=order)) == "pending"
+    assert out(refund_answer("TXN_FAILURE", order_id=order)) == "failed"
+    assert out(refund_answer("NO_RECORD_FOUND", order_id=order)) == "failed"
+    assert out(refund_answer(order_id=order, mid="OTHER")) == "mismatch"
+    assert out(refund_answer(order_id=paytm.new_order_id())) == "mismatch"
+    assert out({}) == "pending"
+
+
 def test_only_a_matching_success_counts() -> None:
     order = paytm.new_order_id()
 
@@ -169,6 +206,8 @@ class FakePaytm:
 
     def __init__(self) -> None:
         self.answers: dict[str, dict[str, Any]] = {}
+        self.refunds: dict[tuple[str, str], dict[str, Any]] = {}
+        self.refund_calls: list[tuple[str, str]] = []
         self.initiated: list[tuple[str, str, str, str]] = []
         self.status_calls = 0
         self.down = False
@@ -185,6 +224,14 @@ class FakePaytm:
             raise PaytmError("unreachable")
         return self.answers.get(
             order_id, status_answer("NO_RECORD_FOUND", order_id=order_id, code="331")
+        )
+
+    def refund_status(self, order_id: str, ref_id: str) -> dict[str, Any]:
+        self.refund_calls.append((order_id, ref_id))
+        if self.down:
+            raise PaytmError("unreachable")
+        return self.refunds.get(
+            (order_id, ref_id), refund_answer("NO_RECORD_FOUND", order_id=order_id)
         )
 
     def payment_page_url(self, order_id: str) -> str:
@@ -432,3 +479,83 @@ def test_a_dropped_connection_is_paytm_unreachable(
     )
     with pytest.raises(PaytmError, match="unreachable"):
         gateway.status(paytm.new_order_id())
+
+
+def refund_notice(api: TestClient, order_id: str, ref_id: str | None = "REF-1") -> Any:
+    body: dict[str, Any] = {"orderId": order_id, "refundAmount": "99.00", "status": "SUCCESS"}
+    if ref_id:
+        body["refId"] = ref_id
+    return api.post(
+        "/api/v1/billing/paytm/refund-webhook", json={"head": {"signature": "s"}, "body": body}
+    )
+
+
+def paid_order(api: TestClient, gateway: FakePaytm) -> str:
+    order_id: str = start(api)["order_id"]
+    gateway.answers[order_id] = status_answer(order_id=order_id)
+    callback(api, order_id)
+    assert plus(api)["active"]
+    return order_id
+
+
+def test_a_refund_notice_is_checked_with_paytm_before_days_go(
+    api: TestClient, gateway: FakePaytm, db_session: Session
+) -> None:
+    order_id = paid_order(api, gateway)
+    # The notice alone changes nothing: Paytm knows no such refund.
+    assert refund_notice(api, order_id).json() == {"status": "ok"}
+    assert plus(api)["active"]
+    # A partial refund keeps the days.
+    gateway.refunds[(order_id, "REF-1")] = refund_answer(order_id=order_id, total="50.00")
+    refund_notice(api, order_id)
+    assert plus(api)["active"]
+    # Paytm confirms the whole amount: the days go, once.
+    gateway.refunds[(order_id, "REF-1")] = refund_answer(order_id=order_id)
+    refund_notice(api, order_id)
+    assert not plus(api)["active"]
+    assert api.get(f"/api/v1/billing/paytm/orders/{order_id}").json()["status"] == "refunded"
+    calls = len(gateway.refund_calls)
+    refund_notice(api, order_id)
+    assert len(gateway.refund_calls) == calls  # settled: Paytm isn't asked again
+    details = [
+        e.detail
+        for e in db_session.scalars(
+            select(BillingEvent).where(BillingEvent.detail.like("refund%"))
+        ).all()
+    ]
+    assert details == ["refund failed", "refund partial", "refund refunded"]
+
+
+def test_a_refund_for_another_merchant_is_refused(
+    api: TestClient, gateway: FakePaytm, db_session: Session
+) -> None:
+    order_id = paid_order(api, gateway)
+    gateway.refunds[(order_id, "REF-1")] = refund_answer(order_id=order_id, mid="OTHER")
+    refund_notice(api, order_id)
+    assert plus(api)["active"]
+    refused = db_session.scalars(
+        select(BillingEvent).where(BillingEvent.outcome == "refused")
+    ).all()
+    assert [e.detail for e in refused] == ["refund mismatch"]
+
+
+def test_a_refund_notice_without_a_reference_asks_the_order_status(
+    api: TestClient, gateway: FakePaytm
+) -> None:
+    order_id = paid_order(api, gateway)
+    gateway.answers[order_id] = status_answer(order_id=order_id, refund="99.00")
+    refund_notice(api, order_id, ref_id=None)
+    assert not plus(api)["active"]
+    assert gateway.refund_calls == []
+
+
+def test_refund_notices_for_unknown_orders_or_while_paytm_is_down(
+    api: TestClient, gateway: FakePaytm
+) -> None:
+    assert refund_notice(api, "ORDERID_98765").json() == {"status": "ignored"}
+    assert refund_notice(api, paytm.new_order_id()).json() == {"status": "ok"}
+    order_id = paid_order(api, gateway)
+    gateway.down = True
+    assert refund_notice(api, order_id).status_code == 502  # Paytm sends it again later
+    gateway.down = False
+    assert plus(api)["active"]
