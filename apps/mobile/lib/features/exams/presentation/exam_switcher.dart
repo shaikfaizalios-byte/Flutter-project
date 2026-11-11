@@ -55,8 +55,29 @@ class ExamSwitcher extends ConsumerWidget {
 }
 
 /// The learner's exams to switch between, plus a way to add or change exams.
-Future<void> showExamSwitcher(BuildContext context) =>
-    showModalBottomSheet<void>(context: context, builder: (context) => const _ExamSwitcherSheet());
+///
+/// The sidebar's button stays clickable while the list is open (it sits outside the pages the
+/// list covers), so a second press closes the open list instead of stacking another on top.
+Future<void> showExamSwitcher(BuildContext context) async {
+  final open = _openSheet;
+  if (open != null) {
+    if (open.isActive) open.navigator?.removeRoute(open);
+    _openSheet = null;
+    return;
+  }
+  final route = ModalBottomSheetRoute<void>(
+    builder: (context) => const _ExamSwitcherSheet(),
+    isScrollControlled: false,
+  );
+  _openSheet = route;
+  try {
+    await Navigator.of(context).push(route);
+  } finally {
+    if (identical(_openSheet, route)) _openSheet = null;
+  }
+}
+
+ModalBottomSheetRoute<void>? _openSheet;
 
 class _ExamSwitcherSheet extends ConsumerWidget {
   const _ExamSwitcherSheet();

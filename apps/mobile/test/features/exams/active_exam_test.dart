@@ -137,4 +137,41 @@ void switchingExamsGoesHomeTests() {
     final container = ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
     expect(container.read(activeExamProvider), 'SSC_CGL');
   });
+
+  testAppWidgets('pressing the sidebar exam button again closes the list, never stacks it', (
+    tester,
+    db,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL', 'SSC_CGL']),
+    );
+    final button = find.descendant(
+      of: find.byType(AppSidebar),
+      matching: find.byType(ExamSwitcher),
+    );
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(find.text('Which exam?'), findsOneWidget);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(find.text('Which exam?'), findsNothing);
+    // Open, closed by tapping outside, then opened again: one list, and it still works.
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(700, 40));
+    await tester.pumpAndSettle();
+    expect(find.text('Which exam?'), findsNothing);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(find.text('Which exam?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ListTile, 'SSC CGL'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
+    expect(container.read(activeExamProvider), 'SSC_CGL');
+  });
 }
