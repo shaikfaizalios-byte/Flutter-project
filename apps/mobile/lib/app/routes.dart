@@ -32,7 +32,9 @@ abstract final class AppRoutes {
   static const myExams = '/profile/exams';
   static const suggestions = '/profile/suggestions';
   static const plus = '/profile/plus';
-  // Paytm sends the browser back here after a website payment (?order=...).
+  // The browser comes back here after a website payment (?order=...); the Paytm address is
+  // kept for servers already set up with it.
+  static const plusPayment = '/profile/plus/payment';
   static const plusPaytm = '/profile/plus/paytm';
   static const devices = '/profile/devices';
 

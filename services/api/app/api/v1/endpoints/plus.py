@@ -10,6 +10,7 @@ from app.schemas.errors import ErrorResponse
 from app.schemas.plus import PlusStatus, PlusTestStart, WebOffer
 from app.services.billing_service import BillingService
 from app.services.plus_service import PlusService
+from app.services.razorpay_billing_service import RazorpayBillingService
 from app.services.web_billing_service import WebBillingService
 
 
@@ -34,6 +35,43 @@ def web_billing_service(
     )
 
 
+def razorpay_billing_service(
+    request: Request, session: DbSession, settings: Settings
+) -> RazorpayBillingService:
+    secret: str = request.app.state.token_signer.secret
+    return RazorpayBillingService(
+        session,
+        settings,
+        request.app.state.razorpay,
+        link_key=hashlib.sha256(b"preploop-razorpay-link:" + secret.encode()).digest(),
+    )
+
+
+def website_offer(request: Request, session: DbSession, settings: Settings) -> WebOffer | None:
+    """The website payment provider this server offers (at most one is configured)."""
+    if request.app.state.razorpay is not None:
+        rz = razorpay_billing_service(request, session, settings)
+        offer = rz.offer()
+        if offer is None:
+            return None
+        return WebOffer(
+            provider="razorpay",
+            amount_paise=offer[0],
+            days=offer[1],
+            test_payments=rz.test_payments,
+        )
+    web = web_billing_service(request, session, settings)
+    offer = web.offer()
+    if offer is None:
+        return None
+    return WebOffer(
+        provider="paytm",
+        amount_paise=offer[0],
+        days=offer[1],
+        test_payments=request.app.state.paytm.environment != "production",
+    )
+
+
 router = APIRouter(
     tags=["plus"],
     responses={503: {"model": ErrorResponse, "description": "Database unavailable"}},
@@ -48,17 +86,7 @@ def get_plus_service(
 ) -> PlusService:
     billing = billing_service(request, session, settings)
     play_id = billing.play_account_id(user.id) if request.app.state.play_billing else None
-    web = web_billing_service(request, session, settings)
-    offer = web.offer()
-    web_offer = (
-        WebOffer(
-            amount_paise=offer[0],
-            days=offer[1],
-            test_payments=request.app.state.paytm.environment != "production",
-        )
-        if offer is not None
-        else None
-    )
+    web_offer = website_offer(request, session, settings)
     return PlusService(session, user.id, settings, play_account_id=play_id, web_offer=web_offer)
 
 

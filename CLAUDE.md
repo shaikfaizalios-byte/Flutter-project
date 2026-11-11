@@ -245,7 +245,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   one payment = `PREPLOOP_PAYTM_PLUS_DAYS` days, no renewal; `web_payments`, pure `app/domain/paytm.py` (checksums,
   `outcome`), `web_billing_service.py`, `/billing/paytm/orders|pay|callback|webhook|refund-webhook` (refunds checked with the
   Refund Status API, full ones take the days back); Plus only on Paytm's Transaction
-  Status answer for this MID, order and amount, once; app `PaytmReturnScreen` (`/profile/plus/paytm`), button only on
+  Status answer for this MID, order and amount, once. Or Razorpay (migration 0062; only one of the two configured):
+  pure `app/domain/razorpay.py`, `razorpay_billing_service.py` (shares `grant_days`/`take_back`), `/billing/razorpay/
+  pay|callback|webhook` (webhooks need `X-Razorpay-Signature`); Plus only on the Orders API's captured payment of the
+  whole amount; `web_payments.provider_order_id`. App uses `/billing/web/orders` and names `web_offer.provider`;
+  `WebPaymentReturnScreen` (`/profile/plus/payment`, old `/profile/plus/paytm` kept), button only on
   web (`webPaymentsSupportedProvider`). NOT built yet: Apple payments, auto-renewal on the web, legal texts.
   See docs/plus.md.
 - Suggestions (`suggestions`, migration 0019): `POST/GET /suggestions` (add/remove/change/other, 10-2000

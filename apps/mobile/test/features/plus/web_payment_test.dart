@@ -5,7 +5,7 @@ import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/features/plus/application/web_payments.dart';
 import 'package:preploop/features/plus/data/plus_repository.dart';
-import 'package:preploop/features/plus/presentation/paytm_return_screen.dart';
+import 'package:preploop/features/plus/presentation/web_payment_return_screen.dart';
 
 import '../../helpers/pump_app.dart';
 import 'plus_test.dart' show openPlus;
@@ -34,8 +34,12 @@ Future<List<Uri>> pumpWithWeb(
   return opened;
 }
 
-Future<void> comeBackFromPaytm(WidgetTester tester, String order) async {
-  GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/profile/plus/paytm?order=$order');
+Future<void> comeBackFromPaying(
+  WidgetTester tester,
+  String order, {
+  String path = '/profile/plus/payment',
+}) async {
+  GoRouter.of(tester.element(find.byType(Scaffold).first)).go('$path?order=$order');
   await tester.pump();
   await tester.pump();
 }
@@ -66,6 +70,21 @@ void main() {
     expect(opened.single.toString(), endsWith('/api/v1/billing/paytm/pay/PLUS-1?e=1&s=x'));
   });
 
+  testAppWidgets('a Razorpay offer names Razorpay and keeps the same flow', (tester, db) async {
+    final plus = FakePlusRepository()
+      ..webOffer = const WebOffer(amountPaise: 9900, days: 30, provider: 'razorpay');
+    final opened = await pumpWithWeb(tester, db, plus);
+    await openPlus(tester);
+    expect(find.text('Pay with Razorpay'), findsOneWidget);
+    expect(find.textContaining('Razorpay takes the payment'), findsOneWidget);
+    expect(find.textContaining('Paytm'), findsNothing);
+    expect(find.textContaining('Test payments'), findsNothing);
+    await tester.tap(find.text('Pay with Razorpay'));
+    await tester.pumpAndSettle();
+    expect(plus.calls, ['web-order']);
+    expect(opened, hasLength(1));
+  });
+
   testAppWidgets('the Android app never offers the website payment', (tester, db) async {
     final plus = FakePlusRepository()..webOffer = offer;
     await pumpWithWeb(tester, db, plus, web: false);
@@ -81,11 +100,11 @@ void main() {
     plus.failure = const NetworkFailure();
     await tester.tap(find.text('Pay with Paytm'));
     await tester.pumpAndSettle();
-    expect(find.text('Paytm could not be opened. Try again.'), findsOneWidget);
+    expect(find.text('The payment page could not be opened. Try again.'), findsOneWidget);
     expect(opened, isEmpty);
   });
 
-  testAppWidgets('coming back from Paytm waits for the server, then shows Plus is on', (
+  testAppWidgets('coming back from paying waits for the server, then shows Plus is on', (
     tester,
     db,
   ) async {
@@ -99,11 +118,11 @@ void main() {
       ),
     ]);
     await pumpWithWeb(tester, db, plus);
-    await comeBackFromPaytm(tester, 'PLUS-9');
+    await comeBackFromPaying(tester, 'PLUS-9');
 
-    expect(find.textContaining('still confirming'), findsOneWidget);
+    expect(find.textContaining('still being confirmed'), findsOneWidget);
     expect(find.text('Test payment: no real money was taken.'), findsOneWidget);
-    await tester.pump(paytmCheckEvery);
+    await tester.pump(webPayCheckEvery);
     await tester.pump();
     expect(find.text('Thank you! PrepLoop Plus is on until Dec 10, 2026.'), findsOneWidget);
     expect(plus.calls.where((c) => c == 'web-check:PLUS-9'), hasLength(2));
@@ -111,7 +130,7 @@ void main() {
     await tester.tap(find.text('Back to PrepLoop Plus'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Plus is active until'), findsOneWidget);
-    expect(find.textContaining('Paid on the website with Paytm'), findsOneWidget);
+    expect(find.textContaining('Paid on the website.'), findsOneWidget);
     expect(find.text('Add 30 days with Paytm'), findsOneWidget);
   });
 
@@ -122,22 +141,22 @@ void main() {
     final plus = FakePlusRepository()
       ..webOrders.add(const WebOrderStatus(status: WebOrderState.failed));
     await pumpWithWeb(tester, db, plus);
-    await comeBackFromPaytm(tester, 'PLUS-2');
+    await comeBackFromPaying(tester, 'PLUS-2', path: '/profile/plus/paytm'); // older return address
     expect(find.textContaining('did not go through'), findsOneWidget);
 
     plus
       ..webOrders.clear()
       ..webOrderChecks = 0
       ..webOrders.add(const WebOrderStatus(status: WebOrderState.created));
-    await comeBackFromPaytm(tester, 'PLUS-3');
-    await tester.pump(paytmCheckFor + paytmCheckEvery);
+    await comeBackFromPaying(tester, 'PLUS-3');
+    await tester.pump(webPayCheckFor + webPayCheckEvery);
     for (var i = 0; i < 50; i++) {
-      await tester.pump(paytmCheckEvery);
+      await tester.pump(webPayCheckEvery);
     }
-    expect(find.textContaining('no completed payment for this order yet'), findsOneWidget);
+    expect(find.textContaining('No completed payment for this order yet'), findsOneWidget);
     expect(find.text('Check again'), findsOneWidget);
 
-    await comeBackFromPaytm(tester, '');
+    await comeBackFromPaying(tester, '');
     expect(find.text('No payment to check. Start again from PrepLoop Plus.'), findsOneWidget);
   });
 }

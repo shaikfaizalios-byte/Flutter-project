@@ -9,6 +9,8 @@ from typing import Annotated, Literal, Self
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
+from app.domain.razorpay import environment_of as razorpay_environment_of
+
 
 class Environment(StrEnum):
     DEVELOPMENT = "development"
@@ -117,6 +119,19 @@ class Settings(BaseSettings):
     paytm_callback_url: str | None = None
     # The web app's page Paytm's callback sends the browser back to; "{order}" is replaced.
     paytm_return_url: str | None = None
+    # Razorpay: Plus bought on the website (docs/plus.md "Razorpay"). Off unless the key id and
+    # secret, webhook secret, price, days, callback and return URLs are all set. Test keys
+    # (rzp_test_) on any server but production; live keys (rzp_live_) on production only. Only
+    # one website payment provider may be configured.
+    razorpay_key_id: str | None = None
+    razorpay_key_secret: SecretStr | None = None
+    razorpay_webhook_secret: SecretStr | None = None
+    razorpay_plus_price: Decimal | None = Field(default=None, gt=0, max_digits=8, decimal_places=2)
+    razorpay_plus_days: int | None = Field(default=None, ge=1, le=366)
+    # This API's /api/v1/billing/razorpay/callback as the learner's browser can reach it.
+    razorpay_callback_url: str | None = None
+    # The web app's page the browser goes back to after paying; "{order}" is replaced.
+    razorpay_return_url: str | None = None
     # Accounts. The signing secret is required outside development/test; locally a random
     # one is generated per process (tokens then stop working after a restart).
     auth_secret: SecretStr | None = None
@@ -191,6 +206,18 @@ class Settings(BaseSettings):
                 self.paytm_callback_url
             ).startswith("https://"):
                 raise ValueError("PREPLOOP_PAYTM_CALLBACK_URL must be https here.")
+        if self.razorpay_configured:
+            if self.paytm_configured:
+                raise ValueError("Configure Paytm or Razorpay for website payments, not both.")
+            environment = razorpay_environment_of(self.razorpay_key_id or "")
+            if environment is None:
+                raise ValueError("PREPLOOP_RAZORPAY_KEY_ID must start with rzp_test_ or rzp_live_.")
+            if (self.environment is Environment.PRODUCTION) != (environment == "production"):
+                raise ValueError("Razorpay live keys are for a production server only.")
+            if self.environment in (Environment.PRODUCTION, Environment.STAGING) and not str(
+                self.razorpay_callback_url
+            ).startswith("https://"):
+                raise ValueError("PREPLOOP_RAZORPAY_CALLBACK_URL must be https here.")
         if self.email_backend == "smtp" and (not self.smtp_host or not self.smtp_from):
             raise ValueError("PREPLOOP_SMTP_HOST and PREPLOOP_SMTP_FROM are required for SMTP.")
         return self
@@ -199,6 +226,18 @@ class Settings(BaseSettings):
     def play_billing_configured(self) -> bool:
         return bool(
             self.play_package_name and self.play_subscription_ids and self.play_service_account_file
+        )
+
+    @property
+    def razorpay_configured(self) -> bool:
+        return bool(
+            self.razorpay_key_id
+            and self.razorpay_key_secret
+            and self.razorpay_webhook_secret
+            and self.razorpay_plus_price
+            and self.razorpay_plus_days
+            and self.razorpay_callback_url
+            and self.razorpay_return_url
         )
 
     @property

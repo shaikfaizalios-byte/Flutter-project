@@ -8002,87 +8002,6 @@
         "title": "PatternRepeat",
         "type": "object"
       },
-      "PaytmOrderCreated": {
-        "properties": {
-          "amount_paise": {
-            "title": "Amount Paise",
-            "type": "integer"
-          },
-          "days": {
-            "title": "Days",
-            "type": "integer"
-          },
-          "order_id": {
-            "title": "Order Id",
-            "type": "string"
-          },
-          "pay_path": {
-            "title": "Pay Path",
-            "type": "string"
-          }
-        },
-        "required": [
-          "order_id",
-          "pay_path",
-          "amount_paise",
-          "days"
-        ],
-        "title": "PaytmOrderCreated",
-        "type": "object"
-      },
-      "PaytmOrderRead": {
-        "properties": {
-          "amount_paise": {
-            "title": "Amount Paise",
-            "type": "integer"
-          },
-          "days": {
-            "title": "Days",
-            "type": "integer"
-          },
-          "granted_until": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Granted Until"
-          },
-          "order_id": {
-            "title": "Order Id",
-            "type": "string"
-          },
-          "status": {
-            "enum": [
-              "created",
-              "pending",
-              "success",
-              "failed",
-              "refunded"
-            ],
-            "title": "Status",
-            "type": "string"
-          },
-          "test_payment": {
-            "title": "Test Payment",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "order_id",
-          "status",
-          "amount_paise",
-          "days",
-          "granted_until",
-          "test_payment"
-        ],
-        "title": "PaytmOrderRead",
-        "type": "object"
-      },
       "PercentileRead": {
         "description": "From real PrepLoop attempts only: each account's first attempt at this paper.",
         "properties": {
@@ -13311,8 +13230,11 @@
             "type": "integer"
           },
           "provider": {
-            "const": "paytm",
             "default": "paytm",
+            "enum": [
+              "paytm",
+              "razorpay"
+            ],
             "title": "Provider",
             "type": "string"
           },
@@ -13327,6 +13249,87 @@
           "test_payments"
         ],
         "title": "WebOffer",
+        "type": "object"
+      },
+      "WebOrderCreated": {
+        "properties": {
+          "amount_paise": {
+            "title": "Amount Paise",
+            "type": "integer"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          },
+          "pay_path": {
+            "title": "Pay Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "pay_path",
+          "amount_paise",
+          "days"
+        ],
+        "title": "WebOrderCreated",
+        "type": "object"
+      },
+      "WebOrderRead": {
+        "properties": {
+          "amount_paise": {
+            "title": "Amount Paise",
+            "type": "integer"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "granted_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted Until"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "created",
+              "pending",
+              "success",
+              "failed",
+              "refunded"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "test_payment": {
+            "title": "Test Payment",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "order_id",
+          "status",
+          "amount_paise",
+          "days",
+          "granted_until",
+          "test_payment"
+        ],
+        "title": "WebOrderRead",
         "type": "object"
       },
       "YearCount": {
@@ -15686,13 +15689,14 @@
     },
     "/api/v1/billing/paytm/orders": {
       "post": {
+        "deprecated": true,
         "operationId": "create_paytm_order_api_v1_billing_paytm_orders_post",
         "responses": {
           "201": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaytmOrderCreated"
+                  "$ref": "#/components/schemas/WebOrderCreated"
                 }
               }
             },
@@ -15742,6 +15746,7 @@
     },
     "/api/v1/billing/paytm/orders/{order_id}": {
       "get": {
+        "deprecated": true,
         "operationId": "read_paytm_order_api_v1_billing_paytm_orders__order_id__get",
         "parameters": [
           {
@@ -15759,7 +15764,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaytmOrderRead"
+                  "$ref": "#/components/schemas/WebOrderRead"
                 }
               }
             },
@@ -15878,6 +15883,139 @@
           }
         ],
         "summary": "Add a Google Play purchase to your account (checked with Google first)",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/api/v1/billing/web/orders": {
+      "post": {
+        "operationId": "create_web_order_api_v1_billing_web_orders_post",
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebOrderCreated"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many payment attempts"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Payment provider unreachable"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Purchases not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start paying for PrepLoop Plus on the website (the provider in web_offer)",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/api/v1/billing/web/orders/{order_id}": {
+      "get": {
+        "operationId": "read_web_order_api_v1_billing_web_orders__order_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebOrderRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not your order"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Payment provider unreachable"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Purchases not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your website payment, checked with its provider while it is not settled",
         "tags": [
           "billing"
         ]
