@@ -103,6 +103,11 @@ in the web build (`webPaymentsSupportedProvider` = `kIsWeb`).
   server asks Paytm's Transaction Status API and adds Plus only on `TXN_SUCCESS` for this MID, this
   order and this amount (else `mismatch`, refused and recorded). Applied once per order (row lock).
   A full refund (`refundAmt` ≥ the amount) takes the order's days back off a web subscription.
+  Refund webhooks (`POST /billing/paytm/refund-webhook`, "refund accepted" and "refund done") name
+  the order and the refund's `refId`; the server asks Paytm's Refund Status API and takes the days
+  back only when Paytm reports a successful refund whose total covers the whole amount, for this
+  MID and order (partial or failed refunds change nothing). Without a `refId` it asks the order
+  status instead.
   Failed orders are final; unpaid ones stay `created`. Checksums follow Paytm's published algorithm
   (`app/domain/paytm.py`, checked against Paytm's own library in `tests/test_paytm.py`); a callback
   with a bad checksum is recorded as such.
@@ -133,6 +138,9 @@ in the web build (`webPaymentsSupportedProvider` = `kIsWeb`).
 3. In the dashboard, set the **Payment Status webhook** to
    `https://<api host>/api/v1/billing/paytm/webhook` (port 443 only). Without it a learner who
    closes the tab still gets Plus when the app next asks, but not before.
+   Set the **Refund Notification URL** (and Paytm's refund-success webhook, if your dashboard offers
+   it) to `https://<api host>/api/v1/billing/paytm/refund-webhook`, so a refund you make in the
+   dashboard ends that payment's Plus days by itself.
 4. Pay with Paytm's test instruments, then check `web_payments` and `billing_events`.
 5. For real money, switch to the production MID and key and `PREPLOOP_PAYTM_ENVIRONMENT=production`
    on the production server only.
