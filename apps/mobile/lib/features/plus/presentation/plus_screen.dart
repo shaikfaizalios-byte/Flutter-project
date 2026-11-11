@@ -267,7 +267,8 @@ class _PlayOffers extends ConsumerWidget {
   }
 }
 
-/// Plus paid on the website with Paytm: one payment, a set number of days, no renewal.
+/// Plus paid on the website (Paytm or Razorpay): one payment, a set number of days, no
+/// renewal.
 class _WebOfferPanel extends ConsumerStatefulWidget {
   const _WebOfferPanel({required this.offer, required this.extending});
 
@@ -294,7 +295,7 @@ class _WebOfferPanelState extends ConsumerState<_WebOfferPanel> {
         messenger.showSnackBar(SnackBar(content: Text(l10n.plusWebPayFailed)));
       }
     } on Object catch (error, stack) {
-      if (error is! AppFailure) logError('Starting a Paytm payment failed', error, stack);
+      if (error is! AppFailure) logError('Starting a website payment failed', error, stack);
       messenger.showSnackBar(SnackBar(content: Text(l10n.plusWebPayFailed)));
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -313,11 +314,15 @@ class _WebOfferPanelState extends ConsumerState<_WebOfferPanel> {
         const SizedBox(height: AppSpacing.xs),
         FilledButton.icon(
           icon: const Icon(Icons.payments_outlined),
-          label: Text(widget.extending ? l10n.plusWebPayMore(offer.days) : l10n.plusWebPay),
+          label: Text(
+            widget.extending
+                ? l10n.plusWebPayMore(offer.days, offer.providerName)
+                : l10n.plusWebPay(offer.providerName),
+          ),
           onPressed: _busy ? null : _pay,
         ),
         const SizedBox(height: AppSpacing.xs),
-        Text(l10n.plusWebTerms(offer.days), style: theme.textTheme.bodySmall),
+        Text(l10n.plusWebTerms(offer.days, offer.providerName), style: theme.textTheme.bodySmall),
         if (offer.testPayments)
           Text(
             l10n.plusWebTestPayments,

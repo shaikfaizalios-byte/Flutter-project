@@ -64,6 +64,40 @@ def order_hash(order_id: str) -> str:
     return hashlib.sha256(order_id.encode()).hexdigest()
 
 
+def grant_days(session: Session, payment: WebPayment, now: datetime) -> None:
+    """A paid order adds its days after the account's current Plus (a free test subscription
+    doesn't count), once. Shared by every website payment provider."""
+    sub = session.get(Subscription, payment.owner_id, with_for_update=True)
+    current = (
+        sub.active_until
+        if sub is not None and sub.source != "test" and sub.active_until > now
+        else None
+    )
+    start, until = paytm.granted_window(now, current, payment.days)
+    if sub is None:
+        sub = Subscription(owner_id=payment.owner_id, plan="plus", source="web")
+        session.add(sub)
+    sub.source = "web"
+    sub.active_until = until
+    sub.note = None
+    payment.status = "success"
+    payment.granted_from = start
+    payment.granted_until = until
+    payment.paid_at = now
+
+
+def take_back(session: Session, payment: WebPayment, now: datetime) -> None:
+    """A full refund removes the order's days from website Plus (never below now)."""
+    if payment.status == "success":
+        sub = session.get(Subscription, payment.owner_id, with_for_update=True)
+        if sub is not None and sub.source == "web":
+            sub.active_until = max(now, sub.active_until - timedelta(days=payment.days))
+    else:  # refunded before we ever saw it paid: nothing was given
+        payment.granted_from = payment.granted_from or now
+        payment.granted_until = payment.granted_until or now
+    payment.status = "refunded"
+
+
 class WebBillingService:
     def __init__(
         self,
@@ -255,36 +289,13 @@ class WebBillingService:
     # --- shared -----------------------------------------------------------------------------
 
     def _grant(self, payment: WebPayment, status: paytm.PaytmStatus, now: datetime) -> None:
-        sub = self._session.get(Subscription, payment.owner_id, with_for_update=True)
-        current = (
-            sub.active_until
-            if sub is not None and sub.source != "test" and sub.active_until > now
-            else None
-        )
-        start, until = paytm.granted_window(now, current, payment.days)
-        if sub is None:
-            sub = Subscription(owner_id=payment.owner_id, plan="plus", source="web")
-            self._session.add(sub)
-        sub.source = "web"
-        sub.active_until = until
-        sub.note = None
-        payment.status = "success"
-        payment.granted_from = start
-        payment.granted_until = until
-        payment.paid_at = now
+        grant_days(self._session, payment, now)
         payment.txn_id = status.txn_id
         payment.payment_mode = (status.payment_mode or "")[:16] or None
         payment.txn_token = None
 
     def _refund(self, payment: WebPayment, now: datetime) -> None:
-        if payment.status == "success":
-            sub = self._session.get(Subscription, payment.owner_id, with_for_update=True)
-            if sub is not None and sub.source == "web":
-                sub.active_until = max(now, sub.active_until - timedelta(days=payment.days))
-        else:  # refunded before we ever saw it paid: nothing was given
-            payment.granted_from = payment.granted_from or now
-            payment.granted_until = payment.granted_until or now
-        payment.status = "refunded"
+        take_back(self._session, payment, now)
         payment.txn_token = None
 
     def _payment(self, order_id: str) -> WebPayment | None:

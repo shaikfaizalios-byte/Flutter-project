@@ -145,11 +145,72 @@ in the web build (`webPaymentsSupportedProvider` = `kIsWeb`).
 5. For real money, switch to the production MID and key and `PREPLOOP_PAYTM_ENVIRONMENT=production`
    on the production server only.
 
+## Razorpay on the website
+
+The other way to pay on the website, built because Paytm's test keys took too long. **Only one of
+Paytm and Razorpay may be configured** (the server refuses to start with both); `web_offer.provider`
+tells the app which, and the app's buttons name it ("Pay with Razorpay"). The app always uses
+`POST /billing/web/orders` and `GET /billing/web/orders/{id}`, which go to the configured provider
+(an order is always read back through the provider that made it). The Paytm-only order endpoints
+are kept but deprecated.
+
+- **Same offer.** One payment of `PREPLOOP_RAZORPAY_PLUS_PRICE` gives `PREPLOOP_RAZORPAY_PLUS_DAYS`
+  days, added after any current Plus; no renewal. Granting and refunds share the Paytm code
+  (`grant_days`, `take_back` in `web_billing_service.py`).
+- **Flow.** The order endpoint makes a `web_payments` row (provider `razorpay`, our `PLUS-...` id
+  as Razorpay's `receipt`, Razorpay's `order_...` id in `provider_order_id`) with the Orders API
+  and returns `pay_path` (30 minutes). That page (`GET /billing/razorpay/pay/{id}`) loads Razorpay's
+  `checkout.js` with the key id and order (never the secret) in redirect mode: after paying,
+  Razorpay posts to `POST /billing/razorpay/callback`, which sends the browser to
+  `PREPLOOP_RAZORPAY_RETURN_URL`; closing the checkout goes back there too. The app's
+  `/profile/plus/payment?order=...` screen asks every 3 seconds for up to 2 minutes.
+- **What counts.** Only Razorpay's list of the order's payments (`GET /v1/orders/{id}/payments`):
+  a captured payment of the whole amount in INR (pure `app/domain/razorpay.py` `outcome`).
+  Authorized-not-captured = pending; failed attempts = failed but **not final** (the learner may
+  retry on the same order, and a later webhook still counts); a full refund (`amount_refunded` ≥
+  the amount) takes the days back and is final; a partial refund changes nothing; another order,
+  amount or currency = `mismatch`, refused and recorded. The checkout's signature
+  (HMAC-SHA256 of `order_id|payment_id` with the key secret) is checked and recorded, never relied on.
+- **Webhooks** (`POST /billing/razorpay/webhook`): refused (401) unless `X-Razorpay-Signature` is
+  the HMAC-SHA256 of the raw body with the webhook secret. `payment.*`, `order.paid` and `refund.*`
+  events all name the order (refunds through their payment), and the server then asks the Orders API
+  as above. Unknown orders are ignored; Razorpay down = 502 so Razorpay retries.
+- **Test and real money stay apart.** Test keys (`rzp_test_`) on any server but production; live
+  keys (`rzp_live_`) on production only (refused at start otherwise). Rows record `staging` /
+  `production`, and the app labels test payments.
+- **Audit.** `billing_events` provider `razorpay` (migration 0062), the same kinds and order id hash.
+
+### Setting it up
+
+1. Sign up at razorpay.com and stay in **Test mode** (no KYC needed for test keys). Dashboard →
+   Account & Settings → API Keys → generate a test key.
+2. Server settings (private `.env`, never committed; leave every `PREPLOOP_PAYTM_*` unset):
+
+   ```
+   PREPLOOP_RAZORPAY_KEY_ID=rzp_test_...          # rzp_live_... only on the production server
+   PREPLOOP_RAZORPAY_KEY_SECRET=...               # never in the app or git
+   PREPLOOP_RAZORPAY_WEBHOOK_SECRET=...           # the secret you type when adding the webhook
+   PREPLOOP_RAZORPAY_PLUS_PRICE=99.00
+   PREPLOOP_RAZORPAY_PLUS_DAYS=30
+   PREPLOOP_RAZORPAY_CALLBACK_URL=https://<api host>/api/v1/billing/razorpay/callback
+   PREPLOOP_RAZORPAY_RETURN_URL=https://<web app>/#/profile/plus/payment?order={order}
+   ```
+
+3. Dashboard → Webhooks → add `https://<api host>/api/v1/billing/razorpay/webhook` with the
+   secret above and the events `payment.captured`, `payment.failed`, `order.paid`,
+   `refund.processed`.
+4. Keep **automatic capture** on (Razorpay's default; Account & Settings → Payment capture).
+   Uncaptured payments are returned by Razorpay after 3 days and never give Plus.
+5. Pay with Razorpay's test instruments (UPI `success@razorpay` / `failure@razorpay`, or its test
+   cards), then check `web_payments` and `billing_events`.
+6. For real money: finish Razorpay's KYC (the individual / unregistered route takes a personal
+   PAN), then use the live key on the production server only.
+
 ## Not built yet
 
-1. **Other payments.** Apple in-app purchase for iOS (the same `subscriptions` row). Google Play and
-   Paytm are built (above) but have never run against the real Play API or Paytm (no Play Console
-   or Paytm keys here); automatic monthly renewal on the website is not built.
+1. **Other payments.** Apple in-app purchase for iOS (the same `subscriptions` row). Google Play,
+   Paytm and Razorpay are built (above) but have never run against the real Play API, Paytm or
+   Razorpay (no keys here yet); automatic monthly renewal on the website is not built.
 2. **Legal.** Terms of sale are drafted in `apps/mobile/assets/legal/terms.md` ("PrepLoop Plus"), with
    [placeholders] for the refund policy, GST, outages, grievance officer and seller details; GST
    invoicing in India is not built; privacy

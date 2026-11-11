@@ -97,7 +97,7 @@ importing papers, reviewing questions, practice, mock tests, revision and progre
   The 7-day refund for website payments below does not apply to Play purchases. If Google Play
   refunds a subscription and ends it, Plus ends too.
 
-### Buying Plus on the website (Paytm)
+### Buying Plus on the website (Razorpay or Paytm)
 
 - The website shows the price and the number of days before you pay (currently **₹99 for 30
   days**). This is the full amount you pay: [Operator name] is not registered for GST, so no GST
@@ -105,13 +105,14 @@ importing papers, reviewing questions, practice, mock tests, revision and progre
 - **One payment, no automatic renewal.** A payment gives that number of days of Plus. Nothing is
   charged again. When the days run out, Plus ends unless you pay again.
 - If you pay while Plus is already on, the new days are added after your current Plus ends.
-- Paytm takes the payment on its own page. PrepLoop never sees your card, UPI or bank details.
-- Plus starts only after Paytm confirms the payment to PrepLoop. If Paytm reports the payment as
-  pending, Plus starts once Paytm confirms it. If Paytm reports it as failed, no Plus is given and
-  any money taken from your account is returned by your bank or Paytm under their rules.
+- The payment is taken by the payment provider named on the website (Razorpay or Paytm), on its
+  own page. PrepLoop never sees your card, UPI or bank details.
+- Plus starts only after the provider confirms the payment to PrepLoop. If it reports the payment
+  as pending, Plus starts once it confirms it. If it reports it as failed, no Plus is given and
+  any money taken from your account is returned by your bank or the provider under their rules.
 - **Refunds.** You can ask for a full refund of a website payment within **7 days** of paying,
   for any reason. Write to [support contact email] with the email of your PrepLoop account and
-  the date of the payment. We start the refund through Paytm within 7 working days; your bank may
+  the date of the payment. We start the refund through the provider within 7 working days; your bank may
   take a few more days to show it. When a payment is refunded in full, the days it bought are
   removed from your Plus. After 7 days, payments are not refunded, except when we charged you by
   mistake (for example twice) or you paid and Plus was never given; those are always refunded in

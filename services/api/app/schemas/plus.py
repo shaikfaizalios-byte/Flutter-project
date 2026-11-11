@@ -10,11 +10,11 @@ TEST_DAYS_MAX = 31
 class WebOffer(BaseModel):
     """Plus bought on the website: one payment gives `days` of Plus, with no renewal."""
 
-    provider: Literal["paytm"] = "paytm"
+    provider: Literal["paytm", "razorpay"] = "paytm"
     amount_paise: int
     currency: Literal["INR"] = "INR"
     days: int
-    # Paytm's staging environment: no real money moves.
+    # Paytm's staging environment or Razorpay's test mode: no real money moves.
     test_payments: bool
 
 
@@ -37,7 +37,7 @@ class PlusStatus(BaseModel):
     # Passed to Play as the obfuscated account id at purchase time, so the purchase can only
     # be added to this account (null when purchases are not available).
     play_account_id: str | None = None
-    # Paying on the website (Paytm); null when this server doesn't offer it.
+    # Paying on the website (Paytm or Razorpay); null when this server doesn't offer it.
     web_offer: WebOffer | None = None
 
 
@@ -59,16 +59,16 @@ class PlusTestStart(BaseModel):
 WebPaymentStatus = Literal["created", "pending", "success", "failed", "refunded"]
 
 
-class PaytmOrderCreated(BaseModel):
+class WebOrderCreated(BaseModel):
     order_id: str
-    # Open this (on the API's address) in the browser: it sends the learner to Paytm. It expires
-    # in 15 minutes.
+    # Open this (on the API's address) in the browser: it takes the learner to the payment
+    # provider. It expires in 15 (Paytm) or 30 (Razorpay) minutes.
     pay_path: str
     amount_paise: int
     days: int
 
 
-class PaytmOrderRead(BaseModel):
+class WebOrderRead(BaseModel):
     order_id: str
     status: WebPaymentStatus
     amount_paise: int

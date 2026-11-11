@@ -93,8 +93,8 @@ void main() {
     expect(find.text('Terms of use (draft)'), findsOneWidget);
     expect(find.textContaining('not affiliated with any examining body'), findsOneWidget);
     // The Plus terms' sub-headings read as headings, without the Markdown marks.
-    await scrollTo(tester, find.text('Buying Plus on the website (Paytm)'));
-    expect(find.text('Buying Plus on the website (Paytm)'), findsOneWidget);
+    await scrollTo(tester, find.text('Buying Plus on the website (Razorpay or Paytm)'));
+    expect(find.text('Buying Plus on the website (Razorpay or Paytm)'), findsOneWidget);
     expect(find.textContaining('###'), findsNothing);
   });
 }

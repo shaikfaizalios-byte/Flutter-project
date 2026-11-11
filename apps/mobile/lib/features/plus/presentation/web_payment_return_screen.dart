@@ -14,21 +14,22 @@ import '../../ai/application/ai_providers.dart';
 import '../data/plus_repository.dart';
 
 /// How often and how long the screen asks the server about a payment that isn't settled yet.
-const paytmCheckEvery = Duration(seconds: 3);
-const paytmCheckFor = Duration(minutes: 2);
+const webPayCheckEvery = Duration(seconds: 3);
+const webPayCheckFor = Duration(minutes: 2);
 
-/// Where Paytm sends the browser back after paying. The server asks Paytm about the order;
+/// Where the browser comes back after paying on the website. The server asks the payment
+/// provider about the order;
 /// this screen only shows what the server says.
-class PaytmReturnScreen extends ConsumerStatefulWidget {
-  const PaytmReturnScreen({required this.orderId, super.key});
+class WebPaymentReturnScreen extends ConsumerStatefulWidget {
+  const WebPaymentReturnScreen({required this.orderId, super.key});
 
   final String orderId;
 
   @override
-  ConsumerState<PaytmReturnScreen> createState() => _PaytmReturnScreenState();
+  ConsumerState<WebPaymentReturnScreen> createState() => _WebPaymentReturnScreenState();
 }
 
-class _PaytmReturnScreenState extends ConsumerState<PaytmReturnScreen> {
+class _WebPaymentReturnScreenState extends ConsumerState<WebPaymentReturnScreen> {
   WebOrderStatus? _order;
   bool _failedToAsk = false;
   bool _gaveUp = false;
@@ -63,15 +64,15 @@ class _PaytmReturnScreenState extends ConsumerState<PaytmReturnScreen> {
         return;
       }
     } on Object catch (error, stack) {
-      if (error is! AppFailure) logError('Checking a Paytm payment failed', error, stack);
+      if (error is! AppFailure) logError('Checking a website payment failed', error, stack);
       if (!mounted) return;
       setState(() => _failedToAsk = true);
     }
-    if (_checks * paytmCheckEvery.inSeconds >= paytmCheckFor.inSeconds) {
+    if (_checks * webPayCheckEvery.inSeconds >= webPayCheckFor.inSeconds) {
       setState(() => _gaveUp = true);
       return;
     }
-    _timer = Timer(paytmCheckEvery, () => unawaited(_check()));
+    _timer = Timer(webPayCheckEvery, () => unawaited(_check()));
   }
 
   void _askAgain() {
@@ -90,16 +91,16 @@ class _PaytmReturnScreenState extends ConsumerState<PaytmReturnScreen> {
     final order = _order;
     final waiting = !_gaveUp && (order == null || !order.settled) && widget.orderId.isNotEmpty;
     final (IconData icon, String message) = switch (order?.status) {
-      _ when widget.orderId.isEmpty => (Icons.help_outline, l10n.paytmNoOrder),
+      _ when widget.orderId.isEmpty => (Icons.help_outline, l10n.webPayNoOrder),
       WebOrderState.success => (
         Icons.check_circle_outline,
-        l10n.paytmPaid(DateFormat.yMMMd(locale).format(order!.grantedUntil!.toLocal())),
+        l10n.webPayPaid(DateFormat.yMMMd(locale).format(order!.grantedUntil!.toLocal())),
       ),
-      WebOrderState.failed => (Icons.error_outline, l10n.paytmFailed),
-      WebOrderState.refunded => (Icons.undo, l10n.paytmRefunded),
-      WebOrderState.pending => (Icons.hourglass_top, l10n.paytmPending),
-      _ when _gaveUp => (Icons.hourglass_empty, l10n.paytmNotFoundYet),
-      _ => (Icons.hourglass_top, l10n.paytmChecking),
+      WebOrderState.failed => (Icons.error_outline, l10n.webPayFailed),
+      WebOrderState.refunded => (Icons.undo, l10n.webPayRefunded),
+      WebOrderState.pending => (Icons.hourglass_top, l10n.webPayPending),
+      _ when _gaveUp => (Icons.hourglass_empty, l10n.webPayNotFoundYet),
+      _ => (Icons.hourglass_top, l10n.webPayChecking),
     };
     return Scaffold(
       appBar: AppBar(title: Text(l10n.plusTitle)),
@@ -116,21 +117,21 @@ class _PaytmReturnScreenState extends ConsumerState<PaytmReturnScreen> {
                 Text(message, textAlign: TextAlign.center, style: theme.textTheme.titleMedium),
                 if (order?.testPayment ?? false) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  Text(l10n.paytmTestPayment, style: theme.textTheme.bodySmall),
+                  Text(l10n.webPayTestPayment, style: theme.textTheme.bodySmall),
                 ],
                 if (_failedToAsk) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  Text(l10n.paytmCheckFailed, style: theme.textTheme.bodySmall),
+                  Text(l10n.webPayCheckFailed, style: theme.textTheme.bodySmall),
                 ],
                 const SizedBox(height: AppSpacing.md),
                 if (waiting)
                   const LinearProgressIndicator()
                 else if (_gaveUp)
-                  OutlinedButton(onPressed: _askAgain, child: Text(l10n.paytmCheckAgain)),
+                  OutlinedButton(onPressed: _askAgain, child: Text(l10n.webPayCheckAgain)),
                 const SizedBox(height: AppSpacing.sm),
                 TextButton(
                   onPressed: () => context.go(AppRoutes.plus),
-                  child: Text(l10n.paytmBackToPlus),
+                  child: Text(l10n.webPayBackToPlus),
                 ),
               ],
             ),

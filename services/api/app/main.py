@@ -31,6 +31,7 @@ from app.integrations.play_billing import (
     play_client_from_settings,
     push_verifier_from_settings,
 )
+from app.integrations.razorpay import RazorpayClient, razorpay_client_from_settings
 from app.integrations.storage import DocumentStorage, LocalDocumentStorage
 from app.schemas.health import HealthResponse
 from app.workers.document_worker import start_background_worker
@@ -60,6 +61,7 @@ def create_app(
     play_billing: PlayBillingClient | None = None,
     play_push_verifier: PushTokenVerifier | None = None,
     paytm: PaytmClient | None = None,
+    razorpay: RazorpayClient | None = None,
 ) -> FastAPI:
     """Build the app. ``engine`` and ``storage`` let tests inject dependencies; by default
     they are created from settings (no engine if ``database_url`` is unset)."""
@@ -129,6 +131,10 @@ def create_app(
     )
     # Paying on the website with Paytm: off unless injected (tests) or configured.
     app.state.paytm = paytm if paytm is not None else paytm_client_from_settings(settings)
+    # Or with Razorpay (only one of the two is configured).
+    app.state.razorpay = (
+        razorpay if razorpay is not None else razorpay_client_from_settings(settings)
+    )
     # AI is off unless a provider is injected (tests) or an API key is configured.
     app.state.ai_provider = (
         ai_provider if ai_provider is not None else provider_from_settings(settings)

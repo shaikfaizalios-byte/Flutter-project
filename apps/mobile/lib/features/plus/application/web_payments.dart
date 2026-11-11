@@ -7,7 +7,7 @@ import '../../../core/config/app_config.dart';
 /// Plus is paid for on the website only: the Android app uses Google Play, as Play requires.
 final webPaymentsSupportedProvider = Provider<bool>((ref) => kIsWeb);
 
-/// Opens Paytm's payment page in this browser tab (the learner comes back to the app after).
+/// Opens the provider's payment page in this browser tab (the learner comes back to the app after).
 /// Overridden in tests so nothing leaves the app.
 final paymentPageOpenerProvider = Provider<Future<bool> Function(Uri uri)>(
   (ref) =>

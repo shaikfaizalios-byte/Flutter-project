@@ -5676,7 +5676,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get plusWebLabel => 'वेबसाइट पर Paytm से भुगतान किया गया। यह अपने आप रिन्यू नहीं होता।';
+  String get plusWebLabel => 'वेबसाइट पर भुगतान किया गया। यह अपने आप रिन्यू नहीं होता।';
 
   @override
   String plusWebPrice(String price, int days) {
@@ -5684,59 +5684,61 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get plusWebPay => 'Paytm से भुगतान करें';
-
-  @override
-  String plusWebPayMore(int days) {
-    return 'Paytm से $days दिन और जोड़ें';
+  String plusWebPay(String provider) {
+    return '$provider से भुगतान करें';
   }
 
   @override
-  String plusWebTerms(int days) {
-    return 'एक भुगतान से $days दिनों का Plus मिलता है। कुछ भी अपने आप रिन्यू या दोबारा चार्ज नहीं होता। अगर आपके पास पहले से Plus है, तो ये दिन उसके खत्म होने के बाद जुड़ते हैं। भुगतान Paytm लेता है; PrepLoop आपके कार्ड या बैंक की जानकारी कभी नहीं देखता।';
+  String plusWebPayMore(int days, String provider) {
+    return '$provider से $days दिन और जोड़ें';
+  }
+
+  @override
+  String plusWebTerms(int days, String provider) {
+    return 'एक भुगतान से $days दिनों का Plus मिलता है। कुछ भी अपने आप रिन्यू या दोबारा चार्ज नहीं होता। अगर आपके पास पहले से Plus है, तो ये दिन उसके खत्म होने के बाद जुड़ते हैं। भुगतान $provider लेता है; PrepLoop आपके कार्ड या बैंक की जानकारी कभी नहीं देखता।';
   }
 
   @override
   String get plusWebTestPayments => 'टेस्ट भुगतान: इस सर्वर पर कोई असली पैसा नहीं लिया जाता।';
 
   @override
-  String get plusWebPayFailed => 'Paytm नहीं खुल सका। फिर से कोशिश करें।';
+  String get plusWebPayFailed => 'भुगतान पेज नहीं खुल सका। फिर से कोशिश करें।';
 
   @override
-  String get paytmChecking => 'Paytm से आपके भुगतान की जाँच हो रही है…';
+  String get webPayChecking => 'आपके भुगतान की जाँच हो रही है…';
 
   @override
-  String paytmPaid(String date) {
+  String webPayPaid(String date) {
     return 'धन्यवाद! PrepLoop Plus $date तक चालू है।';
   }
 
   @override
-  String get paytmPending =>
-      'Paytm अभी आपके भुगतान की पुष्टि कर रहा है। पुष्टि होते ही Plus शुरू हो जाएगा।';
+  String get webPayPending =>
+      'आपके भुगतान की पुष्टि अभी हो रही है। पुष्टि होते ही Plus शुरू हो जाएगा।';
 
   @override
-  String get paytmFailed =>
-      'Paytm के अनुसार भुगतान पूरा नहीं हुआ। अगर आपके खाते से पैसा कटा है, तो बैंक उसे लौटा देगा।';
+  String get webPayFailed =>
+      'भुगतान पूरा नहीं हुआ। अगर आपके खाते से पैसा कटा है, तो बैंक उसे लौटा देगा।';
 
   @override
-  String get paytmRefunded => 'यह भुगतान लौटा दिया गया, इसलिए इससे Plus का समय नहीं मिलता।';
+  String get webPayRefunded => 'यह भुगतान लौटा दिया गया, इसलिए इससे Plus का समय नहीं मिलता।';
 
   @override
-  String get paytmNotFoundYet =>
-      'इस ऑर्डर के लिए Paytm के पास अभी कोई पूरा भुगतान नहीं है। अगर आपने भुगतान किया है, तो कुछ मिनट बाद फिर जाँचें।';
+  String get webPayNotFoundYet =>
+      'इस ऑर्डर के लिए अभी कोई पूरा भुगतान नहीं है। अगर आपने भुगतान किया है, तो कुछ मिनट बाद फिर जाँचें।';
 
   @override
-  String get paytmNoOrder => 'जाँचने के लिए कोई भुगतान नहीं है। PrepLoop Plus से फिर शुरू करें।';
+  String get webPayNoOrder => 'जाँचने के लिए कोई भुगतान नहीं है। PrepLoop Plus से फिर शुरू करें।';
 
   @override
-  String get paytmTestPayment => 'टेस्ट भुगतान: कोई असली पैसा नहीं लिया गया।';
+  String get webPayTestPayment => 'टेस्ट भुगतान: कोई असली पैसा नहीं लिया गया।';
 
   @override
-  String get paytmCheckFailed => 'PrepLoop अभी सर्वर तक नहीं पहुँच सका; कोशिश जारी है।';
+  String get webPayCheckFailed => 'PrepLoop अभी सर्वर तक नहीं पहुँच सका; कोशिश जारी है।';
 
   @override
-  String get paytmCheckAgain => 'फिर जाँचें';
+  String get webPayCheckAgain => 'फिर जाँचें';
 
   @override
-  String get paytmBackToPlus => 'PrepLoop Plus पर वापस जाएँ';
+  String get webPayBackToPlus => 'PrepLoop Plus पर वापस जाएँ';
 }

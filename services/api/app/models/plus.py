@@ -15,7 +15,7 @@ class Subscription(Base):
         CheckConstraint("plan IN ('plus')", name="plan_valid"),
         # test: self-started in a development server; operator: granted with the CLI;
         # play: a Google Play purchase verified with the Play Developer API (see
-        # play_purchases); web: paid on the website with Paytm (see web_payments).
+        # play_purchases); web: paid on the website with Paytm or Razorpay (see web_payments).
         CheckConstraint("source IN ('test', 'operator', 'play', 'web')", name="source_valid"),
     )
 
@@ -70,7 +70,7 @@ class BillingEvent(Base):
 
     __tablename__ = "billing_events"
     __table_args__ = (
-        CheckConstraint("provider IN ('play', 'paytm')", name="provider_valid"),
+        CheckConstraint("provider IN ('play', 'paytm', 'razorpay')", name="provider_valid"),
         CheckConstraint(
             "kind IN ('verify', 'subscription', 'voided', 'test', 'order', 'callback', 'webhook', "
             "'status')",
@@ -100,7 +100,8 @@ class BillingEvent(Base):
 
 
 class WebPayment(Base):
-    """One order to buy PrepLoop Plus on the website (Paytm), as last confirmed with Paytm.
+    """One order to buy PrepLoop Plus on the website (Paytm or Razorpay), as last confirmed with
+    the provider.
 
     A paid order gives `days` of Plus from `granted_from` (now, or the end of the Plus the account
     already had) to `granted_until`. The price and days are copied from the server's settings when
@@ -109,7 +110,7 @@ class WebPayment(Base):
 
     __tablename__ = "web_payments"
     __table_args__ = (
-        CheckConstraint("provider IN ('paytm')", name="provider_valid"),
+        CheckConstraint("provider IN ('paytm', 'razorpay')", name="provider_valid"),
         CheckConstraint("environment IN ('staging', 'production')", name="environment_valid"),
         CheckConstraint(
             "status IN ('created', 'pending', 'success', 'failed', 'refunded')",
@@ -136,6 +137,8 @@ class WebPayment(Base):
     status: Mapped[str] = mapped_column(String(16), default="created")
     # Paytm's token for opening its payment page (valid for minutes; not a payment credential).
     txn_token: Mapped[str | None] = mapped_column(String(200))
+    # Razorpay's id for the order (order_...); Paytm uses `order_id` itself.
+    provider_order_id: Mapped[str | None] = mapped_column(String(64), unique=True)
     txn_id: Mapped[str | None] = mapped_column(String(64))
     payment_mode: Mapped[str | None] = mapped_column(String(16))
     result_code: Mapped[str | None] = mapped_column(String(16))

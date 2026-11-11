@@ -18,22 +18,39 @@ enum PlusSource {
   static PlusSource? fromCode(String? code) => code == null ? null : PlusSource.values.byName(code);
 }
 
-/// Plus bought on the website (Paytm): one payment gives [days] of Plus, with no renewal.
+/// Plus bought on the website (Paytm or Razorpay): one payment gives [days] of Plus, with no
+/// renewal.
 @immutable
 class WebOffer {
-  const WebOffer({required this.amountPaise, required this.days, this.testPayments = false});
+  const WebOffer({
+    required this.amountPaise,
+    required this.days,
+    this.provider = 'paytm',
+    this.testPayments = false,
+  });
 
   factory WebOffer.fromJson(Map<String, dynamic> json) => WebOffer(
     amountPaise: json['amount_paise'] as int,
     days: json['days'] as int,
+    provider: json['provider'] as String? ?? 'paytm',
     testPayments: json['test_payments'] as bool? ?? false,
   );
 
   final int amountPaise;
   final int days;
 
-  /// Paytm's test environment: no real money moves.
+  /// Who takes the payment: 'paytm' or 'razorpay'.
+  final String provider;
+
+  /// Paytm's staging environment or Razorpay's test mode: no real money moves.
   final bool testPayments;
+
+  /// The provider's name as it brands itself (not translated).
+  String get providerName => switch (provider) {
+    'paytm' => 'Paytm',
+    'razorpay' => 'Razorpay',
+    final other => other,
+  };
 
   /// The price as written in India, e.g. "₹99" or "₹99.50".
   String get price {
@@ -43,20 +60,20 @@ class WebOffer {
   }
 }
 
-/// A website payment the server has started with Paytm.
+/// A website payment the server has started with its payment provider.
 @immutable
 class WebOrder {
   const WebOrder({required this.orderId, required this.payPath});
 
   final String orderId;
 
-  /// Opened in the browser on the API's address: it sends the learner to Paytm.
+  /// Opened in the browser on the API's address: it takes the learner to the provider.
   final String payPath;
 }
 
 enum WebOrderState { created, pending, success, failed, refunded }
 
-/// A website payment as the server last confirmed it with Paytm.
+/// A website payment as the server last confirmed it with its provider.
 @immutable
 class WebOrderStatus {
   const WebOrderStatus({required this.status, this.grantedUntil, this.testPayment = false});
@@ -139,7 +156,7 @@ class PlusStatus {
   /// Passed to Play with a purchase, so the server adds it to this account only.
   final String? playAccountId;
 
-  /// Paying on the website (Paytm); null when the server doesn't offer it.
+  /// Paying on the website (Paytm or Razorpay); null when the server doesn't offer it.
   final WebOffer? webOffer;
 }
 
@@ -159,7 +176,7 @@ abstract interface class PlusRepository {
   /// Starts a website payment; the server sets the price.
   Future<WebOrder> startWebPayment();
 
-  /// A website payment, checked with Paytm by the server while it isn't settled.
+  /// A website payment, checked with its provider by the server while it isn't settled.
   Future<WebOrderStatus> webOrder(String orderId);
 }
 
@@ -199,7 +216,7 @@ class RemotePlusRepository implements PlusRepository {
 
   @override
   Future<WebOrder> startWebPayment() => _guard(() async {
-    final data = (await _dio.post<Map<String, dynamic>>('/api/v1/billing/paytm/orders')).data!;
+    final data = (await _dio.post<Map<String, dynamic>>('/api/v1/billing/web/orders')).data!;
     return WebOrder(orderId: data['order_id'] as String, payPath: data['pay_path'] as String);
   });
 
@@ -207,7 +224,7 @@ class RemotePlusRepository implements PlusRepository {
   Future<WebOrderStatus> webOrder(String orderId) => _guard(
     () async => WebOrderStatus.fromJson(
       (await _dio.get<Map<String, dynamic>>(
-        '/api/v1/billing/paytm/orders/${Uri.encodeComponent(orderId)}',
+        '/api/v1/billing/web/orders/${Uri.encodeComponent(orderId)}',
       )).data!,
     ),
   );
