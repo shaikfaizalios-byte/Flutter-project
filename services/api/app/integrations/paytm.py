@@ -4,6 +4,7 @@ Requests are signed with the merchant key (app/domain/paytm.py). Standard librar
 transaction tokens and payment details are never logged.
 """
 
+import http.client
 import json
 import logging
 import urllib.error
@@ -103,7 +104,8 @@ class PaytmGateway:
                 data = json.loads(response.read())
         except urllib.error.HTTPError as exc:
             raise PaytmError(f"HTTP {exc.code}") from exc
-        except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+        except (OSError, http.client.HTTPException, ValueError) as exc:
+            # URLError, timeouts and dropped connections (RemoteDisconnected) are all OSErrors.
             raise PaytmError("unreachable") from exc
         if not isinstance(data, dict):
             raise PaytmError("unexpected answer")

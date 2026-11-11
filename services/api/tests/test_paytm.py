@@ -1,7 +1,10 @@
 """Plus bought on the website with Paytm: checksums as Paytm's own library makes them, orders
 priced by the server, Plus given only on Paytm's status answer (once), refunds taken back."""
 
+import http.client
 import re
+import urllib.error
+import urllib.request
 import uuid
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
@@ -17,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.core.config import Environment, Settings
 from app.database.session import get_session
 from app.domain import paytm
-from app.integrations.paytm import PaytmError
+from app.integrations.paytm import PaytmError, PaytmGateway
 from app.integrations.storage import LocalDocumentStorage
 from app.main import create_app
 from app.models.plus import BillingEvent, Subscription, WebPayment
@@ -405,3 +408,27 @@ def test_an_unknown_order_changes_nothing(api: TestClient, db_session: Session) 
     event = db_session.scalars(select(BillingEvent)).all()[-1]
     assert event.outcome == "unknown_token" and event.owner_id is None
     assert uuid.UUID(int=0) != event.id
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        http.client.RemoteDisconnected("closed"),
+        ConnectionResetError("reset"),
+        TimeoutError("slow"),
+        urllib.error.URLError("no route"),
+        http.client.IncompleteRead(b""),
+    ],
+)
+def test_a_dropped_connection_is_paytm_unreachable(
+    failure: Exception, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def broken(*args: object, **kwargs: object) -> None:
+        raise failure
+
+    monkeypatch.setattr(urllib.request, "urlopen", broken)
+    gateway = PaytmGateway(
+        mid=MID, merchant_key=KEY, website_name="WEBSTAGING", environment="staging"
+    )
+    with pytest.raises(PaytmError, match="unreachable"):
+        gateway.status(paytm.new_order_id())
