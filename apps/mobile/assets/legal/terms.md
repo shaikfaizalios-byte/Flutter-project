@@ -67,10 +67,78 @@ carry an unsubscribe link and our postal address.
 Do not misuse the service: no attempts to access other people's data, overload or attack the
 service, automate abuse, or use it for anything unlawful.
 
+## PrepLoop Plus (paid plan)
+
+PrepLoop Plus is an optional paid plan. Everything that is free today stays free without it:
+importing papers, reviewing questions, practice, mock tests, revision and progress.
+
+### What Plus includes
+
+- The AI features shown on the PrepLoop Plus screen (for example quick AI answers, explanations
+  and AI-written practice questions), up to a monthly number of AI requests. The number is shown on
+  that screen (currently 300). Only requests that produce an answer count.
+- The allowance starts again on the 1st of each month (00:00 UTC, which is 05:30 in India). Unused
+  requests do not carry over.
+- AI content is always labelled. It can be wrong and is never an official or previous-year
+  question. Plus does not promise any exam result.
+- AI depends on outside services. If AI is unavailable for a while, the rest of PrepLoop keeps
+  working. [Legal review: say whether you give extra days or a refund for long outages.]
+
+### Buying Plus in the Android app (Google Play)
+
+- Google Play takes the payment, shows the price before you buy, and renews the subscription for
+  each period until you cancel it.
+- Cancel at any time in Google Play (Payments & subscriptions → Subscriptions). Plus stays on until
+  the end of the period you already paid for. Deleting your PrepLoop account does **not** cancel a
+  Google Play subscription; cancel it in Google Play first.
+- Plus starts once PrepLoop has checked the purchase with Google. Refunds for Play purchases follow
+  Google Play's refund policies. [Legal review: say whether you also give refunds yourself, and how
+  to ask.]
+
+### Buying Plus on the website (Paytm)
+
+- The website shows the price and the number of days before you pay (currently **₹99 for 30
+  days**). [Legal review: state whether the price includes GST, and your GSTIN if you are
+  registered.]
+- **One payment, no automatic renewal.** A payment gives that number of days of Plus. Nothing is
+  charged again. When the days run out, Plus ends unless you pay again.
+- If you pay while Plus is already on, the new days are added after your current Plus ends.
+- Paytm takes the payment on its own page. PrepLoop never sees your card, UPI or bank details.
+- Plus starts only after Paytm confirms the payment to PrepLoop. If Paytm reports the payment as
+  pending, Plus starts once Paytm confirms it. If Paytm reports it as failed, no Plus is given and
+  any money taken from your account is returned by your bank or Paytm under their rules.
+- **Refunds.** [Legal review: write your refund policy, for example whether unused days can be
+  refunded, within how many days to ask, and how long a refund takes.] To ask for a refund, write
+  to [support contact email] with the email of your PrepLoop account and the date of the payment.
+  If a payment is refunded in full, the days it bought are removed from your Plus.
+
+### Price changes
+
+We may change the price of Plus. A new price applies only to purchases made after the change. It
+never changes a period you have already paid for. For Google Play subscriptions, Google Play tells
+you before a renewal at a new price.
+
+### Ending Plus or your account
+
+- Plus bought on the website simply ends when its days run out.
+- If you delete your account, Plus ends with it. [Legal review: say whether unused paid days are
+  refunded on account deletion.]
+- If we suspend an account for breaking these terms, [Legal review: say what happens to paid days].
+- If we stop offering Plus, we will tell you in advance and [Legal review: refund unused days /
+  other remedy].
+
+### Complaints
+
+Write to [support contact email] about any payment or Plus problem. [Legal review: the Consumer
+Protection (E-Commerce) Rules, 2020 ask sellers to name a grievance officer with contact details,
+acknowledge complaints within 48 hours and resolve them within one month; add the name, email and
+phone number here, and the seller's legal name and address.]
+
 ## Ending
 
 You can delete your account at any time (Profile → Delete account). We may suspend accounts that
-break these terms, after notice where reasonable.
+break these terms, after notice where reasonable. For what happens to PrepLoop Plus, see "Ending
+Plus or your account" above.
 
 ## Liability
 
