@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import '../../concepts/domain/concept.dart';
 import 'imported_document.dart';
+import 'paper_source.dart';
 import 'paper_details.dart';
 
 /// Server-backed document storage. Methods throw `AppFailure`s on errors.
@@ -16,6 +17,12 @@ abstract interface class DocumentsRepository {
     void Function(double progress)? onProgress,
     UploadCancellation? cancellation,
   });
+
+  /// Official pages where papers for [examCode] can be found ([] when none are listed).
+  Future<List<PaperSource>> paperSources(String examCode);
+
+  /// Adds PrepLoop's made-up sample papers to [examCode] (asking twice adds nothing).
+  Future<List<ImportedDocument>> addSamples({required String examCode});
 
   /// Permanently deletes the document and its original file on the server.
   Future<void> delete(String id);

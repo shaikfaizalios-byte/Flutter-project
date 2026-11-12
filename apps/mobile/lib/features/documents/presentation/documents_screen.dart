@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../ai/application/ai_providers.dart';
 import '../../../app/app_features.dart';
@@ -17,6 +18,8 @@ import '../../../core/widgets/empty_state.dart';
 import '../../concepts/domain/concept.dart';
 import '../application/documents_providers.dart';
 import '../domain/imported_document.dart';
+import '../domain/paper_source.dart';
+import '../../../core/utils/external_links.dart';
 import 'import_progress.dart';
 import '../../exams/application/active_exam.dart';
 import '../../../core/database/app_database.dart';
@@ -48,7 +51,17 @@ class DocumentsScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.documentsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.documentsTitle),
+        actions: [
+          if (ref.watch(paperSourcesProvider).value case final sources? when sources.isNotEmpty)
+            TextButton.icon(
+              icon: const Icon(Icons.travel_explore),
+              label: Text(l10n.paperSourcesButton),
+              onPressed: () => _showPaperSources(context, sources),
+            ),
+        ],
+      ),
       floatingActionButton: upload is UploadInProgress
           ? null
           : FloatingActionButton.extended(
@@ -70,6 +83,7 @@ class DocumentsScreen extends ConsumerWidget {
                     icon: Icons.picture_as_pdf_outlined,
                     title: l10n.documentsEmptyTitle,
                     message: l10n.documentsEmptyMessage,
+                    action: const _SampleOffer(),
                   ),
                   AsyncData(:final value) => RefreshIndicator(
                     onRefresh: () => ref.refresh(documentListProvider.future),
@@ -359,6 +373,11 @@ class _DocumentTile extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (document.isSample)
+            Text(
+              l10n.samplePaperLabel,
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+            ),
           Text(
             '${ref.watch(examNameProvider(document.examCode))} · $language · '
             '${l10n.documentPages(document.pageCount)}',
@@ -502,4 +521,102 @@ Future<void> showPaperActions(
       );
     },
   );
+}
+
+/// For a learner with no papers: PrepLoop's made-up sample papers, to try the app first.
+class _SampleOffer extends ConsumerStatefulWidget {
+  const _SampleOffer();
+
+  @override
+  ConsumerState<_SampleOffer> createState() => _SampleOfferState();
+}
+
+class _SampleOfferState extends ConsumerState<_SampleOffer> {
+  bool _busy = false;
+
+  Future<void> _add() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref.read(documentListProvider.notifier).addSamples();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.samplePapersAdded)));
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Adding sample papers failed', error, stack);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.samplePapersFailed)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        OutlinedButton.icon(
+          icon: const Icon(Icons.auto_stories_outlined),
+          label: Text(l10n.samplePapersTry),
+          onPressed: _busy ? null : _add,
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l10n.samplePapersExplained,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+}
+
+/// The official pages for the current exam's papers; each opens in the browser.
+Future<void> _showPaperSources(BuildContext context, List<PaperSource> sources) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheet) => _PaperSourcesSheet(sources: sources),
+    );
+
+class _PaperSourcesSheet extends ConsumerWidget {
+  const _PaperSourcesSheet({required this.sources});
+
+  final List<PaperSource> sources;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return SafeArea(
+      child: ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        children: [
+          Text(l10n.paperSourcesTitle, style: theme.textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(l10n.paperSourcesHint, style: theme.textTheme.bodySmall),
+          for (final source in sources)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.open_in_new),
+              title: Text(source.title),
+              subtitle: Text(
+                '${source.offers}\n'
+                '${l10n.paperSourcesChecked(source.publisher, DateFormat.yMMMd(locale).format(source.checkedOn.toLocalDateTime()))}',
+              ),
+              isThreeLine: true,
+              onTap: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final opened = await ref.read(linkOpenerProvider)(source.url);
+                if (!opened) {
+                  messenger.showSnackBar(SnackBar(content: Text(l10n.paperSourcesOpenFailed)));
+                }
+              },
+            ),
+        ],
+      ),
+    );
+  }
 }

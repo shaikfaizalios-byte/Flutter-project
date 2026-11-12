@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, status
 
 from app.api.deps import CurrentUser
-from app.api.v1.endpoints.ai import AI_ERRORS, Limited, get_ai_provider
+from app.api.v1.endpoints.ai import AI_ERRORS, RateLimited, get_ai_provider
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.domain.challenge_ladder import STEPS
@@ -48,7 +48,7 @@ def overview(exam: Annotated[str, Query(max_length=32)], service: Service) -> La
     "/sessions",
     response_model=LadderRoundRead,
     status_code=status.HTTP_201_CREATED,
-    dependencies=Limited,
+    dependencies=RateLimited,  # Plus or the free ladder: the service
     responses=AI_ERRORS,
     summary="Start a ladder on a topic: plans round 1 (questions come step by step)",
 )
@@ -60,7 +60,7 @@ def start(body: LadderStart, service: Service) -> LadderRoundRead:
     "/sessions/{session_id}/rounds",
     response_model=LadderRoundRead,
     status_code=status.HTTP_201_CREATED,
-    dependencies=Limited,
+    dependencies=RateLimited,  # Plus or the free ladder: the service
     responses=AI_ERRORS,
     summary="Test me more: plans the next, harder round",
 )
@@ -82,7 +82,7 @@ def read_round(
 @router.post(
     "/sessions/{session_id}/rounds/{round_number}/steps/{step}/generate",
     response_model=LadderStepRead,
-    dependencies=Limited,
+    dependencies=RateLimited,  # Plus or the free ladder: the service
     responses=AI_ERRORS,
     summary="Write and check one step's question (paper text and web excerpts go to the AI)",
 )

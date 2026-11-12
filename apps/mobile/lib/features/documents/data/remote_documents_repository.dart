@@ -7,6 +7,7 @@ import '../../concepts/domain/concept.dart';
 import '../domain/documents_repository.dart';
 import '../domain/imported_document.dart';
 import '../domain/paper_details.dart';
+import '../domain/paper_source.dart';
 
 class RemoteDocumentsRepository implements DocumentsRepository {
   const RemoteDocumentsRepository(this._dio);
@@ -23,6 +24,29 @@ class RemoteDocumentsRepository implements DocumentsRepository {
     final response = await _dio.get<Map<String, dynamic>>(_path, queryParameters: {'limit': 100});
     final items = (response.data?['items'] as List<dynamic>? ?? const []);
     return [for (final item in items) ImportedDocument.fromJson(item as Map<String, dynamic>)];
+  });
+
+  @override
+  Future<List<PaperSource>> paperSources(String examCode) => _guard(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/api/v1/exams/${Uri.encodeComponent(examCode)}/paper-sources',
+    );
+    return [
+      for (final item in response.data ?? const <dynamic>[])
+        PaperSource.fromJson(item as Map<String, dynamic>),
+    ];
+  });
+
+  @override
+  Future<List<ImportedDocument>> addSamples({required String examCode}) => _guard(() async {
+    final response = await _dio.post<List<dynamic>>(
+      '$_path/samples',
+      data: {'exam_code': examCode},
+    );
+    return [
+      for (final item in response.data ?? const <dynamic>[])
+        ImportedDocument.fromJson(item as Map<String, dynamic>),
+    ];
   });
 
   @override

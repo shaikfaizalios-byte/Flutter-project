@@ -31,6 +31,7 @@ from app.domain.errors import (
     ConflictError,
     InvalidReferenceError,
     NotFoundError,
+    PlusRequiredError,
 )
 from app.domain.exam_format import SectionMarking
 from app.domain.scoring import Answer
@@ -61,6 +62,7 @@ from app.services.ladder_benchmark import subject_open
 from app.services.ladder_exam import exam_context
 from app.services.ladder_verify import verify
 from app.services.patterns import visible_pattern
+from app.services.plus_service import PlusService
 from app.services.shared_bank import library_question
 from app.services.topic_service import visible_topics
 
@@ -95,7 +97,13 @@ class LadderService:
     def overview(self, exam_code: str) -> LadderOverview:
         exam = self._exam(exam_code)
         if profile_of(exam).kind == "descriptive":
-            return LadderOverview(topics=[], best=None, available=False)
+            return LadderOverview(
+                topics=[],
+                best=None,
+                available=False,
+                free_per_day=self._settings.ladder_free_per_day,
+                free_left_today=self.free_left_today(),
+            )
         report = self._repeats(exam_code)
         papers = {t.topic_id: t.confirmed.papers for t in report.topics}
         order = {t.topic_id: index for index, t in enumerate(report.topics)}
@@ -111,7 +119,40 @@ class LadderService:
                 for t in topics
             ],
             best=self._best(exam_code),
+            free_per_day=self._settings.ladder_free_per_day,
+            free_left_today=self.free_left_today(),
         )
+
+    # --- Plus, or the free daily ladder -------------------------------------------------------
+
+    def free_left_today(self) -> int | None:
+        """Free ladders left today (UTC) for an account without Plus; None when it needs
+        none (Plus is on, or the server doesn't ask for Plus)."""
+        if not self._settings.plus_required_for_ai or self._plus().status().active:
+            return None
+        day = self._now().replace(hour=0, minute=0, second=0, microsecond=0)
+        used = self._session.scalar(
+            select(func.count(LadderSession.id)).where(
+                LadderSession.owner_id == self._owner_id,
+                LadderSession.free.is_(True),
+                LadderSession.created_at >= day,
+            )
+        )
+        return max(0, self._settings.ladder_free_per_day - (used or 0))
+
+    def _plus(self) -> PlusService:
+        return PlusService(self._session, self._owner_id, self._settings, now=self._now)
+
+    def _starts_free(self) -> bool:
+        """Whether a new ladder runs on the free allowance. Raises when the account has
+        neither Plus (with AI requests left) nor a free ladder left today."""
+        try:
+            self._plus().check_ai_allowed()
+        except PlusRequiredError:
+            if not self.free_left_today():
+                raise
+            return True
+        return False
 
     def _best(self, exam_code: str) -> LadderBest | None:
         """The highest first-round climb on this exam."""
@@ -140,6 +181,7 @@ class LadderService:
     def start(self, request: LadderStart) -> LadderRoundRead:
         """Plans round 1. No AI call yet."""
         self._require_provider()
+        free = self._starts_free()
         exam = self._exam(request.exam_code)
         if profile_of(exam).kind == "descriptive":
             raise ConflictError("ladder_mcq_only", "The ladder is for multiple-choice exams.")
@@ -162,6 +204,7 @@ class LadderService:
             subject=topic.subject,
             language=request.language,
             new_formats=request.include_new_formats,
+            free=free,
             source_mix=(
                 "web_only" if seeds == 0 else "web_main" if seeds < ladder.MIN_SEEDS else "papers"
             ),
@@ -180,6 +223,7 @@ class LadderService:
     def next_round(self, session_id: uuid.UUID) -> LadderRoundRead:
         """ "Test me more": a harder round, weighted to the question types got wrong so far."""
         self._require_provider()
+        self._plus().check_ai_allowed()  # a free ladder is one round
         practice = self._load(session_id)
         steps = self._steps(session_id)
         last = max(s.round_number for s in steps)
@@ -256,6 +300,8 @@ class LadderService:
             raise NotFoundError("Step not found.")
         if step.source is not None:
             return _step_read(step)
+        if not (practice.free and round_number == 1):
+            self._plus().check_ai_allowed()
 
         topic_questions = self._topic_questions(practice.exam_code, practice.topic_id)
         wanted = {step.pattern_id, step.second_pattern_id} - {None}

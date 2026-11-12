@@ -228,6 +228,8 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   else a real paper question. Stored in `ladder_sessions`/`ladder_steps`, NEVER `questions`, so repeat counts can't change.
   Answers stay server-side until answered. App: `features/ladder` (`LadderCard` on Home under Today, `LadderScreen`,
   `LadderRun`, `LadderIcon` CustomPainter; tests set `ladderIconMotionProvider` false), consent in `ladder_ai_consent`.
+  Free daily ladder (migration 0063): without Plus, `PREPLOOP_LADDER_FREE_PER_DAY` (default 1, 0 = off) ladders per UTC day,
+  one round each (`ladder_sessions.free`, `LadderService._starts_free`/`free_left_today`); `LadderOverview.free_left_today`.
 - PrepLoop Plus (docs/plus.md): `subscriptions` (migration 0023, one row per account, source
   test|operator|play|web, `active_until`); `GET /me/plus` (status + AI requests used this UTC month from
   `ai_generations` ok/partial vs `PREPLOOP_PLUS_AI_MONTHLY_ALLOWANCE`, default 300); free test subscriptions
@@ -428,6 +430,15 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   report shared content; app flag button), `audit_events`; operator `python -m app.cli.content`
   (reports/resolve/takedown/audit). Starter check = `diagnostic` session from shared questions whose rights allow
   it (`/practice/starter-check`, Home starter card); none until the operator publishes such papers.
+- Sample papers (migration 0064): two made-up papers by PrepLoop (`services/api/data/sample_papers`, JSON source +
+  PDFs from `scripts/make_sample_papers.py`, same question types in both so repeats show), added to the current exam
+  through the normal import by `POST /documents/samples` (once per exam, by content); `documents.is_sample`, labelled
+  in the app ("Sample · made up…"), never in Radar (`radar_service`) or the shared bank (`publish` refuses). App:
+  "Try sample papers" on the empty Imported papers screen (`_SampleOffer`, `DocumentList.addSamples`).
+- Official paper pages: `services/api/data/paper_sources/paper_sources.json` (per exam code: title, https url, publisher,
+  offers, checked_on, checked_by; pure `app/domain/paper_sources.py` refuses anything else), public
+  `GET /exams/{code}/paper-sources`. App: "Get papers" on Imported papers (only when listed) opens them in the browser;
+  PrepLoop never fetches them. Only pages a person opened and checked are listed (JEE Advanced so far).
 - Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
   in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and

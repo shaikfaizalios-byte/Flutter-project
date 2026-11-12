@@ -234,7 +234,13 @@ class LadderBest {
 /// Topics of the exam, most repeated first, and the learner's own best climb.
 @immutable
 class LadderOverview {
-  const LadderOverview({this.topics = const [], this.best, this.available = true});
+  const LadderOverview({
+    this.topics = const [],
+    this.best,
+    this.available = true,
+    this.freePerDay = 0,
+    this.freeLeftToday,
+  });
 
   factory LadderOverview.fromJson(Map<String, dynamic> json) {
     final best = json['best'] as Map<String, dynamic>?;
@@ -247,6 +253,8 @@ class LadderOverview {
           ? null
           : LadderBest(step: best['step'] as int, topicName: best['topic_name'] as String),
       available: json['available'] as bool? ?? true,
+      freePerDay: json['free_per_day'] as int? ?? 0,
+      freeLeftToday: json['free_left_today'] as int?,
     );
   }
 
@@ -255,6 +263,12 @@ class LadderOverview {
 
   /// False for an exam with no multiple-choice paper.
   final bool available;
+
+  /// Ladders a day a learner without Plus may start (one round each; the server's day is UTC).
+  final int freePerDay;
+
+  /// Free ladders left today; null when the account needs none (Plus is on).
+  final int? freeLeftToday;
 
   /// Up to 3 topics seen in the learner's papers, for a one-tap start.
   List<LadderTopic> get repeated => topics.where((t) => t.papers > 0).take(3).toList();

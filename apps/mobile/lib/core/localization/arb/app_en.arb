@@ -2981,5 +2981,21 @@
   "webPayTestPayment": "Test payment: no real money was taken.",
   "webPayCheckFailed": "PrepLoop could not reach the server just now; still trying.",
   "webPayCheckAgain": "Check again",
-  "webPayBackToPlus": "Back to PrepLoop Plus"
+  "webPayBackToPlus": "Back to PrepLoop Plus",
+  "ladderFreeToday": "{count, plural, =1{Free today: 1 ladder without PrepLoop Plus (one round of 5 questions).} other{Free today: {count} ladders without PrepLoop Plus (one round of 5 questions each).}}",
+  "@ladderFreeToday": {"placeholders": {"count": {"type": "int"}}},
+  "ladderFreeUsed": "You've used today's free ladder. The next one is free from {time}. With PrepLoop Plus you can climb any time.",
+  "@ladderFreeUsed": {"placeholders": {"time": {"type": "String"}}},
+  "ladderMorePlus": "More rounds are part of PrepLoop Plus.",
+  "samplePapersTry": "Try sample papers",
+  "samplePapersExplained": "Two practice papers made up by PrepLoop, so you can try solving, reviewing and repeated models before you import your own. They are not real exam papers.",
+  "samplePapersAdded": "Sample papers added. They are being read now.",
+  "samplePapersFailed": "Sample papers could not be added. Try again.",
+  "samplePaperLabel": "Sample · made up by PrepLoop, not a real exam paper",
+  "paperSourcesButton": "Get papers",
+  "paperSourcesTitle": "Official places to get papers",
+  "paperSourcesHint": "These pages open in your browser. Download a paper there, then import it here with Import PDF.",
+  "paperSourcesChecked": "{publisher} · checked {date}",
+  "@paperSourcesChecked": {"placeholders": {"publisher": {"type": "String"}, "date": {"type": "String"}}},
+  "paperSourcesOpenFailed": "The page could not be opened."
 }

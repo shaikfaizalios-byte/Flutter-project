@@ -107,6 +107,8 @@ def publish(
     document = session.get(Document, document_id)
     if document is None:
         raise NotFoundError("Document not found.")
+    if document.is_sample:
+        raise ConflictError("sample_paper", "Sample papers are made up and are never shared.")
     if document.segmentation_status != "completed":
         raise ConflictError("not_parsed", "The paper hasn't been parsed yet.")
     verified = (

@@ -15,6 +15,12 @@ import '../domain/ladder_models.dart';
 /// create practice questions. Asked once, before the first ladder.
 const ladderConsentKey = 'ladder_ai_consent';
 
+/// When the server's day (UTC) turns and the free ladder comes back, in this device's time.
+DateTime nextFreeLadderAt(DateTime now) {
+  final utc = now.toUtc();
+  return DateTime.utc(utc.year, utc.month, utc.day + 1).toLocal();
+}
+
 /// Topics and the learner's best climb for the current exam.
 final ladderOverviewProvider = FutureProvider.autoDispose<LadderOverview?>((ref) async {
   final exam = ref.watch(activeExamProvider);
@@ -139,6 +145,7 @@ class LadderRun extends Notifier<LadderRunState> {
     }
     _shownAt = ref.read(clockProvider)();
     state = state.copyWith(stage: LadderStage.question, round: round, current: 0);
+    ref.invalidate(ladderOverviewProvider); // a free ladder may have been used
   }
 
   int _ready(LadderRound round) => round.steps.where((s) => s.ready).length;

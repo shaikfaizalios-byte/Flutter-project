@@ -100,3 +100,8 @@ class LadderOverview(BaseModel):
     topics: list[LadderTopic]
     best: LadderBest | None
     available: bool = True  # false: the exam has no multiple-choice paper to practise for
+    # Without PrepLoop Plus: free ladders a day (one round each; the day is UTC) and how many
+    # are left today. `free_left_today` is null when the account needs no free ladder (Plus
+    # is on, or this server doesn't ask for Plus).
+    free_per_day: int = 0
+    free_left_today: int | None = None

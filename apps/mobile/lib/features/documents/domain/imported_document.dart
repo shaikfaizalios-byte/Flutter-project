@@ -31,6 +31,7 @@ class ImportedDocument {
     this.segmentationStatus = 'pending',
     this.questionsFound = 0,
     this.questionsToCheck = 0,
+    this.isSample = false,
   });
 
   factory ImportedDocument.fromJson(Map<String, dynamic> json) => ImportedDocument(
@@ -47,6 +48,7 @@ class ImportedDocument {
     segmentationStatus: json['segmentation_status'] as String? ?? 'pending',
     questionsFound: json['questions_found'] as int? ?? 0,
     questionsToCheck: json['questions_to_check'] as int? ?? 0,
+    isSample: json['is_sample'] as bool? ?? false,
   );
 
   final String id;
@@ -66,6 +68,9 @@ class ImportedDocument {
 
   /// Questions with an open review issue ("9 need a look").
   final int questionsToCheck;
+
+  /// One of PrepLoop's made-up sample papers, never a real exam paper (always labelled).
+  final bool isSample;
 
   bool get canReview => status == DocumentStatus.completed;
 

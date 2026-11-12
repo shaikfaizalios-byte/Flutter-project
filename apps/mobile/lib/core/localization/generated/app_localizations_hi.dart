@@ -5741,4 +5741,57 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get webPayBackToPlus => 'PrepLoop Plus पर वापस जाएँ';
+
+  @override
+  String ladderFreeToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'आज मुफ़्त: PrepLoop Plus के बिना $count लैडर (हर एक में 5 सवालों का एक राउंड)।',
+      one: 'आज मुफ़्त: PrepLoop Plus के बिना 1 लैडर (5 सवालों का एक राउंड)।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ladderFreeUsed(String time) {
+    return 'आज का मुफ़्त लैडर आप इस्तेमाल कर चुके हैं। अगला $time से मुफ़्त मिलेगा। PrepLoop Plus के साथ आप कभी भी चढ़ सकते हैं।';
+  }
+
+  @override
+  String get ladderMorePlus => 'और राउंड PrepLoop Plus का हिस्सा हैं।';
+
+  @override
+  String get samplePapersTry => 'सैंपल पेपर आज़माएँ';
+
+  @override
+  String get samplePapersExplained =>
+      'PrepLoop के बनाए दो अभ्यास पेपर, ताकि अपने पेपर इम्पोर्ट करने से पहले आप हल करना, जाँचना और दोहराए गए मॉडल आज़मा सकें। ये असली परीक्षा के पेपर नहीं हैं।';
+
+  @override
+  String get samplePapersAdded => 'सैंपल पेपर जोड़ दिए गए। अभी उन्हें पढ़ा जा रहा है।';
+
+  @override
+  String get samplePapersFailed => 'सैंपल पेपर नहीं जोड़े जा सके। फिर से कोशिश करें।';
+
+  @override
+  String get samplePaperLabel => 'सैंपल · PrepLoop का बनाया, असली परीक्षा का पेपर नहीं';
+
+  @override
+  String get paperSourcesButton => 'पेपर पाएँ';
+
+  @override
+  String get paperSourcesTitle => 'पेपर पाने की आधिकारिक जगहें';
+
+  @override
+  String get paperSourcesHint =>
+      'ये पेज आपके ब्राउज़र में खुलते हैं। वहाँ से पेपर डाउनलोड करें, फिर यहाँ \"PDF इम्पोर्ट करें\" से इम्पोर्ट करें।';
+
+  @override
+  String paperSourcesChecked(String publisher, String date) {
+    return '$publisher · $date को जाँचा गया';
+  }
+
+  @override
+  String get paperSourcesOpenFailed => 'पेज नहीं खुल सका।';
 }

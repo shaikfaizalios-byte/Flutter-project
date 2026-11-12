@@ -10,6 +10,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
+import '../../../core/utils/clock.dart';
 import '../../../core/widgets/rich_question_text.dart';
 import '../../ai/application/ai_providers.dart';
 import '../../ai/presentation/ai_widgets.dart';
@@ -85,8 +86,6 @@ class LadderScreen extends ConsumerWidget {
     final Widget body;
     if (exam == null || status == null) {
       body = const Center(child: CircularProgressIndicator());
-    } else if (status.enabled && status.needsPlus) {
-      body = PlusPrompt(message: l10n.ladderPlusMessage);
     } else if (!status.enabled) {
       body = _Unavailable(topicId: topicId, message: l10n.ladderAiOff);
     } else {
@@ -96,13 +95,34 @@ class LadderScreen extends ConsumerWidget {
       final key = (examCode: exam, topicId: topicId, topicName: topicName, language: language);
       final state = ref.watch(ladderRunProvider(key));
       final run = ref.read(ladderRunProvider(key).notifier);
-      body = switch (state.stage) {
-        LadderStage.intro => _Intro(topicName: topicName, onStart: () => _start(context, ref, run)),
-        LadderStage.writing => _Writing(written: state.written, round: state.round),
-        LadderStage.question => _Question(key: ValueKey(state.current), state: state, run: run),
-        LadderStage.results => _Results(state: state, run: run),
-        LadderStage.failed => _Failed(state: state, run: run, topicId: topicId),
-      };
+      // Without Plus: the day's free ladders (one round each), counted by the server.
+      final overview = ref.watch(ladderOverviewProvider);
+      final freeLeft = overview.value?.freeLeftToday ?? 0;
+      if (status.needsPlus && state.stage == LadderStage.intro && freeLeft <= 0) {
+        final hadFree = (overview.value?.freePerDay ?? 0) > 0;
+        body = !overview.hasValue && overview.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : PlusPrompt(
+                message: hadFree
+                    ? l10n.ladderFreeUsed(
+                        TimeOfDay.fromDateTime(nextFreeLadderAt(ref.watch(clockProvider)()))
+                            .format(context),
+                      )
+                    : l10n.ladderPlusMessage,
+              );
+      } else {
+        body = switch (state.stage) {
+          LadderStage.intro => _Intro(
+            topicName: topicName,
+            freeLeft: status.needsPlus ? freeLeft : null,
+            onStart: () => _start(context, ref, run),
+          ),
+          LadderStage.writing => _Writing(written: state.written, round: state.round),
+          LadderStage.question => _Question(key: ValueKey(state.current), state: state, run: run),
+          LadderStage.results => _Results(state: state, run: run, plusOnlyMore: status.needsPlus),
+          LadderStage.failed => _Failed(state: state, run: run, topicId: topicId),
+        };
+      }
     }
     return Scaffold(
       appBar: AppBar(title: Text(topicName)),
@@ -160,9 +180,12 @@ class _HonestNote extends StatelessWidget {
 }
 
 class _Intro extends ConsumerWidget {
-  const _Intro({required this.topicName, required this.onStart});
+  const _Intro({required this.topicName, required this.onStart, this.freeLeft});
 
   final String topicName;
+
+  /// Free ladders left today for a learner without Plus; null with Plus.
+  final int? freeLeft;
   final VoidCallback onStart;
 
   @override
@@ -187,6 +210,13 @@ class _Intro extends ConsumerWidget {
           const SizedBox(height: AppSpacing.sm),
         ],
         const _HonestNote(),
+        if (freeLeft != null) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l10n.ladderFreeToday(freeLeft!),
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary),
+          ),
+        ],
         const SizedBox(height: AppSpacing.md),
         FilledButton.icon(
           icon: const Icon(Icons.play_arrow),
@@ -428,10 +458,13 @@ class _NumberAnswerState extends State<_NumberAnswer> {
 }
 
 class _Results extends ConsumerWidget {
-  const _Results({required this.state, required this.run});
+  const _Results({required this.state, required this.run, this.plusOnlyMore = false});
 
   final LadderRunState state;
   final LadderRun run;
+
+  /// Without Plus a ladder is one round: "Test me more" becomes a note about Plus.
+  final bool plusOnlyMore;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -480,7 +513,10 @@ class _Results extends ConsumerWidget {
         const SizedBox(height: AppSpacing.md),
         const _HonestNote(),
         const SizedBox(height: AppSpacing.md),
-        FilledButton(onPressed: run.more, child: Text(l10n.ladderMore)),
+        if (plusOnlyMore)
+          PlusPrompt(message: l10n.ladderMorePlus)
+        else
+          FilledButton(onPressed: run.more, child: Text(l10n.ladderMore)),
         TextButton(
           onPressed: () => context.pushReplacement(AppRoutes.ladderTopics),
           child: Text(l10n.ladderAnother),

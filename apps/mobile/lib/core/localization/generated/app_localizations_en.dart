@@ -5741,4 +5741,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webPayBackToPlus => 'Back to PrepLoop Plus';
+
+  @override
+  String ladderFreeToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Free today: $count ladders without PrepLoop Plus (one round of 5 questions each).',
+      one: 'Free today: 1 ladder without PrepLoop Plus (one round of 5 questions).',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ladderFreeUsed(String time) {
+    return 'You\'ve used today\'s free ladder. The next one is free from $time. With PrepLoop Plus you can climb any time.';
+  }
+
+  @override
+  String get ladderMorePlus => 'More rounds are part of PrepLoop Plus.';
+
+  @override
+  String get samplePapersTry => 'Try sample papers';
+
+  @override
+  String get samplePapersExplained =>
+      'Two practice papers made up by PrepLoop, so you can try solving, reviewing and repeated models before you import your own. They are not real exam papers.';
+
+  @override
+  String get samplePapersAdded => 'Sample papers added. They are being read now.';
+
+  @override
+  String get samplePapersFailed => 'Sample papers could not be added. Try again.';
+
+  @override
+  String get samplePaperLabel => 'Sample · made up by PrepLoop, not a real exam paper';
+
+  @override
+  String get paperSourcesButton => 'Get papers';
+
+  @override
+  String get paperSourcesTitle => 'Official places to get papers';
+
+  @override
+  String get paperSourcesHint =>
+      'These pages open in your browser. Download a paper there, then import it here with Import PDF.';
+
+  @override
+  String paperSourcesChecked(String publisher, String date) {
+    return '$publisher · checked $date';
+  }
+
+  @override
+  String get paperSourcesOpenFailed => 'The page could not be opened.';
 }

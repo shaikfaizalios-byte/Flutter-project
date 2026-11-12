@@ -9224,6 +9224,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to PrepLoop Plus'**
   String get webPayBackToPlus;
+
+  /// No description provided for @ladderFreeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Free today: 1 ladder without PrepLoop Plus (one round of 5 questions).} other{Free today: {count} ladders without PrepLoop Plus (one round of 5 questions each).}}'**
+  String ladderFreeToday(int count);
+
+  /// No description provided for @ladderFreeUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used today\'s free ladder. The next one is free from {time}. With PrepLoop Plus you can climb any time.'**
+  String ladderFreeUsed(String time);
+
+  /// No description provided for @ladderMorePlus.
+  ///
+  /// In en, this message translates to:
+  /// **'More rounds are part of PrepLoop Plus.'**
+  String get ladderMorePlus;
+
+  /// No description provided for @samplePapersTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try sample papers'**
+  String get samplePapersTry;
+
+  /// No description provided for @samplePapersExplained.
+  ///
+  /// In en, this message translates to:
+  /// **'Two practice papers made up by PrepLoop, so you can try solving, reviewing and repeated models before you import your own. They are not real exam papers.'**
+  String get samplePapersExplained;
+
+  /// No description provided for @samplePapersAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample papers added. They are being read now.'**
+  String get samplePapersAdded;
+
+  /// No description provided for @samplePapersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample papers could not be added. Try again.'**
+  String get samplePapersFailed;
+
+  /// No description provided for @samplePaperLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample · made up by PrepLoop, not a real exam paper'**
+  String get samplePaperLabel;
+
+  /// No description provided for @paperSourcesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Get papers'**
+  String get paperSourcesButton;
+
+  /// No description provided for @paperSourcesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Official places to get papers'**
+  String get paperSourcesTitle;
+
+  /// No description provided for @paperSourcesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These pages open in your browser. Download a paper there, then import it here with Import PDF.'**
+  String get paperSourcesHint;
+
+  /// No description provided for @paperSourcesChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'{publisher} · checked {date}'**
+  String paperSourcesChecked(String publisher, String date);
+
+  /// No description provided for @paperSourcesOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The page could not be opened.'**
+  String get paperSourcesOpenFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

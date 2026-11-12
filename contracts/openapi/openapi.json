@@ -2844,6 +2844,11 @@
             "title": "Id",
             "type": "string"
           },
+          "is_sample": {
+            "default": false,
+            "title": "Is Sample",
+            "type": "boolean"
+          },
           "language": {
             "enum": [
               "en",
@@ -4474,6 +4479,22 @@
                 "type": "null"
               }
             ]
+          },
+          "free_left_today": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Left Today"
+          },
+          "free_per_day": {
+            "default": 0,
+            "title": "Free Per Day",
+            "type": "integer"
           },
           "topics": {
             "items": {
@@ -7470,6 +7491,41 @@
         "title": "PaperDetailsUpdate",
         "type": "object"
       },
+      "PaperSourceRead": {
+        "description": "An official page where papers for the exam can be found. Opened in the browser only.",
+        "properties": {
+          "checked_on": {
+            "format": "date",
+            "title": "Checked On",
+            "type": "string"
+          },
+          "offers": {
+            "title": "Offers",
+            "type": "string"
+          },
+          "publisher": {
+            "title": "Publisher",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "url",
+          "publisher",
+          "offers",
+          "checked_on"
+        ],
+        "title": "PaperSourceRead",
+        "type": "object"
+      },
       "PaperTopicsResult": {
         "properties": {
           "considered": {
@@ -10021,6 +10077,22 @@
           "similarity_threshold"
         ],
         "title": "RepeatsReport",
+        "type": "object"
+      },
+      "SamplePapersAdd": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Exam Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code"
+        ],
+        "title": "SamplePapersAdd",
         "type": "object"
       },
       "SearchAnswer": {
@@ -17428,6 +17500,96 @@
         ]
       }
     },
+    "/api/v1/documents/samples": {
+      "post": {
+        "operationId": "add_sample_papers_api_v1_documents_samples_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SamplePapersAdd"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentRead"
+                  },
+                  "title": "Response Add Sample Papers Api V1 Documents Samples Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "file_too_large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "unsupported_file_type (not a PDF)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "validation_error, invalid_reference, empty_file, invalid_pdf, encrypted_pdf, too_many_pages"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited (see Retry-After)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add PrepLoop's made-up sample papers to an exam (to try the app; not real papers)",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/v1/documents/{document_id}": {
       "delete": {
         "operationId": "delete_document_api_v1_documents__document_id__delete",
@@ -18785,6 +18947,53 @@
           }
         },
         "summary": "The exam catalog (public)",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/exams/{code}/paper-sources": {
+      "get": {
+        "operationId": "paper_sources_api_v1_exams__code__paper_sources_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaperSourceRead"
+                  },
+                  "title": "Response Paper Sources Api V1 Exams  Code  Paper Sources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Official pages where papers for this exam can be found (public; [] if none listed)",
         "tags": [
           "exams"
         ]

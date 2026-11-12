@@ -71,3 +71,38 @@ many papers each exam has.
 Five papers each for SSC CGL, SSC CHSL, RRB NTPC, IBPS PO and UPSC Prelims. Only SSC CGL and CHSL have
 verified exam formats, so the others get practice and Repeated models but no timed mocks until their
 official formats are added (from the current notice, source recorded in a migration).
+
+## Sample papers (made up, for trying the app)
+
+Different from starter papers: `services/api/data/sample_papers` holds two practice papers **written by
+PrepLoop** (not from any exam), so a learner with no papers can try importing, solving, reviewing and repeated
+models on day one. Both sets use the same question types with different numbers, so Repeated models has
+something to show once the learner reviews them.
+
+- The learner taps **Try sample papers** on the empty Imported papers screen. `POST /documents/samples`
+  imports both PDFs into the current exam as the learner's own papers, through the normal pipeline; asking
+  again adds nothing (matched by file content).
+- They are always labelled ("Sample · made up by PrepLoop, not a real exam paper", `is_sample` on the paper),
+  carry a "SAMPLE PAPER" notice on the page, are never pooled into Repeat Radar and can never be published to
+  the shared bank. The learner can delete them like any paper.
+- To change them, edit `sample_papers.json` and run
+  `services/api/.venv/Scripts/python.exe scripts/make_sample_papers.py`; `tests/test_sample_papers.py` checks
+  that the import reads every question, option and answer.
+
+## Official paper pages ("Get papers")
+
+`services/api/data/paper_sources/paper_sources.json` lists, per exam code, official pages where learners can
+download papers themselves. The app shows **Get papers** on the Imported papers screen when the current exam has
+any; each opens in the browser (PrepLoop never fetches or copies them). The learner downloads a paper there and
+imports it with Import PDF.
+
+Add a page only after opening it yourself and seeing the papers or keys it offers. Every entry needs a title, an
+https url, the publisher, what it offers, `checked_on` and `checked_by`; the server refuses to start a list with a
+missing field (`app/domain/paper_sources.py`, `tests/test_paper_sources.py`). Re-check the pages when an exam's
+site changes.
+
+Checked on 2026-11-12: JEE (Advanced) lists the latest year's papers and keys on https://jeeadv.ac.in/ (added).
+The SSC home page loaded but showed no paper list to an automated reader, the RRB site failed its certificate
+check and the NTA sites refused automated access, so none of those are listed yet: open them in a browser,
+find the papers page and add it.
+
