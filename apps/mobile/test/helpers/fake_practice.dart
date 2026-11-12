@@ -24,6 +24,7 @@ class _FakeSession {
   final DateTime startedAt;
   final DateTime? deadline;
   final String? formatName;
+  int? perQuestionSeconds;
 
   /// Sectionally timed mock: the plan, the open section and when it opened.
   List<TimedSectionView> sections = const [];
@@ -101,7 +102,7 @@ class FakePracticeRepository implements PracticeRepository {
       mode: SessionMode.practice,
       questions: pool,
       startedAt: serverNow(),
-    );
+    )..perQuestionSeconds = request.perQuestionSeconds;
     return _view(sessions[id]!);
   }
 
@@ -352,6 +353,7 @@ class FakePracticeRepository implements PracticeRepository {
       deadlineAt: s.deadline,
       serverNow: serverNow(),
       submitReason: s.submitReason,
+      perQuestionSeconds: s.perQuestionSeconds,
       cbt: cbtSessions.contains(s.id) ? const CbtRules(reference: 'Bulletin, p.1') : null,
       items: [
         for (final (i, q) in s.questions.indexed)

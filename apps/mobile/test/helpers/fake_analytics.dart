@@ -2,6 +2,7 @@ import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/core/utils/calendar_date.dart';
 import 'package:preploop/features/analytics/data/analytics_repository.dart';
 import 'package:preploop/features/analytics/domain/analytics_models.dart';
+import 'package:preploop/features/analytics/domain/speed.dart';
 
 /// Empty server statistics for 12 Oct 2026 (no answers yet).
 PracticeAnalytics emptyAnalytics({CalendarDate? today}) => PracticeAnalytics(
@@ -30,6 +31,17 @@ class FakeAnalyticsRepository implements AnalyticsRepository {
   Future<List<CanonicalTopic>> canonical(List<String> exams) async {
     canonicalExams = exams;
     return canonicalTopics;
+  }
+
+  /// What [speed] returns (null: no speed data yet), and the own targets asked with.
+  SpeedReport speedReport = const SpeedReport(slowFactor: 1.5);
+  final requestedOwnTargets = <double?>[];
+
+  @override
+  Future<SpeedReport> speed(String examCode, {double? ownTargetSeconds}) async {
+    requestedOwnTargets.add(ownTargetSeconds);
+    if (offline) throw const NetworkFailure();
+    return speedReport;
   }
 
   @override

@@ -166,3 +166,21 @@ with a fixed tip for it; Progress lists the reasons under each topic. The tips a
 PrepLoop (`mistakeTip*` in the ARB files), the same for every learner; they are general study advice, not
 advice about any exam.
 
+## Speed training (learning-loop Phase 4)
+
+`GET /analytics/speed?exam=CODE` reports, per question type (model): answers, right answers, timed answers and
+their time, and **right but slow**: a right answer that took more than `PREPLOOP_SPEED_SLOW_FACTOR` (default 1.5)
+times the target.
+
+- The **target** comes only from the exam's verified format in effect today: a timed section's minutes divided
+  by its questions, else the paper's minutes divided by its questions (pure `app/domain/speed.py`). An exam
+  without a verified format has no target, unless the learner sets their own on Progress (labelled as theirs,
+  kept on the device as `speed_target:<exam>` and sent as `own_target_seconds`, which is ignored when a format
+  exists). Nothing is filled in by PrepLoop.
+- Only answers with a recorded time count towards time and slowness; questions without a question type are
+  left out. The rule is shown under the card.
+- **Timed drill**: from a type on Progress, a practice of 10 questions of that type with
+  `per_question_seconds` = the type's target (its section's, else the paper's). The session shows a timer per
+  question ("n s left of T s", then "Over the T s target"); it stops nothing, and answers are marked as in any
+  practice.
+

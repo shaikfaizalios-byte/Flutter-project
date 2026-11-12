@@ -3,12 +3,27 @@ import 'package:dio/dio.dart';
 import '../../../core/errors/app_failure.dart';
 import '../domain/analytics_models.dart';
 import '../domain/weak_topics.dart';
+import '../domain/speed.dart';
 
 /// Practice statistics from the server (attempts are recorded there).
 class AnalyticsRepository {
   AnalyticsRepository(this._dio);
 
   final Dio _dio;
+
+  /// Speed per question type for [examCode]. [ownTargetSeconds] counts only when the exam
+  /// has no verified format.
+  Future<SpeedReport> speed(String examCode, {double? ownTargetSeconds}) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/api/v1/analytics/speed',
+        queryParameters: {'exam': examCode, 'own_target_seconds': ?ownTargetSeconds},
+      );
+      return SpeedReport.fromJson(response.data!);
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    }
+  }
 
   /// Answers on topics that mean the same across [exams], combined and per exam.
   Future<List<CanonicalTopic>> canonical(List<String> exams) async {

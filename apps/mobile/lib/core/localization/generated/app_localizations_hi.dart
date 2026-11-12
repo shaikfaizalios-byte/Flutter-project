@@ -5861,4 +5861,70 @@ class AppLocalizationsHi extends AppLocalizations {
   String mistakeReasonsByTopic(String reasons) {
     return 'जवाब गलत होने के कारण: $reasons';
   }
+
+  @override
+  String get speedTitle => 'सवाल-प्रकार के अनुसार गति';
+
+  @override
+  String speedTargetFormat(String seconds, String format) {
+    return 'लक्ष्य: हर सवाल $seconds सेकंड, जाँचे गए फ़ॉर्मेट ($format) से।';
+  }
+
+  @override
+  String speedTargetOwn(String seconds) {
+    return 'आपका अपना लक्ष्य: हर सवाल $seconds सेकंड (इस परीक्षा का कोई जाँचा गया फ़ॉर्मेट नहीं है)।';
+  }
+
+  @override
+  String get speedNoTarget =>
+      'इस परीक्षा का कोई जाँचा गया फ़ॉर्मेट नहीं है, इसलिए कोई लक्ष्य समय नहीं है। आप अपना लक्ष्य रख सकते हैं।';
+
+  @override
+  String get speedSetOwn => 'मेरा लक्ष्य रखें';
+
+  @override
+  String get speedChangeOwn => 'मेरा लक्ष्य बदलें';
+
+  @override
+  String get speedOwnField => 'हर सवाल के सेकंड';
+
+  @override
+  String get speedOwnInvalid => '5 से 600 तक की संख्या लिखें।';
+
+  @override
+  String speedTypeLine(String accuracy, int answered) {
+    return '$answered में से $accuracy सही';
+  }
+
+  @override
+  String speedSeconds(String seconds) {
+    return 'हर सवाल $seconds सेकंड';
+  }
+
+  @override
+  String speedSlow(int count) {
+    return '$count सही पर धीमे';
+  }
+
+  @override
+  String get speedDrill => 'समयबद्ध ड्रिल';
+
+  @override
+  String speedRules(String factor) {
+    return 'सही पर धीमा = ऐसा सही जवाब जिसमें लक्ष्य के $factor गुना से ज़्यादा समय लगा। सिर्फ़ वही जवाब गिने जाते हैं जिनका समय दर्ज हुआ; बिना सवाल-प्रकार के सवाल शामिल नहीं हैं।';
+  }
+
+  @override
+  String get speedEmpty =>
+      'अपनी गति यहाँ देखने के लिए ऐसे सवालों का अभ्यास करें जिनका सवाल-प्रकार तय है।';
+
+  @override
+  String drillTimeLeft(int seconds, int target) {
+    return '$target में से $seconds सेकंड बाकी';
+  }
+
+  @override
+  String drillOverTime(int target) {
+    return '$target सेकंड का लक्ष्य पार';
+  }
 }

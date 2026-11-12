@@ -227,6 +227,9 @@ class _SessionBody extends ConsumerWidget {
                     ),
                   ),
                 ),
+              if (session.perQuestionSeconds case final target?
+                  when !testLike && !item.answered && !session.submitted)
+                _DrillTimer(key: ValueKey(item.position), target: target),
               Wrap(
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
@@ -755,4 +758,67 @@ String formatClock(int seconds) {
   final s = seconds % 60;
   String two(int v) => v.toString().padLeft(2, '0');
   return h > 0 ? '$h:${two(m)}:${two(s)}' : '${two(m)}:${two(s)}';
+}
+
+/// A timed drill: time left on this question against its target. It stops nothing.
+class _DrillTimer extends ConsumerStatefulWidget {
+  const _DrillTimer({super.key, required this.target});
+
+  final int target;
+
+  @override
+  ConsumerState<_DrillTimer> createState() => _DrillTimerState();
+}
+
+class _DrillTimerState extends ConsumerState<_DrillTimer> {
+  late final DateTime _shown = ref.read(clockProvider)();
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final elapsed = ref.read(clockProvider)().difference(_shown).inSeconds;
+    final left = widget.target - elapsed;
+    final over = left < 0;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Row(
+        children: [
+          Icon(
+            over ? Icons.timer_off_outlined : Icons.timer_outlined,
+            color: over ? theme.colorScheme.error : theme.colorScheme.primary,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              over ? l10n.drillOverTime(widget.target) : l10n.drillTimeLeft(left, widget.target),
+              style: TextStyle(color: over ? theme.colorScheme.error : null),
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: LinearProgressIndicator(
+              value: (elapsed / widget.target).clamp(0, 1).toDouble(),
+              color: over ? theme.colorScheme.error : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

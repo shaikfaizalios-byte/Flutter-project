@@ -9404,6 +9404,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Why answers went wrong: {reasons}'**
   String mistakeReasonsByTopic(String reasons);
+
+  /// No description provided for @speedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed by question type'**
+  String get speedTitle;
+
+  /// No description provided for @speedTargetFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {seconds} s a question, from the verified format ({format}).'**
+  String speedTargetFormat(String seconds, String format);
+
+  /// No description provided for @speedTargetOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own target: {seconds} s a question (this exam has no verified format).'**
+  String speedTargetOwn(String seconds);
+
+  /// No description provided for @speedNoTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam has no verified format, so there is no target time. You can set your own.'**
+  String get speedNoTarget;
+
+  /// No description provided for @speedSetOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Set my target'**
+  String get speedSetOwn;
+
+  /// No description provided for @speedChangeOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Change my target'**
+  String get speedChangeOwn;
+
+  /// No description provided for @speedOwnField.
+  ///
+  /// In en, this message translates to:
+  /// **'Seconds per question'**
+  String get speedOwnField;
+
+  /// No description provided for @speedOwnInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from 5 to 600.'**
+  String get speedOwnInvalid;
+
+  /// No description provided for @speedTypeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{accuracy} right of {answered}'**
+  String speedTypeLine(String accuracy, int answered);
+
+  /// No description provided for @speedSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s a question'**
+  String speedSeconds(String seconds);
+
+  /// No description provided for @speedSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} right but slow'**
+  String speedSlow(int count);
+
+  /// No description provided for @speedDrill.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed drill'**
+  String get speedDrill;
+
+  /// No description provided for @speedRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Right but slow = a right answer that took more than {factor} times the target. Only answers with a recorded time count; questions without a question type are left out.'**
+  String speedRules(String factor);
+
+  /// No description provided for @speedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise questions that have a question type to see your speed here.'**
+  String get speedEmpty;
+
+  /// No description provided for @drillTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s left of {target} s'**
+  String drillTimeLeft(int seconds, int target);
+
+  /// No description provided for @drillOverTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Over the {target} s target'**
+  String drillOverTime(int target);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

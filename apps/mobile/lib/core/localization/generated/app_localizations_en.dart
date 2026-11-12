@@ -5861,4 +5861,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String mistakeReasonsByTopic(String reasons) {
     return 'Why answers went wrong: $reasons';
   }
+
+  @override
+  String get speedTitle => 'Speed by question type';
+
+  @override
+  String speedTargetFormat(String seconds, String format) {
+    return 'Target: $seconds s a question, from the verified format ($format).';
+  }
+
+  @override
+  String speedTargetOwn(String seconds) {
+    return 'Your own target: $seconds s a question (this exam has no verified format).';
+  }
+
+  @override
+  String get speedNoTarget =>
+      'This exam has no verified format, so there is no target time. You can set your own.';
+
+  @override
+  String get speedSetOwn => 'Set my target';
+
+  @override
+  String get speedChangeOwn => 'Change my target';
+
+  @override
+  String get speedOwnField => 'Seconds per question';
+
+  @override
+  String get speedOwnInvalid => 'Enter a number from 5 to 600.';
+
+  @override
+  String speedTypeLine(String accuracy, int answered) {
+    return '$accuracy right of $answered';
+  }
+
+  @override
+  String speedSeconds(String seconds) {
+    return '$seconds s a question';
+  }
+
+  @override
+  String speedSlow(int count) {
+    return '$count right but slow';
+  }
+
+  @override
+  String get speedDrill => 'Timed drill';
+
+  @override
+  String speedRules(String factor) {
+    return 'Right but slow = a right answer that took more than $factor times the target. Only answers with a recorded time count; questions without a question type are left out.';
+  }
+
+  @override
+  String get speedEmpty => 'Practise questions that have a question type to see your speed here.';
+
+  @override
+  String drillTimeLeft(int seconds, int target) {
+    return '$seconds s left of $target s';
+  }
+
+  @override
+  String drillOverTime(int target) {
+    return 'Over the $target s target';
+  }
 }

@@ -172,6 +172,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   (`TopicStats.mistake_reasons`), in total and over the last 7 days (`week_mistake_reasons`). App `MistakeReason`
   (`practice/domain/mistake_reason.dart`, fixed tips), chips on the feedback panel, top reason + tip in the weekly
   review, reasons per topic on Progress.
+  Speed training: `GET /analytics/speed?exam=&own_target_seconds=` per question type (pattern): answered, right, time,
+  right-but-slow (> `PREPLOOP_SPEED_SLOW_FACTOR`, 1.5, x target); target ONLY from the verified format in effect (pure
+  `app/domain/speed.py`: timed section's seconds per question, else the paper's), else the learner's own (device setting
+  `speed_target:<exam>`). Timed drills = practice with `per_question_seconds` (selection, `SessionRead`), a timer per
+  question that stops nothing. App `SpeedCard` on Progress (`analytics/domain/speed.dart`), `_DrillTimer`.
   FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
   `app/domain/fsrs.py`, aggregates only); the ladder stays the scheduler.
 - Languages (global Phase 10): content languages are ONE reference list — `app/domain/languages.py` (code, names,

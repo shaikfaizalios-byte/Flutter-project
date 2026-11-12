@@ -14,6 +14,8 @@ import '../domain/analytics_models.dart';
 import '../domain/study_plan.dart';
 import '../domain/weak_topics.dart';
 import '../../exams/application/active_exam.dart';
+import '../domain/speed.dart';
+import '../../../core/database/app_database.dart';
 
 /// The device's IANA timezone (server statistics are bucketed by the learner's local days).
 final localTimezoneProvider = FutureProvider<String>(
@@ -126,3 +128,32 @@ final studyPlanProvider = Provider.autoDispose<AsyncValue<StudyPlan>>((ref) {
     ),
   );
 });
+
+/// `app_settings` key of the learner's own seconds per question for an exam without a
+/// verified format.
+String speedTargetKey(String exam) => 'speed_target:$exam';
+
+/// The learner's own target for the current exam (null when not set).
+final ownSpeedTargetProvider = FutureProvider.autoDispose<double?>((ref) async {
+  final exam = ref.watch(activeExamProvider);
+  if (exam == null) return null;
+  final db = ref.watch(appDatabaseProvider);
+  final row = await (db.select(
+    db.appSettings,
+  )..where((s) => s.key.equals(speedTargetKey(exam)))).getSingleOrNull();
+  return double.tryParse(row?.value ?? '');
+});
+
+Future<void> saveOwnSpeedTarget(AppDatabase db, String exam, int seconds) => db
+    .into(db.appSettings)
+    .insertOnConflictUpdate(
+      AppSettingsCompanion.insert(key: speedTargetKey(exam), value: '$seconds'),
+    );
+
+/// Speed per question type for the current exam (needs a connection).
+final speedReportProvider = FutureProvider.autoDispose<SpeedReport?>((ref) async {
+  final exam = ref.watch(activeExamProvider);
+  if (exam == null) return null;
+  final own = await ref.watch(ownSpeedTargetProvider.future);
+  return ref.watch(analyticsRepositoryProvider).speed(exam, ownTargetSeconds: own);
+}, retry: _noRetry);
