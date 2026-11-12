@@ -1163,6 +1163,7 @@ class PracticeService:
             item_count=len(practice.items),
             answered_count=sum(_answered(a) for a in practice.answers),
             cbt=(practice.selection or {}).get("cbt"),
+            per_question_seconds=(practice.selection or {}).get("per_question_seconds"),
             sectional=(practice.selection or {}).get("section"),
             items=items,
             result=self._result(practice.result) if practice.result else None,

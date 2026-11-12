@@ -27,6 +27,8 @@ class PracticeCreate(BaseModel):
     # Verified questions from the shared bank (papers the operator shared, labelled as such).
     include_shared: bool = True
     count: int = Field(default=10, ge=1, le=100)
+    # A timed drill: the app shows a timer per question with this target (it stops nothing).
+    per_question_seconds: int | None = Field(default=None, ge=5, le=600)
 
 
 class OfflineQuestion(BaseModel):
@@ -306,6 +308,8 @@ class SessionRead(BaseModel):
     # A computer-based mock's rules, as the attempt keeps them.
     cbt: dict[str, Any] | None = None
     sectional: str | None = None  # one section of the paper, not the whole of it
+    # A timed drill's target per question (from PracticeCreate), shown as a timer.
+    per_question_seconds: int | None = None
     # Sectionally timed mocks only: the sections in order, the open one (index; equal to the
     # number of sections once all are closed) and when it closes. Questions of sections not
     # open yet come without their content; closed sections can't be answered.

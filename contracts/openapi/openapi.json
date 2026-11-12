@@ -8314,6 +8314,19 @@
             ],
             "title": "Pattern Id"
           },
+          "per_question_seconds": {
+            "anyOf": [
+              {
+                "maximum": 600.0,
+                "minimum": 5.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Question Seconds"
+          },
           "section": {
             "anyOf": [
               {
@@ -11019,6 +11032,17 @@
             "title": "Mode",
             "type": "string"
           },
+          "per_question_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Question Seconds"
+          },
           "remaining_seconds": {
             "anyOf": [
               {
@@ -11607,6 +11631,88 @@
           "entry"
         ],
         "title": "SolveResult",
+        "type": "object"
+      },
+      "SpeedReport": {
+        "properties": {
+          "slow_factor": {
+            "title": "Slow Factor",
+            "type": "number"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SpeedTargetRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "types": {
+            "items": {
+              "$ref": "#/components/schemas/TypeSpeedRead"
+            },
+            "title": "Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "target",
+          "slow_factor",
+          "types"
+        ],
+        "title": "SpeedReport",
+        "type": "object"
+      },
+      "SpeedTargetRead": {
+        "description": "Seconds per question: from the verified format, or the learner's own when it has none.",
+        "properties": {
+          "by_section": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "By Section",
+            "type": "object"
+          },
+          "format_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format Name"
+          },
+          "seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seconds"
+          },
+          "source": {
+            "enum": [
+              "format",
+              "own"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "format_name",
+          "seconds",
+          "by_section"
+        ],
+        "title": "SpeedTargetRead",
         "type": "object"
       },
       "StageSection": {
@@ -13237,6 +13343,87 @@
           "options"
         ],
         "title": "TranslationRead",
+        "type": "object"
+      },
+      "TypeSpeedRead": {
+        "description": "Raw counts for one question type (model).",
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "pattern_id": {
+            "format": "uuid",
+            "title": "Pattern Id",
+            "type": "string"
+          },
+          "slow_correct": {
+            "title": "Slow Correct",
+            "type": "integer"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "target_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Seconds"
+          },
+          "time_spent_ms": {
+            "title": "Time Spent Ms",
+            "type": "integer"
+          },
+          "timed_answered": {
+            "title": "Timed Answered",
+            "type": "integer"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "required": [
+          "pattern_id",
+          "name",
+          "topic",
+          "subject",
+          "answered",
+          "correct",
+          "timed_answered",
+          "time_spent_ms",
+          "slow_correct",
+          "target_seconds"
+        ],
+        "title": "TypeSpeedRead",
         "type": "object"
       },
       "UserRead": {
@@ -15052,6 +15239,84 @@
           }
         ],
         "summary": "Answer counts per subject, topic and local day, plus mock results",
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/speed": {
+      "get": {
+        "operationId": "speed_report_api_v1_analytics_speed_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exam",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Exam",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The learner's own target, used only without a format",
+            "in": "query",
+            "name": "own_target_seconds",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 600,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The learner's own target, used only without a format",
+              "title": "Own Target Seconds"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpeedReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Speed per question type: accuracy, time and right-but-slow against the target",
         "tags": [
           "analytics"
         ]

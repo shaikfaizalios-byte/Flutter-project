@@ -3,8 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import CurrentUser
+from app.core.config import Settings, get_settings
 from app.database.session import DbSession
-from app.schemas.analytics import AnalyticsOverview, CanonicalTopicStats
+from app.schemas.analytics import AnalyticsOverview, CanonicalTopicStats, SpeedReport
 from app.schemas.errors import ErrorResponse
 from app.services.analytics_service import AnalyticsService
 
@@ -31,6 +32,25 @@ def canonical(
     exam: Annotated[list[str], Query(max_length=20, description="Exams to compare")],
 ) -> list[CanonicalTopicStats]:
     return service.canonical(exam)
+
+
+@router.get(
+    "/analytics/speed",
+    response_model=SpeedReport,
+    summary="Speed per question type: accuracy, time and right-but-slow against the target",
+)
+def speed_report(
+    service: Service,
+    settings: Annotated[Settings, Depends(get_settings)],
+    exam: Annotated[str, Query(max_length=32)],
+    own_target_seconds: Annotated[
+        float | None,
+        Query(gt=0, le=600, description="The learner's own target, used only without a format"),
+    ] = None,
+) -> SpeedReport:
+    return service.speed(
+        exam, own_target_seconds=own_target_seconds, slow_factor=settings.speed_slow_factor
+    )
 
 
 @router.get(

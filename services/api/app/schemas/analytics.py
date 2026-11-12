@@ -4,6 +4,7 @@ a topic with no data."""
 
 import uuid
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -94,3 +95,34 @@ class AnalyticsOverview(TimedCounts):
     # (today included; the weekly review's week).
     mistake_reasons: dict[str, int] = {}
     week_mistake_reasons: dict[str, int] = {}
+
+
+class SpeedTargetRead(BaseModel):
+    """Seconds per question: from the verified format, or the learner's own when it has none."""
+
+    source: Literal["format", "own"]
+    format_name: str | None  # the verified format it comes from
+    seconds: float | None  # the whole paper's
+    by_section: dict[str, float]  # timed sections, their own
+
+
+class TypeSpeedRead(BaseModel):
+    """Raw counts for one question type (model)."""
+
+    pattern_id: uuid.UUID
+    name: str
+    topic: str | None
+    subject: str | None
+    answered: int
+    correct: int
+    timed_answered: int
+    time_spent_ms: int
+    # Right answers that took more than slow_factor times the target.
+    slow_correct: int
+    target_seconds: float | None  # this type's target, when all its questions share one
+
+
+class SpeedReport(BaseModel):
+    target: SpeedTargetRead | None  # None: no verified format and no own target
+    slow_factor: float
+    types: list[TypeSpeedRead]

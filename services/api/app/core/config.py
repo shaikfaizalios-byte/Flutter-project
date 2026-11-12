@@ -92,6 +92,8 @@ class Settings(BaseSettings):
     # development-only test mode that lets a learner start a free test subscription from the
     # app (refused in staging/production).
     plus_ai_monthly_allowance: int = Field(default=300, ge=1)
+    # Speed training: a right answer slower than this times the target time is "right but slow".
+    speed_slow_factor: float = Field(default=1.5, ge=1.0, le=5.0)
     plus_test_mode: bool = False
     # AI features need an active subscription and stop at the allowance. Off only for
     # development setups that want AI without Plus (refused in staging/production).
