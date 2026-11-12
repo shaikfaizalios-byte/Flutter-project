@@ -2844,6 +2844,11 @@
             "title": "Id",
             "type": "string"
           },
+          "is_sample": {
+            "default": false,
+            "title": "Is Sample",
+            "type": "boolean"
+          },
           "language": {
             "enum": [
               "en",
@@ -10037,6 +10042,22 @@
           "similarity_threshold"
         ],
         "title": "RepeatsReport",
+        "type": "object"
+      },
+      "SamplePapersAdd": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Exam Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code"
+        ],
+        "title": "SamplePapersAdd",
         "type": "object"
       },
       "SearchAnswer": {
@@ -17439,6 +17460,96 @@
           }
         ],
         "summary": "Upload a PDF for processing",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/samples": {
+      "post": {
+        "operationId": "add_sample_papers_api_v1_documents_samples_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SamplePapersAdd"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentRead"
+                  },
+                  "title": "Response Add Sample Papers Api V1 Documents Samples Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "file_too_large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "unsupported_file_type (not a PDF)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "validation_error, invalid_reference, empty_file, invalid_pdf, encrypted_pdf, too_many_pages"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited (see Retry-After)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add PrepLoop's made-up sample papers to an exam (to try the app; not real papers)",
         "tags": [
           "documents"
         ]

@@ -75,6 +75,14 @@ class FakeDocumentsRepository implements DocumentsRepository {
   @override
   Future<AnswerKeyResult> sendKeyFile(String id, UploadSource source) async => keyResult!;
 
+  final samplesAdded = <String>[];
+
+  @override
+  Future<List<ImportedDocument>> addSamples({required String examCode}) async {
+    samplesAdded.add(examCode);
+    return const [];
+  }
+
   @override
   Future<List<ImportedDocument>> list() async {
     final response = listResponses[listCalls.clamp(0, listResponses.length - 1)];
@@ -142,6 +150,48 @@ void main() {
 
     expect(find.text('No papers imported yet'), findsOneWidget);
     expect(find.text('Import PDF'), findsOneWidget);
+  });
+
+  testAppWidgets('with no papers, made-up sample papers can be added and are labelled', (
+    tester,
+    db,
+  ) async {
+    final repo = FakeDocumentsRepository()
+      ..listResponses = [
+        <ImportedDocument>[],
+        [
+          ImportedDocument(
+            id: 's1',
+            filename: 'PrepLoop sample paper - Set 1 (sample).pdf',
+            examCode: 'SSC_CGL',
+            language: ContentLanguage.english,
+            status: DocumentStatus.completed,
+            pageCount: 2,
+            pagesProcessed: 2,
+            needsReviewCount: 0,
+            createdAt: DateTime.utc(2026, 11, 12),
+            segmentationStatus: 'completed',
+            questionsFound: 20,
+            isSample: true,
+          ),
+        ],
+      ];
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      extraOverrides: overridesFor(repo),
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CGL']),
+    );
+    await openDocuments(tester, repo);
+    expect(find.textContaining('They are not real exam papers.'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Try sample papers'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Try sample papers'));
+    await tester.pumpAndSettle();
+    expect(repo.samplesAdded, ['SSC_CGL']);
+    expect(find.text('PrepLoop sample paper - Set 1 (sample).pdf'), findsOneWidget);
+    expect(find.text('Sample · made up by PrepLoop, not a real exam paper'), findsOneWidget);
   });
 
   testAppWidgets('lists documents with status, pages and review warnings', (tester, db) async {

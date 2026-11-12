@@ -71,3 +71,21 @@ many papers each exam has.
 Five papers each for SSC CGL, SSC CHSL, RRB NTPC, IBPS PO and UPSC Prelims. Only SSC CGL and CHSL have
 verified exam formats, so the others get practice and Repeated models but no timed mocks until their
 official formats are added (from the current notice, source recorded in a migration).
+
+## Sample papers (made up, for trying the app)
+
+Different from starter papers: `services/api/data/sample_papers` holds two practice papers **written by
+PrepLoop** (not from any exam), so a learner with no papers can try importing, solving, reviewing and repeated
+models on day one. Both sets use the same question types with different numbers, so Repeated models has
+something to show once the learner reviews them.
+
+- The learner taps **Try sample papers** on the empty Imported papers screen. `POST /documents/samples`
+  imports both PDFs into the current exam as the learner's own papers, through the normal pipeline; asking
+  again adds nothing (matched by file content).
+- They are always labelled ("Sample · made up by PrepLoop, not a real exam paper", `is_sample` on the paper),
+  carry a "SAMPLE PAPER" notice on the page, are never pooled into Repeat Radar and can never be published to
+  the shared bank. The learner can delete them like any paper.
+- To change them, edit `sample_papers.json` and run
+  `services/api/.venv/Scripts/python.exe scripts/make_sample_papers.py`; `tests/test_sample_papers.py` checks
+  that the import reads every question, option and answer.
+

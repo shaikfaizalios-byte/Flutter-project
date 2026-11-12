@@ -26,6 +26,18 @@ class RemoteDocumentsRepository implements DocumentsRepository {
   });
 
   @override
+  Future<List<ImportedDocument>> addSamples({required String examCode}) => _guard(() async {
+    final response = await _dio.post<List<dynamic>>(
+      '$_path/samples',
+      data: {'exam_code': examCode},
+    );
+    return [
+      for (final item in response.data ?? const <dynamic>[])
+        ImportedDocument.fromJson(item as Map<String, dynamic>),
+    ];
+  });
+
+  @override
   Future<ImportedDocument> upload(
     UploadSource source, {
     required String examCode,

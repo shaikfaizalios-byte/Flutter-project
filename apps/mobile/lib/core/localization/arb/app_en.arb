@@ -2986,5 +2986,10 @@
   "@ladderFreeToday": {"placeholders": {"count": {"type": "int"}}},
   "ladderFreeUsed": "You've used today's free ladder. The next one is free from {time}. With PrepLoop Plus you can climb any time.",
   "@ladderFreeUsed": {"placeholders": {"time": {"type": "String"}}},
-  "ladderMorePlus": "More rounds are part of PrepLoop Plus."
+  "ladderMorePlus": "More rounds are part of PrepLoop Plus.",
+  "samplePapersTry": "Try sample papers",
+  "samplePapersExplained": "Two practice papers made up by PrepLoop, so you can try solving, reviewing and repeated models before you import your own. They are not real exam papers.",
+  "samplePapersAdded": "Sample papers added. They are being read now.",
+  "samplePapersFailed": "Sample papers could not be added. Try again.",
+  "samplePaperLabel": "Sample · made up by PrepLoop, not a real exam paper"
 }

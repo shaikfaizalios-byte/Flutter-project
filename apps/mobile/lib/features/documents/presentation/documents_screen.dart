@@ -70,6 +70,7 @@ class DocumentsScreen extends ConsumerWidget {
                     icon: Icons.picture_as_pdf_outlined,
                     title: l10n.documentsEmptyTitle,
                     message: l10n.documentsEmptyMessage,
+                    action: const _SampleOffer(),
                   ),
                   AsyncData(:final value) => RefreshIndicator(
                     onRefresh: () => ref.refresh(documentListProvider.future),
@@ -359,6 +360,11 @@ class _DocumentTile extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (document.isSample)
+            Text(
+              l10n.samplePaperLabel,
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+            ),
           Text(
             '${ref.watch(examNameProvider(document.examCode))} · $language · '
             '${l10n.documentPages(document.pageCount)}',
@@ -502,4 +508,52 @@ Future<void> showPaperActions(
       );
     },
   );
+}
+
+/// For a learner with no papers: PrepLoop's made-up sample papers, to try the app first.
+class _SampleOffer extends ConsumerStatefulWidget {
+  const _SampleOffer();
+
+  @override
+  ConsumerState<_SampleOffer> createState() => _SampleOfferState();
+}
+
+class _SampleOfferState extends ConsumerState<_SampleOffer> {
+  bool _busy = false;
+
+  Future<void> _add() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref.read(documentListProvider.notifier).addSamples();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.samplePapersAdded)));
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Adding sample papers failed', error, stack);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.samplePapersFailed)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        OutlinedButton.icon(
+          icon: const Icon(Icons.auto_stories_outlined),
+          label: Text(l10n.samplePapersTry),
+          onPressed: _busy ? null : _add,
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l10n.samplePapersExplained,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
 }

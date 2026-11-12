@@ -14,6 +14,7 @@ from fastapi import (
     UploadFile,
     status,
 )
+from pydantic import BaseModel, ConfigDict, StringConstraints
 
 from app.api.deps import CurrentUser, client_key
 from app.core.config import Settings, get_settings
@@ -81,6 +82,12 @@ def get_document_service(
 Service = Annotated[DocumentService, Depends(get_document_service)]
 
 
+class SamplePapersAdd(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    exam_code: Annotated[str, StringConstraints(min_length=1, max_length=32)]
+
+
 def guard_upload(
     request: Request, settings: Annotated[Settings, Depends(get_settings)], user: CurrentUser
 ) -> None:
@@ -123,6 +130,18 @@ def upload_document(
         language=language,
         exam_format_code=exam_format_code or None,
     )
+
+
+@router.post(
+    "/samples",
+    response_model=list[DocumentRead],
+    status_code=status.HTTP_201_CREATED,
+    responses=UPLOAD_ERRORS,
+    dependencies=[Depends(guard_upload)],
+    summary="Add PrepLoop's made-up sample papers to an exam (to try the app; not real papers)",
+)
+def add_sample_papers(body: SamplePapersAdd, service: Service) -> list[DocumentRead]:
+    return service.add_samples(body.exam_code)
 
 
 @router.get("", response_model=DocumentPageList, summary="List uploaded documents")

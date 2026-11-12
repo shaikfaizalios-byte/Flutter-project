@@ -430,6 +430,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   report shared content; app flag button), `audit_events`; operator `python -m app.cli.content`
   (reports/resolve/takedown/audit). Starter check = `diagnostic` session from shared questions whose rights allow
   it (`/practice/starter-check`, Home starter card); none until the operator publishes such papers.
+- Sample papers (migration 0064): two made-up papers by PrepLoop (`services/api/data/sample_papers`, JSON source +
+  PDFs from `scripts/make_sample_papers.py`, same question types in both so repeats show), added to the current exam
+  through the normal import by `POST /documents/samples` (once per exam, by content); `documents.is_sample`, labelled
+  in the app ("Sample · made up…"), never in Radar (`radar_service`) or the shared bank (`publish` refuses). App:
+  "Try sample papers" on the empty Imported papers screen (`_SampleOffer`, `DocumentList.addSamples`).
 - Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
   in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and

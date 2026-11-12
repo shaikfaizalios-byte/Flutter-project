@@ -45,6 +45,8 @@ class DocumentRead(BaseModel):
     set_code: str | None = None
     extra_languages: list[str] = []
     duplicate_of_id: uuid.UUID | None = None
+    # PrepLoop's made-up sample paper, not a real exam paper (always labelled in the app).
+    is_sample: bool = False
     paper_date_reason: str | None
     created_at: datetime
     updated_at: datetime

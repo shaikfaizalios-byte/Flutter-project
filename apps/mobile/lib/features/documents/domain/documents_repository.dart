@@ -17,6 +17,9 @@ abstract interface class DocumentsRepository {
     UploadCancellation? cancellation,
   });
 
+  /// Adds PrepLoop's made-up sample papers to [examCode] (asking twice adds nothing).
+  Future<List<ImportedDocument>> addSamples({required String examCode});
+
   /// Permanently deletes the document and its original file on the server.
   Future<void> delete(String id);
 

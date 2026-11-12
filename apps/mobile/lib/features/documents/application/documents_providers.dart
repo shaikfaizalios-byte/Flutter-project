@@ -56,6 +56,17 @@ class DocumentList extends AsyncNotifier<List<ImportedDocument>> {
     await ref.read(documentsRepositoryProvider).delete(id);
     ref.invalidateSelf();
   }
+
+  /// Adds the made-up sample papers to the current exam; they are read like any upload.
+  Future<void> addSamples() async {
+    final exam = ref.read(activeExamProvider);
+    if (exam == null) return;
+    final added = await ref.read(documentsRepositoryProvider).addSamples(examCode: exam);
+    for (final document in added) {
+      ref.read(importWatcherProvider.notifier).follow(document);
+    }
+    ref.invalidateSelf();
+  }
 }
 
 final documentListProvider =

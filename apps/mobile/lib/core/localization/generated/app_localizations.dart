@@ -9242,6 +9242,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More rounds are part of PrepLoop Plus.'**
   String get ladderMorePlus;
+
+  /// No description provided for @samplePapersTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try sample papers'**
+  String get samplePapersTry;
+
+  /// No description provided for @samplePapersExplained.
+  ///
+  /// In en, this message translates to:
+  /// **'Two practice papers made up by PrepLoop, so you can try solving, reviewing and repeated models before you import your own. They are not real exam papers.'**
+  String get samplePapersExplained;
+
+  /// No description provided for @samplePapersAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample papers added. They are being read now.'**
+  String get samplePapersAdded;
+
+  /// No description provided for @samplePapersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample papers could not be added. Try again.'**
+  String get samplePapersFailed;
+
+  /// No description provided for @samplePaperLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample · made up by PrepLoop, not a real exam paper'**
+  String get samplePaperLabel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

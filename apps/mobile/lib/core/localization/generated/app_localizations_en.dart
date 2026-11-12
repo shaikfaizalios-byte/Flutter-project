@@ -5760,4 +5760,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ladderMorePlus => 'More rounds are part of PrepLoop Plus.';
+
+  @override
+  String get samplePapersTry => 'Try sample papers';
+
+  @override
+  String get samplePapersExplained =>
+      'Two practice papers made up by PrepLoop, so you can try solving, reviewing and repeated models before you import your own. They are not real exam papers.';
+
+  @override
+  String get samplePapersAdded => 'Sample papers added. They are being read now.';
+
+  @override
+  String get samplePapersFailed => 'Sample papers could not be added. Try again.';
+
+  @override
+  String get samplePaperLabel => 'Sample · made up by PrepLoop, not a real exam paper';
 }

@@ -3,6 +3,7 @@ from datetime import date, datetime
 from enum import StrEnum
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Date,
     DateTime,
@@ -128,6 +129,9 @@ class Document(Base):
     paper_date_status: Mapped[str] = mapped_column(
         String(12), default="unknown", server_default="unknown"
     )
+    # One of PrepLoop's made-up sample papers (data/sample_papers), added by the learner to try
+    # the app: never a real exam paper, so never in Repeat Radar or the shared bank.
+    is_sample: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     paper_date_reason: Mapped[str | None] = mapped_column(String(200))
     segmented_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Shared bank: when set, this paper's VERIFIED source questions are visible read-only to

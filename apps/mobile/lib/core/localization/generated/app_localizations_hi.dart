@@ -5760,4 +5760,20 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get ladderMorePlus => 'और राउंड PrepLoop Plus का हिस्सा हैं।';
+
+  @override
+  String get samplePapersTry => 'सैंपल पेपर आज़माएँ';
+
+  @override
+  String get samplePapersExplained =>
+      'PrepLoop के बनाए दो अभ्यास पेपर, ताकि अपने पेपर इम्पोर्ट करने से पहले आप हल करना, जाँचना और दोहराए गए मॉडल आज़मा सकें। ये असली परीक्षा के पेपर नहीं हैं।';
+
+  @override
+  String get samplePapersAdded => 'सैंपल पेपर जोड़ दिए गए। अभी उन्हें पढ़ा जा रहा है।';
+
+  @override
+  String get samplePapersFailed => 'सैंपल पेपर नहीं जोड़े जा सके। फिर से कोशिश करें।';
+
+  @override
+  String get samplePaperLabel => 'सैंपल · PrepLoop का बनाया, असली परीक्षा का पेपर नहीं';
 }

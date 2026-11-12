@@ -6,12 +6,15 @@ recorded; rejected uploads leave nothing behind.
 """
 
 import hashlib
+import json
 import logging
 import re
 import unicodedata
 import uuid
 from collections import defaultdict
 from collections.abc import Sequence
+from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import BinaryIO
 
@@ -97,6 +100,28 @@ def read_documents(session: Session, documents: Sequence[Document]) -> list[Docu
     ]
 
 
+SAMPLE_FOLDER = Path(__file__).resolve().parents[2] / "data" / "sample_papers"
+
+
+@dataclass(frozen=True, slots=True)
+class SamplePaper:
+    path: Path
+    filename: str
+    sha256: str
+
+
+@lru_cache(maxsize=1)
+def sample_papers() -> tuple[SamplePaper, ...]:
+    """PrepLoop's made-up sample papers, as listed in data/sample_papers/sample_papers.json."""
+    listing = json.loads((SAMPLE_FOLDER / "sample_papers.json").read_text(encoding="utf-8"))
+    papers = []
+    for paper in listing["papers"]:
+        path = SAMPLE_FOLDER / paper["file"]
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        papers.append(SamplePaper(path, f"{paper['title']} (sample).pdf", digest))
+    return tuple(papers)
+
+
 class DocumentService:
     def __init__(
         self,
@@ -121,6 +146,7 @@ class DocumentService:
         exam_code: str,
         language: str,
         exam_format_code: str | None = None,
+        is_sample: bool = False,
     ) -> DocumentRead:
         if self._exams.get_visible(exam_code, self._owner_id) is None:
             raise InvalidReferenceError(f"Unknown exam '{exam_code}'.")
@@ -150,6 +176,7 @@ class DocumentService:
             page_count=page_count,
             status=DocumentStatus.QUEUED,
             exam_format_id=exam_format.id if exam_format else None,
+            is_sample=is_sample,
         )
         try:
             self._documents.add(document)
@@ -164,6 +191,37 @@ class DocumentService:
             extra={"fields": {"document_id": str(document.id), "pages": page_count, "bytes": size}},
         )
         return DocumentRead.model_validate(document)
+
+    def add_samples(self, exam_code: str) -> list[DocumentRead]:
+        """Adds PrepLoop's made-up sample papers to this exam, through the normal import, so a new
+        learner can try solving, reviewing and repeated models. Already added ones are returned
+        as they are (by file content), so asking twice adds nothing."""
+        if self._exams.get_visible(exam_code, self._owner_id) is None:
+            raise InvalidReferenceError(f"Unknown exam '{exam_code}'.")
+        papers: list[DocumentRead] = []
+        for sample in sample_papers():
+            existing = self._session.scalar(
+                select(Document).where(
+                    Document.owner_id == self._owner_id,
+                    Document.exam_code == exam_code,
+                    Document.is_sample.is_(True),
+                    Document.sha256 == sample.sha256,
+                )
+            )
+            if existing is not None:
+                papers.append(DocumentRead.model_validate(existing))
+                continue
+            with sample.path.open("rb") as stream:
+                papers.append(
+                    self.upload(
+                        stream=stream,
+                        filename=sample.filename,
+                        exam_code=exam_code,
+                        language="en",
+                        is_sample=True,
+                    )
+                )
+        return papers
 
     def get(self, document_id: uuid.UUID) -> DocumentRead:
         return read_documents(self._session, [self._get_or_404(document_id)])[0]
