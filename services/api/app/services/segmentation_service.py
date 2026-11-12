@@ -43,7 +43,7 @@ from app.domain.segmentation import (
     content_issues,
     segment,
 )
-from app.domain.text_quality import normalize_text, unreadable_char_count
+from app.domain.text_quality import math_layout_problems, normalize_text, unreadable_char_count
 from app.domain.topics import TopicCandidate, subject_for_section, suggest_topic
 from app.integrations.storage import DocumentStorage
 from app.models.document import Document, DocumentPage, ExtractionMethod
@@ -138,12 +138,16 @@ class SegmentationService:
         if layout_issue is not None:
             result.document_issues.append(layout_issue)
         unreadable = [_unreadable_count(q) for q in result.questions]
+        math = [
+            math_layout_problems(q.stem, " ".join(o.text for o in q.options))
+            for q in result.questions
+        ]
         located = (
             locate_figures(
                 result.questions,
                 analyses,
                 strong_numbering=result.strong_numbering,
-                unreadable=[n > 0 for n in unreadable],
+                unreadable=[n > 0 or bool(m) for n, m in zip(unreadable, math, strict=True)],
             )
             if analyses
             else [QuestionFigures() for _ in result.questions]
@@ -214,8 +218,8 @@ class SegmentationService:
         created = 0
         renderer = PdfRenderer(pdf_path) if pdf_path is not None and analyses else None
         try:
-            for parsed, figures, unreadable_chars in zip(
-                result.questions, located, unreadable, strict=True
+            for parsed, figures, unreadable_chars, math_problems in zip(
+                result.questions, located, unreadable, math, strict=True
             ):
                 if (parsed.section, parsed.number) in kept_keys:
                     continue
@@ -223,7 +227,13 @@ class SegmentationService:
                     document, exam_format, parsed, passage_rows, topics, subjects
                 )
                 _apply_figures(
-                    question, parsed, figures, unreadable_chars, renderer, expected_options
+                    question,
+                    parsed,
+                    figures,
+                    unreadable_chars,
+                    renderer,
+                    expected_options,
+                    math_problems,
                 )
                 refresh_pattern(question, patterns)
                 self._session.add(question)
@@ -514,10 +524,12 @@ def _link_language_versions(session: Session, document: Document) -> None:
             question.translation_of_id = other.id
 
 
+def _question_text(question: ParsedQuestion) -> str:
+    return "\n".join([question.stem, *(option.text for option in question.options)])
+
+
 def _unreadable_count(question: ParsedQuestion) -> int:
-    return unreadable_char_count(
-        "\n".join([question.stem, *(option.text for option in question.options)])
-    )
+    return unreadable_char_count(_question_text(question))
 
 
 def _analyse(
@@ -572,6 +584,7 @@ def _apply_figures(
     unreadable_chars: int,
     renderer: PdfRenderer | None,
     expected_options: int | None,
+    math_problems: list[str] | None = None,
 ) -> None:
     """Store figure crops on ``question`` and adjust its issues and image flag."""
     rows: list[QuestionFigure] = []
@@ -625,6 +638,7 @@ def _apply_figures(
         reasons.append(f"{unreadable_chars} character(s) could not be read from the PDF")
     if figures.text_incomplete:
         reasons.append("part of the text is drawn as graphics (formula or symbols)")
+    reasons += math_problems or []
     if reasons:
         detail = "; ".join(reasons) + ". Compare with the image of the question as printed."
         issues.append(Issue(IssueCode.UNREADABLE_TEXT, detail[:500]))

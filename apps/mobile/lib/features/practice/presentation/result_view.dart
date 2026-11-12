@@ -42,6 +42,16 @@ class ResultView extends StatelessWidget {
                   : l10n.resultAccuracy((total.accuracy! * 100).round()),
             ),
             Text(l10n.resultTime(formatClock(result.timeTakenSeconds))),
+            if (_wrongUnreviewed(session) case final count when count > 0) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Card(
+                color: theme.colorScheme.secondaryContainer,
+                child: ListTile(
+                  leading: const Icon(Icons.style_outlined),
+                  subtitle: Text(l10n.resultWrongNotRevised(count)),
+                ),
+              ),
+            ],
             if (session.submitReason == 'time_up') Text(l10n.resultSubmittedTimeUp),
             if (session.mode == SessionMode.diagnostic) ...[
               const SizedBox(height: AppSpacing.sm),
@@ -202,3 +212,9 @@ class _AnswerReview extends StatelessWidget {
 
 String _fmt(double value) =>
     value == value.roundToDouble() ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
+
+/// Wrong answers whose questions aren't reviewed: they can't become revision cards (their
+/// answer key may be wrong), so the result says why they aren't on the revision list.
+int _wrongUnreviewed(PracticeSessionView session) => session.items
+    .where((i) => i.feedback?.isCorrect == false && !i.verified && i.questionId != null)
+    .length;

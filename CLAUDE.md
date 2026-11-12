@@ -335,6 +335,11 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   shows them as printed (`QuestionFigureView`, bytes via Dio for auth). Questions with figures are practice-
   eligible. Topics: keyword rules store a reason (`topic_suggestion_reason`); optional per-paper AI step
   (`POST /ai/documents/{id}/topic-suggestions`) for the rest; `POST /documents/{id}/topics/accept` bulk-confirms.
+  Maths that doesn't read as printed (Mathematical Alphanumeric/Private Use characters the fonts can't draw, or 2+
+  lines of the stem that are only formula pieces like an exponent: pure `text_quality.math_layout_problems`) counts
+  as unreadable: an `original` crop + `unreadable_text` issue; text kept as found. App `PrintedOrText`
+  (`figure_view.dart`): a question with an `original` crop shows that image instead of its text in practice, mocks
+  and Solve ("Show the text as read"); review shows the image with "Edit the question text".
 - Repeated models (the product's core insight): `question_patterns` (named question types under topics,
   seeded in migration 0010) suggested by keyword rules within the topic, confirmed like topics; paper
   date/shift suggested from filename/first page (`app/domain/paper_date.py`), confirmed via

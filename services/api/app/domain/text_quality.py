@@ -44,6 +44,30 @@ def unreadable_char_count(text: str) -> int:
     return len(UNREADABLE.findall(text))
 
 
+# Characters a text layer gives for maths that app fonts can't draw: Mathematical Alphanumeric
+# Symbols (the italic x of an equation) and the Private Use Area (font-specific symbols).
+MATH_SYMBOLS = re.compile(r"[\U0001D400-\U0001D7FF\uE000-\uF8FF]")
+# A line that is only a raised or lowered part of a formula (an exponent "2", a lone "+"):
+# the text layer split a formula across lines, so the text no longer reads as printed.
+FORMULA_PIECE = re.compile(r"^[\d+\-=()^/.,\u2212\u00d7\u00f7\u221a]{1,3}$")
+MIN_FORMULA_PIECES = 2
+
+
+def math_layout_problems(text: str, options: str = "") -> list[str]:
+    """Why a question's text may not read as printed (maths symbols the app can't show, or a
+    formula split over lines); [] when it reads fine. Nothing is changed: an image of the
+    question as printed is shown instead, and a reviewer can correct the text. [text] is the
+    question itself; [options] only count for symbols (a number option is not a split formula)."""
+    problems = []
+    symbols = len(MATH_SYMBOLS.findall(text)) + len(MATH_SYMBOLS.findall(options))
+    if symbols:
+        problems.append(f"{symbols} mathematical symbol(s) that may not display as printed")
+    pieces = sum(1 for line in text.splitlines() if FORMULA_PIECE.match(line.strip()))
+    if pieces >= MIN_FORMULA_PIECES:
+        problems.append("a formula is split over several lines (exponents or fractions)")
+    return problems
+
+
 def meaningful_char_count(text: str) -> int:
     return sum(1 for ch in text if not ch.isspace())
 
