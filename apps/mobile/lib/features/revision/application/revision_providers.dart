@@ -45,6 +45,15 @@ final revisionSettingsProvider = StreamProvider.autoDispose<RevisionSettings>(
   retry: _noRetry,
 );
 
+/// Whether wrong answers in practice and mocks become revision cards (on by default).
+final revisionAddsWrongProvider = StreamProvider.autoDispose<bool>(
+  (ref) => _logged(
+    ref.watch(revisionRepositoryProvider).watchAddsWrongAnswers(),
+    'revision wrong answers',
+  ),
+  retry: _noRetry,
+);
+
 /// Today's local calendar date (from [clockProvider]).
 final todayProvider = Provider.autoDispose<CalendarDate>(
   (ref) => CalendarDate.fromDateTime(ref.watch(clockProvider)()),

@@ -1549,5 +1549,8 @@
   "paperSourcesTitle": "पेपर पाने की आधिकारिक जगहें",
   "paperSourcesHint": "ये पेज आपके ब्राउज़र में खुलते हैं। वहाँ से पेपर डाउनलोड करें, फिर यहाँ \"PDF इम्पोर्ट करें\" से इम्पोर्ट करें।",
   "paperSourcesChecked": "{publisher} · {date} को जाँचा गया",
-  "paperSourcesOpenFailed": "पेज नहीं खुल सका।"
+  "paperSourcesOpenFailed": "पेज नहीं खुल सका।",
+  "revisionAddWrong": "गलत हुए सवाल जोड़ें",
+  "revisionAddWrongHint": "अभ्यास और मॉक टेस्ट के बाद, जिन जाँचे गए पेपर सवालों का आपका जवाब गलत था, वे रिवीज़न कार्ड बन जाते हैं (हर सवाल एक बार)।",
+  "solveAddWrong": "गलत जवाब रिवीज़न में जोड़ें"
 }

@@ -5794,4 +5794,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paperSourcesOpenFailed => 'The page could not be opened.';
+
+  @override
+  String get revisionAddWrong => 'Add questions I get wrong';
+
+  @override
+  String get revisionAddWrongHint =>
+      'After practice and mock tests, verified paper questions you answered wrong become revision cards (each question once).';
+
+  @override
+  String get solveAddWrong => 'Add wrong answers to revision';
 }

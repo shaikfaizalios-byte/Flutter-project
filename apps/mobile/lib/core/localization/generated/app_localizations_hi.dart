@@ -5794,4 +5794,14 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get paperSourcesOpenFailed => 'पेज नहीं खुल सका।';
+
+  @override
+  String get revisionAddWrong => 'गलत हुए सवाल जोड़ें';
+
+  @override
+  String get revisionAddWrongHint =>
+      'अभ्यास और मॉक टेस्ट के बाद, जिन जाँचे गए पेपर सवालों का आपका जवाब गलत था, वे रिवीज़न कार्ड बन जाते हैं (हर सवाल एक बार)।';
+
+  @override
+  String get solveAddWrong => 'गलत जवाब रिवीज़न में जोड़ें';
 }

@@ -21,6 +21,9 @@ class RevisionRepository {
 
   static const settingsKey = 'revision_day_offsets';
 
+  /// `app_settings`: 'false' when wrong answers should not become cards (on by default).
+  static const addWrongKey = 'revision_add_wrong';
+
   CalendarDate get _today => CalendarDate.fromDateTime(_clock());
 
   // --- settings ---------------------------------------------------------------------
@@ -50,6 +53,24 @@ class RevisionRepository {
       await _db.markDirty(SyncEntity.setting, SyncEntity.revisionOffsetsId);
     });
   }
+
+  /// Whether questions answered wrong in practice and mocks become cards by themselves.
+  Stream<bool> watchAddsWrongAnswers() =>
+      (_db.select(_db.appSettings)..where((s) => s.key.equals(addWrongKey)))
+          .watchSingleOrNull()
+          .map((row) => row?.value != 'false');
+
+  Future<bool> addsWrongAnswers() async =>
+      (await (_db.select(
+        _db.appSettings,
+      )..where((s) => s.key.equals(addWrongKey))).getSingleOrNull())?.value !=
+      'false';
+
+  Future<void> setAddsWrongAnswers(bool on) => _db
+      .into(_db.appSettings)
+      .insertOnConflictUpdate(
+        AppSettingsCompanion.insert(key: addWrongKey, value: on ? 'true' : 'false'),
+      );
 
   // --- reading ----------------------------------------------------------------------
 

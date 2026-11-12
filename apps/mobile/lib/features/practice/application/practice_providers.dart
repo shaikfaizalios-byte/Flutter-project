@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,7 +10,10 @@ import '../../../core/network/api_client.dart';
 import '../../../core/utils/app_log.dart';
 import '../../../core/utils/clock.dart';
 import '../../exams/application/active_exam.dart';
+import '../../question_bank/data/questions_repository.dart';
 import '../../question_bank/domain/question.dart';
+import '../../revision/application/revision_providers.dart';
+import '../../revision/domain/revision_card.dart';
 import '../data/practice_repository.dart';
 import '../domain/cbt.dart';
 import '../domain/practice_models.dart';
@@ -286,6 +291,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       state = AsyncData(
         latest.copyWith(session: latest.session.withItem(updated), queuedPositions: queued),
       );
+      _afterAnswer(latest.session.mode, updated);
       return true;
     } on ServerFailure catch (failure) {
       if (failure.code == 'session_closed') ref.invalidateSelf();
@@ -332,7 +338,39 @@ class SessionController extends AsyncNotifier<SessionState> {
       ref
         ..invalidate(sessionHistoryProvider)
         ..invalidate(incorrectQuestionsProvider);
+      unawaited(_reviseWrong(session.items));
     }
+  }
+
+  /// Wrong answers become revision cards (verified paper questions only, each once), unless
+  /// the learner turned that off. Never fails the session: problems are only logged.
+  Future<void> _reviseWrong(Iterable<SessionItemView> items) async {
+    final ids = {
+      for (final item in items)
+        if (item.feedback?.isCorrect == false && item.questionId != null) item.questionId!,
+    };
+    if (ids.isEmpty) return;
+    try {
+      final revision = ref.read(revisionRepositoryProvider);
+      if (!await revision.addsWrongAnswers()) return;
+      final bank = ref.read(questionsRepositoryProvider);
+      final questions = <BankQuestion>[];
+      for (final id in ids) {
+        try {
+          questions.add(await bank.get(id));
+        } on AppFailure {
+          continue; // deleted, or no connection: it can be added later from the list
+        }
+      }
+      await revision.addQuestions(questions, reason: CardReason.incorrectAnswer);
+    } on Object catch (error, stack) {
+      logError('Adding wrong answers to revision failed', error, stack);
+    }
+  }
+
+  /// Practice marks each answer at once: a wrong one goes to revision then.
+  void _afterAnswer(SessionMode mode, SessionItemView item) {
+    if (mode == SessionMode.practice) unawaited(_reviseWrong([item]));
   }
 
   /// Returns false when the answer could not be saved (e.g. the session closed).
@@ -369,6 +407,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       state = AsyncData(
         latest.copyWith(session: latest.session.withItem(updated), queuedPositions: queued),
       );
+      _afterAnswer(latest.session.mode, updated);
       return true;
     } on ServerFailure catch (failure) {
       if (failure.code == 'session_closed' || failure.code == 'section_closed') {
@@ -413,6 +452,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       state = AsyncData(
         latest.copyWith(session: latest.session.withItem(updated), queuedPositions: queued),
       );
+      _afterAnswer(latest.session.mode, updated);
       return true;
     } on ServerFailure catch (failure) {
       if (failure.code == 'session_closed' || failure.code == 'section_closed') {
@@ -456,6 +496,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       state = AsyncData(
         latest.copyWith(session: latest.session.withItem(updated), queuedPositions: queued),
       );
+      _afterAnswer(latest.session.mode, updated);
       return true;
     } on ServerFailure catch (failure) {
       if (failure.code == 'session_closed' || failure.code == 'section_closed') {
@@ -475,6 +516,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     try {
       final submitted = await _repo.submit(sessionId);
       state = AsyncData(SessionState(session: submitted, clockOffset: value.clockOffset));
+      unawaited(_reviseWrong(submitted.items));
       ref
         ..invalidate(sessionHistoryProvider)
         ..invalidate(incorrectQuestionsProvider);

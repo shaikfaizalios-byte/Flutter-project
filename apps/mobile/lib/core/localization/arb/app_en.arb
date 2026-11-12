@@ -2997,5 +2997,8 @@
   "paperSourcesHint": "These pages open in your browser. Download a paper there, then import it here with Import PDF.",
   "paperSourcesChecked": "{publisher} · checked {date}",
   "@paperSourcesChecked": {"placeholders": {"publisher": {"type": "String"}, "date": {"type": "String"}}},
-  "paperSourcesOpenFailed": "The page could not be opened."
+  "paperSourcesOpenFailed": "The page could not be opened.",
+  "revisionAddWrong": "Add questions I get wrong",
+  "revisionAddWrongHint": "After practice and mock tests, verified paper questions you answered wrong become revision cards (each question once).",
+  "solveAddWrong": "Add wrong answers to revision"
 }

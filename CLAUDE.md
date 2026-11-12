@@ -409,6 +409,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Revision (device-only, Drift v4 `revision_cards`/`card_reviews`): pure `RevisionScheduler` with a stored
   ladder (`revision_day_offsets`, default 1/4/7 days after adding) and Good/Easy/Hard/Forgot adaptation;
   concept cards read the live concept, question cards snapshot verified source questions only.
+  Wrong answers: practice (on each answer) and mocks (on submit) add the questions answered wrong as cards
+  (`SessionController._reviseWrong`, reason `incorrect_answer`, each question once), unless the learner switched it
+  off (Revision screen; device setting `revision_add_wrong`); "Solve this paper" adds only when asked.
   Reminders: `ReminderController` keeps ONE daily notification (fixed id) in sync via a plan fingerprint;
   `ReminderScheduler` wraps flutter_local_notifications (inexact alarms). See docs/revision.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.

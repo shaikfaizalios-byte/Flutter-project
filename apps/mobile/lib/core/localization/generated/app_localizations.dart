@@ -9302,6 +9302,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The page could not be opened.'**
   String get paperSourcesOpenFailed;
+
+  /// No description provided for @revisionAddWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Add questions I get wrong'**
+  String get revisionAddWrong;
+
+  /// No description provided for @revisionAddWrongHint.
+  ///
+  /// In en, this message translates to:
+  /// **'After practice and mock tests, verified paper questions you answered wrong become revision cards (each question once).'**
+  String get revisionAddWrongHint;
+
+  /// No description provided for @solveAddWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wrong answers to revision'**
+  String get solveAddWrong;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
