@@ -5926,4 +5926,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String drillOverTime(int target) {
     return 'Over the $target s target';
   }
+
+  @override
+  String get printedNote =>
+      'Shown as printed in the paper: its text didn\'t read correctly from the PDF.';
+
+  @override
+  String get printedShowText => 'Show the text as read';
+
+  @override
+  String get printedHideText => 'Hide the text';
+
+  @override
+  String get reviewEditText => 'Edit the question text';
+
+  @override
+  String resultWrongNotRevised(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count wrong answers were not added to revision: their questions aren\'t reviewed yet, so their answer keys may be wrong. Review them (Approve) in Imported papers, and they are added the next time you get them wrong.',
+      one: '1 wrong answer was not added to revision: its question isn\'t reviewed yet, so its answer key may be wrong. Review it (Approve) in Imported papers, and it is added the next time you get it wrong.',
+    );
+    return '$_temp0';
+  }
 }

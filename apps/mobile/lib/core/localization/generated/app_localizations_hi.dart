@@ -5927,4 +5927,29 @@ class AppLocalizationsHi extends AppLocalizations {
   String drillOverTime(int target) {
     return '$target सेकंड का लक्ष्य पार';
   }
+
+  @override
+  String get printedNote =>
+      'पेपर में जैसा छपा है वैसा दिखाया गया है: PDF से इसका टेक्स्ट ठीक से नहीं पढ़ा जा सका।';
+
+  @override
+  String get printedShowText => 'पढ़ा गया टेक्स्ट दिखाएँ';
+
+  @override
+  String get printedHideText => 'टेक्स्ट छिपाएँ';
+
+  @override
+  String get reviewEditText => 'सवाल का टेक्स्ट बदलें';
+
+  @override
+  String resultWrongNotRevised(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count गलत जवाब रिवीज़न में नहीं जोड़े गए: इनके सवाल अभी जाँचे नहीं गए हैं, इसलिए इनकी उत्तर कुंजी गलत हो सकती है। इन्हें इम्पोर्ट किए गए पेपर में जाँचें (Approve), फिर अगली बार गलत होने पर ये जुड़ जाएँगे।',
+      one: '1 गलत जवाब रिवीज़न में नहीं जोड़ा गया: इसका सवाल अभी जाँचा नहीं गया है, इसलिए इसकी उत्तर कुंजी गलत हो सकती है। इसे इम्पोर्ट किए गए पेपर में जाँचें (Approve), फिर अगली बार गलत होने पर यह जुड़ जाएगा।',
+    );
+    return '$_temp0';
+  }
 }

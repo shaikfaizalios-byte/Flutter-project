@@ -142,3 +142,59 @@ class _ZoomDialog extends StatelessWidget {
     );
   }
 }
+
+/// A question's text, or, when PrepLoop has the question as printed (its text didn't read in
+/// full: maths symbols, a split formula, missing characters), that image instead, with the text
+/// as read one tap away. Other figures of the question follow as usual.
+class PrintedOrText extends StatefulWidget {
+  const PrintedOrText({
+    super.key,
+    required this.questionId,
+    required this.figures,
+    required this.text,
+  });
+
+  final String? questionId;
+  final List<QuestionFigure> figures;
+  final Widget text;
+
+  @override
+  State<PrintedOrText> createState() => _PrintedOrTextState();
+}
+
+class _PrintedOrTextState extends State<PrintedOrText> {
+  bool _showText = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final id = widget.questionId;
+    final printed = [
+      for (final f in widget.figures)
+        if (f.kind == FigureKind.original) f,
+    ];
+    if (id == null || printed.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          widget.text,
+          if (id != null) QuestionFigures(questionId: id, figures: widget.figures),
+        ],
+      );
+    }
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.xs,
+      children: [
+        for (final figure in printed) QuestionFigureView(questionId: id, figure: figure),
+        Text(l10n.printedNote, style: theme.textTheme.bodySmall),
+        TextButton(
+          onPressed: () => setState(() => _showText = !_showText),
+          child: Text(_showText ? l10n.printedHideText : l10n.printedShowText),
+        ),
+        if (_showText) widget.text,
+      ],
+    );
+  }
+}

@@ -179,6 +179,9 @@ class _Editor extends ConsumerStatefulWidget {
 class _EditorState extends ConsumerState<_Editor> {
   late BankQuestion _question = widget.question;
   late final TextEditingController _stem;
+
+  /// The question text is being edited (else a printed question shows as its image).
+  bool _editText = false;
   late final TextEditingController _explanation;
   late List<(String, TextEditingController)> _options;
   int? _answer;
@@ -473,12 +476,27 @@ class _EditorState extends ConsumerState<_Editor> {
           ),
         ],
         const SizedBox(height: AppSpacing.md),
-        TextField(
-          controller: _stem,
-          decoration: InputDecoration(labelText: l10n.fieldStem, alignLabelWithHint: true),
-          minLines: 2,
-          maxLines: 8,
-        ),
+        // A question whose text didn't read in full shows as printed; its text is edited only
+        // when the reviewer asks.
+        if (q.figures.any((f) => f.kind == FigureKind.original) && !_editText) ...[
+          for (final figure in q.figures.where((f) => f.kind == FigureKind.original))
+            QuestionFigureView(questionId: q.id, figure: figure),
+          Text(l10n.printedNote, style: Theme.of(context).textTheme.bodySmall),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              icon: const Icon(Icons.edit_outlined),
+              label: Text(l10n.reviewEditText),
+              onPressed: () => setState(() => _editText = true),
+            ),
+          ),
+        ] else
+          TextField(
+            controller: _stem,
+            decoration: InputDecoration(labelText: l10n.fieldStem, alignLabelWithHint: true),
+            minLines: 2,
+            maxLines: 8,
+          ),
         if (questionFigures(q.figures).isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
           Text(l10n.figuresFromPaper, style: Theme.of(context).textTheme.titleSmall),

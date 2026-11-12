@@ -271,13 +271,16 @@ class _SessionBody extends ConsumerWidget {
               if (item.stem == null)
                 Text(l10n.sessionQuestionRemoved)
               else
-                RichQuestionText(
-                  shown?.stem ?? item.stem!,
-                  key: ValueKey('stem-${item.position}-${shown?.language}'),
-                  style: Theme.of(context).textTheme.titleMedium,
+                PrintedOrText(
+                  key: ValueKey('printed-${item.position}'),
+                  questionId: item.questionId,
+                  figures: item.figures,
+                  text: RichQuestionText(
+                    shown?.stem ?? item.stem!,
+                    key: ValueKey('stem-${item.position}-${shown?.language}'),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
-              if (item.questionId != null)
-                QuestionFigures(questionId: item.questionId!, figures: item.figures),
               const SizedBox(height: AppSpacing.md),
               if (item.isTyped)
                 _TypedAnswerBox(

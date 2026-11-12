@@ -9500,6 +9500,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Over the {target} s target'**
   String drillOverTime(int target);
+
+  /// No description provided for @printedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown as printed in the paper: its text didn\'t read correctly from the PDF.'**
+  String get printedNote;
+
+  /// No description provided for @printedShowText.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the text as read'**
+  String get printedShowText;
+
+  /// No description provided for @printedHideText.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the text'**
+  String get printedHideText;
+
+  /// No description provided for @reviewEditText.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the question text'**
+  String get reviewEditText;
+
+  /// No description provided for @resultWrongNotRevised.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 wrong answer was not added to revision: its question isn\'t reviewed yet, so its answer key may be wrong. Review it (Approve) in Imported papers, and it is added the next time you get it wrong.} other{{count} wrong answers were not added to revision: their questions aren\'t reviewed yet, so their answer keys may be wrong. Review them (Approve) in Imported papers, and they are added the next time you get them wrong.}}'**
+  String resultWrongNotRevised(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

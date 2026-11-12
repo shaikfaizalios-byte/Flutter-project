@@ -213,8 +213,11 @@ class _QuestionView extends StatelessWidget {
               ),
             ],
             const SizedBox(height: AppSpacing.md),
-            SelectableText(question.stem, style: theme.textTheme.titleMedium),
-            QuestionFigures(questionId: question.id, figures: question.figures),
+            PrintedOrText(
+              questionId: question.id,
+              figures: question.figures,
+              text: SelectableText(question.stem, style: theme.textTheme.titleMedium),
+            ),
             const SizedBox(height: AppSpacing.md),
             switch (solveKind(question)) {
               SolveKind.choice => _ChoicePanel(question: question, onResult: onResult),

@@ -3040,5 +3040,11 @@
   "drillTimeLeft": "{seconds} s left of {target} s",
   "@drillTimeLeft": {"placeholders": {"seconds": {"type": "int"}, "target": {"type": "int"}}},
   "drillOverTime": "Over the {target} s target",
-  "@drillOverTime": {"placeholders": {"target": {"type": "int"}}}
+  "@drillOverTime": {"placeholders": {"target": {"type": "int"}}},
+  "printedNote": "Shown as printed in the paper: its text didn't read correctly from the PDF.",
+  "printedShowText": "Show the text as read",
+  "printedHideText": "Hide the text",
+  "reviewEditText": "Edit the question text",
+  "resultWrongNotRevised": "{count, plural, =1{1 wrong answer was not added to revision: its question isn't reviewed yet, so its answer key may be wrong. Review it (Approve) in Imported papers, and it is added the next time you get it wrong.} other{{count} wrong answers were not added to revision: their questions aren't reviewed yet, so their answer keys may be wrong. Review them (Approve) in Imported papers, and they are added the next time you get them wrong.}}",
+  "@resultWrongNotRevised": {"placeholders": {"count": {"type": "int"}}}
 }
