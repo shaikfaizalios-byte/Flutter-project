@@ -5776,4 +5776,22 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get samplePaperLabel => 'सैंपल · PrepLoop का बनाया, असली परीक्षा का पेपर नहीं';
+
+  @override
+  String get paperSourcesButton => 'पेपर पाएँ';
+
+  @override
+  String get paperSourcesTitle => 'पेपर पाने की आधिकारिक जगहें';
+
+  @override
+  String get paperSourcesHint =>
+      'ये पेज आपके ब्राउज़र में खुलते हैं। वहाँ से पेपर डाउनलोड करें, फिर यहाँ \"PDF इम्पोर्ट करें\" से इम्पोर्ट करें।';
+
+  @override
+  String paperSourcesChecked(String publisher, String date) {
+    return '$publisher · $date को जाँचा गया';
+  }
+
+  @override
+  String get paperSourcesOpenFailed => 'पेज नहीं खुल सका।';
 }

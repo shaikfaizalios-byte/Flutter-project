@@ -1544,5 +1544,10 @@
   "samplePapersExplained": "PrepLoop के बनाए दो अभ्यास पेपर, ताकि अपने पेपर इम्पोर्ट करने से पहले आप हल करना, जाँचना और दोहराए गए मॉडल आज़मा सकें। ये असली परीक्षा के पेपर नहीं हैं।",
   "samplePapersAdded": "सैंपल पेपर जोड़ दिए गए। अभी उन्हें पढ़ा जा रहा है।",
   "samplePapersFailed": "सैंपल पेपर नहीं जोड़े जा सके। फिर से कोशिश करें।",
-  "samplePaperLabel": "सैंपल · PrepLoop का बनाया, असली परीक्षा का पेपर नहीं"
+  "samplePaperLabel": "सैंपल · PrepLoop का बनाया, असली परीक्षा का पेपर नहीं",
+  "paperSourcesButton": "पेपर पाएँ",
+  "paperSourcesTitle": "पेपर पाने की आधिकारिक जगहें",
+  "paperSourcesHint": "ये पेज आपके ब्राउज़र में खुलते हैं। वहाँ से पेपर डाउनलोड करें, फिर यहाँ \"PDF इम्पोर्ट करें\" से इम्पोर्ट करें।",
+  "paperSourcesChecked": "{publisher} · {date} को जाँचा गया",
+  "paperSourcesOpenFailed": "पेज नहीं खुल सका।"
 }

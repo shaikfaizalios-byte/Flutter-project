@@ -2991,5 +2991,11 @@
   "samplePapersExplained": "Two practice papers made up by PrepLoop, so you can try solving, reviewing and repeated models before you import your own. They are not real exam papers.",
   "samplePapersAdded": "Sample papers added. They are being read now.",
   "samplePapersFailed": "Sample papers could not be added. Try again.",
-  "samplePaperLabel": "Sample · made up by PrepLoop, not a real exam paper"
+  "samplePaperLabel": "Sample · made up by PrepLoop, not a real exam paper",
+  "paperSourcesButton": "Get papers",
+  "paperSourcesTitle": "Official places to get papers",
+  "paperSourcesHint": "These pages open in your browser. Download a paper there, then import it here with Import PDF.",
+  "paperSourcesChecked": "{publisher} · checked {date}",
+  "@paperSourcesChecked": {"placeholders": {"publisher": {"type": "String"}, "date": {"type": "String"}}},
+  "paperSourcesOpenFailed": "The page could not be opened."
 }

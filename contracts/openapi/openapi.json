@@ -7491,6 +7491,41 @@
         "title": "PaperDetailsUpdate",
         "type": "object"
       },
+      "PaperSourceRead": {
+        "description": "An official page where papers for the exam can be found. Opened in the browser only.",
+        "properties": {
+          "checked_on": {
+            "format": "date",
+            "title": "Checked On",
+            "type": "string"
+          },
+          "offers": {
+            "title": "Offers",
+            "type": "string"
+          },
+          "publisher": {
+            "title": "Publisher",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "url",
+          "publisher",
+          "offers",
+          "checked_on"
+        ],
+        "title": "PaperSourceRead",
+        "type": "object"
+      },
       "PaperTopicsResult": {
         "properties": {
           "considered": {
@@ -18912,6 +18947,53 @@
           }
         },
         "summary": "The exam catalog (public)",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/v1/exams/{code}/paper-sources": {
+      "get": {
+        "operationId": "paper_sources_api_v1_exams__code__paper_sources_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "maxLength": 32,
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaperSourceRead"
+                  },
+                  "title": "Response Paper Sources Api V1 Exams  Code  Paper Sources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Official pages where papers for this exam can be found (public; [] if none listed)",
         "tags": [
           "exams"
         ]

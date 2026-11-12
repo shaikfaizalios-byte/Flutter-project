@@ -5776,4 +5776,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get samplePaperLabel => 'Sample · made up by PrepLoop, not a real exam paper';
+
+  @override
+  String get paperSourcesButton => 'Get papers';
+
+  @override
+  String get paperSourcesTitle => 'Official places to get papers';
+
+  @override
+  String get paperSourcesHint =>
+      'These pages open in your browser. Download a paper there, then import it here with Import PDF.';
+
+  @override
+  String paperSourcesChecked(String publisher, String date) {
+    return '$publisher · checked $date';
+  }
+
+  @override
+  String get paperSourcesOpenFailed => 'The page could not be opened.';
 }

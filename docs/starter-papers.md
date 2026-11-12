@@ -89,3 +89,20 @@ something to show once the learner reviews them.
   `services/api/.venv/Scripts/python.exe scripts/make_sample_papers.py`; `tests/test_sample_papers.py` checks
   that the import reads every question, option and answer.
 
+## Official paper pages ("Get papers")
+
+`services/api/data/paper_sources/paper_sources.json` lists, per exam code, official pages where learners can
+download papers themselves. The app shows **Get papers** on the Imported papers screen when the current exam has
+any; each opens in the browser (PrepLoop never fetches or copies them). The learner downloads a paper there and
+imports it with Import PDF.
+
+Add a page only after opening it yourself and seeing the papers or keys it offers. Every entry needs a title, an
+https url, the publisher, what it offers, `checked_on` and `checked_by`; the server refuses to start a list with a
+missing field (`app/domain/paper_sources.py`, `tests/test_paper_sources.py`). Re-check the pages when an exam's
+site changes.
+
+Checked on 2026-11-12: JEE (Advanced) lists the latest year's papers and keys on https://jeeadv.ac.in/ (added).
+The SSC home page loaded but showed no paper list to an automated reader, the RRB site failed its certificate
+check and the NTA sites refused automated access, so none of those are listed yet: open them in a browser,
+find the papers page and add it.
+

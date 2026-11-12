@@ -309,3 +309,14 @@ class PatternCreate(BaseModel):
     topic_id: uuid.UUID
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
     keywords: list[Keyword] = Field(default_factory=list, max_length=30)
+
+
+class PaperSourceRead(BaseModel):
+    """An official page where papers for the exam can be found. Opened in the browser only."""
+
+    title: str
+    url: str
+    publisher: str
+    offers: str
+    # When a person last opened the page and saw what it offers.
+    checked_on: date

@@ -435,6 +435,10 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   through the normal import by `POST /documents/samples` (once per exam, by content); `documents.is_sample`, labelled
   in the app ("Sample · made up…"), never in Radar (`radar_service`) or the shared bank (`publish` refuses). App:
   "Try sample papers" on the empty Imported papers screen (`_SampleOffer`, `DocumentList.addSamples`).
+- Official paper pages: `services/api/data/paper_sources/paper_sources.json` (per exam code: title, https url, publisher,
+  offers, checked_on, checked_by; pure `app/domain/paper_sources.py` refuses anything else), public
+  `GET /exams/{code}/paper-sources`. App: "Get papers" on Imported papers (only when listed) opens them in the browser;
+  PrepLoop never fetches them. Only pages a person opened and checked are listed (JEE Advanced so far).
 - Legal/privacy guards: sign-up requires `confirms_minimum_age` (Literal[True]; `MINIMUM_AGE = 18`
   in `app/schemas/auth.py`, mobile `minimumAge`), stored as `users.age_confirmed_at` (migration 0016).
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and

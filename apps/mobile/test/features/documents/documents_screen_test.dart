@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/errors/app_failure.dart';
+import 'package:preploop/core/utils/calendar_date.dart';
+import 'package:preploop/core/utils/external_links.dart';
 import 'package:preploop/features/concepts/domain/concept.dart';
 import 'package:preploop/features/documents/application/documents_providers.dart';
 import 'package:preploop/features/documents/domain/documents_repository.dart';
 import 'package:preploop/features/documents/domain/imported_document.dart';
 import 'package:preploop/features/documents/domain/paper_details.dart';
+import 'package:preploop/features/documents/domain/paper_source.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -76,6 +79,12 @@ class FakeDocumentsRepository implements DocumentsRepository {
   Future<AnswerKeyResult> sendKeyFile(String id, UploadSource source) async => keyResult!;
 
   final samplesAdded = <String>[];
+
+  /// Official paper pages per exam.
+  Map<String, List<PaperSource>> sources = const {};
+
+  @override
+  Future<List<PaperSource>> paperSources(String examCode) async => sources[examCode] ?? const [];
 
   @override
   Future<List<ImportedDocument>> addSamples({required String examCode}) async {
@@ -192,6 +201,49 @@ void main() {
     expect(repo.samplesAdded, ['SSC_CGL']);
     expect(find.text('PrepLoop sample paper - Set 1 (sample).pdf'), findsOneWidget);
     expect(find.text('Sample · made up by PrepLoop, not a real exam paper'), findsOneWidget);
+  });
+
+  testAppWidgets('official paper pages for the exam open in the browser', (tester, db) async {
+    final opened = <Uri>[];
+    final repo = FakeDocumentsRepository()
+      ..sources = {
+        'SSC_CGL': [
+          PaperSource(
+            title: 'Official site',
+            url: Uri.parse('https://example.org/papers'),
+            publisher: 'Exam body',
+            offers: 'Question papers and answer keys',
+            checkedOn: CalendarDate(2026, 11, 12),
+          ),
+        ],
+      };
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      extraOverrides: [
+        ...overridesFor(repo),
+        linkOpenerProvider.overrideWithValue((uri) async {
+          opened.add(uri);
+          return true;
+        }),
+      ],
+      studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CGL']),
+    );
+    await openDocuments(tester, repo);
+    await tester.tap(find.text('Get papers'));
+    await tester.pumpAndSettle();
+    expect(find.text('Official places to get papers'), findsOneWidget);
+    expect(find.textContaining('Exam body · checked Nov 12, 2026'), findsOneWidget);
+    await tester.tap(find.text('Official site'));
+    await tester.pumpAndSettle();
+    expect(opened, [Uri.parse('https://example.org/papers')]);
+  });
+
+  testAppWidgets('no listed pages, no Get papers button', (tester, db) async {
+    final repo = FakeDocumentsRepository();
+    await pumpPrepLoopApp(tester, db, extraOverrides: overridesFor(repo));
+    await openDocuments(tester, repo);
+    expect(find.text('Get papers'), findsNothing);
   });
 
   testAppWidgets('lists documents with status, pages and review warnings', (tester, db) async {

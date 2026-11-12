@@ -1,0 +1,15 @@
+{
+  "_about": "Official pages where learners can get papers for an exam, shown behind \"Get papers\" in the app. Add a page only after opening it yourself and seeing the papers or keys it offers; record who checked it and when. https only. Exam codes are catalog codes.",
+  "exams": {
+    "JEE_ADVANCED": [
+      {
+        "title": "JEE (Advanced) official website",
+        "url": "https://jeeadv.ac.in/",
+        "publisher": "JEE (Advanced) organising institute",
+        "offers": "Question papers (English and Hindi), provisional and final answer keys for the latest year",
+        "checked_on": "2026-11-12",
+        "checked_by": "PrepLoop team"
+      }
+    ]
+  }
+}

@@ -12,6 +12,7 @@ import '../../exams/application/active_exam.dart';
 import '../data/remote_documents_repository.dart';
 import '../domain/documents_repository.dart';
 import '../domain/imported_document.dart';
+import '../domain/paper_source.dart';
 import 'import_watcher.dart';
 
 final documentsRepositoryProvider = Provider<DocumentsRepository>(
@@ -28,6 +29,17 @@ Future<UploadSource?> _pickPdf() async {
   final length = await file.length() ?? (await file.readAsBytes()).length;
   return UploadSource(name: file.name, length: length, open: file.readAsByteStream);
 }
+
+/// Official pages to get the current exam's papers; [] when none are listed or offline.
+final paperSourcesProvider = FutureProvider.autoDispose<List<PaperSource>>((ref) async {
+  final exam = ref.watch(activeExamProvider);
+  if (exam == null) return const [];
+  try {
+    return await ref.watch(documentsRepositoryProvider).paperSources(exam);
+  } on AppFailure {
+    return const []; // only a shortcut: nothing to show without the server
+  }
+}, retry: (_, _) => null);
 
 /// How often the list refreshes while any document is still being processed.
 const documentPollInterval = Duration(seconds: 3);

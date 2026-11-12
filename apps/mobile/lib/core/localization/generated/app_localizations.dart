@@ -9272,6 +9272,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sample · made up by PrepLoop, not a real exam paper'**
   String get samplePaperLabel;
+
+  /// No description provided for @paperSourcesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Get papers'**
+  String get paperSourcesButton;
+
+  /// No description provided for @paperSourcesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Official places to get papers'**
+  String get paperSourcesTitle;
+
+  /// No description provided for @paperSourcesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These pages open in your browser. Download a paper there, then import it here with Import PDF.'**
+  String get paperSourcesHint;
+
+  /// No description provided for @paperSourcesChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'{publisher} · checked {date}'**
+  String paperSourcesChecked(String publisher, String date);
+
+  /// No description provided for @paperSourcesOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The page could not be opened.'**
+  String get paperSourcesOpenFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
