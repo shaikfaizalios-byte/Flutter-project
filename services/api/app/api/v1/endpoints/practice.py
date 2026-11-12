@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 
 from app.api.deps import CurrentUser
 from app.database.session import DbSession
@@ -10,6 +10,7 @@ from app.schemas.errors import ErrorResponse
 from app.schemas.practice import (
     AnswerAck,
     AnswerUpdate,
+    MistakeReasonUpdate,
     MockAnalysis,
     MockAvailability,
     MockCreate,
@@ -134,6 +135,19 @@ def save_answer(
     session_id: uuid.UUID, position: int, body: AnswerUpdate, service: Service
 ) -> AnswerAck:
     return service.answer(session_id, position, body)
+
+
+@router.put(
+    "/practice/sessions/{session_id}/answers/{position}/mistake-reason",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Why a wrong answer went wrong (the learner's own tap; changes no mark)",
+    responses={**NOT_FOUND, 409: {"model": ErrorResponse, "description": "not_wrong"}},
+)
+def set_mistake_reason(
+    session_id: uuid.UUID, position: int, body: MistakeReasonUpdate, service: Service
+) -> Response:
+    service.set_mistake_reason(session_id, position, body.reason)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post(

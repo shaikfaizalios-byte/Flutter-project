@@ -151,3 +151,18 @@ Candidates, in priority order. Each one says why it is in the plan and roughly h
   speed signal needs new timed answers before it says anything.
 - Readiness thresholds and the diagnosis rules are product choices, not validated research.
 - Topic stats come only from questions that have a topic, whether suggested or confirmed.
+
+## Mistake reasons (learning-loop Phase 4)
+
+After a wrong answer the learner may tap why it went wrong: **didn't know, calculation slip, misread, ran out of
+time, guessed**. It is optional, changes no mark, and can be changed or cleared (tap the chosen one again).
+Practice asks at once; a mock asks on its review once submitted. Stored on the answer
+(`session_answers.mistake_reason`); the server refuses a reason for an answer that isn't marked wrong.
+
+`/analytics/overview` counts the reasons given, raw: per topic (`topics[].mistake_reasons`), in total
+(`mistake_reasons`) and over the last 7 local days, today included (`week_mistake_reasons`, the weekly review's
+week). The weekly review shows the most common reason of the week (ties go to the first in the list order above)
+with a fixed tip for it; Progress lists the reasons under each topic. The tips are product text written by
+PrepLoop (`mistakeTip*` in the ARB files), the same for every learner; they are general study advice, not
+advice about any exam.
+

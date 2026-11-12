@@ -166,7 +166,13 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `AnalyticsRules` adds weak reasons `repeatedMistakes` (3+) and `slow` (≥ 1.5 × own pace, 10+ timed answers) and
   `dueForRefresh` (21+ days) → plan item `refreshTopic`; every plan item lists its reasons. Progress `ReadinessCard`
   (`buildReadiness`): syllabus coverage + evidence (14-day answers, 30-day mocks, exam days), never a score or pass
-  chance. FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
+  chance. Mistake reasons (migration 0065): after a wrong answer (practice at once, mocks once submitted) the learner may
+  tap one of didn't know / calculation slip / misread / ran out of time / guessed (`session_answers.mistake_reason`,
+  `PUT /practice/sessions/{id}/answers/{n}/mistake-reason`, only for wrong answers); analytics count them per topic
+  (`TopicStats.mistake_reasons`), in total and over the last 7 days (`week_mistake_reasons`). App `MistakeReason`
+  (`practice/domain/mistake_reason.dart`, fixed tips), chips on the feedback panel, top reason + tip in the weekly
+  review, reasons per topic on Progress.
+  FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
   `app/domain/fsrs.py`, aggregates only); the ladder stays the scheduler.
 - Languages (global Phase 10): content languages are ONE reference list — `app/domain/languages.py` (code, names,
   ISO 15924 script, direction, Tesseract data, prompt name, `review_ai_text`) + the `languages` table (migration 0037)

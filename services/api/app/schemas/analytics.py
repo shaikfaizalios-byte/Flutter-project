@@ -54,6 +54,8 @@ class TopicStats(AnswerCounts, TimedCounts):
     last_answered_on: date | None = None
     # Questions of this topic answered wrong in two or more sessions.
     repeated_mistakes: int = 0
+    # Wrong answers by the learner's own reason (only the reasons given).
+    mistake_reasons: dict[str, int] = {}
 
 
 class DailyStats(BaseModel):
@@ -88,3 +90,7 @@ class AnalyticsOverview(TimedCounts):
     topics: list[TopicStats]
     daily: list[DailyStats]
     mocks: list[MockResult]
+    # Wrong answers by the learner's own reason: all counted, and in the last 7 local days
+    # (today included; the weekly review's week).
+    mistake_reasons: dict[str, int] = {}
+    week_mistake_reasons: dict[str, int] = {}

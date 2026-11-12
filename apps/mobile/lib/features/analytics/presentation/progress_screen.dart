@@ -254,9 +254,14 @@ class _TopicsCard extends StatelessWidget {
               title: Text('${topic.name} · ${topic.subject}'),
               subtitle: Text(
                 [
-                  topicEvidence(context, topic),
-                  if (topic.trend != null) _trendLabel(l10n, topic.trend!),
-                ].join(' · '),
+                  [
+                    topicEvidence(context, topic),
+                    if (topic.trend != null) _trendLabel(l10n, topic.trend!),
+                  ].join(' · '),
+                  if (mistakeReasonsLine(l10n, topic.mistakeReasons) case final line
+                      when line.isNotEmpty)
+                    line,
+                ].join('\n'),
               ),
               trailing: topic.isWeak
                   ? Chip(label: Text(l10n.progressWeakBadge), visualDensity: VisualDensity.compact)

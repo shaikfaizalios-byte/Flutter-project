@@ -16,6 +16,7 @@ import '../../revision/application/revision_providers.dart';
 import '../../study_plan/presentation/study_profile_widgets.dart' show formatCalendarDate;
 import '../application/weekly_review_providers.dart';
 import '../domain/weekly_review.dart';
+import '../../practice/domain/mistake_reason.dart';
 
 /// The last 7 days in real numbers, what to work on next week, and a short reflection.
 class WeeklyReviewScreen extends ConsumerWidget {
@@ -61,6 +62,7 @@ class WeeklyReviewScreen extends ConsumerWidget {
               ],
               _NumbersCard(review: review),
               const SizedBox(height: AppSpacing.md),
+              const _MistakeTipCard(),
               const _NextWeekCard(),
               const SizedBox(height: AppSpacing.md),
               _ReflectionCard(
@@ -298,6 +300,34 @@ class _ReflectionCardState extends ConsumerState<_ReflectionCard> {
             child: FilledButton(onPressed: _save, child: Text(l10n.weeklySave)),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The week's most common reason for wrong answers (the learner's own taps) and a fixed tip.
+class _MistakeTipCard extends ConsumerWidget {
+  const _MistakeTipCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final counts = ref.watch(practiceAnalyticsProvider).value?.weekMistakeReasons ?? const {};
+    final top = topMistakeReason(counts);
+    if (top == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: SectionCard(
+        icon: Icons.lightbulb_outline,
+        title: l10n.mistakeTopReason(top.key.label(l10n), top.value),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.mistakeTipTitle, style: theme.textTheme.labelLarge),
+            Text(top.key.tip(l10n)),
+          ],
+        ),
       ),
     );
   }

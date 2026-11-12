@@ -204,6 +204,32 @@ void main() {
     expect(find.textContaining('no negative marking'), findsOneWidget);
   });
 
+  testAppWidgets('after a wrong answer a reason can be tapped, changed and cleared', (
+    tester,
+    db,
+  ) async {
+    final repo = await pumpPractice(tester, db);
+    await startPractice(tester);
+    await tester.tap(find.text('30')); // right: no reasons asked
+    await tester.pumpAndSettle();
+    expect(find.text('Why did it go wrong? (optional)'), findsNothing);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('20')); // wrong
+    await tester.pumpAndSettle();
+    expect(find.text('Why did it go wrong? (optional)'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Ran out of time'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Misread'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Calculation slip'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Calculation slip')); // tapping it again clears it
+    await tester.pumpAndSettle();
+    expect(repo.mistakeReasons, [(2, 'misread'), (2, 'calculation'), (2, null)]);
+  });
+
   testAppWidgets('answers carry the time spent on the question', (tester, db) async {
     final clock = TestClock();
     final repo = await pumpPractice(tester, db, clock: clock);

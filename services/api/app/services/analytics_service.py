@@ -43,6 +43,10 @@ class InvalidTimezoneError(DomainError):
     code = "invalid_timezone"
 
 
+# The weekly review's week: the last 7 local days, today included.
+WEEK_DAYS = 7
+
+
 def _zone(name: str) -> zoneinfo.ZoneInfo:
     if name not in zoneinfo.available_timezones():
         raise InvalidTimezoneError(
@@ -142,6 +146,25 @@ class AnalyticsService:
             )
         }
 
+        # The learner's reasons for wrong answers, per topic and in total.
+        reason = SessionAnswer.mistake_reason
+        by_topic: dict[uuid.UUID, dict[str, int]] = {}
+        reasons: dict[str, int] = {}
+        week_reasons: dict[str, int] = {}
+        this_week = func.coalesce(
+            func.sum(case((local_day >= today - timedelta(days=WEEK_DAYS - 1), 1), else_=0)), 0
+        )
+        for topic_id, why, count, week_count in self._session.execute(
+            counted(SessionItem.topic_id, reason, func.count(), this_week)
+            .where(SessionAnswer.is_correct.is_(False), reason.is_not(None))
+            .group_by(SessionItem.topic_id, reason)
+        ):
+            reasons[why] = reasons.get(why, 0) + count
+            if week_count:
+                week_reasons[why] = week_reasons.get(why, 0) + week_count
+            if topic_id is not None:
+                by_topic.setdefault(topic_id, {})[why] = count
+
         subject_name = func.coalesce(SessionItem.subject, SessionItem.section, "")
         subjects = [
             SubjectStats(
@@ -172,6 +195,7 @@ class AnalyticsService:
                 time_spent_ms=row[8],
                 last_answered_on=row[9],
                 repeated_mistakes=repeated.get(row[0], 0),
+                mistake_reasons=by_topic.get(row[0], {}),
             )
             for row in self._session.execute(
                 counted(
@@ -216,6 +240,8 @@ class AnalyticsService:
             topics=topics,
             daily=daily,
             mocks=self._mocks(zone, exam),
+            mistake_reasons=reasons,
+            week_mistake_reasons=week_reasons,
         )
 
     def canonical(self, exams: Sequence[str]) -> list[CanonicalTopicStats]:

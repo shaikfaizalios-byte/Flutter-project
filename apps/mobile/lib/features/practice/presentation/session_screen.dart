@@ -21,6 +21,7 @@ import '../domain/cbt.dart';
 import '../domain/practice_models.dart';
 import 'format_answers.dart';
 import 'result_view.dart';
+import '../domain/mistake_reason.dart';
 
 part 'cbt_view.dart';
 
@@ -323,7 +324,7 @@ class _SessionBody extends ConsumerWidget {
                   ],
                 ),
               ],
-              if (item.feedback != null) _FeedbackPanel(item: item),
+              if (item.feedback != null) _FeedbackPanel(item: item, sessionId: sessionId),
             ],
           ),
         ),
@@ -584,13 +585,14 @@ class _OptionTile extends StatelessWidget {
   }
 }
 
-class _FeedbackPanel extends StatelessWidget {
-  const _FeedbackPanel({required this.item});
+class _FeedbackPanel extends ConsumerWidget {
+  const _FeedbackPanel({required this.item, required this.sessionId});
 
   final SessionItemView item;
+  final String sessionId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final feedback = item.feedback!;
     final correctLabel =
@@ -626,6 +628,25 @@ class _FeedbackPanel extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),
               RichQuestionText(feedback.explanation!),
+            ],
+            if (feedback.isCorrect == false) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(l10n.mistakeAsk, style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(height: AppSpacing.xs),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final reason in MistakeReason.values)
+                    ChoiceChip(
+                      label: Text(reason.label(l10n)),
+                      selected: item.mistakeReason == reason,
+                      onSelected: (_) => ref
+                          .read(sessionControllerProvider(sessionId).notifier)
+                          .setMistakeReason(item.position, reason),
+                    ),
+                ],
+              ),
             ],
           ],
         ),

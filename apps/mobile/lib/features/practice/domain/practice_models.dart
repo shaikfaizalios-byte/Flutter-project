@@ -3,6 +3,7 @@ import 'cbt.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../question_bank/domain/question.dart';
+import 'mistake_reason.dart';
 
 enum SessionMode {
   practice,
@@ -96,6 +97,7 @@ class SessionItemView {
     this.librarySource,
     this.marked = false,
     this.visited = false,
+    this.mistakeReason,
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -117,6 +119,7 @@ class SessionItemView {
       librarySource: json['library_source'] as String?,
       marked: json['marked_for_review'] as bool? ?? false,
       visited: json['visited'] as bool? ?? false,
+      mistakeReason: MistakeReason.fromCode(json['mistake_reason'] as String?),
       verified: json['verified'] as bool,
       sourceFilename: source['document_filename'] as String?,
       sourcePage: source['page'] as int?,
@@ -200,6 +203,9 @@ class SessionItemView {
   /// Where the shared paper came from (shown instead of a file name).
   final String? sharedSource;
 
+  /// The learner's own reason for a wrong answer, once given.
+  final MistakeReason? mistakeReason;
+
   bool get isTyped => answerType == 'typed';
   bool get takesResponse => const {'multiple_correct', 'match', 'ordering'}.contains(format);
   bool get answered => selectedPosition != null || typedAnswer != null || response != null;
@@ -212,6 +218,7 @@ class SessionItemView {
     bool? bookmarked,
     bool? marked,
     bool? visited,
+    MistakeReason? Function()? mistakeReason,
   }) => SessionItemView(
     position: position,
     questionId: questionId,
@@ -240,6 +247,7 @@ class SessionItemView {
     librarySource: librarySource,
     marked: marked ?? this.marked,
     visited: visited ?? this.visited,
+    mistakeReason: mistakeReason != null ? mistakeReason() : this.mistakeReason,
   );
 }
 

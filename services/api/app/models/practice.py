@@ -127,6 +127,13 @@ class SessionAnswer(Base):
     and order-safe: an update is applied only if its sequence number is newer."""
 
     __tablename__ = "session_answers"
+    __table_args__ = (
+        CheckConstraint(
+            "mistake_reason IS NULL OR mistake_reason IN "
+            "('didnt_know', 'calculation', 'misread', 'time', 'guessed')",
+            name="mistake_reason_valid",
+        ),
+    )
 
     session_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("practice_sessions.id", ondelete="CASCADE"), primary_key=True
@@ -144,6 +151,8 @@ class SessionAnswer(Base):
     marked_for_review: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     client_seq: Mapped[int] = mapped_column(BigInteger)
     time_spent_ms: Mapped[int | None] = mapped_column(Integer)
+    # Why the learner thinks a wrong answer went wrong (their own tap, optional).
+    mistake_reason: Mapped[str | None] = mapped_column(String(16))
     answered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 

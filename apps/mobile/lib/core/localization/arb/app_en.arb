@@ -3000,5 +3000,21 @@
   "paperSourcesOpenFailed": "The page could not be opened.",
   "revisionAddWrong": "Add questions I get wrong",
   "revisionAddWrongHint": "After practice and mock tests, verified paper questions you answered wrong become revision cards (each question once).",
-  "solveAddWrong": "Add wrong answers to revision"
+  "solveAddWrong": "Add wrong answers to revision",
+  "mistakeAsk": "Why did it go wrong? (optional)",
+  "mistakeDidntKnow": "Didn't know",
+  "mistakeCalculation": "Calculation slip",
+  "mistakeMisread": "Misread",
+  "mistakeTime": "Ran out of time",
+  "mistakeGuessed": "Guessed",
+  "mistakeTipDidntKnow": "Learn it before practising it: read your notes or a concept card on the topic, then try a few easy questions on it.",
+  "mistakeTipCalculation": "Write each step down, keep units and signs in view, and check the last line before choosing an option.",
+  "mistakeTipMisread": "Read the last line of the question twice, and watch for words like NOT, EXCEPT and \"which of the following\".",
+  "mistakeTipTime": "In a timed test, leave a question that takes too long and come back to it. Practise the slow question types against the clock.",
+  "mistakeTipGuessed": "Rule out the options you know are wrong before guessing, and put these questions on your revision list.",
+  "mistakeTopReason": "Most common reason this week: {reason} ({count, plural, =1{1 answer} other{{count} answers}})",
+  "@mistakeTopReason": {"placeholders": {"reason": {"type": "String"}, "count": {"type": "int"}}},
+  "mistakeTipTitle": "Tip",
+  "mistakeReasonsByTopic": "Why answers went wrong: {reasons}",
+  "@mistakeReasonsByTopic": {"placeholders": {"reasons": {"type": "String"}}}
 }

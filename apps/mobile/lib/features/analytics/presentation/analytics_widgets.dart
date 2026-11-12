@@ -15,6 +15,7 @@ import '../../practice/presentation/practice_hub_screen.dart' show startAndOpen;
 import '../domain/study_plan.dart';
 import '../domain/weak_topics.dart';
 import '../../exams/application/active_exam.dart';
+import '../../practice/domain/mistake_reason.dart';
 
 String formatPercent(BuildContext context, double value) =>
     NumberFormat.percentPattern(Localizations.localeOf(context).toLanguageTag()).format(value);
@@ -36,6 +37,16 @@ String topicEvidence(BuildContext context, TopicAssessment topic) {
     if (topic.repeatedMistakes > 0) l10n.topicRepeatedMistakes(topic.repeatedMistakes),
   ];
   return parts.join(' · ');
+}
+
+/// The learner's reasons for wrong answers in a topic, most common first ("" without any).
+String mistakeReasonsLine(AppLocalizations l10n, Map<MistakeReason, int> counts) {
+  final given = [
+    for (final reason in MistakeReason.values)
+      if ((counts[reason] ?? 0) > 0) reason,
+  ]..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+  if (given.isEmpty) return '';
+  return l10n.mistakeReasonsByTopic(given.map((r) => '${r.label(l10n)} ${counts[r]}').join(', '));
 }
 
 /// Why a topic is called weak, one short phrase per reason.

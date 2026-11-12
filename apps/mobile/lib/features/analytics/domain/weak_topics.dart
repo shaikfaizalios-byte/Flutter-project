@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'analytics_models.dart';
+import '../../practice/domain/mistake_reason.dart';
 
 /// Thresholds for calling a topic weak. Named here and shown in the UI so learners know
 /// what a judgement is based on (see docs/analytics.md).
@@ -65,6 +66,7 @@ class TopicAssessment {
     this.timeSpentMs = 0,
     this.repeatedMistakes = 0,
     this.daysSinceLast,
+    this.mistakeReasons = const {},
   });
 
   final String subject;
@@ -81,6 +83,9 @@ class TopicAssessment {
   final int timedAnswered;
   final int timeSpentMs;
   final int repeatedMistakes;
+
+  /// Wrong answers by the learner's own reason.
+  final Map<MistakeReason, int> mistakeReasons;
 
   /// Days since the latest practice answer in this topic; null when never practised (or
   /// offline).
@@ -158,6 +163,7 @@ List<TopicAssessment> assessTopics(PracticeAnalytics? practice, RevisionStats re
       timedAnswered: timed,
       timeSpentMs: spent,
       repeatedMistakes: repeated,
+      mistakeReasons: stats?.mistakeReasons ?? const {},
       daysSinceLast: last == null || practice == null ? null : last.daysUntil(practice.today),
       reasons: [
         if (counts.answered >= AnalyticsRules.minAnswers &&

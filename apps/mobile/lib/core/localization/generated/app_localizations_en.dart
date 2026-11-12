@@ -5804,4 +5804,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get solveAddWrong => 'Add wrong answers to revision';
+
+  @override
+  String get mistakeAsk => 'Why did it go wrong? (optional)';
+
+  @override
+  String get mistakeDidntKnow => 'Didn\'t know';
+
+  @override
+  String get mistakeCalculation => 'Calculation slip';
+
+  @override
+  String get mistakeMisread => 'Misread';
+
+  @override
+  String get mistakeTime => 'Ran out of time';
+
+  @override
+  String get mistakeGuessed => 'Guessed';
+
+  @override
+  String get mistakeTipDidntKnow =>
+      'Learn it before practising it: read your notes or a concept card on the topic, then try a few easy questions on it.';
+
+  @override
+  String get mistakeTipCalculation =>
+      'Write each step down, keep units and signs in view, and check the last line before choosing an option.';
+
+  @override
+  String get mistakeTipMisread =>
+      'Read the last line of the question twice, and watch for words like NOT, EXCEPT and \"which of the following\".';
+
+  @override
+  String get mistakeTipTime =>
+      'In a timed test, leave a question that takes too long and come back to it. Practise the slow question types against the clock.';
+
+  @override
+  String get mistakeTipGuessed =>
+      'Rule out the options you know are wrong before guessing, and put these questions on your revision list.';
+
+  @override
+  String mistakeTopReason(String reason, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+    );
+    return 'Most common reason this week: $reason ($_temp0)';
+  }
+
+  @override
+  String get mistakeTipTitle => 'Tip';
+
+  @override
+  String mistakeReasonsByTopic(String reasons) {
+    return 'Why answers went wrong: $reasons';
+  }
 }

@@ -187,6 +187,15 @@ class MockAnalysis(BaseModel):
     percentile: PercentileRead | None
 
 
+MistakeReason = Literal["didnt_know", "calculation", "misread", "time", "guessed"]
+
+
+class MistakeReasonUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: MistakeReason | None  # null clears it
+
+
 class SessionItemRead(BaseModel):
     # official_pyq, original_expert or original_ai_verified, for a curated library question.
     library_source: str | None = None
@@ -219,6 +228,8 @@ class SessionItemRead(BaseModel):
     typed_answer_numeric: bool = False
     # Practice: shown once answered. Mock: shown only after submission.
     feedback: Feedback | None
+    # The learner's own reason for a wrong answer, once they gave one.
+    mistake_reason: MistakeReason | None = None
 
 
 class TallyRead(BaseModel):

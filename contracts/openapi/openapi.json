@@ -286,6 +286,14 @@
             "title": "Days",
             "type": "integer"
           },
+          "mistake_reasons": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "default": {},
+            "title": "Mistake Reasons",
+            "type": "object"
+          },
           "mocks": {
             "items": {
               "$ref": "#/components/schemas/MockResult"
@@ -333,6 +341,14 @@
             },
             "title": "Topics",
             "type": "array"
+          },
+          "week_mistake_reasons": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "default": {},
+            "title": "Week Mistake Reasons",
+            "type": "object"
           }
         },
         "required": [
@@ -5769,6 +5785,34 @@
         "title": "MarkingSchemeRead",
         "type": "object"
       },
+      "MistakeReasonUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "didnt_know",
+                  "calculation",
+                  "misread",
+                  "time",
+                  "guessed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "MistakeReasonUpdate",
+        "type": "object"
+      },
       "MockAnalysis": {
         "properties": {
           "chapters": {
@@ -10683,6 +10727,24 @@
             "title": "Marked For Review",
             "type": "boolean"
           },
+          "mistake_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "didnt_know",
+                  "calculation",
+                  "misread",
+                  "time",
+                  "guessed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mistake Reason"
+          },
           "options": {
             "items": {
               "$ref": "#/components/schemas/OptionRead"
@@ -12904,6 +12966,14 @@
               }
             ],
             "title": "Last Answered On"
+          },
+          "mistake_reasons": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "default": {},
+            "title": "Mistake Reasons",
+            "type": "object"
           },
           "name": {
             "title": "Name",
@@ -23279,6 +23349,96 @@
           }
         ],
         "summary": "Save an answer (idempotent; older client_seq values are ignored)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/sessions/{session_id}/answers/{position}/mistake-reason": {
+      "put": {
+        "operationId": "set_mistake_reason_api_v1_practice_sessions__session_id__answers__position__mistake_reason_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "position",
+            "required": true,
+            "schema": {
+              "title": "Position",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MistakeReasonUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "not_wrong"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Why a wrong answer went wrong (the learner's own tap; changes no mark)",
         "tags": [
           "practice"
         ]

@@ -9320,6 +9320,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add wrong answers to revision'**
   String get solveAddWrong;
+
+  /// No description provided for @mistakeAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Why did it go wrong? (optional)'**
+  String get mistakeAsk;
+
+  /// No description provided for @mistakeDidntKnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t know'**
+  String get mistakeDidntKnow;
+
+  /// No description provided for @mistakeCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation slip'**
+  String get mistakeCalculation;
+
+  /// No description provided for @mistakeMisread.
+  ///
+  /// In en, this message translates to:
+  /// **'Misread'**
+  String get mistakeMisread;
+
+  /// No description provided for @mistakeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Ran out of time'**
+  String get mistakeTime;
+
+  /// No description provided for @mistakeGuessed.
+  ///
+  /// In en, this message translates to:
+  /// **'Guessed'**
+  String get mistakeGuessed;
+
+  /// No description provided for @mistakeTipDidntKnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn it before practising it: read your notes or a concept card on the topic, then try a few easy questions on it.'**
+  String get mistakeTipDidntKnow;
+
+  /// No description provided for @mistakeTipCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Write each step down, keep units and signs in view, and check the last line before choosing an option.'**
+  String get mistakeTipCalculation;
+
+  /// No description provided for @mistakeTipMisread.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the last line of the question twice, and watch for words like NOT, EXCEPT and \"which of the following\".'**
+  String get mistakeTipMisread;
+
+  /// No description provided for @mistakeTipTime.
+  ///
+  /// In en, this message translates to:
+  /// **'In a timed test, leave a question that takes too long and come back to it. Practise the slow question types against the clock.'**
+  String get mistakeTipTime;
+
+  /// No description provided for @mistakeTipGuessed.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule out the options you know are wrong before guessing, and put these questions on your revision list.'**
+  String get mistakeTipGuessed;
+
+  /// No description provided for @mistakeTopReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Most common reason this week: {reason} ({count, plural, =1{1 answer} other{{count} answers}})'**
+  String mistakeTopReason(String reason, int count);
+
+  /// No description provided for @mistakeTipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip'**
+  String get mistakeTipTitle;
+
+  /// No description provided for @mistakeReasonsByTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Why answers went wrong: {reasons}'**
+  String mistakeReasonsByTopic(String reasons);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

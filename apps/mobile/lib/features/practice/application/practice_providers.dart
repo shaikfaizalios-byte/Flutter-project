@@ -16,6 +16,7 @@ import '../../revision/application/revision_providers.dart';
 import '../../revision/domain/revision_card.dart';
 import '../data/practice_repository.dart';
 import '../domain/cbt.dart';
+import '../domain/mistake_reason.dart';
 import '../domain/practice_models.dart';
 
 /// After a mock. Needs a connection; the result stands without it.
@@ -524,6 +525,33 @@ class SessionController extends AsyncNotifier<SessionState> {
       if (error is! AppFailure) logError('Submitting failed', error, stack);
       state = AsyncData(value.copyWith(submitting: false));
       rethrow;
+    }
+  }
+
+  /// Saves why a wrong answer went wrong; tapping the chosen reason again clears it.
+  Future<void> setMistakeReason(int position, MistakeReason reason) async {
+    final value = state.value;
+    if (value == null) return;
+    final item = value.session.items.firstWhere((i) => i.position == position);
+    if (item.feedback?.isCorrect != false) return;
+    final next = item.mistakeReason == reason ? null : reason;
+    state = AsyncData(
+      value.copyWith(session: value.session.withItem(item.copyWith(mistakeReason: () => next))),
+    );
+    try {
+      await _repo.setMistakeReason(sessionId, position, next);
+    } on Object catch (error, stack) {
+      if (error is! AppFailure) logError('Saving a mistake reason failed', error, stack);
+      final latest = state.value;
+      if (latest == null) return;
+      final current = latest.session.items.firstWhere((i) => i.position == position);
+      state = AsyncData(
+        latest.copyWith(
+          session: latest.session.withItem(
+            current.copyWith(mistakeReason: () => item.mistakeReason),
+          ),
+        ),
+      );
     }
   }
 
