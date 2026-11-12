@@ -26,9 +26,16 @@ Future<FakeLadderRepository> pumpLadder(
   bool aiOn = true,
   bool needsPlus = false,
   LadderBest? best,
+  int freePerDay = 0,
+  int? freeLeft,
 }) async {
   final ladder = FakeLadderRepository(
-    data: LadderOverview(topics: topics, best: best),
+    data: LadderOverview(
+      topics: topics,
+      best: best,
+      freePerDay: freePerDay,
+      freeLeftToday: freeLeft,
+    ),
   );
   await pumpPrepLoopApp(
     tester,
@@ -271,6 +278,42 @@ void main() {
     await pumpLadder(tester, db, needsPlus: true);
     await openPercentage(tester);
     expect(find.text('Challenge Ladder is part of PrepLoop Plus.'), findsOneWidget);
+  });
+
+  testAppWidgets('without Plus the free ladder of the day runs for one round', (tester, db) async {
+    final ladder = await pumpLadder(tester, db, needsPlus: true, freePerDay: 1, freeLeft: 1);
+    await openPercentage(tester);
+    expect(
+      find.text('Free today: 1 ladder without PrepLoop Plus (one round of 5 questions).'),
+      findsOneWidget,
+    );
+    // The server counts it once it starts; the climb goes on all the same.
+    ladder.data = const LadderOverview(topics: topics, freePerDay: 1, freeLeftToday: 0);
+    await startClimbing(tester);
+    expect(find.text('Step 1 of 5 · Easy'), findsOneWidget);
+    await answerStep(tester, '20', 'Next step');
+    await answerStep(tester, '10', 'Next step');
+    await answerStep(tester, '20', 'Next step');
+    await answerStep(tester, '20', 'Next step');
+    await answerStep(tester, '20', 'See results');
+    expect(find.text('Your climb'), findsOneWidget);
+    expect(find.text('Test me more'), findsNothing);
+    expect(find.text('More rounds are part of PrepLoop Plus.'), findsOneWidget);
+    expect(ladder.calls, isNot(contains('more')));
+  });
+
+  testAppWidgets('a used free ladder says when the next one comes', (tester, db) async {
+    await pumpLadder(tester, db, needsPlus: true, freePerDay: 1, freeLeft: 0);
+    await openPercentage(tester);
+    expect(find.textContaining("You've used today's free ladder"), findsOneWidget);
+    expect(find.text('Start climbing'), findsNothing);
+  });
+
+  test('the free ladder comes back when the server day (UTC) turns', () {
+    expect(
+      nextFreeLadderAt(DateTime.utc(2026, 11, 12, 20, 15)).toUtc(),
+      DateTime.utc(2026, 11, 13),
+    );
   });
 
   testAppWidgets('the stored consent is remembered', (tester, db) async {

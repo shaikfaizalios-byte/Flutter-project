@@ -35,6 +35,16 @@ practice, mock tests, revision, reminders and progress never need Plus.
   a "Start a 7-day test" button only when the server is in test mode, otherwise "can't be bought
   yet". The app never decides entitlement itself.
 
+## Free daily Challenge Ladder
+
+A learner without Plus may start `PREPLOOP_LADDER_FREE_PER_DAY` Challenge Ladders a day (default 1;
+0 switches it off). The server counts them (`ladder_sessions.free`, by UTC day, so the next one
+comes at 05:30 in India) and a free ladder is **one round of 5 questions**: "Test me more" and a
+second ladder the same day answer `403 plus_required`. Every other AI feature stays Plus-only.
+With Plus nothing is counted as free; the monthly AI allowance applies as before. The app shows
+"Free today: 1 ladder…" before the start and when the next free one comes once it is used
+(`LadderOverview.free_per_day` / `free_left_today`). AI labels are unchanged.
+
 ## Google Play (global Phase 4)
 
 Built, **off until the operator configures it**. The server is the only judge: a purchase counts

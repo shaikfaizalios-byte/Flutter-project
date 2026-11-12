@@ -3,6 +3,7 @@ AI. Acceptance: round order, no repeats, every question solved or real, repeat c
 
 import random
 import uuid
+from datetime import UTC, datetime, timedelta
 from itertools import count
 from typing import Any
 
@@ -16,7 +17,8 @@ from app.domain.similarity import stem_similarity
 from app.integrations.ai import AIProviderError, WebSearchHit
 from app.models.ai import AIGeneration
 from app.models.document import Document, DocumentStatus
-from app.models.ladder import LadderStep
+from app.models.ladder import LadderSession, LadderStep
+from app.models.plus import Subscription
 from app.models.question import Question, QuestionPattern, Topic, TopicStatus
 from app.models.user import User
 from app.services.insights_service import InsightsService
@@ -579,3 +581,74 @@ def test_ai_off_says_so(make_api: AppFactory, db_session: Session, topic: Topic)
     response = make_api(None).post(SESSIONS, json={"exam_code": EXAM, "topic_id": str(topic.id)})
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "ai_disabled"
+
+
+# --- the free daily ladder ---------------------------------------------------------------------
+
+
+def test_without_plus_one_free_ladder_a_day_of_one_round(
+    make_api: AppFactory,
+    ai: FakeAIProvider,
+    db_session: Session,
+    document: Document,
+    topic: Topic,
+    user: User,
+) -> None:
+    add_questions(db_session, document, topic, 3)
+    script_round(ai)
+    api = make_api(ai, plus_required_for_ai=True)
+    overview = api.get("/api/v1/ladder/overview", params={"exam": EXAM}).json()
+    assert overview["free_per_day"] == 1 and overview["free_left_today"] == 1
+
+    body = start(api, topic)
+    assert len(generate_all(api, body)) == 5  # the whole first round, without Plus
+    left = api.get("/api/v1/ladder/overview", params={"exam": EXAM}).json()["free_left_today"]
+    assert left == 0
+    # A second ladder today, and a second round of the free one, need Plus.
+    again = api.post(SESSIONS, json={"exam_code": EXAM, "topic_id": str(topic.id)})
+    assert again.status_code == 403 and again.json()["error"]["code"] == "plus_required"
+    more = api.post(f"{SESSIONS}/{body['session_id']}/rounds")
+    assert more.status_code == 403 and more.json()["error"]["code"] == "plus_required"
+    # Other AI features stay Plus-only.
+    asked = api.post("/api/v1/ai/quick-answer", json={"query": "What is a ratio?"})
+    assert asked.status_code == 403
+
+    # Yesterday's free ladder doesn't count today.
+    row = db_session.get(LadderSession, uuid.UUID(body["session_id"]))
+    assert row is not None and row.free is True
+    row.created_at = datetime.now(UTC) - timedelta(days=1, minutes=1)
+    db_session.flush()
+    assert start(api, topic)["round_number"] == 1
+
+
+def test_free_ladders_can_be_switched_off_and_plus_needs_none(
+    make_api: AppFactory,
+    ai: FakeAIProvider,
+    db_session: Session,
+    document: Document,
+    topic: Topic,
+    user: User,
+) -> None:
+    add_questions(db_session, document, topic, 3)
+    off = make_api(ai, plus_required_for_ai=True, ladder_free_per_day=0)
+    refused = off.post(SESSIONS, json={"exam_code": EXAM, "topic_id": str(topic.id)})
+    assert refused.status_code == 403
+    assert off.get("/api/v1/ladder/overview", params={"exam": EXAM}).json()["free_left_today"] == 0
+
+    db_session.add(
+        Subscription(
+            owner_id=user.id,
+            plan="plus",
+            source="operator",
+            active_until=datetime.now(UTC) + timedelta(days=5),
+        )
+    )
+    db_session.flush()
+    api = make_api(ai, plus_required_for_ai=True)
+    assert (
+        api.get("/api/v1/ladder/overview", params={"exam": EXAM}).json()["free_left_today"] is None
+    )
+    first, second = start(api, topic), start(api, topic)  # Plus: not counted as free
+    rows = db_session.scalars(select(LadderSession)).all()
+    assert len(rows) == 2 and not any(r.free for r in rows)
+    assert first["session_id"] != second["session_id"]

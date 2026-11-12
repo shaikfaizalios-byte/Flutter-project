@@ -81,8 +81,14 @@ def guard_ai(
         PlusService(session, user.id, settings).check_ai_allowed()
 
 
+def limit_ai_rate(request: Request, user: CurrentUser) -> None:
+    """The per-account rate limit alone, for calls that decide about Plus themselves."""
+    request.app.state.ai_rate_limiter.check(client_key(request, user))
+
+
 Service = Annotated[AIService, Depends(get_ai_service)]
 Limited = [Depends(guard_ai)]
+RateLimited = [Depends(limit_ai_rate)]
 
 
 @router.get("/ai/status", response_model=AIStatus, summary="Whether AI assistance is available")

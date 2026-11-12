@@ -96,6 +96,9 @@ class Settings(BaseSettings):
     # AI features need an active subscription and stop at the allowance. Off only for
     # development setups that want AI without Plus (refused in staging/production).
     plus_required_for_ai: bool = True
+    # Challenge Ladders a learner without Plus may start per day (UTC), one round each.
+    # 0 = none. With Plus the normal monthly AI allowance applies instead.
+    ladder_free_per_day: int = Field(default=1, ge=0, le=10)
     # Google Play Billing (docs/plus.md "Google Play"). Purchases are verified only on the server
     # with the Play Developer API, using a service account with access to the app in Play
     # Console. All three are needed to sell Plus; without them purchases stay unavailable.

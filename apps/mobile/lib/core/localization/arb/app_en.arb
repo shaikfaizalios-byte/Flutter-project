@@ -2981,5 +2981,10 @@
   "webPayTestPayment": "Test payment: no real money was taken.",
   "webPayCheckFailed": "PrepLoop could not reach the server just now; still trying.",
   "webPayCheckAgain": "Check again",
-  "webPayBackToPlus": "Back to PrepLoop Plus"
+  "webPayBackToPlus": "Back to PrepLoop Plus",
+  "ladderFreeToday": "{count, plural, =1{Free today: 1 ladder without PrepLoop Plus (one round of 5 questions).} other{Free today: {count} ladders without PrepLoop Plus (one round of 5 questions each).}}",
+  "@ladderFreeToday": {"placeholders": {"count": {"type": "int"}}},
+  "ladderFreeUsed": "You've used today's free ladder. The next one is free from {time}. With PrepLoop Plus you can climb any time.",
+  "@ladderFreeUsed": {"placeholders": {"time": {"type": "String"}}},
+  "ladderMorePlus": "More rounds are part of PrepLoop Plus."
 }

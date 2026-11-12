@@ -4475,6 +4475,22 @@
               }
             ]
           },
+          "free_left_today": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Left Today"
+          },
+          "free_per_day": {
+            "default": 0,
+            "title": "Free Per Day",
+            "type": "integer"
+          },
           "topics": {
             "items": {
               "$ref": "#/components/schemas/LadderTopic"

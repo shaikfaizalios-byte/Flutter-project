@@ -9224,6 +9224,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to PrepLoop Plus'**
   String get webPayBackToPlus;
+
+  /// No description provided for @ladderFreeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Free today: 1 ladder without PrepLoop Plus (one round of 5 questions).} other{Free today: {count} ladders without PrepLoop Plus (one round of 5 questions each).}}'**
+  String ladderFreeToday(int count);
+
+  /// No description provided for @ladderFreeUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used today\'s free ladder. The next one is free from {time}. With PrepLoop Plus you can climb any time.'**
+  String ladderFreeUsed(String time);
+
+  /// No description provided for @ladderMorePlus.
+  ///
+  /// In en, this message translates to:
+  /// **'More rounds are part of PrepLoop Plus.'**
+  String get ladderMorePlus;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

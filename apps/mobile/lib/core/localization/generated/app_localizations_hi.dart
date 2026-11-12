@@ -5741,4 +5741,23 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get webPayBackToPlus => 'PrepLoop Plus पर वापस जाएँ';
+
+  @override
+  String ladderFreeToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'आज मुफ़्त: PrepLoop Plus के बिना $count लैडर (हर एक में 5 सवालों का एक राउंड)।',
+      one: 'आज मुफ़्त: PrepLoop Plus के बिना 1 लैडर (5 सवालों का एक राउंड)।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ladderFreeUsed(String time) {
+    return 'आज का मुफ़्त लैडर आप इस्तेमाल कर चुके हैं। अगला $time से मुफ़्त मिलेगा। PrepLoop Plus के साथ आप कभी भी चढ़ सकते हैं।';
+  }
+
+  @override
+  String get ladderMorePlus => 'और राउंड PrepLoop Plus का हिस्सा हैं।';
 }
