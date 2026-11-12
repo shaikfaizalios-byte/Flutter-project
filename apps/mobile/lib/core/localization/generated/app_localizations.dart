@@ -9302,6 +9302,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The page could not be opened.'**
   String get paperSourcesOpenFailed;
+
+  /// No description provided for @revisionAddWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Add questions I get wrong'**
+  String get revisionAddWrong;
+
+  /// No description provided for @revisionAddWrongHint.
+  ///
+  /// In en, this message translates to:
+  /// **'After practice and mock tests, verified paper questions you answered wrong become revision cards (each question once).'**
+  String get revisionAddWrongHint;
+
+  /// No description provided for @solveAddWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wrong answers to revision'**
+  String get solveAddWrong;
+
+  /// No description provided for @mistakeAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Why did it go wrong? (optional)'**
+  String get mistakeAsk;
+
+  /// No description provided for @mistakeDidntKnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t know'**
+  String get mistakeDidntKnow;
+
+  /// No description provided for @mistakeCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation slip'**
+  String get mistakeCalculation;
+
+  /// No description provided for @mistakeMisread.
+  ///
+  /// In en, this message translates to:
+  /// **'Misread'**
+  String get mistakeMisread;
+
+  /// No description provided for @mistakeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Ran out of time'**
+  String get mistakeTime;
+
+  /// No description provided for @mistakeGuessed.
+  ///
+  /// In en, this message translates to:
+  /// **'Guessed'**
+  String get mistakeGuessed;
+
+  /// No description provided for @mistakeTipDidntKnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn it before practising it: read your notes or a concept card on the topic, then try a few easy questions on it.'**
+  String get mistakeTipDidntKnow;
+
+  /// No description provided for @mistakeTipCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Write each step down, keep units and signs in view, and check the last line before choosing an option.'**
+  String get mistakeTipCalculation;
+
+  /// No description provided for @mistakeTipMisread.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the last line of the question twice, and watch for words like NOT, EXCEPT and \"which of the following\".'**
+  String get mistakeTipMisread;
+
+  /// No description provided for @mistakeTipTime.
+  ///
+  /// In en, this message translates to:
+  /// **'In a timed test, leave a question that takes too long and come back to it. Practise the slow question types against the clock.'**
+  String get mistakeTipTime;
+
+  /// No description provided for @mistakeTipGuessed.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule out the options you know are wrong before guessing, and put these questions on your revision list.'**
+  String get mistakeTipGuessed;
+
+  /// No description provided for @mistakeTopReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Most common reason this week: {reason} ({count, plural, =1{1 answer} other{{count} answers}})'**
+  String mistakeTopReason(String reason, int count);
+
+  /// No description provided for @mistakeTipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip'**
+  String get mistakeTipTitle;
+
+  /// No description provided for @mistakeReasonsByTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Why answers went wrong: {reasons}'**
+  String mistakeReasonsByTopic(String reasons);
+
+  /// No description provided for @speedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed by question type'**
+  String get speedTitle;
+
+  /// No description provided for @speedTargetFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {seconds} s a question, from the verified format ({format}).'**
+  String speedTargetFormat(String seconds, String format);
+
+  /// No description provided for @speedTargetOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own target: {seconds} s a question (this exam has no verified format).'**
+  String speedTargetOwn(String seconds);
+
+  /// No description provided for @speedNoTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam has no verified format, so there is no target time. You can set your own.'**
+  String get speedNoTarget;
+
+  /// No description provided for @speedSetOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Set my target'**
+  String get speedSetOwn;
+
+  /// No description provided for @speedChangeOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Change my target'**
+  String get speedChangeOwn;
+
+  /// No description provided for @speedOwnField.
+  ///
+  /// In en, this message translates to:
+  /// **'Seconds per question'**
+  String get speedOwnField;
+
+  /// No description provided for @speedOwnInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from 5 to 600.'**
+  String get speedOwnInvalid;
+
+  /// No description provided for @speedTypeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{accuracy} right of {answered}'**
+  String speedTypeLine(String accuracy, int answered);
+
+  /// No description provided for @speedSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s a question'**
+  String speedSeconds(String seconds);
+
+  /// No description provided for @speedSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} right but slow'**
+  String speedSlow(int count);
+
+  /// No description provided for @speedDrill.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed drill'**
+  String get speedDrill;
+
+  /// No description provided for @speedRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Right but slow = a right answer that took more than {factor} times the target. Only answers with a recorded time count; questions without a question type are left out.'**
+  String speedRules(String factor);
+
+  /// No description provided for @speedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise questions that have a question type to see your speed here.'**
+  String get speedEmpty;
+
+  /// No description provided for @drillTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s left of {target} s'**
+  String drillTimeLeft(int seconds, int target);
+
+  /// No description provided for @drillOverTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Over the {target} s target'**
+  String drillOverTime(int target);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

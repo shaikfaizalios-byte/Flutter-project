@@ -780,6 +780,16 @@ class PracticeService:
 
     # --- answering & submitting -----------------------------------------------------
 
+    def set_mistake_reason(self, session_id: uuid.UUID, position: int, reason: str | None) -> None:
+        """The learner's own reason for a wrong answer. Only for an answer already marked wrong
+        (practice at once, a mock once submitted); it changes no mark."""
+        practice = self._load(session_id)
+        answer = next((a for a in practice.answers if a.position == position), None)
+        if answer is None or answer.is_correct is not False:
+            raise ConflictError("not_wrong", "Only a wrong answer can have a reason.")
+        answer.mistake_reason = reason
+        self._session.commit()
+
     def answer(self, session_id: uuid.UUID, position: int, update: AnswerUpdate) -> AnswerAck:
         practice = self._load(session_id)
         self._expire_if_due(practice)
@@ -1121,6 +1131,7 @@ class PracticeService:
                     answer_type=item.answer_type,
                     typed_answer=answer.typed_answer if answer else None,
                     response=answer.response if answer else None,
+                    mistake_reason=answer.mistake_reason if answer else None,
                     typed_answer_numeric=item.format in ("numeric", "integer")
                     or (
                         bool(item.typed_answer)
@@ -1152,6 +1163,7 @@ class PracticeService:
             item_count=len(practice.items),
             answered_count=sum(_answered(a) for a in practice.answers),
             cbt=(practice.selection or {}).get("cbt"),
+            per_question_seconds=(practice.selection or {}).get("per_question_seconds"),
             sectional=(practice.selection or {}).get("section"),
             items=items,
             result=self._result(practice.result) if practice.result else None,

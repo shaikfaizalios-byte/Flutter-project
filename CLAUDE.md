@@ -166,7 +166,18 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `AnalyticsRules` adds weak reasons `repeatedMistakes` (3+) and `slow` (≥ 1.5 × own pace, 10+ timed answers) and
   `dueForRefresh` (21+ days) → plan item `refreshTopic`; every plan item lists its reasons. Progress `ReadinessCard`
   (`buildReadiness`): syllabus coverage + evidence (14-day answers, 30-day mocks, exam days), never a score or pass
-  chance. FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
+  chance. Mistake reasons (migration 0065): after a wrong answer (practice at once, mocks once submitted) the learner may
+  tap one of didn't know / calculation slip / misread / ran out of time / guessed (`session_answers.mistake_reason`,
+  `PUT /practice/sessions/{id}/answers/{n}/mistake-reason`, only for wrong answers); analytics count them per topic
+  (`TopicStats.mistake_reasons`), in total and over the last 7 days (`week_mistake_reasons`). App `MistakeReason`
+  (`practice/domain/mistake_reason.dart`, fixed tips), chips on the feedback panel, top reason + tip in the weekly
+  review, reasons per topic on Progress.
+  Speed training: `GET /analytics/speed?exam=&own_target_seconds=` per question type (pattern): answered, right, time,
+  right-but-slow (> `PREPLOOP_SPEED_SLOW_FACTOR`, 1.5, x target); target ONLY from the verified format in effect (pure
+  `app/domain/speed.py`: timed section's seconds per question, else the paper's), else the learner's own (device setting
+  `speed_target:<exam>`). Timed drills = practice with `per_question_seconds` (selection, `SessionRead`), a timer per
+  question that stops nothing. App `SpeedCard` on Progress (`analytics/domain/speed.dart`), `_DrillTimer`.
+  FSRS: operator-only offline check `python -m app.cli.fsrs_eval` over synced card reviews (pure
   `app/domain/fsrs.py`, aggregates only); the ladder stays the scheduler.
 - Languages (global Phase 10): content languages are ONE reference list — `app/domain/languages.py` (code, names,
   ISO 15924 script, direction, Tesseract data, prompt name, `review_ai_text`) + the `languages` table (migration 0037)
@@ -409,6 +420,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Revision (device-only, Drift v4 `revision_cards`/`card_reviews`): pure `RevisionScheduler` with a stored
   ladder (`revision_day_offsets`, default 1/4/7 days after adding) and Good/Easy/Hard/Forgot adaptation;
   concept cards read the live concept, question cards snapshot verified source questions only.
+  Wrong answers: practice (on each answer) and mocks (on submit) add the questions answered wrong as cards
+  (`SessionController._reviseWrong`, reason `incorrect_answer`, each question once), unless the learner switched it
+  off (Revision screen; device setting `revision_add_wrong`); "Solve this paper" adds only when asked.
   Reminders: `ReminderController` keeps ONE daily notification (fixed id) in sync via a plan fingerprint;
   `ReminderScheduler` wraps flutter_local_notifications (inexact alarms). See docs/revision.md.
 - See docs/database.md for schemas, migration workflows and the designed (not implemented) sync rules.

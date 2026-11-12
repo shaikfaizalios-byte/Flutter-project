@@ -12,6 +12,8 @@ import '../../ai/data/ai_repository.dart';
 import '../../ai/presentation/ai_widgets.dart';
 import '../../question_bank/domain/question.dart';
 import '../../question_bank/presentation/figure_view.dart';
+import '../../revision/domain/revision_card.dart';
+import '../../revision/presentation/revision_widgets.dart';
 import '../application/paper_providers.dart';
 import '../domain/paper_solve.dart';
 
@@ -51,16 +53,16 @@ class PaperSolveScreen extends ConsumerWidget {
   }
 }
 
-class _SolveRun extends StatefulWidget {
+class _SolveRun extends ConsumerStatefulWidget {
   const _SolveRun({required this.questions});
 
   final List<BankQuestion> questions;
 
   @override
-  State<_SolveRun> createState() => _SolveRunState();
+  ConsumerState<_SolveRun> createState() => _SolveRunState();
 }
 
-class _SolveRunState extends State<_SolveRun> {
+class _SolveRunState extends ConsumerState<_SolveRun> {
   int _index = 0;
 
   /// Questions opened so far, in the order first opened. They stay built (hidden), so an
@@ -85,6 +87,11 @@ class _SolveRunState extends State<_SolveRun> {
     // Answers that couldn't be marked (no answer key) are not counted as wrong.
     final marked = _results.values.where((r) => r != null).length;
     final unmarked = _results.length - marked;
+    // Nothing is saved unless the learner asks: then wrong answers become revision cards.
+    final wrong = [
+      for (final q in widget.questions)
+        if (_results[q.id] == false) q,
+    ];
 
     return Column(
       children: [
@@ -121,7 +128,27 @@ class _SolveRunState extends State<_SolveRun> {
                   onPressed: _index == 0 ? null : () => _go(_index - 1),
                   child: Text(l10n.sessionPrevious),
                 ),
-                const Spacer(),
+                Expanded(
+                  child: wrong.isEmpty
+                      ? const SizedBox.shrink()
+                      : Center(
+                          child: TextButton.icon(
+                            icon: const Icon(Icons.style_outlined),
+                            label: Text(
+                              l10n.solveAddWrong,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                            onPressed: () => addQuestionsToRevision(
+                              context,
+                              ref,
+                              wrong,
+                              reason: CardReason.incorrectAnswer,
+                            ),
+                          ),
+                        ),
+                ),
                 FilledButton(
                   onPressed: _index + 1 == total ? null : () => _go(_index + 1),
                   child: Text(l10n.sessionNext),

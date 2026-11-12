@@ -3,6 +3,7 @@ import 'cbt.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../question_bank/domain/question.dart';
+import 'mistake_reason.dart';
 
 enum SessionMode {
   practice,
@@ -96,6 +97,7 @@ class SessionItemView {
     this.librarySource,
     this.marked = false,
     this.visited = false,
+    this.mistakeReason,
   });
 
   factory SessionItemView.fromJson(Map<String, dynamic> json) {
@@ -117,6 +119,7 @@ class SessionItemView {
       librarySource: json['library_source'] as String?,
       marked: json['marked_for_review'] as bool? ?? false,
       visited: json['visited'] as bool? ?? false,
+      mistakeReason: MistakeReason.fromCode(json['mistake_reason'] as String?),
       verified: json['verified'] as bool,
       sourceFilename: source['document_filename'] as String?,
       sourcePage: source['page'] as int?,
@@ -200,6 +203,9 @@ class SessionItemView {
   /// Where the shared paper came from (shown instead of a file name).
   final String? sharedSource;
 
+  /// The learner's own reason for a wrong answer, once given.
+  final MistakeReason? mistakeReason;
+
   bool get isTyped => answerType == 'typed';
   bool get takesResponse => const {'multiple_correct', 'match', 'ordering'}.contains(format);
   bool get answered => selectedPosition != null || typedAnswer != null || response != null;
@@ -212,6 +218,7 @@ class SessionItemView {
     bool? bookmarked,
     bool? marked,
     bool? visited,
+    MistakeReason? Function()? mistakeReason,
   }) => SessionItemView(
     position: position,
     questionId: questionId,
@@ -240,6 +247,7 @@ class SessionItemView {
     librarySource: librarySource,
     marked: marked ?? this.marked,
     visited: visited ?? this.visited,
+    mistakeReason: mistakeReason != null ? mistakeReason() : this.mistakeReason,
   );
 }
 
@@ -427,6 +435,7 @@ class PracticeSessionView {
     this.sectionDeadlineAt,
     this.cbt,
     this.sectionalOf,
+    this.perQuestionSeconds,
   });
 
   factory PracticeSessionView.fromJson(Map<String, dynamic> json) => PracticeSessionView(
@@ -452,6 +461,7 @@ class PracticeSessionView {
     currentSection: json['current_section'] as int?,
     cbt: json['cbt'] == null ? null : CbtRules.fromJson(json['cbt'] as Map<String, dynamic>),
     sectionalOf: json['sectional'] as String?,
+    perQuestionSeconds: json['per_question_seconds'] as int?,
     sectionDeadlineAt: json['section_deadline_at'] == null
         ? null
         : DateTime.parse(json['section_deadline_at'] as String),
@@ -490,6 +500,9 @@ class PracticeSessionView {
   /// The one section of the paper this mock covers, if it isn't the whole paper.
   final String? sectionalOf;
 
+  /// A timed drill's target per question, shown as a timer.
+  final int? perQuestionSeconds;
+
   bool get sectional => sections.isNotEmpty;
 
   TimedSectionView? get openSection {
@@ -519,6 +532,7 @@ class PracticeSessionView {
     sectionDeadlineAt: sectionDeadlineAt,
     cbt: cbt,
     sectionalOf: sectionalOf,
+    perQuestionSeconds: perQuestionSeconds,
   );
 }
 
@@ -650,6 +664,7 @@ class PracticeRequest {
     this.includeAi = false,
     this.includeShared = true,
     this.count = 10,
+    this.perQuestionSeconds,
   });
 
   final String? examCode;
@@ -667,6 +682,9 @@ class PracticeRequest {
   final bool includeShared;
   final int count;
 
+  /// A timed drill: a timer per question with this target (it stops nothing).
+  final int? perQuestionSeconds;
+
   Map<String, Object> toJson() => {
     'exam_code': ?examCode,
     'subject': ?subject,
@@ -676,6 +694,7 @@ class PracticeRequest {
     'include_ai': includeAi,
     'include_shared': includeShared,
     'count': count,
+    'per_question_seconds': ?perQuestionSeconds,
   };
 }
 

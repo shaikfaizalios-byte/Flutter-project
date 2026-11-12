@@ -27,6 +27,8 @@ class PracticeCreate(BaseModel):
     # Verified questions from the shared bank (papers the operator shared, labelled as such).
     include_shared: bool = True
     count: int = Field(default=10, ge=1, le=100)
+    # A timed drill: the app shows a timer per question with this target (it stops nothing).
+    per_question_seconds: int | None = Field(default=None, ge=5, le=600)
 
 
 class OfflineQuestion(BaseModel):
@@ -187,6 +189,15 @@ class MockAnalysis(BaseModel):
     percentile: PercentileRead | None
 
 
+MistakeReason = Literal["didnt_know", "calculation", "misread", "time", "guessed"]
+
+
+class MistakeReasonUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: MistakeReason | None  # null clears it
+
+
 class SessionItemRead(BaseModel):
     # official_pyq, original_expert or original_ai_verified, for a curated library question.
     library_source: str | None = None
@@ -219,6 +230,8 @@ class SessionItemRead(BaseModel):
     typed_answer_numeric: bool = False
     # Practice: shown once answered. Mock: shown only after submission.
     feedback: Feedback | None
+    # The learner's own reason for a wrong answer, once they gave one.
+    mistake_reason: MistakeReason | None = None
 
 
 class TallyRead(BaseModel):
@@ -295,6 +308,8 @@ class SessionRead(BaseModel):
     # A computer-based mock's rules, as the attempt keeps them.
     cbt: dict[str, Any] | None = None
     sectional: str | None = None  # one section of the paper, not the whole of it
+    # A timed drill's target per question (from PracticeCreate), shown as a timer.
+    per_question_seconds: int | None = None
     # Sectionally timed mocks only: the sections in order, the open one (index; equal to the
     # number of sections once all are closed) and when it closes. Questions of sections not
     # open yet come without their content; closed sections can't be answered.

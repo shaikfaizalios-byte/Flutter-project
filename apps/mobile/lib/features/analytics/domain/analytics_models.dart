@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/utils/calendar_date.dart';
+import '../../practice/domain/mistake_reason.dart';
 
 /// Attempted answers and correct ones, overall and in the recent window.
 @immutable
@@ -50,6 +51,7 @@ class TopicStats {
     this.timeSpentMs = 0,
     this.lastAnsweredOn,
     this.repeatedMistakes = 0,
+    this.mistakeReasons = const {},
   });
 
   final String topicId;
@@ -66,6 +68,9 @@ class TopicStats {
 
   /// Questions of this topic answered wrong in two or more sessions.
   final int repeatedMistakes;
+
+  /// Wrong answers by the learner's own reason (only reasons given).
+  final Map<MistakeReason, int> mistakeReasons;
 }
 
 @immutable
@@ -116,6 +121,8 @@ class PracticeAnalytics {
     this.topics = const [],
     this.daily = const [],
     this.mocks = const [],
+    this.mistakeReasons = const {},
+    this.weekMistakeReasons = const {},
   });
 
   factory PracticeAnalytics.fromJson(Map<String, dynamic> json) {
@@ -146,6 +153,7 @@ class PracticeAnalytics {
             timeSpentMs: t['time_spent_ms'] as int? ?? 0,
             lastAnsweredOn: CalendarDate.tryParse(t['last_answered_on'] as String?),
             repeatedMistakes: t['repeated_mistakes'] as int? ?? 0,
+            mistakeReasons: mistakeCounts(t['mistake_reasons']),
           ),
       ],
       daily: [
@@ -168,6 +176,8 @@ class PracticeAnalytics {
             timeUp: m['submit_reason'] == 'time_up',
           ),
       ],
+      mistakeReasons: mistakeCounts(json['mistake_reasons']),
+      weekMistakeReasons: mistakeCounts(json['week_mistake_reasons']),
     );
   }
 
@@ -185,6 +195,10 @@ class PracticeAnalytics {
   final List<TopicStats> topics;
   final List<DailyStats> daily;
   final List<MockResultView> mocks;
+
+  /// Wrong answers by the learner's own reason: all counted, and in the last 7 days.
+  final Map<MistakeReason, int> mistakeReasons;
+  final Map<MistakeReason, int> weekMistakeReasons;
 }
 
 /// Flashcard reviews for one subject/topic (device data).

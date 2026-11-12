@@ -4,6 +4,7 @@ import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/core/utils/calendar_date.dart';
 import 'package:preploop/features/analytics/domain/analytics_models.dart';
 import 'package:preploop/features/focus/application/focus_controller.dart';
+import 'package:preploop/features/practice/domain/mistake_reason.dart';
 import 'package:preploop/features/weekly_review/application/weekly_review_providers.dart';
 import 'package:preploop/features/weekly_review/domain/weekly_review.dart';
 
@@ -125,6 +126,42 @@ void main() {
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
     expect(find.text('Your weekly review is ready'), findsNothing);
+  });
+
+  testAppWidgets('the most common mistake reason of the week comes with its tip', (
+    tester,
+    db,
+  ) async {
+    final analytics = FakeAnalyticsRepository(
+      data: PracticeAnalytics(
+        timezone: 'Asia/Kolkata',
+        today: today,
+        days: 30,
+        recentDays: 14,
+        total: const AnswerCounts(answered: 20, correct: 15),
+        sessions: 2,
+        daily: [DailyStats(date: today, answered: 20, correct: 15)],
+        weekMistakeReasons: const {MistakeReason.misread: 3, MistakeReason.calculation: 1},
+      ),
+    );
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      analytics: analytics,
+      clockOverride: () => DateTime(2026, 10, 25, 9),
+    );
+    await scrollTo(tester, find.text('Your weekly review is ready'));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await scrollTo(tester, find.text('Most common reason this week: Misread (3 answers)'));
+    expect(find.textContaining('Read the last line of the question twice'), findsOneWidget);
+  });
+
+  test('reason counts: unknown codes are dropped, the top one wins, ties go in list order', () {
+    final counts = mistakeCounts({'misread': 2, 'calculation': 2, 'bored': 9});
+    expect(counts, {MistakeReason.misread: 2, MistakeReason.calculation: 2});
+    expect(topMistakeReason(counts)!.key, MistakeReason.calculation);
+    expect(topMistakeReason(const {}), isNull);
   });
 
   testAppWidgets('a week later the review is due again and shows the plan made then', (

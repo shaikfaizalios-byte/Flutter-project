@@ -11,6 +11,7 @@ import '../../question_bank/domain/question.dart';
 import '../domain/cbt.dart';
 import '../domain/offline_practice.dart';
 import '../domain/practice_models.dart';
+import '../domain/mistake_reason.dart';
 
 /// Practice API plus an offline queue for answers, and offline practice: verified questions
 /// saved on the device (the offline pack) let a practice session start without a connection;
@@ -431,6 +432,15 @@ class PracticeRepository {
     )..where((p) => p.sessionId.equals(sessionId))).get();
     return rows.length;
   }
+
+  /// The learner's own reason for a wrong answer (null clears it).
+  Future<void> setMistakeReason(String sessionId, int position, MistakeReason? reason) =>
+      _guard(() async {
+        await _dio.put<void>(
+          '$_base/sessions/$sessionId/answers/$position/mistake-reason',
+          data: {'reason': reason?.code},
+        );
+      });
 
   Future<void> setBookmark(String questionId, {required bool bookmarked}) => _guard(() async {
     final path = '/api/v1/questions/$questionId/bookmark';

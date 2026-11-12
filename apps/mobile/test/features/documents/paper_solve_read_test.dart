@@ -157,6 +157,26 @@ void main() {
     );
   });
 
+  testAppWidgets('solving saves nothing until wrong answers are added to revision', (
+    tester,
+    db,
+  ) async {
+    await openPaper(tester, db);
+    await tester.tap(find.text('Solve this paper'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add wrong answers to revision'), findsNothing);
+    await tester.tap(find.text('20')); // wrong
+    await tester.pumpAndSettle();
+    expect(await tester.runAsync(() => db.select(db.revisionCards).get()), isEmpty);
+
+    await tester.tap(find.text('Add wrong answers to revision'));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pumpAndSettle();
+    // This paper's question isn't reviewed yet, so it is not added (and the learner is told).
+    expect(find.textContaining('only reviewed questions'), findsOneWidget);
+    expect(await tester.runAsync(() => db.select(db.revisionCards).get()), isEmpty);
+  });
+
   testAppWidgets('without AI, written answers are compared with the paper only', (
     tester,
     db,

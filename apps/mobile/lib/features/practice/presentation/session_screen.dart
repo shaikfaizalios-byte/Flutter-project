@@ -21,6 +21,7 @@ import '../domain/cbt.dart';
 import '../domain/practice_models.dart';
 import 'format_answers.dart';
 import 'result_view.dart';
+import '../domain/mistake_reason.dart';
 
 part 'cbt_view.dart';
 
@@ -226,6 +227,9 @@ class _SessionBody extends ConsumerWidget {
                     ),
                   ),
                 ),
+              if (session.perQuestionSeconds case final target?
+                  when !testLike && !item.answered && !session.submitted)
+                _DrillTimer(key: ValueKey(item.position), target: target),
               Wrap(
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
@@ -323,7 +327,7 @@ class _SessionBody extends ConsumerWidget {
                   ],
                 ),
               ],
-              if (item.feedback != null) _FeedbackPanel(item: item),
+              if (item.feedback != null) _FeedbackPanel(item: item, sessionId: sessionId),
             ],
           ),
         ),
@@ -584,13 +588,14 @@ class _OptionTile extends StatelessWidget {
   }
 }
 
-class _FeedbackPanel extends StatelessWidget {
-  const _FeedbackPanel({required this.item});
+class _FeedbackPanel extends ConsumerWidget {
+  const _FeedbackPanel({required this.item, required this.sessionId});
 
   final SessionItemView item;
+  final String sessionId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final feedback = item.feedback!;
     final correctLabel =
@@ -626,6 +631,25 @@ class _FeedbackPanel extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               if (feedback.explanationByAi) AiLabel(l10n.aiExplanationLabel),
               RichQuestionText(feedback.explanation!),
+            ],
+            if (feedback.isCorrect == false) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(l10n.mistakeAsk, style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(height: AppSpacing.xs),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final reason in MistakeReason.values)
+                    ChoiceChip(
+                      label: Text(reason.label(l10n)),
+                      selected: item.mistakeReason == reason,
+                      onSelected: (_) => ref
+                          .read(sessionControllerProvider(sessionId).notifier)
+                          .setMistakeReason(item.position, reason),
+                    ),
+                ],
+              ),
             ],
           ],
         ),
@@ -734,4 +758,67 @@ String formatClock(int seconds) {
   final s = seconds % 60;
   String two(int v) => v.toString().padLeft(2, '0');
   return h > 0 ? '$h:${two(m)}:${two(s)}' : '${two(m)}:${two(s)}';
+}
+
+/// A timed drill: time left on this question against its target. It stops nothing.
+class _DrillTimer extends ConsumerStatefulWidget {
+  const _DrillTimer({super.key, required this.target});
+
+  final int target;
+
+  @override
+  ConsumerState<_DrillTimer> createState() => _DrillTimerState();
+}
+
+class _DrillTimerState extends ConsumerState<_DrillTimer> {
+  late final DateTime _shown = ref.read(clockProvider)();
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final elapsed = ref.read(clockProvider)().difference(_shown).inSeconds;
+    final left = widget.target - elapsed;
+    final over = left < 0;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Row(
+        children: [
+          Icon(
+            over ? Icons.timer_off_outlined : Icons.timer_outlined,
+            color: over ? theme.colorScheme.error : theme.colorScheme.primary,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              over ? l10n.drillOverTime(widget.target) : l10n.drillTimeLeft(left, widget.target),
+              style: TextStyle(color: over ? theme.colorScheme.error : null),
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: LinearProgressIndicator(
+              value: (elapsed / widget.target).clamp(0, 1).toDouble(),
+              color: over ? theme.colorScheme.error : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

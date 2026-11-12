@@ -151,3 +151,36 @@ Candidates, in priority order. Each one says why it is in the plan and roughly h
   speed signal needs new timed answers before it says anything.
 - Readiness thresholds and the diagnosis rules are product choices, not validated research.
 - Topic stats come only from questions that have a topic, whether suggested or confirmed.
+
+## Mistake reasons (learning-loop Phase 4)
+
+After a wrong answer the learner may tap why it went wrong: **didn't know, calculation slip, misread, ran out of
+time, guessed**. It is optional, changes no mark, and can be changed or cleared (tap the chosen one again).
+Practice asks at once; a mock asks on its review once submitted. Stored on the answer
+(`session_answers.mistake_reason`); the server refuses a reason for an answer that isn't marked wrong.
+
+`/analytics/overview` counts the reasons given, raw: per topic (`topics[].mistake_reasons`), in total
+(`mistake_reasons`) and over the last 7 local days, today included (`week_mistake_reasons`, the weekly review's
+week). The weekly review shows the most common reason of the week (ties go to the first in the list order above)
+with a fixed tip for it; Progress lists the reasons under each topic. The tips are product text written by
+PrepLoop (`mistakeTip*` in the ARB files), the same for every learner; they are general study advice, not
+advice about any exam.
+
+## Speed training (learning-loop Phase 4)
+
+`GET /analytics/speed?exam=CODE` reports, per question type (model): answers, right answers, timed answers and
+their time, and **right but slow**: a right answer that took more than `PREPLOOP_SPEED_SLOW_FACTOR` (default 1.5)
+times the target.
+
+- The **target** comes only from the exam's verified format in effect today: a timed section's minutes divided
+  by its questions, else the paper's minutes divided by its questions (pure `app/domain/speed.py`). An exam
+  without a verified format has no target, unless the learner sets their own on Progress (labelled as theirs,
+  kept on the device as `speed_target:<exam>` and sent as `own_target_seconds`, which is ignored when a format
+  exists). Nothing is filled in by PrepLoop.
+- Only answers with a recorded time count towards time and slowness; questions without a question type are
+  left out. The rule is shown under the card.
+- **Timed drill**: from a type on Progress, a practice of 10 questions of that type with
+  `per_question_seconds` = the type's target (its section's, else the paper's). The session shows a timer per
+  question ("n s left of T s", then "Over the T s target"); it stops nothing, and answers are marked as in any
+  practice.
+

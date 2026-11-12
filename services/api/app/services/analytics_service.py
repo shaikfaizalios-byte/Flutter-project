@@ -15,6 +15,7 @@ from typing import Any
 from sqlalchemy import ColumnElement, Integer, and_, case, func, or_, select
 from sqlalchemy.orm import Session
 
+from app.domain import speed
 from app.domain.errors import DomainError
 from app.models.practice import (
     PracticeSession,
@@ -23,7 +24,7 @@ from app.models.practice import (
     SessionMode,
     SessionStatus,
 )
-from app.models.question import ExamFormat, Question, Topic
+from app.models.question import ExamFormat, Question, QuestionPattern, Topic
 from app.models.taxonomy import TaxonomyLabel, TaxonomyNode, TopicTaxonomyLink
 from app.schemas.analytics import (
     AnalyticsOverview,
@@ -31,9 +32,13 @@ from app.schemas.analytics import (
     DailyStats,
     ExamCounts,
     MockResult,
+    SpeedReport,
+    SpeedTargetRead,
     SubjectStats,
     TopicStats,
+    TypeSpeedRead,
 )
+from app.services.exam_formats import mock_formats
 
 MAX_MOCKS = 20
 
@@ -41,6 +46,10 @@ MAX_MOCKS = 20
 class InvalidTimezoneError(DomainError):
     status_code = 422
     code = "invalid_timezone"
+
+
+# The weekly review's week: the last 7 local days, today included.
+WEEK_DAYS = 7
 
 
 def _zone(name: str) -> zoneinfo.ZoneInfo:
@@ -142,6 +151,25 @@ class AnalyticsService:
             )
         }
 
+        # The learner's reasons for wrong answers, per topic and in total.
+        reason = SessionAnswer.mistake_reason
+        by_topic: dict[uuid.UUID, dict[str, int]] = {}
+        reasons: dict[str, int] = {}
+        week_reasons: dict[str, int] = {}
+        this_week = func.coalesce(
+            func.sum(case((local_day >= today - timedelta(days=WEEK_DAYS - 1), 1), else_=0)), 0
+        )
+        for topic_id, why, count, week_count in self._session.execute(
+            counted(SessionItem.topic_id, reason, func.count(), this_week)
+            .where(SessionAnswer.is_correct.is_(False), reason.is_not(None))
+            .group_by(SessionItem.topic_id, reason)
+        ):
+            reasons[why] = reasons.get(why, 0) + count
+            if week_count:
+                week_reasons[why] = week_reasons.get(why, 0) + week_count
+            if topic_id is not None:
+                by_topic.setdefault(topic_id, {})[why] = count
+
         subject_name = func.coalesce(SessionItem.subject, SessionItem.section, "")
         subjects = [
             SubjectStats(
@@ -172,6 +200,7 @@ class AnalyticsService:
                 time_spent_ms=row[8],
                 last_answered_on=row[9],
                 repeated_mistakes=repeated.get(row[0], 0),
+                mistake_reasons=by_topic.get(row[0], {}),
             )
             for row in self._session.execute(
                 counted(
@@ -216,6 +245,8 @@ class AnalyticsService:
             topics=topics,
             daily=daily,
             mocks=self._mocks(zone, exam),
+            mistake_reasons=reasons,
+            week_mistake_reasons=week_reasons,
         )
 
     def canonical(self, exams: Sequence[str]) -> list[CanonicalTopicStats]:
@@ -281,6 +312,84 @@ class AnalyticsService:
             )
             for key, counts in by_key.items()
         ]
+
+    def speed(
+        self, exam: str, *, own_target_seconds: float | None, slow_factor: float
+    ) -> SpeedReport:
+        """Speed per question type for one exam. The target comes from the verified format in
+        effect today; the learner's own target is used only when there is none."""
+        today = self._now().date()
+        verified = next(iter(mock_formats(self._session, exam, today)), None)
+        target = (
+            speed.format_target(
+                name=verified.name,
+                duration_minutes=verified.duration_minutes,
+                total_questions=verified.total_questions,
+                sections=verified.sections or [],
+                sectional_timing=verified.sectional_timing,
+            )
+            if verified is not None
+            else None
+        ) or speed.own_target(own_target_seconds)
+        rows = self._session.execute(
+            select(
+                QuestionPattern.id,
+                QuestionPattern.name,
+                Topic.name,
+                SessionItem.subject,
+                SessionAnswer.is_correct,
+                SessionAnswer.time_spent_ms,
+            )
+            .select_from(SessionAnswer)
+            .join(
+                SessionItem,
+                and_(
+                    SessionItem.session_id == SessionAnswer.session_id,
+                    SessionItem.position == SessionAnswer.position,
+                ),
+            )
+            .join(PracticeSession, PracticeSession.id == SessionAnswer.session_id)
+            .join(Question, Question.id == SessionAnswer.question_id)
+            .join(QuestionPattern, QuestionPattern.id == Question.pattern_id)
+            .outerjoin(Topic, Topic.id == QuestionPattern.topic_id)
+            .where(
+                or_(
+                    SessionAnswer.selected_position.is_not(None),
+                    SessionAnswer.typed_answer.is_not(None),
+                    SessionAnswer.response.is_not(None),
+                ),
+                _counts_as_result(),
+                PracticeSession.owner_id == self._owner_id,
+                Question.exam_code == exam,
+            )
+        ).all()
+        types = speed.speed_by_type((speed.Answered(*row) for row in rows), target, slow_factor)
+        return SpeedReport(
+            target=SpeedTargetRead(
+                source=target.source,
+                format_name=target.format_name,
+                seconds=target.seconds,
+                by_section=dict(target.by_section),
+            )
+            if target
+            else None,
+            slow_factor=slow_factor,
+            types=[
+                TypeSpeedRead(
+                    pattern_id=t.pattern_id,
+                    name=t.name,
+                    topic=t.topic,
+                    subject=t.subject,
+                    answered=t.answered,
+                    correct=t.correct,
+                    timed_answered=t.timed_answered,
+                    time_spent_ms=t.time_spent_ms,
+                    slow_correct=t.slow_correct,
+                    target_seconds=t.target_seconds,
+                )
+                for t in types
+            ],
+        )
 
     def _mocks(self, zone: zoneinfo.ZoneInfo, exam: str | None) -> list[MockResult]:
         query = (

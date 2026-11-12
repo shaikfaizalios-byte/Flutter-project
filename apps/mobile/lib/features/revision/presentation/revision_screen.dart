@@ -142,6 +142,13 @@ class _RevisionBody extends ConsumerWidget {
                       child: Text(l10n.revisionEditSchedule),
                     ),
                   ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.revisionAddWrong),
+                    subtitle: Text(l10n.revisionAddWrongHint),
+                    value: ref.watch(revisionAddsWrongProvider).value ?? true,
+                    onChanged: (on) => ref.read(revisionRepositoryProvider).setAddsWrongAnswers(on),
+                  ),
                 ],
               ),
             ),

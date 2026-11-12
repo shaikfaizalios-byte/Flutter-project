@@ -6,6 +6,8 @@ import 'package:preploop/features/question_bank/domain/question.dart';
 
 import 'fake_questions.dart';
 
+import 'package:preploop/features/practice/domain/mistake_reason.dart';
+
 class _FakeSession {
   _FakeSession({
     required this.id,
@@ -22,6 +24,7 @@ class _FakeSession {
   final DateTime startedAt;
   final DateTime? deadline;
   final String? formatName;
+  int? perQuestionSeconds;
 
   /// Sectionally timed mock: the plan, the open section and when it opened.
   List<TimedSectionView> sections = const [];
@@ -57,6 +60,14 @@ class FakePracticeRepository implements PracticeRepository {
   String? startFailureCode;
   final submits = <String>[];
 
+  /// Reasons the learner gave for wrong answers: (position, reason code or null).
+  final mistakeReasons = <(int, String?)>[];
+
+  @override
+  Future<void> setMistakeReason(String sessionId, int position, MistakeReason? reason) async {
+    mistakeReasons.add((position, reason?.code));
+  }
+
   /// Time spent sent with each answer (position → milliseconds).
   final timesSpent = <int, int?>{};
   final List<PracticeRequest> practiceRequests = [];
@@ -91,7 +102,7 @@ class FakePracticeRepository implements PracticeRepository {
       mode: SessionMode.practice,
       questions: pool,
       startedAt: serverNow(),
-    );
+    )..perQuestionSeconds = request.perQuestionSeconds;
     return _view(sessions[id]!);
   }
 
@@ -342,6 +353,7 @@ class FakePracticeRepository implements PracticeRepository {
       deadlineAt: s.deadline,
       serverNow: serverNow(),
       submitReason: s.submitReason,
+      perQuestionSeconds: s.perQuestionSeconds,
       cbt: cbtSessions.contains(s.id) ? const CbtRules(reference: 'Bulletin, p.1') : null,
       items: [
         for (final (i, q) in s.questions.indexed)

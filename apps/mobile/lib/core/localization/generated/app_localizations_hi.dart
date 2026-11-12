@@ -5794,4 +5794,137 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get paperSourcesOpenFailed => 'पेज नहीं खुल सका।';
+
+  @override
+  String get revisionAddWrong => 'गलत हुए सवाल जोड़ें';
+
+  @override
+  String get revisionAddWrongHint =>
+      'अभ्यास और मॉक टेस्ट के बाद, जिन जाँचे गए पेपर सवालों का आपका जवाब गलत था, वे रिवीज़न कार्ड बन जाते हैं (हर सवाल एक बार)।';
+
+  @override
+  String get solveAddWrong => 'गलत जवाब रिवीज़न में जोड़ें';
+
+  @override
+  String get mistakeAsk => 'गलती क्यों हुई? (वैकल्पिक)';
+
+  @override
+  String get mistakeDidntKnow => 'पता नहीं था';
+
+  @override
+  String get mistakeCalculation => 'गणना में चूक';
+
+  @override
+  String get mistakeMisread => 'गलत पढ़ा';
+
+  @override
+  String get mistakeTime => 'समय खत्म हो गया';
+
+  @override
+  String get mistakeGuessed => 'अंदाज़ा लगाया';
+
+  @override
+  String get mistakeTipDidntKnow =>
+      'अभ्यास से पहले सीखें: इस टॉपिक पर अपने नोट्स या कॉन्सेप्ट कार्ड पढ़ें, फिर इस पर कुछ आसान सवाल हल करें।';
+
+  @override
+  String get mistakeTipCalculation =>
+      'हर स्टेप लिखें, इकाई और चिह्न (+/−) पर नज़र रखें, और विकल्प चुनने से पहले आखिरी लाइन जाँच लें।';
+
+  @override
+  String get mistakeTipMisread =>
+      'सवाल की आखिरी लाइन दो बार पढ़ें, और NOT, EXCEPT और \"निम्नलिखित में से कौन\" जैसे शब्दों पर ध्यान दें।';
+
+  @override
+  String get mistakeTipTime =>
+      'समयबद्ध टेस्ट में, जो सवाल ज़्यादा समय ले, उसे छोड़कर बाद में लौटें। धीमे सवाल-प्रकारों का घड़ी के साथ अभ्यास करें।';
+
+  @override
+  String get mistakeTipGuessed =>
+      'अंदाज़ा लगाने से पहले उन विकल्पों को हटाएँ जो आप जानते हैं कि गलत हैं, और इन सवालों को अपनी रिवीज़न सूची में डालें।';
+
+  @override
+  String mistakeTopReason(String reason, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count जवाब',
+      one: '1 जवाब',
+    );
+    return 'इस हफ़्ते सबसे आम कारण: $reason ($_temp0)';
+  }
+
+  @override
+  String get mistakeTipTitle => 'सुझाव';
+
+  @override
+  String mistakeReasonsByTopic(String reasons) {
+    return 'जवाब गलत होने के कारण: $reasons';
+  }
+
+  @override
+  String get speedTitle => 'सवाल-प्रकार के अनुसार गति';
+
+  @override
+  String speedTargetFormat(String seconds, String format) {
+    return 'लक्ष्य: हर सवाल $seconds सेकंड, जाँचे गए फ़ॉर्मेट ($format) से।';
+  }
+
+  @override
+  String speedTargetOwn(String seconds) {
+    return 'आपका अपना लक्ष्य: हर सवाल $seconds सेकंड (इस परीक्षा का कोई जाँचा गया फ़ॉर्मेट नहीं है)।';
+  }
+
+  @override
+  String get speedNoTarget =>
+      'इस परीक्षा का कोई जाँचा गया फ़ॉर्मेट नहीं है, इसलिए कोई लक्ष्य समय नहीं है। आप अपना लक्ष्य रख सकते हैं।';
+
+  @override
+  String get speedSetOwn => 'मेरा लक्ष्य रखें';
+
+  @override
+  String get speedChangeOwn => 'मेरा लक्ष्य बदलें';
+
+  @override
+  String get speedOwnField => 'हर सवाल के सेकंड';
+
+  @override
+  String get speedOwnInvalid => '5 से 600 तक की संख्या लिखें।';
+
+  @override
+  String speedTypeLine(String accuracy, int answered) {
+    return '$answered में से $accuracy सही';
+  }
+
+  @override
+  String speedSeconds(String seconds) {
+    return 'हर सवाल $seconds सेकंड';
+  }
+
+  @override
+  String speedSlow(int count) {
+    return '$count सही पर धीमे';
+  }
+
+  @override
+  String get speedDrill => 'समयबद्ध ड्रिल';
+
+  @override
+  String speedRules(String factor) {
+    return 'सही पर धीमा = ऐसा सही जवाब जिसमें लक्ष्य के $factor गुना से ज़्यादा समय लगा। सिर्फ़ वही जवाब गिने जाते हैं जिनका समय दर्ज हुआ; बिना सवाल-प्रकार के सवाल शामिल नहीं हैं।';
+  }
+
+  @override
+  String get speedEmpty =>
+      'अपनी गति यहाँ देखने के लिए ऐसे सवालों का अभ्यास करें जिनका सवाल-प्रकार तय है।';
+
+  @override
+  String drillTimeLeft(int seconds, int target) {
+    return '$target में से $seconds सेकंड बाकी';
+  }
+
+  @override
+  String drillOverTime(int target) {
+    return '$target सेकंड का लक्ष्य पार';
+  }
 }

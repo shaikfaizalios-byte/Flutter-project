@@ -269,3 +269,33 @@ def test_one_wrong_answer_is_not_a_repeated_mistake(
     row = next(t for t in overview(api)["topics"] if t["name"] == "Analytics Once")
     assert row["repeated_mistakes"] == 0
     assert row["timed_answered"] == 0
+
+
+def test_wrong_answers_carry_the_learners_own_reason(
+    api: TestClient, db_session: Session, document: Document, clock: Clock
+) -> None:
+    """Phase 4: a reason only for a wrong answer, counted per topic and in total."""
+    speed = topic(db_session, "Quantitative Aptitude", "Analytics Speed")
+    for _ in range(3):
+        make_question(db_session, document, topic=speed)
+    session_id = practise(db_session, clock, speed, [2, 2, 1])  # two wrong, one right
+    url = f"/api/v1/practice/sessions/{session_id}/answers"
+
+    assert api.put(f"{url}/1/mistake-reason", json={"reason": "calculation"}).status_code == 204
+    assert api.put(f"{url}/2/mistake-reason", json={"reason": "misread"}).status_code == 204
+    right = api.put(f"{url}/3/mistake-reason", json={"reason": "guessed"})
+    assert right.status_code == 409 and right.json()["error"]["code"] == "not_wrong"
+    assert api.put(f"{url}/1/mistake-reason", json={"reason": "bored"}).status_code == 422
+    other = api.put(f"/api/v1/practice/sessions/{uuid.uuid4()}/answers/1/mistake-reason", json={})
+    assert other.status_code == 422  # reason is required (null clears)
+
+    items = api.get(f"/api/v1/practice/sessions/{session_id}").json()["items"]
+    assert [i["mistake_reason"] for i in items] == ["calculation", "misread", None]
+
+    data = overview(api)
+    row = next(t for t in data["topics"] if t["name"] == "Analytics Speed")
+    assert row["mistake_reasons"] == {"calculation": 1, "misread": 1}
+    assert data["mistake_reasons"] == data["week_mistake_reasons"] == row["mistake_reasons"]
+    # Changing or clearing a reason changes the counts.
+    api.put(f"{url}/2/mistake-reason", json={"reason": None})
+    assert overview(api)["mistake_reasons"] == {"calculation": 1}

@@ -5794,4 +5794,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paperSourcesOpenFailed => 'The page could not be opened.';
+
+  @override
+  String get revisionAddWrong => 'Add questions I get wrong';
+
+  @override
+  String get revisionAddWrongHint =>
+      'After practice and mock tests, verified paper questions you answered wrong become revision cards (each question once).';
+
+  @override
+  String get solveAddWrong => 'Add wrong answers to revision';
+
+  @override
+  String get mistakeAsk => 'Why did it go wrong? (optional)';
+
+  @override
+  String get mistakeDidntKnow => 'Didn\'t know';
+
+  @override
+  String get mistakeCalculation => 'Calculation slip';
+
+  @override
+  String get mistakeMisread => 'Misread';
+
+  @override
+  String get mistakeTime => 'Ran out of time';
+
+  @override
+  String get mistakeGuessed => 'Guessed';
+
+  @override
+  String get mistakeTipDidntKnow =>
+      'Learn it before practising it: read your notes or a concept card on the topic, then try a few easy questions on it.';
+
+  @override
+  String get mistakeTipCalculation =>
+      'Write each step down, keep units and signs in view, and check the last line before choosing an option.';
+
+  @override
+  String get mistakeTipMisread =>
+      'Read the last line of the question twice, and watch for words like NOT, EXCEPT and \"which of the following\".';
+
+  @override
+  String get mistakeTipTime =>
+      'In a timed test, leave a question that takes too long and come back to it. Practise the slow question types against the clock.';
+
+  @override
+  String get mistakeTipGuessed =>
+      'Rule out the options you know are wrong before guessing, and put these questions on your revision list.';
+
+  @override
+  String mistakeTopReason(String reason, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+    );
+    return 'Most common reason this week: $reason ($_temp0)';
+  }
+
+  @override
+  String get mistakeTipTitle => 'Tip';
+
+  @override
+  String mistakeReasonsByTopic(String reasons) {
+    return 'Why answers went wrong: $reasons';
+  }
+
+  @override
+  String get speedTitle => 'Speed by question type';
+
+  @override
+  String speedTargetFormat(String seconds, String format) {
+    return 'Target: $seconds s a question, from the verified format ($format).';
+  }
+
+  @override
+  String speedTargetOwn(String seconds) {
+    return 'Your own target: $seconds s a question (this exam has no verified format).';
+  }
+
+  @override
+  String get speedNoTarget =>
+      'This exam has no verified format, so there is no target time. You can set your own.';
+
+  @override
+  String get speedSetOwn => 'Set my target';
+
+  @override
+  String get speedChangeOwn => 'Change my target';
+
+  @override
+  String get speedOwnField => 'Seconds per question';
+
+  @override
+  String get speedOwnInvalid => 'Enter a number from 5 to 600.';
+
+  @override
+  String speedTypeLine(String accuracy, int answered) {
+    return '$accuracy right of $answered';
+  }
+
+  @override
+  String speedSeconds(String seconds) {
+    return '$seconds s a question';
+  }
+
+  @override
+  String speedSlow(int count) {
+    return '$count right but slow';
+  }
+
+  @override
+  String get speedDrill => 'Timed drill';
+
+  @override
+  String speedRules(String factor) {
+    return 'Right but slow = a right answer that took more than $factor times the target. Only answers with a recorded time count; questions without a question type are left out.';
+  }
+
+  @override
+  String get speedEmpty => 'Practise questions that have a question type to see your speed here.';
+
+  @override
+  String drillTimeLeft(int seconds, int target) {
+    return '$seconds s left of $target s';
+  }
+
+  @override
+  String drillOverTime(int target) {
+    return 'Over the $target s target';
+  }
 }
