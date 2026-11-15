@@ -4,6 +4,8 @@ found; nothing is "fixed"."""
 
 import uuid
 
+import pypdfium2.raw as pdfium_c
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -82,3 +84,20 @@ def test_a_split_formula_gets_the_question_as_printed(
         == []
     )
     assert isinstance(document_id, uuid.UUID)
+
+
+def test_layout_positions_line_up_past_a_maths_letter(monkeypatch: pytest.MonkeyPatch) -> None:
+    """PDFium gives a character outside the BMP as two UTF-16 halves; each still has an index,
+    so the text by index keeps every later character on its own position."""
+    from app.services import page_layout
+
+    units = [ord("I"), ord("f"), ord(" "), 0xD835, 0xDC65, ord("\n"), ord("2")]  # "If x\n2"
+
+    class Page:
+        def count_chars(self) -> int:
+            return len(units)
+
+    monkeypatch.setattr(pdfium_c, "FPDFText_GetUnicode", lambda _p, i: units[i])
+    chars = page_layout.page_chars(Page())
+    assert chars == ["I", "f", " ", ITALIC_X, "", "\n", "2"]
+    assert "".join(chars) == f"If {ITALIC_X}\n2"
