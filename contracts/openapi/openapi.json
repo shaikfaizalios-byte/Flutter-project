@@ -5862,6 +5862,28 @@
             "title": "Available",
             "type": "boolean"
           },
+          "compensatory_minutes_per_hour": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compensatory Minutes Per Hour"
+          },
+          "compensatory_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compensatory Reference"
+          },
           "computer_based": {
             "default": false,
             "title": "Computer Based",
@@ -5958,6 +5980,11 @@
       "MockCreate": {
         "additionalProperties": false,
         "properties": {
+          "compensatory_time": {
+            "default": false,
+            "title": "Compensatory Time",
+            "type": "boolean"
+          },
           "exam_format_code": {
             "maxLength": 64,
             "minLength": 1,
@@ -10962,6 +10989,17 @@
               }
             ],
             "title": "Cbt"
+          },
+          "compensatory_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compensatory Minutes"
           },
           "current_section": {
             "anyOf": [

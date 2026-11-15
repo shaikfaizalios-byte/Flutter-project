@@ -17,6 +17,8 @@ import '../../study_plan/presentation/study_plan_section.dart';
 import '../application/app_preferences.dart';
 import '../data/server_status_repository.dart';
 import '../../../app/routes.dart';
+import '../../practice/application/practice_providers.dart';
+import '../../../core/database/app_database.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -42,6 +44,18 @@ class SettingsScreen extends ConsumerWidget {
               const PlusCard(),
               const SizedBox(height: AppSpacing.md),
               const StudyPlanSection(),
+              const SizedBox(height: AppSpacing.md),
+              SectionCard(
+                icon: Icons.accessible_outlined,
+                title: l10n.compTitle,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.compSwitch),
+                  subtitle: Text(l10n.compHint),
+                  value: ref.watch(compensatoryTimeProvider).value ?? false,
+                  onChanged: (on) => setCompensatoryTime(ref.read(appDatabaseProvider), on),
+                ),
+              ),
               const SizedBox(height: AppSpacing.md),
               if (ref.watch(appFeaturesProvider).repeatRadar) ...[
                 const RadarSharingCard(),

@@ -573,3 +573,22 @@ class SessionController extends AsyncNotifier<SessionState> {
 
 final sessionControllerProvider = AsyncNotifierProvider.autoDispose
     .family<SessionController, SessionState, String>(SessionController.new, retry: _noRetry);
+
+/// `app_settings` key: the learner declared that compensatory time for candidates with
+/// disabilities applies to them. Device-only, erased on sign-out; mocks send only "add it".
+const compensatoryTimeKey = 'compensatory_time';
+
+final compensatoryTimeProvider = StreamProvider.autoDispose<bool>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return (db.select(db.appSettings)..where((s) => s.key.equals(compensatoryTimeKey)))
+      .watchSingleOrNull()
+      .map((row) => row?.value == 'true');
+});
+
+Future<void> setCompensatoryTime(AppDatabase db, bool on) => on
+    ? db
+          .into(db.appSettings)
+          .insertOnConflictUpdate(
+            AppSettingsCompanion.insert(key: compensatoryTimeKey, value: 'true'),
+          )
+    : (db.delete(db.appSettings)..where((s) => s.key.equals(compensatoryTimeKey))).go();

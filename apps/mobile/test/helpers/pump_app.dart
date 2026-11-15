@@ -220,3 +220,16 @@ Future<void> scrollWithin(WidgetTester tester, Type screen, Finder finder) async
   await tester.ensureVisible(target.first);
   await tester.pumpAndSettle();
 }
+
+/// Taps [text] in an open bottom sheet, scrolling the sheet to it first (sheets list more
+/// actions than a test screen shows at once).
+Future<void> tapInSheet(WidgetTester tester, String text) async {
+  final item = find.text(text);
+  final sheet = find.descendant(of: find.byType(BottomSheet), matching: find.byType(Scrollable));
+  if (item.evaluate().isEmpty && sheet.evaluate().isNotEmpty) {
+    await tester.scrollUntilVisible(item, 80, scrollable: sheet.first);
+  }
+  await tester.ensureVisible(item);
+  await tester.pumpAndSettle();
+  await tester.tap(item);
+}

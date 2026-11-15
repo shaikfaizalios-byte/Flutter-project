@@ -204,6 +204,14 @@ class _SessionBody extends ConsumerWidget {
                     ),
                   ),
                 ),
+              if (session.compensatoryMinutes case final minutes? when !session.submitted)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Text(
+                    l10n.compSession(minutes),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
               if (session.mode == SessionMode.diagnostic)
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),

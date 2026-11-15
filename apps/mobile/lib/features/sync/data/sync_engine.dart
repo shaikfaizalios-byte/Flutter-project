@@ -15,6 +15,7 @@ import '../../focus/application/focus_controller.dart'
     show focusLogKey, focusSessionKey, recallLogKey;
 import '../../weekly_review/application/weekly_review_providers.dart' show weeklyReflectionsKey;
 import '../../exams/application/syllabus_prompt.dart';
+import '../../practice/application/practice_providers.dart' show compensatoryTimeKey;
 
 /// Result of one sync run.
 @immutable
@@ -137,6 +138,7 @@ class SyncEngine {
             focusLogKey,
             recallLogKey,
             weeklyReflectionsKey,
+            compensatoryTimeKey,
           ]),
         ))
         .go();

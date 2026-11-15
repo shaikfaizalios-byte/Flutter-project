@@ -194,7 +194,11 @@ class PracticeRepository {
     ),
   );
 
-  Future<PracticeSessionView> startMock(String formatCode, {String? section}) => _guard(
+  Future<PracticeSessionView> startMock(
+    String formatCode, {
+    String? section,
+    bool compensatoryTime = false,
+  }) => _guard(
     () async => _session(
       (await _dio.post<Map<String, dynamic>>(
         '$_base/mock-tests',
@@ -202,6 +206,7 @@ class PracticeRepository {
           'exam_format_code': formatCode,
           if (newFormats) 'include_new_formats': true,
           'section': ?section,
+          if (compensatoryTime) 'compensatory_time': true,
         },
       )).data!,
     ),

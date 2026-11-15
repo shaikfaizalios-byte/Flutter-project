@@ -755,3 +755,19 @@ def test_sections_can_run_past_part_d() -> None:
         """
     )
     assert result.questions[0].section == "Biology"
+
+
+def test_wording_that_asks_for_several_options_is_flagged_not_changed() -> None:
+    result = run(
+        """Q.1 Which of these are prime numbers? Select all that apply.
+(1) 2 (2) 4 (3) 5 (4) 9
+Q.2 Which of the following statements are correct?
+(1) Only A (2) Only B (3) Both (4) Neither
+Q.3 One or more options may be correct. Which are even?
+(1) 2 (2) 3 (3) 4 (4) 5"""
+    )
+    flagged = by_number(result, 1)
+    assert "possibly_multiple_correct" in codes(flagged.issues)
+    assert flagged.answer_type == "choice"  # kept as found: a reviewer sets the format
+    assert "possibly_multiple_correct" not in codes(by_number(result, 2).issues)
+    assert "possibly_multiple_correct" in codes(by_number(result, 3).issues)

@@ -334,7 +334,11 @@ void main() {
     await tester.tap(find.text('Skip for now'));
     await tester.pumpAndSettle();
     expect(find.text('Import "CHSL 2022.pdf"'), findsOneWidget);
-    await tester.tap(find.text('हिन्दी'));
+    // The content language is a list of every language the app knows.
+    await tester.tap(find.byType(DropdownButton<ContentLanguage>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('हिन्दी').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Upload'));
     // Pump frames (not pumpAndSettle, which would also run the poll timer).
     for (var i = 0; i < 5; i++) {

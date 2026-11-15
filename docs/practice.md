@@ -155,3 +155,19 @@ From papers, an answer line that names no option becomes a typed answer when it 
 its listed items (which go back into the stem). Words are never turned into typed answers; reviewers can
 switch a question's type and type any answer.
 
+## Compensatory time (candidates with disabilities)
+
+Some notices give candidates with disabilities extra time (for example a number of minutes per hour of the
+paper). PrepLoop adds it to mocks **only as a verified format states it**:
+
+- The reviewer publishing a format copies the rule from the official notice into its `conduct`:
+  `"compensatory_time": {"minutes_per_hour": 20, "reference": "<notice, para>"}`. Both values are required
+  (1-60 minutes); publishing refuses anything incomplete. PrepLoop never fills this in: a format without it offers
+  no compensatory time, and the app says so.
+- The learner declares in Profile that it applies to them. That choice stays on the device (erased on sign-out);
+  the server only receives "add compensatory time" when a mock starts, and keeps the minutes it added for that
+  attempt.
+- The minutes are added pro rata (paper minutes x minutes per hour / 60, rounded up to a whole minute) to the
+  whole paper and to each timed section.
+- The legal checklist should note that a learner may self-declare a disability-related entitlement on the device.
+

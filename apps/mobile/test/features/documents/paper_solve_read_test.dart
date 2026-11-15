@@ -95,7 +95,7 @@ void main() {
 
     expect(find.text('Solve this paper'), findsOneWidget);
     expect(find.text('Read this paper'), findsOneWidget);
-    await tester.tap(find.text('Review and correct questions'));
+    await tapInSheet(tester, 'Review and correct questions');
     await tester.pumpAndSettle();
     expect(find.byType(DocumentReviewScreen), findsOneWidget);
   });

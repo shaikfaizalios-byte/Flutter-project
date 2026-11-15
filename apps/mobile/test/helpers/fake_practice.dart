@@ -130,8 +130,16 @@ class FakePracticeRepository implements PracticeRepository {
     return _view(sessions[id]!);
   }
 
+  /// Mocks started with compensatory time declared.
+  final compensatoryStarts = <String>[];
+
   @override
-  Future<PracticeSessionView> startMock(String formatCode, {String? section}) async {
+  Future<PracticeSessionView> startMock(
+    String formatCode, {
+    String? section,
+    bool compensatoryTime = false,
+  }) async {
+    if (compensatoryTime) compensatoryStarts.add(formatCode);
     final id = 'm${sessions.length + 1}';
     sessions[id] =
         _FakeSession(

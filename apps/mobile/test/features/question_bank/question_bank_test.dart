@@ -158,6 +158,7 @@ void main() {
     await scrollTo(tester, find.text('Add option'));
     await tester.tap(find.text('Add option'));
     await tester.pumpAndSettle();
+    await scrollTo(tester, find.widgetWithText(TextField, 'Option 4'));
     await tester.enterText(find.widgetWithText(TextField, 'Option 4'), 'D');
     await scrollTo(tester, find.text('(2)'));
     await tester.tap(find.text('(2)'));
@@ -220,7 +221,7 @@ void main() {
     await tester.tap(find.text('chsl-2024.pdf'));
     await tester.pumpAndSettle();
     // Tapping a paper offers solve / read / review.
-    await tester.tap(find.text('Review and correct questions'));
+    await tapInSheet(tester, 'Review and correct questions');
     await tester.pumpAndSettle();
 
     expect(find.text('Review questions'), findsOneWidget);

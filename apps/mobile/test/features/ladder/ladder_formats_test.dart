@@ -11,6 +11,9 @@ import 'ladder_flow_test.dart' show openPercentage, startClimbing, topics;
 
 final profilesOn = appFeaturesProvider.overrideWithValue(const AppFeatures(examProfiles: true));
 
+/// The any-exam features hidden, as with `--dart-define=EXAM_PROFILES=false`.
+final profilesOff = appFeaturesProvider.overrideWithValue(const AppFeatures());
+
 Future<FakeLadderRepository> pumpFormats(
   WidgetTester tester,
   AppDatabase db, {
@@ -31,7 +34,7 @@ Future<FakeLadderRepository> pumpFormats(
     ai: FakeAiRepository(enabled: true),
     ladder: ladder,
     studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
-    extraOverrides: [if (flag) profilesOn],
+    extraOverrides: [if (flag) profilesOn else profilesOff],
   );
   return ladder;
 }

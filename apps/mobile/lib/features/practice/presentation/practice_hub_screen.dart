@@ -389,6 +389,11 @@ class _MockTile extends ConsumerWidget {
           else if (!mock.available)
             l10n.mockUnavailable,
           for (final s in short) l10n.mockSectionShort(s.subject, s.available, s.needed),
+          if (ref.watch(compensatoryTimeProvider).value ?? false)
+            switch (mock.compensatoryMinutesPerHour) {
+              final minutes? => l10n.compMock(minutes, mock.compensatoryReference ?? ''),
+              null => l10n.compMockNone,
+            },
         ].where((s) => s.isNotEmpty).join('\n'),
       ),
       isThreeLine: !mock.available,
@@ -433,7 +438,15 @@ class _MockTile extends ConsumerWidget {
     if (ok != true || !context.mounted) return;
     await startAndOpen(
       context,
-      () => ref.read(practiceRepositoryProvider).startMock(mock.code, section: section),
+      () => ref
+          .read(practiceRepositoryProvider)
+          .startMock(
+            mock.code,
+            section: section,
+            compensatoryTime:
+                (ref.read(compensatoryTimeProvider).value ?? false) &&
+                mock.compensatoryMinutesPerHour != null,
+          ),
     );
   }
 }
