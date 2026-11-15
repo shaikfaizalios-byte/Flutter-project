@@ -436,6 +436,7 @@ class PracticeSessionView {
     this.cbt,
     this.sectionalOf,
     this.perQuestionSeconds,
+    this.compensatoryMinutes,
   });
 
   factory PracticeSessionView.fromJson(Map<String, dynamic> json) => PracticeSessionView(
@@ -462,6 +463,7 @@ class PracticeSessionView {
     cbt: json['cbt'] == null ? null : CbtRules.fromJson(json['cbt'] as Map<String, dynamic>),
     sectionalOf: json['sectional'] as String?,
     perQuestionSeconds: json['per_question_seconds'] as int?,
+    compensatoryMinutes: json['compensatory_minutes'] as int?,
     sectionDeadlineAt: json['section_deadline_at'] == null
         ? null
         : DateTime.parse(json['section_deadline_at'] as String),
@@ -503,6 +505,9 @@ class PracticeSessionView {
   /// A timed drill's target per question, shown as a timer.
   final int? perQuestionSeconds;
 
+  /// Minutes of compensatory time this mock added.
+  final int? compensatoryMinutes;
+
   bool get sectional => sections.isNotEmpty;
 
   TimedSectionView? get openSection {
@@ -533,6 +538,7 @@ class PracticeSessionView {
     cbt: cbt,
     sectionalOf: sectionalOf,
     perQuestionSeconds: perQuestionSeconds,
+    compensatoryMinutes: compensatoryMinutes,
   );
 }
 
@@ -603,6 +609,8 @@ class MockTestView {
     this.sectionCountsIndicative = false,
     this.computerBased = false,
     this.sectionalTiming = false,
+    this.compensatoryMinutesPerHour,
+    this.compensatoryReference,
   });
 
   factory MockTestView.fromJson(Map<String, dynamic> json) => MockTestView(
@@ -617,6 +625,8 @@ class MockTestView {
     sectionCountsIndicative: json['section_counts_indicative'] as bool? ?? false,
     computerBased: json['computer_based'] as bool? ?? false,
     sectionalTiming: json['sectional_timing'] as bool? ?? false,
+    compensatoryMinutesPerHour: json['compensatory_minutes_per_hour'] as int?,
+    compensatoryReference: json['compensatory_reference'] as String?,
     sections: [
       for (final s in json['sections'] as List<dynamic>)
         SectionAvailabilityView(
@@ -632,6 +642,10 @@ class MockTestView {
 
   /// Sections have their own timers, so one can't be taken alone.
   final bool sectionalTiming;
+
+  /// The verified notice's compensatory time for candidates with disabilities, if it states one.
+  final int? compensatoryMinutesPerHour;
+  final String? compensatoryReference;
   final String code;
 
   /// The exam the format belongs to.

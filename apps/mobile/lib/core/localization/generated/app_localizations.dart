@@ -9530,6 +9530,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 wrong answer was not added to revision: its question isn\'t reviewed yet, so its answer key may be wrong. Review it (Approve) in Imported papers, and it is added the next time you get it wrong.} other{{count} wrong answers were not added to revision: their questions aren\'t reviewed yet, so their answer keys may be wrong. Review them (Approve) in Imported papers, and they are added the next time you get them wrong.}}'**
   String resultWrongNotRevised(int count);
+
+  /// No description provided for @compTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compensatory time'**
+  String get compTitle;
+
+  /// No description provided for @compSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Compensatory time applies to me'**
+  String get compSwitch;
+
+  /// No description provided for @compHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For candidates with disabilities who are entitled to it under the exam\'s notice. You declare it yourself: it is kept only on this device and never sent to PrepLoop except as extra minutes for a mock. Mocks add it only when the paper\'s verified notice states a rule.'**
+  String get compHint;
+
+  /// No description provided for @compMock.
+  ///
+  /// In en, this message translates to:
+  /// **'+{minutes} min per hour compensatory time ({reference})'**
+  String compMock(int minutes, String reference);
+
+  /// No description provided for @compMockNone.
+  ///
+  /// In en, this message translates to:
+  /// **'This paper\'s notice states no compensatory time, so none is added.'**
+  String get compMockNone;
+
+  /// No description provided for @compSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {minutes} min compensatory time'**
+  String compSession(int minutes);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

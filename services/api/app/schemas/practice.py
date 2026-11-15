@@ -96,6 +96,9 @@ class MockCreate(BaseModel):
     include_new_formats: bool = False
     # One section of the paper, on its share of the time. Not the exam's own format.
     section: Annotated[str, StringConstraints(min_length=1, max_length=120)] | None = None
+    # The learner declares (in the app) that the format's compensatory time for candidates
+    # with disabilities applies to them. Not stored beyond this attempt's added minutes.
+    compensatory_time: bool = False
 
 
 class AnswerUpdate(BaseModel):
@@ -310,6 +313,8 @@ class SessionRead(BaseModel):
     sectional: str | None = None  # one section of the paper, not the whole of it
     # A timed drill's target per question (from PracticeCreate), shown as a timer.
     per_question_seconds: int | None = None
+    # Minutes of compensatory time this attempt added (declared by the learner).
+    compensatory_minutes: int | None = None
     # Sectionally timed mocks only: the sections in order, the open one (index; equal to the
     # number of sections once all are closed) and when it closes. Questions of sections not
     # open yet come without their content; closed sections can't be answered.
@@ -367,6 +372,9 @@ class MockAvailability(BaseModel):
     section_counts_indicative: bool = False
     computer_based: bool = False
     sectional_timing: bool = False
+    # The format's compensatory time for candidates with disabilities, when it states one.
+    compensatory_minutes_per_hour: int | None = None
+    compensatory_reference: str | None = None
 
 
 class QuestionHistory(BaseModel):

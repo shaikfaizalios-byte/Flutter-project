@@ -5952,4 +5952,28 @@ class AppLocalizationsHi extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get compTitle => 'प्रतिपूरक समय';
+
+  @override
+  String get compSwitch => 'प्रतिपूरक समय मुझ पर लागू होता है';
+
+  @override
+  String get compHint =>
+      'दिव्यांग उम्मीदवारों के लिए, जो परीक्षा की अधिसूचना के तहत इसके हकदार हैं। यह आप खुद बताते हैं: यह सिर्फ़ इसी डिवाइस पर रहता है और PrepLoop को मॉक के अतिरिक्त मिनटों के अलावा कभी नहीं भेजा जाता। मॉक में यह तभी जुड़ता है जब पेपर की जाँची गई अधिसूचना में इसका नियम हो।';
+
+  @override
+  String compMock(int minutes, String reference) {
+    return '+हर घंटे $minutes मिनट प्रतिपूरक समय ($reference)';
+  }
+
+  @override
+  String get compMockNone =>
+      'इस पेपर की अधिसूचना में प्रतिपूरक समय नहीं बताया गया है, इसलिए कोई समय नहीं जुड़ता।';
+
+  @override
+  String compSession(int minutes) {
+    return 'इसमें $minutes मिनट प्रतिपूरक समय शामिल है';
+  }
 }

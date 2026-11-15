@@ -143,6 +143,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   adds up. `section_key` names repeated subjects, so sections mark apart. `MockCreate.section` = one section, pro-rata time.
   `GET /practice/sessions/{id}/analysis` (`mock_analysis.py`); a percentile only from `percentile_min_accounts` first attempts, labelled,
   no ranks. App `cbt_view.dart` (part of session_screen), `domain/cbt.dart`, `MockAnalysisCard`, behind `examProfiles`.
+- Compensatory time (Phase 5): a verified format may state `conduct.compensatory_time` = {minutes_per_hour, reference}
+  from the notice (pure `app/domain/compensatory.py`; `publish_problems` refuses an incomplete one; never filled in by
+  PrepLoop). `MockCreate.compensatory_time` adds pro-rata minutes (rounded up) to the paper and each timed section,
+  snapshotted in `selection.compensatory`; 409 `no_compensatory_rule` without one. `MockAvailability.compensatory_*`,
+  `SessionRead.compensatory_minutes`. App: Profile switch (self-declared, device-only `compensatory_time`, erased on
+  sign-out), shown on the mock card; nothing about it is stored on the server.
 - Scale (docs/jee-neet/phase-i-report.md, migration 0060): `question_figures.sha256`; figures every learner may see get signed links
   `/api/v1/media/figures/{sha}.png` (pure `app/domain/media.py`, `services/media.py` `figure_reads`, no sign-in, public cache headers,
   `PREPLOOP_MEDIA_BASE_URL` for a CDN); app `publicFigureProvider` (no token, falls back). `attempt_events` (final|remarked) written in

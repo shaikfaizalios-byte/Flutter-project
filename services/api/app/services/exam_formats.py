@@ -11,29 +11,34 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.domain.compensatory import compensatory_problems
 from app.domain.exam_format import config_problems, format_problems, in_effect
 from app.models.question import ExamFormat, FormatStatus
 
 
 def publish_problems(f: ExamFormat) -> list[str]:
     """Everything that stops this format from being published (empty: it can be)."""
-    return format_problems(
-        sections=f.sections,
-        total_questions=f.total_questions,
-        duration_minutes=f.duration_minutes,
-        negative_marks_per_wrong=f.negative_marks_per_wrong,
-        penalty_fraction=f.penalty_fraction,
-    ) + config_problems(
-        sections=f.sections,
-        duration_minutes=f.duration_minutes,
-        sections_in_fixed_order=f.sections_in_fixed_order,
-        sectional_timing=f.sectional_timing,
-        question_types=f.question_types,
-        effective_from=f.effective_from,
-        effective_to=f.effective_to,
-        source_title=f.source_title,
-        source_url=f.source_url,
-        source_reference=f.source_reference,
+    return (
+        format_problems(
+            sections=f.sections,
+            total_questions=f.total_questions,
+            duration_minutes=f.duration_minutes,
+            negative_marks_per_wrong=f.negative_marks_per_wrong,
+            penalty_fraction=f.penalty_fraction,
+        )
+        + config_problems(
+            sections=f.sections,
+            duration_minutes=f.duration_minutes,
+            sections_in_fixed_order=f.sections_in_fixed_order,
+            sectional_timing=f.sectional_timing,
+            question_types=f.question_types,
+            effective_from=f.effective_from,
+            effective_to=f.effective_to,
+            source_title=f.source_title,
+            source_url=f.source_url,
+            source_reference=f.source_reference,
+        )
+        + compensatory_problems(f.conduct)
     )
 
 

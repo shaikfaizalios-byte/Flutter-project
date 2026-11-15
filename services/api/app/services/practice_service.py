@@ -22,6 +22,7 @@ from sqlalchemy import Select, and_, false, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.domain import typed_answers
+from app.domain.compensatory import compensatory_rule
 from app.domain.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
 from app.domain.exam_format import format_problems, section_key, section_marking
 from app.domain.library import percent_right
@@ -611,6 +612,14 @@ class PracticeService:
             duration = sectional_minutes(
                 duration, int(chosen[0]["questions"]), int(exam_format.total_questions or 1)
             )
+        rule = compensatory_rule(exam_format.conduct) if request.compensatory_time else None
+        if request.compensatory_time and rule is None:
+            raise ConflictError(
+                "no_compensatory_rule",
+                "This paper's verified format states no compensatory time.",
+            )
+        extra = rule.extra_minutes(duration) if rule else 0
+        duration += extra
         mock = PracticeSession(
             owner_id=self._owner_id,
             mode=SessionMode.MOCK,
@@ -658,7 +667,8 @@ class PracticeService:
                         name=key,
                         first_position=first,
                         last_position=position,
-                        minutes=int(section["timer_minutes"]),
+                        minutes=int(section["timer_minutes"])
+                        + (rule.extra_minutes(int(section["timer_minutes"])) if rule else 0),
                     )
                 )
         mock.items = items
@@ -672,6 +682,11 @@ class PracticeService:
         if limits or cutoffs:
             # Copied into the attempt, like the marks.
             mock.selection = {**mock.selection, "attempt_limits": limits, "cutoffs": cutoffs}
+        if rule is not None:
+            mock.selection = {
+                **mock.selection,
+                "compensatory": {**rule.to_json(), "added_minutes": extra},
+            }
         if plan:
             # Copied into the attempt: later format changes never change it.
             mock.selection = {**mock.selection, "sections": [p.to_json() for p in plan]}
@@ -735,6 +750,7 @@ class PracticeService:
                     available=len(pool),
                 )
             )
+        comp = compensatory_rule(exam_format.conduct)
         availability = MockAvailability(
             exam_format_code=exam_format.code,
             exam_code=exam_format.exam_code,
@@ -748,6 +764,8 @@ class PracticeService:
             sections=sections,
             section_counts_indicative=exam_format.section_counts_indicative,
             computer_based=bool((exam_format.conduct or {}).get("cbt")),
+            compensatory_minutes_per_hour=comp.minutes_per_hour if comp else None,
+            compensatory_reference=comp.reference if comp else None,
             sectional_timing=exam_format.sectional_timing,
         )
         return availability, pools
@@ -1164,6 +1182,9 @@ class PracticeService:
             answered_count=sum(_answered(a) for a in practice.answers),
             cbt=(practice.selection or {}).get("cbt"),
             per_question_seconds=(practice.selection or {}).get("per_question_seconds"),
+            compensatory_minutes=((practice.selection or {}).get("compensatory") or {}).get(
+                "added_minutes"
+            ),
             sectional=(practice.selection or {}).get("section"),
             items=items,
             result=self._result(practice.result) if practice.result else None,

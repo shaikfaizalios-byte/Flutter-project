@@ -5951,4 +5951,27 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get compTitle => 'Compensatory time';
+
+  @override
+  String get compSwitch => 'Compensatory time applies to me';
+
+  @override
+  String get compHint =>
+      'For candidates with disabilities who are entitled to it under the exam\'s notice. You declare it yourself: it is kept only on this device and never sent to PrepLoop except as extra minutes for a mock. Mocks add it only when the paper\'s verified notice states a rule.';
+
+  @override
+  String compMock(int minutes, String reference) {
+    return '+$minutes min per hour compensatory time ($reference)';
+  }
+
+  @override
+  String get compMockNone => 'This paper\'s notice states no compensatory time, so none is added.';
+
+  @override
+  String compSession(int minutes) {
+    return 'Includes $minutes min compensatory time';
+  }
 }
