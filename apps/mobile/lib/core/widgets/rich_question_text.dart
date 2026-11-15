@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_features.dart';
 import '../../app/theme/app_spacing.dart';
+import '../utils/display_text.dart';
 
 /// A piece of question text.
 sealed class TextPart {
@@ -121,12 +122,14 @@ class RichQuestionText extends ConsumerWidget {
   /// False inside something tappable, such as an option: selection would take the tap.
   final bool selectable;
 
-  Widget _plain() => selectable ? SelectableText(text, style: style) : Text(text, style: style);
+  Widget _plain() => selectable
+      ? SelectableText(displayText(text), style: style)
+      : Text(displayText(text), style: style);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.watch(appFeaturesProvider).examProfiles) return _plain();
-    final parts = splitQuestionText(text);
+    final parts = splitQuestionText(displayText(text));
     if (parts.every((p) => p is PlainPart)) return _plain();
     final base = style ?? DefaultTextStyle.of(context).style;
     final blocks = <Widget>[];

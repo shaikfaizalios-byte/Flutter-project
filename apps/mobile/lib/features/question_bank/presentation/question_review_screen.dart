@@ -23,6 +23,7 @@ import 'shared_report.dart';
 import 'question_widgets.dart';
 import 'answer_key_card.dart';
 import 'format_editor_card.dart';
+import '../../../core/utils/display_text.dart';
 
 class QuestionReviewScreen extends ConsumerWidget {
   const QuestionReviewScreen({super.key, required this.questionId});
@@ -118,7 +119,7 @@ class _SharedQuestionView extends ConsumerWidget {
                 Text(q.passage!.text),
               ],
               const SizedBox(height: AppSpacing.md),
-              Text(q.stem, style: theme.textTheme.bodyLarge),
+              Text(displayText(q.stem), style: theme.textTheme.bodyLarge),
               for (final f in stemFigures) ...[
                 const SizedBox(height: AppSpacing.sm),
                 QuestionFigureView(questionId: q.id, figure: f),

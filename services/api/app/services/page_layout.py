@@ -68,22 +68,38 @@ def _layout(page: pdfium.PdfPage, number: int) -> PageLayout:
     )
 
 
-def text_lines(text_page: pdfium.PdfTextPage) -> list[LayoutLine]:
+def page_chars(text_page: pdfium.PdfTextPage) -> list[str]:
+    """The text of each character index, so positions line up with the text. A character
+    outside the BMP (a maths letter such as italic x) is two UTF-16 halves in PDFium: the first
+    index gets the whole character and the second an empty string."""
     count = text_page.count_chars()
-    if count <= 0:
-        return []
-    text = text_page.get_text_range(0, count)
-    if len(text) != count:  # characters outside the BMP: positions would not line up
-        return [LayoutLine(t, Box(0, 0, 0, 0)) for t in text.replace("\r", "").split("\n")]
+    chars: list[str] = []
+    i = 0
+    while i < count:
+        unit = pdfium_c.FPDFText_GetUnicode(text_page, i)
+        if 0xD800 <= unit <= 0xDBFF and i + 1 < count:
+            low = pdfium_c.FPDFText_GetUnicode(text_page, i + 1)
+            if 0xDC00 <= low <= 0xDFFF:
+                chars += [chr(0x10000 + ((unit - 0xD800) << 10) + (low - 0xDC00)), ""]
+                i += 2
+                continue
+        chars.append(chr(unit) if 0 < unit < 0xD800 or 0xE000 <= unit <= 0x10FFFF else "")
+        i += 1
+    return chars
+
+
+def text_lines(text_page: pdfium.PdfTextPage) -> list[LayoutLine]:
+    chars = page_chars(text_page)
     lines: list[LayoutLine] = []
     start = 0
-    for index in range(count + 1):
-        if index < count and text[index] != "\n":
+    for index in range(len(chars) + 1):
+        if index < len(chars) and chars[index] != "\n":
             continue
-        line_text = text[start:index].replace("\r", "")
+        line_text = "".join(chars[start:index]).replace("\r", "")
         box: Box | None = None
         for i in range(start, index):
-            if text[i].isspace() or pdfium_c.FPDFText_IsGenerated(text_page, i) == 1:
+            ch = chars[i]
+            if not ch or ch.isspace() or pdfium_c.FPDFText_IsGenerated(text_page, i) == 1:
                 continue
             left, bottom, right, top = text_page.get_charbox(i)
             char_box = Box(left, bottom, right, top)
@@ -98,12 +114,7 @@ def text_runs(text_page: pdfium.PdfTextPage, gap: float) -> list[LayoutLine]:
     than ``gap`` points. PDFium joins text that shares a baseline into one line, so the two
     columns of a page come out as one line each; runs keep them apart (for layout checks only:
     the stored text is never changed)."""
-    count = text_page.count_chars()
-    if count <= 0:
-        return []
-    text = text_page.get_text_range(0, count)
-    if len(text) != count:
-        return []
+    chars_at = page_chars(text_page)
     runs: list[LayoutLine] = []
     chars: list[str] = []
     box: Box | None = None
@@ -114,8 +125,9 @@ def text_runs(text_page: pdfium.PdfTextPage, gap: float) -> list[LayoutLine]:
             runs.append(LayoutLine("".join(chars).strip(), box))
         chars, box = [], None
 
-    for i in range(count):
-        ch = text[i]
+    for i, ch in enumerate(chars_at):
+        if not ch:
+            continue
         if ch in "\r\n":
             close()
             continue

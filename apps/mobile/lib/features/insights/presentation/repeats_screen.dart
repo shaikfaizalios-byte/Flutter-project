@@ -24,6 +24,7 @@ import '../domain/repeats.dart';
 import 'radar_sharing_card.dart';
 import '../../exams/application/active_exam.dart';
 import '../../concepts/application/concepts_providers.dart';
+import '../../../core/utils/display_text.dart';
 
 /// Which topics and question types (patterns) repeat across the papers the learner imported.
 /// Every number states its basis; reviewed counts are kept apart from suggestions.
@@ -297,7 +298,11 @@ class _RepeatsScreenState extends ConsumerState<RepeatsScreen> {
               children: [
                 Text(l10n.repeatsNameNote(group.papers, group.topicName)),
                 for (final question in group.questions.take(3))
-                  Text('· ${question.stemExcerpt}', maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    '· ${displayText(question.stemExcerpt)}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: TextButton(
@@ -667,7 +672,11 @@ class _SimilarCard extends StatelessWidget {
             for (final q in group.questions)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(q.stemExcerpt, maxLines: 3, overflow: TextOverflow.ellipsis),
+                title: Text(
+                  displayText(q.stemExcerpt),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 subtitle: Text(
                   [
                     q.documentFilename,

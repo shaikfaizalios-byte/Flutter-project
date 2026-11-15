@@ -16,6 +16,7 @@ import '../../revision/domain/revision_card.dart';
 import '../../revision/presentation/revision_widgets.dart';
 import '../application/paper_providers.dart';
 import '../domain/paper_solve.dart';
+import '../../../core/utils/display_text.dart';
 
 /// Solving a paper: its questions only, one at a time. Multiple-choice questions show their
 /// options; the rest get a box to type the answer, compared with the paper's answer, or (for
@@ -216,7 +217,7 @@ class _QuestionView extends StatelessWidget {
             PrintedOrText(
               questionId: question.id,
               figures: question.figures,
-              text: SelectableText(question.stem, style: theme.textTheme.titleMedium),
+              text: SelectableText(displayText(question.stem), style: theme.textTheme.titleMedium),
             ),
             const SizedBox(height: AppSpacing.md),
             switch (solveKind(question)) {

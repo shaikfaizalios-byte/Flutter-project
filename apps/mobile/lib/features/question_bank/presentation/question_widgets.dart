@@ -5,6 +5,7 @@ import '../../../app/routes.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../domain/question.dart';
+import '../../../core/utils/display_text.dart';
 
 /// Human-readable label for a server issue code (details stay as sent by the server).
 String issueLabel(AppLocalizations l10n, String code) => switch (code) {
@@ -129,8 +130,8 @@ class QuestionTile extends StatelessWidget {
       leading: StatusIcon(question: question),
       title: Text(
         question.sourceNumber == null
-            ? question.stem
-            : '${l10n.questionNumberLabel(question.sourceNumber!)}  ${question.stem}',
+            ? displayText(question.stem)
+            : '${l10n.questionNumberLabel(question.sourceNumber!)}  ${displayText(question.stem)}',
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
