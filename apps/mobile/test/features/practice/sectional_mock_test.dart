@@ -19,7 +19,7 @@ Future<FakePracticeRepository> startSectionalMock(
 ) async {
   final repo = await pumpPractice(tester, db, clock: clock, mocks: [chslMock]);
   repo.mockSections = plan;
-  await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+  await scrollTo(tester, find.widgetWithText(FilledButton, 'Start mock test'));
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
   await tester.pumpAndSettle();

@@ -53,7 +53,7 @@ Future<void> openPaper(
   await tester.tap(find.text('new-layout.pdf'));
   await tester.pumpAndSettle();
   // Tapping a paper offers solve / read / review.
-  await tester.tap(find.text('Review and correct questions'));
+  await tapInSheet(tester, 'Review and correct questions');
   await tester.pumpAndSettle();
 }
 

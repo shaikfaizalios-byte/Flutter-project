@@ -20,7 +20,7 @@ const withRule = MockTestView(
 );
 
 Future<void> startMock(WidgetTester tester) async {
-  await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+  await scrollTo(tester, find.widgetWithText(FilledButton, 'Start mock test'));
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
   await tester.pumpAndSettle();
@@ -38,6 +38,7 @@ void main() {
   ) async {
     await declare(tester, db);
     final repo = await pumpPractice(tester, db, mocks: [withRule]);
+    await scrollTo(tester, find.textContaining('+20 min per hour'));
     expect(
       find.textContaining('+20 min per hour compensatory time (Sample notice, para 1)'),
       findsOneWidget,
@@ -52,6 +53,7 @@ void main() {
   ) async {
     await declare(tester, db);
     final repo = await pumpPractice(tester, db, mocks: [chslMock]);
+    await scrollTo(tester, find.textContaining('states no compensatory time'));
     expect(find.textContaining('states no compensatory time'), findsOneWidget);
     await startMock(tester);
     expect(repo.compensatoryStarts, isEmpty);
@@ -59,6 +61,7 @@ void main() {
 
   testAppWidgets('not declared: nothing is shown or asked for', (tester, db) async {
     final repo = await pumpPractice(tester, db, mocks: [withRule]);
+    await scrollTo(tester, find.widgetWithText(FilledButton, 'Start mock test'));
     expect(find.textContaining('compensatory time'), findsNothing);
     await startMock(tester);
     expect(repo.compensatoryStarts, isEmpty);

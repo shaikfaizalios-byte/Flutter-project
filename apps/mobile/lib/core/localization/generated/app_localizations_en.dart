@@ -5974,4 +5974,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String compSession(int minutes) {
     return 'Includes $minutes min compensatory time';
   }
+
+  @override
+  String get issuePossiblyMultipleCorrect =>
+      'May have more than one correct option: set its format and answers';
 }

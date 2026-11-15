@@ -84,6 +84,7 @@ void main() {
     );
 
     expect(find.text('Practice questions'), findsOneWidget);
+    await scrollTo(tester, find.text('SSC CHSL 2026 Tier-I'));
     expect(find.text('SSC CHSL 2026 Tier-I'), findsOneWidget);
     expect(find.textContaining('100 questions · 60 min · −0.50 per wrong answer'), findsOneWidget);
     expect(find.textContaining('General Awareness: 3 of 25'), findsOneWidget);
@@ -132,6 +133,7 @@ void main() {
       ],
     );
 
+    await scrollTo(tester, find.textContaining('missing official details'));
     expect(find.textContaining('missing official details'), findsOneWidget);
     expect(find.textContaining('General Awareness: 3 of 25'), findsNothing);
     final start = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Start mock test'));
@@ -284,7 +286,7 @@ void main() {
     final clock = TestClock();
     final repo = await pumpPractice(tester, db, clock: clock, mocks: [chslMock]);
 
-    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+    await scrollTo(tester, find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
@@ -309,7 +311,7 @@ void main() {
   testAppWidgets('mock: reopening keeps the server deadline (no timer reset)', (tester, db) async {
     final clock = TestClock();
     final repo = await pumpPractice(tester, db, clock: clock, mocks: [chslMock]);
-    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+    await scrollTo(tester, find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
@@ -334,7 +336,7 @@ void main() {
   testAppWidgets('mock: time up submits automatically with saved answers', (tester, db) async {
     final clock = TestClock();
     final repo = await pumpPractice(tester, db, clock: clock, mocks: [chslMock]);
-    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Start mock test'));
+    await scrollTo(tester, find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Start mock test'));
     await tester.pumpAndSettle();
@@ -372,6 +374,7 @@ void main() {
     await pumpPractice(tester, db, locale: const Locale('hi'), mocks: [chslMock]);
 
     expect(find.text('प्रश्नों का अभ्यास'), findsOneWidget);
+    await scrollTo(tester, find.text('मॉक टेस्ट शुरू करें'));
     expect(find.text('मॉक टेस्ट शुरू करें'), findsOneWidget);
   });
 }

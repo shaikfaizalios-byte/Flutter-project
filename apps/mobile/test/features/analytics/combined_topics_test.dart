@@ -8,6 +8,9 @@ import '../../helpers/pump_app.dart';
 import 'progress_flow_test.dart' show openProgress, sampleStats, scrollProgress;
 
 final profilesOn = appFeaturesProvider.overrideWithValue(const AppFeatures(examProfiles: true));
+
+/// The any-exam features hidden, as with `--dart-define=EXAM_PROFILES=false`.
+final profilesOff = appFeaturesProvider.overrideWithValue(const AppFeatures());
 const kinematics = CanonicalTopic(
   name: 'Kinematics',
   answered: 30,
@@ -31,7 +34,7 @@ Future<FakeAnalyticsRepository> pumpProgress(
     db,
     analytics: analytics,
     studyProfile: onboardedProfile.copyWith(examCodes: exams),
-    extraOverrides: [if (flag) profilesOn],
+    extraOverrides: [if (flag) profilesOn else profilesOff],
   );
   await openProgress(tester);
   await scrollProgress(tester, find.byType(CombinedTopicsCard));

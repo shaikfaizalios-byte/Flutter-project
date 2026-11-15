@@ -64,11 +64,12 @@ void main() {
       find.descendant(of: find.byType(BottomSheet), matching: find.text('Create my own exam')),
     );
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).last, 'Rajasthan Patwari');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    // The exam builder: a name is all it needs.
+    await tester.enterText(find.byType(TextFormField).first, 'Rajasthan Patwari');
+    await tester.tap(find.text('Create exam').first);
     await tester.pumpAndSettle();
 
-    expect(exams.calls, ['create:Rajasthan Patwari']);
+    expect(exams.created.single.name, 'Rajasthan Patwari');
     expect(find.text('My own exams'), findsOneWidget);
     expect(find.text('Done (1 chosen)'), findsOneWidget);
   });
@@ -140,8 +141,8 @@ void main() {
 
     await tester.tap(find.widgetWithText(FloatingActionButton, 'Create my own exam'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'Patwari');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.enterText(find.byType(TextFormField).first, 'Patwari');
+    await tester.tap(find.text('Create exam').first);
     await tester.pumpAndSettle();
     expect(find.text('My own exam (only you see it)'), findsOneWidget);
 

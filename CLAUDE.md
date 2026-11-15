@@ -71,7 +71,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `questions.translation_of_id`. Both are excluded from repeats and Radar, only once a person confirms
   (`paper_duplicates.py` only suggests). Answer key files: `POST /documents/{id}/answer-key[/text]`, pure `answer_key.py`, never
   overwrites. Text: `RichQuestionText` (`flutter_math_fork`, TeX + pipe tables, plain when the flag is off). Review:
-  `FormatEditorCard`, `PaperDetailsScreen`. The parser doesn't detect formats yet; reviewers set them.
+  `FormatEditorCard`, `PaperDetailsScreen`. The parser doesn't set formats: wording that asks for several options ("select
+  all that apply", `segmentation.MULTIPLE_CORRECT_WORDING`) gets a `possibly_multiple_correct` review flag (in
+  `REVIEW_FIRST_CODES`); reviewers set the format.
 - Models and counting (any-exam Phase 4, migration 0047): `question_patterns.owner_id` (NULL = shared list, else private, even on
   a shared topic); ONE rule `visible_pattern` (`app/services/patterns.py`). `PATCH /patterns/{id}`, `POST /patterns/{id}/merge`,
   `POST /patterns/from-questions`, `POST /topics/{id}/default-models`; learners change only their own. Radar names shared models
@@ -408,7 +410,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
 - Home = one "Today" card (`_TodayCard` in `home_screen.dart`, built on `MomentumCard(top:)`): task count + exam
   countdown, the `buildStudyPlan` items (on a surface panel), the time budget, "Practise questions" / "Import a
   paper" when nothing is planned, then focus minutes, streak and "Start a focus session"; then weak topics and
-  shortcuts. Hidden features: `AppFeatures` (`app/app_features.dart`, `appFeaturesProvider`) — `repeatRadar`
+  shortcuts. `AppFeatures.examProfiles` (all the any-exam/JEE-NEET work) is ON since Phase 5 (`--dart-define=
+  EXAM_PROFILES=false` hides it; tests about the hidden state override it off). Hidden features: `AppFeatures`
+  (`app/app_features.dart`, `appFeaturesProvider`) — `repeatRadar`
   (Repeated models "All learners" + Profile sharing card) and `quotes` (Home + focus-done dialog) are off until
   there are enough learners; tests turn them on with an override.
 - Motivation + focus (`features/focus`, device-only, no schema change): Home `MomentumCard` (streak, today's focus
@@ -567,8 +571,8 @@ Known limitations right now:
   timed mocks and count checks don't. A format that leaves out any scoring fact (pure
   `app/domain/exam_format.py` `format_problems()`) is listed as incomplete and can't start a mock (`422
   format_incomplete`); nothing is filled in with a default.
-- Question types: multiple-choice, typed-in (TITA) and written (Q&A notes, revised as flashcards; not practised
-  or marked). Multi-select is not supported; timed mocks use multiple-choice only. Unnumbered Q&A questions are
+- Question types: multiple-choice, typed-in (TITA), written (Q&A notes, revised as flashcards; not practised
+  or marked) and the any-exam formats (multi-select with partial marks, numeric, match, ordering; set by reviewers). Unnumbered Q&A questions are
   numbered in order by PrepLoop.
   Catalog exams other than SSC/banking/railways start with no shared topics (learners add their own or use
   the AI draft). Own exams/topics never join the Radar.

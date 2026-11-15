@@ -20,7 +20,7 @@ void main() {
 
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
-    expect(find.text('Which exam are you preparing for?'), findsOneWidget);
+    expect(find.text('What are you preparing for?'), findsOneWidget);
     await tester.tap(find.text('SSC CHSL'));
     await tester.pumpAndSettle();
 

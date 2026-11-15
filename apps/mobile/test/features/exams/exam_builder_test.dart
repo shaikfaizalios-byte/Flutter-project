@@ -46,7 +46,12 @@ void main() {
   });
 
   testAppWidgets('the flag off keeps today\'s wording and name-only exams', (tester, db) async {
-    await pumpPrepLoopApp(tester, db, studyProfile: const StudyProfile());
+    await pumpPrepLoopApp(
+      tester,
+      db,
+      studyProfile: const StudyProfile(),
+      extraOverrides: [appFeaturesProvider.overrideWithValue(const AppFeatures())],
+    );
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
     expect(find.text('Which exam are you preparing for?'), findsOneWidget);

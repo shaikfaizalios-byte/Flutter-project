@@ -3054,5 +3054,6 @@
   "@compMock": {"placeholders": {"minutes": {"type": "int"}, "reference": {"type": "String"}}},
   "compMockNone": "This paper's notice states no compensatory time, so none is added.",
   "compSession": "Includes {minutes} min compensatory time",
-  "@compSession": {"placeholders": {"minutes": {"type": "int"}}}
+  "@compSession": {"placeholders": {"minutes": {"type": "int"}}},
+  "issuePossiblyMultipleCorrect": "May have more than one correct option: set its format and answers"
 }

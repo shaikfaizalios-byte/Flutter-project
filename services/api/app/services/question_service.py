@@ -106,6 +106,7 @@ REVIEW_FIRST_CODES = {
     ai_reading.AI_TEXT_MISMATCH,
     ai_reading.AI_READ_UNCHECKED,
     IssueCode.UNREADABLE_TEXT,
+    IssueCode.POSSIBLY_MULTIPLE_CORRECT,
 }
 
 # A learner reported the question as wrong or unclear (resolved when it is re-verified).

@@ -15,6 +15,9 @@ import '../../helpers/pump_app.dart';
 const estimate = 'Estimated marks from AI feedback, not an official grade.';
 final profilesOn = appFeaturesProvider.overrideWithValue(const AppFeatures(examProfiles: true));
 
+/// The any-exam features hidden, as with `--dart-define=EXAM_PROFILES=false`.
+final profilesOff = appFeaturesProvider.overrideWithValue(const AppFeatures());
+
 /// Stand-in for the server: two levels, and the second marking can disagree.
 class FakeDescriptive implements DescriptiveRepository {
   FakeDescriptive({this.available = true, this.paperQuestions = 0});
@@ -135,7 +138,7 @@ Future<FakeDescriptive> pumpCard(
     ai: FakeAiRepository(enabled: true),
     studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
     extraOverrides: [
-      if (flag) profilesOn,
+      if (flag) profilesOn else profilesOff,
       descriptiveRepositoryProvider.overrideWithValue(repository),
       photoPickerProvider.overrideWithValue(() async => (name: 'p.jpg', bytes: const [1, 2])),
     ],

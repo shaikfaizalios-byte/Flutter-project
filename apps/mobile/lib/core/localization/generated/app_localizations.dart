@@ -9566,6 +9566,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Includes {minutes} min compensatory time'**
   String compSession(int minutes);
+
+  /// No description provided for @issuePossiblyMultipleCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'May have more than one correct option: set its format and answers'**
+  String get issuePossiblyMultipleCorrect;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

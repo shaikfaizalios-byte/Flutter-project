@@ -52,6 +52,9 @@ class IssueCode:
     UNRECOGNISED_ANSWER = "unrecognised_answer"
     # "Option 7:" where option 1 was due (an OCR misreading): used in order, flagged.
     OPTION_LABEL_UNCLEAR = "option_label_unclear"
+    # The wording asks for more than one option ("select all that apply"). The question is
+    # kept as one correct option; a reviewer sets its format and answers.
+    POSSIBLY_MULTIPLE_CORRECT = "possibly_multiple_correct"
     # Document level
     NO_QUESTIONS_FOUND = "no_questions_found"
     NUMBERING_GAPS = "numbering_gaps"
@@ -196,6 +199,15 @@ EXPLANATION_HEADING = re.compile(
 PASSAGE_RANGE = re.compile(
     r"(?:questions?|q\.?\s*nos?\.?|प्रश्न(?:ों)?\s*(?:संख्या)?)\s*\(?(\d{1,3})\)?\s*"
     rf"(?:{_DASH}|to|से|and|तक)\s*\(?(\d{{1,3}})\)?",
+    re.IGNORECASE,
+)
+# Wording that asks for several options. Only clear phrases: "which of the following are
+# correct" usually has one right option (a combination), so it is not matched.
+MULTIPLE_CORRECT_WORDING = re.compile(
+    r"select all (?:that|which) apply|choose all (?:that|which) apply|mark all (?:that|which)"
+    r" apply|(?:one|1) or more (?:than one )?(?:of the )?(?:options?|answers?|choices?)"
+    r"|more than one (?:option|answer|choice)s? (?:may|can|could) be correct"
+    r"|एक से अधिक (?:विकल्प|उत्तर) सही",
     re.IGNORECASE,
 )
 PASSAGE_START = re.compile(r"^(?:directions?|read|निर्देश|पढ़)", re.IGNORECASE)
@@ -1057,6 +1069,10 @@ def _validate(
             )
         if flagged_pages.intersection(question.pages):
             question.issues.append(Issue(IssueCode.SOURCE_PAGE_NEEDS_REVIEW))
+        if question.options and (match := MULTIPLE_CORRECT_WORDING.search(question.stem)):
+            question.issues.append(
+                Issue(IssueCode.POSSIBLY_MULTIPLE_CORRECT, f"matched '{match.group(0)}'")
+            )
 
     numbers = sorted({q.number for q in questions})
     missing = sorted(set(range(numbers[0], numbers[-1] + 1)) - set(numbers))

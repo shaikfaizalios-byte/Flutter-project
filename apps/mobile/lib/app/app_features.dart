@@ -24,16 +24,18 @@ class AppFeatures {
   /// hidden until it can (docs/ai.md "Topic lesson").
   final bool learnStart;
 
-  /// The custom exam builder and the "What are you preparing for?" wording in onboarding. Off
-  /// until the any-exam work is complete (docs/any-exam).
+  /// Everything built for any exam (docs/any-exam and the later phase reports): the exam builder and
+  /// onboarding wording, multi-select and other question formats, the exam-style mock screen,
+  /// syllabus trees, the question library, written practice and chapter analysis. On since
+  /// Phase 5; `--dart-define=EXAM_PROFILES=false` hides it again.
   final bool examProfiles;
 }
 
 /// `--dart-define=LEARN_START=true` turns lessons and knowledge checks on in a local test build.
-/// `--dart-define=EXAM_PROFILES=true` turns the exam builder on.
+/// `--dart-define=EXAM_PROFILES=false` hides the any-exam features.
 final appFeaturesProvider = Provider<AppFeatures>(
   (ref) => const AppFeatures(
     learnStart: bool.fromEnvironment('LEARN_START'),
-    examProfiles: bool.fromEnvironment('EXAM_PROFILES'),
+    examProfiles: bool.fromEnvironment('EXAM_PROFILES', defaultValue: true),
   ),
 );

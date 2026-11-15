@@ -583,6 +583,18 @@ class _EditorState extends ConsumerState<_Editor> {
                 ],
               ),
             ),
+          if (_options.length < 6)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: Text(l10n.addOption),
+                onPressed: () => setState(
+                  () =>
+                      _options = [..._options, ('${_options.length + 1}', TextEditingController())],
+                ),
+              ),
+            ),
           if (ref.watch(appFeaturesProvider).examProfiles)
             FormatEditorCard(
               key: ValueKey('format-${_question.format}'),
@@ -596,18 +608,6 @@ class _EditorState extends ConsumerState<_Editor> {
               ),
               question: _question,
               onSave: _saveKey,
-            ),
-          if (_options.length < 6)
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: Text(l10n.addOption),
-                onPressed: () => setState(
-                  () =>
-                      _options = [..._options, ('${_options.length + 1}', TextEditingController())],
-                ),
-              ),
             ),
           const SizedBox(height: AppSpacing.md),
           Text(l10n.fieldCorrectAnswer, style: Theme.of(context).textTheme.titleSmall),

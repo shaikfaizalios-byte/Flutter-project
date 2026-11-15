@@ -5976,4 +5976,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String compSession(int minutes) {
     return 'इसमें $minutes मिनट प्रतिपूरक समय शामिल है';
   }
+
+  @override
+  String get issuePossiblyMultipleCorrect =>
+      'इसमें एक से अधिक सही विकल्प हो सकते हैं: इसका फ़ॉर्मेट और उत्तर तय करें';
 }
