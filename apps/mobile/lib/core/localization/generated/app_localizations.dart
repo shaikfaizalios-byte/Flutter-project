@@ -9590,6 +9590,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add topics'**
   String get ladderAddTopics;
+
+  /// No description provided for @ladderChoiceTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get ladderChoiceTopics;
+
+  /// No description provided for @ladderChoicePapers.
+  ///
+  /// In en, this message translates to:
+  /// **'My papers'**
+  String get ladderChoicePapers;
+
+  /// No description provided for @ladderChoiceAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI only'**
+  String get ladderChoiceAi;
+
+  /// No description provided for @ladderAllPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'All my papers'**
+  String get ladderAllPapers;
+
+  /// No description provided for @ladderAllPapersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'5 questions picked at random from all of this exam\'s papers'**
+  String get ladderAllPapersHint;
+
+  /// No description provided for @ladderPaperCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{questions, plural, =1{1 question} other{{questions} questions}} · {reviewed} reviewed'**
+  String ladderPaperCounts(int questions, int reviewed);
+
+  /// No description provided for @ladderNoPapers.
+  ///
+  /// In en, this message translates to:
+  /// **'No imported paper of this exam has questions the ladder can read as text yet. Import a paper, or check its questions in review.'**
+  String get ladderNoPapers;
+
+  /// No description provided for @ladderTypedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic'**
+  String get ladderTypedLabel;
+
+  /// No description provided for @ladderTypedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: Mixtures and alligation'**
+  String get ladderTypedHint;
+
+  /// No description provided for @ladderTypedStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the ladder'**
+  String get ladderTypedStart;
+
+  /// No description provided for @ladderTypedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'No topic list or paper needed: the AI writes the questions from web references on what you typed. They are AI-generated practice questions, each checked, never from an official paper.'**
+  String get ladderTypedNote;
+
+  /// No description provided for @ladderPaperNote.
+  ///
+  /// In en, this message translates to:
+  /// **'5 questions from your papers are picked at random as examples (reviewed ones first). The AI writes new questions like them, each harder and each checked; your paper\'s questions are not asked as they are.'**
+  String get ladderPaperNote;
+
+  /// No description provided for @ladderUnreviewedSeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Some example questions from your papers aren\'t reviewed yet, so they may contain reading mistakes.'**
+  String get ladderUnreviewedSeeds;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

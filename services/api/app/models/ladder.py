@@ -11,9 +11,10 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    Uuid,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -27,6 +28,7 @@ class LadderSession(Base):
         CheckConstraint(
             "source_mix IN ('papers', 'web_main', 'web_only')", name="source_mix_valid"
         ),
+        CheckConstraint("basis IN ('topic', 'paper', 'papers', 'typed')", name="basis_valid"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -47,6 +49,16 @@ class LadderSession(Base):
     new_formats: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     # Started without Plus, on the free daily allowance: round 1 only.
     free: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    # What the ladder is on: a topic, one of the learner's papers, all of the exam's papers, or
+    # a topic the learner typed (web references only).
+    basis: Mapped[str] = mapped_column(String(6), default="topic", server_default="topic")
+    document_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("documents.id", ondelete="SET NULL")
+    )
+    # Paper ladders: the questions picked at the start, used as examples by every step.
+    seed_question_ids: Mapped[list[uuid.UUID] | None] = mapped_column(ARRAY(Uuid))
+    # Some of those questions were not reviewed yet (the app says so).
+    unreviewed_seeds: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

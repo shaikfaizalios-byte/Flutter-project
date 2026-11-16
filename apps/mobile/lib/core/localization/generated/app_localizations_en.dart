@@ -5988,4 +5988,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ladderAddTopics => 'Add topics';
+
+  @override
+  String get ladderChoiceTopics => 'Topics';
+
+  @override
+  String get ladderChoicePapers => 'My papers';
+
+  @override
+  String get ladderChoiceAi => 'AI only';
+
+  @override
+  String get ladderAllPapers => 'All my papers';
+
+  @override
+  String get ladderAllPapersHint => '5 questions picked at random from all of this exam\'s papers';
+
+  @override
+  String ladderPaperCounts(int questions, int reviewed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      questions,
+      locale: localeName,
+      other: '$questions questions',
+      one: '1 question',
+    );
+    return '$_temp0 · $reviewed reviewed';
+  }
+
+  @override
+  String get ladderNoPapers =>
+      'No imported paper of this exam has questions the ladder can read as text yet. Import a paper, or check its questions in review.';
+
+  @override
+  String get ladderTypedLabel => 'Topic';
+
+  @override
+  String get ladderTypedHint => 'For example: Mixtures and alligation';
+
+  @override
+  String get ladderTypedStart => 'Start the ladder';
+
+  @override
+  String get ladderTypedNote =>
+      'No topic list or paper needed: the AI writes the questions from web references on what you typed. They are AI-generated practice questions, each checked, never from an official paper.';
+
+  @override
+  String get ladderPaperNote =>
+      '5 questions from your papers are picked at random as examples (reviewed ones first). The AI writes new questions like them, each harder and each checked; your paper\'s questions are not asked as they are.';
+
+  @override
+  String get ladderUnreviewedSeeds =>
+      'Some example questions from your papers aren\'t reviewed yet, so they may contain reading mistakes.';
 }

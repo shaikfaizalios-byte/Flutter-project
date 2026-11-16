@@ -29,10 +29,12 @@ Future<FakeLadderRepository> pumpLadder(
   int freePerDay = 0,
   int? freeLeft,
   List<LadderTopic> examTopics = topics,
+  List<LadderPaper> papers = const [],
 }) async {
   final ladder = FakeLadderRepository(
     data: LadderOverview(
       topics: examTopics,
+      papers: papers,
       best: best,
       freePerDay: freePerDay,
       freeLeftToday: freeLeft,
@@ -46,6 +48,14 @@ Future<FakeLadderRepository> pumpLadder(
     studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
   );
   return ladder;
+}
+
+Future<void> openAnyTopic(WidgetTester tester) async {
+  await scrollTo(tester, find.byType(LadderCard));
+  await tester.ensureVisible(find.widgetWithText(ActionChip, 'Any topic'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.widgetWithText(ActionChip, 'Any topic'));
+  await tester.pumpAndSettle();
 }
 
 Future<void> openPercentage(WidgetTester tester) async {
@@ -182,13 +192,52 @@ void main() {
 
   testAppWidgets('any topic: says why the list is empty', (tester, db) async {
     await pumpLadder(tester, db, examTopics: const []);
-    await scrollTo(tester, find.byType(LadderCard));
-    await tester.ensureVisible(find.widgetWithText(ActionChip, 'Any topic'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ActionChip, 'Any topic'));
+    await openAnyTopic(tester);
+    // Nothing to pick from: the AI-only choice is open.
+    expect(find.text('Start the ladder'), findsOneWidget);
+    await tester.tap(find.text('Topics'));
     await tester.pumpAndSettle();
     expect(find.textContaining('This exam has no topics yet'), findsOneWidget);
     expect(find.text('Add topics'), findsOneWidget);
+  });
+
+  testAppWidgets('my papers: one paper or all of them, with what was reviewed', (tester, db) async {
+    final ladder = await pumpLadder(
+      tester,
+      db,
+      examTopics: const [],
+      papers: const [
+        LadderPaper(documentId: 'd1', name: 'cat-2024.pdf', questions: 66, reviewed: 0),
+        LadderPaper(documentId: 'd2', name: 'cat-2023.pdf', questions: 1, reviewed: 1),
+      ],
+    );
+    await openAnyTopic(tester);
+    // No topics: the papers open first.
+    expect(find.text('66 questions · 0 reviewed'), findsOneWidget);
+    expect(find.text('1 question · 1 reviewed'), findsOneWidget);
+    expect(find.text('All my papers'), findsOneWidget);
+    await tester.tap(find.text('cat-2024.pdf'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LadderScreen), findsOneWidget);
+    expect(find.textContaining('picked at random as examples'), findsOneWidget);
+    await startClimbing(tester);
+    expect(ladder.calls, contains('start:SSC_CHSL:paper=d1:en'));
+  });
+
+  testAppWidgets('AI only: a typed topic starts a ladder', (tester, db) async {
+    final ladder = await pumpLadder(tester, db);
+    await openAnyTopic(tester);
+    await tester.tap(find.text('AI only'));
+    await tester.pumpAndSettle();
+    final start = find.widgetWithText(FilledButton, 'Start the ladder');
+    expect(tester.widget<FilledButton>(start).onPressed, isNull);
+    await tester.enterText(find.byType(TextField), '  Mixtures   and alligation ');
+    await tester.pumpAndSettle();
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('web references on what you typed'), findsOneWidget);
+    await startClimbing(tester);
+    expect(ladder.calls, contains('start:SSC_CHSL:typed=Mixtures and alligation:en'));
   });
 
   testAppWidgets('any topic: a search that matches nothing says so', (tester, db) async {

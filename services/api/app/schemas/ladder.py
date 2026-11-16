@@ -3,7 +3,7 @@
 import uuid
 from typing import Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.schemas.language import Language
 
@@ -14,10 +14,37 @@ class LadderStart(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     exam_code: str
-    topic_id: uuid.UUID
+    # What the ladder is on, exactly one of: a topic; one of the learner's papers; all of the
+    # exam's papers; a topic the learner typed (the AI writes from web references only).
+    topic_id: uuid.UUID | None = None
+    document_id: uuid.UUID | None = None
+    all_papers: bool = False
+    topic_name: str | None = Field(default=None, max_length=100)
     language: Language = "en"
     # The app can show formats beyond one correct option. Without it, questions stay in that one.
     include_new_formats: bool = False
+
+    @field_validator("topic_name")
+    @classmethod
+    def _typed_topic(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = " ".join(value.split())
+        if len(value) < 2:
+            raise ValueError("Type a topic of at least 2 characters.")
+        return value
+
+    @model_validator(mode="after")
+    def _one_basis(self) -> Self:
+        given = (
+            self.topic_id is not None,
+            self.document_id is not None,
+            self.all_papers,
+            self.topic_name is not None,
+        )
+        if sum(given) != 1:
+            raise ValueError("Choose one: a topic, a paper, all papers or a typed topic.")
+        return self
 
 
 class LadderAnswer(BaseModel):
@@ -79,6 +106,9 @@ class LadderRoundRead(BaseModel):
     topic_name: str
     subject: str
     source_mix: Literal["papers", "web_main", "web_only"]
+    basis: Literal["topic", "paper", "papers", "typed"] = "topic"
+    # A paper ladder whose examples include questions nobody reviewed yet.
+    unreviewed_seeds: bool = False
     steps: list[LadderStepRead]
 
 
@@ -87,6 +117,15 @@ class LadderTopic(BaseModel):
     name: str
     subject: str
     papers: int  # reviewed papers it appeared in (0: not in the learner's papers yet)
+
+
+class LadderPaper(BaseModel):
+    """One of the learner's papers for the exam, with the questions a ladder can use."""
+
+    document_id: uuid.UUID
+    name: str
+    questions: int
+    reviewed: int
 
 
 class LadderBest(BaseModel):
@@ -98,6 +137,8 @@ class LadderOverview(BaseModel):
     """Topics for the exam, most repeated first; ``best`` is the learner's own best climb."""
 
     topics: list[LadderTopic]
+    # The learner's papers for the exam that have questions a ladder can use, newest first.
+    papers: list[LadderPaper] = []
     best: LadderBest | None
     available: bool = True  # false: the exam has no multiple-choice paper to practise for
     # Without PrepLoop Plus: free ladders a day (one round each; the day is UTC) and how many

@@ -5990,4 +5990,55 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get ladderAddTopics => 'विषय जोड़ें';
+
+  @override
+  String get ladderChoiceTopics => 'विषय';
+
+  @override
+  String get ladderChoicePapers => 'मेरे पेपर';
+
+  @override
+  String get ladderChoiceAi => 'केवल AI';
+
+  @override
+  String get ladderAllPapers => 'मेरे सभी पेपर';
+
+  @override
+  String get ladderAllPapersHint => 'इस परीक्षा के सभी पेपरों में से यूँ ही चुने गए 5 प्रश्न';
+
+  @override
+  String ladderPaperCounts(int questions, int reviewed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      questions,
+      locale: localeName,
+      other: '$questions प्रश्न',
+      one: '1 प्रश्न',
+    );
+    return '$_temp0 · $reviewed जाँचे गए';
+  }
+
+  @override
+  String get ladderNoPapers =>
+      'इस परीक्षा के किसी आयात किए गए पेपर में अभी ऐसे प्रश्न नहीं हैं जिन्हें लैडर टेक्स्ट के रूप में पढ़ सके। कोई पेपर आयात करें, या समीक्षा में उसके प्रश्न जाँचें।';
+
+  @override
+  String get ladderTypedLabel => 'विषय';
+
+  @override
+  String get ladderTypedHint => 'उदाहरण: मिश्रण और एलिगेशन';
+
+  @override
+  String get ladderTypedStart => 'लैडर शुरू करें';
+
+  @override
+  String get ladderTypedNote =>
+      'विषय सूची या पेपर की ज़रूरत नहीं: AI आपके लिखे विषय पर वेब संदर्भों से प्रश्न बनाता है। ये AI से बने अभ्यास प्रश्न हैं, हर एक जाँचा गया, किसी आधिकारिक पेपर से नहीं।';
+
+  @override
+  String get ladderPaperNote =>
+      'आपके पेपरों से 5 प्रश्न उदाहरण के रूप में यूँ ही चुने जाते हैं (पहले जाँचे गए)। AI उनके जैसे नए प्रश्न बनाता है, हर एक पहले से कठिन और जाँचा गया; आपके पेपर के प्रश्न जैसे के तैसे नहीं पूछे जाते।';
+
+  @override
+  String get ladderUnreviewedSeeds =>
+      'आपके पेपरों के कुछ उदाहरण प्रश्न अभी जाँचे नहीं गए हैं, इसलिए उनमें पढ़ने की गलतियाँ हो सकती हैं।';
 }
