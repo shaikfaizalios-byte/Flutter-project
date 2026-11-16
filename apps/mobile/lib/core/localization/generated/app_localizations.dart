@@ -9722,6 +9722,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save this choice. Try again.'**
   String get percentileSaveFailed;
+
+  /// No description provided for @snapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap a question'**
+  String get snapTitle;
+
+  /// No description provided for @snapIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo of a printed question. PrepLoop reads its text and looks for it in your papers, your questions and your concepts. The photo isn\'t kept.'**
+  String get snapIntro;
+
+  /// No description provided for @snapChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo'**
+  String get snapChoose;
+
+  /// No description provided for @snapAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another photo'**
+  String get snapAnother;
+
+  /// No description provided for @snapUnsure.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo was hard to read, so the text below may have misread words. Correct it and search again.'**
+  String get snapUnsure;
+
+  /// No description provided for @snapReadText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text read from the photo'**
+  String get snapReadText;
+
+  /// No description provided for @snapSearchAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Search again'**
+  String get snapSearchAgain;
+
+  /// No description provided for @snapMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Found in your material'**
+  String get snapMatches;
+
+  /// No description provided for @snapNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing like it in your papers or concepts yet.'**
+  String get snapNoMatches;
+
+  /// No description provided for @snapPageAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Page text as read from the page, not checked.'**
+  String get snapPageAsRead;
+
+  /// No description provided for @snapAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask from my material'**
+  String get snapAsk;
+
+  /// No description provided for @snapOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the PrepLoop server. Try again when you\'re online.'**
+  String get snapOffline;
+
+  /// No description provided for @snapTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is too large. Try a smaller one.'**
+  String get snapTooLarge;
+
+  /// No description provided for @snapNoOcr.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading photos isn\'t available on this server.'**
+  String get snapNoOcr;
+
+  /// No description provided for @snapUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'No text could be read from this photo. Try a sharper, well-lit photo of the question.'**
+  String get snapUnreadable;
+
+  /// No description provided for @caTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Current affairs'**
+  String get caTitle;
+
+  /// No description provided for @caIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste news text or choose a PDF you have. AI drafts revision cards from it, each with the words it comes from. You approve each card before it is saved; approved cards are tagged Current affairs with the month and go on your revision schedule. PrepLoop doesn\'t fetch web pages.'**
+  String get caIntro;
+
+  /// No description provided for @caPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste text'**
+  String get caPaste;
+
+  /// No description provided for @caPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'A PDF'**
+  String get caPdf;
+
+  /// No description provided for @caPasteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'News or current affairs text'**
+  String get caPasteLabel;
+
+  /// No description provided for @caDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft cards'**
+  String get caDraft;
+
+  /// No description provided for @caChoosePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF'**
+  String get caChoosePdf;
+
+  /// No description provided for @caDraftsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafted cards'**
+  String get caDraftsTitle;
+
+  /// No description provided for @caAiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated from your material. Check each card before approving it.'**
+  String get caAiLabel;
+
+  /// No description provided for @caNoText.
+  ///
+  /// In en, this message translates to:
+  /// **'No text could be read from this file.'**
+  String get caNoText;
+
+  /// No description provided for @caNoCards.
+  ///
+  /// In en, this message translates to:
+  /// **'No clear facts were found to make cards from.'**
+  String get caNoCards;
+
+  /// No description provided for @caLeftOut.
+  ///
+  /// In en, this message translates to:
+  /// **'The material was long, so only its start was read.'**
+  String get caLeftOut;
+
+  /// No description provided for @caDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 draft was left out: its quote isn\'t in your material.} other{{count} drafts were left out: their quotes aren\'t in your material.}}'**
+  String caDropped(int count);
+
+  /// No description provided for @caSourceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'From {source}: \"{quote}\"'**
+  String caSourceLine(String source, String quote);
+
+  /// No description provided for @caApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get caApprove;
+
+  /// No description provided for @caSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get caSkip;
+
+  /// No description provided for @caSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your concepts and revision schedule'**
+  String get caSaved;
+
+  /// No description provided for @caSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get caSkipped;
+
+  /// No description provided for @caSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save this card. Try again.'**
+  String get caSaveFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

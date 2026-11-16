@@ -151,6 +151,17 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   identical papers compare. `users.percentile_opt_in` (off; `GET/PUT /practice/percentile-settings`, Settings card): shown only
   to opted-in learners, counted among opted-in first attempts, from `percentile_min_accounts` (100); `MockAnalysis.fixed_paper`,
   `percentile_waiting`. Random mocks never get one. App: "This week's fixed paper" on the mock card (`weekly_available`).
+- Snap a question (Phase 6): `POST /search/photo` (JPEG/PNG/WebP ≤ 12 MB, read in memory, EXIF-upright, grey, OCR via
+  `app.state.ocr_engine`, NOTHING stored, no AI) → `SnapRead` text + `low_confidence` + matches from `RagRetriever.retrieve`
+  (own pages, visible questions, synced concepts of the exam); `POST /search/match` re-searches corrected text
+  (`app/services/snap_service.py`). App `features/snap` (`SnapScreen`, `/study/snap`, camera button by the Study search; picks a
+  photo with `photoPickerProvider`), editable text, matches, and `SearchAnswerPanel` as "Ask from my material" (Plus).
+- Current affairs (Phase 6, migration 0068 = AI task `current_affairs`): learners paste text (≤ 20 000) or choose a PDF
+  (≤ 40 pages, temp file deleted); no URLs. `/ai/current-affairs/text|pdf` (Plus) → pure `app/domain/current_affairs.py`:
+  parts P1..Pn (pasted text, or one per page), ≤ 60 000 chars sent (`left_out`), each card names its part and quotes it; a
+  card is kept only when its quote is in that part (`dropped` says how many weren't). NOTHING stored on the server. App
+  `features/current_affairs` (Revision screen action, `/study/current-affairs`): the learner approves each card → a concept
+  (subject "Current affairs", topic and tag = month, `aiGeneratedTag`, quote in notes/source) + a revision card.
 - Compensatory time (Phase 5): a verified format may state `conduct.compensatory_time` = {minutes_per_hour, reference}
   from the notice (pure `app/domain/compensatory.py`; `publish_problems` refuses an incomplete one; never filled in by
   PrepLoop). `MockCreate.compensatory_time` adds pro-rata minutes (rounded up) to the paper and each timed section,

@@ -760,6 +760,32 @@
         "title": "AnswerUpdate",
         "type": "object"
       },
+      "Body_current_affairs_pdf_api_v1_ai_current_affairs_pdf_post": {
+        "properties": {
+          "exam_code": {
+            "maxLength": 32,
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "A PDF of news or current affairs",
+            "title": "File",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "exam_code"
+        ],
+        "title": "Body_current_affairs_pdf_api_v1_ai_current_affairs_pdf_post",
+        "type": "object"
+      },
       "Body_read_photo_api_v1_descriptive_read_photo_post": {
         "properties": {
           "file": {
@@ -794,6 +820,33 @@
           "file"
         ],
         "title": "Body_read_syllabus_api_v1_exams__code__syllabus_post",
+        "type": "object"
+      },
+      "Body_search_photo_api_v1_search_photo_post": {
+        "properties": {
+          "exam_code": {
+            "maxLength": 32,
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "description": "Language the question is printed in",
+            "title": "Language",
+            "type": "string"
+          },
+          "photo": {
+            "contentMediaType": "application/octet-stream",
+            "description": "A photo of the question: JPEG, PNG or WebP",
+            "title": "Photo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "photo",
+          "exam_code"
+        ],
+        "title": "Body_search_photo_api_v1_search_photo_post",
         "type": "object"
       },
       "Body_upload_answer_key_api_v1_documents__document_id__answer_key_post": {
@@ -1919,6 +1972,117 @@
           "sessions_remarked"
         ],
         "title": "CorrectionResult",
+        "type": "object"
+      },
+      "CurrentAffairsCard": {
+        "properties": {
+          "back": {
+            "title": "Back",
+            "type": "string"
+          },
+          "front": {
+            "title": "Front",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          },
+          "source_label": {
+            "title": "Source Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "front",
+          "back",
+          "source_label",
+          "quote"
+        ],
+        "title": "CurrentAffairsCard",
+        "type": "object"
+      },
+      "CurrentAffairsDraft": {
+        "description": "AI-generated drafts: the learner approves each one before it is saved.",
+        "properties": {
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/CurrentAffairsCard"
+            },
+            "title": "Cards",
+            "type": "array"
+          },
+          "dropped": {
+            "title": "Dropped",
+            "type": "integer"
+          },
+          "left_out": {
+            "title": "Left Out",
+            "type": "boolean"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "no_text": {
+            "default": false,
+            "title": "No Text",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "cards",
+          "dropped",
+          "left_out"
+        ],
+        "title": "CurrentAffairsDraft",
+        "type": "object"
+      },
+      "CurrentAffairsText": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "enum": [
+              "en",
+              "hi",
+              "as",
+              "bn",
+              "gu",
+              "kn",
+              "ml",
+              "mr",
+              "or",
+              "pa",
+              "ta",
+              "te"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 20000,
+            "minLength": 20,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "text"
+        ],
+        "title": "CurrentAffairsText",
         "type": "object"
       },
       "CustomExamCreate": {
@@ -11812,6 +11976,132 @@
         "title": "SimilarQuestion",
         "type": "object"
       },
+      "SnapMatch": {
+        "properties": {
+          "concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Concept Id"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "kind": {
+            "enum": [
+              "page",
+              "question",
+              "concept"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "page_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "snippet": {
+            "title": "Snippet",
+            "type": "string"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "label",
+          "snippet",
+          "verified"
+        ],
+        "title": "SnapMatch",
+        "type": "object"
+      },
+      "SnapMatchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "exam_code": {
+            "title": "Exam Code",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 2,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exam_code",
+          "text"
+        ],
+        "title": "SnapMatchRequest",
+        "type": "object"
+      },
+      "SnapRead": {
+        "properties": {
+          "low_confidence": {
+            "title": "Low Confidence",
+            "type": "boolean"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/SnapMatch"
+            },
+            "title": "Matches",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "low_confidence",
+          "matches"
+        ],
+        "title": "SnapRead",
+        "type": "object"
+      },
       "SnapshotOption": {
         "properties": {
           "label": {
@@ -13942,6 +14232,218 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/ai/current-affairs/pdf": {
+      "post": {
+        "operationId": "current_affairs_pdf_api_v1_ai_current_affairs_pdf_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_current_affairs_pdf_api_v1_ai_current_affairs_pdf_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentAffairsDraft"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Draft current affairs cards from a PDF the learner chose (nothing is saved)",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/current-affairs/text": {
+      "post": {
+        "operationId": "current_affairs_text_api_v1_ai_current_affairs_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentAffairsText"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentAffairsDraft"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "PrepLoop Plus required (plus_required)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not in a state that allows this"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not eligible for AI assistance"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too many AI requests, or the monthly allowance is used (ai_allowance_used)"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AI provider failed; retry later"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database or AI not available"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Draft current affairs cards from pasted text (nothing is saved)",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
     "/api/v1/ai/documents/{document_id}/read": {
       "post": {
         "operationId": "read_paper_api_v1_ai_documents__document_id__read_post",
@@ -25637,6 +26139,112 @@
         "summary": "Turn sharing your confirmed counts with the Repeat Radar on or off",
         "tags": [
           "radar"
+        ]
+      }
+    },
+    "/api/v1/search/match": {
+      "post": {
+        "operationId": "search_match_api_v1_search_match_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SnapMatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SnapMatch"
+                  },
+                  "title": "Response Search Match Api V1 Search Match Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Find text (a corrected photo reading) in your material",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/api/v1/search/photo": {
+      "post": {
+        "operationId": "search_photo_api_v1_search_photo_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_search_photo_api_v1_search_photo_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read a photo of a question and find it in your material (nothing is stored)",
+        "tags": [
+          "search"
         ]
       }
     },

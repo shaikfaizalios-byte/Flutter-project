@@ -6074,4 +6074,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get percentileSaveFailed => 'Couldn\'t save this choice. Try again.';
+
+  @override
+  String get snapTitle => 'Snap a question';
+
+  @override
+  String get snapIntro =>
+      'Choose a photo of a printed question. PrepLoop reads its text and looks for it in your papers, your questions and your concepts. The photo isn\'t kept.';
+
+  @override
+  String get snapChoose => 'Choose a photo';
+
+  @override
+  String get snapAnother => 'Choose another photo';
+
+  @override
+  String get snapUnsure =>
+      'The photo was hard to read, so the text below may have misread words. Correct it and search again.';
+
+  @override
+  String get snapReadText => 'Text read from the photo';
+
+  @override
+  String get snapSearchAgain => 'Search again';
+
+  @override
+  String get snapMatches => 'Found in your material';
+
+  @override
+  String get snapNoMatches => 'Nothing like it in your papers or concepts yet.';
+
+  @override
+  String get snapPageAsRead => 'Page text as read from the page, not checked.';
+
+  @override
+  String get snapAsk => 'Ask from my material';
+
+  @override
+  String get snapOffline => 'Can\'t reach the PrepLoop server. Try again when you\'re online.';
+
+  @override
+  String get snapTooLarge => 'This photo is too large. Try a smaller one.';
+
+  @override
+  String get snapNoOcr => 'Reading photos isn\'t available on this server.';
+
+  @override
+  String get snapUnreadable =>
+      'No text could be read from this photo. Try a sharper, well-lit photo of the question.';
+
+  @override
+  String get caTitle => 'Current affairs';
+
+  @override
+  String get caIntro =>
+      'Paste news text or choose a PDF you have. AI drafts revision cards from it, each with the words it comes from. You approve each card before it is saved; approved cards are tagged Current affairs with the month and go on your revision schedule. PrepLoop doesn\'t fetch web pages.';
+
+  @override
+  String get caPaste => 'Paste text';
+
+  @override
+  String get caPdf => 'A PDF';
+
+  @override
+  String get caPasteLabel => 'News or current affairs text';
+
+  @override
+  String get caDraft => 'Draft cards';
+
+  @override
+  String get caChoosePdf => 'Choose a PDF';
+
+  @override
+  String get caDraftsTitle => 'Drafted cards';
+
+  @override
+  String get caAiLabel => 'AI-generated from your material. Check each card before approving it.';
+
+  @override
+  String get caNoText => 'No text could be read from this file.';
+
+  @override
+  String get caNoCards => 'No clear facts were found to make cards from.';
+
+  @override
+  String get caLeftOut => 'The material was long, so only its start was read.';
+
+  @override
+  String caDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count drafts were left out: their quotes aren\'t in your material.',
+      one: '1 draft was left out: its quote isn\'t in your material.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caSourceLine(String source, String quote) {
+    return 'From $source: \"$quote\"';
+  }
+
+  @override
+  String get caApprove => 'Approve';
+
+  @override
+  String get caSkip => 'Skip';
+
+  @override
+  String get caSaved => 'Saved to your concepts and revision schedule';
+
+  @override
+  String get caSkipped => 'Skipped';
+
+  @override
+  String get caSaveFailed => 'Couldn\'t save this card. Try again.';
 }

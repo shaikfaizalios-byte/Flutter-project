@@ -15,6 +15,8 @@ abstract final class AppRoutes {
       Uri(path: newConcept, queryParameters: {'subject': subject, 'topic': topic}).toString();
   static const documents = '/study/documents';
   static const revision = '/study/revision';
+  static const snap = '/study/snap';
+  static const currentAffairs = '/study/current-affairs';
   static const revisionReview = '/study/revision/review';
   static const practice = '/practice';
   static const questionBank = '/practice/bank';
