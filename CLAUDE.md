@@ -145,6 +145,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   adds up. `section_key` names repeated subjects, so sections mark apart. `MockCreate.section` = one section, pro-rata time.
   `GET /practice/sessions/{id}/analysis` (`mock_analysis.py`); a percentile only from `percentile_min_accounts` first attempts, labelled,
   no ranks. App `cbt_view.dart` (part of session_screen), `domain/cbt.dart`, `MockAnalysisCard`, behind `examProfiles`.
+- Honest percentile (Phase 6, migration 0067): only on the weekly fixed paper (`MockCreate.weekly`): shared-bank
+  questions only (`_availability(shared_only=True)`), pools sorted by id, `weekly_seed(format, iso_week)`, so every learner
+  gets the same questions; `practice_sessions.fixed_key` = week + fingerprint of the questions (`fixed_paper_key`), so only
+  identical papers compare. `users.percentile_opt_in` (off; `GET/PUT /practice/percentile-settings`, Settings card): shown only
+  to opted-in learners, counted among opted-in first attempts, from `percentile_min_accounts` (100); `MockAnalysis.fixed_paper`,
+  `percentile_waiting`. Random mocks never get one. App: "This week's fixed paper" on the mock card (`weekly_available`).
 - Compensatory time (Phase 5): a verified format may state `conduct.compensatory_time` = {minutes_per_hour, reference}
   from the notice (pure `app/domain/compensatory.py`; `publish_problems` refuses an incomplete one; never filled in by
   PrepLoop). `MockCreate.compensatory_time` adds pro-rata minutes (rounded up) to the paper and each timed section,

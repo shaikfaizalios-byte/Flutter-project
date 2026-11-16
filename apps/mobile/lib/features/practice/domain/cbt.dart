@@ -158,10 +158,14 @@ class MockAnalysis {
     this.history = const [],
     this.percent,
     this.accounts,
+    this.fixedPaper = false,
+    this.waitingAccounts,
+    this.waitingNeeded,
   });
 
   factory MockAnalysis.fromJson(Map<String, dynamic> json) {
     final percentile = json['percentile'] as Map<String, dynamic>?;
+    final waiting = json['percentile_waiting'] as Map<String, dynamic>?;
     return MockAnalysis(
       questions: [
         for (final q in json['questions'] as List<dynamic>)
@@ -177,6 +181,9 @@ class MockAnalysis {
       ],
       percent: percentile?['percent'] as int?,
       accounts: percentile?['accounts'] as int?,
+      fixedPaper: json['fixed_paper'] as bool? ?? false,
+      waitingAccounts: waiting?['accounts'] as int?,
+      waitingNeeded: waiting?['needed'] as int?,
     );
   }
 
@@ -185,4 +192,14 @@ class MockAnalysis {
   final List<MockHistoryRow> history;
   final int? percent;
   final int? accounts;
+
+  /// The attempt was a weekly fixed paper (the only kind that can have a percentile).
+  final bool fixedPaper;
+
+  /// Opted in, but the paper needs more first attempts before a percentile is shown.
+  final int? waitingAccounts;
+  final int? waitingNeeded;
 }
+
+/// The learner's choice to compare scores on fixed papers.
+typedef PercentileSettings = ({bool optIn, int minAccounts});

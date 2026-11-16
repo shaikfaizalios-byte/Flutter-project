@@ -179,7 +179,12 @@ void main() {
     await show(const MockAnalysis(percent: 62, accounts: 140));
     expect(find.textContaining('62%'), findsOneWidget);
     expect(find.textContaining('140 PrepLoop'), findsOneWidget);
-    expect(find.textContaining('not an exam rank'), findsOneWidget);
+    expect(find.textContaining('Not an exam rank'), findsOneWidget);
+    await show(const MockAnalysis(fixedPaper: true, waitingAccounts: 12, waitingNeeded: 100));
+    expect(find.textContaining('once 100 learners'), findsOneWidget);
+    expect(find.textContaining('12 so far'), findsOneWidget);
+    await show(const MockAnalysis(fixedPaper: true));
+    expect(find.textContaining('Compare scores on fixed papers'), findsOneWidget);
   });
 
   testWidgets('on a phone the palette opens in a sheet', (tester) async {

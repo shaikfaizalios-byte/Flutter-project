@@ -19,6 +19,7 @@ import '../data/server_status_repository.dart';
 import '../../../app/routes.dart';
 import '../../practice/application/practice_providers.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/utils/app_log.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -56,6 +57,8 @@ class SettingsScreen extends ConsumerWidget {
                   onChanged: (on) => setCompensatoryTime(ref.read(appDatabaseProvider), on),
                 ),
               ),
+              const SizedBox(height: AppSpacing.md),
+              const _PercentileCard(),
               const SizedBox(height: AppSpacing.md),
               if (ref.watch(appFeaturesProvider).repeatRadar) ...[
                 const RadarSharingCard(),
@@ -252,6 +255,56 @@ class _ContentLanguageChoice extends StatelessWidget {
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
+    );
+  }
+}
+
+/// Opt-in: compare scores on the weekly fixed paper, the same for every learner.
+class _PercentileCard extends ConsumerStatefulWidget {
+  const _PercentileCard();
+
+  @override
+  ConsumerState<_PercentileCard> createState() => _PercentileCardState();
+}
+
+class _PercentileCardState extends ConsumerState<_PercentileCard> {
+  bool _saving = false;
+
+  Future<void> _set(bool on) async {
+    setState(() => _saving = true);
+    try {
+      await ref.read(practiceRepositoryProvider).setPercentileOptIn(on);
+      ref.invalidate(percentileSettingsProvider);
+    } on Object catch (error, stack) {
+      logError('Percentile choice failed', error, stack);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).percentileSaveFailed)));
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final settings = ref.watch(percentileSettingsProvider);
+    return SectionCard(
+      icon: Icons.groups_outlined,
+      title: l10n.percentileTitle,
+      child: switch (settings) {
+        AsyncData(:final value) => SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.percentileSwitch),
+          subtitle: Text(l10n.percentileHint(value.minAccounts)),
+          value: value.optIn,
+          onChanged: _saving ? null : _set,
+        ),
+        AsyncError() => Text(l10n.percentileOffline),
+        _ => const LinearProgressIndicator(),
+      },
     );
   }
 }

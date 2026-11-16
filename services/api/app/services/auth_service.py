@@ -245,6 +245,7 @@ class AuthService:
                 "radar_opt_in_at": user.radar_opt_in_at.isoformat()
                 if user.radar_opt_in_at
                 else None,
+                "percentile_opt_in": user.percentile_opt_in,
             }
         ]
         return AccountExport(exported_at=self._now(), user=UserRead.model_validate(user), data=data)

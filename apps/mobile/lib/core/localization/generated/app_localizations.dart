@@ -9114,7 +9114,7 @@ abstract class AppLocalizations {
   /// No description provided for @analysisPercentile.
   ///
   /// In en, this message translates to:
-  /// **'Scored above {percent}% of {accounts} PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.'**
+  /// **'Among {accounts} PrepLoop learners who took this paper, you scored higher than {percent}% of their first attempts. Not an exam rank.'**
   String analysisPercentile(int percent, int accounts);
 
   /// No description provided for @plusWebLabel.
@@ -9668,6 +9668,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Some example questions from your papers aren\'t reviewed yet, so they may contain reading mistakes.'**
   String get ladderUnreviewedSeeds;
+
+  /// No description provided for @mockWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'This week\'s fixed paper · {week}'**
+  String mockWeekly(String week);
+
+  /// No description provided for @mockWeeklyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This week\'s fixed paper: everyone who takes it this week gets the same questions from the shared bank, so scores can be compared. Only your first attempt counts toward the percentile.'**
+  String get mockWeeklyMessage;
+
+  /// No description provided for @analysisPercentileWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'A percentile appears once {needed} learners who chose to compare have taken this paper ({accounts} so far).'**
+  String analysisPercentileWaiting(int needed, int accounts);
+
+  /// No description provided for @analysisPercentileOptIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on \"Compare scores on fixed papers\" in Settings to see how you did among PrepLoop learners who took this paper.'**
+  String get analysisPercentileOptIn;
+
+  /// No description provided for @percentileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare scores on fixed papers'**
+  String get percentileTitle;
+
+  /// No description provided for @percentileSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare my scores'**
+  String get percentileSwitch;
+
+  /// No description provided for @percentileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for the weekly fixed paper, which every learner takes identically. Your first attempt\'s score is counted among learners who chose to compare, and a percentile appears once {min} of them have taken a paper. Never an exam rank; no answers or account details are shared.'**
+  String percentileHint(int min);
+
+  /// No description provided for @percentileOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the PrepLoop server to show this choice.'**
+  String get percentileOffline;
+
+  /// No description provided for @percentileSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save this choice. Try again.'**
+  String get percentileSaveFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

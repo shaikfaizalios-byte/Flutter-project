@@ -2952,7 +2952,7 @@
   "analysisQuestion": "Question {number}",
   "analysisUnattempted": "Not attempted",
   "analysisDropped": "Dropped",
-  "analysisPercentile": "Scored above {percent}% of {accounts} PrepLoop accounts' first attempts at this paper. From real PrepLoop attempts; not an exam rank.",
+  "analysisPercentile": "Among {accounts} PrepLoop learners who took this paper, you scored higher than {percent}% of their first attempts. Not an exam rank.",
   "@cbtQuestionStatus": {"placeholders": {"number": {"type": "int"}, "status": {"type": "String"}}},
   "@mockSectionalMessage": {"placeholders": {"section": {"type": "String"}}},
   "@analysisCounts": {"placeholders": {"correct": {"type": "int"}, "wrong": {"type": "int"}, "left": {"type": "int"}}},
@@ -3072,5 +3072,17 @@
   "ladderTypedStart": "Start the ladder",
   "ladderTypedNote": "No topic list or paper needed: the AI writes the questions from web references on what you typed. They are AI-generated practice questions, each checked, never from an official paper.",
   "ladderPaperNote": "5 questions from your papers are picked at random as examples (reviewed ones first). The AI writes new questions like them, each harder and each checked; your paper's questions are not asked as they are.",
-  "ladderUnreviewedSeeds": "Some example questions from your papers aren't reviewed yet, so they may contain reading mistakes."
+  "ladderUnreviewedSeeds": "Some example questions from your papers aren't reviewed yet, so they may contain reading mistakes.",
+  "mockWeekly": "This week's fixed paper · {week}",
+  "@mockWeekly": {"placeholders": {"week": {"type": "String"}}},
+  "mockWeeklyMessage": "This week's fixed paper: everyone who takes it this week gets the same questions from the shared bank, so scores can be compared. Only your first attempt counts toward the percentile.",
+  "analysisPercentileWaiting": "A percentile appears once {needed} learners who chose to compare have taken this paper ({accounts} so far).",
+  "@analysisPercentileWaiting": {"placeholders": {"needed": {"type": "int"}, "accounts": {"type": "int"}}},
+  "analysisPercentileOptIn": "Turn on \"Compare scores on fixed papers\" in Settings to see how you did among PrepLoop learners who took this paper.",
+  "percentileTitle": "Compare scores on fixed papers",
+  "percentileSwitch": "Compare my scores",
+  "percentileHint": "Only for the weekly fixed paper, which every learner takes identically. Your first attempt's score is counted among learners who chose to compare, and a percentile appears once {min} of them have taken a paper. Never an exam rank; no answers or account details are shared.",
+  "@percentileHint": {"placeholders": {"min": {"type": "int"}}},
+  "percentileOffline": "Can't reach the PrepLoop server to show this choice.",
+  "percentileSaveFailed": "Couldn't save this choice. Try again."
 }

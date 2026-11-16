@@ -5672,7 +5672,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String analysisPercentile(int percent, int accounts) {
-    return 'Scored above $percent% of $accounts PrepLoop accounts\' first attempts at this paper. From real PrepLoop attempts; not an exam rank.';
+    return 'Among $accounts PrepLoop learners who took this paper, you scored higher than $percent% of their first attempts. Not an exam rank.';
   }
 
   @override
@@ -6039,4 +6039,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ladderUnreviewedSeeds =>
       'Some example questions from your papers aren\'t reviewed yet, so they may contain reading mistakes.';
+
+  @override
+  String mockWeekly(String week) {
+    return 'This week\'s fixed paper · $week';
+  }
+
+  @override
+  String get mockWeeklyMessage =>
+      'This week\'s fixed paper: everyone who takes it this week gets the same questions from the shared bank, so scores can be compared. Only your first attempt counts toward the percentile.';
+
+  @override
+  String analysisPercentileWaiting(int needed, int accounts) {
+    return 'A percentile appears once $needed learners who chose to compare have taken this paper ($accounts so far).';
+  }
+
+  @override
+  String get analysisPercentileOptIn =>
+      'Turn on \"Compare scores on fixed papers\" in Settings to see how you did among PrepLoop learners who took this paper.';
+
+  @override
+  String get percentileTitle => 'Compare scores on fixed papers';
+
+  @override
+  String get percentileSwitch => 'Compare my scores';
+
+  @override
+  String percentileHint(int min) {
+    return 'Only for the weekly fixed paper, which every learner takes identically. Your first attempt\'s score is counted among learners who chose to compare, and a percentile appears once $min of them have taken a paper. Never an exam rank; no answers or account details are shared.';
+  }
+
+  @override
+  String get percentileOffline => 'Can\'t reach the PrepLoop server to show this choice.';
+
+  @override
+  String get percentileSaveFailed => 'Couldn\'t save this choice. Try again.';
 }

@@ -99,6 +99,9 @@ class MockCreate(BaseModel):
     # The learner declares (in the app) that the format's compensatory time for candidates
     # with disabilities applies to them. Not stored beyond this attempt's added minutes.
     compensatory_time: bool = False
+    # This week's fixed paper: the same shared-bank questions for every learner, so it can be
+    # compared. Not with `section`.
+    weekly: bool = False
 
 
 class AnswerUpdate(BaseModel):
@@ -179,10 +182,30 @@ class MockHistoryRow(BaseModel):
 
 
 class PercentileRead(BaseModel):
-    """From real PrepLoop attempts only: each account's first attempt at this paper."""
+    """From real PrepLoop attempts only: each opted-in account's first attempt at this fixed
+    paper."""
 
     percent: int
     accounts: int
+
+
+class PercentileWaiting(BaseModel):
+    """A fixed paper whose percentile needs more first attempts before it is shown."""
+
+    accounts: int
+    needed: int
+
+
+class PercentileSettings(BaseModel):
+    opt_in: bool
+    # First attempts by opted-in learners a fixed paper needs before a percentile is shown.
+    min_accounts: int
+
+
+class PercentileSettingsUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    opt_in: bool
 
 
 class MockAnalysis(BaseModel):
@@ -190,6 +213,10 @@ class MockAnalysis(BaseModel):
     chapters: list[ChapterAccuracy]
     history: list[MockHistoryRow]  # the learner's attempts at this paper, oldest first
     percentile: PercentileRead | None
+    # The attempt was this week's fixed paper (the only kind that can have a percentile).
+    fixed_paper: bool = False
+    # A fixed paper, opted in, but too few first attempts yet.
+    percentile_waiting: PercentileWaiting | None = None
 
 
 MistakeReason = Literal["didnt_know", "calculation", "misread", "time", "guessed"]
@@ -375,6 +402,9 @@ class MockAvailability(BaseModel):
     # The format's compensatory time for candidates with disabilities, when it states one.
     compensatory_minutes_per_hour: int | None = None
     compensatory_reference: str | None = None
+    # The shared bank has enough reviewed questions for this week's fixed paper.
+    weekly_available: bool = False
+    weekly_label: str | None = None  # ISO week, e.g. "2026-W47"
 
 
 class QuestionHistory(BaseModel):

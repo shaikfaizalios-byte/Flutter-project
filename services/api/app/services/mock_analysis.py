@@ -8,15 +8,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.domain.errors import ConflictError, NotFoundError
+from app.domain.exam_profile import mock_analysis_settings
 from app.domain.mock_analysis import percentile
 from app.domain.scoring import score_session
 from app.models.practice import PracticeSession, SessionMode, SessionStatus
 from app.models.question import Topic
+from app.models.user import User
 from app.schemas.practice import (
     ChapterAccuracy,
     MockAnalysis,
     MockHistoryRow,
     PercentileRead,
+    PercentileSettings,
+    PercentileWaiting,
     QuestionAnalysis,
 )
 from app.services.chapter_map import unit_topics
@@ -88,6 +92,7 @@ class MockAnalysisService:
             )
             if chapter:
                 chapters[(subject or item.subject or "", chapter)].append(row)
+        found, waiting = self._percentile(practice)
         return MockAnalysis(
             questions=questions,
             chapters=sorted(
@@ -95,7 +100,9 @@ class MockAnalysisService:
                 key=lambda c: (c.subject, c.name),
             ),
             history=self._history(practice),
-            percentile=self._percentile(practice),
+            percentile=found,
+            fixed_paper=practice.fixed_key is not None,
+            percentile_waiting=waiting,
         )
 
     def _peers(self, practice: PracticeSession) -> list[PracticeSession]:
@@ -126,14 +133,49 @@ class MockAnalysisService:
             for p in own[-MAX_HISTORY:]
         ]
 
-    def _percentile(self, practice: PracticeSession) -> PercentileRead | None:
-        if (practice.selection or {}).get("section") or practice.score is None:
-            return None  # a single section has no paper's worth of comparison
+    def _percentile(
+        self, practice: PracticeSession
+    ) -> tuple[PercentileRead | None, PercentileWaiting | None]:
+        """Only on a fixed paper every learner took identically, only for a learner who opted in,
+        against the first attempts of learners who opted in."""
+        if practice.fixed_key is None or practice.score is None or not self._opted_in():
+            return None, None
+        rows = self._session.execute(
+            select(PracticeSession.owner_id, PracticeSession.score)
+            .join(User, User.id == PracticeSession.owner_id)
+            .where(
+                PracticeSession.fixed_key == practice.fixed_key,
+                PracticeSession.status == SessionStatus.SUBMITTED,
+                PracticeSession.score.is_not(None),
+                User.percentile_opt_in.is_(True),
+            )
+            .order_by(PracticeSession.submitted_at, PracticeSession.id)
+        ).all()
         first: dict[uuid.UUID | None, float] = {}
-        for attempt in self._peers(practice):
-            first.setdefault(attempt.owner_id, float(attempt.score or 0))
+        for owner_id, score in rows:
+            first.setdefault(owner_id, float(score or 0))
         found = percentile(float(practice.score), list(first.values()))
-        return PercentileRead(percent=found.percent, accounts=found.accounts) if found else None
+        if found is not None:
+            return PercentileRead(percent=found.percent, accounts=found.accounts), None
+        needed = int(mock_analysis_settings()["percentile_min_accounts"])
+        return None, PercentileWaiting(accounts=len(first), needed=needed)
+
+    def _opted_in(self) -> bool:
+        user = self._session.get(User, self._owner_id)
+        return user is not None and user.percentile_opt_in
+
+    def settings(self) -> PercentileSettings:
+        return PercentileSettings(
+            opt_in=self._opted_in(),
+            min_accounts=int(mock_analysis_settings()["percentile_min_accounts"]),
+        )
+
+    def set_opt_in(self, opt_in: bool) -> PercentileSettings:
+        user = self._session.get(User, self._owner_id)
+        if user is not None and user.percentile_opt_in != opt_in:
+            user.percentile_opt_in = opt_in
+            self._session.commit()
+        return self.settings()
 
 
 def _chapter(subject: str, name: str, rows: list[QuestionAnalysis]) -> ChapterAccuracy:

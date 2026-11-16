@@ -5911,6 +5911,11 @@
             "title": "Chapters",
             "type": "array"
           },
+          "fixed_paper": {
+            "default": false,
+            "title": "Fixed Paper",
+            "type": "boolean"
+          },
           "history": {
             "items": {
               "$ref": "#/components/schemas/MockHistoryRow"
@@ -5922,6 +5927,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/PercentileRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "percentile_waiting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PercentileWaiting"
               },
               {
                 "type": "null"
@@ -6051,6 +6066,22 @@
           "total_questions": {
             "title": "Total Questions",
             "type": "integer"
+          },
+          "weekly_available": {
+            "default": false,
+            "title": "Weekly Available",
+            "type": "boolean"
+          },
+          "weekly_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weekly Label"
           }
         },
         "required": [
@@ -6097,6 +6128,11 @@
               }
             ],
             "title": "Section"
+          },
+          "weekly": {
+            "default": false,
+            "title": "Weekly",
+            "type": "boolean"
           }
         },
         "required": [
@@ -8219,7 +8255,7 @@
         "type": "object"
       },
       "PercentileRead": {
-        "description": "From real PrepLoop attempts only: each account's first attempt at this paper.",
+        "description": "From real PrepLoop attempts only: each opted-in account's first attempt at this fixed\npaper.",
         "properties": {
           "accounts": {
             "title": "Accounts",
@@ -8235,6 +8271,57 @@
           "accounts"
         ],
         "title": "PercentileRead",
+        "type": "object"
+      },
+      "PercentileSettings": {
+        "properties": {
+          "min_accounts": {
+            "title": "Min Accounts",
+            "type": "integer"
+          },
+          "opt_in": {
+            "title": "Opt In",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "opt_in",
+          "min_accounts"
+        ],
+        "title": "PercentileSettings",
+        "type": "object"
+      },
+      "PercentileSettingsUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "opt_in": {
+            "title": "Opt In",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "opt_in"
+        ],
+        "title": "PercentileSettingsUpdate",
+        "type": "object"
+      },
+      "PercentileWaiting": {
+        "description": "A fixed paper whose percentile needs more first attempts before it is shown.",
+        "properties": {
+          "accounts": {
+            "title": "Accounts",
+            "type": "integer"
+          },
+          "needed": {
+            "title": "Needed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accounts",
+          "needed"
+        ],
+        "title": "PercentileWaiting",
         "type": "object"
       },
       "PlayPurchaseVerify": {
@@ -23392,6 +23479,96 @@
           }
         ],
         "summary": "Record a practice session done offline (answers re-checked; idempotent by client_id)",
+        "tags": [
+          "practice"
+        ]
+      }
+    },
+    "/api/v1/practice/percentile-settings": {
+      "get": {
+        "operationId": "percentile_settings_api_v1_practice_percentile_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PercentileSettings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your choice to compare scores on fixed papers",
+        "tags": [
+          "practice"
+        ]
+      },
+      "put": {
+        "operationId": "update_percentile_settings_api_v1_practice_percentile_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PercentileSettingsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PercentileSettings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Database unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Opt in or out of the percentile on fixed papers",
         "tags": [
           "practice"
         ]
