@@ -3,7 +3,7 @@ repeat a subject, sectional practice, and analysis with no invented ranks."""
 
 import json
 import uuid
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from app.cli.exam_formats import FormatFile
 from app.domain.exam_format import section_key
 from app.domain.mock_analysis import percentile, sectional_minutes
+from app.models.document import Document
 from app.models.exam import Exam
 from app.models.practice import PracticeSession, SessionAnswer
 from app.models.question import ExamFormat, FormatStatus, Question, Topic
@@ -388,7 +389,7 @@ def test_no_percentile_without_enough_real_attempts() -> None:
     assert (found.percent, found.accounts) == (75, 100)
 
 
-def test_the_percentile_counts_each_accounts_first_attempt_once(
+def test_a_random_mock_gets_no_percentile(
     db_client: TestClient, db_session: Session, user: User, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     paper(db_session, ONE_SECTION)
@@ -402,5 +403,107 @@ def test_the_percentile_counts_each_accounts_first_attempt_once(
         "app.domain.mock_analysis.mock_analysis_settings",
         lambda: {"percentile_min_accounts": 1},
     )
+    db_client.put("/api/v1/practice/percentile-settings", json={"opt_in": True})
     data = db_client.get(f"{SESSIONS}/{mock['id']}/analysis").json()
-    assert data["percentile"] == {"percent": 0, "accounts": 1}
+    # A mock drawn at random is no paper anyone else took: never a percentile.
+    assert (data["percentile"], data["fixed_paper"], data["percentile_waiting"]) == (
+        None,
+        False,
+        None,
+    )
+
+
+# --- the weekly fixed paper ------------------------------------------------------------------
+
+
+def shared_questions(db: Session, owner: User, count: int) -> list[Question]:
+    rows = questions(db, owner, "Physics", count)
+    document = db.get(Document, rows[0].document_id)
+    assert document is not None
+    document.shared_at = datetime.now(UTC)
+    document.shared_rights_basis = "owned"
+    document.shared_source = "Made for tests"
+    db.flush()
+    return rows
+
+
+def test_the_weekly_paper_is_the_same_for_everyone_and_only_from_the_shared_bank(
+    db_client: TestClient, db_session: Session, user: User
+) -> None:
+    paper(db_session, ONE_SECTION)
+    questions(db_session, user, "Physics", 3)  # the learner's own: never in the weekly paper
+    listing = db_client.get(MOCKS, params={"exam": EXAM}).json()[0]
+    assert listing["weekly_available"] is False and listing["weekly_label"]
+    shared = shared_questions(db_session, make_user(db_session, "operator@example.com"), 5)
+
+    listing = db_client.get(MOCKS, params={"exam": EXAM}).json()[0]
+    assert listing["weekly_available"] is True
+    mine = start(db_client, weekly=True)
+    db_client.headers.update(auth_headers(make_user(db_session, "other@example.com")))
+    theirs = start(db_client, weekly=True)
+
+    ids = {q.id for q in shared}
+    picked = [i["question_id"] for i in mine["items"]]
+    assert picked == [i["question_id"] for i in theirs["items"]]
+    assert {uuid.UUID(q) for q in picked} <= ids
+    rows = [db_session.get(PracticeSession, uuid.UUID(m["id"])) for m in (mine, theirs)]
+    assert rows[0] is not None and rows[1] is not None
+    assert rows[0].fixed_key == rows[1].fixed_key and rows[0].fixed_key is not None
+    sectional = db_client.post(
+        MOCKS, json={"exam_format_code": "CBT_2027", "weekly": True, "section": "Physics"}
+    )
+    assert sectional.status_code == 422
+
+
+def test_the_percentile_needs_opting_in_and_enough_first_attempts(
+    db_client: TestClient, db_session: Session, user: User, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paper(db_session, ONE_SECTION)
+    shared_questions(db_session, make_user(db_session, "operator@example.com"), 2)
+    settings = "/api/v1/practice/percentile-settings"
+    assert db_client.get(settings).json() == {"opt_in": False, "min_accounts": 100}
+
+    mine = start(db_client, weekly=True)
+    submit(db_client, mine["id"])
+    url = f"{SESSIONS}/{mine['id']}/analysis"
+    data = db_client.get(url).json()
+    assert (data["fixed_paper"], data["percentile"], data["percentile_waiting"]) == (
+        True,
+        None,
+        None,
+    )  # not opted in: nothing to show or count
+
+    assert db_client.put(settings, json={"opt_in": True}).json()["opt_in"] is True
+    data = db_client.get(url).json()
+    assert data["percentile_waiting"] == {"accounts": 1, "needed": 100}
+
+    other = make_user(db_session, "other@example.com")
+    other.percentile_opt_in = True
+    hidden = make_user(db_session, "hidden@example.com")  # not opted in: not counted
+    for learner, right in ((other, True), (hidden, True)):
+        db_client.headers.update(auth_headers(learner))
+        attempt = start(db_client, weekly=True)
+        if right:
+            row = db_session.get(PracticeSession, uuid.UUID(attempt["id"]))
+            assert row is not None
+            for item in row.items:
+                put(
+                    db_client,
+                    attempt["id"],
+                    item.position,
+                    1,
+                    selected_position=item.correct_position,
+                )
+        submit(db_client, attempt["id"])
+    db_client.headers.update(auth_headers(user))
+    monkeypatch.setattr(
+        "app.domain.mock_analysis.mock_analysis_settings",
+        lambda: {"percentile_min_accounts": 2},
+    )
+    monkeypatch.setattr(
+        "app.services.mock_analysis.mock_analysis_settings",
+        lambda: {"percentile_min_accounts": 2},
+    )
+    data = db_client.get(url).json()
+    assert data["percentile"] == {"percent": 0, "accounts": 2}
+    assert data["percentile_waiting"] is None

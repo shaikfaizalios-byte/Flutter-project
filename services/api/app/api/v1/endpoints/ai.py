@@ -1,9 +1,10 @@
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, status
 
 from app.api.deps import CurrentUser, client_key
+from app.api.v1.endpoints.documents import guard_upload
 from app.core.config import Settings, get_settings
 from app.database.session import DbSession
 from app.integrations.ai import AIProvider
@@ -27,10 +28,13 @@ from app.schemas.ai import (
     TopicRequest,
     TopicSuggestionResult,
 )
+from app.schemas.current_affairs import CurrentAffairsDraft, CurrentAffairsText
 from app.schemas.document import DocumentRead
 from app.schemas.errors import ErrorResponse
+from app.schemas.language import Language
 from app.schemas.question import AIExplanationRead, QuestionRead
 from app.services.ai_service import AIService
+from app.services.current_affairs_service import CurrentAffairsService
 from app.services.plus_service import PlusService
 from app.services.question_service import QuestionService
 
@@ -245,3 +249,50 @@ def report_question(
     question_id: uuid.UUID, body: QuestionReport, session: DbSession, user: CurrentUser
 ) -> QuestionRead:
     return QuestionService(session, user.id).report(question_id, body.reason, body.note)
+
+
+def get_current_affairs_service(
+    session: DbSession,
+    provider: Annotated[AIProvider | None, Depends(get_ai_provider)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    user: CurrentUser,
+) -> CurrentAffairsService:
+    return CurrentAffairsService(session, user.id, provider, settings)
+
+
+CurrentAffairs = Annotated[CurrentAffairsService, Depends(get_current_affairs_service)]
+
+
+@router.post(
+    "/ai/current-affairs/text",
+    response_model=CurrentAffairsDraft,
+    dependencies=Limited,
+    responses=AI_ERRORS,
+    summary="Draft current affairs cards from pasted text (nothing is saved)",
+)
+def current_affairs_text(body: CurrentAffairsText, service: CurrentAffairs) -> CurrentAffairsDraft:
+    return service.from_text(body.exam_code, body.text, body.language)
+
+
+@router.post(
+    "/ai/current-affairs/pdf",
+    response_model=CurrentAffairsDraft,
+    dependencies=[*Limited, Depends(guard_upload)],
+    responses=AI_ERRORS,
+    summary="Draft current affairs cards from a PDF the learner chose (nothing is saved)",
+)
+def current_affairs_pdf(
+    request: Request,
+    service: CurrentAffairs,
+    file: Annotated[UploadFile, File(description="A PDF of news or current affairs")],
+    exam_code: Annotated[str, Form(max_length=32)],
+    language: Annotated[Language, Form()] = "en",
+) -> CurrentAffairsDraft:
+    return service.from_pdf(
+        exam_code,
+        file.file,
+        file.filename or "document.pdf",
+        language,
+        ocr=request.app.state.ocr_engine,
+        temp_dir=request.app.state.document_storage.temp_dir(),
+    )

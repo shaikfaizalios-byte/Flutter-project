@@ -62,6 +62,9 @@ class PracticeSession(Base):
     )
     # What the learner asked for (subject/topic/section filters, include_unverified, count).
     selection: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    # A paper every learner takes identically (the weekly fixed mock): its week and the
+    # fingerprint of its questions. Only such papers get a percentile.
+    fixed_key: Mapped[str | None] = mapped_column(String(120), index=True)
     status: Mapped[str] = mapped_column(String(16), default=SessionStatus.ACTIVE)
     # All times are server times: the client cannot move the timer.
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

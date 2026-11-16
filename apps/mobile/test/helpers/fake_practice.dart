@@ -133,13 +133,34 @@ class FakePracticeRepository implements PracticeRepository {
   /// Mocks started with compensatory time declared.
   final compensatoryStarts = <String>[];
 
+  /// Weekly fixed papers started.
+  final weeklyStarts = <String>[];
+
+  /// The learner's percentile choice, as the server keeps it.
+  bool percentileOptIn = false;
+
+  /// What the analysis returns after a mock.
+  MockAnalysis analysisResult = const MockAnalysis();
+
+  @override
+  Future<PercentileSettings> percentileSettings() async =>
+      (optIn: percentileOptIn, minAccounts: 100);
+
+  @override
+  Future<PercentileSettings> setPercentileOptIn(bool optIn) async {
+    percentileOptIn = optIn;
+    return (optIn: optIn, minAccounts: 100);
+  }
+
   @override
   Future<PracticeSessionView> startMock(
     String formatCode, {
     String? section,
     bool compensatoryTime = false,
+    bool weekly = false,
   }) async {
     if (compensatoryTime) compensatoryStarts.add(formatCode);
+    if (weekly) weeklyStarts.add(formatCode);
     final id = 'm${sessions.length + 1}';
     sessions[id] =
         _FakeSession(
@@ -261,7 +282,7 @@ class FakePracticeRepository implements PracticeRepository {
   void useCbt(String id) => cbtSessions.add(id);
 
   @override
-  Future<MockAnalysis> analysis(String sessionId) async => const MockAnalysis();
+  Future<MockAnalysis> analysis(String sessionId) async => analysisResult;
 
   @override
   Future<int> flush({String? sessionId}) async => 0;

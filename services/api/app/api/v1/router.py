@@ -23,6 +23,7 @@ from app.api.v1.endpoints import (
     practice,
     questions,
     radar,
+    snap,
     sync,
 )
 
@@ -43,6 +44,7 @@ api_router.include_router(documents.router, tags=["documents"], dependencies=_si
 api_router.include_router(questions.router, dependencies=_signed_in)
 api_router.include_router(exam_topics.router, dependencies=_signed_in)
 api_router.include_router(practice.router, dependencies=_signed_in)
+api_router.include_router(snap.router, dependencies=_signed_in)
 api_router.include_router(analytics.router, dependencies=_signed_in)
 api_router.include_router(insights.router, dependencies=_signed_in)
 api_router.include_router(radar.router, dependencies=_signed_in)

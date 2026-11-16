@@ -611,6 +611,8 @@ class MockTestView {
     this.sectionalTiming = false,
     this.compensatoryMinutesPerHour,
     this.compensatoryReference,
+    this.weeklyAvailable = false,
+    this.weeklyLabel,
   });
 
   factory MockTestView.fromJson(Map<String, dynamic> json) => MockTestView(
@@ -627,6 +629,8 @@ class MockTestView {
     sectionalTiming: json['sectional_timing'] as bool? ?? false,
     compensatoryMinutesPerHour: json['compensatory_minutes_per_hour'] as int?,
     compensatoryReference: json['compensatory_reference'] as String?,
+    weeklyAvailable: json['weekly_available'] as bool? ?? false,
+    weeklyLabel: json['weekly_label'] as String?,
     sections: [
       for (final s in json['sections'] as List<dynamic>)
         SectionAvailabilityView(
@@ -646,6 +650,13 @@ class MockTestView {
   /// The verified notice's compensatory time for candidates with disabilities, if it states one.
   final int? compensatoryMinutesPerHour;
   final String? compensatoryReference;
+
+  /// The shared bank has enough reviewed questions for this week's fixed paper, the same for
+  /// every learner (the only kind of mock with a percentile).
+  final bool weeklyAvailable;
+
+  /// Its ISO week, e.g. "2026-W47".
+  final String? weeklyLabel;
   final String code;
 
   /// The exam the format belongs to.

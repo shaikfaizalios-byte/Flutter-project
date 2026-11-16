@@ -592,3 +592,8 @@ Future<void> setCompensatoryTime(AppDatabase db, bool on) => on
             AppSettingsCompanion.insert(key: compensatoryTimeKey, value: 'true'),
           )
     : (db.delete(db.appSettings)..where((s) => s.key.equals(compensatoryTimeKey))).go();
+
+/// The learner's choice to compare scores on fixed papers (kept on the server).
+final percentileSettingsProvider = FutureProvider.autoDispose<PercentileSettings>(
+  (ref) => ref.watch(practiceRepositoryProvider).percentileSettings(),
+);

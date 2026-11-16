@@ -198,6 +198,7 @@ class PracticeRepository {
     String formatCode, {
     String? section,
     bool compensatoryTime = false,
+    bool weekly = false,
   }) => _guard(
     () async => _session(
       (await _dio.post<Map<String, dynamic>>(
@@ -207,10 +208,28 @@ class PracticeRepository {
           if (newFormats) 'include_new_formats': true,
           'section': ?section,
           if (compensatoryTime) 'compensatory_time': true,
+          if (weekly) 'weekly': true,
         },
       )).data!,
     ),
   );
+
+  /// Whether the learner compares scores on fixed papers (and is counted in others').
+  Future<PercentileSettings> percentileSettings() => _guard(() async {
+    final response = await _dio.get<Map<String, dynamic>>('$_base/percentile-settings');
+    return _percentileSettings(response.data!);
+  });
+
+  Future<PercentileSettings> setPercentileOptIn(bool optIn) => _guard(() async {
+    final response = await _dio.put<Map<String, dynamic>>(
+      '$_base/percentile-settings',
+      data: {'opt_in': optIn},
+    );
+    return _percentileSettings(response.data!);
+  });
+
+  static PercentileSettings _percentileSettings(Map<String, dynamic> json) =>
+      (optIn: json['opt_in'] as bool, minAccounts: json['min_accounts'] as int);
 
   /// After a mock: marks and time per question, chapters, history, and a real percentile if any.
   Future<MockAnalysis> analysis(String sessionId) => _guard(() async {

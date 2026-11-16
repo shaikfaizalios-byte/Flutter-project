@@ -5672,7 +5672,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String analysisPercentile(int percent, int accounts) {
-    return 'इस प्रश्नपत्र पर $accounts PrepLoop खातों के पहले प्रयासों में से $percent% से अधिक अंक। यह वास्तविक PrepLoop प्रयासों से है; परीक्षा की रैंक नहीं।';
+    return 'इस प्रश्नपत्र को देने वाले $accounts PrepLoop शिक्षार्थियों में, आपके अंक उनके पहले प्रयासों के $percent% से अधिक हैं। यह परीक्षा की रैंक नहीं है।';
   }
 
   @override
@@ -6041,4 +6041,160 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get ladderUnreviewedSeeds =>
       'आपके पेपरों के कुछ उदाहरण प्रश्न अभी जाँचे नहीं गए हैं, इसलिए उनमें पढ़ने की गलतियाँ हो सकती हैं।';
+
+  @override
+  String mockWeekly(String week) {
+    return 'इस सप्ताह का तय प्रश्नपत्र · $week';
+  }
+
+  @override
+  String get mockWeeklyMessage =>
+      'इस सप्ताह का तय प्रश्नपत्र: इस सप्ताह इसे देने वाले सभी को शेयर्ड बैंक से वही प्रश्न मिलते हैं, इसलिए अंकों की तुलना हो सकती है। प्रतिशतक में केवल आपका पहला प्रयास गिना जाता है।';
+
+  @override
+  String analysisPercentileWaiting(int needed, int accounts) {
+    return 'प्रतिशतक तब दिखेगा जब तुलना चुनने वाले $needed शिक्षार्थी यह प्रश्नपत्र दे चुके होंगे (अब तक $accounts)।';
+  }
+
+  @override
+  String get analysisPercentileOptIn =>
+      'इस प्रश्नपत्र को देने वाले PrepLoop शिक्षार्थियों में आपका प्रदर्शन देखने के लिए सेटिंग्स में \"तय प्रश्नपत्रों पर अंकों की तुलना\" चालू करें।';
+
+  @override
+  String get percentileTitle => 'तय प्रश्नपत्रों पर अंकों की तुलना';
+
+  @override
+  String get percentileSwitch => 'मेरे अंकों की तुलना करें';
+
+  @override
+  String percentileHint(int min) {
+    return 'केवल साप्ताहिक तय प्रश्नपत्र के लिए, जिसे हर शिक्षार्थी एक जैसा देता है। आपके पहले प्रयास के अंक तुलना चुनने वाले शिक्षार्थियों में गिने जाते हैं, और किसी प्रश्नपत्र को उनमें से $min के देने के बाद प्रतिशतक दिखता है। यह कभी परीक्षा की रैंक नहीं है; कोई उत्तर या खाते का विवरण साझा नहीं होता।';
+  }
+
+  @override
+  String get percentileOffline => 'यह विकल्प दिखाने के लिए PrepLoop सर्वर तक नहीं पहुँच पा रहे।';
+
+  @override
+  String get percentileSaveFailed => 'यह विकल्प सहेजा नहीं जा सका। फिर से कोशिश करें।';
+
+  @override
+  String get snapTitle => 'प्रश्न की फ़ोटो से खोजें';
+
+  @override
+  String get snapIntro =>
+      'किसी छपे हुए प्रश्न की फ़ोटो चुनें। PrepLoop उसका टेक्स्ट पढ़कर उसे आपके पेपरों, प्रश्नों और कॉन्सेप्ट में खोजता है। फ़ोटो रखी नहीं जाती।';
+
+  @override
+  String get snapChoose => 'फ़ोटो चुनें';
+
+  @override
+  String get snapAnother => 'दूसरी फ़ोटो चुनें';
+
+  @override
+  String get snapUnsure =>
+      'फ़ोटो पढ़ना कठिन था, इसलिए नीचे के टेक्स्ट में कुछ शब्द गलत पढ़े गए हो सकते हैं। उसे ठीक करके फिर से खोजें।';
+
+  @override
+  String get snapReadText => 'फ़ोटो से पढ़ा गया टेक्स्ट';
+
+  @override
+  String get snapSearchAgain => 'फिर से खोजें';
+
+  @override
+  String get snapMatches => 'आपकी सामग्री में मिला';
+
+  @override
+  String get snapNoMatches => 'अभी आपके पेपरों या कॉन्सेप्ट में इसके जैसा कुछ नहीं मिला।';
+
+  @override
+  String get snapPageAsRead => 'पेज से जैसा पढ़ा गया वैसा टेक्स्ट, जाँचा नहीं गया।';
+
+  @override
+  String get snapAsk => 'मेरी सामग्री से पूछें';
+
+  @override
+  String get snapOffline =>
+      'PrepLoop सर्वर तक नहीं पहुँच पा रहे। ऑनलाइन होने पर फिर से कोशिश करें।';
+
+  @override
+  String get snapTooLarge => 'यह फ़ोटो बहुत बड़ी है। कोई छोटी फ़ोटो आज़माएँ।';
+
+  @override
+  String get snapNoOcr => 'इस सर्वर पर फ़ोटो पढ़ने की सुविधा उपलब्ध नहीं है।';
+
+  @override
+  String get snapUnreadable =>
+      'इस फ़ोटो से कोई टेक्स्ट नहीं पढ़ा जा सका। प्रश्न की साफ़ और अच्छी रोशनी वाली फ़ोटो आज़माएँ।';
+
+  @override
+  String get caTitle => 'करंट अफेयर्स';
+
+  @override
+  String get caIntro =>
+      'समाचार का टेक्स्ट पेस्ट करें या अपनी कोई PDF चुनें। AI उससे रिवीज़न कार्ड बनाता है, हर कार्ड के साथ वे शब्द जिनसे वह बना है। हर कार्ड सहेजने से पहले आप उसे स्वीकार करते हैं; स्वीकार किए गए कार्ड पर करंट अफेयर्स और महीना लिखा जाता है और वे आपकी रिवीज़न सूची में जाते हैं। PrepLoop कोई वेब पेज नहीं खोलता।';
+
+  @override
+  String get caPaste => 'टेक्स्ट पेस्ट करें';
+
+  @override
+  String get caPdf => 'एक PDF';
+
+  @override
+  String get caPasteLabel => 'समाचार या करंट अफेयर्स का टेक्स्ट';
+
+  @override
+  String get caDraft => 'कार्ड बनाएँ';
+
+  @override
+  String get caChoosePdf => 'PDF चुनें';
+
+  @override
+  String get caDraftsTitle => 'बनाए गए कार्ड';
+
+  @override
+  String get caAiLabel =>
+      'आपकी सामग्री से AI द्वारा बनाए गए। स्वीकार करने से पहले हर कार्ड जाँचें।';
+
+  @override
+  String get caNoText => 'इस फ़ाइल से कोई टेक्स्ट नहीं पढ़ा जा सका।';
+
+  @override
+  String get caNoCards => 'कार्ड बनाने लायक कोई स्पष्ट तथ्य नहीं मिला।';
+
+  @override
+  String get caLeftOut => 'सामग्री लंबी थी, इसलिए केवल उसका शुरुआती भाग पढ़ा गया।';
+
+  @override
+  String caDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count कार्ड छोड़ दिए गए: उनके उद्धरण आपकी सामग्री में नहीं हैं।',
+      one: '1 कार्ड छोड़ दिया गया: उसका उद्धरण आपकी सामग्री में नहीं है।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caSourceLine(String source, String quote) {
+    return '$source से: \"$quote\"';
+  }
+
+  @override
+  String get caApprove => 'स्वीकार करें';
+
+  @override
+  String get caSkip => 'छोड़ें';
+
+  @override
+  String get caSaved => 'आपके कॉन्सेप्ट और रिवीज़न सूची में सहेजा गया';
+
+  @override
+  String get caSkipped => 'छोड़ा गया';
+
+  @override
+  String get caSaveFailed => 'यह कार्ड सहेजा नहीं जा सका। फिर से कोशिश करें।';
+
+  @override
+  String get snapTake => 'फ़ोटो लें';
 }

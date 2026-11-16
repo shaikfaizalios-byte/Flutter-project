@@ -41,6 +41,22 @@ class MockAnalysisCard extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Text(l10n.analysisPercentile(analysis.percent!, analysis.accounts!)),
+              )
+            else if (analysis.waitingNeeded != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Text(
+                  l10n.analysisPercentileWaiting(
+                    analysis.waitingNeeded!,
+                    analysis.waitingAccounts ?? 0,
+                  ),
+                  style: small,
+                ),
+              )
+            else if (analysis.fixedPaper)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Text(l10n.analysisPercentileOptIn, style: small),
               ),
             if (analysis.history.length > 1) ...[
               Text(l10n.analysisHistory, style: Theme.of(context).textTheme.titleSmall),

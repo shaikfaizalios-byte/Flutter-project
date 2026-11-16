@@ -30,6 +30,11 @@ class RevisionScreen extends ConsumerWidget {
         title: Text(l10n.revisionTitle),
         actions: [
           AdaptiveAction(
+            label: l10n.caTitle,
+            icon: Icons.newspaper_outlined,
+            onPressed: () => context.push(AppRoutes.currentAffairs),
+          ),
+          AdaptiveAction(
             label: l10n.revisionScheduleTitle,
             icon: Icons.tune,
             onPressed: () => showRevisionScheduleSheet(context),

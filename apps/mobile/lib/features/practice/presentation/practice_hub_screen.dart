@@ -378,7 +378,7 @@ class _MockTile extends ConsumerWidget {
         for (final s in mock.sections)
           if (s.available >= s.needed) s,
     ];
-    return ListTile(
+    final tile = ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(mock.name),
       subtitle: Text(
@@ -415,16 +415,40 @@ class _MockTile extends ConsumerWidget {
         ],
       ),
     );
+    if (!mock.weeklyAvailable) return tile;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        tile,
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            icon: const Icon(Icons.event_repeat),
+            label: Text(l10n.mockWeekly(mock.weeklyLabel ?? '')),
+            onPressed: () => _confirmAndStart(context, ref, weekly: true),
+          ),
+        ),
+      ],
+    );
   }
 
-  Future<void> _confirmAndStart(BuildContext context, WidgetRef ref, {String? section}) async {
+  Future<void> _confirmAndStart(
+    BuildContext context,
+    WidgetRef ref, {
+    String? section,
+    bool weekly = false,
+  }) async {
     final l10n = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.mockConfirmTitle),
         content: Text(
-          section == null ? l10n.mockConfirmMessage : l10n.mockSectionalMessage(section),
+          weekly
+              ? l10n.mockWeeklyMessage
+              : section == null
+              ? l10n.mockConfirmMessage
+              : l10n.mockSectionalMessage(section),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(l10n.cancel)),
@@ -446,6 +470,7 @@ class _MockTile extends ConsumerWidget {
             compensatoryTime:
                 (ref.read(compensatoryTimeProvider).value ?? false) &&
                 mock.compensatoryMinutesPerHour != null,
+            weekly: weekly,
           ),
     );
   }

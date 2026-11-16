@@ -12,10 +12,11 @@ Integrity rules:
 * Mock marking comes only from the verified exam format.
 """
 
+import hashlib
 import random
 import uuid
-from collections.abc import Callable
-from datetime import UTC, datetime, timedelta
+from collections.abc import Callable, Sequence
+from datetime import UTC, date, datetime, timedelta
 from typing import Any, Literal, cast
 
 from sqlalchemy import Select, and_, false, func, or_, select
@@ -329,6 +330,25 @@ def apply_final_key(session: Session, question: Question) -> int:
     return remarked
 
 
+def iso_week(day: date) -> str:
+    """The ISO week of a day, e.g. "2026-W47": the weekly fixed paper changes on Mondays."""
+    year, week, _ = day.isocalendar()
+    return f"{year}-W{week:02d}"
+
+
+def weekly_seed(format_code: str, week: str) -> int:
+    """The same seed for every learner this week, so the same questions are drawn."""
+    return int(hashlib.sha256(f"{format_code}:{week}".encode()).hexdigest()[:8], 16)
+
+
+def fixed_paper_key(format_code: str, week: str, question_ids: Sequence[uuid.UUID]) -> str:
+    """Names the paper: its week and its questions in order. If the shared bank changes during
+    the week, the paper drawn changes too, and so does the key, so only identical papers are
+    ever compared."""
+    digest = hashlib.sha256(",".join(str(q) for q in question_ids).encode()).hexdigest()[:16]
+    return f"week:{format_code}:{week}:{digest}"
+
+
 class PracticeService:
     def __init__(
         self,
@@ -573,7 +593,14 @@ class PracticeService:
     def mock_availability(self, exam_code: str | None) -> list[MockAvailability]:
         """Verified formats in effect today (drafts and retired versions are not offered)."""
         today = self._now().date()
-        return [self._availability(f)[0] for f in mock_formats(self._session, exam_code, today)]
+        found = []
+        for f in mock_formats(self._session, exam_code, today):
+            availability = self._availability(f)[0]
+            weekly = self._availability(f, shared_only=True)[0]
+            availability.weekly_available = weekly.available
+            availability.weekly_label = iso_week(today)
+            found.append(availability)
+        return found
 
     def start_mock(self, request: MockCreate) -> SessionRead:
         exam_format = self._session.scalars(
@@ -583,7 +610,12 @@ class PracticeService:
             raise InvalidReferenceError(f"Unknown paper format '{request.exam_format_code}'.")
         if _needs_new_formats(exam_format) and not request.include_new_formats:
             raise InvalidReferenceError("This paper format needs a newer version of the app.")
-        availability, pools = self._availability(exam_format)
+        if request.weekly and request.section is not None:
+            raise InvalidReferenceError("The weekly fixed paper is the whole paper.")
+        availability, pools = self._availability(exam_format, shared_only=request.weekly)
+        if request.weekly:
+            # The same questions in the same order for every learner this week.
+            pools = [sorted(pool, key=lambda q: q.id) for pool in pools]
         if availability.format_problems:
             raise FormatIncompleteError(
                 "This paper format is incomplete: " + " ".join(availability.format_problems)
@@ -605,7 +637,12 @@ class PracticeService:
         if duration is None:  # pragma: no cover - guarded above
             raise FormatIncompleteError("This paper format is incomplete.")
 
-        seed = random.SystemRandom().randrange(2**31)
+        week = iso_week(self._now().date())
+        seed = (
+            weekly_seed(exam_format.code, week)
+            if request.weekly
+            else random.SystemRandom().randrange(2**31)
+        )
         rng = random.Random(seed)  # noqa: S311 - question sampling, recorded for reproducibility
         started = self._now()
         if request.section is not None:
@@ -672,6 +709,11 @@ class PracticeService:
                     )
                 )
         mock.items = items
+        if request.weekly:
+            mock.fixed_key = fixed_paper_key(
+                exam_format.code, week, [i.question_id for i in items if i.question_id]
+            )
+            mock.selection = {**mock.selection, "weekly": week}
         rules = (exam_format.conduct or {}).get("cbt")
         if rules:
             mock.selection = {**mock.selection, "cbt": rules}  # the attempt keeps its rules
@@ -697,8 +739,10 @@ class PracticeService:
         return self.get(mock.id)
 
     def _availability(
-        self, exam_format: ExamFormat
+        self, exam_format: ExamFormat, *, shared_only: bool = False
     ) -> tuple[MockAvailability, list[list[Question]]]:
+        """What a mock of this format can draw on: the learner's questions and the shared
+        bank, or the shared bank alone (the weekly fixed paper, the same for everyone)."""
         allowed = _allowed_formats(exam_format)
         candidates = [
             q
@@ -709,7 +753,7 @@ class PracticeService:
                     include_new_formats=_needs_new_formats(exam_format),
                 ).where(
                     Question.exam_code == exam_format.exam_code,
-                    visible_question(self._owner_id),
+                    shared_question() if shared_only else visible_question(self._owner_id),
                     Question.id.not_in(
                         select(LibraryEntry.question_id).where(
                             LibraryEntry.source_type == "original_ai_verified"

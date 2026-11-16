@@ -34,6 +34,9 @@ class User(Base):
     # Radar (counts only; never question text or account details).
     radar_opt_in: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     radar_opt_in_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Opt-in: compare scores on fixed papers (the weekly fixed mock) with other learners who
+    # opted in, and be counted in theirs. Scores only, never answers or account details.
+    percentile_opt_in: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
     @property
     def email_verified(self) -> bool:

@@ -16,6 +16,8 @@ from app.schemas.practice import (
     MockCreate,
     OfflinePack,
     OfflineSessionUpload,
+    PercentileSettings,
+    PercentileSettingsUpdate,
     PracticeCreate,
     QuestionHistory,
     SectionAdvance,
@@ -62,6 +64,26 @@ def start_practice(body: PracticeCreate, service: Service) -> SessionRead:
 )
 def mock_analysis(session_id: uuid.UUID, session: DbSession, user: CurrentUser) -> MockAnalysis:
     return MockAnalysisService(session, user.id).analysis(session_id)
+
+
+@router.get(
+    "/practice/percentile-settings",
+    response_model=PercentileSettings,
+    summary="Your choice to compare scores on fixed papers",
+)
+def percentile_settings(session: DbSession, user: CurrentUser) -> PercentileSettings:
+    return MockAnalysisService(session, user.id).settings()
+
+
+@router.put(
+    "/practice/percentile-settings",
+    response_model=PercentileSettings,
+    summary="Opt in or out of the percentile on fixed papers",
+)
+def update_percentile_settings(
+    body: PercentileSettingsUpdate, session: DbSession, user: CurrentUser
+) -> PercentileSettings:
+    return MockAnalysisService(session, user.id).set_opt_in(body.opt_in)
 
 
 @router.get(

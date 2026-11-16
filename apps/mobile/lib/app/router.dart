@@ -48,6 +48,8 @@ import '../features/ai/data/ai_repository.dart';
 import '../features/descriptive/presentation/descriptive_card.dart';
 import '../features/descriptive/presentation/descriptive_screen.dart';
 import '../features/ladder/domain/ladder_models.dart';
+import '../features/snap/presentation/snap_screen.dart';
+import '../features/current_affairs/presentation/current_affairs_screen.dart';
 import '../features/ladder/presentation/ladder_screen.dart';
 import '../features/ladder/presentation/ladder_topics_screen.dart';
 import '../features/learn/presentation/topic_lesson_screen.dart';
@@ -166,6 +168,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           topicId: state.uri.queryParameters['topic'] ?? '',
           topicName: state.uri.queryParameters['name'] ?? '',
         ),
+      ),
+      GoRoute(
+        path: '/study/current-affairs',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const CurrentAffairsScreen(),
+      ),
+      GoRoute(
+        path: '/study/snap',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SnapScreen(),
       ),
       GoRoute(
         path: '/ladder/topics',

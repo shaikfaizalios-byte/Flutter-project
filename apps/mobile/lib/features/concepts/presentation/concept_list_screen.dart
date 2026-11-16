@@ -70,9 +70,20 @@ class ConceptListScreen extends ConsumerWidget {
                     AppSpacing.md,
                     AppSpacing.xs,
                   ),
-                  child: AppSearchField(
-                    hintText: l10n.conceptsSearchHint,
-                    onChanged: ref.read(conceptQueryProvider.notifier).setText,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AppSearchField(
+                          hintText: l10n.conceptsSearchHint,
+                          onChanged: ref.read(conceptQueryProvider.notifier).setText,
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: l10n.snapTitle,
+                        icon: const Icon(Icons.photo_camera_outlined),
+                        onPressed: () => context.push(AppRoutes.snap),
+                      ),
+                    ],
                   ),
                 ),
               ),
