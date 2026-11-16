@@ -5978,4 +5978,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get issuePossiblyMultipleCorrect =>
       'May have more than one correct option: set its format and answers';
+
+  @override
+  String get ladderNoTopics =>
+      'This exam has no topics yet. Add its topics (or its syllabus) first, then pick one here.';
+
+  @override
+  String get ladderNoTopicMatch => 'No topic matches your search.';
+
+  @override
+  String get ladderAddTopics => 'Add topics';
 }

@@ -5980,4 +5980,14 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get issuePossiblyMultipleCorrect =>
       'इसमें एक से अधिक सही विकल्प हो सकते हैं: इसका फ़ॉर्मेट और उत्तर तय करें';
+
+  @override
+  String get ladderNoTopics =>
+      'इस परीक्षा में अभी कोई विषय नहीं है। पहले इसके विषय (या सिलेबस) जोड़ें, फिर यहाँ एक चुनें।';
+
+  @override
+  String get ladderNoTopicMatch => 'आपकी खोज से कोई विषय नहीं मिला।';
+
+  @override
+  String get ladderAddTopics => 'विषय जोड़ें';
 }

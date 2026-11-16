@@ -3055,5 +3055,8 @@
   "compMockNone": "This paper's notice states no compensatory time, so none is added.",
   "compSession": "Includes {minutes} min compensatory time",
   "@compSession": {"placeholders": {"minutes": {"type": "int"}}},
-  "issuePossiblyMultipleCorrect": "May have more than one correct option: set its format and answers"
+  "issuePossiblyMultipleCorrect": "May have more than one correct option: set its format and answers",
+  "ladderNoTopics": "This exam has no topics yet. Add its topics (or its syllabus) first, then pick one here.",
+  "ladderNoTopicMatch": "No topic matches your search.",
+  "ladderAddTopics": "Add topics"
 }

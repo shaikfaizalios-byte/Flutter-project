@@ -28,10 +28,11 @@ Future<FakeLadderRepository> pumpLadder(
   LadderBest? best,
   int freePerDay = 0,
   int? freeLeft,
+  List<LadderTopic> examTopics = topics,
 }) async {
   final ladder = FakeLadderRepository(
     data: LadderOverview(
-      topics: topics,
+      topics: examTopics,
       best: best,
       freePerDay: freePerDay,
       freeLeftToday: freeLeft,
@@ -177,6 +178,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(LadderScreen), findsOneWidget);
     expect(find.textContaining('web references only'), findsOneWidget); // no papers on it
+  });
+
+  testAppWidgets('any topic: says why the list is empty', (tester, db) async {
+    await pumpLadder(tester, db, examTopics: const []);
+    await scrollTo(tester, find.byType(LadderCard));
+    await tester.ensureVisible(find.widgetWithText(ActionChip, 'Any topic'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ActionChip, 'Any topic'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('This exam has no topics yet'), findsOneWidget);
+    expect(find.text('Add topics'), findsOneWidget);
+  });
+
+  testAppWidgets('any topic: a search that matches nothing says so', (tester, db) async {
+    await pumpLadder(tester, db);
+    await scrollTo(tester, find.byType(LadderCard));
+    await tester.ensureVisible(find.widgetWithText(ActionChip, 'Any topic'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ActionChip, 'Any topic'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'zzz');
+    await tester.pumpAndSettle();
+    expect(find.text('No topic matches your search.'), findsOneWidget);
+    expect(find.text('Add topics'), findsNothing);
   });
 
   testAppWidgets('consent comes first; declining sends nothing', (tester, db) async {

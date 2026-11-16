@@ -9572,6 +9572,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'May have more than one correct option: set its format and answers'**
   String get issuePossiblyMultipleCorrect;
+
+  /// No description provided for @ladderNoTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam has no topics yet. Add its topics (or its syllabus) first, then pick one here.'**
+  String get ladderNoTopics;
+
+  /// No description provided for @ladderNoTopicMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No topic matches your search.'**
+  String get ladderNoTopicMatch;
+
+  /// No description provided for @ladderAddTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Add topics'**
+  String get ladderAddTopics;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
