@@ -71,10 +71,18 @@ class FakeLadderRepository implements LadderRepository {
   @override
   Future<LadderRound> start({
     required String examCode,
-    required String topicId,
+    LadderBasis basis = LadderBasis.topic,
+    required String id,
+    String topicName = '',
     required ContentLanguage language,
   }) async {
-    calls.add('start:$examCode:$topicId:${language.code}');
+    final what = switch (basis) {
+      LadderBasis.topic => id,
+      LadderBasis.paper => 'paper=$id',
+      LadderBasis.papers => 'papers',
+      LadderBasis.typed => 'typed=$topicName',
+    };
+    calls.add('start:$examCode:$what:${language.code}');
     _maybeFail();
     return _rounds[1] = _plan(1);
   }

@@ -153,6 +153,24 @@ class LadderStep {
   bool get takesResponse => format == 'multiple_correct' || format == 'match';
 }
 
+/// What a ladder is on: a topic, one of the learner's papers, all of the exam's papers, or a
+/// topic the learner typed (the AI writes from web references only).
+enum LadderBasis {
+  topic('topic'),
+  paper('paper'),
+  papers('papers'),
+  typed('typed');
+
+  const LadderBasis(this.wire);
+  final String wire;
+
+  static LadderBasis of(String? wire) =>
+      values.firstWhere((b) => b.wire == wire, orElse: () => LadderBasis.topic);
+
+  /// The examples are questions picked from the learner's papers.
+  bool get fromPapers => this == paper || this == papers;
+}
+
 @immutable
 class LadderRound {
   const LadderRound({
@@ -162,6 +180,8 @@ class LadderRound {
     required this.subject,
     required this.sourceMix,
     required this.steps,
+    this.basis = LadderBasis.topic,
+    this.unreviewedSeeds = false,
   });
 
   factory LadderRound.fromJson(Map<String, dynamic> json) => LadderRound(
@@ -174,6 +194,8 @@ class LadderRound {
       'web_main' => LadderSourceMix.webMain,
       _ => LadderSourceMix.papers,
     },
+    basis: LadderBasis.of(json['basis'] as String?),
+    unreviewedSeeds: json['unreviewed_seeds'] as bool? ?? false,
     steps: [
       for (final s in json['steps'] as List<dynamic>)
         LadderStep.fromJson(s as Map<String, dynamic>),
@@ -186,6 +208,10 @@ class LadderRound {
   final String subject;
   final LadderSourceMix sourceMix;
   final List<LadderStep> steps;
+  final LadderBasis basis;
+
+  /// A paper ladder whose example questions include some nobody reviewed yet.
+  final bool unreviewedSeeds;
 
   LadderRound withStep(LadderStep updated) => LadderRound(
     sessionId: sessionId,
@@ -193,6 +219,8 @@ class LadderRound {
     topicName: topicName,
     subject: subject,
     sourceMix: sourceMix,
+    basis: basis,
+    unreviewedSeeds: unreviewedSeeds,
     steps: [for (final s in steps) s.step == updated.step ? updated : s],
   );
 
@@ -223,6 +251,29 @@ class LadderTopic {
   final int papers;
 }
 
+/// One of the learner's papers for the exam, with the questions a ladder can learn from.
+@immutable
+class LadderPaper {
+  const LadderPaper({
+    required this.documentId,
+    required this.name,
+    required this.questions,
+    required this.reviewed,
+  });
+
+  factory LadderPaper.fromJson(Map<String, dynamic> json) => LadderPaper(
+    documentId: json['document_id'] as String,
+    name: json['name'] as String,
+    questions: json['questions'] as int,
+    reviewed: json['reviewed'] as int,
+  );
+
+  final String documentId;
+  final String name;
+  final int questions;
+  final int reviewed;
+}
+
 @immutable
 class LadderBest {
   const LadderBest({required this.step, required this.topicName});
@@ -236,6 +287,7 @@ class LadderBest {
 class LadderOverview {
   const LadderOverview({
     this.topics = const [],
+    this.papers = const [],
     this.best,
     this.available = true,
     this.freePerDay = 0,
@@ -249,6 +301,10 @@ class LadderOverview {
         for (final t in json['topics'] as List<dynamic>)
           LadderTopic.fromJson(t as Map<String, dynamic>),
       ],
+      papers: [
+        for (final p in json['papers'] as List<dynamic>? ?? const [])
+          LadderPaper.fromJson(p as Map<String, dynamic>),
+      ],
       best: best == null
           ? null
           : LadderBest(step: best['step'] as int, topicName: best['topic_name'] as String),
@@ -259,6 +315,9 @@ class LadderOverview {
   }
 
   final List<LadderTopic> topics;
+
+  /// The learner's papers for the exam with questions a ladder can use, newest first.
+  final List<LadderPaper> papers;
   final LadderBest? best;
 
   /// False for an exam with no multiple-choice paper.

@@ -249,6 +249,12 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   `LadderRun`, `LadderIcon` CustomPainter; tests set `ladderIconMotionProvider` false), consent in `ladder_ai_consent`.
   Free daily ladder (migration 0063): without Plus, `PREPLOOP_LADDER_FREE_PER_DAY` (default 1, 0 = off) ladders per UTC day,
   one round each (`ladder_sessions.free`, `LadderService._starts_free`/`free_left_today`); `LadderOverview.free_left_today`.
+  Ladder sources (migration 0066): `LadderStart` takes exactly one of `topic_id`, `document_id` (one of the learner's papers),
+  `all_papers` or `topic_name` (typed; web references only). Paper ladders pick 5 example questions at random
+  (`pick_paper_seeds`: reviewed first, then unreviewed ones read as text; never rejected, printed-only or review-first issues),
+  stored in `ladder_sessions.seed_question_ids` with `basis`, `document_id`, `unreviewed_seeds` (app says so); no web search
+  for them; a stand-in real question is always a reviewed one. `LadderOverview.papers`. App: "Any topic" has Topics / My
+  papers / AI only (`LadderBasis`, `AppRoutes.ladderRunOn`), opening on the first one that has something.
 - PrepLoop Plus (docs/plus.md): `subscriptions` (migration 0023, one row per account, source
   test|operator|play|web, `active_until`); `GET /me/plus` (status + AI requests used this UTC month from
   `ai_generations` ok/partial vs `PREPLOOP_PLUS_AI_MONTHLY_ALLOWANCE`, default 300); free test subscriptions

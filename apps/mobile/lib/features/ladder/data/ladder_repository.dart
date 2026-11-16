@@ -11,10 +11,13 @@ import '../domain/ladder_models.dart';
 abstract interface class LadderRepository {
   Future<LadderOverview> overview(String examCode);
 
-  /// Plans round 1 (no AI yet).
+  /// Plans round 1 (no AI yet). [id] is the topic's or the paper's id; [topicName] is what
+  /// the learner typed for a typed ladder.
   Future<LadderRound> start({
     required String examCode,
-    required String topicId,
+    LadderBasis basis = LadderBasis.topic,
+    required String id,
+    String topicName = '',
     required ContentLanguage language,
   });
 
@@ -59,14 +62,21 @@ class RemoteLadderRepository implements LadderRepository {
   @override
   Future<LadderRound> start({
     required String examCode,
-    required String topicId,
+    LadderBasis basis = LadderBasis.topic,
+    required String id,
+    String topicName = '',
     required ContentLanguage language,
   }) => _guard(() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '$_base/sessions',
       data: {
         'exam_code': examCode,
-        'topic_id': topicId,
+        ...switch (basis) {
+          LadderBasis.topic => {'topic_id': id},
+          LadderBasis.paper => {'document_id': id},
+          LadderBasis.papers => {'all_papers': true},
+          LadderBasis.typed => {'topic_name': topicName},
+        },
         'language': language.code,
         if (newFormats) 'include_new_formats': true,
       },

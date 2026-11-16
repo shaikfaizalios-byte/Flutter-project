@@ -4512,6 +4512,14 @@
             "title": "Free Per Day",
             "type": "integer"
           },
+          "papers": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/LadderPaper"
+            },
+            "title": "Papers",
+            "type": "array"
+          },
           "topics": {
             "items": {
               "$ref": "#/components/schemas/LadderTopic"
@@ -4525,6 +4533,36 @@
           "best"
         ],
         "title": "LadderOverview",
+        "type": "object"
+      },
+      "LadderPaper": {
+        "description": "One of the learner's papers for the exam, with the questions a ladder can use.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "reviewed": {
+            "title": "Reviewed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "name",
+          "questions",
+          "reviewed"
+        ],
+        "title": "LadderPaper",
         "type": "object"
       },
       "LadderResult": {
@@ -4639,6 +4677,17 @@
       },
       "LadderRoundRead": {
         "properties": {
+          "basis": {
+            "default": "topic",
+            "enum": [
+              "topic",
+              "paper",
+              "papers",
+              "typed"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
           "round_number": {
             "title": "Round Number",
             "type": "integer"
@@ -4671,6 +4720,11 @@
           "topic_name": {
             "title": "Topic Name",
             "type": "string"
+          },
+          "unreviewed_seeds": {
+            "default": false,
+            "title": "Unreviewed Seeds",
+            "type": "boolean"
           }
         },
         "required": [
@@ -4687,6 +4741,23 @@
       "LadderStart": {
         "additionalProperties": false,
         "properties": {
+          "all_papers": {
+            "default": false,
+            "title": "All Papers",
+            "type": "boolean"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
           "exam_code": {
             "title": "Exam Code",
             "type": "string"
@@ -4716,14 +4787,32 @@
             "type": "string"
           },
           "topic_id": {
-            "format": "uuid",
-            "title": "Topic Id",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Name"
           }
         },
         "required": [
-          "exam_code",
-          "topic_id"
+          "exam_code"
         ],
         "title": "LadderStart",
         "type": "object"

@@ -41,8 +41,15 @@ Future<void> saveLadderConsent(AppDatabase db) => db
 
 enum LadderStage { intro, writing, question, results, failed }
 
-/// Which ladder: the topic, the exam and the language to write in.
-typedef LadderKey = ({String examCode, String topicId, String topicName, ContentLanguage language});
+/// Which ladder: what it is on ([id]: the topic's or the paper's, empty otherwise), the exam
+/// and the language to write in.
+typedef LadderKey = ({
+  String examCode,
+  LadderBasis basis,
+  String id,
+  String topicName,
+  ContentLanguage language,
+});
 
 @immutable
 class LadderRunState {
@@ -101,7 +108,9 @@ class LadderRun extends Notifier<LadderRunState> {
     try {
       final round = await _repo.start(
         examCode: key.examCode,
-        topicId: key.topicId,
+        basis: key.basis,
+        id: key.id,
+        topicName: key.topicName,
         language: key.language,
       );
       await _write(round);

@@ -72,10 +72,21 @@ String? ladderChecks(AppLocalizations l10n, LadderStep step) {
 
 /// One ladder on a topic: the start note, the steps filling in, the questions, the results.
 class LadderScreen extends ConsumerWidget {
-  const LadderScreen({super.key, required this.topicId, required this.topicName});
+  const LadderScreen({
+    super.key,
+    this.basis = LadderBasis.topic,
+    required this.topicId,
+    required this.topicName,
+  });
 
+  final LadderBasis basis;
+
+  /// The topic's id, or the paper's for a paper ladder; empty for all papers or a typed topic.
   final String topicId;
   final String topicName;
+
+  /// The topic for "practise real questions", when the ladder is on one.
+  String? get _practiseTopic => basis == LadderBasis.topic ? topicId : null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -87,12 +98,18 @@ class LadderScreen extends ConsumerWidget {
     if (exam == null || status == null) {
       body = const Center(child: CircularProgressIndicator());
     } else if (!status.enabled) {
-      body = _Unavailable(topicId: topicId, message: l10n.ladderAiOff);
+      body = _Unavailable(topicId: _practiseTopic, message: l10n.ladderAiOff);
     } else {
       final language = ref
           .watch(appPreferencesProvider)
           .aiLanguageFor(Localizations.localeOf(context));
-      final key = (examCode: exam, topicId: topicId, topicName: topicName, language: language);
+      final key = (
+        examCode: exam,
+        basis: basis,
+        id: topicId,
+        topicName: topicName,
+        language: language,
+      );
       final state = ref.watch(ladderRunProvider(key));
       final run = ref.read(ladderRunProvider(key).notifier);
       // Without Plus: the day's free ladders (one round each), counted by the server.
@@ -113,6 +130,7 @@ class LadderScreen extends ConsumerWidget {
       } else {
         body = switch (state.stage) {
           LadderStage.intro => _Intro(
+            basis: basis,
             topicName: topicName,
             freeLeft: status.needsPlus ? freeLeft : null,
             onStart: () => _start(context, ref, run),
@@ -120,7 +138,7 @@ class LadderScreen extends ConsumerWidget {
           LadderStage.writing => _Writing(written: state.written, round: state.round),
           LadderStage.question => _Question(key: ValueKey(state.current), state: state, run: run),
           LadderStage.results => _Results(state: state, run: run, plusOnlyMore: status.needsPlus),
-          LadderStage.failed => _Failed(state: state, run: run, topicId: topicId),
+          LadderStage.failed => _Failed(state: state, run: run, topicId: _practiseTopic),
         };
       }
     }
@@ -180,8 +198,14 @@ class _HonestNote extends StatelessWidget {
 }
 
 class _Intro extends ConsumerWidget {
-  const _Intro({required this.topicName, required this.onStart, this.freeLeft});
+  const _Intro({
+    required this.basis,
+    required this.topicName,
+    required this.onStart,
+    this.freeLeft,
+  });
 
+  final LadderBasis basis;
   final String topicName;
 
   /// Free ladders left today for a learner without Plus; null with Plus.
@@ -205,8 +229,16 @@ class _Intro extends ConsumerWidget {
         const SizedBox(height: AppSpacing.md),
         Text(l10n.ladderTagline, style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
-        if (topic != null && topic.papers == 0) ...[
+        if (basis == LadderBasis.topic && topic != null && topic.papers == 0) ...[
           Text(l10n.ladderWebOnly),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+        if (basis.fromPapers) ...[
+          Text(l10n.ladderPaperNote),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+        if (basis == LadderBasis.typed) ...[
+          Text(l10n.ladderTypedNote),
           const SizedBox(height: AppSpacing.sm),
         ],
         const _HonestNote(),
@@ -246,6 +278,10 @@ class _Writing extends StatelessWidget {
         Text(l10n.ladderWriting, style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.xs),
         Text(l10n.ladderWritingHint, style: theme.textTheme.bodySmall),
+        if (round?.unreviewedSeeds ?? false) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(l10n.ladderUnreviewedSeeds, style: theme.textTheme.bodySmall),
+        ],
         const SizedBox(height: AppSpacing.md),
         for (var i = steps.length - 1; i >= 0; i--)
           ListTile(
@@ -478,6 +514,8 @@ class _Results extends ConsumerWidget {
       children: [
         Text(l10n.ladderResultsTitle, style: theme.textTheme.titleLarge),
         Text(l10n.ladderScore(summary.correct, summary.total)),
+        if (round.unreviewedSeeds)
+          Text(l10n.ladderUnreviewedSeeds, style: theme.textTheme.bodySmall),
         if (ref.watch(appFeaturesProvider).examProfiles &&
             summary.marks != null &&
             summary.marksPossible != null)
@@ -531,7 +569,7 @@ class _Failed extends StatelessWidget {
 
   final LadderRunState state;
   final LadderRun run;
-  final String topicId;
+  final String? topicId;
 
   @override
   Widget build(BuildContext context) {
@@ -553,7 +591,8 @@ class _Failed extends StatelessWidget {
 class _Unavailable extends ConsumerWidget {
   const _Unavailable({required this.topicId, required this.message, this.onRetry});
 
-  final String topicId;
+  /// Null: practise the exam's questions, not one topic's.
+  final String? topicId;
   final String message;
   final VoidCallback? onRetry;
 

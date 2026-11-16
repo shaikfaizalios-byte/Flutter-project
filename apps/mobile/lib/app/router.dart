@@ -47,6 +47,7 @@ import '../features/plus/presentation/plus_screen.dart';
 import '../features/ai/data/ai_repository.dart';
 import '../features/descriptive/presentation/descriptive_card.dart';
 import '../features/descriptive/presentation/descriptive_screen.dart';
+import '../features/ladder/domain/ladder_models.dart';
 import '../features/ladder/presentation/ladder_screen.dart';
 import '../features/ladder/presentation/ladder_topics_screen.dart';
 import '../features/learn/presentation/topic_lesson_screen.dart';
@@ -175,7 +176,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/ladder/run',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => LadderScreen(
-          topicId: state.uri.queryParameters['topic'] ?? '',
+          basis: LadderBasis.of(state.uri.queryParameters['basis']),
+          topicId: state.uri.queryParameters['topic'] ?? state.uri.queryParameters['id'] ?? '',
           topicName: state.uri.queryParameters['name'] ?? '',
         ),
       ),

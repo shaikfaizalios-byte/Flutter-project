@@ -19,7 +19,13 @@ from app.models.ai import AIGeneration
 from app.models.document import Document, DocumentStatus
 from app.models.ladder import LadderSession, LadderStep
 from app.models.plus import Subscription
-from app.models.question import Question, QuestionPattern, Topic, TopicStatus
+from app.models.question import (
+    Question,
+    QuestionPattern,
+    Topic,
+    TopicStatus,
+    VerificationStatus,
+)
 from app.models.user import User
 from app.services.insights_service import InsightsService
 from tests.conftest import make_user
@@ -652,3 +658,104 @@ def test_free_ladders_can_be_switched_off_and_plus_needs_none(
     rows = db_session.scalars(select(LadderSession)).all()
     assert len(rows) == 2 and not any(r.free for r in rows)
     assert first["session_id"] != second["session_id"]
+
+
+# --- paper and typed ladders -----------------------------------------------------------------
+
+
+def test_paper_seeds_prefer_reviewed_and_top_up_with_unreviewed() -> None:
+    rng = random.Random(1)  # noqa: S311 - test data
+    picked, unreviewed = ladder.pick_paper_seeds(list(range(8)), [100, 101], rng)
+    assert len(picked) == 5 and set(picked) <= set(range(8)) and unreviewed is False
+    picked, unreviewed = ladder.pick_paper_seeds([1, 2], [100, 101, 102, 103], rng)
+    assert picked[:2] == [1, 2] and len(picked) == 5 and unreviewed is True
+    assert ladder.pick_paper_seeds([], [], rng) == ([], False)
+
+
+def test_a_paper_ladder_learns_from_five_of_its_questions_without_the_web(
+    make_api: AppFactory, ai: FakeAIProvider, db_session: Session, document: Document
+) -> None:
+    for i in range(3):
+        make_question(db_session, document, stem=f"Reviewed paper question {i}?")
+    for i in range(4):
+        make_question(
+            db_session,
+            document,
+            stem=f"Unreviewed paper question {i}?",
+            status=VerificationStatus.UNVERIFIED,
+        )
+    make_question(db_session, document, stem="Rejected one?", status=VerificationStatus.REJECTED)
+    make_question(db_session, document, stem="Only a picture?", image=True)
+    db_session.flush()
+    ai.web_hits = [WebSearchHit("Guide", "https://example.com/g", "Percent basics")]
+    script_round(ai, 1)
+    api = make_api(ai)
+
+    papers = api.get("/api/v1/ladder/overview", params={"exam": EXAM}).json()["papers"]
+    assert papers == [
+        {"document_id": str(document.id), "name": "sample.pdf", "questions": 7, "reviewed": 3}
+    ]
+    response = api.post(SESSIONS, json={"exam_code": EXAM, "document_id": str(document.id)})
+    assert response.status_code == 201, response.text
+    body = response.json()
+    assert (body["basis"], body["topic_name"], body["unreviewed_seeds"]) == (
+        "paper",
+        "sample.pdf",
+        True,
+    )
+    row = db_session.get(LadderSession, uuid.UUID(body["session_id"]))
+    assert row is not None and len(row.seed_question_ids or []) == 5
+
+    step = api.post(f"{SESSIONS}/{body['session_id']}/rounds/1/steps/1/generate").json()
+    assert step["source"] == "ai" and step["basis_web"] is False
+    assert ai.searches == []  # the paper's own questions are the examples
+    prompt = ai.calls[0].prompt
+    assert "Reviewed paper question 0?" in prompt
+    assert "Rejected one?" not in prompt and "Only a picture?" not in prompt
+
+
+def test_all_papers_and_a_paper_with_nothing_readable(
+    make_api: AppFactory, ai: FakeAIProvider, db_session: Session, document: Document, user: User
+) -> None:
+    api = make_api(ai)
+    refused = api.post(SESSIONS, json={"exam_code": EXAM, "document_id": str(document.id)})
+    assert refused.status_code == 409 and refused.json()["error"]["code"] == (
+        "ladder_no_paper_questions"
+    )
+    unknown = api.post(SESSIONS, json={"exam_code": EXAM, "document_id": str(uuid.uuid4())})
+    assert unknown.status_code == 422
+    both = api.post(SESSIONS, json={"exam_code": EXAM, "all_papers": True, "topic_name": "Ratio"})
+    assert both.status_code == 422
+
+    for i in range(6):
+        make_question(db_session, document, stem=f"Any paper question {i}?")
+    db_session.flush()
+    body = api.post(SESSIONS, json={"exam_code": EXAM, "all_papers": True}).json()
+    assert (body["basis"], body["unreviewed_seeds"]) == ("papers", False)
+    # A real question that stands in for a failed one is always a reviewed one.
+    ai.responses = [AIProviderError("timeout")]
+    step = api.post(f"{SESSIONS}/{body['session_id']}/rounds/1/steps/1/generate").json()
+    assert step["source"] == "paper"
+
+
+def test_a_typed_topic_is_written_from_the_web_only(
+    make_api: AppFactory, ai: FakeAIProvider, db_session: Session, user: User
+) -> None:
+    ai.web_hits = [WebSearchHit("Guide", "https://example.com/g", "Mixtures basics")]
+    script_round(ai, 1)
+    api = make_api(ai)
+    assert api.post(SESSIONS, json={"exam_code": EXAM, "topic_name": " x "}).status_code == 422
+
+    response = api.post(
+        SESSIONS, json={"exam_code": EXAM, "topic_name": "  Mixtures   and alligation "}
+    )
+    assert response.status_code == 201, response.text
+    body = response.json()
+    assert (body["basis"], body["topic_name"], body["source_mix"]) == (
+        "typed",
+        "Mixtures and alligation",
+        "web_only",
+    )
+    step = api.post(f"{SESSIONS}/{body['session_id']}/rounds/1/steps/1/generate").json()
+    assert (step["source"], step["basis_papers"], step["basis_web"]) == ("ai", 0, True)
+    assert "Mixtures and alligation" in ai.searches[0]

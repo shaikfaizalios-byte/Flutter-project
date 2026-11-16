@@ -18,7 +18,7 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from typing import Any, cast
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import Settings
@@ -42,13 +42,22 @@ from app.models.document import Document
 from app.models.exam import Exam
 from app.models.ladder import GeneratedReview, LadderSession, LadderStep
 from app.models.library import LibraryEntry
-from app.models.question import Question, QuestionOrigin, QuestionPattern, VerificationStatus
+from app.models.question import (
+    FigureKind,
+    Question,
+    QuestionFigure,
+    QuestionIssue,
+    QuestionOrigin,
+    QuestionPattern,
+    VerificationStatus,
+)
 from app.repositories.exam_repository import ExamRepository
 from app.schemas.insights import RepeatsReport, TopicRepeat
 from app.schemas.ladder import (
     LadderAnswer,
     LadderBest,
     LadderOverview,
+    LadderPaper,
     LadderResult,
     LadderRoundRead,
     LadderStart,
@@ -63,6 +72,7 @@ from app.services.ladder_exam import exam_context
 from app.services.ladder_verify import verify
 from app.services.patterns import visible_pattern
 from app.services.plus_service import PlusService
+from app.services.question_service import REVIEW_FIRST_CODES
 from app.services.shared_bank import library_question
 from app.services.topic_service import visible_topics
 
@@ -72,6 +82,10 @@ SEARCH_TASK = "ladder_search"
 QUESTION_TASK = "ladder_question"
 SOLVE_TASK = "ladder_solve"
 MAX_TOKENS = 4000
+
+
+# Ladders whose examples are questions picked from the learner's papers.
+PAPER_BASES = ("paper", "papers")
 
 
 class LadderService:
@@ -118,6 +132,7 @@ class LadderService:
                 )
                 for t in topics
             ],
+            papers=self._paper_choices(exam_code),
             best=self._best(exam_code),
             free_per_day=self._settings.ladder_free_per_day,
             free_left_today=self.free_left_today(),
@@ -185,6 +200,9 @@ class LadderService:
         exam = self._exam(request.exam_code)
         if profile_of(exam).kind == "descriptive":
             raise ConflictError("ladder_mcq_only", "The ladder is for multiple-choice exams.")
+        if request.topic_id is None:
+            practice = self._other_basis(request, free)
+            return self._begin(practice)
         topic = next(
             (
                 t
@@ -209,6 +227,9 @@ class LadderService:
                 "web_only" if seeds == 0 else "web_main" if seeds < ladder.MIN_SEEDS else "papers"
             ),
         )
+        return self._begin(practice)
+
+    def _begin(self, practice: LadderSession) -> LadderRoundRead:
         self._session.add(practice)
         self._session.flush()
         if not self._context(practice).formats:
@@ -303,7 +324,7 @@ class LadderService:
         if not (practice.free and round_number == 1):
             self._plus().check_ai_allowed()
 
-        topic_questions = self._topic_questions(practice.exam_code, practice.topic_id)
+        topic_questions = self._basis_questions(practice)
         wanted = {step.pattern_id, step.second_pattern_id} - {None}
         same_model = [(q, d) for q, d in topic_questions if q.pattern_id in wanted]
         exam = self._context(practice)
@@ -313,8 +334,15 @@ class LadderService:
             self._replace(practice, exam, step, steps, same_model, topic_questions)
             self._session.commit()
             return _step_read(step)
-        seeds = self._seeds(same_model or topic_questions)
-        web = self._web_references(provider, practice, steps)
+        seeds = (
+            self._seeds(same_model or topic_questions)
+            if practice.basis == "topic"
+            else self._paper_seeds(topic_questions)
+        )
+        # A paper ladder's examples are the paper's own questions: no web search for them.
+        web = (
+            [] if practice.basis in PAPER_BASES else self._web_references(provider, practice, steps)
+        )
         if not seeds and not web and not exam.strict:
             # Nothing to base a question on, and nothing real to fall back on either.
             raise AIUnavailableError("No references could be found for this topic.")
@@ -563,7 +591,10 @@ class LadderService:
         candidates = [
             (q, d)
             for q, d in [*same_model, *topic_questions]
-            if q.id not in used and q.correct_option_position is not None and len(q.options) >= 2
+            if q.id not in used
+            and q.verification_status == VerificationStatus.VERIFIED
+            and q.correct_option_position is not None
+            and len(q.options) >= 2
         ]
         if not candidates:
             raise AIUnavailableError("This question could not be checked. Please try again.")
@@ -605,6 +636,148 @@ class LadderService:
             .order_by(Question.created_at, Question.id)
         ).all()
         return [(q, d) for q, d in rows]
+
+    # --- paper and typed ladders ------------------------------------------------------------
+
+    def _other_basis(self, request: LadderStart, free: bool) -> LadderSession:
+        """A ladder on a typed topic, or on questions from the learner's papers."""
+        common = {
+            "owner_id": self._owner_id,
+            "exam_code": request.exam_code,
+            "topic_id": None,
+            "language": request.language,
+            "new_formats": request.include_new_formats,
+            "free": free,
+        }
+        if request.topic_name is not None:
+            return LadderSession(
+                **common,
+                topic_name=request.topic_name,
+                subject="",
+                basis="typed",
+                source_mix="web_only",
+            )
+        document_ids = None if request.all_papers else [request.document_id]
+        questions = self._paper_questions(request.exam_code, document_ids)
+        if (
+            request.document_id is not None
+            and not questions
+            and not self._owns_paper(request.exam_code, request.document_id)
+        ):
+            raise InvalidReferenceError("Unknown paper for this exam.")
+        reviewed = [q for q in questions if q[0].verification_status == VerificationStatus.VERIFIED]
+        others = [q for q in questions if q[0].verification_status != VerificationStatus.VERIFIED]
+        chosen, unreviewed = ladder.pick_paper_seeds(reviewed, others, self._rng)
+        if not chosen:
+            raise ConflictError(
+                "ladder_no_paper_questions",
+                "No question in this paper can be read as text yet. Review its questions first.",
+            )
+        sections = Counter(q.section for q, _ in chosen if q.section)
+        name = chosen[0][1].original_filename if request.document_id else "All my papers"
+        return LadderSession(
+            **common,
+            topic_name=name[:100],
+            subject=(sections.most_common(1)[0][0] if sections else "")[:100],
+            basis="paper" if request.document_id else "papers",
+            document_id=request.document_id,
+            seed_question_ids=[q.id for q, _ in chosen],
+            unreviewed_seeds=unreviewed,
+            source_mix="papers",
+        )
+
+    def _owns_paper(self, exam_code: str, document_id: uuid.UUID | None) -> bool:
+        document = self._session.get(Document, document_id) if document_id else None
+        return (
+            document is not None
+            and document.owner_id == self._owner_id
+            and document.exam_code == exam_code
+        )
+
+    def _paper_questions(
+        self, exam_code: str, document_ids: Sequence[uuid.UUID | None] | None
+    ) -> list[tuple[Question, Document]]:
+        """The learner's own questions a ladder can learn from: not rejected, multiple-choice,
+        read as text (no question shown only as printed, no reading a person must check first).
+        Unreviewed ones are included; they are only examples, never asked as they are."""
+        query = (
+            select(Question, Document)
+            .join(Document, Document.id == Question.document_id)
+            .options(selectinload(Question.options))
+            .where(
+                Question.owner_id == self._owner_id,
+                Document.owner_id == self._owner_id,
+                Document.exam_code == exam_code,
+                Question.exam_code == exam_code,
+                Question.origin == QuestionOrigin.SOURCE,
+                Question.verification_status != VerificationStatus.REJECTED,
+                Question.answer_type == "choice",
+                Question.translation_of_id.is_(None),
+                Question.image_dependent.is_(False),
+                Question.stem != "",
+                ~exists().where(
+                    QuestionFigure.question_id == Question.id,
+                    QuestionFigure.kind == FigureKind.ORIGINAL,
+                ),
+                ~exists().where(
+                    QuestionIssue.question_id == Question.id,
+                    QuestionIssue.resolved.is_(False),
+                    QuestionIssue.code.in_(sorted(REVIEW_FIRST_CODES)),
+                ),
+            )
+            .order_by(Document.created_at, Question.source_question_number, Question.id)
+        )
+        if document_ids is not None:
+            query = query.where(Document.id.in_(document_ids))
+        return [(q, d) for q, d in self._session.execute(query).all()]
+
+    def _paper_choices(self, exam_code: str) -> list[LadderPaper]:
+        counts: dict[uuid.UUID, list[int]] = {}
+        documents: dict[uuid.UUID, Document] = {}
+        for question, document in self._paper_questions(exam_code, None):
+            documents[document.id] = document
+            count = counts.setdefault(document.id, [0, 0])
+            count[0] += 1
+            count[1] += question.verification_status == VerificationStatus.VERIFIED
+        ordered = sorted(documents.values(), key=lambda d: d.created_at, reverse=True)
+        return [
+            LadderPaper(
+                document_id=d.id,
+                name=d.original_filename,
+                questions=counts[d.id][0],
+                reviewed=counts[d.id][1],
+            )
+            for d in ordered
+        ]
+
+    def _basis_questions(self, practice: LadderSession) -> list[tuple[Question, Document]]:
+        """What a step learns from: the topic's reviewed questions, or the paper ladder's picks."""
+        if practice.basis not in PAPER_BASES:
+            return self._topic_questions(practice.exam_code, practice.topic_id)
+        rows = self._session.execute(
+            select(Question, Document)
+            .join(Document, Document.id == Question.document_id)
+            .options(selectinload(Question.options))
+            .where(
+                Question.owner_id == self._owner_id,
+                Question.id.in_(practice.seed_question_ids or []),
+            )
+            .order_by(Question.source_question_number, Question.id)
+        ).all()
+        return [(q, d) for q, d in rows]
+
+    def _paper_seeds(self, questions: Sequence[tuple[Question, Document]]) -> list[ladder.Seed]:
+        return [
+            ladder.Seed(
+                id=q.id,
+                stem=q.stem,
+                options=tuple(o.text for o in sorted(q.options, key=lambda o: o.position)),
+                paper_id=d.id,
+                paper=d.original_filename,
+                year=d.exam_year if d.paper_date_status == "confirmed" else None,
+            )
+            for q, d in questions
+        ]
 
     def _seeds(self, questions: Sequence[tuple[Question, Document]]) -> list[ladder.Seed]:
         groups = similar_groups(
@@ -728,6 +901,8 @@ class LadderService:
             topic_name=practice.topic_name,
             subject=practice.subject,
             source_mix=practice.source_mix,
+            basis=practice.basis,
+            unreviewed_seeds=practice.unreviewed_seeds,
             steps=[_step_read(s) for s in steps],
         )
 

@@ -3058,5 +3058,19 @@
   "issuePossiblyMultipleCorrect": "May have more than one correct option: set its format and answers",
   "ladderNoTopics": "This exam has no topics yet. Add its topics (or its syllabus) first, then pick one here.",
   "ladderNoTopicMatch": "No topic matches your search.",
-  "ladderAddTopics": "Add topics"
+  "ladderAddTopics": "Add topics",
+  "ladderChoiceTopics": "Topics",
+  "ladderChoicePapers": "My papers",
+  "ladderChoiceAi": "AI only",
+  "ladderAllPapers": "All my papers",
+  "ladderAllPapersHint": "5 questions picked at random from all of this exam's papers",
+  "ladderPaperCounts": "{questions, plural, =1{1 question} other{{questions} questions}} · {reviewed} reviewed",
+  "@ladderPaperCounts": {"placeholders": {"questions": {"type": "int"}, "reviewed": {"type": "int"}}},
+  "ladderNoPapers": "No imported paper of this exam has questions the ladder can read as text yet. Import a paper, or check its questions in review.",
+  "ladderTypedLabel": "Topic",
+  "ladderTypedHint": "For example: Mixtures and alligation",
+  "ladderTypedStart": "Start the ladder",
+  "ladderTypedNote": "No topic list or paper needed: the AI writes the questions from web references on what you typed. They are AI-generated practice questions, each checked, never from an official paper.",
+  "ladderPaperNote": "5 questions from your papers are picked at random as examples (reviewed ones first). The AI writes new questions like them, each harder and each checked; your paper's questions are not asked as they are.",
+  "ladderUnreviewedSeeds": "Some example questions from your papers aren't reviewed yet, so they may contain reading mistakes."
 }

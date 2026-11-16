@@ -69,6 +69,12 @@ abstract final class AppRoutes {
   /// Challenge Ladder on a topic.
   static String ladderRun(String topicId, String name) =>
       Uri(path: '/ladder/run', queryParameters: {'topic': topicId, 'name': name}).toString();
+
+  /// Challenge Ladder on a paper, all papers or a typed topic ([id] empty for the last two).
+  static String ladderRunOn(String basis, String id, String name) => Uri(
+    path: '/ladder/run',
+    queryParameters: {'basis': basis, 'id': id, 'name': name},
+  ).toString();
   static String question(String id) => '/questions/$id';
   static String practiceSession(String id) => '/practice/sessions/$id';
 

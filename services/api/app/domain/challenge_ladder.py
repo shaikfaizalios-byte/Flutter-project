@@ -35,6 +35,7 @@ LATER_ROUND: tuple[Difficulty, ...] = ("medium_hard", "medium_hard", "hard", "ha
 
 SEEDS_PER_MODEL = 3
 MIN_SEEDS = 3  # with fewer, web references become the main source
+PAPER_SEEDS = 5  # a paper ladder's examples, picked at random
 WEB_REFERENCES = 5
 COPY_THRESHOLD = 0.95  # numbers included: closer than this to a source is a copy
 VARIETY_THRESHOLD = THRESHOLD  # numbers hidden: the worded-alike matcher's own line
@@ -204,6 +205,17 @@ def pick_seeds(
         if len(picked) < limit and seed not in picked:
             picked.append(seed)
     return picked
+
+
+def pick_paper_seeds[T](
+    reviewed: Sequence[T], unreviewed: Sequence[T], rng: random.Random
+) -> tuple[list[T], bool]:
+    """[PAPER_SEEDS] examples at random: reviewed questions when there are enough, else every
+    reviewed one topped up with unreviewed ones. Also says whether any are unreviewed."""
+    if len(reviewed) >= PAPER_SEEDS:
+        return rng.sample(list(reviewed), PAPER_SEEDS), False
+    extra = rng.sample(list(unreviewed), min(len(unreviewed), PAPER_SEEDS - len(reviewed)))
+    return [*reviewed, *extra], bool(extra)
 
 
 # --- prompts ---------------------------------------------------------------------------------
