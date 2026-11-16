@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/content_language.dart';
@@ -126,4 +127,22 @@ class RemoteSnapRepository implements SnapRepository {
 
 final snapRepositoryProvider = Provider<SnapRepository>(
   (ref) => RemoteSnapRepository(ref.watch(dioProvider)),
+);
+
+/// A photo taken or chosen for snapping.
+typedef SnapPhoto = ({String name, List<int> bytes});
+
+/// Takes a photo with the camera ([camera]) or picks one from the device; null if the learner
+/// cancels. Scaled down on the device: OCR needs no more. Overridden in tests.
+final snapPhotoProvider = Provider<Future<SnapPhoto?> Function({required bool camera})>(
+  (ref) => ({required bool camera}) async {
+    final file = await ImagePicker().pickImage(
+      source: camera ? ImageSource.camera : ImageSource.gallery,
+      maxWidth: 3000,
+      maxHeight: 3000,
+      imageQuality: 90,
+    );
+    if (file == null) return null;
+    return (name: file.name, bytes: await file.readAsBytes());
+  },
 );

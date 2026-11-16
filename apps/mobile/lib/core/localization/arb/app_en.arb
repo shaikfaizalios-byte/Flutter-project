@@ -3120,5 +3120,6 @@
   "caSkip": "Skip",
   "caSaved": "Saved to your concepts and revision schedule",
   "caSkipped": "Skipped",
-  "caSaveFailed": "Couldn't save this card. Try again."
+  "caSaveFailed": "Couldn't save this card. Try again.",
+  "snapTake": "Take a photo"
 }

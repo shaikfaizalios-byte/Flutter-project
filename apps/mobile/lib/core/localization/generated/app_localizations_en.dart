@@ -6190,4 +6190,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get caSaveFailed => 'Couldn\'t save this card. Try again.';
+
+  @override
+  String get snapTake => 'Take a photo';
 }

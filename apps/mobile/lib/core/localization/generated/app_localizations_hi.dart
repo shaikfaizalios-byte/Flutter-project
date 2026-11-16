@@ -6194,4 +6194,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get caSaveFailed => 'यह कार्ड सहेजा नहीं जा सका। फिर से कोशिश करें।';
+
+  @override
+  String get snapTake => 'फ़ोटो लें';
 }

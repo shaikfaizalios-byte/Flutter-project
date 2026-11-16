@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>To take a photo of a printed question and find it in your papers. The photo isn't kept.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To choose a photo of a printed question and find it in your papers. The photo isn't kept.</string>
 </dict>
 </plist>

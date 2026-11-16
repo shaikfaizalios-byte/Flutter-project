@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:preploop/core/database/app_database.dart';
 import 'package:preploop/core/errors/app_failure.dart';
 import 'package:preploop/core/localization/content_language.dart';
-import 'package:preploop/features/descriptive/application/descriptive_providers.dart';
 import 'package:preploop/features/snap/data/snap_repository.dart';
 import 'package:preploop/features/snap/presentation/snap_screen.dart';
 
@@ -58,7 +57,9 @@ Future<FakeSnapRepository> openSnap(WidgetTester tester, AppDatabase db) async {
     studyProfile: onboardedProfile.copyWith(examCodes: ['SSC_CHSL']),
     extraOverrides: [
       snapRepositoryProvider.overrideWithValue(snap),
-      photoPickerProvider.overrideWithValue(() async => (name: 'q.jpg', bytes: [1, 2, 3])),
+      snapPhotoProvider.overrideWithValue(
+        ({required bool camera}) async => (name: camera ? 'camera.jpg' : 'q.jpg', bytes: [1, 2, 3]),
+      ),
     ],
   );
   await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Study')));
@@ -95,6 +96,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(snap.calls.last, 'match:SSC_CHSL:average speed train');
     expect(find.textContaining('Nothing like it'), findsOneWidget);
+  });
+
+  testAppWidgets('a photo can be taken with the camera', (tester, db) async {
+    final snap = await openSnap(tester, db);
+    await tester.tap(find.text('Take a photo'));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pumpAndSettle();
+    expect(snap.calls, ['photo:SSC_CHSL:camera.jpg:en']);
   });
 
   testAppWidgets('a photo that cannot be read says so', (tester, db) async {

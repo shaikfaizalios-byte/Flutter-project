@@ -8,7 +8,6 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/localization/generated/app_localizations.dart';
 import '../../../core/utils/app_log.dart';
 import '../../ai/presentation/search_answer_panel.dart';
-import '../../descriptive/application/descriptive_providers.dart' show photoPickerProvider;
 import '../../exams/application/active_exam.dart';
 import '../../settings/application/app_preferences.dart';
 import '../data/snap_repository.dart';
@@ -38,10 +37,10 @@ class _SnapScreenState extends ConsumerState<SnapScreen> {
     super.dispose();
   }
 
-  Future<void> _snap() async {
+  Future<void> _snap({required bool camera}) async {
     final exam = ref.read(activeExamProvider);
     if (exam == null) return;
-    final photo = await ref.read(photoPickerProvider)();
+    final photo = await ref.read(snapPhotoProvider)(camera: camera);
     if (photo == null || !mounted) return;
     final language = ref
         .read(appPreferencesProvider)
@@ -106,10 +105,21 @@ class _SnapScreenState extends ConsumerState<SnapScreen> {
             children: [
               Text(l10n.snapIntro),
               const SizedBox(height: AppSpacing.sm),
-              FilledButton.icon(
-                icon: const Icon(Icons.photo_camera_outlined),
-                label: Text(reading == null ? l10n.snapChoose : l10n.snapAnother),
-                onPressed: _busy || exam == null ? null : _snap,
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  FilledButton.icon(
+                    icon: const Icon(Icons.photo_camera_outlined),
+                    label: Text(l10n.snapTake),
+                    onPressed: _busy || exam == null ? null : () => _snap(camera: true),
+                  ),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: Text(reading == null ? l10n.snapChoose : l10n.snapAnother),
+                    onPressed: _busy || exam == null ? null : () => _snap(camera: false),
+                  ),
+                ],
               ),
               if (_busy) ...[
                 const SizedBox(height: AppSpacing.md),

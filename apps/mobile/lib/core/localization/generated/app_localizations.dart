@@ -9926,6 +9926,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save this card. Try again.'**
   String get caSaveFailed;
+
+  /// No description provided for @snapTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get snapTake;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
