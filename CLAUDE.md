@@ -496,6 +496,9 @@ Frontend and backend never share DB entities; they talk via explicit API schemas
   The web app loads nothing from Google: Roboto is bundled, builds use `--no-web-resources-cdn`, and
   `web/flutter_bootstrap.js` points `fontFallbackBaseUrl` at the app (missing glyphs show as boxes).
   No analytics/session replay; emails are transactional only. Keep it that way (privacy policy says so).
+- Accessibility (Phase 7, docs/accessibility.md): `test/a11y/` checks labelled and large-enough tap targets, contrast
+  (light and dark) and 2× text on the tabs and the main screens; selectable question text keeps a 48 px minimum; with the
+  device's "remove animations" on, pages open without a transition (`AppTheme.noTransitions`, applied in `app.dart`).
 - Errors: backend returns `{"error": {"code","message","request_id","details"}}`; mobile maps Dio errors to
   sealed `AppFailure` types in repositories. Widgets never see Dio types.
 - Config: backend env vars prefixed `PREPLOOP_`; mobile build-time `--dart-define` (`API_BASE_URL`, `FLAVOR`,

@@ -152,6 +152,7 @@ off (`test/helpers/fake_auth.dart`, `fake_sync.dart`).
 | `services/api/tests/test_rate_limit_and_metrics.py` | **Postgres limiter shared between instances** (window, retry-after, key isolation); only hashed keys stored; app wiring; metrics hidden without the token, no ids in labels |
 | `apps/mobile/test/features/auth/account_recovery_test.dart` | Public reset and legal routes; forgot-password with a wrong code, then the right code; the same answer for unknown emails; confirming the email from Profile; legal drafts open from sign-in |
 | `apps/mobile/test/a11y/accessibility_test.dart` | Tap-target, label and contrast guidelines on every tab (light and dark) and on sign-in; 2× text without overflow |
+| `apps/mobile/test/a11y/screens_accessibility_test.dart` | The same guidelines on a practice question, question review, snap, current affairs, revision, imported papers and ladder topics; 2× text; reduce motion (docs/accessibility.md) |
 | `apps/mobile/integration_test/device_plugins_test.dart` | On a device: real secure-storage round trip; on-disk database opens at the current schema version |
 | `.github/workflows/ci.yml` | Everything above, plus the Android build, the image build and compose validation, on GitHub's Linux runners |
 

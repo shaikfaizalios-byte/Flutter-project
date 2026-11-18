@@ -69,6 +69,18 @@ abstract final class AppTheme {
     labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.1),
   );
 
+  /// Pages appear at once: used when the device asks to remove animations.
+  static const noTransitions = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: NoPageTransitionsBuilder(),
+      TargetPlatform.iOS: NoPageTransitionsBuilder(),
+      TargetPlatform.macOS: NoPageTransitionsBuilder(),
+      TargetPlatform.windows: NoPageTransitionsBuilder(),
+      TargetPlatform.linux: NoPageTransitionsBuilder(),
+      TargetPlatform.fuchsia: NoPageTransitionsBuilder(),
+    },
+  );
+
   static ThemeData _build(ColorScheme colors) {
     final base = ThemeData(
       colorScheme: colors,
@@ -236,4 +248,18 @@ abstract final class AppTheme {
       ),
     );
   }
+}
+
+/// No page transition: the new page simply appears (reduce motion).
+class NoPageTransitionsBuilder extends PageTransitionsBuilder {
+  const NoPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => child;
 }
