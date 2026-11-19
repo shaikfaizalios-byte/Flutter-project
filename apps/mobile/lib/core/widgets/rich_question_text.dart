@@ -123,7 +123,11 @@ class RichQuestionText extends ConsumerWidget {
   final bool selectable;
 
   Widget _plain() => selectable
-      ? SelectableText(displayText(text), style: style)
+      // Selectable text answers a press-and-hold: keep that target at least the minimum size.
+      ? ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
+          child: SelectableText(displayText(text), style: style),
+        )
       : Text(displayText(text), style: style);
 
   @override

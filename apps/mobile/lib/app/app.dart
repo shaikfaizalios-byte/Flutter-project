@@ -34,7 +34,15 @@ class PrepLoopApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: router,
-      builder: (context, child) => DesktopFrame(router: router, child: child!),
+      builder: (context, child) {
+        final framed = DesktopFrame(router: router, child: child!);
+        // The device asks to remove animations: pages open without a transition.
+        if (!MediaQuery.disableAnimationsOf(context)) return framed;
+        return Theme(
+          data: Theme.of(context).copyWith(pageTransitionsTheme: AppTheme.noTransitions),
+          child: framed,
+        );
+      },
     );
   }
 }
