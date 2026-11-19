@@ -6193,4 +6193,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get snapTake => 'Take a photo';
+
+  @override
+  String get issuePassageRangeUnclear =>
+      'Linked to the passage above: the directions name fewer questions than the passage says it has. Check it belongs to it';
 }

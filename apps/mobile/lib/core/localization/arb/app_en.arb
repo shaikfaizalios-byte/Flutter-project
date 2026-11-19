@@ -3121,5 +3121,6 @@
   "caSaved": "Saved to your concepts and revision schedule",
   "caSkipped": "Skipped",
   "caSaveFailed": "Couldn't save this card. Try again.",
-  "snapTake": "Take a photo"
+  "snapTake": "Take a photo",
+  "issuePassageRangeUnclear": "Linked to the passage above: the directions name fewer questions than the passage says it has. Check it belongs to it"
 }

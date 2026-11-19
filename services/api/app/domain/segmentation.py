@@ -55,6 +55,9 @@ class IssueCode:
     # The wording asks for more than one option ("select all that apply"). The question is
     # kept as one correct option; a reviewer sets its format and answers.
     POSSIBLY_MULTIPLE_CORRECT = "possibly_multiple_correct"
+    # The directions name fewer questions than the passage says it has ("questions 17-18",
+    # "accompanied by four questions"): the next questions were linked to it; check them.
+    PASSAGE_RANGE_UNCLEAR = "passage_range_unclear"
     # Document level
     NO_QUESTIONS_FOUND = "no_questions_found"
     NUMBERING_GAPS = "numbering_gaps"
@@ -107,6 +110,8 @@ class ParsedPassage:
     first_question: int | None
     last_question: int | None
     pages: list[int]
+    # "accompanied by four questions": how many questions the passage itself says it has.
+    stated_count: int | None = None
 
 
 @dataclass(slots=True)
@@ -197,7 +202,7 @@ EXPLANATION_HEADING = re.compile(
     re.IGNORECASE,
 )
 PASSAGE_RANGE = re.compile(
-    r"(?:questions?|q\.?\s*nos?\.?|प्रश्न(?:ों)?\s*(?:संख्या)?)\s*\(?(\d{1,3})\)?\s*"
+    r"(?:questions?|qs\.?|q\.?\s*nos?\.?|प्रश्न(?:ों)?\s*(?:संख्या)?)\s*\(?(\d{1,3})\)?\s*"
     rf"(?:{_DASH}|to|से|and|तक)\s*\(?(\d{{1,3}})\)?",
     re.IGNORECASE,
 )
@@ -246,8 +251,18 @@ _KEY_NUMBER_CELL = re.compile(r"^(?:Q\.?)?(\d{1,3})\.?$", re.IGNORECASE)
 # The colon (or "." / ")") is required: a bare "Option 4" line is an option's text (in "where
 # does the sentence fit" questions the options are "Option 1" ... "Option 4").
 OPTION_WORD = re.compile(r"^option\s*\(?\s*([1-9]|[a-eA-E])\s*\)?\s*[:.)]\s*(.*)$", re.IGNORECASE)
-# "Question" / "Question: ..." after a passage: the passage ends, the question begins.
-QUESTION_LABEL = re.compile(r"^(?:question|प्रश्न)\s*:?\s*(.*)$", re.IGNORECASE)
+# "Question" / "Question: ..." / "Question 5" after a passage: the passage ends, the question
+# begins. Only the label: a stem line that starts with the word ("questions at the beginning
+# of the passage?", "questions whether ...") is text.
+QUESTION_LABEL = re.compile(
+    r"^(?:question|प्रश्न)\s*(?:(?:no\.?\s*)?\d{1,3}\s*)?(?:[:.]\s*(.*))?$", re.IGNORECASE
+)
+# "The passage below is accompanied by four questions": how many it has.
+PASSAGE_COUNT = re.compile(
+    r"\b(?:accompanied|followed)\s+by\s+(two|three|four|five|six|2|3|4|5|6)\s+questions\b",
+    re.IGNORECASE,
+)
+_COUNT_WORDS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
 _COMPREHENSION_PREFIX = re.compile(r"^(?:comprehension|passage)\s*:\s*", re.IGNORECASE)
 # "Key in the number ...": a typed-in (TITA) question even when its sentences are numbered.
 KEY_IN = re.compile(r"\bkey\s*in\b|\btype\s+in\b", re.IGNORECASE)
@@ -529,6 +544,7 @@ def _handle_line(state: _State, line: _Line) -> None:
             first_question=int(range_match.group(1)),
             last_question=int(range_match.group(2)),
             pages=[line.page],
+            stated_count=_stated_count(text),
         )
         state.passages.append(state.passage)
         return
@@ -588,8 +604,9 @@ def _handle_line(state: _State, line: _Line) -> None:
     question_label = QUESTION_LABEL.match(text)
     if question_label and (current.stem or current.options):
         _split_passage(state, current)
-        if question_label.group(1).strip():
-            _consume(current, question_label.group(1).strip(), state.expected_options)
+        after = (question_label.group(1) or "").strip()
+        if after:
+            _consume(current, after, state.expected_options)
         return
     _consume(current, text, state.expected_options)
 
@@ -664,6 +681,14 @@ def _answer_from_solution(question: ParsedQuestion) -> None:
     question.answer_position, question.answer_source = position, "inline"
 
 
+def _stated_count(text: str) -> int | None:
+    match = PASSAGE_COUNT.search(text)
+    if match is None:
+        return None
+    word = match.group(1).casefold()
+    return _COUNT_WORDS.get(word) or int(word)
+
+
 def _split_passage(state: _State, question: ParsedQuestion) -> None:
     """Text before a "Question" line is the question's passage. Papers that print the same
     passage again for each of its questions share one passage. "Options" read from the passage
@@ -724,11 +749,30 @@ def _start_question(state: _State, number: int, rest: str, page: int) -> None:
     state.finish_question()
 
     passage = state.passage
+    stretched = False
     if passage is not None and passage.last_question is not None and number > passage.last_question:
-        state.passage = passage = None
+        # The directions name fewer questions than the passage says it has: the next questions,
+        # up to that count, stay with it and are flagged for a person to check.
+        if (
+            passage.stated_count is not None
+            and passage.first_question is not None
+            and number == passage.last_question + 1
+            and number < passage.first_question + passage.stated_count
+        ):
+            passage.last_question = number
+            stretched = True
+        else:
+            state.passage = passage = None
     question = ParsedQuestion(
         number=number, section=state.section, stem="", options=[], pages=[page]
     )
+    if stretched:
+        question.issues.append(
+            Issue(
+                IssueCode.PASSAGE_RANGE_UNCLEAR,
+                "the directions name fewer questions than the passage says it has",
+            )
+        )
     if (
         passage is not None
         and passage.first_question is not None
