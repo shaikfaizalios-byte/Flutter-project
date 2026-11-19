@@ -23,6 +23,7 @@ String issueLabel(AppLocalizations l10n, String code) => switch (code) {
   'unrecognised_answer' => l10n.issueUnrecognisedAnswer,
   'option_label_unclear' => l10n.issueOptionLabelUnclear,
   'possibly_multiple_correct' => l10n.issuePossiblyMultipleCorrect,
+  'passage_range_unclear' => l10n.issuePassageRangeUnclear,
   'figures_not_extracted' => l10n.issueFiguresNotExtracted,
   'no_questions_found' => l10n.issueNoQuestionsFound,
   'numbering_gaps' => l10n.issueNumberingGaps,

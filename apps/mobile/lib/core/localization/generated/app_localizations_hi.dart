@@ -6197,4 +6197,8 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get snapTake => 'फ़ोटो लें';
+
+  @override
+  String get issuePassageRangeUnclear =>
+      'ऊपर के गद्यांश से जोड़ा गया: निर्देशों में गद्यांश में बताए गए प्रश्नों से कम प्रश्न दिए हैं। जाँचें कि यह उसी का है';
 }

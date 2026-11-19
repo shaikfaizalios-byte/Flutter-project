@@ -771,3 +771,102 @@ Q.3 One or more options may be correct. Which are even?
     assert flagged.answer_type == "choice"  # kept as found: a reviewer sets the format
     assert "possibly_multiple_correct" not in codes(by_number(result, 2).issues)
     assert "possibly_multiple_correct" in codes(by_number(result, 3).issues)
+
+
+def test_a_passage_that_says_it_has_more_questions_keeps_them_and_flags_them() -> None:
+    result = run(
+        """
+        16. Last question before the passage?
+        1. a
+        2. b
+        3. c
+        4. d
+        DIRECTIONS for questions 17-18: The passage below is accompanied by four questions.
+        Electronic music met resistance. Composers answered it.
+        17. What relation does the problem in paragraph 2 have to the
+        questions at the beginning of the passage?
+        1. One
+        2. Two
+        3. Three
+        4. Four
+        18. What does the phrase suggest?
+        1. a
+        2. b
+        3. c
+        4. d
+        19. The goal of the author is to:
+        1. a
+        2. b
+        3. c
+        4. d
+        20. Which is true?
+        1. a
+        2. b
+        3. c
+        4. d
+        21. A question about something else?
+        1. a
+        2. b
+        3. c
+        4. d
+        """
+    )
+
+    [passage] = result.passages
+    assert (passage.first_question, passage.last_question) == (17, 20)
+    assert "Electronic music met resistance." in passage.text
+    by = {q.number: q for q in result.questions}
+    # A stem line that starts with "questions" stays in the stem.
+    assert by[17].stem.endswith("questions at the beginning of the passage?")
+    assert [q.number for q in result.questions if q.passage_index == 0] == [17, 18, 19, 20]
+    flagged = [q.number for q in result.questions if "passage_range_unclear" in codes(q.issues)]
+    assert flagged == [19, 20]
+    assert by[21].passage_index is None
+
+
+def test_a_bare_question_label_still_ends_a_repeated_passage() -> None:
+    result = run(
+        """
+        1. The passage below is accompanied by four questions.
+        The history of maps is long.
+        Question
+        What is long?
+        (1) Maps (2) Roads (3) Rivers (4) Hills
+        """
+    )
+    [question] = result.questions
+    assert question.stem == "What is long?"
+    assert "The history of maps is long." in result.passages[0].text
+
+
+def test_a_stem_line_about_a_question_mark_stays_in_the_stem() -> None:
+    result = run(
+        """
+        30. Select the figure from the given options that can replace the
+        question mark (?) in the following series.
+        (1) a (2) b (3) c (4) d
+        31. A piece of paper is folded and punched as shown below in the
+        question figures. From the given answer figures, indicate how
+        it will appear when opened?
+        (1) a (2) b (3) c (4) d
+        """
+    )
+    assert result.passages == []
+    assert by_number(result, 30).stem.endswith("question mark (?) in the following series.")
+    assert by_number(result, 31).stem.startswith("A piece of paper is folded")
+
+
+def test_directions_naming_qs_start_a_passage() -> None:
+    result = run(
+        """
+        Directions (Qs. 5 to 6): In the following passage, some words have been deleted.
+        The town was (5) and the river was (6).
+        5. Select the most appropriate option to fill in blank 5.
+        (1) quiet (2) loud (3) red (4) tall
+        6. Select the most appropriate option to fill in blank 6.
+        (1) wide (2) blue (3) slow (4) cold
+        """
+    )
+    [passage] = result.passages
+    assert (passage.first_question, passage.last_question) == (5, 6)
+    assert by_number(result, 5).passage_index == 0 and by_number(result, 6).passage_index == 0

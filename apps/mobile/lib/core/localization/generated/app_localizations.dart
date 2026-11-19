@@ -9932,6 +9932,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Take a photo'**
   String get snapTake;
+
+  /// No description provided for @issuePassageRangeUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to the passage above: the directions name fewer questions than the passage says it has. Check it belongs to it'**
+  String get issuePassageRangeUnclear;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
